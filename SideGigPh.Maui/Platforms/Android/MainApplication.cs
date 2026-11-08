@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace SideGigPh
+namespace SideGigPh.Maui
 {
     [Application]
     public class MainApplication : MauiApplication

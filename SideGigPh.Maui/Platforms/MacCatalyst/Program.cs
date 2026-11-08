@@ -1,7 +1,7 @@
 ﻿using ObjCRuntime;
 using UIKit;
 
-namespace SideGigPh
+namespace SideGigPh.Maui
 {
     public class Program
     {

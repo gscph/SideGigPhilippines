@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SideGigPh
+namespace SideGigPh.Maui
 {
     public static class MauiProgram
     {

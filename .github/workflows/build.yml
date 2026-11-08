@@ -7,7 +7,7 @@ on:
 
 defaults:
   run:
-    working-directory: SideGigPh
+    working-directory: SideGigPh.Maui
 
 jobs:
   build-android:

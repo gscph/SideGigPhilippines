@@ -1,4 +1,4 @@
-﻿namespace SideGigPh
+﻿namespace SideGigPh.Maui
 {
     public partial class App : Application
     {

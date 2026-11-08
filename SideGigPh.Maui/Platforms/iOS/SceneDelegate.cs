@@ -1,6 +1,6 @@
 using Foundation;
 
-namespace SideGigPh
+namespace SideGigPh.Maui
 {
     [Register("SceneDelegate")]
     public class SceneDelegate : MauiUISceneDelegate
