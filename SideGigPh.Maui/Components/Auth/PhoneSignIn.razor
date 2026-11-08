@@ -1,0 +1,29 @@
+<div class="phone-signin">
+    @if (_step == Step.EnterPhone)
+    {
+        <label class="field">
+            <span class="field__label">Mobile number</span>
+            <input class="field__input" type="tel" inputmode="tel" autocomplete="tel"
+                   placeholder="+63 9XX XXX XXXX"
+                   @bind="_phoneNumber" @bind:event="oninput" disabled="@_busy" />
+        </label>
+        <button class="btn-primary phone-signin__action" @onclick="SendCodeAsync"
+                disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))">
+            @(_busy ? "Sending…" : "Send code")
+        </button>
+    }
+    else
+    {
+        <label class="field">
+            <span class="field__label">Enter the 6-digit code</span>
+            <input class="field__input" type="text" inputmode="numeric" autocomplete="one-time-code"
+                   maxlength="6" placeholder="••••••"
+                   @bind="_code" @bind:event="oninput" disabled="@_busy" />
+        </label>
+        <button class="btn-primary phone-signin__action" @onclick="VerifyAsync"
+                disabled="@(_busy || string.IsNullOrWhiteSpace(_code))">
+            @(_busy ? "Verifying…" : "Verify & continue")
+        </button>
+        <button class="btn-link" @onclick="Reset" disabled="@_busy">Use a different number</button>
+    }
+</div>

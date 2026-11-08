@@ -1,0 +1,4 @@
+<button class="btn-google" @onclick="SignInAsync" disabled="@_busy">
+    <span class="btn-google__icon" aria-hidden="true">G</span>
+    <span>@(_busy ? "Connecting…" : "Continue with Google")</span>
+</button>

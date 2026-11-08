@@ -60,3 +60,4 @@ nunit-*.xml
 *.config
 *.json
 *.v2
+/.vs/ProjectEvaluation

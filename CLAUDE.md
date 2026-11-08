@@ -9,6 +9,7 @@ A high-density open local service directory (Carousell/Craigslist style) connect
 ## Tech Stack
 
 - **Frontend:** .NET MAUI Blazor Hybrid — shared Razor Class Library for Android and iOS
+- **Target platforms:** Android + iOS only (Windows and Mac Catalyst are not supported)
 - **UI:** Mobile-first. Component library TBD
 - **Auth (MVP):** Firebase Authentication — Phone/SMS OTP + Google login
 - **Database (MVP):** Cloud Firestore — provider listings, categories, geo coordinates
@@ -33,6 +34,16 @@ All external infrastructure is decoupled behind C# interfaces (Dependency Invers
 - `GetProviderByIdAsync(string providerId)`
 - `UpdatePayoutStatusAsync(string providerId, string status)`
 
+> **Naming:** new and user-facing code uses **"Professional"** for the side-gig service provider (aircon tech, plumber — and also non-trade pros like web developers or video editors), never "tradesman". `ITradesmanRepository` / `TradesmanRegistrationReq` predate this rule; prefer the neutral form. Auth added `IProfessionalProfileRepository` for profile lookups.
+
+### Auth & Initial Navigation
+
+- **Initial page** `AuthPage` (route `/`, `Components/Auth/`) — **Phone OTP + Google** sign-in via `IIdentityProvider`.
+- **Adapter:** native Firebase SDK (Plugin.Firebase) in `Services/Firebase/` (`#if ANDROID || IOS`). Firebase init and `GetCurrentUserAsync` are wrapped so a missing config doesn't crash launch — the app loads and sign-in fails gracefully.
+- **Post-auth routing** (`AuthPage.razor.cs` → `IProfessionalProfileRepository.HasProfileAsync`): profile exists → `/professional` (`ProfessionalHome`, intentionally empty for now); otherwise → `/onboarding` (stub). The seeker/customer path (sign up → search) and role selection are deferred.
+- **Packages (Android/iOS only):** `Plugin.Firebase.Auth` 3.1.1 + `Plugin.Firebase.Auth.Google` 3.1.2 (the **modular** Auth packages — NOT the bundled `Plugin.Firebase`, which drags in Crashlytics and crashes at launch in MAUI). Google sign-in uses `CrossFirebaseAuthGoogle.Current` and needs `FirebaseAuthGoogleImplementation.Initialize(webClientId)` at startup — set `GoogleWebClientId` in `Services/Firebase/FirebaseRegistration.cs` (currently a `TODO` placeholder).
+- **Firebase config (not committed; required before an Android/iOS run):** `Platforms/Android/google-services.json`, `Platforms/iOS/GoogleService-Info.plist`, plus a Google OAuth client (Android SHA-1; iOS reversed-client-id URL scheme). The csproj references the config files with `Condition="Exists(...)"` so the build works without them.
+
 ### Anti-Fraud Rules
 
 These are hard business rules — never bypass them:
@@ -43,7 +54,7 @@ These are hard business rules — never bypass them:
 
 ```
 SideGigPh.slnx
-├── SideGigPh.BusinessLogic/          #  Class Library for Business Logic only
+├── SideGigPh.Maui/          #  Class Library for Business Logic only
 │   ├── Components/            # UI views — one folder per feature
 │   │   ├── Search/           # e.g. Search.razor + Search.razor.cs (code-behind)
 │   │   │   ├── Search.razor #landing page of search
@@ -54,8 +65,8 @@ SideGigPh.slnx
 │   ├── Models/                # Data contracts only no DTOs
 │   └── Services/              # Interfaces (IIdentityProvider, ITradesmanRepository)
 │
-├── SideGigPh.Maui/            # Native app shell (Android/iOS via BlazorWebView)
-│   └── MauiProgram.cs         # DI container — binds adapters
+├── SideGigPh.BusinessLogic/            # Native app shell (Android/iOS via BlazorWebView)
+│   └── BusinessLogic1.cs         # DI container — binds adapters
 ```
 
 The current codebase is a single `SideGigPh` project. It will be restructured into the above layout.
@@ -89,9 +100,6 @@ dotnet publish -f net10.0-android -c Release
 
 # Build iOS (macOS only)
 dotnet build -f net10.0-ios -c Release
-
-# Build Windows
-dotnet build -f net10.0-windows10.0.19041.0 -c Release
 
 # Restore workloads
 dotnet workload install maui

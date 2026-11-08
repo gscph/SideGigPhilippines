@@ -1,4 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Dev;
+#if ANDROID || IOS
+using SideGigPh.Maui.Services.Firebase;
+#endif
 
 namespace SideGigPh.Maui
 {
@@ -15,6 +20,11 @@ namespace SideGigPh.Maui
                 });
 
             builder.Services.AddMauiBlazorWebView();
+
+            // --- Ports & Adapters (see CLAUDE.md) ---
+            builder.RegisterFirebaseServices();
+            builder.Services.AddSingleton<IIdentityProvider, FirebaseIdentityProvider>();
+            builder.Services.AddSingleton<IProfessionalProfileRepository, StubProfessionalProfileRepository>();
 
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
