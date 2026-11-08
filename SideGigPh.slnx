@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="SideGigPh.Maui.csproj">
+  <Project Path="SideGigPh.Maui/SideGigPh.Maui.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
 </Solution>

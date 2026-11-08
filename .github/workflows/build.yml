@@ -23,13 +23,13 @@ jobs:
       - name: Install MAUI workload
         run: dotnet workload install maui-android
 
-      - name: Build Android
-        run: dotnet publish -f net10.0-android -c Release -o ${{ github.workspace }}/output/android
+      - name: Build Android APK
+        run: dotnet publish -f net10.0-android -c Release /p:AndroidPackageFormat=apk -o ${{ github.workspace }}/output/android
 
-      - name: Upload Android artifact
+      - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-build
+          name: android-apk
           path: output/android/**/*.apk
 
   build-ios:
@@ -42,8 +42,8 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Install MAUI workload
-        run: dotnet workload install maui-ios
+      - name: Install MAUI workloads
+        run: dotnet workload restore
 
       - name: Build iOS
         run: dotnet build -f net10.0-ios -c Release /p:ArchiveOnBuild=false
