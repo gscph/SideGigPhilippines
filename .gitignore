@@ -59,3 +59,4 @@ nunit-*.xml
 *.suo
 *.config
 *.json
+*.v2

@@ -14,7 +14,16 @@
 
     <div class="status-bar-safe-area"></div>
 
-    <div id="app">Loading...</div>
+    <div id="app">
+        <div class="app-loading">
+            <svg class="app-loading__logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#0078d4" />
+                <circle cx="12" cy="9" r="2.6" fill="#ffffff" />
+            </svg>
+            <div class="app-loading__name">SideGigPh</div>
+            <div class="app-loading__spinner" aria-hidden="true"></div>
+        </div>
+    </div>
 
     <div id="blazor-error-ui" data-nosnippet>
         An unhandled error has occurred.
