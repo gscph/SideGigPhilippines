@@ -1,0 +1,26 @@
+<div class="tiles @(Compact ? "tiles--compact" : null)" role="group">
+    @foreach (var item in Items)
+    {
+        var selected = SelectedIds.Contains(item.Id);
+        <button type="button"
+                class="tile @(selected ? "tile--selected" : null)"
+                aria-pressed="@(selected ? "true" : "false")"
+                @onclick="() => OnPick.InvokeAsync(item.Id)">
+            @if (item.Icon is not null)
+            {
+                <span class="tile__icon" aria-hidden="true">@item.Icon</span>
+            }
+            <span class="tile__text">
+                <span class="tile__label">@item.Label</span>
+                @if (item.Hint is not null)
+                {
+                    <span class="tile__hint">@item.Hint</span>
+                }
+            </span>
+            @if (Multiple)
+            {
+                <span class="tile__check" aria-hidden="true">@(selected ? "✓" : null)</span>
+            }
+        </button>
+    }
+</div>

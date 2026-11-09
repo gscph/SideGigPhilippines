@@ -1,0 +1,47 @@
+@page "/search"
+
+<section class="results">
+    <header class="results__header">
+        <h1 class="results__title">@Title</h1>
+        <p class="results__hint">@T.Get(Copy.ResultsEditHint)</p>
+        <AnswerChips Items="_chips" OnEdit="EditStep" />
+    </header>
+
+    @if (_loading)
+    {
+        <div class="results__spinner" aria-hidden="true"></div>
+    }
+    else
+    {
+        @if (_widenedFromTown is not null)
+        {
+            <p class="results__notice">@T.Format(Copy.ResultsWidened, _widenedFromTown)</p>
+        }
+
+        @if (_results.Count == 0)
+        {
+            <p class="results__empty">@T.Get(Copy.ResultsEmpty)</p>
+        }
+
+        @if (_error is not null)
+        {
+            <p class="results__error" role="alert">@_error</p>
+        }
+
+        <div class="results__list">
+            @foreach (var pro in _results)
+            {
+                <ProCard Listing="pro" Highlight="@(FitsBudget(pro) ? T.Get(Copy.FitsBudget) : null)">
+                    <Actions>
+                        <button type="button" class="btn-primary results__action" @onclick="() => CallAsync(pro)">
+                            <span aria-hidden="true">📞</span> @T.Get(Copy.Call)
+                        </button>
+                        <button type="button" class="btn-secondary results__action" @onclick="() => TextAsync(pro)">
+                            <span aria-hidden="true">💬</span> @T.Get(Copy.Text)
+                        </button>
+                    </Actions>
+                </ProCard>
+            }
+        </div>
+    }
+</section>

@@ -1,0 +1,54 @@
+using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Shared;
+using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Localization;
+
+namespace SideGigPh.Maui.Components.Onboarding;
+
+/// <summary>
+/// The fork: are you looking for someone to do a job, or looking for work?
+/// Tile ids are the <see cref="UserRole"/> names.
+/// </summary>
+public partial class RolePage : ComponentBase
+{
+    [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private OnboardingState? _state;
+
+    private IReadOnlyList<ChoiceItem> Options =>
+    [
+        new(nameof(UserRole.Seeker), T.Get(Copy.RoleSeeker), "🏠", T.Get(Copy.RoleSeekerHint)),
+        new(nameof(UserRole.Professional), T.Get(Copy.RoleProfessional), "🧰", T.Get(Copy.RoleProfessionalHint)),
+    ];
+
+    private IReadOnlyCollection<string> Selected =>
+        _state?.Role is { } role ? new[] { role.ToString() } : Array.Empty<string>();
+
+    protected override async Task OnInitializedAsync() => _state = await Store.LoadAsync();
+
+    private async Task PickAsync(string id)
+    {
+        var state = _state!;
+        var role = Enum.Parse<UserRole>(id);
+        if (state.Role != role)
+        {
+            // Switching sides starts that side's interview; answers for the other side are kept.
+            state.Role = role;
+            state.CompletedAt = null;
+        }
+
+        var path = role == UserRole.Seeker ? "/start/seeker/1" : "/start/pro/1";
+        if (state.CompletedAt is null)
+        {
+            state.ResumePath = path;
+        }
+
+        await Store.SaveAsync(state);
+        Nav.NavigateTo(path);
+    }
+
+    private void GoBack() => Nav.NavigateTo("/start");
+}

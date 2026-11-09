@@ -1,0 +1,41 @@
+<article class="pro-card">
+    <div class="pro-card__head">
+        <div class="pro-card__avatar" aria-hidden="true">@Initials</div>
+        <div>
+            <h2 class="pro-card__name">@Listing.DisplayName</h2>
+            <p class="pro-card__trade">@Trades</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Highlight))
+    {
+        <span class="pro-card__badge">✓ @Highlight</span>
+    }
+
+    @if (ServiceLabels.Count > 0)
+    {
+        <ul class="pro-card__chips">
+            @foreach (var service in ServiceLabels)
+            {
+                <li class="pro-card__chip">@service</li>
+            }
+        </ul>
+    }
+
+    <ul class="pro-card__facts">
+        <li><span aria-hidden="true">💰</span> @Rate</li>
+        @if (ExperienceLabel is not null)
+        {
+            <li><span aria-hidden="true">🧰</span> @T.Format(Copy.ExperienceFact, ExperienceLabel)</li>
+        }
+        @if (!string.IsNullOrEmpty(Towns))
+        {
+            <li><span aria-hidden="true">📍</span> @T.Format(Copy.ServesFact, Towns)</li>
+        }
+    </ul>
+
+    @if (Actions is not null)
+    {
+        <div class="pro-card__actions">@Actions</div>
+    }
+</article>

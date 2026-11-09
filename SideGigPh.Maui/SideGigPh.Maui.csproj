@@ -77,8 +77,4 @@
         <BundleResource Include="Platforms\iOS\GoogleService-Info.plist" Condition="Exists('Platforms\iOS\GoogleService-Info.plist')" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Components\Shared\" />
-    </ItemGroup>
-
 </Project>

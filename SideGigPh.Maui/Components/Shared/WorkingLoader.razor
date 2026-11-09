@@ -1,0 +1,13 @@
+<div class="working" role="status" aria-live="polite">
+    <div class="working__spinner" aria-hidden="true"></div>
+    <ul class="working__list">
+        @for (var i = 0; i < Steps.Count; i++)
+        {
+            var stateClass = i < _done ? "working__item--done" : i == _done ? "working__item--active" : null;
+            <li class="working__item @stateClass">
+                <span class="working__mark" aria-hidden="true">@(i < _done ? "✓" : "•")</span>
+                <span>@Steps[i]</span>
+            </li>
+        }
+    </ul>
+</div>

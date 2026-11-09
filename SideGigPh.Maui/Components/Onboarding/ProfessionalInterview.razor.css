@@ -1,0 +1,21 @@
+.group {
+    margin-bottom: 1.5rem;
+}
+
+.group__title {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+}
+
+.answer-input {
+    font-size: 1.15rem;
+    padding: 0.9rem 1rem;
+}
+
+.answer-error {
+    margin: 0.5rem 0 0;
+    font-size: 0.95rem;
+    color: var(--color-danger);
+}

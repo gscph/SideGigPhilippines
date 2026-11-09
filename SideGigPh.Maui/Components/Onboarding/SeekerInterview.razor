@@ -1,0 +1,50 @@
+@page "/start/seeker/{Step:int?}"
+
+@if (_state is not null)
+{
+    switch (_step)
+    {
+        case SeekerStep.Category:
+            <InterviewStep Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)"
+                             SelectedIds="Selected(Answers.CategoryId)" OnPick="PickCategoryAsync" />
+            </InterviewStep>
+            break;
+
+        case SeekerStep.Service:
+            <InterviewStep Title="@T.Get(Copy.SeekerServiceTitle)" Why="@T.Get(Copy.SeekerServiceWhy)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[Answers.CategoryId!], T)"
+                             SelectedIds="Selected(Answers.ServiceId)" OnPick="PickServiceAsync" />
+            </InterviewStep>
+            break;
+
+        case SeekerStep.City:
+            <InterviewStep Title="@T.Get(Copy.SeekerCityTitle)" Why="@T.Get(Copy.SeekerCityWhy)"
+                           Note="@T.Get(Copy.CitiesNote)" Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Cities, T)" Compact="true"
+                             SelectedIds="Selected(Answers.CityId)" OnPick="PickCityAsync" />
+            </InterviewStep>
+            break;
+
+        case SeekerStep.When:
+            <InterviewStep Title="@T.Get(Copy.SeekerWhenTitle)" Why="@T.Get(Copy.SeekerWhenWhy)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Urgencies, T)"
+                             SelectedIds="Selected(Answers.UrgencyId)" OnPick="PickWhenAsync" />
+            </InterviewStep>
+            break;
+
+        case SeekerStep.Budget:
+            <InterviewStep Title="@T.Get(Copy.SeekerBudgetTitle)" Why="@T.Get(Copy.SeekerBudgetWhy)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.BudgetOptions, T)"
+                             SelectedIds="Selected(Answers.BudgetId)" OnPick="PickBudgetAsync" />
+            </InterviewStep>
+            break;
+
+        case SeekerStep.Finding:
+            <WorkingLoader Steps="FindingSteps" OnDone="FinishAsync" />
+            break;
+    }
+}

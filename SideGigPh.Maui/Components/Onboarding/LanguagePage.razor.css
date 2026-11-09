@@ -1,0 +1,40 @@
+.language {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+}
+
+.language__brand {
+    text-align: center;
+}
+
+.language__logo {
+    width: 64px;
+    height: 64px;
+}
+
+.language__name {
+    margin: 0.5rem 0 0;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--color-primary);
+}
+
+.language__title {
+    margin: 0;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.language__subtitle {
+    margin: 0.25rem 0 0;
+    font-size: 1.2rem;
+    text-align: center;
+    color: var(--color-text-muted);
+}

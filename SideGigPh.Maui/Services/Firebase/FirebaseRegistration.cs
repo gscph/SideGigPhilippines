@@ -17,9 +17,9 @@ namespace SideGigPh.Maui.Services.Firebase;
 /// </summary>
 public static class FirebaseRegistration
 {
-    // TODO: replace with your Firebase project's Web client ID
-    // (google-services.json -> client -> oauth_client with client_type 3).
-    private const string GoogleWebClientId = "TODO_WEB_CLIENT_ID.apps.googleusercontent.com";
+    // Web client ID (OAuth client_type 3) from google-services.json. Used by
+    // FirebaseAuthGoogleImplementation.Initialize to request the ID token on Android.
+    private const string GoogleWebClientId = "742654871295-4slv8fpgpbrllq8aoe3vbiphv3e64q3f.apps.googleusercontent.com";
 
     public static MauiAppBuilder RegisterFirebaseServices(this MauiAppBuilder builder)
     {

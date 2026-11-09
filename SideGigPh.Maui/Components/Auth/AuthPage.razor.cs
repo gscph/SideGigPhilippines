@@ -36,10 +36,10 @@ public partial class AuthPage : ComponentBase
 
     private async Task RouteAfterAuthAsync(AuthUser user)
     {
-        // Side-gig provider path: a user with a Professional profile goes to their home;
-        // a new user goes to onboarding.
-        // TODO (later): the seeker/customer path — role selection -> search.
+        // Not yet linked from the onboarding flow (auth placement is still being designed).
+        // A user with a Professional profile goes to their home; anyone else goes back to the
+        // launch router, which resumes their onboarding.
         var hasProfile = await Profiles.HasProfileAsync(user.Uid);
-        Nav.NavigateTo(hasProfile ? "/professional" : "/onboarding", replace: true);
+        Nav.NavigateTo(hasProfile ? "/professional" : "/", replace: true);
     }
 }

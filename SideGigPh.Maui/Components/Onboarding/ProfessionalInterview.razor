@@ -1,0 +1,93 @@
+@page "/start/pro/{Step:int?}"
+
+@if (_state is not null)
+{
+    switch (_step)
+    {
+        case ProStep.Skills:
+            <InterviewStep Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
+                           OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.CategoryIds.Count > 0)">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)" Multiple="true"
+                             SelectedIds="Draft.CategoryIds" OnPick="ToggleSkill" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Services:
+            <InterviewStep Title="@T.Get(Copy.ProServicesTitle)" Why="@T.Get(Copy.ProServicesWhy)" Progress="Progress"
+                           OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.ServiceIds.Count > 0)">
+                @foreach (var categoryId in Draft.CategoryIds)
+                {
+                    <div class="group">
+                        <h2 class="group__title">@CategoryLabel(categoryId)</h2>
+                        <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[categoryId], T)" Multiple="true"
+                                     SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
+                    </div>
+                }
+            </InterviewStep>
+            break;
+
+        case ProStep.Areas:
+            <InterviewStep Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)" Note="@T.Get(Copy.CitiesNote)"
+                           Progress="Progress" OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.CityIds.Count > 0)">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Cities, T)" Multiple="true" Compact="true"
+                             SelectedIds="Draft.CityIds" OnPick="ToggleCity" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Experience:
+            <InterviewStep Title="@T.Get(Copy.ProExperienceTitle)" Why="@T.Get(Copy.ProExperienceWhy)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Experience, T)"
+                             SelectedIds="Selected(Draft.ExperienceId)" OnPick="PickExperienceAsync" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Rate:
+            <InterviewStep Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.RateOptions, T)"
+                             SelectedIds="Selected(Draft.RateTierId)" OnPick="PickRateAsync" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Goal:
+            @* No auto-advance here: the payoff under the tiles is the reward for answering. *@
+            <InterviewStep Title="@T.Get(Copy.ProGoalTitle)" Why="@T.Get(Copy.ProGoalWhy)" Progress="Progress"
+                           OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.IncomeGoalId is not null)">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.IncomeGoals, T)" Compact="true"
+                             SelectedIds="Selected(Draft.IncomeGoalId)" OnPick="PickGoal" />
+                <GoalPayoff RateTierId="@Draft.RateTierId" IncomeGoalId="@Draft.IncomeGoalId" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Name:
+            <InterviewStep Title="@T.Get(Copy.ProNameTitle)" Why="@T.Get(Copy.ProNameWhy)" Progress="Progress"
+                           OnBack="GoBack" OnNext="SaveNameAsync" CanContinue="@(IsNameValid)">
+                <input class="field__input answer-input" type="text" autocomplete="name" maxlength="60"
+                       aria-label="@T.Get(Copy.ProNameTitle)" placeholder="@T.Get(Copy.ProNamePlaceholder)"
+                       @bind="_name" @bind:event="oninput" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Phone:
+            <InterviewStep Title="@T.Get(Copy.ProPhoneTitle)" Why="@T.Get(Copy.ProPhoneWhy)" Progress="Progress"
+                           OnBack="GoBack" OnNext="SavePhoneAsync" CanContinue="@(!string.IsNullOrWhiteSpace(_phone))">
+                <input class="field__input answer-input" type="tel" inputmode="tel" autocomplete="tel" maxlength="16"
+                       aria-label="@T.Get(Copy.ProPhoneTitle)" placeholder="0917 123 4567"
+                       @bind="_phone" @bind:event="oninput" />
+                @if (_phoneInvalid)
+                {
+                    <p class="answer-error" role="alert">@T.Get(Copy.ProPhoneInvalid)</p>
+                }
+            </InterviewStep>
+            break;
+
+        case ProStep.Preview:
+            <InterviewStep Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
+                           OnBack="GoBack" OnNext="FinishAsync" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
+                <ListingPreview Listing="Draft.ToListing()" />
+                <GoalPayoff RateTierId="@Draft.RateTierId" IncomeGoalId="@Draft.IncomeGoalId" />
+            </InterviewStep>
+            break;
+    }
+}

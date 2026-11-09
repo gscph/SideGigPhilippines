@@ -1,0 +1,36 @@
+<section class="step">
+    <header class="step__top">
+        @if (OnBack.HasDelegate)
+        {
+            <button type="button" class="step__back" aria-label="@T.Get(Copy.Back)" @onclick="OnBack">‹</button>
+        }
+        @if (Progress > 0)
+        {
+            <div class="step__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@Percent">
+                <div class="step__fill" style="width: @(Percent)%"></div>
+            </div>
+        }
+    </header>
+
+    <div class="step__body">
+        <h1 class="step__title">@Title</h1>
+        @if (!string.IsNullOrEmpty(Why))
+        {
+            <p class="step__why">@Why</p>
+        }
+        @ChildContent
+        @if (!string.IsNullOrEmpty(Note))
+        {
+            <p class="step__note">@Note</p>
+        }
+    </div>
+
+    @if (OnNext.HasDelegate)
+    {
+        <footer class="step__footer">
+            <button type="button" class="btn-primary step__next" disabled="@(!CanContinue)" @onclick="OnNext">
+                @(NextLabel ?? T.Get(Copy.Next))
+            </button>
+        </footer>
+    }
+</section>

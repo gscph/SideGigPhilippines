@@ -1,5 +1,24 @@
 @page "/professional"
 @layout Layout.MainLayout
 
-@* Landing page for a Professional (side-gig provider) who already has a profile.
-   Intentionally left blank for this round — content will be added later. *@
+@if (_draft is not null)
+{
+    <section class="pro-home">
+        <h1 class="pro-home__title">@T.Get(Copy.ProHomeTitle)</h1>
+        <p class="pro-home__status">@T.Get(Copy.ProHomeNotLive)</p>
+
+        <ProCard Listing="_draft.ToListing()" />
+
+        @if (GoalLabel is not null)
+        {
+            <div>
+                <p class="pro-home__goal">@T.Format(Copy.ProHomeGoal, GoalLabel)</p>
+                <GoalPayoff RateTierId="@_draft.RateTierId" IncomeGoalId="@_draft.IncomeGoalId" />
+            </div>
+        }
+
+        <button type="button" class="btn-secondary pro-home__edit" @onclick="Edit">
+            <span aria-hidden="true">✎</span> @T.Get(Copy.ProHomeEdit)
+        </button>
+    </section>
+}
