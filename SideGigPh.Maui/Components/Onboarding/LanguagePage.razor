@@ -1,19 +1,15 @@
 @page "/start"
 
 @* Shown before we know the user's language, so it speaks both. *@
-<section class="language">
-    <div class="language__brand">
-        <svg class="language__logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="var(--color-primary)" />
-            <circle cx="12" cy="9" r="2.6" fill="var(--color-on-primary)" />
-        </svg>
-        <p class="language__name">SideGigPh</p>
-    </div>
+<MudContainer MaxWidth="MaxWidth.ExtraSmall">
+    <MudStack HtmlTag="section" Justify="Justify.Center" Spacing="8" Class="full-screen py-8">
+        <BrandMark />
 
-    <div>
-        <h1 class="language__title">Choose your language</h1>
-        <p class="language__subtitle">Pumili ng wika</p>
-    </div>
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.h5" HtmlTag="h1" Align="Align.Center">Choose your language</MudText>
+            <MudText Typo="Typo.h6" Color="Color.Secondary" Align="Align.Center">Pumili ng wika</MudText>
+        </MudStack>
 
-    <ChoiceTiles Items="Options" OnPick="PickAsync" />
-</section>
+        <ChoiceTiles Items="Options" OnPick="PickAsync" />
+    </MudStack>
+</MudContainer>

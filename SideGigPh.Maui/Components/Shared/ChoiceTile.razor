@@ -1,0 +1,22 @@
+<MudButton Variant="Variant.Outlined" Color="@(Selected ? Color.Primary : Color.Default)" FullWidth="true"
+           Size="Size.Large" Class="@CssClass" aria-pressed="@(Selected ? "true" : "false")"
+           OnClick="() => OnPick.InvokeAsync(Item.Id)">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="mud-width-full">
+        @if (Item.Icon is not null)
+        {
+            <MudText Typo="Typo.h5" HtmlTag="span" aria-hidden="true">@Item.Icon</MudText>
+        }
+        <MudStack Spacing="0" Class="flex-1">
+            <MudText Typo="Typo.subtitle1" Color="Color.Dark">@Item.Label</MudText>
+            @if (Item.Hint is not null)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@Item.Hint</MudText>
+            }
+        </MudStack>
+        @if (ShowCheck)
+        {
+            <MudIcon Icon="@(Selected ? Icons.Material.Filled.CheckBox : Icons.Material.Filled.CheckBoxOutlineBlank)"
+                     Color="@(Selected ? Color.Primary : Color.Default)" aria-hidden="true" />
+        }
+    </MudStack>
+</MudButton>

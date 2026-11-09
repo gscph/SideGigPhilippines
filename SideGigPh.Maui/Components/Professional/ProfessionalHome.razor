@@ -1,24 +1,26 @@
 @page "/professional"
-@layout Layout.MainLayout
 
 @if (_draft is not null)
 {
-    <section class="pro-home">
-        <h1 class="pro-home__title">@T.Get(Copy.ProHomeTitle)</h1>
-        <p class="pro-home__status">@T.Get(Copy.ProHomeNotLive)</p>
+    <MudContainer MaxWidth="MaxWidth.Small" Class="pt-4 pb-8">
+        <MudStack HtmlTag="section" Spacing="4">
+            <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ProHomeTitle)</MudText>
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Text">@T.Get(Copy.ProHomeNotLive)</MudAlert>
 
-        <ProCard Listing="_draft.ToListing()" />
+            <ProCard Listing="_draft.ToListing()" />
 
-        @if (GoalLabel is not null)
-        {
-            <div>
-                <p class="pro-home__goal">@T.Format(Copy.ProHomeGoal, GoalLabel)</p>
-                <GoalPayoff RateTierId="@_draft.RateTierId" IncomeGoalId="@_draft.IncomeGoalId" />
-            </div>
-        }
+            @if (GoalLabel is not null)
+            {
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle1">@T.Format(Copy.ProHomeGoal, GoalLabel)</MudText>
+                    <GoalPayoff RateTierId="@_draft.RateTierId" IncomeGoalId="@_draft.IncomeGoalId" />
+                </MudStack>
+            }
 
-        <button type="button" class="btn-secondary pro-home__edit" @onclick="Edit">
-            <span aria-hidden="true">✎</span> @T.Get(Copy.ProHomeEdit)
-        </button>
-    </section>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Edit" OnClick="Edit">
+                @T.Get(Copy.ProHomeEdit)
+            </MudButton>
+        </MudStack>
+    </MudContainer>
 }

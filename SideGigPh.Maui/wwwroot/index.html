@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>SideGigPh</title>
     <base href="/" />
+    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
     <link rel="stylesheet" href="app.css" />
-    <link rel="stylesheet" href="SideGigPh.Maui.styles.css" />
     <link rel="icon" href="data:,">
 </head>
 
@@ -15,10 +15,10 @@
     <div class="status-bar-safe-area"></div>
 
     <div id="app">
+        <!-- Pre-Blazor splash: plain HTML because MudBlazor isn't running yet. LaunchRouter renders the same look with MudBlazor. -->
         <div class="app-loading">
             <svg class="app-loading__logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#0078d4" />
-                <circle cx="12" cy="9" r="2.6" fill="#ffffff" />
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
             </svg>
             <div class="app-loading__name">SideGigPh</div>
             <div class="app-loading__spinner" aria-hidden="true"></div>
@@ -32,6 +32,7 @@
     </div>
 
     <script src="_framework/blazor.webview.js" autostart="false"></script>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 
 </body>
 

@@ -10,15 +10,15 @@ namespace SideGigPh.Maui.Services.Localization;
 public static class Copy
 {
     // --- Common -----------------------------------------------------------
-    public static readonly LocalizedText Next = new("Next", "Tuloy");
-    public static readonly LocalizedText Back = new("Back", "Bumalik");
+    public static readonly LocalizedText Next = new("Next", "Next");
+    public static readonly LocalizedText Back = new("Back", "Back");
 
     // --- Role fork --------------------------------------------------------
     public static readonly LocalizedText RoleTitle = new("What brings you here?", "Ano'ng hanap mo?");
     public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, plumbing, repairs, errands, massage", "Aircon, tubero, repair, PasaBuy, masahe");
-    public static readonly LocalizedText RoleProfessional = new("I want to earn from my skills", "Gusto kong kumita sa skills ko");
-    public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Magkaroon ng customer malapit sa 'yo");
+    public static readonly LocalizedText RoleProfessional = new("I want to earn money", "Gusto kong kumita sa skills ko");
+    public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Maka kuha ng trabaho malapit sayo");
 
     // --- Seeker interview -------------------------------------------------
     public static readonly LocalizedText SeekerCategoryTitle = new("What do you need done?", "Ano'ng ipapagawa mo?");
@@ -46,7 +46,7 @@ public static class Copy
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");
     public static readonly LocalizedText Call = new("Call", "Tawagan");
     public static readonly LocalizedText Text = new("Text", "I-text");
-    public static readonly LocalizedText ContactFailed = new("Couldn't open your phone app. Please try again.", "Hindi mabuksan ang phone app. Pakisubukan ulit.");
+    public static readonly LocalizedText ContactFailed = new("Couldn't open your phone app. Please try again.", "Couldn't open your phone app. Please try again.");
 
     // Pre-filled SMS to a pro, by urgency. {0} = job, {1} = town.
     public static readonly LocalizedText MessageToday = new(

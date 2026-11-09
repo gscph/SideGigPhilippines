@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using MudBlazor.Services;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Dev;
 using SideGigPh.Maui.Services.Local;
@@ -22,6 +23,7 @@ namespace SideGigPh.Maui
                 });
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddMudServices();
 
             // --- Ports & Adapters (see CLAUDE.md) ---
             builder.RegisterFirebaseServices();

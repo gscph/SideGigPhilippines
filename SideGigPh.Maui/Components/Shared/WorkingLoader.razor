@@ -1,13 +1,20 @@
-<div class="working" role="status" aria-live="polite">
-    <div class="working__spinner" aria-hidden="true"></div>
-    <ul class="working__list">
-        @for (var i = 0; i < Steps.Count; i++)
-        {
-            var stateClass = i < _done ? "working__item--done" : i == _done ? "working__item--active" : null;
-            <li class="working__item @stateClass">
-                <span class="working__mark" aria-hidden="true">@(i < _done ? "✓" : "•")</span>
-                <span>@Steps[i]</span>
-            </li>
-        }
-    </ul>
-</div>
+<MudContainer MaxWidth="MaxWidth.ExtraSmall">
+    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="7" Class="full-screen py-8"
+              role="status" aria-live="polite">
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Large" />
+        <MudStack Spacing="4" Class="mud-width-full">
+            @for (var i = 0; i < Steps.Count; i++)
+            {
+                var done = i < _done;
+                var active = i == _done;
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudAvatar Size="Size.Small" Color="@(done ? Color.Success : Color.Default)" aria-hidden="true">
+                        <MudIcon Icon="@(done ? Icons.Material.Filled.Check : Icons.Material.Filled.MoreHoriz)" Size="Size.Small" />
+                    </MudAvatar>
+                    <MudText Typo="@(active ? Typo.subtitle1 : Typo.body1)"
+                             Color="@(done || active ? Color.Dark : Color.Secondary)">@Steps[i]</MudText>
+                </MudStack>
+            }
+        </MudStack>
+    </MudStack>
+</MudContainer>

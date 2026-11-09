@@ -186,7 +186,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 5. **Each step has its own URL** (`/start/seeker/3`), so Android hardware back walks the steps. The on-screen back button does the same.
 6. The progress bar starts partly filled (Endowed Progress). It has no "n of N" text.
 7. The same components as the real product: the preview card *is* the search-result card.
-8. Mobile-first, design tokens only (`var(--color-…)`), and every string is bilingual (§5).
+8. Mobile-first, MudBlazor components with theme colors only (`AppTheme`), and every string is bilingual (§5).
 
 ## 5. Implementation (Phase 1, as built)
 

@@ -21,6 +21,9 @@ public partial class ProCard : ComponentBase
     /// <summary>Optional buttons (Call / Text) supplied by the page.</summary>
     [Parameter] public RenderFragment? Actions { get; set; }
 
+    /// <summary>Extra CSS classes on the card, e.g. to outline the pro's own listing.</summary>
+    [Parameter] public string? Class { get; set; }
+
     private string Initials =>
         string.Concat(Listing.DisplayName
             .Split(' ', StringSplitOptions.RemoveEmptyEntries)

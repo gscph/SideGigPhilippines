@@ -17,11 +17,11 @@
                            OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.ServiceIds.Count > 0)">
                 @foreach (var categoryId in Draft.CategoryIds)
                 {
-                    <div class="group">
-                        <h2 class="group__title">@CategoryLabel(categoryId)</h2>
+                    <MudStack Spacing="2">
+                        <MudText Typo="Typo.subtitle1" HtmlTag="h2" Color="Color.Secondary">@CategoryLabel(categoryId)</MudText>
                         <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[categoryId], T)" Multiple="true"
                                      SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
-                    </div>
+                    </MudStack>
                 }
             </InterviewStep>
             break;
@@ -60,25 +60,18 @@
             </InterviewStep>
             break;
 
-        case ProStep.Name:
+        case ProStep.Contact:
             <InterviewStep Title="@T.Get(Copy.ProNameTitle)" Why="@T.Get(Copy.ProNameWhy)" Progress="Progress"
-                           OnBack="GoBack" OnNext="SaveNameAsync" CanContinue="@(IsNameValid)">
-                <input class="field__input answer-input" type="text" autocomplete="name" maxlength="60"
-                       aria-label="@T.Get(Copy.ProNameTitle)" placeholder="@T.Get(Copy.ProNamePlaceholder)"
-                       @bind="_name" @bind:event="oninput" />
-            </InterviewStep>
-            break;
-
-        case ProStep.Phone:
-            <InterviewStep Title="@T.Get(Copy.ProPhoneTitle)" Why="@T.Get(Copy.ProPhoneWhy)" Progress="Progress"
-                           OnBack="GoBack" OnNext="SavePhoneAsync" CanContinue="@(!string.IsNullOrWhiteSpace(_phone))">
-                <input class="field__input answer-input" type="tel" inputmode="tel" autocomplete="tel" maxlength="16"
-                       aria-label="@T.Get(Copy.ProPhoneTitle)" placeholder="0917 123 4567"
-                       @bind="_phone" @bind:event="oninput" />
-                @if (_phoneInvalid)
-                {
-                    <p class="answer-error" role="alert">@T.Get(Copy.ProPhoneInvalid)</p>
-                }
+                           OnBack="GoBack" OnNext="SaveContactAsync" CanContinue="@(IsContactValid)">
+                <MudStack Spacing="3">
+                    <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Outlined" MaxLength="60"
+                                  Placeholder="@T.Get(Copy.ProNamePlaceholder)" autocomplete="name"
+                                  aria-label="@T.Get(Copy.ProNameTitle)" />
+                    <MudTextField T="string" @bind-Value="_phone" Immediate="true" Variant="Variant.Outlined" MaxLength="16"
+                                  InputType="InputType.Telephone" InputMode="InputMode.tel" Placeholder="0917 123 4567"
+                                  Error="_phoneInvalid" ErrorText="@T.Get(Copy.ProPhoneInvalid)" autocomplete="tel"
+                                  aria-label="@T.Get(Copy.ProPhoneTitle)" />
+                </MudStack>
             </InterviewStep>
             break;
 

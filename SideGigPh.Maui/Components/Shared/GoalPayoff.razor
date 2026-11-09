@@ -1,4 +1,6 @@
 @if (Message is not null)
 {
-    <p class="payoff"><span aria-hidden="true">🎯</span> @Message</p>
+    <MudAlert Severity="Severity.Info" Variant="Variant.Text" Icon="@Icons.Material.Filled.TrackChanges">
+        <MudText Typo="Typo.subtitle1">@Message</MudText>
+    </MudAlert>
 }

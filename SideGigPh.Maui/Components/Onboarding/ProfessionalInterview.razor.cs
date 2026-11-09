@@ -7,7 +7,7 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// Professional interview: trades → jobs → towns → experience → rate → earnings goal →
-/// name → number → preview. The answers build the listing card the pro sees at the end.
+/// contact (name + number) → preview. The answers build the listing card the pro sees at the end.
 /// One URL per step; answers are saved whenever the user moves forward.
 /// </summary>
 public partial class ProfessionalInterview : ComponentBase
@@ -20,8 +20,7 @@ public partial class ProfessionalInterview : ComponentBase
         Experience,
         Rate,
         Goal,
-        Name,
-        Phone,
+        Contact,
         Preview,
     }
 
@@ -42,7 +41,7 @@ public partial class ProfessionalInterview : ComponentBase
     // Step 1 already shows some progress (endowed progress); the preview is 100%.
     private double Progress => (int)_step / (double)ProStep.Preview;
 
-    private bool IsNameValid => (_name?.Trim().Length ?? 0) >= 2;
+    private bool IsContactValid => (_name?.Trim().Length ?? 0) >= 2 && !string.IsNullOrWhiteSpace(_phone);
 
     protected override async Task OnInitializedAsync() => _state = await Store.LoadAsync();
 
@@ -88,13 +87,7 @@ public partial class ProfessionalInterview : ComponentBase
 
     private void PickGoal(string id) => Draft.IncomeGoalId = id;
 
-    private Task SaveNameAsync()
-    {
-        Draft.DisplayName = _name?.Trim();
-        return AdvanceAsync();
-    }
-
-    private Task SavePhoneAsync()
+    private Task SaveContactAsync()
     {
         if (!PhilippineMobile.TryNormalize(_phone, out var e164))
         {
@@ -103,6 +96,7 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         _phoneInvalid = false;
+        Draft.DisplayName = _name?.Trim();
         Draft.MobileNumber = e164;
         return AdvanceAsync();
     }
@@ -146,8 +140,7 @@ public partial class ProfessionalInterview : ComponentBase
         if (Draft.ExperienceId is null) return ProStep.Experience;
         if (Draft.RateTierId is null) return ProStep.Rate;
         if (Draft.IncomeGoalId is null) return ProStep.Goal;
-        if (string.IsNullOrWhiteSpace(Draft.DisplayName)) return ProStep.Name;
-        if (Draft.MobileNumber is null) return ProStep.Phone;
+        if (string.IsNullOrWhiteSpace(Draft.DisplayName) || Draft.MobileNumber is null) return ProStep.Contact;
         return ProStep.Preview;
     }
 

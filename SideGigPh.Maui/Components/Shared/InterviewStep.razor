@@ -1,36 +1,41 @@
-<section class="step">
-    <header class="step__top">
-        @if (OnBack.HasDelegate)
-        {
-            <button type="button" class="step__back" aria-label="@T.Get(Copy.Back)" @onclick="OnBack">‹</button>
-        }
-        @if (Progress > 0)
-        {
-            <div class="step__track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="@Percent">
-                <div class="step__fill" style="width: @(Percent)%"></div>
-            </div>
-        }
-    </header>
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack HtmlTag="section" Spacing="0" Class="full-screen">
+        <MudStack HtmlTag="header" Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="px-2 pt-2">
+            @if (OnBack.HasDelegate)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" aria-label="@T.Get(Copy.Back)" OnClick="@(() => OnBack.InvokeAsync())" />
+            }
+            @if (Progress > 0)
+            {
+                <MudProgressLinear Value="Percent" Color="Color.Primary" Size="Size.Medium" Rounded="true" Class="flex-1 mr-4" />
+            }
+        </MudStack>
 
-    <div class="step__body">
-        <h1 class="step__title">@Title</h1>
-        @if (!string.IsNullOrEmpty(Why))
-        {
-            <p class="step__why">@Why</p>
-        }
-        @ChildContent
-        @if (!string.IsNullOrEmpty(Note))
-        {
-            <p class="step__note">@Note</p>
-        }
-    </div>
+        <MudStack Spacing="5" Class="flex-1 px-4 pt-2 pb-6">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+                @if (!string.IsNullOrEmpty(Why))
+                {
+                    <MudText Typo="Typo.body1" Color="Color.Secondary">@Why</MudText>
+                }
+            </MudStack>
 
-    @if (OnNext.HasDelegate)
-    {
-        <footer class="step__footer">
-            <button type="button" class="btn-primary step__next" disabled="@(!CanContinue)" @onclick="OnNext">
-                @(NextLabel ?? T.Get(Copy.Next))
-            </button>
-        </footer>
-    }
-</section>
+            @ChildContent
+
+            @if (!string.IsNullOrEmpty(Note))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@Note</MudText>
+            }
+        </MudStack>
+
+        @if (OnNext.HasDelegate)
+        {
+            <MudPaper Square="true" Elevation="0" Class="sticky-footer pa-4 border-t border-solid mud-border-lines-default">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           Disabled="!CanContinue" OnClick="@(() => OnNext.InvokeAsync())">
+                    @(NextLabel ?? T.Get(Copy.Next))
+                </MudButton>
+            </MudPaper>
+        }
+    </MudStack>
+</MudContainer>

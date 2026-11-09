@@ -1,29 +1,25 @@
-<div class="phone-signin">
+<MudStack Spacing="3">
     @if (_step == Step.EnterPhone)
     {
-        <label class="field">
-            <span class="field__label">Mobile number</span>
-            <input class="field__input" type="tel" inputmode="tel" autocomplete="tel"
-                   placeholder="+63 9XX XXX XXXX"
-                   @bind="_phoneNumber" @bind:event="oninput" disabled="@_busy" />
-        </label>
-        <button class="btn-primary phone-signin__action" @onclick="SendCodeAsync"
-                disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))">
+        <MudTextField T="string" @bind-Value="_phoneNumber" Immediate="true" Disabled="_busy"
+                      Label="Mobile number" Placeholder="+63 9XX XXX XXXX" Variant="Variant.Outlined"
+                      InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="tel" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                   Disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
             @(_busy ? "Sending…" : "Send code")
-        </button>
+        </MudButton>
     }
     else
     {
-        <label class="field">
-            <span class="field__label">Enter the 6-digit code</span>
-            <input class="field__input" type="text" inputmode="numeric" autocomplete="one-time-code"
-                   maxlength="6" placeholder="••••••"
-                   @bind="_code" @bind:event="oninput" disabled="@_busy" />
-        </label>
-        <button class="btn-primary phone-signin__action" @onclick="VerifyAsync"
-                disabled="@(_busy || string.IsNullOrWhiteSpace(_code))">
+        <MudTextField T="string" @bind-Value="_code" Immediate="true" Disabled="_busy"
+                      Label="Enter the 6-digit code" Placeholder="••••••" Variant="Variant.Outlined" MaxLength="6"
+                      InputMode="InputMode.numeric" autocomplete="one-time-code" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                   Disabled="@(_busy || string.IsNullOrWhiteSpace(_code))" OnClick="VerifyAsync">
             @(_busy ? "Verifying…" : "Verify & continue")
-        </button>
-        <button class="btn-link" @onclick="Reset" disabled="@_busy">Use a different number</button>
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Primary" FullWidth="true" Disabled="_busy" OnClick="Reset">
+            Use a different number
+        </MudButton>
     }
-</div>
+</MudStack>

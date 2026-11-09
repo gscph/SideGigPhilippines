@@ -1,8 +1,7 @@
-<div class="chips">
+<MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
     @foreach (var chip in Items)
     {
-        <button type="button" class="chip" @onclick="() => OnEdit.InvokeAsync(chip.Step)">
-            @chip.Label <span aria-hidden="true">✎</span>
-        </button>
+        <MudChip T="int" Color="Color.Primary" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit"
+                 Class="ma-0" OnClick="() => OnEdit.InvokeAsync(chip.Step)">@chip.Label</MudChip>
     }
-</div>
+</MudStack>

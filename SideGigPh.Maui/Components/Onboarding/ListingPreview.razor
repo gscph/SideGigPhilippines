@@ -1,10 +1,16 @@
 @* The pro's own card shown the way a customer meets it: inside a search list.
    Grey skeletons stand in for other pros; we never show invented competitors. *@
-<div class="preview">
-    <div class="preview__search"><span aria-hidden="true">🔍</span> @SearchText</div>
-    <div class="preview__ghost" aria-hidden="true"><span></span><span></span></div>
-    <div class="preview__mine">
-        <ProCard Listing="Listing" />
-    </div>
-    <div class="preview__ghost" aria-hidden="true"><span></span><span></span></div>
-</div>
+<MudPaper Elevation="0" Class="pa-3 mud-background-gray">
+    <MudStack Spacing="3">
+        <MudPaper Outlined="true" Elevation="0" Class="rounded-pill px-4 py-2">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.Search" Size="Size.Small" Color="Color.Secondary" aria-hidden="true" />
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@SearchText</MudText>
+            </MudStack>
+        </MudPaper>
+
+        <GhostListing />
+        <ProCard Listing="Listing" Class="own-listing" />
+        <GhostListing />
+    </MudStack>
+</MudPaper>
