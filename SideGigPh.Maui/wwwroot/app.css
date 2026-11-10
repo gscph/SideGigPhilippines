@@ -86,6 +86,73 @@ h1:focus {
     box-shadow: 0 0 0 3px var(--mud-palette-primary);
 }
 
+/* Square work-photo thumbnails (pro card strip, Photos grid). */
+.work-thumb {
+    width: 100%;
+    min-width: 0;
+    aspect-ratio: 1;
+}
+
+/* --- App shell (Components/Layout/AppShell), shared by Pro and Seeker --- */
+
+/* Brand bar: sticks below the iOS status bar. Used with the `sticky` utility. */
+.app-top-bar {
+    top: env(safe-area-inset-top, 0px);
+}
+
+/* Icon tabs fixed to the bottom edge, above the home indicator. */
+.app-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--mud-zindex-appbar);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Page content clears the bottom tabs and the + button. */
+.app-content {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* A page's main action (Contact, the message box) stays pinned just above the bottom tabs.
+   Put it last in the page so it rests there when scrolled to the end. */
+.app-sticky-action {
+    position: sticky;
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1;
+}
+
+/* One line of text, cut with "…" (names and message previews in lists). */
+.one-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* The + button floats above the bottom tabs, bottom right. */
+.app-fab {
+    position: fixed;
+    right: 16px;
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    z-index: var(--mud-zindex-appbar);
+}
+
+/* Remove button over the corner of a work photo. */
+.photo-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+}
+
+/* The big photo on the profile page; MudAvatar's largest size is too small. */
+.profile-photo {
+    width: 6rem !important;
+    height: 6rem !important;
+    font-size: 2rem !important;
+}
+
 /* ==========================================================================
    Blazor error UI
    ========================================================================== */

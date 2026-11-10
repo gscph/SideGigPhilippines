@@ -43,6 +43,8 @@
             </array>
         </dict>
     </dict>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Choose photos of you and your work to show customers on your listing.</string>
     <key>XSAppIconAssets</key>
     <string>Assets.xcassets/appicon.appiconset</string>
 </dict>

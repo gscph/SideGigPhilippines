@@ -34,12 +34,19 @@ public sealed class SeekerAnswers
 
     /// <summary>A price tier id, or <c>ReferenceData.Unsure</c>.</summary>
     public string? BudgetId { get; set; }
+
+    /// <summary>What they last typed in the search box, shown again when they come back.</summary>
+    public string? SearchText { get; set; }
+
+    /// <summary>The name they put on their reviews, e.g. "Maricel D.".</summary>
+    public string? ReviewerName { get; set; }
 }
 
-/// <summary>A Professional's listing as built during the interview (not published).</summary>
+/// <summary>A Professional's listing: built in the interview, then photos and publishing on Pro home.</summary>
 public sealed class ProfessionalDraft
 {
-    public List<string> CategoryIds { get; set; } = [];
+    /// <summary>The one trade the Professional works in. A pro picks a single category.</summary>
+    public string? CategoryId { get; set; }
 
     public List<string> ServiceIds { get; set; } = [];
 
@@ -57,4 +64,16 @@ public sealed class ProfessionalDraft
 
     /// <summary>E.164 format, e.g. +639171234567.</summary>
     public string? MobileNumber { get; set; }
+
+    /// <summary>The pro's own photo, an <c>IPhotoStore</c> id.</summary>
+    public string? ProfilePhotoId { get; set; }
+
+    /// <summary>Photos of their work, <c>IPhotoStore</c> ids, newest first.</summary>
+    public List<string> WorkPhotoIds { get; set; } = [];
+
+    /// <summary>Set when the pro took the pledge and published the listing.</summary>
+    public DateTimeOffset? PublishedAt { get; set; }
+
+    /// <summary>When the pro last opened their inquiries; anything newer is shown as new.</summary>
+    public DateTimeOffset? InquiriesSeenAt { get; set; }
 }

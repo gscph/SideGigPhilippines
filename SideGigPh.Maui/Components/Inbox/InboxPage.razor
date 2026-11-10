@@ -1,0 +1,24 @@
+@page "/inbox"
+@layout SeekerLayout
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.InboxTitle)</MudText>
+
+    @if (Workspace.Threads.Count == 0)
+    {
+        <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="py-8">
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@T.Get(Copy.InboxEmpty)</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" Href="@SeekerRoutes.Search">
+                @T.Get(Copy.SearchTitle)
+            </MudButton>
+        </MudStack>
+    }
+
+    <MudStack Spacing="0">
+        @foreach (var thread in Workspace.Threads)
+        {
+            <ThreadRow Thread="thread" @key="thread.Pro.Id" />
+            <MudDivider />
+        }
+    </MudStack>
+</MudStack>

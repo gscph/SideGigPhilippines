@@ -1,0 +1,15 @@
+<MudAvatar Color="Color.Primary" Variant="@(PhotoUrl is null ? Variant.Outlined : Variant.Filled)" Size="Size"
+           Class="@Class" aria-hidden="true">
+    @if (PhotoUrl is not null)
+    {
+        <MudImage Src="@PhotoUrl" Alt="" ObjectFit="ObjectFit.Cover" />
+    }
+    else if (Initials.Length > 0)
+    {
+        @Initials
+    }
+    else
+    {
+        <MudIcon Icon="@Icons.Material.Filled.Person" />
+    }
+</MudAvatar>

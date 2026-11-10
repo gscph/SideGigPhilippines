@@ -1,0 +1,47 @@
+@page "/search"
+@layout SeekerLayout
+
+<MudStack Spacing="3">
+    
+    <SearchBox Value="@Workspace.Answers.SearchText" Live="true" OnSearch="SearchForAsync" />   
+
+    <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+        <FilterMenu Icon="@Icons.Material.Filled.Place" Label="@T.Get(Copy.FilterTown)" Options="Towns"
+                    SelectedId="@Request.CityId" OnPick="PickTownAsync" />
+        <FilterMenu Icon="@Icons.Material.Filled.Payments" Label="@T.Get(Copy.FilterBudget)" Options="Budgets"
+                    SelectedId="@Request.BudgetId" OnPick="PickBudgetAsync" />
+    </MudStack>
+
+    @if (Request.CategoryId is null || _unmatchedText is not null)
+    {
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.BrowseTitle)</MudText>
+        <ChoiceTiles Items="CategoryItems" OnPick="PickCategoryAsync" />
+    }
+    else if (_result is null)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="py-12">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        </MudStack>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@Summary</MudText>
+
+        @if (_result.ServiceFallback)
+        {
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@FallbackNote</MudAlert>
+        }
+
+        @if (_result.Count == 0)
+        {
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.ResultsEmpty)</MudText>
+        }
+        else if (_result.InTown.Count == 0)
+        {
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@T.Format(Copy.ResultsWidened, TownLabel)</MudAlert>
+        }
+
+        <ResultGroup Title="@T.Format(Copy.ResultsInTown, TownLabel)" Hits="_result.InTown" />
+        <ResultGroup Title="@T.Get(Copy.ResultsOtherTowns)" Hits="_result.OtherTowns" />
+    }
+</MudStack>

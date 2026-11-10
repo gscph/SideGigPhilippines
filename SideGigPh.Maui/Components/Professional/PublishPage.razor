@@ -1,0 +1,14 @@
+@page "/professional/publish"
+
+@if (_loaded)
+{
+    <InterviewStep Title="@T.Get(Copy.PublishTitle)" Why="@T.Get(Copy.PublishWhy)" OnBack="GoBack"
+                   OnNext="PublishAsync" NextLabel="@T.Get(Copy.PublishConfirm)" CanContinue="@(_pledged && !_busy)">
+        <ProCard Listing="Workspace.Listing" Class="own-listing" />
+        <MudCheckBox T="bool" @bind-Value="_pledged" Color="Color.Primary" Label="@T.Get(Copy.PublishPledge)" />
+        @if (_phoneTaken)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(Copy.PublishPhoneTaken)</MudAlert>
+        }
+    </InterviewStep>
+}

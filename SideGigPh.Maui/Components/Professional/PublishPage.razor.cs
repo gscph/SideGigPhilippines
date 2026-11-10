@@ -1,0 +1,60 @@
+using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Localization;
+
+namespace SideGigPh.Maui.Components.Professional;
+
+/// <summary>
+/// Going live: the pro sees their card one last time and takes a short pledge (answer
+/// customers, honest work at the posted price) before publishing. A focused full-screen
+/// step, so it uses the interview look rather than the Pro home shell.
+/// </summary>
+public partial class PublishPage : ComponentBase
+{
+    [Inject] private ProWorkspace Workspace { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private bool _loaded;
+    private bool _pledged;
+    private bool _busy;
+    private bool _phoneTaken;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!await Workspace.EnsureLoadedAsync())
+        {
+            Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
+        if (Workspace.IsPublished)
+        {
+            Nav.NavigateTo(ProRoutes.Home, replace: true);
+            return;
+        }
+
+        _loaded = true;
+    }
+
+    private async Task PublishAsync()
+    {
+        _busy = true;
+        try
+        {
+            _phoneTaken = await Workspace.PublishAsync() == PublishResult.PhoneTaken;
+        }
+        finally
+        {
+            _busy = false;
+        }
+
+        if (!_phoneTaken)
+        {
+            Nav.NavigateTo(ProRoutes.Home, replace: true);
+        }
+    }
+
+    private void GoBack() => Nav.NavigateTo(ProRoutes.Home);
+}

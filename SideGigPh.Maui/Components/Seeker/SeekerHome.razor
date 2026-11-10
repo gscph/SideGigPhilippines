@@ -1,0 +1,39 @@
+@page "/seeker"
+@layout SeekerLayout
+
+<MudStack Spacing="4">
+    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.SeekerCategoryTitle)</MudText>
+
+    <SearchBox OnSearch="SearchAsync" />
+
+    @if (LastSearch is not null)
+    {
+        <LastSearchCard Summary="@LastSearch" />
+    }
+
+    @if (Workspace.Threads.Count > 0)
+    {
+        <HomeSection Title="@T.Get(Copy.SectionMessages)" Href="@SeekerRoutes.Inbox">
+            <MudStack Spacing="0">
+                @foreach (var thread in Workspace.Threads.Take(3))
+                {
+                    <ThreadRow Thread="thread" @key="thread.Pro.Id" />
+                }
+            </MudStack>
+        </HomeSection>
+    }
+
+    @if (Workspace.ToRate.Count > 0)
+    {
+        <HomeSection Title="@T.Get(Copy.ToRateTitle)" Href="@SeekerRoutes.Reviews">
+            @foreach (var pro in Workspace.ToRate.Take(2))
+            {
+                <ToRateRow Pro="pro" @key="pro.Id" />
+            }
+        </HomeSection>
+    }
+
+    <HomeSection Title="@T.Get(Copy.BrowseTitle)">
+        <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)" OnPick="PickCategoryAsync" />
+    </HomeSection>
+</MudStack>

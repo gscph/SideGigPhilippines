@@ -19,4 +19,10 @@ public sealed class ProfessionalListing
 
     /// <summary>E.164 format, e.g. +639171234567.</summary>
     public required string MobileNumber { get; init; }
+
+    /// <summary>The pro's own photo as an image source (URL or data URL), or null for initials.</summary>
+    public string? PhotoUrl { get; init; }
+
+    /// <summary>Photos of their work as image sources, newest first.</summary>
+    public IReadOnlyList<string> WorkPhotoUrls { get; init; } = [];
 }

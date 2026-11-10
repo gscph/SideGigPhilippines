@@ -1,4 +1,4 @@
-<MudButton Variant="Variant.Outlined" Color="@(Selected ? Color.Primary : Color.Default)" FullWidth="true"
+<MudButton Variant="Variant.Text" Color="@(Selected ? Color.Primary : Color.Default)" FullWidth="true"
            Size="Size.Large" Class="@CssClass" aria-pressed="@(Selected ? "true" : "false")"
            OnClick="() => OnPick.InvokeAsync(Item.Id)">
     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="mud-width-full">

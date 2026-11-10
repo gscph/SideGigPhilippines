@@ -44,8 +44,7 @@ public static class ReferenceData
         {
             ["aircon"] =
             [
-                new("aircon-cleaning", new("Aircon cleaning", "Pa-linis ng aircon"), "🧽"),
-                new("aircon-chemical-wash", new("Aircon chemical wash", "Chemical wash ng aircon"), "🧴"),
+                new("aircon-cleaning", new("Aircon cleaning", "Pa-linis ng aircon"), "🧽"),               
                 new("aircon-repair", new("Aircon not cooling / repair", "Hindi lumalamig / pa-repair ng aircon"), "🌡️"),
                 new("aircon-leak", new("Aircon leaking water", "Tumutulo ang aircon"), "💧"),
                 new("aircon-freon", new("Freon recharge", "Pa-freon ng aircon"), "🧪"),
@@ -91,7 +90,6 @@ public static class ReferenceData
                 new("carpentry-furniture", new("Furniture repair", "Repair ng furniture"), "🪑"),
                 new("carpentry-door-window", new("Door or window repair", "Repair ng pinto o bintana"), "🚪"),
                 new("carpentry-cabinet", new("Custom cabinets or shelves", "Pagawa ng cabinet o estante"), "🗄️"),
-                // Kept ID: roof work now has its own category, so this is ceiling only.
                 new("carpentry-ceiling-roof", new("Ceiling repair", "Repair ng kisame"), "🏠"),
                 new("carpentry-partition", new("Partition or drywall", "Partition o drywall"), "🧱"),
                 new("carpentry-other", new("Other carpentry job", "Iba pang karpintero job"), "➕"),

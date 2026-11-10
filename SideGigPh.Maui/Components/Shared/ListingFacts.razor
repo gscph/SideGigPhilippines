@@ -1,0 +1,15 @@
+<MudStack Spacing="1">
+    @if (Reviews is not null)
+    {
+        <ProCardFact Icon="@Icons.Material.Filled.Star" Text="@T.Stars(Reviews)" />
+    }
+    <ProCardFact Icon="@Icons.Material.Filled.Payments" Text="@T.Rate(Listing)" />
+    @if (T.Experience(Listing) is { } experience)
+    {
+        <ProCardFact Icon="@Icons.Material.Filled.Handyman" Text="@experience" />
+    }
+    @if (T.Towns(Listing) is { Length: > 0 } towns)
+    {
+        <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@T.Format(Copy.ServesFact, towns)" />
+    }
+</MudStack>

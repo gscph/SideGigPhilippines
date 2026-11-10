@@ -42,11 +42,44 @@ All external infrastructure is decoupled behind C# interfaces (Dependency Invers
 
 **`IContactLauncher`**: Call / Text a pro through the phone's apps (`Local/DeviceContactLauncher`, MAUI `PhoneDialer` / `Sms`). Android needs the `tel` / `smsto` `<queries>` in `AndroidManifest.xml`.
 
+**`IInquiryRepository`** (`Dev/StubInquiryRepository`): an `Inquiry` is recorded when a Seeker's Call/Text opens the phone app (with the text they sent). The pro reads them as their Inbox (`GetForProfessionalAsync`); the Seeker's Inbox is the same records grouped by pro (`GetForSeekerAsync`). **`IReviewRepository`** (`Dev/StubReviewRepository`): Seekers write one review per pro they contacted (`SaveAsync` replaces); `GetSummariesAsync` feeds search ranking. Both stubs persist to a JSON file on the phone (`dev-inquiries.json`, `dev-reviews.json`) and add SAMPLE rows only in Debug (`Dev/DevSamples`), so a Release build never shows invented activity.
+
+**`Local/JsonFile<T>`**: the one place that reads/writes an app-private JSON file (atomic temp-file write, corrupt file reads as missing, source-generated `JsonTypeInfo`). `FileOnboardingStore` and the stubs use it.
+
+Until auth, the people on this phone have fixed ids: the pro's listing is `ListingMapper.OwnListingId` (`"own"`), the Seeker is `SeekerWorkspace.LocalSeekerId` (`"me"`). The auth gate replaces both with the user's uid.
+
+**`IPhotoPicker`** (`Local/DevicePhotoPicker`, MAUI `MediaPicker.PickPhotosAsync`, resized to 1280px) and **`IPhotoStore`** (`Local/FilePhotoStore`): photo id = SHA-256 of the bytes (anti-fraud rule 2), files in `AppDataDirectory/photos`, shown in the WebView as data URLs. Gallery-only, no camera, so Android 13+ needs no permission (the manifest has `READ_EXTERNAL_STORAGE` `maxSdkVersion=32` for older phones; iOS has `NSPhotoLibraryUsageDescription`).
+
+**`IProfessionalProfileRepository`**: `PublishAsync` returns `PublishResult.PhoneTaken` for a number that already has a listing (anti-fraud rule 1); `GetByIdAsync` serves the public profile and Inbox. The stub keeps the published listing in memory only, so it shows in this phone's Seeker search but is lost on restart.
+
+### App shell (shared by both sides, after the interview)
+
+- **`Components/Layout/AppShell`**, Slack style: `AppTopBar` (brand on the left, the user's `PersonAvatar` on the right linking to their page, optional green status dot), the page in the middle, `AppBottomNav` icon tabs (`AppTab`: href, icon, label, badge, `MatchPrefix` to keep a tab lit on its sub-pages). Fixed parts use the `app-*` gap classes in `app.css`; a page's main action sits last with `app-sticky-action` so it stays just above the tabs.
+- Each side has a thin layout that loads its workspace (non-matching users go back to `/`) and hands `AppShell` its tabs: **`Professional/ProLayout`** and **`Seeker/SeekerLayout`**. Pages opt in with `@layout`. Full-screen steps (`/professional/publish`, `/reviews/rate/{id}`) use `InterviewStep` instead, outside the shell.
+- Routes live in `ProRoutes` / `SeekerRoutes`; link through them, never a literal path.
+
+### Pro side (`Components/Professional/`)
+
+- **`ProWorkspace`** (`Services/`, singleton) holds the pro's draft, photos, inquiries and reviews and the actions on them (add/remove photos, change own photo, publish, mark inquiries seen); it raises `Changed` so the shell re-renders.
+- Tabs: Home `/professional` (`SetupCard` checklist until published, collapsible `HomeSection`s, + button adds work photos), Inbox `/professional/inquiries` ("new" badge), Reviews `/professional/reviews`, Photos `/professional/photos` (up to 12). Avatar → `/professional/profile` (own photo, Edit listing, Publish, card preview).
+- Profile and work photos live on `ProfessionalDraft` (`ProfilePhotoId`, `WorkPhotoIds`, `PublishedAt`, `InquiriesSeenAt`) and show on `ProCard` (avatar photo + the newest 3 work photos).
+
+### Seeker side (`Components/Seeker/`, `Search/`, `Inbox/`)
+
+- **`SeekerWorkspace`** (`Services/`, singleton): the current search (saved into `SeekerAnswers`, so it survives Back and restarts), Inbox threads, the Seeker's reviews, and Call/Text (opens the phone app via `IContactLauncher`, then records the `Inquiry`). The pre-written message comes from their answers (job, town, urgency).
+- Tabs: Home `/seeker` (search box, last search, recent messages, pros to rate, trade tiles), Search `/search`, Inbox `/inbox` (+ thread `/inbox/{proId}`), Reviews `/reviews` (badge = contacted pros not yet rated; write at `/reviews/rate/{proId}`). Avatar → `/me` (name shown on reviews, language).
+- **Flow:** search → tap a result → public profile `/pro/{id}` (facts, jobs, work photos, reviews, pinned **Contact**) → thread `/inbox/{id}` with a ready message: **Send text** opens SMS, **Call** opens the dialer; both are logged in the thread and on the pro's Inbox. Replies come to the Seeker's phone, outside the app. Only contacted pros can be reviewed.
+- **Search relevance (`Services/Search/`)** — keep it explainable, every weight is a named constant:
+  - `SearchText`: normalises typed words (lower case, accents off, English/Tagalog filler words dropped) and scores word matches (exact 1, typed prefix 0.8, longer form 0.7).
+  - `SearchIntentParser`: free text → trade + (when one clearly fits) job, matched against both languages' category/job labels, category hints and `TradeWords` synonyms (tubero, kuryente, hinang, masahe…). Generic job words (sira, repair, install…) count half toward the trade; a tie or weak match returns no trade plus the closest ones, and the UI asks "which kind of pro?". Add a synonym to `TradeWords` when users type a word we don't catch.
+  - `SearchRanker`: only pros listing the exact job (falls back to the whole trade, flagged, when nobody does); grouped "goes to your town" then "other towns"; scored by budget fit, stars (smoothed toward 4.0 so one review can't beat many), experience and photos.
+  - `ProfessionalSearch` fetches the trade's pros from all towns plus their review summaries, then ranks.
+
 ### Onboarding & Initial Navigation (interview-first, auth after)
 
 Full spec and research rationale: [`docs/onboarding.md`](docs/onboarding.md).
 
-- **`/` = `Onboarding/LaunchRouter`** (no UI). It applies the saved language, then routes: `/start` (language) → `/start/role` (Seeker / Professional fork) → the saved interview step → `/search` (Seeker) or `/professional` (Professional).
+- **`/` = `Onboarding/LaunchRouter`** (no UI). It applies the saved language, then routes: `/start` (language) → `/start/role` (Seeker / Professional fork) → the saved interview step → `/seeker` (Seeker home) or `/professional` (Professional). Right after the Seeker interview the loader lands on `/search` (the payoff).
 - **Interviews:** `/start/seeker/{step}` covers job → service → town → when → budget, then the labor-illusion loader, then results. `/start/pro/{step}` covers trades → jobs → towns → experience → rate → monthly earnings goal → name → number → preview. There is one URL per step, so Android back walks the steps. Answers are saved as the user moves forward.
 - **Money is the hook on both sides.** Seeker budget and pro rate share one price scale (`ReferenceData.PriceTiers`), which drives the "Pasok sa budget mo" badge and the sort order. The pro's private monthly goal becomes "≈ N jobs a week" (`GoalPayoff`, `Money.JobsPerWeek`).
 - **No login before or during onboarding.** Auth will go *after the interview and before the first benefit* (`SeekerInterview.FinishAsync` / `ProfessionalInterview.FinishAsync`). **That workflow is still being designed by the owner. Don't wire auth into the flow until it's decided.**
@@ -95,7 +128,7 @@ The current codebase is a single `SideGigPh` project. It will be restructured in
 - **Mobile-first UI** — every component must work on phone-width viewports
 - **Reusable, composable components** — build small, single-responsibility Razor components and compose them; never create one giant `.razor` page that does everything. Extract repeated or self-contained UI into its own component with `[Parameter]`-driven inputs and `EventCallback` outputs
 - **Component folder structure** — group components by feature under `Components/<Feature>/`, and always use code-behind: each component is a `<Name>.razor` markup file paired with a `<Name>.razor.cs` partial class for its logic. Shared shell/layout components live under `Components/Layout/`
-- **Generic vs feature components** — a component used by two or more features and not tied to any single feature is a *generic* component and belongs in `SideGigPh.Shared` (e.g. `SideGigPh.Shared/Components/`), not under a feature folder. Feature-specific components stay with their feature. Until that project exists, generic components live in `SideGigPh.Maui/Components/Shared/`: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`), `WorkingLoader`, `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview), `GoalPayoff` and `BrandMark` (logo + name).
+- **Generic vs feature components** — a component used by two or more features and not tied to any single feature is a *generic* component and belongs in `SideGigPh.Shared` (e.g. `SideGigPh.Shared/Components/`), not under a feature folder. Feature-specific components stay with their feature. Until that project exists, generic components live in `SideGigPh.Maui/Components/Shared/`: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`), `WorkingLoader`, `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview), `ListingFacts` and `ServiceChips` (shared by the card and the public profile; their text comes from `Services/Localization/ListingText`), `PersonAvatar` (photo, initials or a person icon), `HomeSection` (collapsible home section), `ReviewRow` + `RatingSummary`, `GoalPayoff` and `BrandMark` (logo + name).
 - **MudBlazor only, no raw HTML** — markup is built from MudBlazor components; don't write `<div>`, `<span>`, `<p>`, `<button>`, `<input>` etc. in `.razor` files. Use `MudStack` for layout and spacing (`Row`, `Spacing`, `AlignItems`, `Justify`, `Wrap`), `MudText` for all text (`Typo` for size, `HtmlTag="h1"` for headings — `FocusOnNavigate` focuses the page's `h1`), `MudContainer` for page width, and MudBlazor's own spacing/flex utility classes (`pa-4`, `flex-1`, `mud-width-full`…). Reach for the out-of-the-box component first (`MudButton`, `MudTextField`, `MudChip`, `MudAlert`, `MudCard`, `MudSkeleton`, `MudProgressLinear`…). Only when MudBlazor has no parameter or utility for something, add a small, named helper class in the "MudBlazor gaps" section of `wwwroot/app.css`. Scoped `.razor.css` files don't reach inside MudBlazor components, so don't add them. The only raw HTML is `wwwroot/index.html` (the pre-Blazor splash).
 - **Bilingual copy (English / Taglish)**: never hard-code user-facing text in a component.
   - UI strings are `LocalizedText(English, Taglish)` pairs in `Services/Localization/Copy.cs`. Answer lists (jobs, towns, prices…) are in `Services/ReferenceData.cs`.
@@ -130,3 +163,12 @@ dotnet build -f net10.0-ios -c Release
 # Restore workloads
 dotnet workload install maui
 ```
+
+## Project Skills (`.claude/skills/`)
+
+Load the matching skill before doing these tasks:
+- **`taglish-copy`**: any user-facing text (English/Taglish wording, local lingo, SMS templates).
+- **`add-service-category`**: categories, jobs/services, "Iba pa" options, towns.
+- **`add-interview-step`**: adding or changing an onboarding question, or the flow and resume logic.
+- **`onboarding-ux-review`**: UX critique against the onboarding research, plus trust guardrails (permissions, hooks, sign-up placement).
+- **`new-razor-component`**: any new or restyled `.razor` component (MudBlazor-only, code-behind, Shared vs feature folder).

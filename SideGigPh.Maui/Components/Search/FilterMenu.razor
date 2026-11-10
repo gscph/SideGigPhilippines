@@ -1,0 +1,19 @@
+<MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" AriaLabel="@Label">
+    <ActivatorContent>
+        <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Icon="@Icon" Class="ma-0">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0">
+                <MudText Typo="Typo.body2" HtmlTag="span">@SelectedLabel</MudText>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Size="Size.Small" aria-hidden="true" />
+            </MudStack>
+        </MudChip>
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var option in Options)
+        {
+            <MudMenuItem Icon="@(option.Id == SelectedId ? Icons.Material.Filled.Check : null)"
+                         OnClick="() => OnPick.InvokeAsync(option.Id)">
+                @option.Label
+            </MudMenuItem>
+        }
+    </ChildContent>
+</MudMenu>

@@ -1,0 +1,66 @@
+@page "/inbox/{Id}"
+@layout SeekerLayout
+
+<MudStack Spacing="3">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@SeekerRoutes.Inbox" aria-label="@T.Get(Copy.Back)" />
+        @if (_pro is not null)
+        {
+            <MudLink Href="@SeekerRoutes.Pro(_pro.Id)" Underline="Underline.None" Color="Color.Inherit" Class="flex-1 overflow-hidden"
+                     aria-label="@T.Get(Copy.ViewProfile)">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <PersonAvatar Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" />
+                    <MudStack Spacing="0" Class="overflow-hidden">
+                        <MudText Typo="Typo.subtitle1" HtmlTag="h1" Class="one-line">@_pro.DisplayName</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.Trades(_pro)</MudText>
+                    </MudStack>
+                </MudStack>
+            </MudLink>
+        }
+    </MudStack>
+
+    @if (_loading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="py-12">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        </MudStack>
+    }
+    else if (_pro is null)
+    {
+        <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ProNotFoundTitle)</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(Copy.ProNotFound)</MudText>
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" Icon="@Icons.Material.Filled.Info">
+            @T.Format(Copy.ThreadHowItWorks, _pro.DisplayName)
+        </MudAlert>
+
+        @if (Contacts.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">@T.Get(Copy.ThreadStart)</MudText>
+        }
+
+        <MudStack Spacing="2">
+            @foreach (var contact in Contacts)
+            {
+                <ContactBubble Contact="contact" @key="contact.Id" />
+            }
+        </MudStack>
+
+        @if (Contacts.Count > 0)
+        {
+            <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.StarOutline"
+                       Href="@SeekerRoutes.Rate(_pro.Id)" Class="align-self-center">
+                @T.Get(Workspace.MyReviewOf(_pro.Id) is null ? Copy.RateThisPro : Copy.EditYourReview)
+            </MudButton>
+        }
+
+        @if (_contactFailed)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(Copy.ContactFailed)</MudAlert>
+        }
+
+        <MessageComposer @bind-Message="_message" Busy="_busy" OnSend="TextAsync" OnCall="CallAsync" />
+    }
+</MudStack>

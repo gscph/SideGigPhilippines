@@ -6,23 +6,17 @@
     {
         case ProStep.Skills:
             <InterviewStep Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
-                           OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.CategoryIds.Count > 0)">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)" Multiple="true"
-                             SelectedIds="Draft.CategoryIds" OnPick="ToggleSkill" />
+                           OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)"
+                             SelectedIds="Selected(Draft.CategoryId)" OnPick="PickSkillAsync" />
             </InterviewStep>
             break;
 
         case ProStep.Services:
             <InterviewStep Title="@T.Get(Copy.ProServicesTitle)" Why="@T.Get(Copy.ProServicesWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.ServiceIds.Count > 0)">
-                @foreach (var categoryId in Draft.CategoryIds)
-                {
-                    <MudStack Spacing="2">
-                        <MudText Typo="Typo.subtitle1" HtmlTag="h2" Color="Color.Secondary">@CategoryLabel(categoryId)</MudText>
-                        <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[categoryId], T)" Multiple="true"
-                                     SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
-                    </MudStack>
-                }
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[Draft.CategoryId!], T)" Multiple="true"
+                             SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
             </InterviewStep>
             break;
 

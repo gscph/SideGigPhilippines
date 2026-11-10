@@ -1,0 +1,19 @@
+<MudStack Row="true" Spacing="3" Class="py-2">
+    <PersonAvatar Name="@DisplayName" PhotoUrl="@PhotoUrl" />
+    <MudStack Spacing="1" Class="flex-1">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
+            <MudText Typo="Typo.subtitle2">@DisplayName</MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Ago(Review.At)</MudText>
+        </MudStack>
+        <MudRating SelectedValue="Review.Rating" ReadOnly="true" Size="Size.Small" Color="Color.Warning"
+                   aria-label="@($"{Review.Rating}/5")" />
+        @if (!string.IsNullOrWhiteSpace(Review.Comment))
+        {
+            <MudText Typo="Typo.body2">@Review.Comment</MudText>
+        }
+        @if (ServiceLabel is not null)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@ServiceLabel</MudText>
+        }
+    </MudStack>
+</MudStack>

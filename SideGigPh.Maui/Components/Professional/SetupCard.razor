@@ -1,0 +1,14 @@
+<MudCard Outlined="true" Elevation="0" Class="border-2 mud-border-primary">
+    <MudCardContent>
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.SetupTitle)</MudText>
+            <MudProgressLinear Value="Percent" Color="Color.Primary" Rounded="true" Size="Size.Small" Class="mb-2" />
+            <SetupStep Href="@ProRoutes.Profile" Done="HasPhoto"
+                       Title="@T.Get(Copy.SetupPhoto)" Why="@T.Get(Copy.SetupPhotoWhy)" />
+            <SetupStep Href="@ProRoutes.Photos" Done="HasWorkPhotos"
+                       Title="@T.Get(Copy.SetupWork)" Why="@T.Get(Copy.SetupWorkWhy)" />
+            <SetupStep Href="@ProRoutes.Publish" Done="false"
+                       Title="@T.Get(Copy.SetupPublish)" Why="@T.Get(Copy.SetupPublishWhy)" />
+        </MudStack>
+    </MudCardContent>
+</MudCard>

@@ -7,6 +7,8 @@ namespace SideGigPh.Maui.Services.Dev;
 /// SAMPLE listings across the four towns so the Seeker flow can be exercised end to end.
 /// The numbers use the unassigned +63 900 prefix so they never reach a real person.
 /// Flip <see cref="PretendHasProfile"/> to <c>true</c> to exercise the Professional route.
+/// A published listing is kept in memory only (lost on restart, never leaves the phone), so
+/// on this device the Seeker side can find it.
 /// </summary>
 public sealed class StubProfessionalProfileRepository : IProfessionalProfileRepository
 {
@@ -32,15 +34,32 @@ public sealed class StubProfessionalProfileRepository : IProfessionalProfileRepo
         Sample("15", "Aling Nena Hilot & Massage", "home_massage", ["massage-full-body", "massage-hilot", "massage-ventosa", "massage-foot"], ["angono", "binangonan", "taytay"], "10-plus", "500-1000"),
     ];
 
+    private readonly List<ProfessionalListing> _published = [];
+
     public Task<bool> HasProfileAsync(string uid) => Task.FromResult(PretendHasProfile);
 
     public Task<IReadOnlyList<ProfessionalListing>> SearchAsync(ProfessionalSearchQuery query)
     {
-        IReadOnlyList<ProfessionalListing> matches = SampleListings
+        IReadOnlyList<ProfessionalListing> matches = _published.Concat(SampleListings)
             .Where(p => p.CategoryIds.Contains(query.CategoryId))
             .Where(p => query.CityId is null || p.CityIds.Contains(query.CityId))
             .ToList();
         return Task.FromResult(matches);
+    }
+
+    public Task<ProfessionalListing?> GetByIdAsync(string professionalId) =>
+        Task.FromResult(_published.Concat(SampleListings).FirstOrDefault(p => p.Id == professionalId));
+
+    public Task<PublishResult> PublishAsync(ProfessionalListing listing)
+    {
+        if (_published.Concat(SampleListings).Any(p => p.Id != listing.Id && p.MobileNumber == listing.MobileNumber))
+        {
+            return Task.FromResult(PublishResult.PhoneTaken);
+        }
+
+        _published.RemoveAll(p => p.Id == listing.Id);
+        _published.Add(listing);
+        return Task.FromResult(PublishResult.Published);
     }
 
     private static ProfessionalListing Sample(

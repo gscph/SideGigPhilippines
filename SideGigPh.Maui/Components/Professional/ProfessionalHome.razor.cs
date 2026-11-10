@@ -6,32 +6,30 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Home for a Professional who finished the interview: their saved card, their earnings
-/// goal, and a way to edit. Going live (auth + publish) is not built yet, and the page says so.
+/// Pro home, Slack style: the setup checklist until the listing is published, then
+/// collapsible sections for recent inquiries, latest reviews and the earnings goal.
+/// The + button adds work photos.
 /// </summary>
 public partial class ProfessionalHome : ComponentBase
 {
-    [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    private ProfessionalDraft? _draft;
+    private PhotoAddResult? _photoResult;
 
-    private string? GoalLabel => ReferenceData.Find(ReferenceData.IncomeGoals, _draft?.IncomeGoalId) is { } goal
+    private string? GoalLabel => ReferenceData.Find(ReferenceData.IncomeGoals, Workspace.Draft.IncomeGoalId) is { } goal
         ? T.Get(goal.Label)
         : null;
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync() => Workspace.RefreshActivityAsync();
+
+    private async Task AddPhotosAsync()
     {
-        var state = await Store.LoadAsync();
-        if (state.Role != UserRole.Professional || state.CompletedAt is null)
+        _photoResult = await Workspace.AddWorkPhotosAsync();
+        if (_photoResult is { Added: > 0, Duplicates: 0 })
         {
-            Nav.NavigateTo("/", replace: true);
-            return;
+            Nav.NavigateTo(ProRoutes.Photos);
         }
-
-        _draft = state.Professional;
     }
-
-    private void Edit() => Nav.NavigateTo("/start/pro/1");
 }

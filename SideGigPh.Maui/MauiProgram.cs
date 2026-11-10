@@ -4,6 +4,7 @@ using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Dev;
 using SideGigPh.Maui.Services.Local;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Maui.Services.Search;
 #if ANDROID || IOS
 using SideGigPh.Maui.Services.Firebase;
 #endif
@@ -31,6 +32,13 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<IProfessionalProfileRepository, StubProfessionalProfileRepository>();
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
             builder.Services.AddSingleton<IContactLauncher, DeviceContactLauncher>();
+            builder.Services.AddSingleton<IInquiryRepository, StubInquiryRepository>();
+            builder.Services.AddSingleton<IReviewRepository, StubReviewRepository>();
+            builder.Services.AddSingleton<IPhotoPicker, DevicePhotoPicker>();
+            builder.Services.AddSingleton<IPhotoStore, FilePhotoStore>();
+            builder.Services.AddSingleton<ProWorkspace>();
+            builder.Services.AddSingleton<ProfessionalSearch>();
+            builder.Services.AddSingleton<SeekerWorkspace>();
             builder.Services.AddSingleton<AppText>();
 
 #if DEBUG

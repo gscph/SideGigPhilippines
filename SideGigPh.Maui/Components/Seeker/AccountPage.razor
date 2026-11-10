@@ -1,0 +1,34 @@
+@page "/me"
+@layout SeekerLayout
+
+<MudStack Spacing="4">
+    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.AccountTitle)</MudText>
+
+    <MudStack AlignItems="AlignItems.Center">
+        <PersonAvatar Name="@(Workspace.Answers.ReviewerName ?? string.Empty)" Class="profile-photo" />
+    </MudStack>
+
+    <MudStack Spacing="2">
+        <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Outlined" MaxLength="40"
+                      Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" autocomplete="name" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!NameChanged)" OnClick="SaveNameAsync">
+            @T.Get(_saved && !NameChanged ? Copy.Saved : Copy.Save)
+        </MudButton>
+    </MudStack>
+
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.AccountLanguage)</MudText>
+        <MudStack Row="true" Spacing="2" StretchItems="StretchItems.All">
+            @foreach (var (language, label) in Languages)
+            {
+                <MudButton Variant="@(Workspace.Language == language ? Variant.Filled : Variant.Outlined)" Color="Color.Primary"
+                           FullWidth="true" aria-pressed="@(Workspace.Language == language ? "true" : "false")"
+                           OnClick="() => Workspace.SetLanguageAsync(language)">
+                    @label
+                </MudButton>
+            }
+        </MudStack>
+    </MudStack>
+
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Icon="@Icons.Material.Filled.PhoneAndroid">@T.Get(Copy.AccountOnPhone)</MudAlert>
+</MudStack>

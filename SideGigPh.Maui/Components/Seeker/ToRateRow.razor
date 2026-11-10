@@ -1,0 +1,11 @@
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="py-2">
+    <PersonAvatar Name="@Pro.DisplayName" PhotoUrl="@Pro.PhotoUrl" />
+    <MudStack Spacing="0" Class="flex-1 overflow-hidden">
+        <MudText Typo="Typo.subtitle2" Class="one-line">@Pro.DisplayName</MudText>
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.Trades(Pro)</MudText>
+    </MudStack>
+    <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.StarOutline"
+               Href="@SeekerRoutes.Rate(Pro.Id)" Class="flex-shrink-0">
+        @T.Get(Copy.Rate)
+    </MudButton>
+</MudStack>

@@ -1,0 +1,76 @@
+@page "/pro/{Id}"
+@layout SeekerLayout
+
+<MudStack Spacing="4">
+    <MudStack Row="true" AlignItems="AlignItems.Center">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@SeekerRoutes.Search" aria-label="@T.Get(Copy.Back)" />
+    </MudStack>
+
+    @if (_loading)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="py-12">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        </MudStack>
+    }
+    else if (_pro is null)
+    {
+        <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ProNotFoundTitle)</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(Copy.ProNotFound)</MudText>
+    }
+    else
+    {
+        <MudStack AlignItems="AlignItems.Center" Spacing="1">
+            <PersonAvatar Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Class="profile-photo" />
+            <MudText Typo="Typo.h5" HtmlTag="h1" Align="Align.Center">@_pro.DisplayName</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Trades(_pro)</MudText>
+        </MudStack>
+
+        <ListingFacts Listing="_pro" Reviews="Summary" />
+
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.ProProfileJobs)</MudText>
+            <ServiceChips Listing="_pro" />
+        </MudStack>
+
+        @if (_pro.WorkPhotoUrls.Count > 0)
+        {
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.ProProfilePhotos)</MudText>
+                <MudGrid Spacing="2">
+                    @foreach (var url in _pro.WorkPhotoUrls)
+                    {
+                        <MudItem xs="4">
+                            <MudImage Src="@url" Alt="" ObjectFit="ObjectFit.Cover" Class="work-thumb rounded-lg" />
+                        </MudItem>
+                    }
+                </MudGrid>
+            </MudStack>
+        }
+
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.ReviewsTitle)</MudText>
+            @if (_reviews.Count == 0)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProProfileNoReviews)</MudText>
+            }
+            else
+            {
+                <RatingSummary Reviews="_reviews" />
+                <MudStack Spacing="0">
+                    @foreach (var review in _reviews)
+                    {
+                        <ReviewRow Review="review" />
+                        <MudDivider />
+                    }
+                </MudStack>
+            }
+        </MudStack>
+
+        <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Forum" Href="@SeekerRoutes.Thread(_pro.Id)">
+                @T.Get(Copy.ContactPro)
+            </MudButton>
+        </MudPaper>
+    }
+</MudStack>

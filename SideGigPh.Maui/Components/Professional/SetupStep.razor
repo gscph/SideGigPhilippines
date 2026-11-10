@@ -1,0 +1,11 @@
+<MudLink Href="@Href" Underline="Underline.None" Color="Color.Dark">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="py-2">
+        <MudIcon Icon="@(Done ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.RadioButtonUnchecked)"
+                 Color="@(Done ? Color.Success : Color.Secondary)" aria-hidden="true" />
+        <MudStack Spacing="0" Class="flex-1">
+            <MudText Typo="Typo.subtitle2">@Title</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Why</MudText>
+        </MudStack>
+        <MudIcon Icon="@Icons.Material.Filled.ChevronRight" Color="Color.Secondary" aria-hidden="true" />
+    </MudStack>
+</MudLink>

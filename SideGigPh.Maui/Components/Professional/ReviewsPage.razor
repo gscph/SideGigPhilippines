@@ -1,0 +1,23 @@
+@page "/professional/reviews"
+@layout ProLayout
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ReviewsTitle)</MudText>
+
+    @if (Workspace.Reviews.Count == 0)
+    {
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.ReviewsEmpty)</MudText>
+    }
+    else
+    {
+        <RatingSummary Reviews="Workspace.Reviews" />
+        <MudDivider />
+        <MudStack Spacing="0">
+            @foreach (var review in Workspace.Reviews)
+            {
+                <ReviewRow Review="review" />
+                <MudDivider />
+            }
+        </MudStack>
+    }
+</MudStack>

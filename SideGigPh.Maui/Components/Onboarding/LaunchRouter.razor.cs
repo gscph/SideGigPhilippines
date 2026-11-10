@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Professional;
+using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -43,6 +45,6 @@ public partial class LaunchRouter : ComponentBase
             return state.ResumePath ?? (role == UserRole.Seeker ? "/start/seeker" : "/start/pro");
         }
 
-        return role == UserRole.Seeker ? "/search" : "/professional";
+        return role == UserRole.Seeker ? SeekerRoutes.Home : ProRoutes.Home;
     }
 }

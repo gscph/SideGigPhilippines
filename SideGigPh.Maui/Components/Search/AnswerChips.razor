@@ -1,7 +1,0 @@
-<MudStack Row="true" Wrap="Wrap.Wrap" Spacing="2">
-    @foreach (var chip in Items)
-    {
-        <MudChip T="int" Color="Color.Primary" Variant="Variant.Outlined" Icon="@Icons.Material.Filled.Edit"
-                 Class="ma-0" OnClick="() => OnEdit.InvokeAsync(chip.Step)">@chip.Label</MudChip>
-    }
-</MudStack>

@@ -1,0 +1,11 @@
+<MudStack Row="true" Spacing="2" Class="overflow-x-auto flex-nowrap pb-1" role="group" aria-label="@Label">
+    @foreach (var item in Items)
+    {
+        var selected = item.Id == SelectedId;
+        <MudChip T="string" Color="Color.Primary" Variant="@(selected ? Variant.Filled : Variant.Outlined)"
+                 Class="ma-0 flex-shrink-0" aria-pressed="@(selected ? "true" : "false")"
+                 OnClick="() => OnPick.InvokeAsync(item.Id)">
+            @(item.Icon is null ? item.Label : $"{item.Icon} {item.Label}")
+        </MudChip>
+    }
+</MudStack>

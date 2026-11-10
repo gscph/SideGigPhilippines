@@ -1,0 +1,7 @@
+<AppTopBar Name="@UserName" PhotoUrl="@UserPhotoUrl" ShowStatusDot="ShowStatusDot" ProfileHref="@ProfileHref" />
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="app-content pt-4">
+    @ChildContent
+</MudContainer>
+
+<AppBottomNav Tabs="Tabs" CurrentPath="@_path" />

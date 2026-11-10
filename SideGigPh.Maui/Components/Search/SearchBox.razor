@@ -1,0 +1,6 @@
+<MudTextField T="string" @bind-Value="_text" Variant="Variant.Outlined" Immediate
+              DebounceInterval="@(Live ? 400 : 0)" OnDebounceIntervalElapsed="OnTypedAsync" OnKeyDown="OnKeyDownAsync"
+              Clearable="true" OnClearButtonClick="ClearAsync"
+              Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+              Placeholder="@T.Get(Copy.SearchPlaceholder)" MaxLength="80"
+              InputMode="InputMode.search"  />

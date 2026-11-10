@@ -14,4 +14,13 @@ public interface IProfessionalProfileRepository
 
     /// <summary>Professionals offering a category, limited to a town when one is given.</summary>
     Task<IReadOnlyList<ProfessionalListing>> SearchAsync(ProfessionalSearchQuery query);
+
+    /// <summary>One published listing, or null if it's gone.</summary>
+    Task<ProfessionalListing?> GetByIdAsync(string professionalId);
+
+    /// <summary>
+    /// Makes the listing searchable, or replaces the pro's earlier version of it.
+    /// Enforces anti-fraud rule 1: one mobile number, one listing.
+    /// </summary>
+    Task<PublishResult> PublishAsync(ProfessionalListing listing);
 }

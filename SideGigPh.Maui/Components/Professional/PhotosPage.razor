@@ -1,0 +1,39 @@
+@page "/professional/photos"
+@layout ProLayout
+
+<MudStack Spacing="3">
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.PhotosTitle)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Format(Copy.PhotosWhy, ProWorkspace.MaxWorkPhotos)</MudText>
+    </MudStack>
+
+    @if (IsFull)
+    {
+        <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@T.Format(Copy.PhotosFull, ProWorkspace.MaxWorkPhotos)</MudAlert>
+    }
+    else
+    {
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                   StartIcon="@Icons.Material.Filled.AddAPhoto" Disabled="_busy" OnClick="AddAsync">
+            @T.Get(Copy.PhotosAdd)
+        </MudButton>
+    }
+
+    <PhotoAddNotice Result="_result" />
+
+    @if (Workspace.WorkPhotos.Count == 0)
+    {
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.PhotosEmpty)</MudText>
+    }
+    else
+    {
+        <MudGrid Spacing="2">
+            @foreach (var photo in Workspace.WorkPhotos)
+            {
+                <MudItem xs="4" @key="photo.Id">
+                    <PhotoTile Url="@photo.Url" OnRemove="() => Workspace.RemoveWorkPhotoAsync(photo.Id)" />
+                </MudItem>
+            }
+        </MudGrid>
+    }
+</MudStack>

@@ -1,0 +1,9 @@
+@inherits LayoutComponentBase
+@layout MainLayout
+
+@if (_ready)
+{
+    <AppShell Tabs="Tabs" ProfileHref="@SeekerRoutes.Account" UserName="@Workspace.Answers.ReviewerName">
+        @Body
+    </AppShell>
+}

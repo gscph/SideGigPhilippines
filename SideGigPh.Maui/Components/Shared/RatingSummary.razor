@@ -1,0 +1,17 @@
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+    <MudStack AlignItems="AlignItems.Center" Spacing="0">
+        <MudText Typo="Typo.h3" HtmlTag="p">@Average</MudText>
+        <MudRating SelectedValue="Rounded" ReadOnly="true" Size="Size.Small" Color="Color.Warning"
+                   aria-label="@($"{Average}/5")" />
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@CountLabel</MudText>
+    </MudStack>
+    <MudStack Spacing="1" Class="flex-1">
+        @foreach (var stars in Enumerable.Range(1, 5).Reverse())
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@stars</MudText>
+                <MudProgressLinear Value="@Share(stars)" Color="Color.Warning" Rounded="true" Size="Size.Medium" Class="flex-1" />
+            </MudStack>
+        }
+    </MudStack>
+</MudStack>

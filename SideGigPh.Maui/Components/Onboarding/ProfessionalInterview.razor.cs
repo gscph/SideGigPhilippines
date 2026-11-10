@@ -60,13 +60,15 @@ public partial class ProfessionalInterview : ComponentBase
         _phone ??= PhilippineMobile.ToLocal(Draft.MobileNumber);
     }
 
-    private void ToggleSkill(string categoryId)
+    private Task PickSkillAsync(string categoryId)
     {
-        Toggle(Draft.CategoryIds, categoryId);
+        if (Draft.CategoryId != categoryId)
+        {
+            Draft.CategoryId = categoryId;
+            Draft.ServiceIds.Clear(); // Jobs belonged to the previous trade.
+        }
 
-        // Jobs from a trade the pro just unticked no longer apply.
-        Draft.ServiceIds.RemoveAll(serviceId => ReferenceData.CategoryOfService(serviceId) is not { } category
-            || !Draft.CategoryIds.Contains(category));
+        return AdvanceAsync();
     }
 
     private void ToggleService(string serviceId) => Toggle(Draft.ServiceIds, serviceId);
@@ -134,7 +136,7 @@ public partial class ProfessionalInterview : ComponentBase
 
     private ProStep FirstUnanswered()
     {
-        if (Draft.CategoryIds.Count == 0) return ProStep.Skills;
+        if (Draft.CategoryId is null) return ProStep.Skills;
         if (Draft.ServiceIds.Count == 0) return ProStep.Services;
         if (Draft.CityIds.Count == 0) return ProStep.Areas;
         if (Draft.ExperienceId is null) return ProStep.Experience;
@@ -143,9 +145,6 @@ public partial class ProfessionalInterview : ComponentBase
         if (string.IsNullOrWhiteSpace(Draft.DisplayName) || Draft.MobileNumber is null) return ProStep.Contact;
         return ProStep.Preview;
     }
-
-    private string CategoryLabel(string categoryId) =>
-        ReferenceData.Find(ReferenceData.Categories, categoryId) is { } category ? T.Get(category.Label) : categoryId;
 
     private static void Toggle(List<string> ids, string id)
     {

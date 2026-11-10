@@ -97,7 +97,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 
 **Pro home** (Phase 1) shows the saved card, the goal with its payoff, and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
 
-**Deferred:** work photos. They need Firebase Storage and the duplicate-image check (anti-fraud rule #2), so they come after auth and go-live.
+**Not in the interview:** work photos. They are added on Pro home (`/professional/photos`), kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Firebase Storage comes after auth.
 
 ### 2.3 The money hooks: what was proposed, with three adjustments
 
@@ -193,19 +193,28 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 ### Routes
 | Route | Component | Role |
 |-------|-----------|------|
-| `/` | `Onboarding/LaunchRouter` | Loads `IOnboardingStore`, applies the language and redirects to `/start`, `/start/role`, the resume step, `/search` or `/professional`. |
+| `/` | `Onboarding/LaunchRouter` | Loads `IOnboardingStore`, applies the language and redirects to `/start`, `/start/role`, the resume step, `/seeker` or `/professional`. |
 | `/start` | `Onboarding/LanguagePage` | English / Taglish. |
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S5, plus the loader at step 6. |
 | `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P8, plus the preview at step 9. |
-| `/search` | `Search/SearchResults` | Answer chips, ranked `ProCard`s, Call/Text. |
-| `/professional` | `Professional/ProfessionalHome` | The saved card, the goal, Edit. |
+| `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Search, Inbox, Reviews): search box, last search, recent messages, trade tiles. |
+| `/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
+| `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |
+| `/inbox` · `/inbox/{id}` | `Inbox/InboxPage` · `Inbox/ThreadPage` | Contacted pros; the thread has a ready message, Send text and Call. |
+| `/reviews` · `/reviews/rate/{id}` · `/me` | `Seeker/*Page` | Rate contacted pros, the Seeker's reviews, their name and language. |
+| `/professional` | `Professional/ProfessionalHome` | Pro home in the shared `AppShell` (via `ProLayout`): setup checklist, recent inquiries, latest reviews, the goal. |
+| `/professional/inquiries` · `/reviews` · `/photos` · `/profile` | `Professional/*Page` | The other tabs, and the profile opened from the avatar. |
+| `/professional/publish` | `Professional/PublishPage` | Card + pledge, then publish (one number, one listing). |
 | `/verify` | `Auth/AuthPage` | Moved off `/`. It is the future auth gate and is not linked yet. |
 
 ### Components
 - **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), `WorkingLoader` (labor illusion), `ProCard`, `GoalPayoff`.
 - **Onboarding:** `LaunchRouter`, `LanguagePage`, `RolePage`, `SeekerInterview`, `ProfessionalInterview`, `ListingPreview`.
-- **Search:** `SearchResults`, `AnswerChips`.
+- **Layout:** `AppShell` (`AppTopBar`, `AppBottomNav`, `AppNavItem`), used by `ProLayout` and `SeekerLayout`.
+- **Search:** `SearchPage`, `SearchBox`, `ChipStrip`, `FilterMenu`, `ResultGroup`, `ResultCard`, `PublicProfilePage`; ranking in `Services/Search`.
+- **Inbox:** `InboxPage`, `ThreadPage`, `ThreadRow`, `ContactBubble`, `MessageComposer`.
+- **Seeker:** `SeekerLayout`, `SeekerHome`, `LastSearchCard`, `SeekerReviewsPage`, `ToRateRow`, `WriteReviewPage`, `AccountPage`.
 
 ### Text and reference data
 - `Services/Localization/AppText`: a singleton holding the chosen language. Use `T.Get(text)` and `T.Format(text, args)`.
@@ -226,7 +235,7 @@ Blazor Hybrid code runs as **native .NET**, not in a browser. The WebView's `loc
 |------|----------|---------------|---------|
 | Small flags | `Preferences` | SharedPreferences / NSUserDefaults | Tiny independent flags (none yet) |
 | A document | JSON file in `FileSystem.AppDataDirectory` | App-private files | **The interview state** (`onboarding.json`) |
-| Photos (later) | Files in `AppDataDirectory` | App-private files | Draft portfolio photos and their SHA-256 |
+| Photos | Files in `AppDataDirectory/photos` | App-private files | The pro's own and work photos, named by their SHA-256 |
 | Secrets | `SecureStorage` | Keystore / Keychain | Nothing yet. Firebase keeps its own session. |
 | Queryable data | SQLite (`sqlite-net-pcl`) | — | **Later:** favorites, recently viewed, offline cache |
 | Server cache | Firestore offline persistence | Built-in | Listings, once Firestore is in |

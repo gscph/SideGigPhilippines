@@ -1,26 +1,50 @@
 @page "/professional"
+@layout ProLayout
 
-@if (_draft is not null)
+<MudStack Spacing="4">  
+
+    <PhotoAddNotice Result="_photoResult" />
+
+    @if (!Workspace.IsPublished)
+    {
+        <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" HasWorkPhotos="@(Workspace.WorkPhotos.Count > 0)" />
+    }
+
+    <HomeSection Title="@T.Get(Copy.SectionInquiries)" Href="@ProRoutes.Inquiries">
+        @if (Workspace.Inquiries.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.InquiriesEmpty)</MudText>
+        }
+        @foreach (var inquiry in Workspace.Inquiries.Take(3))
+        {
+            <InquiryRow Inquiry="inquiry" IsNew="@Workspace.IsNew(inquiry)" />
+        }
+    </HomeSection>
+
+    <HomeSection Title="@T.Get(Copy.SectionReviews)" Href="@ProRoutes.Reviews">
+        @if (Workspace.Reviews.Count == 0)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ReviewsEmpty)</MudText>
+        }
+        @foreach (var review in Workspace.Reviews.Take(2))
+        {
+            <ReviewRow Review="review" />
+        }
+    </HomeSection>
+
+    @if (GoalLabel is not null)
+    {
+        <HomeSection Title="@T.Get(Copy.SectionGoal)">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.body1">@T.Format(Copy.ProHomeGoal, GoalLabel)</MudText>
+                <GoalPayoff RateTierId="@Workspace.Draft.RateTierId" IncomeGoalId="@Workspace.Draft.IncomeGoalId" />
+            </MudStack>
+        </HomeSection>
+    }
+</MudStack>
+
+@if (Workspace.WorkPhotos.Count < ProWorkspace.MaxWorkPhotos)
 {
-    <MudContainer MaxWidth="MaxWidth.Small" Class="pt-4 pb-8">
-        <MudStack HtmlTag="section" Spacing="4">
-            <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ProHomeTitle)</MudText>
-            <MudAlert Severity="Severity.Normal" Variant="Variant.Text">@T.Get(Copy.ProHomeNotLive)</MudAlert>
-
-            <ProCard Listing="_draft.ToListing()" />
-
-            @if (GoalLabel is not null)
-            {
-                <MudStack Spacing="2">
-                    <MudText Typo="Typo.subtitle1">@T.Format(Copy.ProHomeGoal, GoalLabel)</MudText>
-                    <GoalPayoff RateTierId="@_draft.RateTierId" IncomeGoalId="@_draft.IncomeGoalId" />
-                </MudStack>
-            }
-
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       StartIcon="@Icons.Material.Filled.Edit" OnClick="Edit">
-                @T.Get(Copy.ProHomeEdit)
-            </MudButton>
-        </MudStack>
-    </MudContainer>
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddAPhoto" Class="app-fab"
+            aria-label="@T.Get(Copy.PhotosAdd)" OnClick="AddPhotosAsync" />
 }
