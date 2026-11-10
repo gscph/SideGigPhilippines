@@ -39,6 +39,15 @@ public sealed class StubInquiryRepository(ILogger<StubInquiryRepository> logger)
             .OrderBy(i => i.At)
             .ToList();
 
+    public async Task DeleteForPersonAsync(string personId)
+    {
+        var inquiries = await AllAsync();
+        if (inquiries.RemoveAll(i => i.SeekerId == personId || i.ProfessionalId == personId) > 0)
+        {
+            await _file.WriteAsync(inquiries);
+        }
+    }
+
     private async Task<List<Inquiry>> AllAsync() => _inquiries ??= await _file.ReadAsync() ?? [];
 
     private static IEnumerable<Inquiry> Samples(string professionalId)

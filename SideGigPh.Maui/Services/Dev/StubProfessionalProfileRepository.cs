@@ -62,6 +62,12 @@ public sealed class StubProfessionalProfileRepository : IProfessionalProfileRepo
         return Task.FromResult(PublishResult.Published);
     }
 
+    public Task RemoveAsync(string professionalId)
+    {
+        _published.RemoveAll(p => p.Id == professionalId);
+        return Task.CompletedTask;
+    }
+
     private static ProfessionalListing Sample(
         string id, string name, string categoryId, string[] serviceIds, string[] cityIds, string experienceId, string rateTierId) => new()
     {

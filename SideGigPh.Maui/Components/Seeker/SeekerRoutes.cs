@@ -7,7 +7,7 @@ public static class SeekerRoutes
     public const string Search = "/search";
     public const string Inbox = "/inbox";
     public const string Reviews = "/reviews";
-    public const string Account = "/me";
+    public const string Me = "/me";
 
     /// <summary>A pro's public profile.</summary>
     public static string Pro(string professionalId) => $"/pro/{Uri.EscapeDataString(professionalId)}";

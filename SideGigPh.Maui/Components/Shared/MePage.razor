@@ -1,0 +1,11 @@
+<MudStack Spacing="4">
+    <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+
+    @ChildContent
+
+    <LanguagePicker Value="Account.Language" ValueChanged="Account.SetLanguageAsync" />
+
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Icon="@Icons.Material.Filled.PhoneAndroid">@T.Get(Copy.AccountOnPhone)</MudAlert>
+
+    <StartOverCard Busy="_busy" OnConfirm="StartOverAsync" />
+</MudStack>

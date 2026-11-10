@@ -12,4 +12,7 @@ public interface IOnboardingStore
     Task<OnboardingState> LoadAsync();
 
     Task SaveAsync(OnboardingState state);
+
+    /// <summary>Forgets every answer (Start over); the next <see cref="LoadAsync"/> returns a new empty state.</summary>
+    Task ClearAsync();
 }

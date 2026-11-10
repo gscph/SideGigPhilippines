@@ -14,18 +14,18 @@ public static class Copy
     public static readonly LocalizedText Back = new("Back", "Back");
 
     // --- Role fork --------------------------------------------------------
-    public static readonly LocalizedText RoleTitle = new("What brings you here?", "Ano'ng hanap mo?");
+    public static readonly LocalizedText RoleTitle = new("Find a Job or Hire a Skilled Worker", "Find a Job or Hire a Skilled Worker");
     public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, plumbing, repairs, errands, massage", "Aircon, tubero, repair, PasaBuy, masahe");
-    public static readonly LocalizedText RoleProfessional = new("I want to earn money", "Gusto kong kumita sa skills ko");
+    public static readonly LocalizedText RoleProfessional = new("I want to earn money", "Gusto kong kumita sa trabaho");
     public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Maka kuha ng trabaho malapit sayo");
 
     // --- Seeker interview -------------------------------------------------
     public static readonly LocalizedText SeekerCategoryTitle = new("What do you need done?", "Ano'ng ipapagawa mo?");
     public static readonly LocalizedText SeekerServiceTitle = new("What kind of job?", "Anong klaseng trabaho?");
-    public static readonly LocalizedText SeekerServiceWhy = new("So you only see pros who do exactly this.", "Para 'yung gumagawa talaga nito ang makita mo.");
-    public static readonly LocalizedText SeekerCityTitle = new("Where's the job?", "Saan ang trabaho?");
-    public static readonly LocalizedText SeekerCityWhy = new("So you only see pros who go to your area.", "Para 'yung pumupunta lang sa lugar mo ang makita mo.");
+    public static readonly LocalizedText SeekerServiceWhy = new("So you only see Skilled Workers who do exactly this.", "So you only see Skilled Workers who do exactly this.");
+    public static readonly LocalizedText SeekerCityTitle = new("Where's the Job?", "Saan ang trabaho?");
+    public static readonly LocalizedText SeekerCityWhy = new("Get Professionals near you.", "Get Professionals near you.");
     public static readonly LocalizedText CitiesNote = new("More towns coming soon.", "Marami pang bayan, abangan!");
     public static readonly LocalizedText SeekerWhenTitle = new("When do you need it?", "Kailan mo kailangan?");
     public static readonly LocalizedText SeekerWhenWhy = new("We'll tell the pro when you need it.", "Sasabihin namin sa pro kung kailan mo kailangan.");
@@ -33,22 +33,22 @@ public static class Copy
     public static readonly LocalizedText SeekerBudgetWhy = new("Pros who fit your budget show up first.", "Uunahin namin ang mga pro na pasok sa budget mo.");
 
     // Labor-illusion loader. {0} = job or town label.
-    public static readonly LocalizedText FindingService = new("Finding Skilled Professionals for {0}", "Finding Skilled Professionals for {0}");
+    public static readonly LocalizedText FindingService = new("Finding Skilled Worker for {0}", "Finding Skilled Worker for {0}");
     public static readonly LocalizedText FindingCity = new("Checking who goes to {0}", "Checking who goes to {0}");
-    public static readonly LocalizedText FindingBudget = new("Putting Skilled Professionals in your budget first", "Putting Skilled Professionals in your budget first");
+    public static readonly LocalizedText FindingBudget = new("Putting Skilled Workers in your budget first", "Putting Skilled Workers in your budget first");
 
     // --- Seeker shell + home ----------------------------------------------
-    public static readonly LocalizedText NavSearch = new("Search", "Hanap");
-    public static readonly LocalizedText LastSearch = new("Your last search", "Huling hinanap mo");
-    public static readonly LocalizedText SeePros = new("See pros", "Tingnan");
-    public static readonly LocalizedText SectionMessages = new("Recent messages", "Mga huling message");
+    public static readonly LocalizedText NavSearch = new("Search", "Search");
+    public static readonly LocalizedText LastSearch = new("Recent Search", "Recent Search");
+    public static readonly LocalizedText SeePros = new("View more", "View more");
+    public static readonly LocalizedText SectionMessages = new("Recent messages", "Recent messages");
 
     // --- Search -----------------------------------------------------------
     public static readonly LocalizedText SearchTitle = new("Find a Skilled Worker", "Maghanap ng Skilled Worker");
     public static readonly LocalizedText SearchPlaceholder = new("Search for Skilled Worker", "Maghanap ng Skilled Worker");
     public static readonly LocalizedText SearchNoMatch = new("We couldn't tell what job \"{0}\" is. Pick one below.", "Hindi namin makuha kung anong trabaho ang \"{0}\". Pumili sa baba.");
-    public static readonly LocalizedText SearchPickTrade = new("Which kind of pro is \"{0}\" for? Pick one below.", "Para saang pro ang \"{0}\"? Pumili sa baba.");
-    public static readonly LocalizedText SearchTradesLabel =new("Kind of pro", "Klase ng pro");
+    public static readonly LocalizedText SearchPickTrade = new("Which kind of skilled worker is \"{0}\" for? Pick one below.", "Which kind of skilled worker is \"{0}\"? Pumili sa baba.");
+    public static readonly LocalizedText SearchTradesLabel =new("Kind of skilled worker", "Klase ng skilled worker");
     public static readonly LocalizedText SearchJobsLabel = new("Job", "Trabaho");
     public static readonly LocalizedText SearchAllJobs = new("All {0} jobs", "Lahat ng {0}");
     public static readonly LocalizedText FilterTown = new("Town", "Bayan");
@@ -56,22 +56,22 @@ public static class Copy
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng serbisyo");
 
     // --- Search results ---------------------------------------------------
-    public static readonly LocalizedText ResultsTitle = new("{0} for you", "{0} pro para sa 'yo");
-    public static readonly LocalizedText ResultsTitleOne = new("1 pro for you", "1 pro para sa 'yo");
+    public static readonly LocalizedText ResultsTitle = new("{0} for you", "{0} skilled worker para sa 'yo");
+    public static readonly LocalizedText ResultsTitleOne = new("1 skilled worker for you", "1 skilled worker para sa 'yo");
     public static readonly LocalizedText ResultsInTown = new("Goes to {0}", "Pumupunta sa {0}");
     public static readonly LocalizedText ResultsOtherTowns = new("Other towns nearby", "Taga-ibang bayan na malapit");
-    public static readonly LocalizedText ResultsWidened = new("No pros in {0} yet, so here are pros from nearby towns.", "Wala pang pro sa {0}, kaya heto ang mga pro sa kalapit na bayan.");
-    public static readonly LocalizedText ResultsServiceFallback = new("No pros list \"{0}\" yet, so here are other {1} pros.", "Wala pang pro na may \"{0}\", kaya heto ang ibang {1}.");
-    public static readonly LocalizedText ResultsEmpty = new("No pros for this job yet. We're adding more soon.", "Wala pang pro para dito. Magdadagdag pa kami.");
+    public static readonly LocalizedText ResultsWidened = new("No skilled workers in {0} yet, so here are skilled workers from nearby towns.", "Wala pang skilled worker sa {0}, kaya heto ang mga skilled worker sa kalapit na bayan.");
+    public static readonly LocalizedText ResultsServiceFallback = new("No skilled workers list \"{0}\" yet, so here are other {1} skilled workers.", "Wala pang skilled worker na may \"{0}\", kaya heto ang ibang {1}.");
+    public static readonly LocalizedText ResultsEmpty = new("No skilled workers for this job yet. We're adding more soon.", "Wala pang skilled worker para dito. Magdadagdag pa kami.");
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");
 
     // --- A pro's public profile -------------------------------------------
     public static readonly LocalizedText ProProfileJobs = new("Jobs they take", "Mga tinatanggap na trabaho");
     public static readonly LocalizedText ProProfilePhotos = new("Photos of their work", "Photos ng mga gawa nila");
     public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet.", "Wala pang review.");
-    public static readonly LocalizedText ProNotFoundTitle = new("Pro not found", "Wala ang pro na ito");
+    public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Skilled worker not found");
     public static readonly LocalizedText ProNotFound = new("This listing isn't available anymore.", "Wala na ang listing na ito.");
-    public static readonly LocalizedText ContactPro = new("Contact", "I-contact");
+    public static readonly LocalizedText ContactPro = new("Contact", "Contact");
 
     // --- Seeker inbox -----------------------------------------------------
     public static readonly LocalizedText InboxTitle = new("Inbox", "Inbox");
@@ -89,18 +89,18 @@ public static class Copy
     public static readonly LocalizedText SendText = new("Send text", "I-text");
     public static readonly LocalizedText Call = new("Call", "Tawagan");
     public static readonly LocalizedText ViewProfile = new("View profile", "Tingnan ang profile");
-    public static readonly LocalizedText RateThisPro = new("Rate this pro", "I-rate ang pro na ito");
+    public static readonly LocalizedText RateThisPro = new("Rate this worker", "I-rate ang worker na ito");
     public static readonly LocalizedText EditYourReview = new("Edit your review", "Baguhin ang review mo");
     public static readonly LocalizedText ContactFailed = new("Couldn't open your phone app. Please try again.", "Hindi mabuksan ang phone app mo. Subukan ulit.");
 
     // --- Seeker reviews ---------------------------------------------------
-    public static readonly LocalizedText ToRateTitle = new("Rate pros you contacted", "I-rate ang mga na-contact mo");
-    public static readonly LocalizedText ToRateWhy = new("Your stars help neighbors pick the right pro.", "Makakatulong ang rating mo sa mga kapitbahay mo.");
+    public static readonly LocalizedText ToRateTitle = new("Rate skilled worker you contacted", "I-rate ang mga na-contact mo");
+    public static readonly LocalizedText ToRateWhy = new("Your stars help neighbors pick the right skilled worker.", "Makakatulong ang rating mo sa mga kapitbahay mo.");
     public static readonly LocalizedText Rate = new("Rate", "I-rate");
     public static readonly LocalizedText YourReviews = new("Your reviews", "Mga review mo");
     public static readonly LocalizedText SeekerReviewsEmpty = new(
-        "No reviews yet. Contact a pro, and after the job, rate them here.",
-        "Wala pang review. Mag-contact ng pro, tapos i-rate sila dito pagkatapos ng trabaho.");
+        "No reviews yet. Contact a skilled worker, and after the job, rate them here.",
+        "Wala pang review. Mag-contact ng skilled worker, tapos i-rate sila dito pagkatapos ng trabaho.");
     public static readonly LocalizedText WriteReviewTitle = new("How was {0}?", "Kumusta si {0}?");
     public static readonly LocalizedText StarsLabel = new("Stars", "Stars");
     public static readonly LocalizedText ReviewCommentPlaceholder = new("What went well? (optional)", "Ano'ng nagustuhan mo? (optional)");
@@ -108,14 +108,25 @@ public static class Copy
     public static readonly LocalizedText ReviewNamePlaceholder = new("e.g. Maricel D.", "hal. Maricel D.");
     public static readonly LocalizedText SubmitReview = new("Post review", "I-post");
 
-    // --- Seeker account ---------------------------------------------------
+    // --- Me page (both sides) ---------------------------------------------
+    public static readonly LocalizedText NavMe = new("Me", "Ako");
     public static readonly LocalizedText AccountTitle = new("Your account", "Account mo");
     public static readonly LocalizedText AccountLanguage = new("Language", "Language");
     public static readonly LocalizedText LanguageEnglish = new("English", "English");
     public static readonly LocalizedText LanguageTaglish = new("Taglish", "Taglish");
     public static readonly LocalizedText AccountOnPhone = new(
-        "No sign-in yet: your searches, messages and reviews are saved on this phone.",
-        "Wala pang sign-in: naka-save sa phone na ito ang mga hanap, message at review mo.");
+        "No sign-in yet: everything you add is saved on this phone.",
+        "Wala pang sign-in: naka-save sa phone na ito lahat ng nilagay mo.");
+    public static readonly LocalizedText StartOver = new("Start over", "Magsimula ulit");
+    public static readonly LocalizedText StartOverWhy = new(
+        "Delete everything on this phone and answer the first questions again.",
+        "Burahin lahat sa phone na ito at sagutin ulit ang mga unang tanong.");
+    public static readonly LocalizedText StartOverAsk = new("Delete everything and start over?", "Burahin lahat at magsimula ulit?");
+    public static readonly LocalizedText StartOverWarning = new(
+        "Your answers, listing, photos, messages and reviews on this phone will be deleted. You can't undo this.",
+        "Mabubura ang mga sagot, listing, photos, message at review mo sa phone na ito. Hindi na ito maibabalik.");
+    public static readonly LocalizedText StartOverYes = new("Yes, delete and start over", "Oo, burahin at magsimula ulit");
+    public static readonly LocalizedText Cancel = new("Cancel", "Huwag na lang");
     public static readonly LocalizedText Save = new("Save", "I-save");
     public static readonly LocalizedText Saved = new("Saved", "Na-save");
 
@@ -175,7 +186,6 @@ public static class Copy
     public static readonly LocalizedText NavHome = new("Home", "Home");
     public static readonly LocalizedText NavInbox = new("Inbox", "Inbox");
     public static readonly LocalizedText NavReviews = new("Reviews", "Reviews");
-    public static readonly LocalizedText NavPhotos = new("Photos", "Photos");
     public static readonly LocalizedText NavProfile = new("Profile", "Profile");
 
     // --- Pro home ---------------------------------------------------------
@@ -215,6 +225,7 @@ public static class Copy
 
     // --- Photos -----------------------------------------------------------
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
+    public static readonly LocalizedText PhotosCount = new("{0} of {1} photos", "{0} sa {1} photos");
     public static readonly LocalizedText PhotosWhy = new("Customers see these on your listing. Up to {0} photos.", "Makikita ito ng customer sa listing mo. Hanggang {0} photos.");
     public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they call.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago tumawag.");
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");

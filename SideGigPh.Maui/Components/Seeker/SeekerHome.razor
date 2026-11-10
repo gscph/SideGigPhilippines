@@ -2,9 +2,16 @@
 @layout SeekerLayout
 
 <MudStack Spacing="4">
-    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.SeekerCategoryTitle)</MudText>
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.h6" HtmlTag="h1">@T.Get(Copy.SeekerCategoryTitle)</MudText>
+        <SearchBox OnSearch="SearchAsync" />
+        <MudStack Row="true">
+            <FilterMenu Icon="@Icons.Material.Filled.Place" Label="@T.Get(Copy.FilterTown)" Options="Towns"
+                        SelectedId="@Workspace.Answers.CityId" OnPick="Workspace.PickTownAsync" />
+        </MudStack>
+    </MudStack>
 
-    <SearchBox OnSearch="SearchAsync" />
+    <CategoryRail Items="Categories" Label="@T.Get(Copy.BrowseTitle)" OnPick="PickCategoryAsync" />
 
     @if (LastSearch is not null)
     {
@@ -32,8 +39,4 @@
             }
         </HomeSection>
     }
-
-    <HomeSection Title="@T.Get(Copy.BrowseTitle)">
-        <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)" OnPick="PickCategoryAsync" />
-    </HomeSection>
 </MudStack>

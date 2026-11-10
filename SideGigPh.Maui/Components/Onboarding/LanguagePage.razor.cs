@@ -14,8 +14,8 @@ public partial class LanguagePage : ComponentBase
 {
     private static readonly IReadOnlyList<ChoiceItem> Options =
     [
-        new(nameof(AppLanguage.English), "English", "💬", "I'll read in English"),
-        new(nameof(AppLanguage.Taglish), "Taglish", "💬", "Tagalog na may halong English"),
+        new(nameof(AppLanguage.English), "English", string.Empty, "I'll read in English"),
+        new(nameof(AppLanguage.Taglish), "Taglish", string.Empty, "Tagalog na may halong English"),
     ];
 
     [Inject] private IOnboardingStore Store { get; set; } = default!;

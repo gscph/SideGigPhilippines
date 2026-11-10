@@ -30,8 +30,6 @@ public sealed class SeekerWorkspace(
 
     public SeekerAnswers Answers => _state?.Seeker ?? new SeekerAnswers();
 
-    public AppLanguage Language => _state?.Language ?? AppLanguage.English;
-
     /// <summary>What the Search tab is showing: the interview answers, as changed on the Search tab since.</summary>
     public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
 
@@ -198,11 +196,13 @@ public sealed class SeekerWorkspace(
         return SaveAsync();
     }
 
-    public Task SetLanguageAsync(AppLanguage language)
+    /// <summary>Drops what's held in memory after Start over, so the next load reads fresh.</summary>
+    public void Forget()
     {
-        text.Use(language);
-        _state!.Language = language;
-        return SaveAsync();
+        _state = null;
+        _loading = null;
+        Threads = [];
+        MyReviews = [];
     }
 
     /// <summary>Re-reads the Inbox and the Seeker's reviews.</summary>

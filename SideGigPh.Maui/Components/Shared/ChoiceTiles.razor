@@ -1,6 +1,6 @@
 @if (Compact)
 {
-    <MudGrid Spacing="3" role="group">
+    <MudGrid Spacing="3" role="group" Justify="Justify.Center">
         @foreach (var item in Items)
         {
             <MudItem xs="12">
@@ -11,7 +11,7 @@
 }
 else
 {
-    <MudStack Spacing="3" role="group">
+    <MudStack Spacing="3" role="group" AlignItems="AlignItems.Center">
         @foreach (var item in Items)
         {
             <ChoiceTile Item="item" Selected="SelectedIds.Contains(item.Id)" ShowCheck="Multiple" OnPick="OnPick" />

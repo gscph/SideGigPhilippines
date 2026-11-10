@@ -70,6 +70,15 @@ public sealed class StubReviewRepository(ILogger<StubReviewRepository> logger) :
         await _file.WriteAsync(reviews);
     }
 
+    public async Task DeleteForPersonAsync(string personId)
+    {
+        var reviews = await AllAsync();
+        if (reviews.RemoveAll(r => r.SeekerId == personId || r.ProfessionalId == personId) > 0)
+        {
+            await _file.WriteAsync(reviews);
+        }
+    }
+
     private async Task<List<Review>> AllAsync() => _reviews ??= await _file.ReadAsync() ?? [];
 
     private static IEnumerable<Review> Samples(string professionalId)

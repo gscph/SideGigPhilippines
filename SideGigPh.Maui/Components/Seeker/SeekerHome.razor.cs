@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Shared;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -6,15 +7,20 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
-/// Seeker home: "What do you need done?" with a search box, their last search one tap away,
-/// recent messages, pros waiting for a rating, and every trade as a big tile to browse.
-/// Searching or tapping a trade opens the Search tab with that search.
+/// Seeker home, DoorDash/Grab style: "What do you need done?" with a dense search box, the town
+/// menu under it, every trade as an icon in a sideways-scrolling rail, then their last search,
+/// recent messages and pros waiting for a rating. Searching or tapping a trade opens the Search
+/// tab with that search; changing the town updates the saved search.
 /// </summary>
 public partial class SeekerHome : ComponentBase
 {
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private IReadOnlyList<ChoiceItem> Categories => ChoiceItem.From(ReferenceData.Categories, T);
+
+    private IReadOnlyList<ChoiceItem> Towns => ChoiceItem.From(ReferenceData.Cities, T);
 
     /// <summary>"Pa-linis ng aircon · Taytay", or null before any search.</summary>
     private string? LastSearch

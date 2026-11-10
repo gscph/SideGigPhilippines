@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Components.Shared;
+namespace SideGigPh.Maui.Components.Shared;
 
-namespace SideGigPh.Maui.Components.Search;
-
-/// <summary>A filter shown as a chip with its current value ("📍 Taytay ▾"); tapping it lists the choices.</summary>
+/// <summary>A filter (Search tab) or the town picker (Seeker home) shown as a chip with its current value ("📍 Taytay ▾"); tapping it lists the choices.</summary>
 public partial class FilterMenu : ComponentBase
 {
     [Parameter, EditorRequired] public IReadOnlyList<ChoiceItem> Options { get; set; } = [];

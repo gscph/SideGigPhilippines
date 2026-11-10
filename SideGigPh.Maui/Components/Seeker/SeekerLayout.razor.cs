@@ -7,14 +7,15 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
-/// The Seeker's pages inside the shared <see cref="AppShell"/>: tabs Home, Search, Inbox and
-/// Reviews (badge = pros they contacted but haven't rated); the avatar opens their account.
+/// The Seeker's pages inside the shared <see cref="AppShell"/>: tabs Home, Search, Inbox,
+/// Reviews (badge = pros they contacted but haven't rated) and Me (also the avatar).
 /// Loads <see cref="SeekerWorkspace"/> first and sends anyone who hasn't finished the Seeker
 /// interview back to <c>/</c>.
 /// </summary>
 public partial class SeekerLayout : LayoutComponentBase, IDisposable
 {
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
+    [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -26,11 +27,13 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
         new(SeekerRoutes.Search, Icons.Material.Filled.Search, T.Get(Copy.NavSearch)),
         new(SeekerRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), MatchPrefix: true),
         new(SeekerRoutes.Reviews, Icons.Material.Filled.StarOutline, T.Get(Copy.NavReviews), Workspace.ToRate.Count),
+        new(SeekerRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe)),
     ];
 
     protected override async Task OnInitializedAsync()
     {
         Workspace.Changed += OnWorkspaceChanged;
+        Account.Changed += OnWorkspaceChanged;
         if (!await Workspace.EnsureLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);
@@ -40,7 +43,11 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
         _ready = true;
     }
 
-    public void Dispose() => Workspace.Changed -= OnWorkspaceChanged;
+    public void Dispose()
+    {
+        Workspace.Changed -= OnWorkspaceChanged;
+        Account.Changed -= OnWorkspaceChanged;
+    }
 
     private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
 }

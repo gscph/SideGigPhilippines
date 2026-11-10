@@ -1,9 +1,7 @@
-@page "/professional/profile"
+@page "/professional/me"
 @layout ProLayout
 
-<MudStack Spacing="4">
-    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ProfileTitle)</MudText>
-
+<MePage Title="@T.Get(Copy.ProfileTitle)">
     <MudStack AlignItems="AlignItems.Center" Spacing="1">
         <PersonAvatar Name="@Name" PhotoUrl="@Workspace.ProfilePhotoUrl" Class="profile-photo" />
         <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PhotoCamera"
@@ -36,6 +34,13 @@
         <MudAlert Severity="Severity.Normal" Variant="Variant.Text">@T.Get(Copy.ProHomeNotLive)</MudAlert>
     }
 
+    <MudPaper Outlined="true" Elevation="0">
+        <MudList T="string">
+            <MudListItem T="string" Icon="@Icons.Material.Filled.PhotoLibrary" IconColor="Color.Primary" Href="@ProRoutes.Photos"
+                         Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel" />
+        </MudList>
+    </MudPaper>
+
     <MudStack Spacing="2">
         <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.ProPreviewTitle)</MudText>
         <ProCard Listing="Workspace.Listing" Reviews="Workspace.ReviewSummary" />
@@ -45,4 +50,4 @@
     {
         <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center">@JoinedLabel</MudText>
     }
-</MudStack>
+</MePage>

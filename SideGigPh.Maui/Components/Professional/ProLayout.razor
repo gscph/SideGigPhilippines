@@ -3,7 +3,7 @@
 
 @if (_ready)
 {
-    <AppShell Tabs="Tabs" ProfileHref="@ProRoutes.Profile" UserName="@Workspace.Draft.DisplayName"
+    <AppShell Tabs="Tabs" ProfileHref="@ProRoutes.Me" UserName="@Workspace.Draft.DisplayName"
               UserPhotoUrl="@Workspace.ProfilePhotoUrl" ShowStatusDot="Workspace.IsPublished">
         @Body
     </AppShell>

@@ -39,6 +39,20 @@ public sealed class JsonFile<T>(string fileName, JsonTypeInfo<T> typeInfo, ILogg
         }
     }
 
+    /// <summary>Removes the file; reading it afterwards returns null.</summary>
+    public async Task DeleteAsync()
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            File.Delete(_path);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     public async Task WriteAsync(T value)
     {
         await _gate.WaitAsync();

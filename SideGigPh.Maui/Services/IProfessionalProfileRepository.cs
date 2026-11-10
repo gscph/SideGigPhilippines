@@ -23,4 +23,7 @@ public interface IProfessionalProfileRepository
     /// Enforces anti-fraud rule 1: one mobile number, one listing.
     /// </summary>
     Task<PublishResult> PublishAsync(ProfessionalListing listing);
+
+    /// <summary>Takes the listing out of search, e.g. when the pro starts over. Frees its mobile number.</summary>
+    Task RemoveAsync(string professionalId);
 }

@@ -1,0 +1,14 @@
+<MudPaper Elevation="0" Square="true" Class="category-rail" role="list" aria-label="@Label">
+    @foreach (var item in Items)
+    {
+        <MudButton Variant="Variant.Text" Color="Color.Default" Class="category-rail-item" role="listitem" @key="item.Id"
+                   OnClick="() => OnPick.InvokeAsync(item.Id)">
+            <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mud-width-full">
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="category-icon mud-primary-hover rounded-lg">
+                    <MudText Typo="Typo.h4" HtmlTag="span" aria-hidden="true">@item.Icon</MudText>
+                </MudStack>
+                <MudText Typo="Typo.caption" Color="Color.Dark" Align="Align.Center" Class="two-lines">@item.Label</MudText>
+            </MudStack>
+        </MudButton>
+    }
+</MudPaper>

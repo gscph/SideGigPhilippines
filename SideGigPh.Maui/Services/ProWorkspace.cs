@@ -171,6 +171,16 @@ public sealed class ProWorkspace(
         return result;
     }
 
+    /// <summary>Drops what's held in memory after Start over, so the next load reads fresh.</summary>
+    public void Forget()
+    {
+        _state = null;
+        _loading = null;
+        _photoUrls.Clear();
+        Inquiries = [];
+        Reviews = [];
+    }
+
     private async Task<bool> LoadAsync()
     {
         _state = await store.LoadAsync();

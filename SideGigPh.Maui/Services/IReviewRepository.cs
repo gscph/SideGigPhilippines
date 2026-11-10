@@ -16,4 +16,7 @@ public interface IReviewRepository
 
     /// <summary>Adds the review, or replaces this Seeker's earlier review of the same pro.</summary>
     Task SaveAsync(Review review);
+
+    /// <summary>Deletes every review this person wrote (as a Seeker) or got (as a Professional), e.g. on Start over.</summary>
+    Task DeleteForPersonAsync(string personId);
 }

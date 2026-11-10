@@ -21,6 +21,12 @@ public sealed class FileOnboardingStore(ILogger<FileOnboardingStore> logger) : I
         await _file.WriteAsync(state);
     }
 
+    public async Task ClearAsync()
+    {
+        _loading = Task.FromResult(new OnboardingState());
+        await _file.DeleteAsync();
+    }
+
     private async Task<OnboardingState> ReadAsync() => await _file.ReadAsync() ?? new OnboardingState();
 }
 

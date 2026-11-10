@@ -146,6 +146,47 @@ h1:focus {
     right: 4px;
 }
 
+/* Search box as a dense pill (MudTextField has no rounded-pill option). */
+.app-pill-input .mud-input-outlined-border {
+    border-radius: 999px;
+}
+
+/* Seeker home trade icons, DoorDash/Grab style: two rows that scroll sideways. */
+.category-rail {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: repeat(2, auto);
+    grid-auto-columns: 5.25rem;
+    gap: 0.5rem 0.25rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+
+.category-rail::-webkit-scrollbar {
+    display: none;
+}
+
+.category-rail-item {
+    min-width: 0 !important;
+    padding: 4px !important;
+    text-transform: none !important;
+    align-items: flex-start !important;
+}
+
+.category-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+/* At most two lines of text, cut with "…" (category labels). */
+.two-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2 !important;
+}
+
 /* The big photo on the profile page; MudAvatar's largest size is too small. */
 .profile-photo {
     width: 6rem !important;

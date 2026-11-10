@@ -39,6 +39,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<ProWorkspace>();
             builder.Services.AddSingleton<ProfessionalSearch>();
             builder.Services.AddSingleton<SeekerWorkspace>();
+            builder.Services.AddSingleton<LocalAccount>();
             builder.Services.AddSingleton<AppText>();
 
 #if DEBUG

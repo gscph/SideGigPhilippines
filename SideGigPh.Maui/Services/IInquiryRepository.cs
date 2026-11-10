@@ -15,4 +15,7 @@ public interface IInquiryRepository
 
     /// <summary>Everything the Seeker sent, oldest first.</summary>
     Task<IReadOnlyList<Inquiry>> GetForSeekerAsync(string seekerId);
+
+    /// <summary>Deletes every inquiry this person sent (as a Seeker) or got (as a Professional), e.g. on Start over.</summary>
+    Task DeleteForPersonAsync(string personId);
 }

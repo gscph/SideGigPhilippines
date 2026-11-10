@@ -141,10 +141,10 @@ public static class ReferenceData
     /// <summary>The towns we serve for now (Rizal).</summary>
     public static readonly IReadOnlyList<CatalogOption> Cities =
     [
-        new("angono", new("Angono", "Angono"), "📍"),
-        new("antipolo", new("Antipolo", "Antipolo"), "📍"),
-        new("binangonan", new("Binangonan", "Binangonan"), "📍"),
-        new("taytay", new("Taytay", "Taytay"), "📍"),
+        new("angono", new("Angono", "Angono"), string.Empty),
+        new("antipolo", new("Antipolo", "Antipolo"), string.Empty),
+        new("binangonan", new("Binangonan", "Binangonan"), string.Empty),
+        new("taytay", new("Taytay", "Taytay"), string.Empty),
     ];
 
     public static readonly IReadOnlyList<CatalogOption> Urgencies =

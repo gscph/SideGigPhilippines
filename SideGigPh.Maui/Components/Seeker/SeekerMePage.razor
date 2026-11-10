@@ -1,0 +1,16 @@
+@page "/me"
+@layout SeekerLayout
+
+<MePage Title="@T.Get(Copy.AccountTitle)">
+    <MudStack AlignItems="AlignItems.Center">
+        <PersonAvatar Name="@(Workspace.Answers.ReviewerName ?? string.Empty)" Class="profile-photo" />
+    </MudStack>
+
+    <MudStack Spacing="2">
+        <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Outlined" MaxLength="40"
+                      Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" autocomplete="name" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(!NameChanged)" OnClick="SaveNameAsync">
+            @T.Get(_saved && !NameChanged ? Copy.Saved : Copy.Save)
+        </MudButton>
+    </MudStack>
+</MePage>

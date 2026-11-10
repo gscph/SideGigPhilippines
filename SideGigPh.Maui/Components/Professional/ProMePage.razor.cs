@@ -7,10 +7,11 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Opened from the avatar in the top bar: the pro's photo (add or change), their status,
-/// Edit listing and Publish, and their card exactly as customers see it.
+/// The pro's Me tab (also the avatar in the top bar): their photo (add or change), status,
+/// Edit listing and Publish, a link to their work photos, their card exactly as customers see
+/// it, then the shared <see cref="Shared.MePage"/> parts (language, Start over).
 /// </summary>
-public partial class ProfilePage : ComponentBase
+public partial class ProMePage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
@@ -19,6 +20,8 @@ public partial class ProfilePage : ComponentBase
     private bool _busy;
 
     private string Name => Workspace.Draft.DisplayName ?? string.Empty;
+
+    private string PhotosCountLabel => T.Format(Copy.PhotosCount, Workspace.WorkPhotos.Count, ProWorkspace.MaxWorkPhotos);
 
     private string? JoinedLabel => Workspace.JoinedAt is { } joined
         ? T.Format(Copy.ProfileSince, joined.ToString("MMM yyyy", CultureInfo.InvariantCulture))
