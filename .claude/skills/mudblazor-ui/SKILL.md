@@ -43,13 +43,13 @@ Some enums (`Severity`, `MaxWidth`, `InputType`) have no XML docs, so `enum` pri
 | Icons | Material icons for UI chrome (`Icons.Material.Filled.*`); emoji only when they come from data (`ReferenceData` choice icons) |
 | Logo | `BrandMark` (shared component), never an inline `<svg>` |
 
-Useful built-in utility classes (verified): `pa-*`/`px-*`/`py-*`/`ma-0`, `flex-1`, `flex-grow-1`, `flex-shrink-0`, `align-self-start`, `justify-start`, `mud-width-full`, `mud-height-full`, `rounded-pill`, `rounded-lg`, `border-2`, `border-t`, `border-solid`, `mud-border-primary`, `mud-border-lines-default`, `mud-background-gray`, `mud-primary-hover` (primary tint background), `sticky`.
-**These do NOT exist:** `w-100`, `min-vh-100`, `bottom-0`, `text-left`, `text-start`, `position-sticky`. Check others with `mud-api.sh css`.
+Useful built-in utility classes (verified): `pa-*`/`px-*`/`py-*`/`ma-0`, `flex-1`, `flex-grow-1`, `flex-shrink-0`, `flex-nowrap`, `overflow-x-auto` (sideways-scrolling chip/tile rows), `overflow-hidden`, `align-self-start`/`-center`/`-end`, `justify-start`, `mud-width-full`, `mud-height-full`, `rounded-pill`, `rounded-lg`, `rounded-circle`, `rounded-t-xl`, `border-2`, `border-t`, `border-solid`, `mud-border-primary`, `mud-border-lines-default`, `mud-background-gray`, `mud-primary-hover` (primary tint background), `mud-theme-primary` (primary background + contrast text), `mud-elevation-2`, `object-cover`, `relative`, `absolute`, `sticky`.
+**These do NOT exist:** `w-100`, `min-vh-100`, `top-0`, `bottom-0`, `text-left`, `text-start`, `text-truncate` (use the `one-line` gap), `font-weight-bold`, `position-sticky`, `mud-theme-surface`. Check others with `mud-api.sh css`.
 
 ## Workarounds (only when MudBlazor can't)
 
 1. Look for a parameter first, then a utility class (`mud-api.sh css`).
-2. If neither exists, add a small, named class to the **"MudBlazor gaps"** section of `SideGigPh.Maui/wwwroot/app.css` and use it via `Class=`. Current helpers: `full-screen` (100vh), `sticky-footer`, `choice-tile`, `brand-logo`, `own-listing`. Reuse one before adding another.
+2. If neither exists, add a small, named class to the **"MudBlazor gaps"** section of `SideGigPh.Maui/wwwroot/app.css` and use it via `Class=`. Current helpers: `full-screen` (100vh), `sticky-footer` (interview Next), `choice-tile`, `brand-logo`, `own-listing`, `work-thumb` (square photo), `photo-remove`, `profile-photo` (6rem avatar), `one-line` (ellipsis), and the app shell's `app-top-bar`, `app-bottom-nav`, `app-content`, `app-fab`, `app-sticky-action` (a page's main action pinned just above the bottom tabs; put it last in the page). Reuse one before adding another.
 3. **Never add a `.razor.css` file.** Scoped CSS only tags elements written directly in that file, and here every element is rendered by a MudBlazor component, so scoped rules never match.
 4. CSS colors come only from theme variables: `var(--mud-palette-primary)`, `rgba(var(--mud-palette-primary-rgb), .08)`, `var(--mud-palette-lines-default)`, `var(--mud-palette-background-gray)`. No hex.
 
@@ -62,6 +62,16 @@ Useful built-in utility classes (verified): `pa-*`/`px-*`/`py-*`/`ma-0`, `flex-1
 - Code-behind is mandatory, so there are **no `@code` blocks**, including `RenderFragment` helpers. If you need a reusable chunk of markup, make it a small component (`ChoiceTile`, `ProCardFact` are examples).
 - A parent that needs to style a child component exposes a `[Parameter] public string? Class` and passes it to the root Mud component (see `ProCard`).
 - User-facing text still comes from `Copy.cs` through `AppText T`; MudBlazor doesn't change the bilingual rule.
+
+## Gotchas seen in this repo
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `CS0103: The name 'search' does not exist` on a lowercase attribute like `inputmode="search"` | Attribute names match parameters **case-insensitively**, so `inputmode` binds to `MudTextField.InputMode` (an enum) and the value is parsed as C# | Use the parameter: `InputMode="InputMode.search"`. Only attributes with no matching parameter (`aria-label`, `autocomplete`, `enterkeyhint`) splat through |
+| `CS0104: 'Size' is an ambiguous reference` in a `.razor.cs` | MAUI's global usings bring `Microsoft.Maui.Graphics.Size` alongside `MudBlazor.Size` | `using Size = MudBlazor.Size;` (see `PersonAvatar.razor.cs`) |
+| Text inside a whole-card link turns brand blue | `MudLink` defaults to `Color.Primary` and `MudText` inherits | `MudLink Underline="Underline.None" Color="Color.Inherit"` (see `ResultCard`, `ThreadRow`) |
+| `MudAppBar Color="Color.Surface"` / `MudPaper HtmlTag` | No `mud-theme-surface` class (transparent bar); MudPaper has no `HtmlTag` | White fixed bar = `MudPaper Square Elevation` + a gap class; landmarks via `role="navigation"`. `MudPaper` does have `MaxWidth`/`MinWidth` |
+| `mud-api.sh params MudTextField` shows no `DebounceInterval` | The script skips the `MudDebouncedInput` base class | They exist: `DebounceInterval`, `OnDebounceIntervalElapsed` (see `SearchBox`) |
 
 ## Before you finish
 

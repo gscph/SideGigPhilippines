@@ -166,9 +166,25 @@ dotnet workload install maui
 
 ## Project Skills (`.claude/skills/`)
 
-Load the matching skill before doing these tasks:
-- **`taglish-copy`**: any user-facing text (English/Taglish wording, local lingo, SMS templates).
-- **`add-service-category`**: categories, jobs/services, "Iba pa" options, towns.
+Load the matching skill before doing these tasks. Every folder in `.claude/skills/` is listed here; add a line when you add a skill, and remove it when you delete one.
+
+**Building features**
+- **`new-razor-component`**: any new, split-out or restyled `.razor` component, page, tab or route (folders, code-behind, the `AppShell` layouts and routes). Script: `ui-lint.sh` (raw HTML, hex, literal text, page h1s).
+- **`mudblazor-ui`**: MudBlazor 9 markup, verified parameter/enum/icon/utility names, gap classes, theme. Script: `mud-api.sh`.
+- **`taglish-copy`**: any user-facing text (English/Taglish wording, local lingo, SMS templates). Script: `copy-check.sh` (missing/unused keys, placeholder mismatches).
+- **`ports-and-stubs`**: new stored data or a new port method: model, port, `Dev/` stub persisted with `JsonFile`, Debug-only samples, DI, workspace.
+- **`search-relevance`**: how Seeker search understands words and ranks pros (`Services/Search/`), including after category/job label changes. Script: `search-check.sh` (runs the real search code against queries).
 - **`add-interview-step`**: adding or changing an onboarding question, or the flow and resume logic.
 - **`onboarding-ux-review`**: UX critique against the onboarding research, plus trust guardrails (permissions, hooks, sign-up placement).
-- **`new-razor-component`**: any new or restyled `.razor` component (MudBlazor-only, code-behind, Shared vs feature folder).
+- **`maui-firebase-auth`**: Firebase phone OTP / Google sign-in behind `IIdentityProvider`, `google-services.json`, SHA-1, status codes 7/10/12501.
+- **`maui-app-branding`**: launcher icon, native splash, in-app loading screen.
+
+**Build, run and fix**
+- **`build-check`**: compile-check a throwaway copy after code changes (safe with Visual Studio open). Never build or deploy in the repo folder from the CLI.
+- **`maui-build-troubleshooting`**: cancelled/locked builds, and a Debug app that dies on launch with "No assemblies found … Fast Deployment". Script: `fix-fast-deploy.sh`.
+- **`android-emulator-vs-deploy`**: emulator with no internet, network errors only on the emulator, VS stuck on "Waiting for emulator".
+- **`rename-project`**: renaming the project or root namespace, or CS0234 after a rename.
+
+**Manual only**
+- **`update-skills`**: capture lessons from a session into these skills. Run only when the user asks.
+- **`update-tools`**: turn repeatable checks, fixes or queries from a session into helper scripts in `skills/*/scripts/`. Run only when the user asks.

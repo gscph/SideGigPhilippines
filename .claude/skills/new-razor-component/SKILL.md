@@ -1,61 +1,101 @@
 ---
 name: new-razor-component
-description: Create or restyle a Blazor component or page in SideGigPh the house way — MudBlazor-only markup, code-behind partial class, feature folder vs Components/Shared, AppTheme colors, bilingual text, ports injected via DI. Use whenever adding a .razor file, a new page/route, or changing a component's layout or look.
+description: Add, split out or restyle a Razor component, page, screen, tab, card, section or route in SideGigPh the house way — feature folder vs Components/Shared, .razor + .razor.cs code-behind, MudBlazor-only markup, AppTheme colors, bilingual Copy.cs text, ports injected via DI, pages inside the shared AppShell (ProLayout / SeekerLayout, ProRoutes / SeekerRoutes), and CLAUDE.md upkeep. Use whenever adding a .razor file, a new page/route/tab, extracting part of a page that got too big, or changing a component's layout or look. Includes ui-lint.sh to check .razor files for raw HTML, hex colors, literal text and missing h1s.
 ---
 
-# New Razor component (SideGigPh house rules)
+# New Razor component or page (SideGigPh house rules)
+
+Work through these in order. Each step points to the repo's existing pattern.
 
 ## 1. Decide where it goes
 
-- **A feature component** goes in `SideGigPh.Maui/Components/<Feature>/`: Onboarding, Search, Professional, Auth.
-- **A generic component** is used by two or more features and isn't tied to one. It goes in `Components/Shared/` (namespace `SideGigPh.Maui.Components.Shared`), until a `SideGigPh.Shared` project exists. Existing ones: `InterviewStep`, `ChoiceTiles`/`ChoiceTile`, `WorkingLoader`, `ProCard`/`ProCardFact`, `GoalPayoff`, `BrandMark`. **Reuse before creating.** For example, the pro preview and search results both use `ProCard`.
-- **Keep components small and single-purpose.** Inputs are `[Parameter]`s; outputs are `EventCallback`s. Never one giant page. Extract a repeated or self-contained piece into its own component.
+- **Feature component** (used by one feature): `SideGigPh.Maui/Components/<Feature>/` — `Onboarding`, `Professional`, `Seeker`, `Search`, `Inbox`, `Auth`. Namespace = `SideGigPh.Maui.Components.<Feature>`. A new feature folder needs its `@using` in `Components/_Imports.razor`.
+- **Generic component** (used by two or more features, tied to none): `Components/Shared/` (namespace `…Components.Shared`, imported everywhere) until a `SideGigPh.Shared` project exists. The current list is in `CLAUDE.md` (Coding Standards → Generic vs feature components). **Reuse before creating**: the pro preview and search results both use `ProCard`; both homes use `HomeSection`; the card and the public profile both use `ListingFacts` + `ServiceChips`.
+- **App frame, layout or theme**: `Components/Layout/` (`AppShell`, `AppTopBar`, `AppBottomNav`, `AppTheme`).
+- **Keep components small and single-purpose.** Inputs are `[Parameter]`s, outputs are `EventCallback`s. Never one giant page; extract a repeated or self-contained piece.
 
 ## 2. Always two files (code-behind)
 
-`<Name>.razor` holds markup only. `<Name>.razor.cs` holds `public partial class <Name> : ComponentBase` in the folder's namespace.
+`<Name>.razor` holds markup only. `<Name>.razor.cs` holds `public partial class <Name> : ComponentBase`. **No `@code` blocks**, not even a `RenderFragment` helper; extract a small component instead.
+
+```razor
+@* Components/Search/SavedSearchCard.razor *@
+<MudCard Outlined="true">
+    <MudCardContent>
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.h6" HtmlTag="h2">@Title</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.SavedSearchHint)</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Search" OnClick="@(() => OnOpen.InvokeAsync())">
+                @T.Get(Copy.SavedSearchOpen)
+            </MudButton>
+        </MudStack>
+    </MudCardContent>
+</MudCard>
+```
 
 ```csharp
-public partial class Example : ComponentBase
+// Components/Search/SavedSearchCard.razor.cs
+using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Services.Localization;
+
+namespace SideGigPh.Maui.Components.Search;
+
+/// <summary>One line on what it is and why it exists.</summary>
+public partial class SavedSearchCard : ComponentBase
 {
-    [Inject] private AppText T { get; set; } = default!;            // bilingual text
-    [Inject] private IOnboardingStore Store { get; set; } = default!; // ports, never adapters
-    [Parameter, EditorRequired] public ProfessionalListing Listing { get; set; } = default!;
-    [Parameter] public EventCallback<string> OnPick { get; set; }
+    [Inject] private AppText T { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
+
+    [Parameter] public EventCallback OnOpen { get; set; }
 }
 ```
 
-Inject **interfaces** (`IOnboardingStore`, `IProfessionalProfileRepository`, `IContactLauncher`, `IIdentityProvider`), never Firebase or MAUI types. New infrastructure gets a port in `Services/` and an adapter registered in `MauiProgram.cs`.
+Conventions:
+- `EditorRequired` on mandatory parameters. A component reports what happened; the parent decides what it means (`ChoiceTiles.OnPick`).
+- `[Inject]` **ports and app services only** (`AppText`, `NavigationManager`, `IOnboardingStore`, `IContactLauncher`, `ProWorkspace`, `SeekerWorkspace`…), never an adapter, Firebase or MAUI type. New infrastructure: see the `ports-and-stubs` skill.
+- A child the parent must style gets `[Parameter] public string? Class` passed to its root Mud component.
+- Private state is `_camelCase`; derived values are expression-bodied properties. Repeated label logic goes in a helper (`Services/Localization/ListingText`), not copied between components.
 
-## 3. Markup: MudBlazor only
+## 3. Pages, routes and the app shell
 
-- **No raw HTML** (`div`, `span`, `p`, `button`, `input`…) in `.razor` files. The only raw HTML is `wwwroot/index.html` (the splash).
-- **Layout:** `MudContainer` (page width, usually `MaxWidth.Small`), `MudStack` (`Row`, `Spacing`, `AlignItems`, `Justify`, `Wrap`), `MudGrid`/`MudItem`, `MudPaper`.
-- **Text:** `MudText` with `Typo`. Each page has exactly one `HtmlTag="h1"`, because `FocusOnNavigate` focuses it.
-- **Controls:** `MudButton`, `MudIconButton`, `MudTextField`, `MudChip`, `MudAlert`, `MudCard`, `MudSkeleton`, `MudProgressLinear`/`MudProgressCircular`, `MudAvatar`, `MudIcon` (`Icons.Material.Filled.*`).
-- **Spacing and flex:** MudBlazor utility classes (`pa-4`, `px-2`, `flex-1`, `mud-width-full`, `rounded-pill`, `border-t`…).
-- **Gaps:** only when MudBlazor has no parameter or utility, add a small named class to the "MudBlazor gaps" section of `wwwroot/app.css`, using `var(--mud-palette-...)`. Existing ones are `full-screen`, `sticky-footer`, `choice-tile`, `brand-logo`, `own-listing`. **No `.razor.css` files:** scoped CSS doesn't reach inside MudBlazor components.
-- **Mobile-first:** it must work at phone width. Use big tap targets (`Size.Large`, `FullWidth="true"`) for answers and primary actions.
+- `@page "/route"` at the top of the `.razor`. Exactly one `MudText … HtmlTag="h1"` per page (`FocusOnNavigate` focuses it).
+- **Interview / onboarding pages**: `InterviewStep` inside `MudContainer MaxWidth.Small`, one URL per step (`/start/pro/{Step:int?}`), save before navigating forward (see `add-interview-step`). No auth gates in the flow; the owner is still designing that.
+- **Signed-in pages** sit inside the shared `AppShell` (brand bar + avatar, content, bottom tabs) via `@layout ProLayout` or `@layout SeekerLayout`. Don't add your own `MudContainer`; the shell provides it.
+  - Add the route to `ProRoutes` / `SeekerRoutes` and link through it (`Href="@SeekerRoutes.Thread(id)"`), never a literal path.
+  - A new **tab** is an `AppTab` in that layout's `Tabs` (icon, label from `Copy`, optional `Badge`, `MatchPrefix: true` if it has sub-pages like `/inbox/{id}`). Keep 4 tabs.
+  - The page's main action (Contact, Send) goes **last** in the page inside `MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2"` so it stays above the tabs.
+  - Shared state lives in the side's singleton workspace (`ProWorkspace`, `SeekerWorkspace`) with a `Changed` event; layouts subscribe and unsubscribe in `Dispose`. Pages call the workspace, not the repositories.
+- **Focused full-screen steps** after the interview (publish, write a review) use `InterviewStep` with **no** `@layout`, and call `Workspace.EnsureLoadedAsync()` themselves (send to `/` when it returns false).
+- Route parameters: `@page "/pro/{Id}"` + `[Parameter] public string Id`. Load what depends on it in `OnParametersSet(Async)`: the same instance is reused when only the parameter changes.
 
-## 4. Colors and theme
+## 4. Markup: MudBlazor only
 
-- Colors come only from MudBlazor `Color` parameters, backed by `Components/Layout/AppTheme.cs`. `Color.Primary` is the brand blue, `Color.Secondary` is the muted helper-text slate, `Color.Dark` is navy ink, and `Color.Success` is the "fits budget" green.
-- **Never hard-code hex** in components or CSS. To restyle, change `AppTheme`. The only exception is the splash fallbacks in `app.css`, which must match it.
+Follow the `mudblazor-ui` skill: `MudStack` for layout, `MudText` for text, theme `Color`s only (`Primary` brand blue, `Secondary` helper slate, `Dark` ink, `Success` "fits budget" green), no raw HTML, no `.razor.css`, gaps in `app.css`, verify unfamiliar parameters with its `mud-api.sh`. Mobile-first: big tap targets (`Size.Large`, `FullWidth="true"`) for answers and primary actions.
 
-## 5. Text
+## 5. Every user-facing string is bilingual
 
-Every visible string is `@T.Get(Copy.X)` / `@T.Format(Copy.X, …)` or a `ReferenceData` label. Never literal text (see the `taglish-copy` skill). Answer tiles use `ChoiceItem.From(ReferenceData.X, T)`.
+Add `LocalizedText` pairs to `Services/Localization/Copy.cs` under the matching `// --- Section ---` comment; render with `@T.Get(Copy.X)` / `@T.Format(Copy.X, arg)`. Answer lists belong in `ReferenceData.cs`. Follow the `taglish-copy` skill (plain words, numbers and ₱ doing the work, everyday Taglish) and run its `copy-check.sh`.
 
-## 6. Razor gotchas seen in this repo
+## 6. Razor and C# gotchas seen in this repo
 
-- Component parameters that aren't strings take C# expressions (`Items="Options"`). Wrap anything with operators: `CanContinue="@(Draft.CityIds.Count > 0)"`.
-- In a conditional, prefer `Array.Empty<string>()` / `new[] { id }` over `[]` / `[id]`, to avoid collection-expression typing surprises.
-- Avoid property names that shadow namespaces or MAUI types (`Services`, `Contact`, `Layout`). The global usings include `Microsoft.Maui.Controls` and `Microsoft.Maui.ApplicationModel.Communication`.
-- Optional route parameters: `@page "/start/pro/{Step:int?}"` with `[Parameter] public int? Step`. Load state in `OnInitializedAsync`; compute from parameters in `OnParametersSet` (the same instance is reused when only the parameter changes).
-- Cancel timers and delays in `Dispose` (see `WorkingLoader`), so navigation mid-animation doesn't throw.
+- Non-string parameters take C# expressions (`Items="Options"`); wrap operators: `CanContinue="@(Draft.CityIds.Count > 0)"`.
+- Collection expressions in conditionals: `var x = cond ? [] : list;` doesn't compile. Declare the type (`IReadOnlyList<CatalogOption> x = …`) or use `Enumerable.Empty<T>()` / `Array.Empty<T>()`.
+- `using Size = MudBlazor.Size;` in a `.razor.cs` that uses `Size` (MAUI has one too). `using MudBlazor;` in a `.razor.cs` that uses `Icons`.
+- Avoid member names that shadow namespaces or MAUI types (`Services`, `Contact`, `Layout`, `Search`). Global usings include `Microsoft.Maui.Controls` and `Microsoft.Maui.ApplicationModel.Communication`.
+- A lowercase attribute that matches a parameter name binds to the parameter (`inputmode` → `InputMode`); see `mudblazor-ui` gotchas.
+- Async results that can arrive out of order (search-as-you-type) need a version counter so an older result never overwrites a newer one (`SearchPage.RunSearchAsync`).
+- Cancel timers and delays in `Dispose` (`WorkingLoader`).
 
 ## 7. Finish
 
-- **No dead code.** Delete what's replaced; don't comment it out.
-- If the change alters structure, patterns, theme or design, update `CLAUDE.md` (for example, add a new generic component to the Shared list).
-- **Don't run `dotnet build` or deploy from the CLI.** The user builds and deploys from Visual Studio, and concurrent CLI builds cause lock and "emulator not ready" problems. Review by reading, then ask the user to build in VS.
+- **No dead code.** Delete what's replaced (components, Copy keys, gap classes); don't comment it out.
+- Run the checks:
+  ```bash
+  bash .claude/skills/new-razor-component/scripts/ui-lint.sh          # raw HTML, hex, literal text, h1 per page
+  bash .claude/skills/taglish-copy/scripts/copy-check.sh              # Copy keys missing / unused
+  ```
+- Compile with the `build-check` skill (a throwaway copy). **Never build or deploy in the repo folder from the CLI**: the user deploys from Visual Studio, and concurrent builds cause locks and "emulator not ready".
+- Update `CLAUDE.md` for a new generic component, route, tab, port or pattern (and `docs/onboarding.md` for onboarding routes).
+- Tell the user what still needs a look on a device: you can't see it render.

@@ -1,6 +1,6 @@
 ---
 name: taglish-copy
-description: Write or review user-facing text for SideGigPh in English + Taglish (LocalizedText pairs in Copy.cs or ReferenceData.cs). Use whenever a change adds or edits any string a user will see — titles, hints, buttons, errors, job/service labels, SMS templates — or when the user asks to fix wording, "local lingo", or translations.
+description: Write or review user-facing text for SideGigPh in English + Taglish (LocalizedText pairs in Copy.cs or ReferenceData.cs). Use whenever a change adds or edits any string a user will see — titles, hints, buttons, errors, job/service labels, SMS templates — or when the user asks to fix wording, "local lingo", or translations. Includes copy-check.sh (missing, unused and placeholder-mismatched Copy keys).
 ---
 
 # Bilingual copy (English / Taglish)
@@ -43,10 +43,10 @@ Components render text with `@T.Get(Copy.X)` or `@T.Format(Copy.X, args)` (injec
 
 ## Checklist before finishing
 
-1. No literal user-facing string in any `.razor` file (grep for `>[A-Za-z]` inside MudText/MudButton content that isn't `@...`).
-2. Every new `Copy` key is used, and every used key exists. You can cross-check with:
+1. No literal user-facing string in any `.razor` file: `bash .claude/skills/new-razor-component/scripts/ui-lint.sh` warns on text written straight into markup.
+2. Run the checker. It fails on a key used but not defined, or a `{n}` placeholder that is in one language and not the other; it warns on keys nobody uses (delete them) and lists strings that are the same in both languages (fine for names like "Inbox", otherwise translate):
    ```bash
-   grep -rhoE "Copy\.[A-Za-z]+" --include=*.razor --include=*.cs SideGigPh.Maui/Components SideGigPh.Maui/Services | sort -u
+   bash .claude/skills/taglish-copy/scripts/copy-check.sh            # add --no-info to hide the same-in-both list
    ```
 3. Both sides are filled in. Taglish is not just the English copied over, unless the term is genuinely the same in both (town names, "Hilot", "PasaBuy", ₱ ranges).
 4. Read every service label inside the SMS template sentence. It should read naturally.

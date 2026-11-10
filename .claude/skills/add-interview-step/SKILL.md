@@ -15,7 +15,7 @@ The onboarding is a no-login interview: language, then role fork, then a Seeker 
 | Seeker steps | `Components/Onboarding/SeekerInterview.razor(.cs)`, `enum SeekerStep` |
 | Pro steps | `Components/Onboarding/ProfessionalInterview.razor(.cs)`, `enum ProStep` |
 | Start routing / resume | `Components/Onboarding/LaunchRouter.razor.cs` |
-| Results chips (edit a seeker answer) | `Components/Search/SearchResults.razor.cs`, `BuildChips()` (step numbers!) |
+| Where Seeker answers are used after the interview | `Services/SeekerWorkspace.cs` (`Request`, `DefaultMessage`, the recorded `Inquiry`), Search tab filters in `Components/Search/SearchPage` |
 | Question text | `Services/Localization/Copy.cs` |
 | Answer options | `Services/ReferenceData.cs` |
 | Step shell / tiles | `Components/Shared/InterviewStep`, `ChoiceTiles` |
@@ -32,14 +32,14 @@ The onboarding is a no-login interview: language, then role fork, then a Seeker 
    - **Multi-choice and text questions** pass `OnNext` and `CanContinue`.
    - **A question with a payoff** (like the earnings goal) does *not* auto-advance, so the reward stays visible.
 7. **Clear dependent answers** when a parent answer changes. For example, changing the Seeker category clears `ServiceId`, and unticking a pro trade removes that trade's services.
-8. **Seeker chips:** if the step is a seeker question, add or renumber its chip in `SearchResults.BuildChips()`. **Chip step numbers must match the enum.**
+8. **Seeker answers after the interview:** the Search tab edits answers in place (job chips, town and budget menus), not by reopening interview steps. If the new answer should change results, add it to `SearchRequest` and `SeekerWorkspace.Request`, rank on it in `SearchRanker` (see the `search-relevance` skill), and give it a filter on `SearchPage` if users will want to change it.
 9. **Use the answer somewhere visible.** Results ranking, the card, the SMS template, or a payoff. An answer that goes nowhere breaks the "Personalization Clarity / Reciprocity" principle; if nothing would use it, push back on asking it.
 10. **Docs:** update the step table in `docs/onboarding.md` §2.1 / §2.2 and the route summary in `CLAUDE.md` ("Onboarding & Initial Navigation").
 
 ## Flow rules that must keep holding
 
 - **One question per screen. Tiles before typing.** At most about 6 tiles.
-- **One URL per step** (`/start/seeker/3`), so Android hardware back walks the steps. The on-screen back goes to the previous step: step 1 goes to `/start/role`, and once completed it goes back to `/search` or `/professional`.
+- **One URL per step** (`/start/seeker/3`), so Android hardware back walks the steps. The on-screen back goes to the previous step: step 1 goes to `/start/role`, and once completed it goes back to `/search` or `/professional`. `LaunchRouter` sends a returning user to `/seeker` (Seeker home) or `/professional`; the Seeker's loader lands on `/search` as the payoff.
 - **Save on every forward move** (`Store.SaveAsync`), and set `state.ResumePath` while the interview isn't complete, so a killed app resumes at the exact step.
 - **Editing after completion:** Seeker picks jump back to `/search` once all answers exist. Pro edits walk forward to the preview.
 - **Progress** is `step / lastStep`, so step 1 already shows some progress (endowed progress). No "n of N" text.
