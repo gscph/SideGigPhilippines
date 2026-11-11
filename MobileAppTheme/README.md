@@ -11,7 +11,9 @@ screens and phone adapters are done; a new product adds its brand and its featur
 
 | Folder | Contents |
 |---|---|
-| `Branding/` | `BrandStyle` (colors + corner radius), `MobileTheme.Create(style)` → `MudTheme` (palette + mobile typography), `AppBrand(Name, LogoIcon, Theme)` |
+| `Auth/` | Provider-neutral sign-in contract: `IIdentityProvider` (with `Methods`), `AuthMethods`, `AuthUser`, `AuthResult`, `AuthError` (+ `AppText.Describe`), `PhoneVerification`; app hooks `IAuthLanding` (where to go after sign-in) and `IPhoneNumberFormat` (typed number → E.164); defaults `NoIdentityProvider`, `HomeAuthLanding`, `E164PhoneNumberFormat` |
+| `Components/Auth/` | `AuthPage` (`/verify`: brand + tagline, only the methods the provider offers), `PhoneSignIn` (number → SMS code), `GoogleSignInButton` |
+| `Branding/` | `BrandStyle` (colors + corner radius), `MobileTheme.Create(style)` → `MudTheme` (palette + mobile typography), `AppBrand(Name, LogoIcon, Theme, Tagline?)` |
 | `Components/Layout/` | `MainLayout` (theme + popover providers), `AppShell` (top bar, page, bottom tabs), `AppTopBar` (brand + avatar link + status dot), `AppBottomNav` / `AppNavItem` / `AppTab` (icon tabs, badges, most-specific-match highlighting) |
 | `Components/Shared/` | `InterviewStep` (one question per screen: back, progress, why-we-ask, sticky Next), `ChoiceTiles` / `ChoiceTile` / `ChoiceItem` (big tap answers), `WorkingLoader` (step-by-step "labor illusion" loader), `PersonAvatar` (photo → initials → icon), `HomeSection` (collapsible home section), `FilterMenu` (chip with dropdown), `BrandMark` (logo + name), `LanguagePicker`, `StartOverCard` (confirm-twice reset), `MePage` (Me page frame: title, your sections, language, on-this-phone note, Start over) |
 | `Components/Pages/` | `NotFound` (`/not-found`) |
@@ -20,7 +22,17 @@ screens and phone adapters are done; a new product adds its brand and its featur
 | `Services/` | Ports: `IAppAccount` (language + Start over, implemented by the app), `IContactLauncher` (call / SMS), `IPhotoPicker` (gallery), `IPhotoStore` (SHA-256-named photos) |
 | `Services/Local/` | On-device adapters: `DeviceContactLauncher`, `DevicePhotoPicker` (resized to 1280px), `FilePhotoStore` (data URLs for the WebView), `JsonFile<T>` (atomic, corrupt-safe JSON file in app storage) |
 | `wwwroot/mobile-app-theme.css` | Shell CSS and the "MudBlazor gaps" every app needs (`full-screen`, `sticky-footer`, `choice-tile`, `brand-logo`, `one-line`, `two-lines`, `app-pill-input`, `app-top-bar`, `app-bottom-nav`, `app-content`, `app-sticky-action`, `app-fab`, error UI, status-bar safe area) |
-| `ServiceCollectionExtensions.cs` | `services.AddMobileAppTheme(brand)`: MudBlazor, the brand, `AppText`, the three device adapters (`TryAdd`, so an app can swap them) |
+| `ServiceCollectionExtensions.cs` | `services.AddMobileAppTheme(brand)`: MudBlazor, the brand, `AppText`, the three device adapters and the auth defaults (`TryAdd`, so an app can swap them) |
+
+**Vendor adapters** live in sibling projects so the skeleton never depends on a cloud SDK:
+
+| Project | Contents |
+|---|---|
+| `../MobileAppTheme.Firebase/` | Firebase Authentication (phone SMS code + Google), Android + iOS: `builder.AddFirebaseAuth(googleWebClientId)` replaces `NoIdentityProvider`; Android `MainActivity.OnActivityResult` calls `FirebaseAuthSetup.HandleActivityResult(...)`. Errors are logged in full and mapped to `AuthError` (Google status 7 / 10 / 12500 / 12501 decoded). |
+
+To use a different auth provider, write `MobileAppTheme.<Provider>/` the same way (implement
+`IIdentityProvider`, map failures to `AuthError`, expose `builder.Add<Provider>Auth(...)` that
+`Replace`s the port) and reference it instead. No page or app service changes.
 
 Rules for changing the skeleton (what may and may not go in it) are in `CLAUDE.md` here and in
 the `mobile-app-theme` skill.
@@ -117,7 +129,16 @@ the `mobile-app-theme` skill.
    - `IContactLauncher` on Android 11+: `<queries>` with `<intent><action android:name="android.intent.action.DIAL" /><data android:scheme="tel" /></intent>` and the `SENDTO` / `smsto` equivalent in `AndroidManifest.xml`.
    - `IPhotoPicker`: `READ_EXTERNAL_STORAGE` with `android:maxSdkVersion="32"` (Android 13+ needs none) and iOS `NSPhotoLibraryUsageDescription`.
 
-8. **Pages.** A `/` page, an app `Copy` class (`LocalizedText` pairs) for your strings, and per
+8. **Sign-in (optional).** Without a provider the app runs and `/verify` says sign-in isn't available.
+   For Firebase: reference `..\MobileAppTheme.Firebase\MobileAppTheme.Firebase.csproj`, call
+   `builder.AddFirebaseAuth(googleWebClientId)` in `MauiProgram`, forward Android's
+   `OnActivityResult` to `FirebaseAuthSetup.HandleActivityResult(...)`, add `google-services.json` /
+   `GoogleService-Info.plist` (with `Condition="Exists(...)"`) and register the SHA-1/SHA-256 (see the
+   `maui-firebase-auth` skill). Register your own `IAuthLanding` (where users go after sign-in) and,
+   for one-country apps, an `IPhoneNumberFormat` for local number formats. Give `AppBrand` a
+   `Tagline` to show under the logo.
+
+9. **Pages.** A `/` page, an app `Copy` class (`LocalizedText` pairs) for your strings, and per
    user role a thin layout:
 
    ```razor

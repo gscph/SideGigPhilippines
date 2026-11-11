@@ -25,11 +25,12 @@ All external infrastructure is decoupled behind C# interfaces (Dependency Invers
 
 ### Key Ports (Interfaces)
 
-**`IIdentityProvider`** — Auth abstraction
+**`IIdentityProvider`** (skeleton, `MobileAppTheme/Auth/`) — Auth abstraction; Firebase is one swappable adapter (see Auth → Switching the auth provider)
+- `Methods` (which `AuthMethods` the provider supports)
 - `SignUpWithPhoneAsync(string phoneNumber)`
 - `VerifyPhoneOtpAsync(string verificationId, string userEnteredCode)`
 - `SignInWithGoogleAsync()`
-- `GetCurrentUserAsync()`
+- `GetCurrentUserAsync()`, `SignOutAsync()`
 
 **`ITradesmanRepository`** — Data + spatial search abstraction
 - `AddProviderAsync(TradesmanRegistrationReq req)`
@@ -90,12 +91,26 @@ Full spec and research rationale: [`docs/onboarding.md`](docs/onboarding.md).
 
 ### Auth
 
-- **`AuthPage`** (route **`/verify`**, `Components/Auth/`): **Phone OTP + Google** sign-in via `IIdentityProvider`. It isn't linked from the flow yet.
-- **Adapter:** native Firebase SDK (Plugin.Firebase) in `Services/Firebase/` (`#if ANDROID || IOS`). Firebase init and `GetCurrentUserAsync` are wrapped so a missing config doesn't crash launch — the app loads and sign-in fails gracefully.
-- **Auth error policy:** the adapter never reduces an auth-infra exception to a bare message. It logs the full exception (type + stack) to Logcat/Output and returns an `AuthResult` with a decoded reason. For Google sign-in it parses the Google Play status code out of the exception message (which is just `"7:"`, `"10: …"`) — no dependency on the Play-services binding — and maps it to human text (`7` NETWORK_ERROR, `10` DEVELOPER_ERROR, `12501` SIGN_IN_CANCELLED, …) so failures are legible instead of an opaque "7". `SignUpWithPhoneAsync` logs then rethrows (fail fast).
-- **Post-auth routing** (`AuthPage.razor.cs` → `IProfessionalProfileRepository.HasProfileAsync`): if a profile exists, go to `/professional`. Otherwise go to `/`, where the launch router resumes onboarding.
-- **Packages (Android/iOS only):** `Plugin.Firebase.Auth` 3.1.1 + `Plugin.Firebase.Auth.Google` 3.1.2 (the **modular** Auth packages — NOT the bundled `Plugin.Firebase`, which drags in Crashlytics and crashes at launch in MAUI). Google sign-in uses `CrossFirebaseAuthGoogle.Current` and needs `FirebaseAuthGoogleImplementation.Initialize(webClientId)` at startup — `GoogleWebClientId` in `Services/Firebase/FirebaseRegistration.cs` is the web OAuth client (client_type 3) from `google-services.json`. Android also **requires** `MainActivity.OnActivityResult` to forward to `FirebaseAuthGoogleImplementation.HandleActivityResultAsync(...)`; without it `SignInWithGoogleAsync()` hangs forever (no exception, stuck on "connecting"). The app's debug/release **SHA-1 (and SHA-256 for phone auth) must be registered in the Firebase console** and `google-services.json` re-downloaded — otherwise Google sign-in returns `DEVELOPER_ERROR` (status 10) and phone verification fails app-attestation.
-- **Firebase config (not committed; required before an Android/iOS run):** `Platforms/Android/google-services.json`, `Platforms/iOS/GoogleService-Info.plist`, plus a Google OAuth client (Android SHA-1; iOS reversed-client-id URL scheme). The csproj references the config files with `Condition="Exists(...)"` so the build works without them.
+Auth is provider-neutral. The contract and screens live in the skeleton; the vendor is an adapter in its own project.
+
+- **Contract (skeleton, `MobileAppTheme/Auth/`):** `IIdentityProvider` (phone code, Google, current user, sign-out, and `Methods`, the `AuthMethods` it supports) with `AuthUser`, `AuthResult` and `PhoneVerification`. A failure is an **`AuthError`** (`Cancelled`, `Network`, `InvalidCode`, `InvalidPhoneNumber`, `TooManyAttempts`, `Misconfigured`, `NotAvailable`, `Unknown`) plus the provider's raw `Detail` for logs. The UI shows `AppText.Describe(error)` (`CommonCopy`, English/Taglish), never provider text.
+- **Screens (skeleton, `MobileAppTheme/Components/Auth/`):** `AuthPage` (route **`/verify`**: brand + tagline, then only the methods the provider offers), `PhoneSignIn` and `GoogleSignInButton`. It isn't linked from the flow yet.
+- **App hooks:** `IAuthLanding` says where to go after sign-in. SideGigPh's `Services/SideGigPhAuthLanding` sends a user with a Professional profile to `/professional` and anyone else to `/`, where the launch router resumes onboarding. `IPhoneNumberFormat` reads typed numbers into E.164; SideGigPh's `PhilippinePhoneNumberFormat` accepts 0917… / 917… / +63 917…. Skeleton defaults (`TryAdd`): `NoIdentityProvider` (no sign-in, `Methods = None`), `HomeAuthLanding` (`/`) and `E164PhoneNumberFormat`.
+- **Adapter: `MobileAppTheme.Firebase/`** (Android/iOS MAUI library, `Microsoft.NET.Sdk`, not Razor, so no WebView asset clash). `FirebaseIdentityProvider`, `FirebaseAuthErrors` (status-code decoding) and `FirebaseAuthSetup`: `builder.AddFirebaseAuth(GoogleWebClientId)` in `MauiProgram` initializes the SDK in the platform lifecycle (wrapped, so a missing config doesn't crash launch) and **replaces** the skeleton's `IIdentityProvider`. `GoogleWebClientId` (the web OAuth client, client_type 3, from `google-services.json`) is a constant in `MauiProgram`.
+- **Auth error policy:** an adapter never reduces an auth-infra exception to a bare message. It logs the full exception (type + stack) to Logcat/Output and returns an `AuthResult` with a mapped `AuthError`. For Google sign-in, `FirebaseAuthErrors.FromGoogle` parses the Google Play status code out of the exception message (which is just `"7:"`, `"10: …"`), with no dependency on the Play-services binding: `7` → `Network`, `10` DEVELOPER_ERROR / `12500` → `Misconfigured`, `12501` → `Cancelled`. A wrong SMS code (`FirebaseAuthException` `InvalidCredential`) → `InvalidCode`. `SignUpWithPhoneAsync` logs then rethrows (fail fast).
+- **Packages (in `MobileAppTheme.Firebase`, `PrivateAssets="none"` so their build targets reach the app and process `google-services.json`):** `Plugin.Firebase.Auth` 3.1.1 + `Plugin.Firebase.Auth.Google` 3.1.2 (the **modular** Auth packages — NOT the bundled `Plugin.Firebase`, which drags in Crashlytics and crashes at launch in MAUI). Android **requires** `MainActivity.OnActivityResult` to call `FirebaseAuthSetup.HandleActivityResult(...)`; without it `SignInWithGoogleAsync()` hangs forever (no exception, stuck on "connecting"). The app's debug/release **SHA-1 (and SHA-256 for phone auth) must be registered in the Firebase console** and `google-services.json` re-downloaded — otherwise Google sign-in returns `DEVELOPER_ERROR` (status 10) and phone verification fails app-attestation.
+- **Firebase config (not committed; required before an Android/iOS run):** `Platforms/Android/google-services.json`, `Platforms/iOS/GoogleService-Info.plist`, plus a Google OAuth client (Android SHA-1; iOS reversed-client-id URL scheme). The app's csproj references the config files with `Condition="Exists(...)"` so the build works without them.
+
+#### Switching the auth provider
+
+Nothing outside the adapter project and `MauiProgram` knows the provider is Firebase. To move to another one (Supabase, Azure AD B2C, Auth0, a custom backend…):
+
+1. Create `MobileAppTheme.<Provider>/` next to `MobileAppTheme.Firebase/`: a class implementing `IIdentityProvider` with its `Methods`, mapping every failure to an `AuthError` (log the full exception first), and a `builder.Add<Provider>Auth(...)` extension that does its setup and `Replace`s `IIdentityProvider`. Load the `maui-firebase-auth` skill for the error policy and the `mobile-app-theme` skill for the boundary rules.
+2. In `SideGigPh.Maui.csproj`, swap the `MobileAppTheme.Firebase` project reference for the new one; in `MauiProgram`, swap `AddFirebaseAuth(...)` for the new call; in `MainActivity`, remove the `FirebaseAuthSetup.HandleActivityResult` line (or replace it with what the new SDK needs).
+3. Remove the Firebase config files and `GoogleWebClientId` if nothing else uses Firebase.
+4. Users are keyed by `AuthUser.Uid`; the new provider's ids differ, so existing accounts need a migration (once there are real accounts).
+
+Never call a provider SDK from a page, workspace or service. If the UI needs something the contract lacks (e.g. email sign-in), add it to `IIdentityProvider` / `AuthMethods` / `AuthError` in the skeleton first, then implement it in every adapter.
 
 ### Anti-Fraud Rules
 
@@ -108,7 +123,9 @@ These are hard business rules — never bypass them:
 ```
 SideGigPh.slnx
 ├── MobileAppTheme/            # Reusable app skeleton (Razor class library) — no SideGigPh code
+│   ├── Auth/                  # IIdentityProvider, AuthUser/AuthResult/AuthError, IAuthLanding, IPhoneNumberFormat
 │   ├── Branding/              # BrandStyle, MobileTheme.Create → MudTheme, AppBrand
+│   ├── Components/Auth/       # AuthPage (/verify), PhoneSignIn, GoogleSignInButton
 │   ├── Components/Layout/     # MainLayout, AppShell, AppTopBar, AppBottomNav, AppTab
 │   ├── Components/Shared/     # generic components (InterviewStep, ChoiceTiles, MePage…)
 │   ├── Components/Pages/      # NotFound
@@ -118,11 +135,13 @@ SideGigPh.slnx
 │   │   └── Local/             # on-device adapters + JsonFile<T>
 │   └── wwwroot/mobile-app-theme.css
 │
+├── MobileAppTheme.Firebase/   # Firebase auth adapter (Android/iOS): AddFirebaseAuth — swap for another provider's project
+│
 └── SideGigPh.Maui/            # The SideGigPh app (Android/iOS via BlazorWebView), references the skeleton
     ├── Components/            # UI views — one folder per feature (+ Shared/ for SideGigPh-only generic parts)
     │   └── Layout/AppTheme.cs # SideGigPh's brand (BrandStyle + AppBrand)
     ├── Models/                # Data contracts only, no DTOs
-    ├── Services/              # SideGigPh ports, workspaces, search, Dev/ stubs, Firebase adapters
+    ├── Services/              # SideGigPh ports, workspaces, search, Dev/ stubs, auth hooks (SideGigPhAuthLanding, PhilippinePhoneNumberFormat)
     └── MauiProgram.cs         # DI container — AddMobileAppTheme, then binds the app's adapters
 ```
 

@@ -30,5 +30,11 @@ public static class AppTheme
         CornerRadius = "10px",
     };
 
-    public static AppBrand Brand { get; } = new("SideGigPh", Icons.Material.Filled.Place, MobileTheme.Create(Style));
+    public static AppBrand Brand { get; } = new(
+        "SideGigPh",
+        Icons.Material.Filled.Place,
+        MobileTheme.Create(Style),
+        Tagline: new LocalizedText(
+            "Find trusted local pros — or earn with your skills.",
+            "Maghanap ng maaasahang pro — o kumita gamit ang skills mo."));
 }

@@ -1,8 +1,8 @@
-namespace SideGigPh.Maui.Models;
+namespace MobileAppTheme.Auth;
 
 /// <summary>
 /// Provider-agnostic representation of an authenticated user. The UI and routing
-/// depend on this, never on a Firebase type (see CLAUDE.md "Ports &amp; Adapters").
+/// depend on this, never on a provider (e.g. Firebase) type.
 /// </summary>
 public sealed class AuthUser
 {

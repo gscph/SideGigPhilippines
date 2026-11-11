@@ -1,4 +1,4 @@
 <MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Large" FullWidth="true"
            StartIcon="@Icons.Custom.Brands.Google" Disabled="_busy" OnClick="SignInAsync">
-    @(_busy ? "Connecting…" : "Continue with Google")
+    @T.Get(_busy ? CommonCopy.AuthConnecting : CommonCopy.AuthGoogle)
 </MudButton>

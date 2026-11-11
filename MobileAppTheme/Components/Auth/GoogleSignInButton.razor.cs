@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services;
+using MobileAppTheme.Auth;
+using MobileAppTheme.Localization;
 
-namespace SideGigPh.Maui.Components.Auth;
+namespace MobileAppTheme.Components.Auth;
 
-/// <summary>Reusable "Continue with Google" button. Emits the <see cref="AuthResult"/> to the parent.</summary>
+/// <summary>"Continue with Google" through the registered <see cref="IIdentityProvider"/>. Reports the <see cref="AuthResult"/> to the parent.</summary>
 public partial class GoogleSignInButton : ComponentBase
 {
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
 
     [Parameter] public EventCallback<AuthResult> OnAuthenticated { get; set; }
 

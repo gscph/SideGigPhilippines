@@ -15,15 +15,32 @@ description: >
 Hard-won setup for native Firebase auth in MAUI. The defaults from blogs/docs are often
 wrong for the current package version — the notes below are what actually compiles and runs.
 
+## 0. Where it lives in this repo
+
+| Piece | Location |
+|---|---|
+| Provider-neutral contract (`IIdentityProvider`, `AuthMethods`, `AuthResult`, `AuthError`, `AuthUser`, `IAuthLanding`, `IPhoneNumberFormat`) | `MobileAppTheme/Auth/` (skeleton) |
+| Sign-in screens (`AuthPage` `/verify`, `PhoneSignIn`, `GoogleSignInButton`) | `MobileAppTheme/Components/Auth/` (skeleton) |
+| **Firebase adapter**: `FirebaseIdentityProvider`, `FirebaseAuthErrors`, `FirebaseAuthSetup` (`AddFirebaseAuth`, `HandleActivityResult`) | `MobileAppTheme.Firebase/` (Android/iOS MAUI library, `Microsoft.NET.Sdk`) |
+| App wiring: `builder.AddFirebaseAuth(GoogleWebClientId)`, `IAuthLanding` / `IPhoneNumberFormat` registrations | `SideGigPh.Maui/MauiProgram.cs` |
+| `OnActivityResult` → `FirebaseAuthSetup.HandleActivityResult(...)` | `SideGigPh.Maui/Platforms/Android/MainActivity.cs` |
+| Config files (`google-services.json`, `GoogleService-Info.plist`) | the app's `Platforms/` |
+
+Rules: no Firebase type or call outside `MobileAppTheme.Firebase/`; the UI only sees `AuthError`
+(shown via `AppText.Describe`, `CommonCopy`). Swapping providers is in `CLAUDE.md` → Auth →
+"Switching the auth provider". The same error policy (section 6) applies to any provider's adapter.
+
 ## 1. Packages — modular, NOT bundled
-Use the **modular** Auth packages, Android/iOS only:
+Use the **modular** Auth packages, Android/iOS only. Here they live in `MobileAppTheme.Firebase.csproj`
+with `PrivateAssets="none"`, so their build targets flow to the app (which needs them to turn
+`google-services.json` into Android resources); the app doesn't reference them itself:
 
 ```xml
-<ItemGroup Condition="$(TargetFramework.Contains('-android')) or $(TargetFramework.Contains('-ios'))">
-  <PackageReference Include="Plugin.Firebase.Auth" Version="3.1.1" />
-  <PackageReference Include="Plugin.Firebase.Auth.Google" Version="3.1.2" />
-</ItemGroup>
+<PackageReference Include="Plugin.Firebase.Auth" Version="3.1.1" PrivateAssets="none" />
+<PackageReference Include="Plugin.Firebase.Auth.Google" Version="3.1.2" PrivateAssets="none" />
 ```
+
+Check after a change: the build output has `obj/<cfg>/net10.0-android/googsvcsjson/values/goog_svcs_json.xml`.
 
 **Do NOT use the bundled `Plugin.Firebase` meta-package** — it drags in Crashlytics, which
 auto-initializes at launch and **hard-crashes in MAUI** (missing Gradle-injected build ID).
@@ -46,7 +63,8 @@ Reference them with `Condition="Exists(...)"` so the build still works before th
 ```
 
 ## 3. Initialization (resilient)
-`RegisterFirebaseServices()` extension called from `MauiProgram`, in lifecycle events:
+`FirebaseAuthSetup.AddFirebaseAuth(webClientId)` (called from `MauiProgram`) does this in lifecycle
+events, then `Replace`s the skeleton's default `NoIdentityProvider`:
 - Android `OnCreate`: `CrossFirebase.Initialize(activity)` then `FirebaseAuthGoogleImplementation.Initialize(webClientId)`.
 - iOS `WillFinishLaunching`: `CrossFirebase.Initialize()` then `FirebaseAuthGoogleImplementation.Initialize()`.
 - `CrossFirebase` lives in `Plugin.Firebase.Core.Platforms.Android` / `...iOS` (NOT `Plugin.Firebase.Core`).
@@ -55,8 +73,8 @@ Reference them with `Condition="Exists(...)"` so the build still works before th
 - `webClientId` = the `oauth_client` with `"client_type": 3` in `google-services.json`.
 
 ## 4. Android MUST forward OnActivityResult
-In `MainActivity.OnActivityResult`, forward to
-`FirebaseAuthGoogleImplementation.HandleActivityResultAsync(requestCode, resultCode, data)`.
+In `MainActivity.OnActivityResult`, after `base`, call `FirebaseAuthSetup.HandleActivityResult(requestCode, resultCode, data)`
+(it forwards to `FirebaseAuthGoogleImplementation.HandleActivityResultAsync`).
 **Without this, `SignInWithGoogleAsync()` hangs forever** (no exception, stuck on "connecting").
 
 ## 5. The API (behind IIdentityProvider)
@@ -71,9 +89,12 @@ In `MainActivity.OnActivityResult`, forward to
 
 ## 6. Error policy — make failures legible
 Never reduce an auth-infra exception to a bare message. Log the full exception (type + stack)
-to Logcat/Output, and for Google decode the Google Play status code out of the message (which
-is just `"7:"`, `"10: …"`) → human text, **no dependency on a Play-services binding**:
-`7` NETWORK_ERROR, `10` DEVELOPER_ERROR, `12501` SIGN_IN_CANCELLED. Phone `SignUp...` logs then rethrows.
+to Logcat/Output, then return `AuthResult.Fail(AuthError, detail)`. For Google, `FirebaseAuthErrors.FromGoogle`
+decodes the Google Play status code out of the message (which is just `"7:"`, `"10: …"`),
+**no dependency on a Play-services binding**: `7` NETWORK_ERROR → `Network`, `10` DEVELOPER_ERROR and
+`12500` → `Misconfigured`, `12501` SIGN_IN_CANCELLED → `Cancelled` (shows nothing). A wrong SMS code is
+`FirebaseAuthException` with `Reason == FIRAuthError.InvalidCredential` (`Plugin.Firebase.Core.Exceptions`) → `InvalidCode`.
+Phone `SignUp...` logs then rethrows. Add a mapping in `FirebaseAuthErrors` when the log shows an unmapped status.
 
 ## 7. Firebase console checklist
 - Register the app with the package name = csproj `<ApplicationId>` (they must match).

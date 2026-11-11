@@ -2,24 +2,24 @@
     @if (_step == Step.EnterPhone)
     {
         <MudTextField T="string" @bind-Value="_phoneNumber" Immediate="true" Disabled="_busy"
-                      Label="Mobile number" Placeholder="+63 9XX XXX XXXX" Variant="Variant.Outlined"
+                      Label="@T.Get(CommonCopy.AuthPhoneLabel)" Placeholder="@PhoneFormat.Placeholder" Variant="Variant.Outlined"
                       InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="tel" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
-            @(_busy ? "Sending…" : "Send code")
+            @T.Get(_busy ? CommonCopy.AuthSending : CommonCopy.AuthSendCode)
         </MudButton>
     }
     else
     {
         <MudTextField T="string" @bind-Value="_code" Immediate="true" Disabled="_busy"
-                      Label="Enter the 6-digit code" Placeholder="••••••" Variant="Variant.Outlined" MaxLength="6"
+                      Label="@T.Get(CommonCopy.AuthCodeLabel)" Variant="Variant.Outlined" MaxLength="6"
                       InputMode="InputMode.numeric" autocomplete="one-time-code" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || string.IsNullOrWhiteSpace(_code))" OnClick="VerifyAsync">
-            @(_busy ? "Verifying…" : "Verify & continue")
+            @T.Get(_busy ? CommonCopy.AuthVerifying : CommonCopy.AuthVerify)
         </MudButton>
         <MudButton Variant="Variant.Text" Color="Color.Primary" FullWidth="true" Disabled="_busy" OnClick="Reset">
-            Use a different number
+            @T.Get(CommonCopy.AuthOtherNumber)
         </MudButton>
     }
 </MudStack>

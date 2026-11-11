@@ -4,14 +4,15 @@ using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Dev;
 using SideGigPh.Maui.Services.Local;
 using SideGigPh.Maui.Services.Search;
-#if ANDROID || IOS
-using SideGigPh.Maui.Services.Firebase;
-#endif
+using MobileAppTheme.Firebase;
 
 namespace SideGigPh.Maui
 {
     public static class MauiProgram
     {
+        // Web OAuth client (client_type 3) from google-services.json, for Google sign-in on Android.
+        private const string GoogleWebClientId = "742654871295-4slv8fpgpbrllq8aoe3vbiphv3e64q3f.apps.googleusercontent.com";
+
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -29,8 +30,11 @@ namespace SideGigPh.Maui
             builder.Services.AddMobileAppTheme(AppTheme.Brand);
 
             // --- Ports & Adapters (see CLAUDE.md) ---
-            builder.RegisterFirebaseServices();
-            builder.Services.AddSingleton<IIdentityProvider, FirebaseIdentityProvider>();
+            // Sign-in provider. To switch, replace this line (and the project reference) with another
+            // IIdentityProvider adapter; nothing else in the app knows which provider it is.
+            builder.AddFirebaseAuth(GoogleWebClientId);
+            builder.Services.AddSingleton<IAuthLanding, SideGigPhAuthLanding>();
+            builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
             builder.Services.AddSingleton<IProfessionalProfileRepository, StubProfessionalProfileRepository>();
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
             builder.Services.AddSingleton<IInquiryRepository, StubInquiryRepository>();

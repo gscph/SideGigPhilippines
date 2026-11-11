@@ -37,6 +37,25 @@ public static class CommonCopy
         "Mabubura lahat ng nilagay mo sa phone na ito. Hindi na ito maibabalik.");
     public static readonly LocalizedText StartOverYes = new("Yes, delete and start over", "Oo, burahin at magsimula ulit");
 
+    // --- Sign-in (Components/Auth) ----------------------------------------
+    public static readonly LocalizedText AuthTitle = new("Sign in to continue", "Mag-sign in para tumuloy");
+    public static readonly LocalizedText AuthOr = new("or", "o");
+    public static readonly LocalizedText AuthGoogle = new("Continue with Google", "Tuloy gamit ang Google");
+    public static readonly LocalizedText AuthConnecting = new("Connecting…", "Kumokonekta…");
+    public static readonly LocalizedText AuthPhoneLabel = new("Mobile number", "Mobile number");
+    public static readonly LocalizedText AuthSendCode = new("Send code", "I-send ang code");
+    public static readonly LocalizedText AuthSending = new("Sending…", "Sine-send…");
+    public static readonly LocalizedText AuthCodeLabel = new("Enter the 6-digit code", "Ilagay ang 6-digit code");
+    public static readonly LocalizedText AuthVerify = new("Verify and continue", "I-verify at tumuloy");
+    public static readonly LocalizedText AuthVerifying = new("Verifying…", "Vine-verify…");
+    public static readonly LocalizedText AuthOtherNumber = new("Use a different number", "Ibang number na lang");
+    public static readonly LocalizedText AuthErrorNetwork = new("No connection. Check your internet and try again.", "Walang connection. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText AuthErrorInvalidCode = new("Wrong or expired code. Check the SMS and try again.", "Mali o expired ang code. I-check ang SMS at subukan ulit.");
+    public static readonly LocalizedText AuthErrorInvalidPhone = new("Check the mobile number.", "I-check ang mobile number.");
+    public static readonly LocalizedText AuthErrorTooManyAttempts = new("Too many tries. Wait a while, then try again.", "Sobrang daming try. Maghintay muna bago ulitin.");
+    public static readonly LocalizedText AuthErrorNotAvailable = new("Sign-in isn't working right now. Please try again later.", "Hindi gumagana ang sign-in ngayon. Subukan ulit mamaya.");
+    public static readonly LocalizedText AuthErrorUnknown = new("Sign-in failed. Please try again.", "Hindi naka-sign in. Subukan ulit.");
+
     // --- Relative times. {0} = a number. ----------------------------------
     public static readonly LocalizedText JustNow = new("Just now", "Ngayon lang");
     public static readonly LocalizedText MinutesAgo = new("{0} min ago", "{0} min ago");

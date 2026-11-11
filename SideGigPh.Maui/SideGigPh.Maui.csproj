@@ -61,17 +61,12 @@
 
     <!-- The reusable app skeleton: shell, theme builder, generic components, localization and
          device adapters. MudBlazor comes from here, so its version is set in one place. -->
+    <!-- The sign-in provider: Firebase (phone SMS code + Google) behind the skeleton's
+         IIdentityProvider. To switch providers, swap this reference and the AddFirebaseAuth call
+         in MauiProgram (see CLAUDE.md "Switching the auth provider"). -->
     <ItemGroup>
         <ProjectReference Include="..\MobileAppTheme\MobileAppTheme.csproj" />
-    </ItemGroup>
-
-    <!-- Firebase (native SDK) — Android/iOS only. Use the modular Auth packages, NOT the
-         bundled "Plugin.Firebase" meta-package: the bundle pulls in Crashlytics, whose
-         ContentProvider auto-inits at launch and crashes in MAUI (no Gradle plugin to inject
-         the required Crashlytics build ID). Auth-only avoids that entirely. -->
-    <ItemGroup Condition="$(TargetFramework.Contains('-android')) or $(TargetFramework.Contains('-ios'))">
-        <PackageReference Include="Plugin.Firebase.Auth" Version="3.1.1" />
-        <PackageReference Include="Plugin.Firebase.Auth.Google" Version="3.1.2" />
+        <ProjectReference Include="..\MobileAppTheme.Firebase\MobileAppTheme.Firebase.csproj" />
     </ItemGroup>
 
     <!-- Firebase config files. Referenced only when present so the build works without them.

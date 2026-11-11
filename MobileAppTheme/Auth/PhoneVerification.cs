@@ -1,4 +1,4 @@
-namespace SideGigPh.Maui.Models;
+namespace MobileAppTheme.Auth;
 
 /// <summary>
 /// Handle returned after an OTP is sent; carries the verification id used to

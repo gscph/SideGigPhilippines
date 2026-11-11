@@ -1,0 +1,56 @@
+using Microsoft.AspNetCore.Components;
+using MobileAppTheme.Auth;
+using MobileAppTheme.Branding;
+using MobileAppTheme.Localization;
+
+namespace MobileAppTheme.Components.Auth;
+
+/// <summary>
+/// The sign-in screen (<c>/verify</c>): the brand, then the methods the registered
+/// <see cref="IIdentityProvider"/> offers (phone code, Google). After sign-in, or if the user is
+/// already signed in, it goes where the app's <see cref="IAuthLanding"/> says. With no provider
+/// registered it explains that sign-in isn't available.
+/// </summary>
+public partial class AuthPage : ComponentBase
+{
+    [Inject] private IIdentityProvider Identity { get; set; } = default!;
+    [Inject] private IAuthLanding Landing { get; set; } = default!;
+    [Inject] private AppBrand Brand { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private string? _error;
+
+    private bool HasPhone => Identity.Methods.HasFlag(AuthMethods.Phone);
+
+    private bool HasGoogle => Identity.Methods.HasFlag(AuthMethods.Google);
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Identity.Methods == AuthMethods.None)
+        {
+            _error = T.Describe(AuthError.NotAvailable);
+            return;
+        }
+
+        if (await Identity.GetCurrentUserAsync() is { } existing)
+        {
+            await GoOnAsync(existing);
+        }
+    }
+
+    private async Task HandleAuthenticatedAsync(AuthResult result)
+    {
+        if (result is { IsSuccess: true, User: { } user })
+        {
+            _error = null;
+            await GoOnAsync(user);
+            return;
+        }
+
+        _error = T.Describe(result.Error);
+    }
+
+    private async Task GoOnAsync(AuthUser user) =>
+        Nav.NavigateTo(await Landing.GetDestinationAsync(user), replace: true);
+}

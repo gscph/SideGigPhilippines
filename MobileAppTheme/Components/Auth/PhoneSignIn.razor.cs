@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services;
+using MobileAppTheme.Auth;
+using MobileAppTheme.Localization;
 
-namespace SideGigPh.Maui.Components.Auth;
+namespace MobileAppTheme.Components.Auth;
 
-/// <summary>Reusable phone OTP form. Emits the <see cref="AuthResult"/> to the parent.</summary>
+/// <summary>
+/// Phone sign-in in two steps: the number (read with the app's <see cref="IPhoneNumberFormat"/>),
+/// then the SMS code. Reports the <see cref="AuthResult"/> to the parent, failures included.
+/// </summary>
 public partial class PhoneSignIn : ComponentBase
 {
     private enum Step
@@ -14,6 +17,8 @@ public partial class PhoneSignIn : ComponentBase
     }
 
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
+    [Inject] private IPhoneNumberFormat PhoneFormat { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
 
     [Parameter] public EventCallback<AuthResult> OnAuthenticated { get; set; }
 
@@ -25,16 +30,23 @@ public partial class PhoneSignIn : ComponentBase
 
     private async Task SendCodeAsync()
     {
+        if (!PhoneFormat.TryNormalize(_phoneNumber, out var e164))
+        {
+            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.InvalidPhoneNumber));
+            return;
+        }
+
         _busy = true;
         try
         {
-            var verification = await Identity.SignUpWithPhoneAsync(_phoneNumber.Trim());
+            var verification = await Identity.SignUpWithPhoneAsync(e164);
             _verificationId = verification.VerificationId;
             _step = Step.EnterCode;
         }
         catch (Exception ex)
         {
-            await OnAuthenticated.InvokeAsync(AuthResult.Fail(ex.Message));
+            // The adapter has already logged the full exception.
+            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Unknown, ex.Message));
         }
         finally
         {
