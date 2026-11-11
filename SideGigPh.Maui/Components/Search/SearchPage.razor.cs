@@ -61,7 +61,7 @@ public partial class SearchPage : ComponentBase
         }
     }
 
-    private IReadOnlyList<ChoiceItem> Towns => ChoiceItem.From(ReferenceData.Cities, T);
+    private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
 
     private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(ReferenceData.BudgetOptions, T);
 

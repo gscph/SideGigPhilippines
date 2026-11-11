@@ -20,11 +20,19 @@
             </InterviewStep>
             break;
 
-        case ProStep.Areas:
-            <InterviewStep Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)" Note="@T.Get(Copy.CitiesNote)"
+        case ProStep.Area:
+            <InterviewStep Title="@T.Get(Copy.ProAreaTitle)" Why="@T.Get(Copy.ProAreaWhy)" Note="@T.Get(Copy.CitiesNote)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Areas, T)"
+                             SelectedIds="Selected(Draft.AreaId)" OnPick="PickAreaAsync" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Towns:
+            <InterviewStep Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)"
                            Progress="Progress" OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.CityIds.Count > 0)">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Cities, T)" Multiple="true" Compact="true"
-                             SelectedIds="Draft.CityIds" OnPick="ToggleCity" />
+                <TownPicker AreaId="@(Draft.AreaId!)" Multiple="true" SelectedIds="Draft.CityIds"
+                            OnPick="ToggleCity" OnPickAll="ToggleWholeArea" />
             </InterviewStep>
             break;
 

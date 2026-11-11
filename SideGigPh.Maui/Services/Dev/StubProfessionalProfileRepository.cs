@@ -4,7 +4,7 @@ namespace SideGigPh.Maui.Services.Dev;
 
 /// <summary>
 /// Stand-in until Firestore is wired. Profile lookup returns "no profile"; search returns
-/// SAMPLE listings across the four towns so the Seeker flow can be exercised end to end.
+/// SAMPLE listings across Rizal, Metro Manila, Laguna and Cavite so the Seeker flow can be exercised end to end.
 /// The numbers use the unassigned +63 900 prefix so they never reach a real person.
 /// Flip <see cref="PretendHasProfile"/> to <c>true</c> to exercise the Professional route.
 /// A published listing is kept in memory only (lost on restart, never leaves the phone), so
@@ -32,6 +32,14 @@ public sealed class StubProfessionalProfileRepository : IProfessionalProfileRepo
         Sample("13", "Ate Liza PasaBuy", "errand_runner", ["errand-grocery", "errand-bills", "errand-pasabuy", "errand-parcel"], ["taytay", "antipolo"], "1-3", "under-500"),
         Sample("14", "SunClean Solar Services", "solar_cleaning", ["solar-cleaning", "solar-checkup", "solar-inverter"], ["antipolo", "binangonan"], "1-3", "1000-2000"),
         Sample("15", "Aling Nena Hilot & Massage", "home_massage", ["massage-full-body", "massage-hilot", "massage-ventosa", "massage-foot"], ["angono", "binangonan", "taytay"], "10-plus", "500-1000"),
+
+        // Metro Manila, Laguna (Nuvali side) and Cavite, so search works outside Rizal too.
+        Sample("16", "QC Aircon Doctors", "aircon", ["aircon-cleaning", "aircon-repair", "aircon-freon"], ["quezon-city", "marikina", "san-juan"], "3-10", "500-1000"),
+        Sample("17", "Pasig Tubero Express", "plumbing", ["plumbing-leak", "plumbing-clog", "plumbing-install"], ["pasig", "mandaluyong", "makati"], "10-plus", "1000-2000"),
+        Sample("18", "Nuvali Home Aircon", "aircon", ["aircon-cleaning", "aircon-install", "aircon-repair"], ["santa-rosa", "calamba", "cabuyao"], "3-10", "1000-2000"),
+        Sample("19", "Sta. Rosa Electrical", "electrical", ["electrical-no-power", "electrical-wiring", "electrical-outlet"], ["santa-rosa", "binan", "san-pedro"], "1-3", "500-1000"),
+        Sample("20", "Bacoor Plumbing Masters", "plumbing", ["plumbing-leak", "plumbing-replace", "plumbing-pump"], ["bacoor", "imus", "kawit"], "3-10", "500-1000"),
+        Sample("21", "Imus Home Massage", "home_massage", ["massage-full-body", "massage-hilot", "massage-foot"], ["imus", "dasmarinas", "general-trias"], "1-3", "500-1000"),
     ];
 
     private readonly List<ProfessionalListing> _published = [];

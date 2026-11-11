@@ -35,6 +35,6 @@ public static class AppTheme
         Icons.Material.Filled.Place,
         MobileTheme.Create(Style),
         Tagline: new LocalizedText(
-            "Find trusted local pros — or earn with your skills.",
-            "Maghanap ng maaasahang pro — o kumita gamit ang skills mo."));
+            "Find trusted skilled workers near you — or earn with your skills.",
+            "Maghanap ng maaasahang skilled worker — o kumita gamit ang skills mo."));
 }

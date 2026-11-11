@@ -102,6 +102,7 @@ public sealed class SeekerWorkspace(
     public Task PickTownAsync(string cityId)
     {
         Answers.CityId = cityId;
+        Answers.AreaId = ReferenceData.AreaOf(cityId);
         return SaveAsync();
     }
 

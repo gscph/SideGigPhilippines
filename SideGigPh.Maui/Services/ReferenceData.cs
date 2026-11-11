@@ -138,14 +138,78 @@ public static class ReferenceData
             ],
         };
 
-    /// <summary>The towns we serve for now (Rizal).</summary>
-    public static readonly IReadOnlyList<CatalogOption> Cities =
+    /// <summary>
+    /// The areas we serve, in the order pickers show them. A town belongs to exactly one area;
+    /// search treats towns in the Seeker's area as "nearby" (<see cref="AreaOf"/>).
+    /// </summary>
+    public static readonly IReadOnlyList<CatalogOption> Areas =
     [
-        new("angono", new("Angono", "Angono"), string.Empty),
-        new("antipolo", new("Antipolo", "Antipolo"), string.Empty),
-        new("binangonan", new("Binangonan", "Binangonan"), string.Empty),
-        new("taytay", new("Taytay", "Taytay"), string.Empty),
+        new("metro-manila", new("Metro Manila", "Metro Manila"), "🏙️"),
+        new("rizal", new("Rizal", "Rizal"), "⛰️"),
+        new("laguna", new("Laguna", "Laguna"), "🌳"),
+        new("cavite", new("Cavite", "Cavite"), "🌊"),
     ];
+
+    // Town IDs are stored in saved answers, listings and inquiries: never rename them, only
+    // their labels. Within an area, towns are A–Z. Accents stay in labels (Las Piñas), not in IDs.
+    public static readonly IReadOnlyDictionary<string, IReadOnlyList<CatalogOption>> CitiesByArea =
+        new Dictionary<string, IReadOnlyList<CatalogOption>>
+        {
+            ["metro-manila"] =
+            [
+                Town("caloocan", "Caloocan"),
+                Town("las-pinas", "Las Piñas"),
+                Town("makati", "Makati"),
+                Town("malabon", "Malabon"),
+                Town("mandaluyong", "Mandaluyong"),
+                Town("manila", "Manila"),
+                Town("marikina", "Marikina"),
+                Town("muntinlupa", "Muntinlupa"),
+                Town("navotas", "Navotas"),
+                Town("paranaque", "Parañaque"),
+                Town("pasay", "Pasay"),
+                Town("pasig", "Pasig"),
+                Town("pateros", "Pateros"),
+                Town("quezon-city", "Quezon City"),
+                Town("san-juan", "San Juan"),
+                Town("taguig", "Taguig"),
+                Town("valenzuela", "Valenzuela"),
+            ],
+            ["rizal"] =
+            [
+                Town("angono", "Angono"),
+                Town("antipolo", "Antipolo"),
+                Town("binangonan", "Binangonan"),
+                Town("cainta", "Cainta"),
+                Town("rodriguez", "Rodriguez (Montalban)"),
+                Town("san-mateo", "San Mateo"),
+                Town("taytay", "Taytay"),
+            ],
+            ["laguna"] =
+            [
+                Town("binan", "Biñan"),
+                Town("cabuyao", "Cabuyao"),
+                Town("calamba", "Calamba"),
+                Town("los-banos", "Los Baños"),
+                Town("san-pedro", "San Pedro"),
+                Town("santa-rosa", "Santa Rosa (Nuvali)"),
+            ],
+            ["cavite"] =
+            [
+                Town("bacoor", "Bacoor"),
+                Town("carmona", "Carmona"),
+                Town("dasmarinas", "Dasmariñas"),
+                Town("general-trias", "General Trias"),
+                Town("imus", "Imus"),
+                Town("kawit", "Kawit"),
+                Town("silang", "Silang"),
+                Town("tagaytay", "Tagaytay"),
+            ],
+        };
+
+    /// <summary>Every town we serve, grouped by area in <see cref="Areas"/> order.</summary>
+    public static readonly IReadOnlyList<CatalogOption> Cities =
+        Areas.SelectMany(area => CitiesByArea[area.Id]).ToList();
 
     public static readonly IReadOnlyList<CatalogOption> Urgencies =
     [
@@ -205,6 +269,13 @@ public static class ReferenceData
 
     public static string? CategoryOfService(string serviceId) =>
         ServicesByCategory.FirstOrDefault(pair => pair.Value.Any(s => s.Id == serviceId)).Key;
+
+    /// <summary>The area id (<see cref="Areas"/>) a town belongs to, or null for an unknown town.</summary>
+    public static string? AreaOf(string? cityId) =>
+        cityId is null ? null : CitiesByArea.FirstOrDefault(pair => pair.Value.Any(c => c.Id == cityId)).Key;
+
+    // Place names are the same in English and Taglish.
+    private static CatalogOption Town(string id, string name) => new(id, new(name, name));
 
     /// <summary>Position on <see cref="PriceTiers"/> (0 = cheapest), or -1 for "not sure" / "quote" / unanswered.</summary>
     public static int PriceRank(string? tierId)

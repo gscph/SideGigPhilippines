@@ -7,7 +7,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// Seeker interview: what job → which town → when → budget → results. Each step has its own
+/// Seeker interview: what job → which area (province) → which town (their one home town) → when →
+/// budget → results. Each step has its own
 /// URL so Android back walks the steps; every answer is saved as soon as it's tapped.
 /// Once finished, tapping an answer chip on the results reopens one step and returns there.
 /// </summary>
@@ -17,6 +18,7 @@ public partial class SeekerInterview : ComponentBase
     {
         Category = 1,
         Service,
+        Area,
         City,
         When,
         Budget,
@@ -46,7 +48,13 @@ public partial class SeekerInterview : ComponentBase
         T.Get(Copy.FindingBudget),
     ];
 
-    protected override async Task OnInitializedAsync() => _state = await Store.LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        _state = await Store.LoadAsync();
+
+        // Answers saved before the area step had a town but no area: take it from the town.
+        Answers.AreaId ??= ReferenceData.AreaOf(Answers.CityId);
+    }
 
     protected override void OnParametersSet()
     {
@@ -75,6 +83,17 @@ public partial class SeekerInterview : ComponentBase
     private Task PickServiceAsync(string id)
     {
         Answers.ServiceId = id;
+        return AdvanceAsync();
+    }
+
+    private Task PickAreaAsync(string id)
+    {
+        if (Answers.AreaId != id)
+        {
+            Answers.AreaId = id;
+            Answers.CityId = null; // The town belonged to the previous area.
+        }
+
         return AdvanceAsync();
     }
 
@@ -137,6 +156,7 @@ public partial class SeekerInterview : ComponentBase
     {
         if (Answers.CategoryId is null) return SeekerStep.Category;
         if (Answers.ServiceId is null) return SeekerStep.Service;
+        if (Answers.AreaId is null) return SeekerStep.Area;
         if (Answers.CityId is null) return SeekerStep.City;
         if (Answers.UrgencyId is null) return SeekerStep.When;
         if (Answers.BudgetId is null) return SeekerStep.Budget;

@@ -28,6 +28,10 @@ public sealed class SeekerAnswers
 
     public string? ServiceId { get; set; }
 
+    /// <summary>The area (<c>ReferenceData.Areas</c>) of their home, picked before the town.</summary>
+    public string? AreaId { get; set; }
+
+    /// <summary>Their home town, inside <see cref="AreaId"/>.</summary>
     public string? CityId { get; set; }
 
     public string? UrgencyId { get; set; }
@@ -50,6 +54,10 @@ public sealed class ProfessionalDraft
 
     public List<string> ServiceIds { get; set; } = [];
 
+    /// <summary>The one area (<c>ReferenceData.Areas</c>: Metro Manila, Rizal, Laguna, Cavite) they work in.</summary>
+    public string? AreaId { get; set; }
+
+    /// <summary>The towns they go to, all inside <see cref="AreaId"/>.</summary>
     public List<string> CityIds { get; set; } = [];
 
     public string? ExperienceId { get; set; }

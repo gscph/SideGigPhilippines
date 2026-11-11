@@ -1,4 +1,4 @@
-<MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" AriaLabel="@Label">
+<MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" AriaLabel="@Label" MaxHeight="MaxListHeight">
     <ActivatorContent>
         <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Icon="@Icon" Class="ma-0">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0">
@@ -8,8 +8,13 @@
         </MudChip>
     </ActivatorContent>
     <ChildContent>
-        @foreach (var option in Options)
+        @for (var i = 0; i < Options.Count; i++)
         {
+            var option = Options[i];
+            if (StartsGroup(i))
+            {
+                <MudText Typo="Typo.overline" Color="Color.Secondary" Class="px-4 pt-2">@option.Group</MudText>
+            }
             <MudMenuItem Icon="@(option.Id == SelectedId ? Icons.Material.Filled.Check : null)"
                          OnClick="() => OnPick.InvokeAsync(option.Id)">
                 @option.Label

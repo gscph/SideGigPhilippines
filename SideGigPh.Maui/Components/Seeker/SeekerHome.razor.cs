@@ -20,7 +20,7 @@ public partial class SeekerHome : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Categories => ChoiceItem.From(ReferenceData.Categories, T);
 
-    private IReadOnlyList<ChoiceItem> Towns => ChoiceItem.From(ReferenceData.Cities, T);
+    private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
 
     /// <summary>"Pa-linis ng aircon · Taytay", or null before any search.</summary>
     private string? LastSearch
