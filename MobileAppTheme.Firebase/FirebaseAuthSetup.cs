@@ -56,11 +56,30 @@ public static class FirebaseAuthSetup
     /// <summary>
     /// Call from <c>MainActivity.OnActivityResult</c> (after <c>base</c>). Google sign-in returns its
     /// result through the activity; without forwarding it, <c>SignInWithGoogleAsync</c> never completes
-    /// (no exception, stuck on "Connecting…").
+    /// (no exception, stuck on "Connecting…"). Results of other activities (the photo picker, the
+    /// dialer…) arrive here too and are ignored: the plugin throws a NullReferenceException when no
+    /// Google sign-in is waiting, and an exception here kills the app.
     /// </summary>
-    public static void HandleActivityResult(int requestCode, Result resultCode, Intent? data) =>
-        _ = FirebaseAuthGoogleImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
+    public static void HandleActivityResult(int requestCode, Result resultCode, Intent? data)
+    {
+        if (!GoogleSignInPending)
+        {
+            return;
+        }
+
+        try
+        {
+            _ = FirebaseAuthGoogleImplementation.HandleActivityResultAsync(requestCode, resultCode, data);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[Firebase] activity result not handled: {ex}");
+        }
+    }
 #endif
+
+    /// <summary>True while a Google sign-in is waiting for the account picker's result.</summary>
+    internal static volatile bool GoogleSignInPending;
 
     // Initialization throws when google-services.json / GoogleService-Info.plist is missing. Don't
     // let that crash launch: the app loads and sign-in fails gracefully instead.

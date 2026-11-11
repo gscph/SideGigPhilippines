@@ -1,19 +1,21 @@
-<MudStack Row="true" Spacing="3" Class="py-2">
-    <PersonAvatar Name="@DisplayName" PhotoUrl="@PhotoUrl" />
-    <MudStack Spacing="1" Class="flex-1">
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
-            <MudText Typo="Typo.subtitle2">@DisplayName</MudText>
-            <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Ago(Review.At)</MudText>
+<MudStack Spacing="2" Class="py-5">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+        <PersonAvatar Name="@DisplayName" PhotoUrl="@PhotoUrl" Size="Size.Large" />
+        <MudStack Spacing="0" Class="flex-1 overflow-hidden">
+            <MudText Typo="Typo.subtitle1" Class="one-line">@DisplayName</MudText>
+            @if (ServiceLabel is not null)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@ServiceLabel</MudText>
+            }
         </MudStack>
-        <MudRating SelectedValue="Review.Rating" ReadOnly="true" Size="Size.Small" Color="Color.Warning"
-                   aria-label="@($"{Review.Rating}/5")" />
-        @if (!string.IsNullOrWhiteSpace(Review.Comment))
-        {
-            <MudText Typo="Typo.body2">@Review.Comment</MudText>
-        }
-        @if (ServiceLabel is not null)
-        {
-            <MudText Typo="Typo.caption" Color="Color.Secondary">@ServiceLabel</MudText>
-        }
     </MudStack>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudRating SelectedValue="Review.Rating" ReadOnly="true" Size="Size.Small" Color="Color.Dark"
+                   aria-label="@($"{Review.Rating}/5")" />
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Ago(Review.At)</MudText>
+    </MudStack>
+    @if (!string.IsNullOrWhiteSpace(Review.Comment))
+    {
+        <MudText Typo="Typo.body1">@Review.Comment</MudText>
+    }
 </MudStack>

@@ -1,11 +1,14 @@
-<MudStack Spacing="4">
-    <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+<MudStack Spacing="6" Class="pb-4">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@Title</MudText>
 
     @ChildContent
 
     <LanguagePicker Value="Account.Language" ValueChanged="Account.SetLanguageAsync" />
 
-    <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Icon="@Icons.Material.Filled.PhoneAndroid">@T.Get(CommonCopy.AccountOnPhone)</MudAlert>
+    <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
+        <MudIcon Icon="@Icons.Material.Rounded.PhoneAndroid" Color="Color.Secondary" Size="Size.Small" aria-hidden="true" />
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AccountOnPhone)</MudText>
+    </MudStack>
 
     <StartOverCard Busy="_busy" Warning="@StartOverWarning" OnConfirm="StartOverAsync" />
 </MudStack>

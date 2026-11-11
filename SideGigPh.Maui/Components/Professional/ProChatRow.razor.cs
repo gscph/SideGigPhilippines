@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Professional;
@@ -8,6 +9,7 @@ namespace SideGigPh.Maui.Components.Professional;
 public partial class ProChatRow : ComponentBase
 {
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private ProWorkspace Workspace { get; set; } = default!;
 
     [Parameter, EditorRequired] public Chat Chat { get; set; } = default!;
 }

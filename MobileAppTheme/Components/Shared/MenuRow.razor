@@ -1,0 +1,15 @@
+<MudLink Href="@Href" Underline="Underline.None" Color="Color.Inherit" Class="mud-width-full">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="py-4 border-b border-solid mud-border-lines-default">
+        <MudBadge Content="Badge" Max="9" Visible="@(Badge > 0)" Color="Color.Error" Overlap="true">
+            <MudIcon Icon="@Icon" Color="Color.Dark" aria-hidden="true" />
+        </MudBadge>
+        <MudStack Spacing="0" Class="flex-1 overflow-hidden">
+            <MudText Typo="Typo.body1" Class="one-line">@Text</MudText>
+            @if (!string.IsNullOrEmpty(SecondaryText))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@SecondaryText</MudText>
+            }
+        </MudStack>
+        <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Color="Color.Dark" aria-hidden="true" />
+    </MudStack>
+</MudLink>

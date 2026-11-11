@@ -1,25 +1,51 @@
-<MudStack Spacing="3">
+<MudStack Spacing="4">
     @if (_step == Step.EnterPhone)
     {
-        <MudTextField T="string" @bind-Value="_phoneNumber" Immediate="true" Disabled="_busy"
-                      Label="@T.Get(CommonCopy.AuthPhoneLabel)" Placeholder="@PhoneFormat.Placeholder" Variant="Variant.Outlined"
-                      InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="tel" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+        <MudStack Spacing="0" Class="app-field-group">
+            @if (!string.IsNullOrEmpty(PhoneFormat.Region))
+            {
+                <MudTextField T="string" Value="@PhoneFormat.Region" ReadOnly="true" Variant="Variant.Filled" Underline="false"
+                              Label="@T.Get(CommonCopy.AuthRegionLabel)" Class="app-field" />
+            }
+            <MudTextField T="string" @bind-Value="_phoneNumber" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                          Label="@T.Get(CommonCopy.AuthPhoneLabel)" Placeholder="@PhoneFormat.Placeholder" Class="app-field"
+                          InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="tel" />
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthPhoneHint)</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
-            @T.Get(_busy ? CommonCopy.AuthSending : CommonCopy.AuthSendCode)
+            @if (_busy)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Inherit" aria-label="@T.Get(CommonCopy.AuthSending)" />
+            }
+            else
+            {
+                @T.Get(CommonCopy.AuthContinue)
+            }
         </MudButton>
     }
     else
     {
-        <MudTextField T="string" @bind-Value="_code" Immediate="true" Disabled="_busy"
-                      Label="@T.Get(CommonCopy.AuthCodeLabel)" Variant="Variant.Outlined" MaxLength="6"
+        <MudText Typo="Typo.body1">@T.Format(CommonCopy.AuthCodeSent, _sentTo ?? string.Empty)</MudText>
+        <MudTextField T="string" @bind-Value="_code" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                      Label="@T.Get(CommonCopy.AuthCodeLabel)" MaxLength="6" Class="app-field app-field-code"
                       InputMode="InputMode.numeric" autocomplete="one-time-code" />
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+        <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || string.IsNullOrWhiteSpace(_code))" OnClick="VerifyAsync">
-            @T.Get(_busy ? CommonCopy.AuthVerifying : CommonCopy.AuthVerify)
+            @if (_busy)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Inherit" aria-label="@T.Get(CommonCopy.AuthVerifying)" />
+            }
+            else
+            {
+                @T.Get(CommonCopy.AuthContinue)
+            }
         </MudButton>
-        <MudButton Variant="Variant.Text" Color="Color.Primary" FullWidth="true" Disabled="_busy" OnClick="Reset">
-            @T.Get(CommonCopy.AuthOtherNumber)
-        </MudButton>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Wrap="Wrap.Wrap">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthNoCode)</MudText>
+            <MudButton Variant="Variant.Text" Class="app-link-button" Disabled="_busy" OnClick="UseOtherNumberAsync">
+                @T.Get(CommonCopy.AuthOtherNumber)
+            </MudButton>
+        </MudStack>
     }
 </MudStack>

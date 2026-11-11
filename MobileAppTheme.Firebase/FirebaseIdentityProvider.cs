@@ -96,6 +96,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         {
             // Google sign-in lives on its own cross instance and needs
             // FirebaseAuthGoogleImplementation.Initialize(...) at startup (FirebaseAuthSetup).
+            FirebaseAuthSetup.GoogleSignInPending = true;
             var user = await CrossFirebaseAuthGoogle.Current.SignInWithGoogleAsync();
             return AuthResult.Ok(Map(user));
         }
@@ -104,6 +105,10 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             var error = FirebaseAuthErrors.FromGoogle(ex, out var status);
             logger.LogError(ex, "Google sign-in failed: {Status}.", status);
             return AuthResult.Fail(error, status);
+        }
+        finally
+        {
+            FirebaseAuthSetup.GoogleSignInPending = false;
         }
     }
 
@@ -119,6 +124,21 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             // Firebase isn't initialized (e.g. config file missing): treat as signed out.
             logger.LogWarning(ex, "Firebase is not initialized; treating the user as signed out.");
             return Task.FromResult<AuthUser?>(null);
+        }
+    }
+
+    public async Task<string?> GetIdTokenAsync()
+    {
+        try
+        {
+            // Not forced: the SDK hands back the cached token and refreshes it once it has expired.
+            var result = Auth.CurrentUser is { } user ? await user.GetIdTokenResultAsync(forceRefresh: false) : null;
+            return result?.Token;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Firebase could not give an ID token.");
+            return null;
         }
     }
 

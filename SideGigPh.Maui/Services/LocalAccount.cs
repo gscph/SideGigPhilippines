@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services.Localization;
 
@@ -18,7 +19,8 @@ public sealed class LocalAccount(
     IReviewRepository reviews,
     ProWorkspace pro,
     SeekerWorkspace seeker,
-    AppText text) : IAppAccount
+    AppText text,
+    ILogger<LocalAccount> logger) : IAppAccount
 {
     /// <summary>Raised after the language changes, so the shell re-renders its labels.</summary>
     public event Action? Changed;
@@ -38,7 +40,7 @@ public sealed class LocalAccount(
     /// <summary>
     /// Saves the signed-in person's profile from their account (name, number) and their answers
     /// (language, side, earnings goal). Called when one of those changes. Does nothing when
-    /// nobody is signed in (no sign-in provider registered).
+    /// nobody is signed in (no sign-in provider registered). A failed save is logged, not thrown.
     /// </summary>
     public async Task SaveProfileAsync()
     {
@@ -47,19 +49,28 @@ public sealed class LocalAccount(
             return;
         }
 
-        var state = await store.LoadAsync();
-        var now = DateTimeOffset.Now;
-        var saved = await users.GetAsync(user.Uid);
-        await users.SaveAsync(new UserProfile(
-            user.Uid,
-            user.DisplayName,
-            user.PhoneNumber,
-            user.Email,
-            state.Language ?? text.Language,
-            state.Role,
-            state.Professional.IncomeGoalId,
-            saved?.CreatedAt ?? now,
-            now));
+        try
+        {
+            var state = await store.LoadAsync();
+            var now = DateTimeOffset.Now;
+            var saved = await users.GetAsync(user.Uid);
+            await users.SaveAsync(new UserProfile(
+                user.Uid,
+                user.DisplayName,
+                user.PhoneNumber,
+                user.Email,
+                state.Language ?? text.Language,
+                state.Role,
+                state.Professional.IncomeGoalId,
+                saved?.CreatedAt ?? now,
+                now));
+        }
+        catch (Exception ex)
+        {
+            // The profile is a backup of the person's choices, not something the screens wait on:
+            // an offline phone must still get through onboarding. The next change saves it again.
+            logger.LogWarning(ex, "Saving the profile of {Uid} failed.", user.Uid);
+        }
     }
 
     /// <summary>
@@ -75,14 +86,17 @@ public sealed class LocalAccount(
             await photos.DeleteAsync(photoId);
         }
 
-        await profiles.RemoveAsync(ListingMapper.OwnListingId);
-        foreach (var personId in new[] { ListingMapper.OwnListingId, SeekerWorkspace.LocalSeekerId })
+        // Signed in, both sides are the one uid; with no sign-in provider they are the two fixed local ids.
+        var user = await identity.GetCurrentUserAsync();
+        string[] personIds = user is null ? [ListingMapper.OwnListingId, SeekerWorkspace.LocalSeekerId] : [user.Uid];
+        await profiles.RemoveAsync(personIds[0]);
+        foreach (var personId in personIds)
         {
             await chats.DeleteForPersonAsync(personId);
             await reviews.DeleteForPersonAsync(personId);
         }
 
-        if (await identity.GetCurrentUserAsync() is { } user)
+        if (user is not null)
         {
             await users.DeleteAsync(user.Uid);
         }

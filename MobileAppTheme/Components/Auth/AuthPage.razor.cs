@@ -6,9 +6,10 @@ using MobileAppTheme.Localization;
 namespace MobileAppTheme.Components.Auth;
 
 /// <summary>
-/// The sign-in screen (<c>/verify</c>): the brand, then the methods the registered
-/// <see cref="IIdentityProvider"/> offers, phone code first (it also verifies the number), Google
-/// below. After sign-in, or if the user is already signed in, it asks for their name if the account
+/// The sign-in sheet (<c>/verify</c>, Airbnb's "Log in or sign up"): a welcome line with the brand,
+/// then the methods the registered <see cref="IIdentityProvider"/> offers, phone code first (it also
+/// verifies the number), "or", Google below. After the code is sent the sheet becomes "Confirm your
+/// number" with a back arrow to the number. After sign-in, or if the user is already signed in, it asks for their name if the account
 /// has none (<see cref="NamePage"/>), else goes where the app's <see cref="IAuthLanding"/> says. With no provider
 /// registered it explains that sign-in isn't available.
 /// </summary>
@@ -21,6 +22,15 @@ public partial class AuthPage : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private string? _error;
+    private PhoneSignIn? _phone;
+
+    // The number the SMS code went to; while set, the sheet is "Confirm your number" with a back arrow.
+    private string? _sentTo;
+
+    // Only the code step has somewhere to go back to (the number).
+    private EventCallback BackHandler => _sentTo is null
+        ? default
+        : EventCallback.Factory.Create(this, () => _phone?.UseOtherNumberAsync() ?? Task.CompletedTask);
 
     private bool HasPhone => Identity.Methods.HasFlag(AuthMethods.Phone);
 
@@ -50,6 +60,12 @@ public partial class AuthPage : ComponentBase
         }
 
         _error = T.Describe(result.Error);
+    }
+
+    private void SentToChanged(string? number)
+    {
+        _sentTo = number;
+        _error = null;
     }
 
     // A phone sign-in has no name yet: ask for it once, then the app's landing.

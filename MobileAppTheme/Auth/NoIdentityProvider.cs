@@ -23,6 +23,8 @@ public sealed class NoIdentityProvider : IIdentityProvider
 
     public Task<AuthUser?> GetCurrentUserAsync() => Task.FromResult<AuthUser?>(null);
 
+    public Task<string?> GetIdTokenAsync() => Task.FromResult<string?>(null);
+
     public Task SignOutAsync() => Task.CompletedTask;
 
     private static Task<AuthResult> NotAvailable() => Task.FromResult(AuthResult.Fail(AuthError.NotAvailable));

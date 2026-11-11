@@ -9,6 +9,16 @@ namespace SideGigPh.Maui
     [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
     public class MainActivity : MauiAppCompatActivity
     {
+        // The app is white edge to edge: dark status-bar icons so the clock and battery stay visible.
+        protected override void OnCreate(Bundle? savedInstanceState)
+        {
+            base.OnCreate(savedInstanceState);
+            if (Window is { } window && AndroidX.Core.View.WindowCompat.GetInsetsController(window, window.DecorView) is { } bars)
+            {
+                bars.AppearanceLightStatusBars = true;
+            }
+        }
+
         // Google sign-in launches the account-picker as a separate activity and awaits its
         // result. Firebase Google sign-in only completes that awaited Task when the result
         // is forwarded here — without this override SignInWithGoogleAsync() hangs forever (no

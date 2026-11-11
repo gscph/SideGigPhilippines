@@ -38,5 +38,12 @@ public interface IIdentityProvider
     /// <summary>The signed-in user, or null (also when the provider isn't set up).</summary>
     Task<AuthUser?> GetCurrentUserAsync();
 
+    /// <summary>
+    /// A current ID token for the signed-in user (refreshed when it has expired), to send to the
+    /// app's own backend as <c>Authorization: Bearer …</c>. Null when nobody is signed in or the
+    /// provider can't issue one.
+    /// </summary>
+    Task<string?> GetIdTokenAsync();
+
     Task SignOutAsync();
 }

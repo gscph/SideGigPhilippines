@@ -13,6 +13,12 @@ public interface IPhoneNumberFormat
     /// <summary>Example shown in the empty field.</summary>
     string Placeholder { get; }
 
+    /// <summary>
+    /// The one country this format reads, e.g. "Philippines (+63)", shown read-only above the number
+    /// field. Null (the default) for formats that take any country; the field then stands alone.
+    /// </summary>
+    string? Region => null;
+
     bool TryNormalize(string? input, [NotNullWhen(true)] out string? e164);
 }
 

@@ -1,0 +1,8 @@
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack Spacing="0" Class="full-screen">
+        <SheetHeader Title="@Title" OnBack="OnBack" OnClose="OnClose" />
+        <MudStack Spacing="5" Justify="Justify.Center" Class="flex-1 px-6 pt-6 pb-16">
+            @ChildContent
+        </MudStack>
+    </MudStack>
+</MudContainer>

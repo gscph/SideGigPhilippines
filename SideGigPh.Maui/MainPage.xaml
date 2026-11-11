@@ -4,7 +4,8 @@
              xmlns:local="clr-namespace:SideGigPh.Maui"
              xmlns:components="clr-namespace:SideGigPh.Maui.Components"
              x:Class="SideGigPh.Maui.MainPage"
-             BackgroundColor="#FFFFFF">
+             BackgroundColor="#FFFFFF"
+             SafeAreaEdges="Container">
 
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>

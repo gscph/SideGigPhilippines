@@ -1,10 +1,11 @@
-<MudStack Spacing="2">
+<MudStack Spacing="3">
     <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(CommonCopy.AccountLanguage)</MudText>
-    <MudStack Row="true" Spacing="2" StretchItems="StretchItems.All">
+    <MudStack Row="true" Spacing="3" StretchItems="StretchItems.All">
         @foreach (var (language, label) in Languages)
         {
-            <MudButton Variant="@(Value == language ? Variant.Filled : Variant.Outlined)" Color="Color.Primary"
-                       FullWidth="true" aria-pressed="@(Value == language ? "true" : "false")"
+            <MudButton Variant="Variant.Text" Color="Color.Dark" FullWidth="true" Ripple="false"
+                       Class="@(Value == language ? "choice-tile choice-tile-selected" : "choice-tile")"
+                       aria-pressed="@(Value == language ? "true" : "false")"
                        OnClick="() => ValueChanged.InvokeAsync(language)">
                 @label
             </MudButton>

@@ -10,6 +10,8 @@ public sealed class PhilippinePhoneNumberFormat : IPhoneNumberFormat
 {
     public string Placeholder => "0917 123 4567";
 
+    public string Region => "Philippines (+63)";
+
     public bool TryNormalize(string? input, [NotNullWhen(true)] out string? e164) =>
         PhilippineMobile.TryNormalize(input, out e164);
 }

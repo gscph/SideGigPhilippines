@@ -9,5 +9,5 @@ public partial class AppNavItem : ComponentBase
 
     [Parameter] public bool Active { get; set; }
 
-    private string PillClass => Active ? "rounded-pill px-5 py-1 mud-primary-hover" : "rounded-pill px-5 py-1";
+    private string PillClass => Active ? "rounded-pill px-5 py-1 mud-background-gray" : "rounded-pill px-5 py-1";
 }

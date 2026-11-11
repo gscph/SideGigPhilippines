@@ -9,7 +9,7 @@
     @if (_loading)
     {
         <MudStack AlignItems="AlignItems.Center" Class="py-12">
-            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudProgressCircular Indeterminate="true" Color="Color.Dark" />
         </MudStack>
     }
     else if (_pro is null)
@@ -67,7 +67,7 @@
         </MudStack>
 
         <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
                        StartIcon="@Icons.Material.Filled.Forum" Href="@SeekerRoutes.Thread(_pro.Id)">
                 @T.Get(Copy.ContactPro)
             </MudButton>

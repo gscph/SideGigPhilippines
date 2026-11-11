@@ -2,47 +2,34 @@
 @layout ProLayout
 
 <MePage Title="@T.Get(Copy.ProfileTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)">
-    <MudStack AlignItems="AlignItems.Center" Spacing="1">
-        <PersonAvatar Name="@Name" PhotoUrl="@Workspace.ProfilePhotoUrl" Class="profile-photo" />
-        <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PhotoCamera"
+    <ProfileCard Name="@Name" PhotoUrl="@Workspace.ProfilePhotoUrl"
+                 Subtitle="@T.Get(Workspace.IsPublished ? Copy.StatusPublished : Copy.StatusNotPublished)"
+                 SubtitleColor="@(Workspace.IsPublished ? Color.Success : Color.Secondary)">
+        <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.PhotoCamera"
                    Disabled="_busy" OnClick="ChangePhotoAsync">
             @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
         </MudButton>
         <PhotoAddNotice Result="_photoResult" />
-        <MudText Typo="Typo.h6" HtmlTag="h2" Align="Align.Center">@Name</MudText>
-        <MudText Typo="Typo.body2" Color="@(Workspace.IsPublished ? Color.Success : Color.Secondary)">
-            @T.Get(Workspace.IsPublished ? Copy.StatusPublished : Copy.StatusNotPublished)
-        </MudText>
-    </MudStack>
-
-    <MudStack Row="true" Spacing="2" StretchItems="StretchItems.All">
-        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                   StartIcon="@Icons.Material.Filled.Edit" Href="/start/pro/1">
-            @T.Get(Copy.ProfileEdit)
-        </MudButton>
-        @if (!Workspace.IsPublished)
-        {
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       StartIcon="@Icons.Material.Filled.RocketLaunch" Href="@ProRoutes.Publish">
-                @T.Get(Copy.PublishConfirm)
-            </MudButton>
-        }
-    </MudStack>
+    </ProfileCard>
 
     @if (!Workspace.IsPublished)
     {
-        <MudAlert Severity="Severity.Normal" Variant="Variant.Text">@T.Get(Copy.ProHomeNotLive)</MudAlert>
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProHomeNotLive)</MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true" Href="@ProRoutes.Publish">
+                @T.Get(Copy.PublishConfirm)
+            </MudButton>
+        </MudStack>
     }
 
-    <MudPaper Outlined="true" Elevation="0">
-        <MudList T="string">
-            <MudListItem T="string" Icon="@Icons.Material.Filled.PhotoLibrary" IconColor="Color.Primary" Href="@ProRoutes.Photos"
-                         Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel" />
-        </MudList>
-    </MudPaper>
+    <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
+        <MenuRow Href="/start/pro/1" Icon="@Icons.Material.Rounded.Edit" Text="@T.Get(Copy.ProfileEdit)" />
+        <MenuRow Href="@ProRoutes.Photos" Icon="@Icons.Material.Rounded.PhotoLibrary"
+                 Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel" />
+    </MudStack>
 
-    <MudStack Spacing="2">
-        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.ProPreviewTitle)</MudText>
+    <MudStack Spacing="3">
+        <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.ProPreviewTitle)</MudText>
         <ProCard Listing="Workspace.Listing" Reviews="Workspace.ReviewSummary" />
     </MudStack>
 

@@ -20,11 +20,14 @@ public sealed class SeekerWorkspace(
     IIdentityProvider identity,
     AppText text)
 {
-    /// <summary>The Seeker on this phone. Seekers have no account yet; the auth gate will replace this with their uid.</summary>
+    /// <summary>The Seeker's id when nobody is signed in (no sign-in provider registered). With an account it is their uid: <see cref="MyId"/>.</summary>
     public const string LocalSeekerId = "me";
 
     private OnboardingState? _state;
     private Task<bool>? _loading;
+
+    /// <summary>The Seeker's id in chats and reviews: the signed-in user's uid (set when the workspace loads), or <see cref="LocalSeekerId"/>.</summary>
+    public string MyId { get; private set; } = LocalSeekerId;
 
     /// <summary>Raised after anything here changes, so the shell can re-render.</summary>
     public event Action? Changed;
@@ -143,7 +146,7 @@ public sealed class SeekerWorkspace(
         return text.Format(template, Label(job), Label(town));
     }
 
-    public static string ChatIdWith(string professionalId) => Chat.IdFor(professionalId, LocalSeekerId);
+    public string ChatIdWith(string professionalId) => Chat.IdFor(professionalId, MyId);
 
     /// <summary>The chat with a pro, oldest message first (empty before the first message).</summary>
     public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string professionalId) => chats.GetMessagesAsync(ChatIdWith(professionalId));
@@ -189,9 +192,9 @@ public sealed class SeekerWorkspace(
 
         var name = reviewerName.Trim();
         await reviews.SaveAsync(new Review(
-            $"{LocalSeekerId}-{pro.Id}",
+            Chat.IdFor(pro.Id, MyId),
             pro.Id,
-            LocalSeekerId,
+            MyId,
             name,
             rating,
             string.IsNullOrWhiteSpace(comment) ? null : comment.Trim(),
@@ -215,6 +218,7 @@ public sealed class SeekerWorkspace(
     {
         _state = null;
         _loading = null;
+        MyId = LocalSeekerId;
         Threads = [];
         MyReviews = [];
     }
@@ -223,7 +227,7 @@ public sealed class SeekerWorkspace(
     public async Task RefreshActivityAsync()
     {
         var threads = new List<InboxThread>();
-        foreach (var chat in await chats.GetInboxAsync(LocalSeekerId, ChatSide.Seeker))
+        foreach (var chat in await chats.GetInboxAsync(MyId, ChatSide.Seeker))
         {
             // A pro who took their listing down drops out of the Inbox.
             if (await profiles.GetByIdAsync(chat.ProfessionalId) is { } pro)
@@ -233,7 +237,7 @@ public sealed class SeekerWorkspace(
         }
 
         Threads = threads;
-        MyReviews = await reviews.GetBySeekerAsync(LocalSeekerId);
+        MyReviews = await reviews.GetBySeekerAsync(MyId);
         Changed?.Invoke();
     }
 
@@ -245,8 +249,11 @@ public sealed class SeekerWorkspace(
             return false;
         }
 
+        var user = await identity.GetCurrentUserAsync();
+        MyId = user?.Uid ?? LocalSeekerId;
+
         // Reviews show "Maricel D.", from the account's name, until they change it on the Me page.
-        Answers.ReviewerName ??= PersonName.Short((await identity.GetCurrentUserAsync())?.DisplayName);
+        Answers.ReviewerName ??= PersonName.Short(user?.DisplayName);
 
         await RefreshActivityAsync();
         return true;
@@ -255,10 +262,10 @@ public sealed class SeekerWorkspace(
     private async Task PostAsync(ProfessionalListing pro, ChatMessageKind kind, string? message)
     {
         var chatId = ChatIdWith(pro.Id);
-        var sent = new ChatMessage(Guid.NewGuid().ToString("N"), chatId, LocalSeekerId, kind, message, DateTimeOffset.Now);
+        var sent = new ChatMessage(Guid.NewGuid().ToString("N"), chatId, MyId, kind, message, DateTimeOffset.Now);
 
         // Only used when this starts the chat: the job comes from the Seeker's answers.
-        var chat = new Chat(chatId, pro.Id, LocalSeekerId, pro.DisplayName, Answers.ReviewerName ?? string.Empty,
+        var chat = new Chat(chatId, pro.Id, MyId, pro.DisplayName, Answers.ReviewerName ?? text.Get(Copy.ChatCustomer),
             JobFor(pro), Answers.CityId, Answers.UrgencyId, Answers.BudgetId, sent, sent.At, null, sent.At);
         await chats.SendAsync(chat, sent);
         await RefreshActivityAsync();

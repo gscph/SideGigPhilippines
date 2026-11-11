@@ -1,31 +1,27 @@
-<MudCard Outlined="true" Elevation="0">
-    <MudCardContent>
-        <MudStack Spacing="2">
-            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(CommonCopy.StartOver)</MudText>
-            @if (_asking)
-            {
-                <MudAlert Severity="Severity.Warning" Variant="Variant.Text" role="alert">
-                    <MudStack Spacing="1">
-                        <MudText Typo="Typo.subtitle2">@T.Get(CommonCopy.StartOverAsk)</MudText>
-                        <MudText Typo="Typo.body2">@(Warning ?? T.Get(CommonCopy.StartOverWarning))</MudText>
-                    </MudStack>
-                </MudAlert>
-                <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Large" FullWidth="true"
-                           StartIcon="@Icons.Material.Filled.RestartAlt" Disabled="Busy" OnClick="() => OnConfirm.InvokeAsync()">
-                    @T.Get(CommonCopy.StartOverYes)
-                </MudButton>
-                <MudButton Variant="Variant.Text" Color="Color.Primary" FullWidth="true" Disabled="Busy" OnClick="() => _asking = false">
-                    @T.Get(CommonCopy.Cancel)
-                </MudButton>
-            }
-            else
-            {
-                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.StartOverWhy)</MudText>
-                <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true"
-                           StartIcon="@Icons.Material.Filled.RestartAlt" OnClick="() => _asking = true">
-                    @T.Get(CommonCopy.StartOver)
-                </MudButton>
-            }
-        </MudStack>
-    </MudCardContent>
-</MudCard>
+<MudStack HtmlTag="section" Spacing="3" Class="pt-6 border-t border-solid mud-border-lines-default">
+    <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(CommonCopy.StartOver)</MudText>
+    @if (_asking)
+    {
+        <MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.subtitle1" Color="Color.Error">@T.Get(CommonCopy.StartOverAsk)</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@(Warning ?? T.Get(CommonCopy.StartOverWarning))</MudText>
+            </MudStack>
+        </MudPaper>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Large" FullWidth="true"
+                   Disabled="Busy" OnClick="() => OnConfirm.InvokeAsync()">
+            @T.Get(CommonCopy.StartOverYes)
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button align-self-center" Disabled="Busy" OnClick="() => _asking = false">
+            @T.Get(CommonCopy.Cancel)
+        </MudButton>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.StartOverWhy)</MudText>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Large" FullWidth="true" StartIcon="@Icons.Material.Rounded.RestartAlt"
+                   OnClick="() => _asking = true">
+            @T.Get(CommonCopy.StartOver)
+        </MudButton>
+    }
+</MudStack>

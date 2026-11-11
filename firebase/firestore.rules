@@ -35,9 +35,15 @@ service cloud.firestore {
     }
     function optId(data, key) { return optText(data, key, 40); }
     function isArea(value) { return value in ['metro-manila', 'rizal', 'laguna', 'cavite']; }
+    // A photo stored by SideGigPh.Api: its SHA-256 id and its URL in Azure Blob Storage, which must
+    // be that same photo in our container (no links to other sites). Change both if the account moves.
+    function photoUrl(id) {
+      return 'https://realtimeordertracker.blob.core.windows.net/photos/' + id + '.jpg';
+    }
     function isPhoto(value) {
       return value is map && value.keys().hasOnly(['id', 'url'])
-        && value.id.matches('^[0-9a-f]{64}$') && isText(value.url, 2048);
+        && value.id is string && value.id.matches('^[0-9a-f]{64}$')
+        && value.url == photoUrl(value.id);
     }
 
     // ---------- users/{uid}: the person, private to them ----------
@@ -136,8 +142,18 @@ service cloud.firestore {
           && (chat.seekerUid == request.auth.uid || chat.professionalId == request.auth.uid);
       }
 
+      // A chat id is {professionalId}_{seekerUid}, so it says whose chat it would be.
+      function isMyChatId() {
+        return signedIn()
+          && (chatId.matches(request.auth.uid + '_.*') || chatId.matches('.*_' + request.auth.uid));
+      }
+
       // Inbox queries must filter on  seekerUid == me  or  professionalId == me.
-      allow read: if isParticipant(existing());
+      allow list: if isParticipant(existing());
+
+      // The app reads a chat before its first message, to see if it's there yet. For a chat that
+      // doesn't exist, "not found" is allowed to the two people it would be between (and no one else).
+      allow get: if isParticipant(existing()) || (resource == null && isMyChatId());
 
       // The Seeker starts it with their first message (same batch), to a published listing.
       allow create: if hasVerifiedPhone()
@@ -177,8 +193,12 @@ service cloud.firestore {
       }
 
       match /messages/{messageId} {
-        // Read through the parent chat (a get per request, cached across a query).
-        allow read, delete: if isParticipant(get(doc('chats/' + chatId)).data);
+        // Read through the parent chat (a get per request, cached across a query). Before the first
+        // message there is no chat yet: the two people it would be between see an empty list.
+        allow read: if exists(doc('chats/' + chatId))
+          ? isParticipant(get(doc('chats/' + chatId)).data)
+          : isMyChatId();
+        allow delete: if isParticipant(get(doc('chats/' + chatId)).data);
 
         // Works for the first message too: getAfter sees the chat created in the same batch.
         allow create: if isParticipant(getAfter(doc('chats/' + chatId)).data)
@@ -193,17 +213,7 @@ service cloud.firestore {
       }
     }
 
-    // ---------- photoHashes/{sha256}: anti-fraud rule 2 across all accounts ----------
-    // Creating a hash that exists is an update, which is denied: another account can't reuse a photo.
-
-    match /photoHashes/{sha} {
-      // One get tells the app "already used by another account". Listing all hashes is not allowed.
-      allow get: if signedIn();
-      allow create: if signedIn()
-        && sha.matches('^[0-9a-f]{64}$')
-        && incoming().keys().hasOnly(['uid', 'createdAt'])
-        && incoming().uid == request.auth.uid;
-      allow delete: if signedIn() && existing().uid == request.auth.uid;
-    }
+    // Photos are not in Firebase: SideGigPh.Api keeps them in Azure Blob Storage and enforces
+    // anti-fraud rule 2 (one photo, one account) itself. Listings store only {id, url}.
   }
 }

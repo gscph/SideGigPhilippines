@@ -1,7 +1,7 @@
 # SideGigPh — Persistent data plan (MVP: Firestore, swappable to SQL later)
 
-> **Status: DRAFT for the owner to edit.** Nothing in the app uses this yet.
-> Setup files that match this plan: [`firebase/`](../firebase/README.md) (security rules, indexes, Storage rules, `setup.ps1`).
+> **Status:** the collections, rules and the app's Firestore adapter follow this plan (build order, §9). Push notifications and Delete account are still to do.
+> Setup files that match this plan: [`firebase/`](../firebase/README.md) (security rules, indexes, `setup.ps1`) and [`azure/`](../azure/README.md) (photo storage + `SideGigPh.Api`).
 >
 > **MVP rule:** only what's needed for a Seeker to find, chat with and review a Skilled Worker, and for a Skilled Worker to publish a listing and answer chats. Everything else waits for alpha feedback (§8).
 
@@ -61,7 +61,7 @@ Google gives one full name, not first and last separately, so the account keeps 
   - UTC `DateTimeOffset` in models.
   - No denormalized copies that need a server to keep them in sync.
 
-## 4. Collections (5)
+## 4. Collections (4)
 
 🔒 owner only · ✅ any signed-in user **with a verified phone**
 
@@ -155,11 +155,6 @@ A message nobody sees until they happen to open the app isn't a chat. Today's SM
 - App: `Plugin.Firebase.CloudMessaging` 3.x (asks for notification permission, which Android 13+ requires) behind a skeleton `IPushNotifications` port.
 - **SQL path:** the API sends the push after saving the message.
 
-### 4.5 `photoHashes/{sha256}`: anti-fraud rule 2 across all users
-
-`{uid, createdAt}`. Firestore has no unique constraint, so the doc id is the photo's SHA-256 and creating it fails if another account already has it. Storage refuses an upload whose hash isn't registered to the uploader.
-**SQL:** `UNIQUE(sha256)` on `professional_photos`, and this collection goes away.
-
 ### What's *not* a collection, and why
 
 | Asked about | MVP answer |
@@ -169,27 +164,27 @@ A message nobody sees until they happen to open the app isn't a chat. Today's SM
 | Phone uniqueness table | Not needed. Firebase Auth already allows one account per phone number, and the rules require `mobileNumber` = that account's verified number. |
 | Review photos | Later. |
 
-## 5. Photos (Firebase Storage)
+## 5. Photos (Azure Blob Storage, through `SideGigPh.Api`)
 
-- **Path:** `photos/{uid}/{sha256}.jpg` (work photos and the profile photo). JPEG ≤ 2 MB (the picker already resizes to 1280px).
-- **Who reads:** the owner, plus any signed-in user with a verified phone. **Who writes:** the owner only.
-- **Upload:**
-  1. SHA-256 of the bytes (already the `IPhotoStore` id).
-  2. Create `photoHashes/{sha}`. If it already exists for another account: "This photo is already used by another account."
-  3. Upload to Storage.
-  4. Save `{id, url}` into the listing's `workPhotos` / `profilePhoto` on the next publish.
-- **Adapter:** `FirebasePhotoStore` (in `Services/Firestore/`) implements the skeleton's `IPhotoStore`. Its URLs are `https://` download URLs, which the WebView caches. `IPhotoStore.SaveAsync` must be able to report "used by another account" (small skeleton change).
-- **Blaze plan:** new Firebase projects need it for Storage. Usage at MVP scale stays within the free amounts.
+Owner decision (2026-11-11): photos go to **Azure Blob Storage**, not Firebase Storage.
+
+- **Where:** the existing storage account `realtimeordertracker` (shared with another app; only the `photos` container is public), container `photos`, so a photo is `https://realtimeordertracker.blob.core.windows.net/photos/{sha256}.jpg`. The API builds the URL from its connection string; the Firestore rules accept only that URL for a photo id. Blob: `{sha256}.jpg` (work photos and the profile photo), JPEG ≤ 2 MB (the picker already resizes to 1280px). Set up by [`azure/cloudshell-setup.sh`](../azure/cloudshell-setup.sh).
+- **Who reads:** anyone with the exact URL (the container is "Blob" level: readable by URL, not listable). The id is a SHA-256, so URLs can't be guessed, and every photo is on a public listing anyway. Revisit if private photos (ID cards) ever arrive.
+- **Who writes:** only `SideGigPh.Api` (Azure Functions), which holds the storage connection string in its settings (`PhotoStorage`). **The phone never has the key.** The app sends the user's Firebase ID token; the API checks it against Firebase's public keys.
+  - `POST /api/photos` (body: a JPEG, PNG or iPhone HEIC, ≤ 10 MB; the type is read from the bytes, not the Content-Type): `PhotoImage` turns PNG and HEIC (and a JPEG over 2 MB) into a JPEG of at most 1280px, upright, with a white background behind transparency and EXIF/GPS stripped; a small JPEG is kept byte-for-byte so its id matches the app's. The API creates the `photos` container on the first upload if it's missing, then hashes the stored bytes itself, stores `{sha}.jpg` with `owner = uid` in the blob's metadata, and returns `{id, url}`. The same account sending the same photo again gets the same `{id, url}`. **Anti-fraud rule 2:** another account sending a photo that's already stored gets `409 photo-in-use`.
+  - `DELETE /api/photos/{id}`: the owner only.
+- **Then** the app saves `{id, url}` into the listing's `workPhotos` / `profilePhoto` on the next publish (the Firestore rules require an `https://` URL).
+- **Adapter (step 5, done):** `ApiPhotoStore` (in `Services/Api/`) implements the skeleton's `IPhotoStore` with an `HttpClient`. It sends the sign-in token (`IIdentityProvider.GetIdTokenAsync`, added to the skeleton) and `SaveAsync` throws `PhotoStoreException` when the upload fails, including `409 photo-in-use`. Photos are shown from `https://realtimeordertracker.blob.core.windows.net/photos/{id}.jpg`. The API address, `https://fredhopper-bdhed2e6dtegb9gz.uksouth-01.azurewebsites.net/api/`, is a constant in `MauiProgram`, like `GoogleWebClientId`: not a secret.
+- **SQL path:** the same API grows the other endpoints; photos stay in Blob Storage, with `UNIQUE(sha256)` on `professional_photos`.
 
 ## 6. Packages: consuming Firestore from .NET
 
 | Package | Where | Why |
 |---|---|---|
 | `Plugin.Firebase.Firestore` 3.1.3 | `SideGigPh.Maui` | Wraps the native Android/iOS Firestore SDKs: offline cache, and every request carries the signed-in user so the rules apply |
-| `Plugin.Firebase.Storage` 3.1.1 | `SideGigPh.Maui` | Photo upload/download |
 | `Plugin.Firebase.CloudMessaging` 3.x | `MobileAppTheme.Firebase` | Chat push notifications |
 
-- **That's all.** The existing `google-services.json` / `GoogleService-Info.plist` already cover Firestore and Storage.
+- **That's all.** The existing `google-services.json` / `GoogleService-Info.plist` already cover Firestore. Photos need no package: `ApiPhotoStore` uses `HttpClient` (§5).
 - Keep every `Plugin.Firebase.*` package on the **3.x** line, the same as Auth (3.1.1). 4.0 exists, but they share native bindings and must be upgraded together, later.
 - **Not `Google.Cloud.Firestore`:** that's the server/admin SDK (service-account keys, bypasses the rules). It never goes in the app.
 - **Firestore is schemaless**, so there's no create-table step. A collection appears with its first document. The "schema" is the security rules (allowed fields, types, lengths) in [`firebase/firestore.rules`](../firebase/firestore.rules).
@@ -222,10 +217,10 @@ return snapshot.Documents.Select(d => d.Data.ToListing()).ToList();
 | `IReviewRepository` | Unchanged. Firestore implementation. |
 | `IChatRepository` (replaces `IInquiryRepository`) | `GetInboxAsync(personId, side)` (chats, newest first), `GetAsync(chatId)`, `GetMessagesAsync(chatId)`, `Watch(chatId, changed)` (live updates while the chat is open), `SendAsync(chat, message)` (creates the chat on the first message), `MarkReadAsync(chatId, side)`, `DeleteForPersonAsync(personId)`. Models: `Chat`, `ChatMessage` replace `Inquiry` / `InboxThread`. |
 | `IPushNotifications` (skeleton) | **New:** ask permission, register the device token, open the chat when a push is tapped |
-| `IPhotoStore` (skeleton) | Report "used by another account"; `FirebasePhotoStore` adapter |
+| `IPhotoStore` (skeleton) | Report "used by another account"; `ApiPhotoStore` adapter (§5) |
 | `IIdentityProvider` (skeleton) | Phone linking + names (§2) |
 | Local ids | `"own"` / `"me"` → the signed-in uid |
-| Start over | Becomes **Delete account**: delete my photos (Storage + `photoHashes`), listing, my chats and their messages, my device tokens, reviews I wrote, my `users` doc, then the auth account. Google Play requires in-app account deletion. |
+| Start over | Becomes **Delete account**: delete my photos (`DELETE /api/photos/{id}`), listing, my chats and their messages, my device tokens, reviews I wrote, my `users` doc, then the auth account. Google Play requires in-app account deletion. |
 
 ## 8. Later (alpha feedback decides)
 
@@ -237,7 +232,7 @@ Businesses / org accounts · photos in chat · block a user · review photos · 
 2. **Done:** auth contract changes + the sign-in flow (§2). Update `CLAUDE.md` and `docs/onboarding.md`, since they still say "auth after the interview".
 3. **Done:** `IUserRepository` + stub; search by area.
 4. **Done:** Chat: `IChatRepository` + stub, chat page for both sides (replaced the SMS "Send text"), Inbox unread badges.
-5. `Services/Firestore/` adapter + `FirebasePhotoStore`. Swap the DI lines.
+5. **Done:** `Services/Firestore/` adapter for users, listings, reviews and chats; one DI call, `AddFirestoreData()` (build with `-p:UseStubData=true` for the stubs). Photos are Azure's (`ApiPhotoStore`, §5), not part of this step. Run `firebase/cloudshell-setup.sh` first, so the database, rules and indexes exist.
 6. Push: `IPushNotifications`, device tokens, the one Cloud Function.
-7. Replace `"own"` / `"me"` with the uid; Start over → Delete account.
+7. **Half done:** `"own"` / `"me"` are replaced by the uid (`ProWorkspace.MyId`, `SeekerWorkspace.MyId`), needed by step 5. Still to do: Start over → Delete account (also the auth account itself).
 8. Update `CLAUDE.md` and the `ports-and-stubs` skill.

@@ -30,16 +30,207 @@ h1:focus {
     z-index: 1;
 }
 
-/* ChoiceTiles: a big, left-aligned, two-line answer button. */
-.choice-tile {
-    min-height: 4rem;
-    text-align: start;
-}
-
 /* BrandMark logo: MudIcon only has three fixed sizes. */
 .brand-logo {
     font-size: 4rem !important;
 }
+
+/* ==========================================================================
+   Clean, minimal look (Airbnb style). MudBlazor's Material defaults (shadowed
+   buttons, underlined filled inputs, floating outline labels) are toned down here.
+   ========================================================================== */
+
+/* Flat, tall buttons. Large is the size for a screen's main action. */
+.mud-button-filled {
+    box-shadow: none !important;
+}
+
+.mud-button-filled-size-large,
+.mud-button-outlined-size-large,
+.mud-button-text-size-large {
+    min-height: 3.25rem;
+    font-size: 1rem;
+}
+
+/* An outlined button with an ink border (Airbnb's secondary button). */
+.app-button-ink {
+    border-color: var(--mud-palette-text-primary) !important;
+    color: var(--mud-palette-text-primary) !important;
+}
+
+/* A text button that reads as an underlined link ("Use a different number", "Show"). */
+.app-link-button {
+    text-decoration: underline !important;
+    text-underline-offset: 2px;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    min-width: 0 !important;
+    color: var(--mud-palette-text-primary) !important;
+}
+
+    .app-link-button:hover {
+        background-color: transparent !important;
+    }
+
+/* "Continue with Google": logo pinned left, label centered. Pair with app-button-ink. */
+.app-social-button {
+    position: relative;
+}
+
+.app-social-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Text field: use Variant.Filled + app-field. The label sits inside the box and shrinks to its
+   top on focus; a 1px gray box that turns ink when focused. */
+.app-field .mud-input.mud-input-filled {
+    background-color: var(--mud-palette-surface) !important;
+    border: 1px solid var(--mud-palette-lines-inputs);
+    border-radius: 12px;
+    transition: border-color 150ms, box-shadow 150ms;
+}
+
+    .app-field .mud-input.mud-input-filled.mud-input-underline::before,
+    .app-field .mud-input.mud-input-filled.mud-input-underline::after {
+        display: none;
+    }
+
+    .app-field .mud-input.mud-input-filled:focus-within {
+        border-color: var(--mud-palette-text-primary);
+        box-shadow: 0 0 0 1px var(--mud-palette-text-primary);
+    }
+
+    .app-field .mud-input.mud-input-filled.mud-input-error {
+        border-color: var(--mud-palette-error);
+        box-shadow: 0 0 0 1px var(--mud-palette-error);
+    }
+
+.app-field .mud-input > input.mud-input-root.mud-input-root-filled {
+    padding: 30px 16px 12px;
+    font-size: 1rem;
+}
+
+.app-field .mud-input > textarea.mud-input-root.mud-input-root-filled {
+    margin-top: 30px;
+    padding: 0 16px 12px;
+}
+
+.app-field .mud-input-label-filled {
+    transform: translate(16px, 21px) scale(1);
+    color: var(--mud-palette-text-secondary);
+}
+
+.app-field .mud-shrink ~ label.mud-input-label.mud-input-label-filled,
+.app-field .mud-input:focus-within ~ label.mud-input-label.mud-input-label-filled,
+.app-field .mud-input:has(:-webkit-autofill) ~ label.mud-input-label.mud-input-label-filled {
+    transform: translate(16px, 10px) scale(0.75);
+}
+
+/* A big, spaced-out code field (SMS code). */
+.app-field-code .mud-input > input.mud-input-root {
+    font-size: 1.5rem;
+    letter-spacing: 0.4em;
+}
+
+/* Fields stacked into one box (country over number, first over last name). Put the
+   app-field text fields straight inside a MudStack Spacing="0" with this class. */
+.app-field-group > .app-field:not(:first-child) .mud-input.mud-input-filled {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    margin-top: -1px;
+}
+
+.app-field-group > .app-field:not(:last-child) .mud-input.mud-input-filled {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.app-field-group > .app-field .mud-input.mud-input-filled:focus-within {
+    position: relative;
+    z-index: 1;
+}
+
+/* ChoiceTiles: a bordered answer row; the chosen one gets a 2px ink border and a gray tint. */
+.choice-tile {
+    min-height: 4.5rem;
+    text-align: start;
+    justify-content: flex-start !important;
+    padding: 16px 20px !important;
+    border: 1px solid var(--mud-palette-lines-default) !important;
+    border-radius: 12px !important;
+    background-color: var(--mud-palette-surface);
+    transition: box-shadow 120ms, background-color 120ms, transform 80ms;
+}
+
+    .choice-tile:hover {
+        background-color: var(--mud-palette-surface) !important;
+        box-shadow: inset 0 0 0 1px var(--mud-palette-text-primary);
+    }
+
+    .choice-tile:active {
+        transform: scale(0.98);
+    }
+
+.choice-tile-selected,
+.choice-tile-selected:hover {
+    background-color: var(--mud-palette-background-gray) !important;
+    box-shadow: inset 0 0 0 2px var(--mud-palette-text-primary);
+}
+
+/* Full-screen sheet header: icon, centered title, icon-wide spacer. */
+.app-sheet-header {
+    min-height: 4rem;
+}
+
+.app-header-slot {
+    width: 3rem;
+    flex-shrink: 0;
+}
+
+/* A raised card (profile card): soft, wide shadow instead of Material elevation. */
+.app-raised {
+    border-radius: 16px !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Rounded outlined box (job details, notes in a chat). */
+.app-rounded {
+    border-radius: 12px !important;
+}
+
+/* InterviewStep picture: a big emoji in a soft circle above the question. */
+.app-illustration {
+    width: 6rem !important;
+    height: 6rem !important;
+    font-size: 3rem !important;
+}
+
+/* Big profile photo (MudAvatar's largest size is too small). */
+.app-avatar-xl {
+    width: 6rem !important;
+    height: 6rem !important;
+    font-size: 2rem !important;
+}
+
+/* Chat bubble: rounded, with a tighter corner toward the sender's side. */
+.app-bubble {
+    border-radius: 18px !important;
+    padding: 10px 14px !important;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.app-bubble-mine {
+    border-bottom-right-radius: 4px !important;
+}
+
+.app-bubble-theirs {
+    border-bottom-left-radius: 4px !important;
+}
+
 
 /* One line of text, cut with "…" (names and message previews in lists). */
 .one-line {
@@ -58,9 +249,14 @@ h1:focus {
     line-height: 1.2 !important;
 }
 
-/* A search box as a dense pill (MudTextField has no rounded-pill option). */
+/* A search box or chat box as a dense pill (MudTextField has no rounded-pill option). */
 .app-pill-input .mud-input-outlined-border {
     border-radius: 999px;
+}
+
+.app-pill-input .mud-input:focus-within .mud-input-outlined-border {
+    border-width: 1px;
+    border-color: var(--mud-palette-text-primary);
 }
 
 /* ==========================================================================

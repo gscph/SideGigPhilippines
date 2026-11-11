@@ -24,6 +24,12 @@ public sealed class ProWorkspace(
     private OnboardingState? _state;
     private Task<bool>? _loading;
 
+    /// <summary>
+    /// The pro's id in chats and as the listing id: the signed-in user's uid (set when the workspace loads),
+    /// or <see cref="ListingMapper.OwnListingId"/> when nobody is signed in.
+    /// </summary>
+    public string MyId { get; private set; } = ListingMapper.OwnListingId;
+
     /// <summary>Raised after anything here changes, so the shell can re-render.</summary>
     public event Action? Changed;
 
@@ -55,7 +61,7 @@ public sealed class ProWorkspace(
     public ReviewSummary? ReviewSummary => Reviews.Count == 0 ? null : new ReviewSummary(Reviews.Average(r => r.Rating), Reviews.Count);
 
     /// <summary>The listing exactly as customers see it, photos included.</summary>
-    public ProfessionalListing Listing => Draft.ToListing(ProfilePhotoUrl, WorkPhotos.Select(photo => photo.Url).ToList());
+    public ProfessionalListing Listing => Draft.ToListing(MyId, ProfilePhotoUrl, WorkPhotos.Select(photo => photo.Url).ToList());
 
     /// <summary>
     /// Loads the saved listing and photos once. False if this user hasn't finished the
@@ -76,8 +82,8 @@ public sealed class ProWorkspace(
     /// <summary>Re-reads chats and reviews, which change without the pro doing anything.</summary>
     public async Task RefreshActivityAsync()
     {
-        Chats = await chats.GetInboxAsync(ListingMapper.OwnListingId, ChatSide.Professional);
-        Reviews = await reviews.GetForProfessionalAsync(ListingMapper.OwnListingId);
+        Chats = await chats.GetInboxAsync(MyId, ChatSide.Professional);
+        Reviews = await reviews.GetForProfessionalAsync(MyId);
         Changed?.Invoke();
     }
 
@@ -92,7 +98,7 @@ public sealed class ProWorkspace(
     /// <summary>The pro answers a customer in their chat.</summary>
     public async Task ReplyAsync(Chat chat, string message)
     {
-        var reply = new ChatMessage(Guid.NewGuid().ToString("N"), chat.Id, ListingMapper.OwnListingId,
+        var reply = new ChatMessage(Guid.NewGuid().ToString("N"), chat.Id, MyId,
             ChatMessageKind.Text, message.Trim(), DateTimeOffset.Now);
         await chats.SendAsync(chat, reply);
         await RefreshActivityAsync();
@@ -123,7 +129,15 @@ public sealed class ProWorkspace(
         }
 
         var oldId = Draft.ProfilePhotoId;
-        Draft.ProfilePhotoId = await StoreAsync(picked[0]);
+        try
+        {
+            Draft.ProfilePhotoId = await StoreAsync(picked[0]);
+        }
+        catch (PhotoStoreException)
+        {
+            return PhotoAddResult.Failure;
+        }
+
         await SaveAsync(listingChanged: true);
         await DeleteIfUnusedAsync(oldId);
         return new PhotoAddResult(1, 0, false);
@@ -145,9 +159,21 @@ public sealed class ProWorkspace(
         }
 
         int added = 0, duplicates = 0;
+        var failed = false;
         foreach (var bytes in picked)
         {
-            var id = await StoreAsync(bytes);
+            string id;
+            try
+            {
+                id = await StoreAsync(bytes);
+            }
+            catch (PhotoStoreException)
+            {
+                // Keep the photos that did upload; the notice tells the pro some didn't.
+                failed = true;
+                break;
+            }
+
             if (Draft.WorkPhotoIds.Contains(id))
             {
                 duplicates++;
@@ -163,7 +189,7 @@ public sealed class ProWorkspace(
             await SaveAsync(listingChanged: true);
         }
 
-        return new PhotoAddResult(added, duplicates, false);
+        return new PhotoAddResult(added, duplicates, failed);
     }
 
     public async Task RemoveWorkPhotoAsync(string photoId)
@@ -195,6 +221,7 @@ public sealed class ProWorkspace(
     {
         _state = null;
         _loading = null;
+        MyId = ListingMapper.OwnListingId;
         _photoUrls.Clear();
         Chats = [];
         Reviews = [];
@@ -208,7 +235,9 @@ public sealed class ProWorkspace(
             return false;
         }
 
-        Draft.TakeAccount(await identity.GetCurrentUserAsync());
+        var user = await identity.GetCurrentUserAsync();
+        MyId = user?.Uid ?? ListingMapper.OwnListingId;
+        Draft.TakeAccount(user);
 
         foreach (var id in Draft.WorkPhotoIds.Append(Draft.ProfilePhotoId).OfType<string>())
         {

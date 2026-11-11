@@ -52,7 +52,7 @@ for f in "${FILES[@]}"; do
 
   if grep -qE '^@page ' "$f"; then
     h1=$(grep -cE 'HtmlTag="h1"' "$f")
-    uses_step=$(grep -cE '<(InterviewStep|MePage)[ >]' "$f")  # both render the page h1 from Title
+    uses_step=$(grep -cE '<(InterviewStep|MePage|SheetPage|ChatHeader)[ >]' "$f")  # these render the page h1 (from Title / Name)
     renders_ui=$(grep -c '<Mud' "$f")
     [ "$base" = "LaunchRouter.razor" ] && renders_ui=0  # splash + redirect, no page title
     if [ "$h1" -eq 0 ] && [ "$uses_step" -eq 0 ] && [ "$renders_ui" -gt 0 ]; then

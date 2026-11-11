@@ -27,7 +27,7 @@ public partial class ProfessionalHome : ComponentBase
     private async Task AddPhotosAsync()
     {
         _photoResult = await Workspace.AddWorkPhotosAsync();
-        if (_photoResult is { Added: > 0, Duplicates: 0 })
+        if (_photoResult is { Added: > 0, Duplicates: 0, Failed: false })
         {
             Nav.NavigateTo(ProRoutes.Photos);
         }

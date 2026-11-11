@@ -3,7 +3,7 @@ namespace MobileAppTheme.Branding;
 /// <summary>
 /// A product's colors and corner radius, the only values an app sets to restyle the skeleton.
 /// <see cref="MobileTheme.Create"/> turns them into a <c>MudTheme</c>. The defaults are a clean
-/// blue / white palette (Microsoft style), so <c>new BrandStyle()</c> already looks finished.
+/// blue on white with near-black ink and soft gray lines (Airbnb-style neutrals), so <c>new BrandStyle()</c> already looks finished.
 /// </summary>
 public sealed record BrandStyle
 {
@@ -18,10 +18,10 @@ public sealed record BrandStyle
     public string OnPrimary { get; init; } = "#ffffff";
 
     /// <summary>Main text color, also <c>Color.Dark</c>.</summary>
-    public string Ink { get; init; } = "#0b1f33";
+    public string Ink { get; init; } = "#222222";
 
     /// <summary>Helper text, also <c>Color.Secondary</c>.</summary>
-    public string Muted { get; init; } = "#5c6b7a";
+    public string Muted { get; init; } = "#6a6a6a";
 
     public string Success { get; init; } = "#107c10";
 
@@ -33,13 +33,13 @@ public sealed record BrandStyle
     public string Background { get; init; } = "#ffffff";
 
     /// <summary>Tinted background behind grouped content.</summary>
-    public string BackgroundGray { get; init; } = "#f5f8fc";
+    public string BackgroundGray { get; init; } = "#f7f7f7";
 
     /// <summary>Borders, dividers and skeleton loaders.</summary>
-    public string Lines { get; init; } = "#e1e8f0";
+    public string Lines { get; init; } = "#ebebeb";
 
     /// <summary>Text field outlines.</summary>
-    public string LinesInputs { get; init; } = "#c7d3e0";
+    public string LinesInputs { get; init; } = "#b0b0b0";
 
-    public string CornerRadius { get; init; } = "10px";
+    public string CornerRadius { get; init; } = "8px";
 }

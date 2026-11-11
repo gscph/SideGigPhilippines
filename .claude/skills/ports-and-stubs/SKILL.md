@@ -5,7 +5,7 @@ description: Add or change a data/infrastructure port in SideGigPh (an I*Reposit
 
 # Ports and stand-in adapters
 
-The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. This skill is the recipe this repo uses until Firestore is wired, so a feature works end to end on one phone today and swaps to the real backend by changing one DI line.
+The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. Data ports have two adapters: the real one in `Services/Firestore/` (Cloud Firestore, the default in `MauiProgram`) and a `Dev/` stub (build with `-p:UseStubData=true`, which defines `STUB_DATA`), so a feature can be tried on one phone without a Firebase project. This skill is the recipe for both.
 
 ## The layers
 
@@ -17,6 +17,7 @@ The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. T
 | Device adapter | Generic phone feature: `MobileAppTheme/Services/Local/` (port in `MobileAppTheme/Services/`, registered with `TryAddSingleton` in `AddMobileAppTheme`); SideGigPh-only: `SideGigPh.Maui/Services/Local/` | Real phone features (files, photo picker, dialer) behind a port, with errors logged and turned into a result, never thrown at the UI. A port any product could use (camera, location, share) belongs in the skeleton; see `mobile-app-theme`. |
 | Business logic | `Services/` (`ProWorkspace`, `SeekerWorkspace`, `Services/Search/`) | Uses **ports only**. Pages call these, not the repositories. |
 | Wiring | `MauiProgram.cs` | `AddSingleton<IPort, Adapter>()`; workspaces and search as singletons. |
+| Firestore adapter | `SideGigPh.Maui/Services/Firestore/` | The only code that touches the Firestore SDK. One `*Doc` class per document in `FirestoreDocs.cs` matching `firebase/firestore.rules` field for field (the rules refuse any other field); map to and from the `Models/` records there. Reads that fail are logged and return empty (`FirestoreAccess.ReadAsync`); writes log and throw. A new collection or field also needs the rules (and an index for any `OrderBy`) updated, then `firebase/cloudshell-setup.sh` regenerated and pasted. Register in `AddFirestoreData()`. |
 
 ## Adding a stored feature (recipe)
 
@@ -38,9 +39,9 @@ The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. T
 6. **Workspace**: add the state and actions to `ProWorkspace` or `SeekerWorkspace`; raise `Changed` after a save so the shell (badges, avatar) re-renders.
 7. **Docs**: add the port to "Key Ports" in `CLAUDE.md`.
 
-## Ids before auth
+## Ids
 
-There are no accounts yet. The people on this phone have fixed ids: the pro's listing is `ListingMapper.OwnListingId` (`"own"`), the Seeker is `SeekerWorkspace.LocalSeekerId` (`"me"`). Use these constants, never a new literal, so the auth gate can replace them in one place.
+A signed-in person's id is their uid: `ProWorkspace.MyId` (also the listing id) and `SeekerWorkspace.MyId`, set when the workspace loads. Use those, never a literal. `ListingMapper.OwnListingId` (`"own"`) and `SeekerWorkspace.LocalSeekerId` (`"me"`) are only the fallback when no sign-in provider is registered.
 
 ## Anti-fraud rules live in the port contract
 

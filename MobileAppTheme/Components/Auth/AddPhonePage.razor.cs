@@ -18,6 +18,8 @@ public partial class AddPhonePage : ComponentBase
     [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
 
     private string? _error;
+    private PhoneSignIn? _phone;
+    private string? _sentTo;
 
     private string Destination => AuthRoutes.SafeReturn(Then) ?? "/";
 
@@ -45,5 +47,21 @@ public partial class AddPhonePage : ComponentBase
         _error = T.Describe(result.Error);
     }
 
-    private void GoBack() => Nav.NavigateTo("/");
+    private void SentToChanged(string? number)
+    {
+        _sentTo = number;
+        _error = null;
+    }
+
+    // From the code step, back to the number; from the number, out.
+    private async Task GoBackAsync()
+    {
+        if (_sentTo is not null && _phone is not null)
+        {
+            await _phone.UseOtherNumberAsync();
+            return;
+        }
+
+        Nav.NavigateTo("/");
+    }
 }

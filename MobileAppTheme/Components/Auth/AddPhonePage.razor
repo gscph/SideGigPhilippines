@@ -1,11 +1,15 @@
 @page "/verify/phone"
 
-<InterviewStep Title="@T.Get(CommonCopy.AuthPhoneTitle)" Why="@T.Get(CommonCopy.AuthPhoneWhy)" OnBack="GoBack">
-    <MudStack Spacing="3">
-        <PhoneSignIn LinkToCurrentUser="true" OnAuthenticated="HandleLinked" />
-        @if (_error is not null)
-        {
-            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
-        }
-    </MudStack>
-</InterviewStep>
+<SheetPage Title="@T.Get(_sentTo is null ? CommonCopy.AuthPhoneTitle : CommonCopy.AuthCodeTitle)" OnBack="GoBackAsync">
+    @if (_sentTo is null)
+    {
+        <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(CommonCopy.AuthPhoneWhy)</MudText>
+    }
+
+    <PhoneSignIn @ref="_phone" LinkToCurrentUser="true" OnAuthenticated="HandleLinked" SentToChanged="SentToChanged" />
+
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
+    }
+</SheetPage>

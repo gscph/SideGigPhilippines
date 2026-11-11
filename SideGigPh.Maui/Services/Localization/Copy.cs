@@ -200,6 +200,7 @@ public static class Copy
     public static readonly LocalizedText ReviewsTitle = new("Reviews", "Reviews");
     public static readonly LocalizedText ReviewsCount = new("{0} reviews", "{0} reviews");
     public static readonly LocalizedText ReviewsCountOne = new("1 review", "1 review");
+    public static readonly LocalizedText OverallRating = new("Overall rating", "Overall rating");
     public static readonly LocalizedText ReviewsEmpty = new("No reviews yet. After a job, ask your customer to rate you on SideGigPh.", "Wala pang review. Pagkatapos ng trabaho, sabihan ang customer na i-rate ka sa SideGigPh.");
 
     // --- Photos -----------------------------------------------------------
@@ -226,4 +227,5 @@ public static class Copy
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
+    public static readonly LocalizedText PublishFailed = new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
 }

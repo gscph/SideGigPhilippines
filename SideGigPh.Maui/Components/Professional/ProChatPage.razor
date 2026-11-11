@@ -1,44 +1,40 @@
 @page "/professional/inbox/{ChatId}"
 @layout ProLayout
 
-<MudStack Spacing="3">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@ProRoutes.Inbox" aria-label="@T.Get(CommonCopy.Back)" />
-        @if (_chat is not null)
-        {
-            <PersonAvatar Name="@T.SeekerName(_chat)" />
-            <MudStack Spacing="0" Class="flex-1 overflow-hidden">
-                <MudText Typo="Typo.subtitle1" HtmlTag="h1" Class="one-line">@T.SeekerName(_chat)</MudText>
-                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.WhatAndWhere(_chat)</MudText>
-            </MudStack>
-        }
-    </MudStack>
-
+<MudStack Spacing="4">
     @if (_chat is null)
     {
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Dark" Href="@ProRoutes.Inbox" aria-label="@T.Get(CommonCopy.Back)" />
+        </MudStack>
         <MudStack AlignItems="AlignItems.Center" Class="py-12">
-            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+            <MudProgressCircular Indeterminate="true" Color="Color.Dark" />
         </MudStack>
     }
     else
     {
+        <ChatHeader BackHref="@ProRoutes.Inbox" Name="@T.SeekerName(_chat)" Detail="@T.WhatAndWhere(_chat)" />
+
         @if (!string.IsNullOrEmpty(T.WhenAndBudget(_chat)))
         {
-            <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" Icon="@Icons.Material.Filled.WorkOutline">
-                @T.WhenAndBudget(_chat)
-            </MudAlert>
+            <MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                    <MudIcon Icon="@Icons.Material.Rounded.WorkOutline" Color="Color.Dark" aria-hidden="true" />
+                    <MudText Typo="Typo.body2">@T.WhenAndBudget(_chat)</MudText>
+                </MudStack>
+            </MudPaper>
         }
 
-        <MudStack Spacing="2">
+        <MudStack Spacing="3">
             @foreach (var message in _messages)
             {
-                <ChatBubble Message="message" Mine="@(message.SenderId == ListingMapper.OwnListingId)" @key="message.Id" />
+                <ChatBubble Message="message" Mine="@(message.SenderId == Workspace.MyId)" @key="message.Id" />
             }
         </MudStack>
 
         @if (_error is not null)
         {
-            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
         }
 
         <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" />

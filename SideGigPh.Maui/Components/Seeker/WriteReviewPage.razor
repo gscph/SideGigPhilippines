@@ -6,11 +6,11 @@
                    OnNext="SubmitAsync" NextLabel="@T.Get(Copy.SubmitReview)" CanContinue="@CanSubmit">
         <MudStack AlignItems="AlignItems.Center" Spacing="2">
             <PersonAvatar Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Size="Size.Large" />
-            <MudRating @bind-SelectedValue="_rating" Size="Size.Large" Color="Color.Warning" aria-label="@T.Get(Copy.StarsLabel)" />
+            <MudRating @bind-SelectedValue="_rating" Size="Size.Large" Color="Color.Dark" aria-label="@T.Get(Copy.StarsLabel)" />
         </MudStack>
-        <MudTextField T="string" @bind-Value="_comment" Immediate="true" Variant="Variant.Outlined" Lines="3" MaxLength="300"
-                      Placeholder="@T.Get(Copy.ReviewCommentPlaceholder)" aria-label="@T.Get(Copy.ReviewCommentPlaceholder)" />
-        <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Outlined" MaxLength="40"
+        <MudTextField T="string" @bind-Value="_comment" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" Lines="3" MaxLength="300"
+                      Label="@T.Get(Copy.ReviewCommentPlaceholder)" />
+        <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" MaxLength="40"
                       Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" autocomplete="name" />
     </InterviewStep>
 }

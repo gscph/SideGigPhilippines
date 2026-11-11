@@ -1,4 +1,5 @@
-<MudButton Variant="Variant.Outlined" Color="Color.Default" Size="Size.Large" FullWidth="true"
-           StartIcon="@Icons.Custom.Brands.Google" Disabled="_busy" OnClick="SignInAsync">
+<MudButton Variant="Variant.Outlined" Size="Size.Large" FullWidth="true" Class="app-button-ink app-social-button"
+           Disabled="_busy" OnClick="SignInAsync">
+    <MudImage Src="_content/MobileAppTheme/google-g.svg" Width="20" Height="20" Alt="" Class="app-social-icon" />
     @T.Get(_busy ? CommonCopy.AuthConnecting : CommonCopy.AuthGoogle)
 </MudButton>

@@ -1,22 +1,24 @@
 <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
     <MudStack HtmlTag="section" Spacing="0" Class="full-screen">
-        <MudStack HtmlTag="header" Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="px-2 pt-2">
-            @if (OnBack.HasDelegate)
-            {
-                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" aria-label="@T.Get(CommonCopy.Back)" OnClick="@(() => OnBack.InvokeAsync())" />
-            }
+        <SheetHeader OnBack="OnBack" Divider="false">
             @if (Progress > 0)
             {
-                <MudProgressLinear Value="Percent" Color="Color.Primary" Size="Size.Medium" Rounded="true" Class="flex-1 mr-4" />
+                <MudProgressLinear Value="Percent" Color="Color.Dark" Size="Size.Small" Rounded="true" Class="mud-width-full"
+                                   aria-label="@T.Get(CommonCopy.Progress)" />
             }
-        </MudStack>
+        </SheetHeader>
 
-        <MudStack Spacing="5" Class="flex-1 px-4 pt-2 pb-6">
-            <MudStack Spacing="1">
-                <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+        @* Short steps sit in the middle of the screen; long ones grow and scroll from the top. *@
+        <MudStack Spacing="6" Justify="Justify.Center" Class="flex-1 px-6 pt-4 pb-16">
+            <MudStack Spacing="3" AlignItems="AlignItems.Center">
+                @if (!string.IsNullOrEmpty(Illustration))
+                {
+                    <MudAvatar Class="app-illustration mud-background-gray" aria-hidden="true">@Illustration</MudAvatar>
+                }
+                <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">@Title</MudText>
                 @if (!string.IsNullOrEmpty(Why))
                 {
-                    <MudText Typo="Typo.body1" Color="Color.Secondary">@Why</MudText>
+                    <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@Why</MudText>
                 }
             </MudStack>
 
@@ -30,8 +32,8 @@
 
         @if (OnNext.HasDelegate)
         {
-            <MudPaper Square="true" Elevation="0" Class="sticky-footer pa-4 border-t border-solid mud-border-lines-default">
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+            <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
+                <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
                            Disabled="!CanContinue" OnClick="@(() => OnNext.InvokeAsync())">
                     @(NextLabel ?? T.Get(CommonCopy.Next))
                 </MudButton>

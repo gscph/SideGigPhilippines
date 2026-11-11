@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -16,11 +17,13 @@ public partial class PublishPage : ComponentBase
     [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ILogger<PublishPage> Logger { get; set; } = default!;
 
     private bool _loaded;
     private bool _pledged;
     private bool _busy;
     private bool _phoneTaken;
+    private bool _failed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -49,16 +52,22 @@ public partial class PublishPage : ComponentBase
     private async Task PublishAsync()
     {
         _busy = true;
+        _failed = false;
         try
         {
             _phoneTaken = await Workspace.PublishAsync() == PublishResult.PhoneTaken;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Publishing the listing failed.");
+            _failed = true;
         }
         finally
         {
             _busy = false;
         }
 
-        if (!_phoneTaken)
+        if (!_phoneTaken && !_failed)
         {
             Nav.NavigateTo(ProRoutes.Home, replace: true);
         }

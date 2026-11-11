@@ -2,13 +2,13 @@
 @layout SeekerLayout
 
 <MudStack Spacing="3">
-    <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.InboxTitle)</MudText>
+    <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.InboxTitle)</MudText>
 
     @if (Workspace.Threads.Count == 0)
     {
         <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="py-8">
             <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@T.Get(Copy.InboxEmpty)</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" Href="@SeekerRoutes.Search">
+            <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" StartIcon="@Icons.Material.Rounded.Search" Href="@SeekerRoutes.Search">
                 @T.Get(Copy.SearchTitle)
             </MudButton>
         </MudStack>

@@ -100,7 +100,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 
 **Pro home** (Phase 1) shows the saved card, the goal with its payoff, and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
 
-**Not in the interview:** work photos. They are added on Pro home or from the Me tab (`/professional/me/photos`), kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Firebase Storage comes after auth.
+**Not in the interview:** work photos. They are added on Pro home or from the Me tab (`/professional/me/photos`), kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
 
 ### 2.3 The money hooks: what was proposed, with three adjustments
 

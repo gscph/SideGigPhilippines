@@ -1,0 +1,30 @@
+<MudStack HtmlTag="header" Row="true" AlignItems="AlignItems.Center" Spacing="0"
+          Class="@(Divider ? "app-sheet-header px-2 border-b border-solid mud-border-lines-default" : "app-sheet-header px-2")">
+    <MudStack Class="app-header-slot" AlignItems="AlignItems.Center">
+        @if (OnClose.HasDelegate)
+        {
+            <MudIconButton Icon="@Icons.Material.Rounded.Close" Color="Color.Dark" aria-label="@T.Get(CommonCopy.Close)"
+                           OnClick="@(() => OnClose.InvokeAsync())" />
+        }
+        else if (OnBack.HasDelegate)
+        {
+            <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Dark" aria-label="@T.Get(CommonCopy.Back)"
+                           OnClick="@(() => OnBack.InvokeAsync())" />
+        }
+    </MudStack>
+
+    <MudStack Class="flex-1 overflow-hidden" AlignItems="AlignItems.Center">
+        @if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+        else if (!string.IsNullOrEmpty(Title))
+        {
+            <MudText Typo="Typo.subtitle1" HtmlTag="@(TitleIsHeading ? "h1" : "span")" Align="Align.Center" Class="one-line">@Title</MudText>
+        }
+    </MudStack>
+
+    <MudStack Class="app-header-slot" AlignItems="AlignItems.Center">
+        @Actions
+    </MudStack>
+</MudStack>

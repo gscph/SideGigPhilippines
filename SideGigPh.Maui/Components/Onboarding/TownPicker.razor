@@ -7,10 +7,10 @@
     }
 
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-        <MudText Typo="Typo.subtitle2" HtmlTag="h2">@T.Get(Area.Label)</MudText>
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Area.Label)</MudText>
         @if (Multiple && string.IsNullOrWhiteSpace(_filter))
         {
-            <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" OnClick="() => OnPickAll.InvokeAsync()">
+            <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="() => OnPickAll.InvokeAsync()">
                 @T.Get(AllSelected ? Copy.TownAreaClear : Copy.TownAreaAll)
             </MudButton>
         }

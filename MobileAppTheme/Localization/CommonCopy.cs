@@ -13,6 +13,8 @@ public static class CommonCopy
     public static readonly LocalizedText NavProfile = new("Profile", "Profile");
     public static readonly LocalizedText ShowSection = new("Show or hide", "Ipakita o itago");
     public static readonly LocalizedText Cancel = new("Cancel", "Huwag na lang");
+    public static readonly LocalizedText Close = new("Close", "Isara");
+    public static readonly LocalizedText Progress = new("Progress", "Progress");
 
     // --- Not found page ---------------------------------------------------
     public static readonly LocalizedText NotFoundTitle = new("Not Found", "Wala dito");
@@ -38,23 +40,32 @@ public static class CommonCopy
     public static readonly LocalizedText StartOverYes = new("Yes, delete and start over", "Oo, burahin at magsimula ulit");
 
     // --- Sign-in (Components/Auth) ----------------------------------------
-    public static readonly LocalizedText AuthTitle = new("Sign in to continue", "Mag-sign in para tumuloy");
+    public static readonly LocalizedText AuthTitle = new("Log in or sign up", "Mag-log in o mag-sign up");
+    /// <summary>{0} = the app name.</summary>
+    public static readonly LocalizedText AuthWelcome = new("Welcome to {0}", "Welcome sa {0}");
+    public static readonly LocalizedText AuthContinue = new("Continue", "Tuloy");
+    public static readonly LocalizedText AuthRegionLabel = new("Country/Region", "Bansa");
+    public static readonly LocalizedText AuthPhoneHint = new(
+        "We'll text you a code to confirm your number. Standard SMS rates may apply.",
+        "Ite-text ka namin ng code para ma-confirm ang number mo. Baka may SMS charge depende sa network mo.");
+    public static readonly LocalizedText AuthCodeTitle = new("Confirm your number", "I-confirm ang number mo");
+    /// <summary>{0} = the number the code went to.</summary>
+    public static readonly LocalizedText AuthCodeSent = new("Enter the code we sent by SMS to {0}.", "Ilagay ang code na tinext namin sa {0}.");
+    public static readonly LocalizedText AuthNoCode = new("Didn't get a code?", "Walang dumating na code?");
     public static readonly LocalizedText AuthOr = new("or", "o");
     public static readonly LocalizedText AuthGoogle = new("Continue with Google", "Tuloy gamit ang Google");
     public static readonly LocalizedText AuthConnecting = new("Connecting…", "Kumokonekta…");
-    public static readonly LocalizedText AuthPhoneLabel = new("Mobile number", "Mobile number");
-    public static readonly LocalizedText AuthSendCode = new("Send code", "I-send ang code");
+    public static readonly LocalizedText AuthPhoneLabel = new("Phone number", "Phone number");
     public static readonly LocalizedText AuthSending = new("Sending…", "Sine-send…");
-    public static readonly LocalizedText AuthCodeLabel = new("Enter the 6-digit code", "Ilagay ang 6-digit code");
-    public static readonly LocalizedText AuthVerify = new("Verify and continue", "I-verify at tumuloy");
+    public static readonly LocalizedText AuthCodeLabel = new("6-digit code", "6-digit code");
     public static readonly LocalizedText AuthVerifying = new("Verifying…", "Vine-verify…");
     public static readonly LocalizedText AuthOtherNumber = new("Use a different number", "Ibang number na lang");
     public static readonly LocalizedText AuthErrorNetwork = new("No connection. Check your internet and try again.", "Walang connection. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText AuthErrorInvalidCode = new("Wrong or expired code. Check the SMS and try again.", "Mali o expired ang code. I-check ang SMS at subukan ulit.");
     public static readonly LocalizedText AuthErrorInvalidPhone = new("Check the mobile number.", "I-check ang mobile number.");
     public static readonly LocalizedText AuthErrorPhoneInUse = new("Another account already uses this number. Sign in with your number instead.", "May ibang account na gumagamit ng number na 'to. Mag-sign in na lang gamit ang number mo.");
-    public static readonly LocalizedText AuthNameTitle = new("What's your name?", "Ano'ng pangalan mo?");
-    public static readonly LocalizedText AuthNameWhy = new("This is the name people you talk to will see.", "Ito ang pangalang makikita ng mga kausap mo.");
+    public static readonly LocalizedText AuthNameTitle = new("Finish signing up", "Tapusin ang sign up");
+    public static readonly LocalizedText AuthNameWhy = new("Use your real name. It's the name people you talk to will see.", "Gamitin ang totoong pangalan mo. Ito ang makikita ng mga kausap mo.");
     public static readonly LocalizedText AuthFirstName = new("First name", "Pangalan");
     public static readonly LocalizedText AuthLastName = new("Last name", "Apelyido");
     public static readonly LocalizedText AuthPhoneTitle = new("Add your mobile number", "Ilagay ang mobile number mo");

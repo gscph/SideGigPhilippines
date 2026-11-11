@@ -7,17 +7,16 @@
     is written to it. "Creating everything" therefore means:
       1. create the database once, in a region (permanent: it can't be moved later),
       2. deploy the security rules (who can read/write what, and which fields are allowed),
-      3. deploy the composite indexes the app's queries need,
-      4. deploy the Storage rules (photo bytes).
+      3. deploy the composite indexes the app's queries need.
     Categories, jobs and towns stay in the app's ReferenceData code, so nothing is seeded.
+    Photos are not in Firebase: they're in Azure Blob Storage (azure/cloudshell-setup.sh).
 
     Needs the Firebase CLI (npm install -g firebase-tools) and `firebase login` once.
-    The project must be on the Blaze plan for Storage.
 
 .EXAMPLE
     ./setup.ps1 -ProjectId sidegigph-dev
     ./setup.ps1 -ProjectId sidegigph-dev -SkipDatabase      # rules + indexes only (redeploy)
-    ./setup.ps1 -Emulator                                    # local Firestore/Storage/Auth, no cloud
+    ./setup.ps1 -Emulator                                    # local Firestore/Auth, no cloud
 #>
 [CmdletBinding()]
 param(
@@ -41,7 +40,7 @@ if (-not (Get-Command firebase -ErrorAction SilentlyContinue)) {
 if ($Emulator) {
     # Rules are compiled on start, so this is also the quickest way to check them for errors.
     # Emulator UI: http://localhost:4000
-    firebase emulators:start --only 'auth,firestore,storage' --project 'demo-sidegigph'
+    firebase emulators:start --only 'auth,firestore' --project 'demo-sidegigph'
     return
 }
 
@@ -57,14 +56,10 @@ if (-not $SkipDatabase) {
     }
 }
 
-Write-Host 'Deploying Firestore rules + indexes and Storage rules...'
-firebase deploy --only 'firestore:rules,firestore:indexes,storage' --project $ProjectId
+Write-Host 'Deploying Firestore rules + indexes...'
+firebase deploy --only 'firestore:rules,firestore:indexes' --project $ProjectId
 if ($LASTEXITCODE -ne 0) {
-    throw @'
-Deploy failed. Common causes:
-  - Storage isn't enabled yet: Firebase console > Storage > Get started (Blaze plan, same region as Firestore).
-  - A rules compile error: the CLI prints the file, line and column.
-'@
+    throw 'Deploy failed. If it is a rules compile error, the CLI printed the file, line and column.'
 }
 
 Write-Host 'Done. Indexes can take a few minutes to build: Firebase console > Firestore > Indexes.'

@@ -26,11 +26,29 @@ public partial class PhoneSignIn : ComponentBase
     /// <summary>Add the verified number to the signed-in account instead of signing in with it.</summary>
     [Parameter] public bool LinkToCurrentUser { get; set; }
 
+    /// <summary>
+    /// The number the code went to (E.164) once it's sent, null again when the user goes back to
+    /// the number. The page uses it to switch its header to "Confirm your number".
+    /// </summary>
+    [Parameter] public EventCallback<string?> SentToChanged { get; set; }
+
     private Step _step = Step.EnterPhone;
     private string _phoneNumber = string.Empty;
     private string _code = string.Empty;
     private string? _verificationId;
+    private string? _sentTo;
     private bool _busy;
+
+    /// <summary>Back to the number step (the page's back arrow, or "Use a different number").</summary>
+    public async Task UseOtherNumberAsync()
+    {
+        _step = Step.EnterPhone;
+        _code = string.Empty;
+        _verificationId = null;
+        _sentTo = null;
+        await SentToChanged.InvokeAsync(null);
+        StateHasChanged();
+    }
 
     private async Task SendCodeAsync()
     {
@@ -45,7 +63,9 @@ public partial class PhoneSignIn : ComponentBase
         {
             var verification = await Identity.SignUpWithPhoneAsync(e164);
             _verificationId = verification.VerificationId;
+            _sentTo = e164;
             _step = Step.EnterCode;
+            await SentToChanged.InvokeAsync(e164);
         }
         catch (Exception ex)
         {
@@ -78,12 +98,5 @@ public partial class PhoneSignIn : ComponentBase
         {
             _busy = false;
         }
-    }
-
-    private void Reset()
-    {
-        _step = Step.EnterPhone;
-        _code = string.Empty;
-        _verificationId = null;
     }
 }

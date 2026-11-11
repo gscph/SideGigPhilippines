@@ -1,17 +1,17 @@
-<MudPaper Elevation="0" Outlined="@(!Mine)" MaxWidth="85%"
-          Class="@($"pa-3 rounded-lg {(Mine ? "align-self-end mud-primary-hover" : "align-self-start")}")">
-    <MudStack Spacing="1">
+<MudStack Spacing="1" AlignItems="@(Mine ? AlignItems.End : AlignItems.Start)">
+    <MudPaper Elevation="0" MaxWidth="80%"
+              Class="@(Mine ? "app-bubble app-bubble-mine mud-theme-dark" : "app-bubble app-bubble-theirs mud-background-gray")">
         @if (Message.Kind == ChatMessageKind.Call)
         {
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Color="Color.Primary" aria-hidden="true" />
-                <MudText Typo="Typo.body2">@T.Get(Mine ? Copy.YouCalled : Copy.CalledYou)</MudText>
+                <MudIcon Icon="@Icons.Material.Rounded.Phone" Size="Size.Small" Color="Color.Inherit" aria-hidden="true" />
+                <MudText Typo="Typo.body1">@T.Get(Mine ? Copy.YouCalled : Copy.CalledYou)</MudText>
             </MudStack>
         }
         else
         {
-            <MudText Typo="Typo.body2">@Message.Text</MudText>
+            <MudText Typo="Typo.body1">@Message.Text</MudText>
         }
-        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="@(Mine ? Align.End : Align.Start)">@T.Ago(Message.At)</MudText>
-    </MudStack>
-</MudPaper>
+    </MudPaper>
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="px-1">@T.Ago(Message.At)</MudText>
+</MudStack>

@@ -1,37 +1,38 @@
 @page "/verify"
 
-<MudContainer MaxWidth="MaxWidth.ExtraSmall">
-    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="6" Class="full-screen py-8">
-        <BrandMark Tagline="@(Brand.Tagline is null ? null : T.Get(Brand.Tagline))" />
+<SheetPage Title="@T.Get(_sentTo is null ? CommonCopy.AuthTitle : CommonCopy.AuthCodeTitle)" OnBack="BackHandler">
+    @if (_sentTo is null)
+    {
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.h5" HtmlTag="h2">@T.Format(CommonCopy.AuthWelcome, Brand.Name)</MudText>
+            @if (Brand.Tagline is not null)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Brand.Tagline)</MudText>
+            }
+        </MudStack>
+    }
 
-        <MudPaper Outlined="true" Elevation="2" Class="pa-6 mud-width-full">
-            <MudStack Spacing="5">
-                <MudText Typo="Typo.h6" HtmlTag="h1" Align="Align.Center">@T.Get(CommonCopy.AuthTitle)</MudText>
+    @if (HasPhone)
+    {
+        <PhoneSignIn @ref="_phone" OnAuthenticated="HandleAuthenticatedAsync" SentToChanged="SentToChanged" />
+    }
 
-                @if (HasPhone)
-                {
-                    <PhoneSignIn OnAuthenticated="HandleAuthenticatedAsync" />
-                }
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
+    }
 
-                @if (HasPhone && HasGoogle)
-                {
-                    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
-                        <MudDivider Class="flex-1" />
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(CommonCopy.AuthOr)</MudText>
-                        <MudDivider Class="flex-1" />
-                    </MudStack>
-                }
+    @if (HasPhone && HasGoogle && _sentTo is null)
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+            <MudDivider Class="flex-1" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthOr)</MudText>
+            <MudDivider Class="flex-1" />
+        </MudStack>
+    }
 
-                @if (HasGoogle)
-                {
-                    <GoogleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
-                }
-
-                @if (_error is not null)
-                {
-                    <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
-                }
-            </MudStack>
-        </MudPaper>
-    </MudStack>
-</MudContainer>
+    @if (HasGoogle && _sentTo is null)
+    {
+        <GoogleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
+    }
+</SheetPage>

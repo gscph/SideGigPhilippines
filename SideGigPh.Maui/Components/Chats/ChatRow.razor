@@ -1,18 +1,18 @@
 <MudLink Href="@Href" Underline="Underline.None" Color="Color.Inherit">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="py-3">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="py-4">
         <MudBadge Dot="true" Color="Color.Error" Visible="Unread" Overlap="true" Bordered="true">
-            <PersonAvatar Name="@Name" PhotoUrl="@PhotoUrl" />
+            <PersonAvatar Name="@Name" PhotoUrl="@PhotoUrl" Size="Size.Large" />
         </MudBadge>
         <MudStack Spacing="0" Class="flex-1 overflow-hidden">
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
-                <MudText Typo="Typo.subtitle2" Class="@(Unread ? "one-line font-weight-bold" : "one-line")">@Name</MudText>
-                <MudText Typo="Typo.caption" Color="@(Unread ? Color.Error : Color.Secondary)" Class="flex-shrink-0">@T.Ago(LastMessage.At)</MudText>
+                <MudText Typo="Typo.subtitle1" Class="one-line">@Name</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="flex-shrink-0">@T.Ago(LastMessage.At)</MudText>
             </MudStack>
+            <MudText Typo="@(Unread ? Typo.subtitle2 : Typo.body2)" Color="@(Unread ? Color.Dark : Color.Secondary)" Class="one-line">@Preview</MudText>
             @if (!string.IsNullOrEmpty(Detail))
             {
-                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@Detail</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@Detail</MudText>
             }
-            <MudText Typo="Typo.body2" Color="@(Unread ? Color.Default : Color.Secondary)" Class="one-line">@Preview</MudText>
         </MudStack>
     </MudStack>
 </MudLink>

@@ -5,8 +5,8 @@ namespace SideGigPh.Maui.Services;
 public static class ListingMapper
 {
     /// <summary>
-    /// Id of the pro's own listing on this phone. Pros have no account id yet; the auth gate
-    /// will replace this with the user's uid.
+    /// Id of the pro's own listing when nobody is signed in (no sign-in provider registered). With an account
+    /// the id is the user's uid (<c>ProWorkspace.MyId</c>), which is what Firestore's rules check.
     /// </summary>
     public const string OwnListingId = "own";
 
@@ -28,9 +28,9 @@ public static class ListingMapper
 
     /// <summary>The Professional's own draft, shaped like a search result for the preview and Pro home.</summary>
     public static ProfessionalListing ToListing(
-        this ProfessionalDraft draft, string? photoUrl = null, IReadOnlyList<string>? workPhotoUrls = null) => new()
+        this ProfessionalDraft draft, string? id = null, string? photoUrl = null, IReadOnlyList<string>? workPhotoUrls = null) => new()
     {
-        Id = OwnListingId,
+        Id = id ?? OwnListingId,
         DisplayName = draft.DisplayName ?? string.Empty,
         CategoryIds = draft.CategoryId is null ? [] : [draft.CategoryId],
         ServiceIds = draft.ServiceIds,

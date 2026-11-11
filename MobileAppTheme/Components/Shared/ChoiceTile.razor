@@ -1,22 +1,22 @@
-<MudButton Variant="Variant.Text" Color="@(Selected ? Color.Primary : Color.Default)" FullWidth="true"
-           Size="Size.Large" Class="@CssClass" aria-pressed="@(Selected ? "true" : "false")"
+<MudButton Variant="Variant.Text" Color="Color.Dark" FullWidth="true" Ripple="false"
+           Class="@CssClass" aria-pressed="@(Selected ? "true" : "false")"
            OnClick="() => OnPick.InvokeAsync(Item.Id)">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="mud-width-full">
-        @if (Item.Icon is not null)
-        {
-            <MudText Typo="Typo.h5" HtmlTag="span" aria-hidden="true">@Item.Icon</MudText>
-        }
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="mud-width-full">
         <MudStack Spacing="0" Class="flex-1">
             <MudText Typo="Typo.subtitle1" Color="Color.Dark">@Item.Label</MudText>
-            @if (Item.Hint is not null)
+            @if (!string.IsNullOrEmpty(Item.Hint))
             {
                 <MudText Typo="Typo.body2" Color="Color.Secondary">@Item.Hint</MudText>
             }
         </MudStack>
+        @if (!string.IsNullOrEmpty(Item.Icon))
+        {
+            <MudText Typo="Typo.h5" HtmlTag="span" aria-hidden="true">@Item.Icon</MudText>
+        }
         @if (ShowCheck)
         {
-            <MudIcon Icon="@(Selected ? Icons.Material.Filled.CheckBox : Icons.Material.Filled.CheckBoxOutlineBlank)"
-                     Color="@(Selected ? Color.Primary : Color.Default)" aria-hidden="true" />
+            <MudIcon Icon="@(Selected ? Icons.Material.Rounded.CheckBox : Icons.Material.Rounded.CheckBoxOutlineBlank)"
+                     Color="@(Selected ? Color.Dark : Color.Secondary)" aria-hidden="true" />
         }
     </MudStack>
 </MudButton>

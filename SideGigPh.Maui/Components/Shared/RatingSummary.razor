@@ -1,16 +1,18 @@
-<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-    <MudStack AlignItems="AlignItems.Center" Spacing="0">
-        <MudText Typo="Typo.h3" HtmlTag="p">@Average</MudText>
-        <MudRating SelectedValue="Rounded" ReadOnly="true" Size="Size.Small" Color="Color.Warning"
+<MudStack Spacing="6">
+    <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="pt-2">
+        <MudText Typo="Typo.h2" HtmlTag="p">@Average</MudText>
+        <MudRating SelectedValue="Rounded" ReadOnly="true" Size="Size.Small" Color="Color.Dark"
                    aria-label="@($"{Average}/5")" />
-        <MudText Typo="Typo.caption" Color="Color.Secondary">@CountLabel</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@CountLabel</MudText>
     </MudStack>
-    <MudStack Spacing="1" Class="flex-1">
+
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.subtitle2">@T.Get(Copy.OverallRating)</MudText>
         @foreach (var stars in Enumerable.Range(1, 5).Reverse())
         {
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
-                <MudText Typo="Typo.caption" Color="Color.Secondary">@stars</MudText>
-                <MudProgressLinear Value="@Share(stars)" Color="Color.Warning" Rounded="true" Size="Size.Medium" Class="flex-1" />
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <MudText Typo="Typo.caption">@stars</MudText>
+                <MudProgressLinear Value="@Share(stars)" Color="Color.Dark" Rounded="true" Size="Size.Small" Class="flex-1" />
             </MudStack>
         }
     </MudStack>

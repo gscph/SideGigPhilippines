@@ -4,7 +4,7 @@ namespace SideGigPh.Maui.Components.Layout;
 
 /// <summary>
 /// SideGigPh's brand: the single source of truth for its name, logo, colors and corner radius
-/// (blue / white, GCash / Microsoft style). The MobileAppTheme skeleton turns the colors into the
+/// (near-black ink on white, Airbnb style, with soft gray lines; no blue). The MobileAppTheme skeleton turns the colors into the
 /// <c>MudTheme</c> (<see cref="MobileTheme.Create"/>), and its <c>MainLayout</c> hands that to
 /// <c>MudThemeProvider</c>, which emits it as <c>--mud-palette-*</c> CSS variables. Components pick
 /// colors through MudBlazor's <c>Color</c> parameters; the few rules in app.css use those variables.
@@ -14,20 +14,20 @@ public static class AppTheme
 {
     public static BrandStyle Style { get; } = new()
     {
-        Primary = "#0078d4",
-        PrimaryDarken = "#005a9e",
-        PrimaryLighten = "#5ea8e6",
+        Primary = "#222222",
+        PrimaryDarken = "#000000",
+        PrimaryLighten = "#484848",
         OnPrimary = "#ffffff",
-        Ink = "#0b1f33",
-        Muted = "#5c6b7a",
+        Ink = "#222222",
+        Muted = "#6a6a6a",
         Success = "#107c10",
         Warning = "#c19c00",
         Error = "#d13438",
         Background = "#ffffff",
-        BackgroundGray = "#f5f8fc",
-        Lines = "#e1e8f0",
-        LinesInputs = "#c7d3e0",
-        CornerRadius = "10px",
+        BackgroundGray = "#f7f7f7",
+        Lines = "#ebebeb",
+        LinesInputs = "#b0b0b0",
+        CornerRadius = "8px",
     };
 
     public static AppBrand Brand { get; } = new(

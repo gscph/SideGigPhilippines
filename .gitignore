@@ -63,3 +63,8 @@ nunit-*.xml
 /.vs/ProjectEvaluation
 /.vs/SideGigPh/CopilotIndices/18.11.1093.4562
 /.vs
+
+# Azure Functions local secrets (the storage connection string)
+local.settings.json
+/SideGigPh.Api/Properties
+/SideGigPh.Api/SideGigPh.Api.csproj.user

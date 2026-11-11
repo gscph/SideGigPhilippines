@@ -14,11 +14,12 @@ public partial class LanguagePage : ComponentBase
 {
     private static readonly IReadOnlyList<ChoiceItem> Options =
     [
-        new(nameof(AppLanguage.English), "English", string.Empty, "I'll read in English"),
-        new(nameof(AppLanguage.Taglish), "Taglish", string.Empty, "Tagalog na may halong English"),
+        new(nameof(AppLanguage.English), "English", Hint: "I'll read in English"),
+        new(nameof(AppLanguage.Taglish), "Taglish", Hint: "Tagalog na may halong English"),
     ];
 
     [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private AppBrand Brand { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
