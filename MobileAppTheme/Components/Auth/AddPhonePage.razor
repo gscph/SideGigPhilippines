@@ -1,0 +1,11 @@
+@page "/verify/phone"
+
+<InterviewStep Title="@T.Get(CommonCopy.AuthPhoneTitle)" Why="@T.Get(CommonCopy.AuthPhoneWhy)" OnBack="GoBack">
+    <MudStack Spacing="3">
+        <PhoneSignIn LinkToCurrentUser="true" OnAuthenticated="HandleLinked" />
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
+        }
+    </MudStack>
+</InterviewStep>

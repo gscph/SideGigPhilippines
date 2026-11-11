@@ -12,6 +12,7 @@ public static class AuthErrorText
         AuthError.Network => text.Get(CommonCopy.AuthErrorNetwork),
         AuthError.InvalidCode => text.Get(CommonCopy.AuthErrorInvalidCode),
         AuthError.InvalidPhoneNumber => text.Get(CommonCopy.AuthErrorInvalidPhone),
+        AuthError.PhoneInUse => text.Get(CommonCopy.AuthErrorPhoneInUse),
         AuthError.TooManyAttempts => text.Get(CommonCopy.AuthErrorTooManyAttempts),
         AuthError.Misconfigured or AuthError.NotAvailable => text.Get(CommonCopy.AuthErrorNotAvailable),
         _ => text.Get(CommonCopy.AuthErrorUnknown),

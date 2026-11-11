@@ -26,6 +26,7 @@ public partial class SeekerInterview : ComponentBase
     }
 
     [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -136,11 +137,11 @@ public partial class SeekerInterview : ComponentBase
 
     private async Task FinishAsync()
     {
-        // Future auth gate goes here: after the interview, before the first benefit (results).
         var state = _state!;
         state.CompletedAt = DateTimeOffset.Now;
         state.ResumePath = null;
         await Store.SaveAsync(state);
+        await Account.SaveProfileAsync();
         Nav.NavigateTo(SeekerRoutes.Search, replace: true);
     }
 

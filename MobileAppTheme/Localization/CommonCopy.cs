@@ -52,6 +52,13 @@ public static class CommonCopy
     public static readonly LocalizedText AuthErrorNetwork = new("No connection. Check your internet and try again.", "Walang connection. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText AuthErrorInvalidCode = new("Wrong or expired code. Check the SMS and try again.", "Mali o expired ang code. I-check ang SMS at subukan ulit.");
     public static readonly LocalizedText AuthErrorInvalidPhone = new("Check the mobile number.", "I-check ang mobile number.");
+    public static readonly LocalizedText AuthErrorPhoneInUse = new("Another account already uses this number. Sign in with your number instead.", "May ibang account na gumagamit ng number na 'to. Mag-sign in na lang gamit ang number mo.");
+    public static readonly LocalizedText AuthNameTitle = new("What's your name?", "Ano'ng pangalan mo?");
+    public static readonly LocalizedText AuthNameWhy = new("This is the name people you talk to will see.", "Ito ang pangalang makikita ng mga kausap mo.");
+    public static readonly LocalizedText AuthFirstName = new("First name", "Pangalan");
+    public static readonly LocalizedText AuthLastName = new("Last name", "Apelyido");
+    public static readonly LocalizedText AuthPhoneTitle = new("Add your mobile number", "Ilagay ang mobile number mo");
+    public static readonly LocalizedText AuthPhoneWhy = new("We'll text you a code to check it's yours. You only do this once.", "Ite-text ka namin ng code para masigurong sa'yo ito. Isang beses lang 'to.");
     public static readonly LocalizedText AuthErrorTooManyAttempts = new("Too many tries. Wait a while, then try again.", "Sobrang daming try. Maghintay muna bago ulitin.");
     public static readonly LocalizedText AuthErrorNotAvailable = new("Sign-in isn't working right now. Please try again later.", "Hindi gumagana ang sign-in ngayon. Subukan ulit mamaya.");
     public static readonly LocalizedText AuthErrorUnknown = new("Sign-in failed. Please try again.", "Hindi naka-sign in. Subukan ulit.");

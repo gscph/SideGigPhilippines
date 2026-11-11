@@ -42,9 +42,13 @@ public static partial class FirebaseAuthErrors
         return ex is TaskCanceledException or OperationCanceledException ? AuthError.Cancelled : AuthError.Unknown;
     }
 
-    /// <summary>The error for a failed SMS-code sign-in.</summary>
+    /// <summary>The error for a failed SMS-code sign-in, or adding a number to the account.</summary>
     public static AuthError FromPhone(Exception ex) => ex switch
     {
+        // Linking a number another account has: "This credential is already associated with a
+        // different user account." The plugin has no reason code for it, so the text is checked.
+        _ when ex.Message.Contains("already associated", StringComparison.OrdinalIgnoreCase)
+            || ex.Message.Contains("already in use", StringComparison.OrdinalIgnoreCase) => AuthError.PhoneInUse,
         FirebaseAuthException { Reason: FIRAuthError.InvalidCredential } => AuthError.InvalidCode,
         _ when ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) => AuthError.Network,
         _ when ex.Message.Contains("too many", StringComparison.OrdinalIgnoreCase) => AuthError.TooManyAttempts,

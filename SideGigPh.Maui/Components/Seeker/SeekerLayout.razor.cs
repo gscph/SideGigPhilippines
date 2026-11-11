@@ -25,7 +25,7 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     private IReadOnlyList<AppTab> Tabs =>
     [
         new(SeekerRoutes.Home, Icons.Material.Filled.Home, T.Get(Copy.NavHome), MatchPrefix: true),
-        new(SeekerRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), MatchPrefix: true),
+        new(SeekerRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), Workspace.UnreadCount, MatchPrefix: true),
         new(SeekerRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe), Workspace.ToRate.Count, MatchPrefix: true),
     ];
 

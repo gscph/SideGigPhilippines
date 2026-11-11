@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Components.Shared;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -18,7 +19,9 @@ public partial class SearchPage : ComponentBase
     private const string AllJobs = "all";
 
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
+    [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private SearchResult? _result;
     private string? _unmatchedText;
@@ -76,6 +79,13 @@ public partial class SearchPage : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        // Searching needs a verified phone (a Google sign-in adds one here first).
+        if (await Gate.RedirectAsync(SeekerRoutes.Search, requirePhone: true) is { } step)
+        {
+            Nav.NavigateTo(step, replace: true);
+            return;
+        }
+
         var intent = Workspace.CurrentIntent;
         _unmatchedText = Workspace.Answers.SearchText is { } words && !intent.Matched ? words : null;
         _suggestedCategoryIds = intent.OtherCategoryIds;

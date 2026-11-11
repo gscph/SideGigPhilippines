@@ -13,6 +13,7 @@ namespace SideGigPh.Maui.Components.Onboarding;
 public partial class RolePage : ComponentBase
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -47,6 +48,7 @@ public partial class RolePage : ComponentBase
         }
 
         await Store.SaveAsync(state);
+        await Account.SaveProfileAsync();
         Nav.NavigateTo(path);
     }
 

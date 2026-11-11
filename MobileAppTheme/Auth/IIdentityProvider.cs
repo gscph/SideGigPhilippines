@@ -12,17 +12,28 @@ public interface IIdentityProvider
     AuthMethods Methods { get; }
 
     /// <summary>
-    /// Starts phone sign-in by sending an SMS code to <paramref name="phoneNumber"/> (E.164, e.g.
-    /// <c>+639171234567</c>). Returns the handle for <see cref="VerifyPhoneOtpAsync"/>. Throws when
-    /// the code can't be sent; the adapter logs the full exception first.
+    /// Sends an SMS code to <paramref name="phoneNumber"/> (E.164, e.g. <c>+639171234567</c>), for
+    /// signing in (<see cref="VerifyPhoneOtpAsync"/>) or adding the number to the signed-in account
+    /// (<see cref="LinkPhoneAsync"/>). Returns the handle for that next call. Throws when the code
+    /// can't be sent; the adapter logs the full exception first.
     /// </summary>
     Task<PhoneVerification> SignUpWithPhoneAsync(string phoneNumber);
 
     /// <summary>Confirms the code the user typed and signs them in.</summary>
     Task<AuthResult> VerifyPhoneOtpAsync(string verificationId, string userEnteredCode);
 
+    /// <summary>
+    /// Confirms the code and adds the verified number to the signed-in account (e.g. a Google
+    /// account), keeping the same <see cref="AuthUser.Uid"/>. Fails with
+    /// <see cref="AuthError.PhoneInUse"/> when another account already has that number.
+    /// </summary>
+    Task<AuthResult> LinkPhoneAsync(string verificationId, string userEnteredCode);
+
     /// <summary>Interactive Google sign-in.</summary>
     Task<AuthResult> SignInWithGoogleAsync();
+
+    /// <summary>Saves the signed-in user's full name (asked once after a phone sign-in).</summary>
+    Task<AuthResult> SetDisplayNameAsync(string displayName);
 
     /// <summary>The signed-in user, or null (also when the provider isn't set up).</summary>
     Task<AuthUser?> GetCurrentUserAsync();

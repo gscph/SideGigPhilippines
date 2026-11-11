@@ -31,6 +31,7 @@ public partial class LanguagePage : ComponentBase
         state.Language = language;
         await Store.SaveAsync(state);
 
-        Nav.NavigateTo("/start/role");
+        // The launch router sends them to sign in (D1: everyone signs in first), then on.
+        Nav.NavigateTo("/");
     }
 }

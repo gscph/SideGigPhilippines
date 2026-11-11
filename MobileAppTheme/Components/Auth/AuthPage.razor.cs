@@ -7,8 +7,9 @@ namespace MobileAppTheme.Components.Auth;
 
 /// <summary>
 /// The sign-in screen (<c>/verify</c>): the brand, then the methods the registered
-/// <see cref="IIdentityProvider"/> offers (phone code, Google). After sign-in, or if the user is
-/// already signed in, it goes where the app's <see cref="IAuthLanding"/> says. With no provider
+/// <see cref="IIdentityProvider"/> offers, phone code first (it also verifies the number), Google
+/// below. After sign-in, or if the user is already signed in, it asks for their name if the account
+/// has none (<see cref="NamePage"/>), else goes where the app's <see cref="IAuthLanding"/> says. With no provider
 /// registered it explains that sign-in isn't available.
 /// </summary>
 public partial class AuthPage : ComponentBase
@@ -51,6 +52,7 @@ public partial class AuthPage : ComponentBase
         _error = T.Describe(result.Error);
     }
 
+    // A phone sign-in has no name yet: ask for it once, then the app's landing.
     private async Task GoOnAsync(AuthUser user) =>
-        Nav.NavigateTo(await Landing.GetDestinationAsync(user), replace: true);
+        Nav.NavigateTo(user.HasName ? await Landing.GetDestinationAsync(user) : AuthRoutes.NamePath, replace: true);
 }

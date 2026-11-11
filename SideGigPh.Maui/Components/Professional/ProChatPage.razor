@@ -1,0 +1,46 @@
+@page "/professional/inbox/{ChatId}"
+@layout ProLayout
+
+<MudStack Spacing="3">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@ProRoutes.Inbox" aria-label="@T.Get(CommonCopy.Back)" />
+        @if (_chat is not null)
+        {
+            <PersonAvatar Name="@T.SeekerName(_chat)" />
+            <MudStack Spacing="0" Class="flex-1 overflow-hidden">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h1" Class="one-line">@T.SeekerName(_chat)</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.WhatAndWhere(_chat)</MudText>
+            </MudStack>
+        }
+    </MudStack>
+
+    @if (_chat is null)
+    {
+        <MudStack AlignItems="AlignItems.Center" Class="py-12">
+            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
+        </MudStack>
+    }
+    else
+    {
+        @if (!string.IsNullOrEmpty(T.WhenAndBudget(_chat)))
+        {
+            <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" Icon="@Icons.Material.Filled.WorkOutline">
+                @T.WhenAndBudget(_chat)
+            </MudAlert>
+        }
+
+        <MudStack Spacing="2">
+            @foreach (var message in _messages)
+            {
+                <ChatBubble Message="message" Mine="@(message.SenderId == ListingMapper.OwnListingId)" @key="message.Id" />
+            }
+        </MudStack>
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
+        }
+
+        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" />
+    }
+</MudStack>

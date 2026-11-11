@@ -10,15 +10,17 @@
         <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" HasWorkPhotos="@(Workspace.WorkPhotos.Count > 0)" />
     }
 
-    <HomeSection Title="@T.Get(Copy.SectionInquiries)" Href="@ProRoutes.Inquiries">
-        @if (Workspace.Inquiries.Count == 0)
+    <HomeSection Title="@T.Get(Copy.SectionMessages)" Href="@ProRoutes.Inbox">
+        @if (Workspace.Chats.Count == 0)
         {
-            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.InquiriesEmpty)</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProInboxEmpty)</MudText>
         }
-        @foreach (var inquiry in Workspace.Inquiries.Take(3))
-        {
-            <InquiryRow Inquiry="inquiry" IsNew="@Workspace.IsNew(inquiry)" />
-        }
+        <MudStack Spacing="0">
+            @foreach (var chat in Workspace.Chats.Take(3))
+            {
+                <ProChatRow Chat="chat" @key="chat.Id" />
+            }
+        </MudStack>
     </HomeSection>
 
     <HomeSection Title="@T.Get(Copy.SectionReviews)" Href="@ProRoutes.Reviews">

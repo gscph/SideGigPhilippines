@@ -17,7 +17,7 @@
     <MudStack Spacing="0">
         @foreach (var thread in Workspace.Threads)
         {
-            <ThreadRow Thread="thread" @key="thread.Pro.Id" />
+            <SeekerChatRow Thread="thread" @key="thread.Chat.Id" />
             <MudDivider />
         }
     </MudStack>

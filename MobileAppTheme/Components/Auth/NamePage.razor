@@ -1,0 +1,15 @@
+@page "/verify/name"
+
+<InterviewStep Title="@T.Get(CommonCopy.AuthNameTitle)" Why="@T.Get(CommonCopy.AuthNameWhy)"
+               OnNext="SaveAsync" CanContinue="@CanSave">
+    <MudStack Spacing="3">
+        <MudTextField T="string" @bind-Value="_firstName" Immediate="true" Variant="Variant.Outlined" MaxLength="40"
+                      Label="@T.Get(CommonCopy.AuthFirstName)" Disabled="_busy" autocomplete="given-name" />
+        <MudTextField T="string" @bind-Value="_lastName" Immediate="true" Variant="Variant.Outlined" MaxLength="40"
+                      Label="@T.Get(CommonCopy.AuthLastName)" Disabled="_busy" autocomplete="family-name" />
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
+        }
+    </MudStack>
+</InterviewStep>

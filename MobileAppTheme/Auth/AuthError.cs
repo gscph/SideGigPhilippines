@@ -20,6 +20,9 @@ public enum AuthError
     /// <summary>The phone number was rejected.</summary>
     InvalidPhoneNumber,
 
+    /// <summary>Another account already has this phone number (when adding a number to an account).</summary>
+    PhoneInUse,
+
     /// <summary>Too many attempts; try again later.</summary>
     TooManyAttempts,
 

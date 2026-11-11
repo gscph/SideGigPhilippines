@@ -1,0 +1,17 @@
+<MudPaper Elevation="0" Outlined="@(!Mine)" MaxWidth="85%"
+          Class="@($"pa-3 rounded-lg {(Mine ? "align-self-end mud-primary-hover" : "align-self-start")}")">
+    <MudStack Spacing="1">
+        @if (Message.Kind == ChatMessageKind.Call)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.Phone" Size="Size.Small" Color="Color.Primary" aria-hidden="true" />
+                <MudText Typo="Typo.body2">@T.Get(Mine ? Copy.YouCalled : Copy.CalledYou)</MudText>
+            </MudStack>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2">@Message.Text</MudText>
+        }
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="@(Mine ? Align.End : Align.Start)">@T.Ago(Message.At)</MudText>
+    </MudStack>
+</MudPaper>

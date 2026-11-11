@@ -36,19 +36,19 @@
             @T.Format(Copy.ThreadHowItWorks, _pro.DisplayName)
         </MudAlert>
 
-        @if (Contacts.Count == 0)
+        @if (_messages.Count == 0)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">@T.Get(Copy.ThreadStart)</MudText>
         }
 
         <MudStack Spacing="2">
-            @foreach (var contact in Contacts)
+            @foreach (var message in _messages)
             {
-                <ContactBubble Contact="contact" @key="contact.Id" />
+                <ChatBubble Message="message" Mine="@(message.SenderId == SeekerWorkspace.LocalSeekerId)" @key="message.Id" />
             }
         </MudStack>
 
-        @if (Contacts.Count > 0)
+        @if (_messages.Count > 0)
         {
             <MudButton Variant="Variant.Text" Color="Color.Primary" StartIcon="@Icons.Material.Filled.StarOutline"
                        Href="@SeekerRoutes.Rate(_pro.Id)" Class="align-self-center">
@@ -56,11 +56,11 @@
             </MudButton>
         }
 
-        @if (_contactFailed)
+        @if (_error is not null)
         {
-            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(Copy.ContactFailed)</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@_error</MudAlert>
         }
 
-        <MessageComposer @bind-Message="_message" Busy="_busy" OnSend="TextAsync" OnCall="CallAsync" />
+        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" OnCall="CallAsync" />
     }
 </MudStack>

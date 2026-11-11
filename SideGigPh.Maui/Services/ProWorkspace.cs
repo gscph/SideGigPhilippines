@@ -3,8 +3,8 @@ using SideGigPh.Maui.Models;
 namespace SideGigPh.Maui.Services;
 
 /// <summary>
-/// Everything the Pro home screens share: the pro's saved listing, their photos, inquiries
-/// and reviews, and the actions on them (add photos, publish, mark inquiries seen). One
+/// Everything the Pro home screens share: the pro's saved listing, their photos, chats with
+/// customers and reviews, and the actions on them (add photos, publish, reply). One
 /// instance for the app, so the top bar and bottom tabs update when a page changes something
 /// (<see cref="Changed"/>). Only ports are used here, never adapters.
 /// </summary>
@@ -12,9 +12,10 @@ public sealed class ProWorkspace(
     IOnboardingStore store,
     IPhotoStore photos,
     IPhotoPicker picker,
-    IInquiryRepository inquiries,
+    IChatRepository chats,
     IReviewRepository reviews,
-    IProfessionalProfileRepository profiles)
+    IProfessionalProfileRepository profiles,
+    IIdentityProvider identity)
 {
     /// <summary>Most work photos a listing can have.</summary>
     public const int MaxWorkPhotos = 12;
@@ -42,11 +43,13 @@ public sealed class ProWorkspace(
             .OfType<WorkPhoto>()
             .ToList();
 
-    public IReadOnlyList<Inquiry> Inquiries { get; private set; } = [];
+    /// <summary>Chats with customers, most recent message first.</summary>
+    public IReadOnlyList<Chat> Chats { get; private set; } = [];
 
     public IReadOnlyList<Review> Reviews { get; private set; } = [];
 
-    public int NewInquiryCount => Inquiries.Count(IsNew);
+    /// <summary>Chats where the customer wrote last and the pro hasn't opened it since: the Inbox badge.</summary>
+    public int UnreadCount => Chats.Count(chat => chat.IsUnreadFor(ChatSide.Professional));
 
     /// <summary>Average stars and count, or null with no reviews.</summary>
     public ReviewSummary? ReviewSummary => Reviews.Count == 0 ? null : new ReviewSummary(Reviews.Average(r => r.Rating), Reviews.Count);
@@ -70,25 +73,39 @@ public sealed class ProWorkspace(
         return loaded;
     }
 
-    /// <summary>Re-reads inquiries and reviews, which change without the pro doing anything.</summary>
+    /// <summary>Re-reads chats and reviews, which change without the pro doing anything.</summary>
     public async Task RefreshActivityAsync()
     {
-        Inquiries = await inquiries.GetForProfessionalAsync(ListingMapper.OwnListingId);
+        Chats = await chats.GetInboxAsync(ListingMapper.OwnListingId, ChatSide.Professional);
         Reviews = await reviews.GetForProfessionalAsync(ListingMapper.OwnListingId);
         Changed?.Invoke();
     }
 
-    public bool IsNew(Inquiry inquiry) => Draft.InquiriesSeenAt is not { } seen || inquiry.At > seen;
+    public Task<Chat?> GetChatAsync(string chatId) => chats.GetAsync(chatId);
 
-    public async Task MarkInquiriesSeenAsync()
+    /// <summary>The chat's messages, oldest first.</summary>
+    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId) => chats.GetMessagesAsync(chatId);
+
+    /// <summary>Calls <paramref name="changed"/> when the chat gets a message, until disposed.</summary>
+    public IDisposable WatchChat(string chatId, Action changed) => chats.Watch(chatId, changed);
+
+    /// <summary>The pro answers a customer in their chat.</summary>
+    public async Task ReplyAsync(Chat chat, string message)
     {
-        if (NewInquiryCount == 0)
-        {
-            return;
-        }
+        var reply = new ChatMessage(Guid.NewGuid().ToString("N"), chat.Id, ListingMapper.OwnListingId,
+            ChatMessageKind.Text, message.Trim(), DateTimeOffset.Now);
+        await chats.SendAsync(chat, reply);
+        await RefreshActivityAsync();
+    }
 
-        Draft.InquiriesSeenAt = DateTimeOffset.Now;
-        await SaveAsync();
+    /// <summary>The pro opened the chat: the customer's messages are read.</summary>
+    public async Task MarkReadAsync(string chatId)
+    {
+        if (Chats.FirstOrDefault(c => c.Id == chatId) is { } chat && chat.IsUnreadFor(ChatSide.Professional))
+        {
+            await chats.MarkReadAsync(chatId, ChatSide.Professional);
+            await RefreshActivityAsync();
+        }
     }
 
     /// <summary>Lets the pro pick their own photo; it replaces the old one.</summary>
@@ -161,6 +178,8 @@ public sealed class ProWorkspace(
     /// <summary>The pro took the pledge: make the listing searchable.</summary>
     public async Task<PublishResult> PublishAsync()
     {
+        // The phone may have been added to the account since the interview.
+        Draft.TakeAccount(await identity.GetCurrentUserAsync());
         var result = await profiles.PublishAsync(Listing);
         if (result == PublishResult.Published)
         {
@@ -177,7 +196,7 @@ public sealed class ProWorkspace(
         _state = null;
         _loading = null;
         _photoUrls.Clear();
-        Inquiries = [];
+        Chats = [];
         Reviews = [];
     }
 
@@ -188,6 +207,8 @@ public sealed class ProWorkspace(
         {
             return false;
         }
+
+        Draft.TakeAccount(await identity.GetCurrentUserAsync());
 
         foreach (var id in Draft.WorkPhotoIds.Append(Draft.ProfilePhotoId).OfType<string>())
         {

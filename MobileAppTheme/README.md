@@ -11,8 +11,8 @@ screens and phone adapters are done; a new product adds its brand and its featur
 
 | Folder | Contents |
 |---|---|
-| `Auth/` | Provider-neutral sign-in contract: `IIdentityProvider` (with `Methods`), `AuthMethods`, `AuthUser`, `AuthResult`, `AuthError` (+ `AppText.Describe`), `PhoneVerification`; app hooks `IAuthLanding` (where to go after sign-in) and `IPhoneNumberFormat` (typed number → E.164); defaults `NoIdentityProvider`, `HomeAuthLanding`, `E164PhoneNumberFormat` |
-| `Components/Auth/` | `AuthPage` (`/verify`: brand + tagline, only the methods the provider offers), `PhoneSignIn` (number → SMS code), `GoogleSignInButton` |
+| `Auth/` | Provider-neutral sign-in contract: `IIdentityProvider` (with `Methods`; phone code, Google, `LinkPhoneAsync` to add a verified number to the signed-in account, `SetDisplayNameAsync`), `AuthMethods`, `AuthUser` (`HasName`, `HasVerifiedPhone`), `AuthResult`, `AuthError` (+ `AppText.Describe`), `PhoneVerification`; `SignInGate` (pages ask it which sign-in step is missing: sign in, name, verified phone), `AuthRoutes`, `PersonName.Short`; app hooks `IAuthLanding` (where to go after sign-in) and `IPhoneNumberFormat` (typed number → E.164); defaults `NoIdentityProvider`, `HomeAuthLanding`, `E164PhoneNumberFormat` |
+| `Components/Auth/` | `AuthPage` (`/verify`: brand + tagline, only the methods the provider offers, phone first), `NamePage` (`/verify/name`: first + last name once, when the account has none), `AddPhonePage` (`/verify/phone?then=…`: link a verified number), `PhoneSignIn` (number → SMS code; `LinkToCurrentUser` to link instead of sign in), `GoogleSignInButton` |
 | `Branding/` | `BrandStyle` (colors + corner radius), `MobileTheme.Create(style)` → `MudTheme` (palette + mobile typography), `AppBrand(Name, LogoIcon, Theme, Tagline?)` |
 | `Components/Layout/` | `MainLayout` (theme + popover providers), `AppShell` (top bar, page, bottom tabs), `AppTopBar` (brand + avatar link + status dot), `AppBottomNav` / `AppNavItem` / `AppTab` (icon tabs, badges, most-specific-match highlighting) |
 | `Components/Shared/` | `InterviewStep` (one question per screen: back, progress, why-we-ask, sticky Next), `ChoiceTiles` / `ChoiceTile` / `ChoiceItem` (big tap answers), `WorkingLoader` (step-by-step "labor illusion" loader), `PersonAvatar` (photo → initials → icon), `HomeSection` (collapsible home section), `FilterMenu` (chip with dropdown; scrolls, optional `ChoiceItem.Group` headings), `BrandMark` (logo + name), `LanguagePicker`, `StartOverCard` (confirm-twice reset), `MePage` (Me page frame: title, your sections, language, on-this-phone note, Start over) |
@@ -28,7 +28,7 @@ screens and phone adapters are done; a new product adds its brand and its featur
 
 | Project | Contents |
 |---|---|
-| `../MobileAppTheme.Firebase/` | Firebase Authentication (phone SMS code + Google), Android + iOS: `builder.AddFirebaseAuth(googleWebClientId)` replaces `NoIdentityProvider`; Android `MainActivity.OnActivityResult` calls `FirebaseAuthSetup.HandleActivityResult(...)`. Errors are logged in full and mapped to `AuthError` (Google status 7 / 10 / 12500 / 12501 decoded). |
+| `../MobileAppTheme.Firebase/` | Firebase Authentication (phone SMS code + Google, phone linking, display name), Android + iOS: `builder.AddFirebaseAuth(googleWebClientId)` replaces `NoIdentityProvider`; Android `MainActivity.OnActivityResult` calls `FirebaseAuthSetup.HandleActivityResult(...)`. Errors are logged in full and mapped to `AuthError` (Google status 7 / 10 / 12500 / 12501 decoded). |
 
 To use a different auth provider, write `MobileAppTheme.<Provider>/` the same way (implement
 `IIdentityProvider`, map failures to `AuthError`, expose `builder.Add<Provider>Auth(...)` that

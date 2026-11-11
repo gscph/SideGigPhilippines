@@ -1,16 +1,20 @@
 <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
     <MudStack Spacing="2">
         <MudTextField T="string" Value="@Message" ValueChanged="@(value => MessageChanged.InvokeAsync(value))" Immediate="true"
-                      Variant="Variant.Outlined" Lines="3" MaxLength="300" aria-label="@T.Get(Copy.YourMessage)" />
+                      Variant="Variant.Outlined" Lines="2" MaxLines="5" MaxLength="1000"
+                      Placeholder="@T.Get(Copy.YourMessage)" aria-label="@T.Get(Copy.YourMessage)" />
         <MudStack Row="true" Spacing="2" StretchItems="StretchItems.All">
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       StartIcon="@Icons.Material.Filled.Phone" Disabled="Busy" OnClick="@(() => OnCall.InvokeAsync())">
-                @T.Get(Copy.Call)
-            </MudButton>
+            @if (OnCall.HasDelegate)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           StartIcon="@Icons.Material.Filled.Phone" Disabled="Busy" OnClick="@(() => OnCall.InvokeAsync())">
+                    @T.Get(Copy.Call)
+                </MudButton>
+            }
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                        StartIcon="@Icons.Material.Filled.Send" Disabled="@(Busy || string.IsNullOrWhiteSpace(Message))"
                        OnClick="@(() => OnSend.InvokeAsync())">
-                @T.Get(Copy.SendText)
+                @T.Get(Copy.Send)
             </MudButton>
         </MudStack>
     </MudStack>

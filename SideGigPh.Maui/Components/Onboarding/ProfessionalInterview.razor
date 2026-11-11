@@ -62,21 +62,6 @@
             </InterviewStep>
             break;
 
-        case ProStep.Contact:
-            <InterviewStep Title="@T.Get(Copy.ProNameTitle)" Why="@T.Get(Copy.ProNameWhy)" Progress="Progress"
-                           OnBack="GoBack" OnNext="SaveContactAsync" CanContinue="@(IsContactValid)">
-                <MudStack Spacing="3">
-                    <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Outlined" MaxLength="60"
-                                  Placeholder="@T.Get(Copy.ProNamePlaceholder)" autocomplete="name"
-                                  aria-label="@T.Get(Copy.ProNameTitle)" />
-                    <MudTextField T="string" @bind-Value="_phone" Immediate="true" Variant="Variant.Outlined" MaxLength="16"
-                                  InputType="InputType.Telephone" InputMode="InputMode.tel" Placeholder="0917 123 4567"
-                                  Error="_phoneInvalid" ErrorText="@T.Get(Copy.ProPhoneInvalid)" autocomplete="tel"
-                                  aria-label="@T.Get(Copy.ProPhoneTitle)" />
-                </MudStack>
-            </InterviewStep>
-            break;
-
         case ProStep.Preview:
             <InterviewStep Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="FinishAsync" NextLabel="@T.Get(Copy.ProPreviewConfirm)">

@@ -50,7 +50,7 @@ public sealed class StubProfessionalProfileRepository : IProfessionalProfileRepo
     {
         IReadOnlyList<ProfessionalListing> matches = _published.Concat(SampleListings)
             .Where(p => p.CategoryIds.Contains(query.CategoryId))
-            .Where(p => query.CityId is null || p.CityIds.Contains(query.CityId))
+            .Where(p => query.AreaId is null || p.CityIds.Any(cityId => ReferenceData.AreaOf(cityId) == query.AreaId))
             .ToList();
         return Task.FromResult(matches);
     }

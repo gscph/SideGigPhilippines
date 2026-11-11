@@ -13,6 +13,7 @@ namespace SideGigPh.Maui.Components.Professional;
 public partial class PublishPage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
+    [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -32,6 +33,13 @@ public partial class PublishPage : ComponentBase
         if (Workspace.IsPublished)
         {
             Nav.NavigateTo(ProRoutes.Home, replace: true);
+            return;
+        }
+
+        // The listing's number is the account's verified number (a Google sign-in adds one here first).
+        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true) is { } step)
+        {
+            Nav.NavigateTo(step, replace: true);
             return;
         }
 

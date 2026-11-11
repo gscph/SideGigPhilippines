@@ -1,0 +1,209 @@
+rules_version = '2';
+
+// SideGigPh — Firestore security rules (MVP). The data model they enforce is docs/data-model.md.
+//
+// Firestore has no schema and no server in front of it: the phone talks to it directly, so these
+// rules ARE the API. They decide who may read/write each document and which fields and values
+// are allowed (the "schema"). Anything not matched below is denied.
+//
+// Everyone signs in first (D1). Searching, contacting and publishing also need a verified phone
+// number on the account (D2/D3): a phone sign-in has one; a Google sign-in must link one.
+//
+// Deploy:   ./setup.ps1 -ProjectId <id>       Check syntax:   ./setup.ps1 -Emulator
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helpers ----------
+
+    function signedIn() { return request.auth != null; }
+    function isMe(uid) { return signedIn() && request.auth.uid == uid; }
+    // The phone number the account verified by SMS code, or '' if none (Google, not linked yet).
+    function verifiedPhone() { return request.auth.token.get('phone_number', ''); }
+    function hasVerifiedPhone() { return signedIn() && verifiedPhone() != ''; }
+
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function changedKeys() { return incoming().diff(existing()).affectedKeys(); }
+    function doc(path) { return /databases/$(database)/documents/$(path); }
+
+    function isText(value, maxLength) { return value is string && value.size() <= maxLength; }
+    function isName(value) { return value is string && value.size() > 0 && value.size() <= 60; }
+    // Optional field: absent, null, or text up to maxLength.
+    function optText(data, key, maxLength) {
+      return data.get(key, null) == null || isText(data[key], maxLength);
+    }
+    function optId(data, key) { return optText(data, key, 40); }
+    function isArea(value) { return value in ['metro-manila', 'rizal', 'laguna', 'cavite']; }
+    function isPhoto(value) {
+      return value is map && value.keys().hasOnly(['id', 'url'])
+        && value.id.matches('^[0-9a-f]{64}$') && isText(value.url, 2048);
+    }
+
+    // ---------- users/{uid}: the person, private to them ----------
+
+    match /users/{uid} {
+      allow read, delete: if isMe(uid);
+      allow create, update: if isMe(uid) && validUser(incoming());
+
+      function validUser(d) {
+        return d.keys().hasOnly(['displayName', 'phoneNumber', 'email', 'language', 'role',
+                                 'incomeGoalId', 'inquiriesSeenAt', 'createdAt', 'updatedAt'])
+          && optText(d, 'displayName', 80)
+          // Only the number this account verified.
+          && (d.get('phoneNumber', null) == null || d.phoneNumber == verifiedPhone())
+          && optText(d, 'email', 254)
+          && d.language in ['english', 'taglish']
+          && (d.get('role', null) == null || d.role in ['seeker', 'professional'])
+          && optId(d, 'incomeGoalId');
+      }
+
+      // This person's phones, for chat push notifications (doc id = the push token).
+      match /devices/{token} {
+        allow read, delete: if isMe(uid);
+        allow create, update: if isMe(uid)
+          && incoming().keys().hasOnly(['platform', 'updatedAt'])
+          && incoming().platform in ['android', 'ios'];
+      }
+    }
+
+    // ---------- professionals/{uid}: the published Skilled Worker listing ----------
+
+    match /professionals/{uid} {
+      allow read: if isMe(uid) || hasVerifiedPhone();
+
+      // Anti-fraud rule 1: the listing's number is the account's verified number. Firebase Auth
+      // allows one account per phone number, so one number = one listing.
+      allow create, update: if isMe(uid)
+        && hasVerifiedPhone()
+        && validListing(incoming())
+        && incoming().mobileNumber == verifiedPhone();
+
+      allow delete: if isMe(uid);
+
+      function validListing(d) {
+        return d.keys().hasOnly(['displayName', 'mobileNumber', 'categoryId', 'serviceIds', 'areaId',
+                                 'cityIds', 'experienceId', 'rateTierId', 'profilePhoto',
+                                 'workPhotos', 'publishedAt', 'updatedAt'])
+          && isName(d.displayName)
+          && isText(d.categoryId, 40)
+          && d.serviceIds is list && d.serviceIds.size() <= 60
+          && isArea(d.areaId)
+          && d.cityIds is list && d.cityIds.size() >= 1 && d.cityIds.size() <= 40
+          && optId(d, 'experienceId')
+          && optId(d, 'rateTierId')
+          && (d.get('profilePhoto', null) == null || isPhoto(d.profilePhoto))
+          && d.workPhotos is list && d.workPhotos.size() <= 12;
+      }
+    }
+
+    // ---------- reviews/{proId}_{seekerUid}: one per Seeker per Skilled Worker ----------
+
+    match /reviews/{reviewId} {
+      allow read: if hasVerifiedPhone() || (signedIn() && existing().seekerUid == request.auth.uid);
+
+      allow create: if hasVerifiedPhone()
+        && reviewId == incoming().professionalId + '_' + request.auth.uid
+        && incoming().seekerUid == request.auth.uid
+        && incoming().professionalId != request.auth.uid
+        && validReview(incoming())
+        // "Only contacted Skilled Workers can be reviewed": their chat exists.
+        && exists(doc('chats/' + reviewId));
+
+      // The reviewer edits their own review. The Skilled Worker can't edit or delete it.
+      allow update: if signedIn()
+        && existing().seekerUid == request.auth.uid
+        && validReview(incoming())
+        && !changedKeys().hasAny(['professionalId', 'seekerUid', 'createdAt']);
+
+      allow delete: if signedIn() && existing().seekerUid == request.auth.uid;
+
+      function validReview(d) {
+        return d.keys().hasOnly(['professionalId', 'seekerUid', 'reviewerName', 'rating',
+                                 'comment', 'serviceId', 'createdAt', 'updatedAt'])
+          && d.rating is int && d.rating >= 1 && d.rating <= 5
+          && isName(d.reviewerName)
+          && optText(d, 'comment', 1000)
+          && optId(d, 'serviceId');
+      }
+    }
+
+    // ---------- chats/{proId}_{seekerUid}: one chat per Seeker per Skilled Worker ----------
+
+    match /chats/{chatId} {
+      function isParticipant(chat) {
+        return signedIn()
+          && (chat.seekerUid == request.auth.uid || chat.professionalId == request.auth.uid);
+      }
+
+      // Inbox queries must filter on  seekerUid == me  or  professionalId == me.
+      allow read: if isParticipant(existing());
+
+      // The Seeker starts it with their first message (same batch), to a published listing.
+      allow create: if hasVerifiedPhone()
+        && chatId == incoming().professionalId + '_' + request.auth.uid
+        && incoming().seekerUid == request.auth.uid
+        && incoming().professionalId != request.auth.uid
+        && validChat(incoming())
+        && exists(doc('professionals/' + incoming().professionalId));
+
+      // Either person: a new last message (with its message), or their own read time.
+      allow update: if isParticipant(existing())
+        && validChat(incoming())
+        && (
+          (changedKeys().hasOnly(['lastMessage', 'lastMessageAt',
+                                  existing().seekerUid == request.auth.uid ? 'seekerReadAt' : 'professionalReadAt'])
+            && incoming().lastMessage.senderUid == request.auth.uid
+            && existsAfter(doc('chats/' + chatId + '/messages/' + incoming().lastMessage.id)))
+          || (existing().seekerUid == request.auth.uid && changedKeys().hasOnly(['seekerReadAt']))
+          || (existing().professionalId == request.auth.uid && changedKeys().hasOnly(['professionalReadAt']))
+        );
+
+      // Start over / delete account removes this person's chats.
+      allow delete: if isParticipant(existing());
+
+      function validChat(d) {
+        return d.keys().hasOnly(['professionalId', 'seekerUid', 'professionalName', 'seekerName',
+                                 'serviceId', 'cityId', 'urgencyId', 'budgetId',
+                                 'lastMessage', 'lastMessageAt', 'seekerReadAt', 'professionalReadAt',
+                                 'createdAt'])
+          && isName(d.professionalName)
+          && isName(d.seekerName)
+          && optId(d, 'serviceId') && optId(d, 'cityId')
+          && optId(d, 'urgencyId') && optId(d, 'budgetId')
+          && d.lastMessage is map
+          && d.lastMessage.keys().hasOnly(['id', 'text', 'kind', 'senderUid', 'at'])
+          && d.lastMessageAt is timestamp;
+      }
+
+      match /messages/{messageId} {
+        // Read through the parent chat (a get per request, cached across a query).
+        allow read, delete: if isParticipant(get(doc('chats/' + chatId)).data);
+
+        // Works for the first message too: getAfter sees the chat created in the same batch.
+        allow create: if isParticipant(getAfter(doc('chats/' + chatId)).data)
+          && incoming().keys().hasOnly(['senderUid', 'kind', 'text', 'at'])
+          && incoming().senderUid == request.auth.uid
+          && incoming().at is timestamp
+          && (
+            (incoming().kind == 'text' && incoming().text is string
+              && incoming().text.size() > 0 && incoming().text.size() <= 1000)
+            || (incoming().kind == 'call' && incoming().get('text', null) == null)
+          );
+      }
+    }
+
+    // ---------- photoHashes/{sha256}: anti-fraud rule 2 across all accounts ----------
+    // Creating a hash that exists is an update, which is denied: another account can't reuse a photo.
+
+    match /photoHashes/{sha} {
+      // One get tells the app "already used by another account". Listing all hashes is not allowed.
+      allow get: if signedIn();
+      allow create: if signedIn()
+        && sha.matches('^[0-9a-f]{64}$')
+        && incoming().keys().hasOnly(['uid', 'createdAt'])
+        && incoming().uid == request.auth.uid;
+      allow delete: if signedIn() && existing().uid == request.auth.uid;
+    }
+  }
+}

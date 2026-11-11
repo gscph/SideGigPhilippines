@@ -1,0 +1,31 @@
+rules_version = '2';
+
+// SideGigPh — Firebase Storage rules (MVP): Skilled Workers' work photos and profile photo.
+// Files are JPEGs named by the SHA-256 of their bytes (the IPhotoStore id). See docs/data-model.md §5.
+//
+// firestore.get() below makes Storage check Firestore. The first `firebase deploy --only storage`
+// asks to let Storage read Firestore: answer yes.
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    match /photos/{uid}/{fileName} {
+      // The owner, and anyone signed in with a verified phone (same as reading listings).
+      allow read: if request.auth != null
+        && (request.auth.uid == uid || request.auth.token.get('phone_number', '') != '');
+
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && fileName.matches('^[0-9a-f]{64}\\.jpg$')
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg'
+        // Anti-fraud rule 2: the hash is registered to this account in Firestore photoHashes.
+        && firestore.get(/databases/(default)/documents/photoHashes/$(fileName.split('\\.')[0])).data.uid
+             == request.auth.uid;
+
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Everything else is denied.
+  }
+}

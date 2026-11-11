@@ -81,7 +81,4 @@ public sealed class ProfessionalDraft
 
     /// <summary>Set when the pro took the pledge and published the listing.</summary>
     public DateTimeOffset? PublishedAt { get; set; }
-
-    /// <summary>When the pro last opened their inquiries; anything newer is shown as new.</summary>
-    public DateTimeOffset? InquiriesSeenAt { get; set; }
 }

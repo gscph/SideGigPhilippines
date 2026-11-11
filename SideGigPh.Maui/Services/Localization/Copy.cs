@@ -73,20 +73,22 @@ public static class Copy
     public static readonly LocalizedText ProNotFound = new("This listing isn't available anymore.", "Wala na ang listing na ito.");
     public static readonly LocalizedText ContactPro = new("Contact", "Contact");
 
-    // --- Seeker inbox -----------------------------------------------------
+    // --- Inbox and chat (both sides) -------------------------------------
     public static readonly LocalizedText InboxTitle = new("Inbox", "Inbox");
     public static readonly LocalizedText InboxEmpty = new("No messages yet. Find a skilled worker and tap Contact.", "Wala pang message. Maghanap ng skilled worker at i-tap ang I-contact.");
     public static readonly LocalizedText InboxYouWrote = new("You: {0}", "Ikaw: {0}");
     public static readonly LocalizedText YouCalled = new("You called", "Tumawag ka");
-    public static readonly LocalizedText SentBySms = new("Text · {0}", "Text · {0}");
+    public static readonly LocalizedText CalledYou = new("Called you", "Tumawag sa'yo");
     public static readonly LocalizedText ThreadHowItWorks = new(
-        "Your text opens in your phone's SMS app. {0} replies to your phone by text or call.",
-        "Bubukas ito sa SMS app mo. Sa phone mo sasagot si {0}, sa text o tawag.");
+        "{0} gets your message here in the app and replies here. You can also call.",
+        "Makikita ni {0} ang message mo dito sa app, at dito rin siya sasagot. Puwede ka ring tumawag.");
     public static readonly LocalizedText ThreadStart = new(
-        "We wrote a message for you. Change it if you like, then tap Send text.",
-        "May nakahanda nang message. Puwede mo itong baguhin, tapos i-tap ang I-text.");
+        "We wrote a message for you. Change it if you like, then tap Send.",
+        "May nakahanda nang message. Puwede mo itong baguhin, tapos i-tap ang I-send.");
     public static readonly LocalizedText YourMessage = new("Your message", "Message mo");
-    public static readonly LocalizedText SendText = new("Send text", "I-text");
+    public static readonly LocalizedText Send = new("Send", "I-send");
+    public static readonly LocalizedText SendFailed = new("Your message didn't send. Check your internet and try again.", "Hindi na-send ang message mo. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText ChatCustomer = new("Customer", "Customer");
     public static readonly LocalizedText Call = new("Call", "Tawagan");
     public static readonly LocalizedText ViewProfile = new("View profile", "Tingnan ang profile");
     public static readonly LocalizedText RateThisPro = new("Rate this skilled worker", "I-rate ang skilled worker na ito");
@@ -162,12 +164,6 @@ public static class Copy
         "Let's get you there! Customers will ask you for a quote.",
         "Kaya natin 'yan! Magpapa-quote sa 'yo ang mga customer.");
 
-    public static readonly LocalizedText ProNameTitle = new("What should customers call you?", "Ilagay ang pangalan.");
-    public static readonly LocalizedText ProNameWhy = new("Your name or your shop's name.", "Pangalan mo o pangalan ng shop mo.");
-    public static readonly LocalizedText ProNamePlaceholder = new("e.g. Mang Jun Aircon Services", "hal. Mang Jun Aircon Services");
-    public static readonly LocalizedText ProPhoneTitle = new("What number can customers call?", "Saang number ka puwedeng tawagan?");
-    public static readonly LocalizedText ProPhoneWhy = new("Customers will call or text you here.", "Dito tatawag o magte-text ang customer.");
-    public static readonly LocalizedText ProPhoneInvalid = new("Enter your 11-digit mobile number, like 0917 123 4567.", "Ilagay ang 11-digit na mobile number mo, gaya ng 0917 123 4567.");
     public static readonly LocalizedText ProPreviewTitle = new("This is how customers will see you", "Ganito ka makikita ng mga customer");
     public static readonly LocalizedText ProPreviewWhy = new("Your listing, built from your answers.", "Ang listing mo, galing sa mga sagot mo.");
     public static readonly LocalizedText ProPreviewConfirm = new("DONE", "DONE");
@@ -183,7 +179,6 @@ public static class Copy
     public static readonly LocalizedText StatusPublished = new("Published", "Naka-publish na");
     public static readonly LocalizedText StatusNotPublished = new("Not published yet", "Hindi pa naka-publish");
     public static readonly LocalizedText StatRating = new("{0} ★ ({1})", "{0} ★ ({1})");
-    public static readonly LocalizedText SectionInquiries = new("Recent inquiries", "Mga bagong nagtanong");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
     public static readonly LocalizedText SectionGoal = new("Your goal", "Goal mo");
 
@@ -196,14 +191,10 @@ public static class Copy
     public static readonly LocalizedText SetupPublish = new("Publish your listing", "I-publish ang listing mo");
     public static readonly LocalizedText SetupPublishWhy = new("So customers can find and call you.", "Para makita at matawagan ka ng customer.");
 
-    // --- Inquiries --------------------------------------------------------
-    public static readonly LocalizedText InquiriesTitle = new("Inquiries", "Mga nagtanong");
-    public static readonly LocalizedText InquiriesWhy = new("Customers who tapped Call or Text on your listing. The call or text goes straight to your phone.", "Mga customer na nag-tap ng Tawagan o I-text sa listing mo. Diretso sa phone mo ang tawag o text.");
-    public static readonly LocalizedText InquiriesEmpty = new("No inquiries yet. They show up here when a customer taps Call or Text.", "Wala pang nagtanong. Lalabas dito kapag may customer na nag-tap ng Tawagan o I-text.");
-    public static readonly LocalizedText InquiryCalled = new("Tried to call you", "Sinubukan kang tawagan");
-    public static readonly LocalizedText InquiryTexted = new("Tried to text you", "Sinubukan kang i-text");
-    public static readonly LocalizedText InquiryBudget = new("Budget: {0}", "Budget: {0}");
-    public static readonly LocalizedText New = new("New", "Bago");
+    // --- Pro inbox --------------------------------------------------------
+    public static readonly LocalizedText ProInboxWhy = new("Customers who messaged you about a job. Answer them here.", "Mga customer na nag-message tungkol sa trabaho. Dito mo sila sagutin.");
+    public static readonly LocalizedText ProInboxEmpty = new("No messages yet. They show up here when a customer messages you.", "Wala pang message. Lalabas dito kapag may customer na nag-message sa'yo.");
+    public static readonly LocalizedText ChatBudget = new("Budget: {0}", "Budget: {0}");
 
     // --- Reviews ----------------------------------------------------------
     public static readonly LocalizedText ReviewsTitle = new("Reviews", "Reviews");

@@ -7,7 +7,8 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// Professional (Skilled Worker) interview: trades → jobs → area → towns → experience → rate → earnings goal →
-/// contact (name + number) → preview. The answers build the listing card the pro sees at the end.
+/// preview. The answers build the listing card the pro sees at the end; its name and number come
+/// from the account (<see cref="ListingMapper.TakeAccount"/>), so they are never asked here.
 /// One URL per step; answers are saved whenever the user moves forward.
 /// </summary>
 public partial class ProfessionalInterview : ComponentBase
@@ -21,11 +22,12 @@ public partial class ProfessionalInterview : ComponentBase
         Experience,
         Rate,
         Goal,
-        Contact,
         Preview,
     }
 
     [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private IIdentityProvider Identity { get; set; } = default!;
+    [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -33,16 +35,11 @@ public partial class ProfessionalInterview : ComponentBase
 
     private OnboardingState? _state;
     private ProStep _step = ProStep.Skills;
-    private string? _name;
-    private string? _phone;
-    private bool _phoneInvalid;
 
     private ProfessionalDraft Draft => _state!.Professional;
 
     // Step 1 already shows some progress (endowed progress); the preview is 100%.
     private double Progress => (int)_step / (double)ProStep.Preview;
-
-    private bool IsContactValid => (_name?.Trim().Length ?? 0) >= 2 && !string.IsNullOrWhiteSpace(_phone);
 
     protected override async Task OnInitializedAsync()
     {
@@ -50,6 +47,9 @@ public partial class ProfessionalInterview : ComponentBase
 
         // Drafts saved before the area step had towns but no area: take it from their towns.
         Draft.AreaId ??= ReferenceData.AreaOf(Draft.CityIds.FirstOrDefault());
+
+        // The preview card shows the account's name and number.
+        Draft.TakeAccount(await Identity.GetCurrentUserAsync());
     }
 
     protected override void OnParametersSet()
@@ -62,9 +62,6 @@ public partial class ProfessionalInterview : ComponentBase
         var requested = (ProStep)Math.Clamp(Step ?? 1, 1, (int)ProStep.Preview);
         var firstUnanswered = FirstUnanswered();
         _step = requested > firstUnanswered ? firstUnanswered : requested;
-
-        _name ??= Draft.DisplayName;
-        _phone ??= PhilippineMobile.ToLocal(Draft.MobileNumber);
     }
 
     private Task PickSkillAsync(string categoryId)
@@ -120,20 +117,6 @@ public partial class ProfessionalInterview : ComponentBase
 
     private void PickGoal(string id) => Draft.IncomeGoalId = id;
 
-    private Task SaveContactAsync()
-    {
-        if (!PhilippineMobile.TryNormalize(_phone, out var e164))
-        {
-            _phoneInvalid = true;
-            return Task.CompletedTask;
-        }
-
-        _phoneInvalid = false;
-        Draft.DisplayName = _name?.Trim();
-        Draft.MobileNumber = e164;
-        return AdvanceAsync();
-    }
-
     private async Task AdvanceAsync()
     {
         var state = _state!;
@@ -149,11 +132,11 @@ public partial class ProfessionalInterview : ComponentBase
 
     private async Task FinishAsync()
     {
-        // Future auth gate goes here: after the interview, before the listing goes live.
         var state = _state!;
         state.CompletedAt ??= DateTimeOffset.Now;
         state.ResumePath = null;
         await Store.SaveAsync(state);
+        await Account.SaveProfileAsync(); // Their side and earnings goal.
         Nav.NavigateTo("/professional", replace: true);
     }
 
@@ -174,7 +157,6 @@ public partial class ProfessionalInterview : ComponentBase
         if (Draft.ExperienceId is null) return ProStep.Experience;
         if (Draft.RateTierId is null) return ProStep.Rate;
         if (Draft.IncomeGoalId is null) return ProStep.Goal;
-        if (string.IsNullOrWhiteSpace(Draft.DisplayName) || Draft.MobileNumber is null) return ProStep.Contact;
         return ProStep.Preview;
     }
 

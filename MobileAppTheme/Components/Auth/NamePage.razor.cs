@@ -1,0 +1,64 @@
+using Microsoft.AspNetCore.Components;
+using MobileAppTheme.Auth;
+using MobileAppTheme.Localization;
+
+namespace MobileAppTheme.Components.Auth;
+
+/// <summary>
+/// <c>/verify/name</c>: first and last name, asked once when the account has none (a phone
+/// sign-in). Google sign-ins already have a name and never see this. Then goes to <c>then</c>, or
+/// where the app's <see cref="IAuthLanding"/> says.
+/// </summary>
+public partial class NamePage : ComponentBase
+{
+    [Inject] private IIdentityProvider Identity { get; set; } = default!;
+    [Inject] private IAuthLanding Landing { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
+
+    private string? _firstName;
+    private string? _lastName;
+    private string? _error;
+    private bool _busy;
+
+    private bool CanSave =>
+        !_busy && !string.IsNullOrWhiteSpace(_firstName) && !string.IsNullOrWhiteSpace(_lastName);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await Identity.GetCurrentUserAsync();
+        if (user is null)
+        {
+            Nav.NavigateTo(AuthRoutes.SignIn, replace: true);
+        }
+        else if (user.HasName)
+        {
+            await GoOnAsync(user);
+        }
+    }
+
+    private async Task SaveAsync()
+    {
+        _busy = true;
+        try
+        {
+            var result = await Identity.SetDisplayNameAsync($"{_firstName!.Trim()} {_lastName!.Trim()}");
+            if (result is { IsSuccess: true, User: { } user })
+            {
+                await GoOnAsync(user);
+                return;
+            }
+
+            _error = T.Describe(result.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task GoOnAsync(AuthUser user) =>
+        Nav.NavigateTo(AuthRoutes.SafeReturn(Then) ?? await Landing.GetDestinationAsync(user), replace: true);
+}

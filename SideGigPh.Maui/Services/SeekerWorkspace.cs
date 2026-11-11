@@ -6,7 +6,7 @@ namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// Everything the Seeker's screens share: their current search (saved with their interview
-/// answers), their Inbox (the pros they called or texted), their reviews, and the actions on
+/// answers), their Inbox (a chat per pro they contacted), their reviews, and the actions on
 /// them. One instance for the app, so the tabs update when a page changes something
 /// (<see cref="Changed"/>). Only ports are used here, never adapters.
 /// </summary>
@@ -14,9 +14,10 @@ public sealed class SeekerWorkspace(
     IOnboardingStore store,
     ProfessionalSearch search,
     IProfessionalProfileRepository profiles,
-    IInquiryRepository inquiries,
+    IChatRepository chats,
     IReviewRepository reviews,
     IContactLauncher phone,
+    IIdentityProvider identity,
     AppText text)
 {
     /// <summary>The Seeker on this phone. Seekers have no account yet; the auth gate will replace this with their uid.</summary>
@@ -33,8 +34,11 @@ public sealed class SeekerWorkspace(
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
     public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
 
-    /// <summary>One thread per pro the Seeker contacted, most recent first.</summary>
+    /// <summary>One chat per pro the Seeker contacted, most recent message first.</summary>
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
+
+    /// <summary>Chats where the pro wrote last and the Seeker hasn't opened it since: the Inbox badge.</summary>
+    public int UnreadCount => Threads.Count(thread => thread.Chat.IsUnreadFor(ChatSide.Seeker));
 
     /// <summary>Reviews this Seeker wrote, newest first.</summary>
     public IReadOnlyList<Review> MyReviews { get; private set; } = [];
@@ -139,7 +143,18 @@ public sealed class SeekerWorkspace(
         return text.Format(template, Label(job), Label(town));
     }
 
-    /// <summary>Opens the dialer and logs the call in the Inbox. False if the dialer couldn't open.</summary>
+    public static string ChatIdWith(string professionalId) => Chat.IdFor(professionalId, LocalSeekerId);
+
+    /// <summary>The chat with a pro, oldest message first (empty before the first message).</summary>
+    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string professionalId) => chats.GetMessagesAsync(ChatIdWith(professionalId));
+
+    /// <summary>Calls <paramref name="changed"/> when the chat with the pro gets a message, until disposed.</summary>
+    public IDisposable WatchChat(string professionalId, Action changed) => chats.Watch(ChatIdWith(professionalId), changed);
+
+    /// <summary>Sends a message to the pro; the first one starts the chat, with the job from the Seeker's answers.</summary>
+    public Task SendAsync(ProfessionalListing pro, string message) => PostAsync(pro, ChatMessageKind.Text, message.Trim());
+
+    /// <summary>Opens the dialer and logs the call in the chat. False if the dialer couldn't open.</summary>
     public async Task<bool> CallAsync(ProfessionalListing pro)
     {
         if (!await phone.CallAsync(pro.MobileNumber))
@@ -147,20 +162,18 @@ public sealed class SeekerWorkspace(
             return false;
         }
 
-        await RecordAsync(pro, InquiryChannel.Call, null);
+        await PostAsync(pro, ChatMessageKind.Call, null);
         return true;
     }
 
-    /// <summary>Opens the SMS app with the message and logs it in the Inbox. False if it couldn't open.</summary>
-    public async Task<bool> TextAsync(ProfessionalListing pro, string message)
+    /// <summary>The Seeker opened the chat: the pro's messages are read.</summary>
+    public async Task MarkReadAsync(string professionalId)
     {
-        if (!await phone.TextAsync(pro.MobileNumber, message))
+        if (ThreadWith(professionalId) is { } thread && thread.Chat.IsUnreadFor(ChatSide.Seeker))
         {
-            return false;
+            await chats.MarkReadAsync(thread.Chat.Id, ChatSide.Seeker);
+            await RefreshActivityAsync();
         }
-
-        await RecordAsync(pro, InquiryChannel.Text, message);
-        return true;
     }
 
     /// <summary>
@@ -182,7 +195,7 @@ public sealed class SeekerWorkspace(
             name,
             rating,
             string.IsNullOrWhiteSpace(comment) ? null : comment.Trim(),
-            thread.Contacts.LastOrDefault(c => c.ServiceId is not null)?.ServiceId,
+            thread.Chat.ServiceId,
             DateTimeOffset.Now));
 
         Answers.ReviewerName = name;
@@ -210,15 +223,16 @@ public sealed class SeekerWorkspace(
     public async Task RefreshActivityAsync()
     {
         var threads = new List<InboxThread>();
-        foreach (var contacts in (await inquiries.GetForSeekerAsync(LocalSeekerId)).GroupBy(i => i.ProfessionalId))
+        foreach (var chat in await chats.GetInboxAsync(LocalSeekerId, ChatSide.Seeker))
         {
-            if (await profiles.GetByIdAsync(contacts.Key) is { } pro)
+            // A pro who took their listing down drops out of the Inbox.
+            if (await profiles.GetByIdAsync(chat.ProfessionalId) is { } pro)
             {
-                threads.Add(new InboxThread(pro, contacts.ToList()));
+                threads.Add(new InboxThread(pro, chat));
             }
         }
 
-        Threads = threads.OrderByDescending(thread => thread.Latest.At).ToList();
+        Threads = threads;
         MyReviews = await reviews.GetBySeekerAsync(LocalSeekerId);
         Changed?.Invoke();
     }
@@ -231,23 +245,22 @@ public sealed class SeekerWorkspace(
             return false;
         }
 
+        // Reviews show "Maricel D.", from the account's name, until they change it on the Me page.
+        Answers.ReviewerName ??= PersonName.Short((await identity.GetCurrentUserAsync())?.DisplayName);
+
         await RefreshActivityAsync();
         return true;
     }
 
-    private async Task RecordAsync(ProfessionalListing pro, InquiryChannel channel, string? message)
+    private async Task PostAsync(ProfessionalListing pro, ChatMessageKind kind, string? message)
     {
-        await inquiries.RecordAsync(new Inquiry(
-            Guid.NewGuid().ToString("N"),
-            pro.Id,
-            LocalSeekerId,
-            channel,
-            DateTimeOffset.Now,
-            message,
-            JobFor(pro),
-            Answers.CityId,
-            Answers.UrgencyId,
-            Answers.BudgetId));
+        var chatId = ChatIdWith(pro.Id);
+        var sent = new ChatMessage(Guid.NewGuid().ToString("N"), chatId, LocalSeekerId, kind, message, DateTimeOffset.Now);
+
+        // Only used when this starts the chat: the job comes from the Seeker's answers.
+        var chat = new Chat(chatId, pro.Id, LocalSeekerId, pro.DisplayName, Answers.ReviewerName ?? string.Empty,
+            JobFor(pro), Answers.CityId, Answers.UrgencyId, Answers.BudgetId, sent, sent.At, null, sent.At);
+        await chats.SendAsync(chat, sent);
         await RefreshActivityAsync();
     }
 

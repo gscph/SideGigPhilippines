@@ -150,7 +150,7 @@ public static class ReferenceData
         new("cavite", new("Cavite", "Cavite"), "🌊"),
     ];
 
-    // Town IDs are stored in saved answers, listings and inquiries: never rename them, only
+    // Town IDs are stored in saved answers, listings and chats: never rename them, only
     // their labels. Within an area, towns are A–Z. Accents stay in labels (Las Piñas), not in IDs.
     public static readonly IReadOnlyDictionary<string, IReadOnlyList<CatalogOption>> CitiesByArea =
         new Dictionary<string, IReadOnlyList<CatalogOption>>

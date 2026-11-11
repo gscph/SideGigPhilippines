@@ -4,16 +4,17 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Services;
 
 /// <summary>
-/// SideGigPh's <see cref="IAppAccount"/>: the person on this phone, whichever side they're on: their app language and Start over,
-/// both on the Me page of each side. Until auth, "the account" is what's saved on this phone;
-/// the auth gate will turn Start over into signing out and deleting the account.
+/// SideGigPh's <see cref="IAppAccount"/>: the person on this phone, whichever side they're on: their app language,
+/// their saved profile (<see cref="IUserRepository"/>) and Start over, on the Me page of each side.
 /// Only ports are used here, never adapters.
 /// </summary>
 public sealed class LocalAccount(
     IOnboardingStore store,
+    IIdentityProvider identity,
+    IUserRepository users,
     IPhotoStore photos,
     IProfessionalProfileRepository profiles,
-    IInquiryRepository inquiries,
+    IChatRepository chats,
     IReviewRepository reviews,
     ProWorkspace pro,
     SeekerWorkspace seeker,
@@ -30,12 +31,40 @@ public sealed class LocalAccount(
         var state = await store.LoadAsync();
         state.Language = language;
         await store.SaveAsync(state);
+        await SaveProfileAsync();
         Changed?.Invoke();
     }
 
     /// <summary>
-    /// Deletes everything this person made on the phone (answers, listing, photos, messages,
-    /// reviews) so <c>/</c> starts the onboarding again from the language screen.
+    /// Saves the signed-in person's profile from their account (name, number) and their answers
+    /// (language, side, earnings goal). Called when one of those changes. Does nothing when
+    /// nobody is signed in (no sign-in provider registered).
+    /// </summary>
+    public async Task SaveProfileAsync()
+    {
+        if (await identity.GetCurrentUserAsync() is not { } user)
+        {
+            return;
+        }
+
+        var state = await store.LoadAsync();
+        var now = DateTimeOffset.Now;
+        var saved = await users.GetAsync(user.Uid);
+        await users.SaveAsync(new UserProfile(
+            user.Uid,
+            user.DisplayName,
+            user.PhoneNumber,
+            user.Email,
+            state.Language ?? text.Language,
+            state.Role,
+            state.Professional.IncomeGoalId,
+            saved?.CreatedAt ?? now,
+            now));
+    }
+
+    /// <summary>
+    /// Deletes everything this person made (answers, profile, listing, photos, chats, reviews)
+    /// so <c>/</c> starts the onboarding again from the language screen. They stay signed in.
     /// </summary>
     public async Task StartOverAsync()
     {
@@ -49,8 +78,13 @@ public sealed class LocalAccount(
         await profiles.RemoveAsync(ListingMapper.OwnListingId);
         foreach (var personId in new[] { ListingMapper.OwnListingId, SeekerWorkspace.LocalSeekerId })
         {
-            await inquiries.DeleteForPersonAsync(personId);
+            await chats.DeleteForPersonAsync(personId);
             await reviews.DeleteForPersonAsync(personId);
+        }
+
+        if (await identity.GetCurrentUserAsync() is { } user)
+        {
+            await users.DeleteAsync(user.Uid);
         }
 
         await store.ClearAsync();

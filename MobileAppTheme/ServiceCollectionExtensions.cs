@@ -31,6 +31,7 @@ public static class ServiceCollectionExtensions
 
         services.TryAddSingleton<IIdentityProvider, NoIdentityProvider>();
         services.TryAddSingleton<IAuthLanding, HomeAuthLanding>();
+        services.TryAddSingleton<SignInGate>();
         services.TryAddSingleton<IPhoneNumberFormat, E164PhoneNumberFormat>();
         return services;
     }

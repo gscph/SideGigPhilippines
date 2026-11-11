@@ -7,7 +7,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// Pro home, Slack style: the setup checklist until the listing is published, then
-/// collapsible sections for recent inquiries, latest reviews and the earnings goal.
+/// collapsible sections for recent messages, latest reviews and the earnings goal.
 /// The + button adds work photos.
 /// </summary>
 public partial class ProfessionalHome : ComponentBase

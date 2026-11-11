@@ -23,7 +23,7 @@
             <MudStack Spacing="0">
                 @foreach (var thread in Workspace.Threads.Take(3))
                 {
-                    <ThreadRow Thread="thread" @key="thread.Pro.Id" />
+                    <SeekerChatRow Thread="thread" @key="thread.Chat.Id" />
                 }
             </MudStack>
         </HomeSection>

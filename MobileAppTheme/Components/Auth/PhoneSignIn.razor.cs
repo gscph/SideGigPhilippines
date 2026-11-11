@@ -7,6 +7,7 @@ namespace MobileAppTheme.Components.Auth;
 /// <summary>
 /// Phone sign-in in two steps: the number (read with the app's <see cref="IPhoneNumberFormat"/>),
 /// then the SMS code. Reports the <see cref="AuthResult"/> to the parent, failures included.
+/// With <see cref="LinkToCurrentUser"/> the same two steps add the number to the signed-in account.
 /// </summary>
 public partial class PhoneSignIn : ComponentBase
 {
@@ -21,6 +22,9 @@ public partial class PhoneSignIn : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
 
     [Parameter] public EventCallback<AuthResult> OnAuthenticated { get; set; }
+
+    /// <summary>Add the verified number to the signed-in account instead of signing in with it.</summary>
+    [Parameter] public bool LinkToCurrentUser { get; set; }
 
     private Step _step = Step.EnterPhone;
     private string _phoneNumber = string.Empty;
@@ -64,7 +68,10 @@ public partial class PhoneSignIn : ComponentBase
         _busy = true;
         try
         {
-            var result = await Identity.VerifyPhoneOtpAsync(_verificationId, _code.Trim());
+            var code = _code.Trim();
+            var result = LinkToCurrentUser
+                ? await Identity.LinkPhoneAsync(_verificationId, code)
+                : await Identity.VerifyPhoneOtpAsync(_verificationId, code);
             await OnAuthenticated.InvokeAsync(result);
         }
         finally

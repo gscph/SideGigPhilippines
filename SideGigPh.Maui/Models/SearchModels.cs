@@ -35,8 +35,5 @@ public sealed record SearchResult(IReadOnlyList<SearchHit> InTown, IReadOnlyList
     public int Count => InTown.Count + OtherTowns.Count;
 }
 
-/// <summary>Everything a Seeker sent one pro, newest last: one row in their Inbox.</summary>
-public sealed record InboxThread(ProfessionalListing Pro, IReadOnlyList<Inquiry> Contacts)
-{
-    public Inquiry Latest => Contacts[^1];
-}
+/// <summary>One row in the Seeker's Inbox: their chat with a pro, and the pro's listing (photo, trade).</summary>
+public sealed record InboxThread(ProfessionalListing Pro, Chat Chat);

@@ -12,7 +12,7 @@ public interface IProfessionalProfileRepository
     /// <summary>Whether the authenticated user already has a Professional profile.</summary>
     Task<bool> HasProfileAsync(string uid);
 
-    /// <summary>Professionals offering a category, limited to a town when one is given.</summary>
+    /// <summary>Professionals offering a category, limited to an area when one is given.</summary>
     Task<IReadOnlyList<ProfessionalListing>> SearchAsync(ProfessionalSearchQuery query);
 
     /// <summary>One published listing, or null if it's gone.</summary>

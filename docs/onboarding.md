@@ -1,7 +1,6 @@
-# Onboarding: Interview First, Auth After
+# Onboarding: Language, Sign In, then the Interview
 
-> **Status:** Phase 1 is built (see §9). The language question, the role fork, both interviews, the seeker results (on sample data) and the pro preview all run with no account.
-> **Auth is not built into the flow yet.** It will sit *after the interview and before the first benefit*. The owner is designing that workflow (see §2.4).
+> **Status:** Phase 1 is built (see §9). **Sign-in is now required before the app is used** (owner decision, 2026-11-11; §2.4): language → sign in → role → interview. The interview answers are still saved on the phone; listings, chats and reviews move to Firestore next ([`data-model.md`](data-model.md)).
 
 **Supported areas and towns** (`ReferenceData.Areas` / `CitiesByArea`): **Metro Manila** (all 16 cities + Pateros), **Rizal** (Angono · Antipolo · Binangonan · Cainta · Rodriguez · San Mateo · Taytay), **Laguna** (Biñan · Cabuyao · Calamba · Los Baños · San Pedro · Santa Rosa/Nuvali) and **Cavite** (Bacoor · Carmona · Dasmariñas · General Trias · Imus · Kawit · Silang · Tagaytay). User-facing text calls the provider a **Skilled Worker**.
 
@@ -9,13 +8,13 @@
 
 | # | Decision | Why |
 |---|----------|-----|
-| 1 | **No login at launch.** `/` is a launch router. | We're an unknown brand asking for trust. Value has to come before friction (§3). |
+| 1 | **Sign in right after the language question.** `/` is a launch router; it sends anyone not signed in to `/verify`. | Owner decision: every Firestore read and write needs a signed-in user, and a verified phone is how we keep listings honest (anti-fraud rule 1). The research below argues for later sign-in; it was weighed and overruled. |
 | 2 | **First question: English or Taglish.** The screen itself shows both languages. | Many tradesmen aren't confident English readers. Language is the one question we can't phrase in "their" words yet, so it comes first. |
 | 3 | **Second question: the role fork.** *"May ipapagawa ako"* (Seeker) or *"Gusto kong kumita sa skills ko"* (Professional). | A two-sided app has to know who it's talking to before anything can be personal. Fiverr asks this first too (§3.4). |
 | 4 | **Onboarding is an interview.** One question per screen, big icon tiles, mostly one tap. | Short, easy questions build momentum, but only if the answers visibly come back (§3.2). |
 | 5 | **Money is the hook on both sides.** The Seeker gives a budget for the job. The Professional gives a rate per job and a monthly earnings goal. | It's the real pain on both sides: households fear overpaying, pros want income. Both answers sit on **one shared price scale**, so they meet in the middle as "Pasok sa budget mo" (§2.3). |
 | 6 | **Answers are saved on the phone, with no account.** They go through `IOnboardingStore`, backed by one JSON file in app-private storage. | It's free, works offline and survives restarts. It can move to the server later behind the same port (§6). |
-| 7 | **Auth comes after onboarding, before the first benefit.** That means before a Seeker sees results, and before a Professional goes live. **The workflow is still being decided and not implemented.** | This is the owner's decision. The interview builds investment first, so the ask lands when the user has the most reason to say yes. |
+| 7 | **Phone number + SMS code is the main sign-in; Google is below it.** A phone sign-in verifies the number and asks the name once. A Google sign-in brings the name, but must add a verified number before searching (Seeker) or publishing (Skilled Worker). | The listing number must be a number the worker proved they own, and nobody types their name or number twice. |
 
 ## 2. The flows
 
@@ -26,7 +25,10 @@ flowchart TD
     L -->|seeker, finished| R
     L -->|pro, finished| PH
 
-    LANG --> F{"Ano'ng hanap mo?"}
+    LANG --> AUTH[Sign in: phone + code, or Google]
+    AUTH -->|phone, first time| NAME[What is your name?]
+    AUTH -->|Google| F
+    NAME --> F{"Ano'ng hanap mo?"}
     F -->|May ipapagawa ako| S1
     F -->|Gusto kong kumita sa skills ko| P1
 
@@ -46,15 +48,14 @@ flowchart TD
       P3 --> P4[How long have you done this?]
       P4 --> P5[How much do you charge per job?]
       P5 --> P6[How much do you want to earn a month? + payoff]
-      P6 --> P7[What should customers call you?]
-      P7 --> P8[What number can customers call?]
-      P8 --> PV[Preview: how customers see you]
+      P6 --> PV[Preview: how customers see you]
     end
 
-    LI -.->|future auth gate| R[Results, budget fits first]
-    PV -.->|future auth gate| PH[Pro home]
+    LI -.->|Google with no number: add phone| R[Results, budget fits first]
+    PV --> PH[Pro home]
+    PH -.->|Publish; Google with no number: add phone| LIVE[Listing live]
 ```
-Dotted arrows show where auth will go. Today they pass straight through.
+Dotted arrows: a Google account with no verified number adds one (`/verify/phone`, SMS code) before it continues.
 
 ### 2.0 Language (screen 1)
 The title and subtitle are shown in both languages: **"Choose your language / Pumili ng wika"**. There are two tiles: **English** ("I'll read in English") and **Taglish** ("Tagalog na may halong English").
@@ -95,8 +96,6 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
 | P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |
 | P6 | **How much do you want to earn each month?** / Magkano ang gusto mong kitain kada buwan? | ₱5k / ₱10k / ₱20k / ₱30k+ | "Just for you. This won't show on your listing." | 🎯 **"That's about 4 jobs a week at around ₱750 each. Let's get you there!"** |
-| P7 | What should customers call you? | Text | "Your name or your shop's name." | Card name and initials |
-| P8 | What number can customers call? | PH mobile number (normalized to +63) | "Customers will call or text you here." | Contact buttons |
 | Preview | This is how customers will see you | Their card inside a mock search list, with the goal payoff | "Your listing, built from your answers." | "Ayos na 'to!" |
 
 **Pro home** (Phase 1) shows the saved card, the goal with its payoff, and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
@@ -115,11 +114,12 @@ Both sides use **one price scale:** below ₱500 · ₱500–1,000 · ₱1,000�
 
 **Guardrail: trust is the product.** No fake counters, no fake scarcity, no shaming copy. Every number shown is the user's own, or real data. The seeker results run on **sample data** until Firestore is in.
 
-### 2.4 Auth (designed later, not built)
-- **Where:** after the interview, before the first benefit. For the Seeker, that's between the loader and the results. For the Professional, it's between the preview and going live.
-- **Still to decide:** the method (phone OTP / Google), the framing (a "Verified" badge vs. "save your results"), whether Seekers can skip it, and where anti-fraud rule #1 (1 Phone = 1 GCash = 1 Registration) is enforced.
-- **What exists today:** `AuthPage` has moved from `/` to `/verify`. `PhoneSignIn` and `GoogleSignInButton` are unchanged and ready to reuse. Nothing in the flow navigates to `/verify` yet.
-- **An option worth considering:** an invisible anonymous Firebase session at launch, upgraded in place at the gate so the UID stays the same (§6.3).
+### 2.4 Sign-in (built)
+- **Where:** right after the language question, before the role fork. `LaunchRouter` asks the skeleton `SignInGate`, which returns the missing step: `/verify` (sign in), `/verify/name` (name, once, after a phone sign-in), or `/verify/phone` (add a verified number, for pages that need one).
+- **Methods:** phone number + SMS code first (it verifies the number), "Continue with Google" below.
+- **Name and number are never asked in the interview.** The listing takes both from the account (`ListingMapper.TakeAccount`): the name from Google or the name screen, the number the account verified.
+- **Pages that need a verified number:** Search results (`/seeker/search`) and Publish (`/professional/publish`). A Google account adds one there and comes back; the number is linked to the same account (`IIdentityProvider.LinkPhoneAsync`). If another account already has it, they are told to sign in with that number instead.
+- **Anti-fraud rule 1:** Firebase Auth allows one account per number, and the Firestore rules require the listing number to be the account's verified number.
 
 ## 3. What each reference contributes
 
@@ -150,7 +150,7 @@ None of the 52 studies is a two-sided services app. We took the principles from 
 | **Labor Illusion** (Headspace) | Visible effort raises perceived value, and spinners waste the moment. | The "Finding pros…" checklist loader. |
 | **Tell → Show, Ask → Offer** (Too Good To Go) | Show the thing, and attach a benefit to every ask. | The pro preview shows the card inside a search list. Every ask comes with a benefit line. |
 | **Endowment / IKEA Effect** (Headspace, Blinkist) | People value what feels like theirs. | The pro builds their own card before any auth ask. |
-| **Investment right after a reward** (Duolingo) | "Right after a reward is the best moment to ask your user to invest." | The future auth gate sits right after the preview or loader peak. |
+| **Investment right after a reward** (Duolingo) | "Right after a reward is the best moment to ask your user to invest." | Overruled for sign-in (it comes first now); still applies to the add-a-number step, which sits right after the loader peak and before Publish. |
 | **Zeigarnik Effect** (Duolingo) | Unfinished tasks are remembered. | The exact step resumes after the app is killed. |
 | **Hick's Law** (Duolingo) | More choices make decisions slower. | At most about 6 tiles per question. |
 | **Exit points / no User Shaming** (Duolingo) | Let people leave cleanly. | "Di ko pa alam", "Depende sa trabaho", and back on every step. |
@@ -201,7 +201,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start` | `Onboarding/LanguagePage` | English / Taglish. |
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S5, plus the loader at step 6. |
-| `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P8, plus the preview at step 9. |
+| `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
 | `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |
@@ -210,7 +210,9 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/professional` | `Professional/ProfessionalHome` | Pro home in the shared `AppShell` (via `ProLayout`): setup checklist, recent inquiries, latest reviews, the goal. |
 | `/professional/inquiries` · `/reviews` · `/me` · `/me/photos` | `Professional/*Page` | The other tabs. Me (`ProMePage`, also the avatar) has the photo, listing, work photos, language and Start over. |
 | `/professional/publish` | `Professional/PublishPage` | Card + pledge, then publish (one number, one listing). |
-| `/verify` | `Auth/AuthPage` | Moved off `/`. It is the future auth gate and is not linked yet. |
+| `/verify` | `Auth/AuthPage` (skeleton) | Sign in: phone + SMS code, Google below. Shown by `LaunchRouter` to anyone not signed in. |
+| `/verify/name` | `Auth/NamePage` (skeleton) | First + last name, once, after a phone sign-in. |
+| `/verify/phone` | `Auth/AddPhonePage` (skeleton) | Adds a verified number to a Google account, before Search results or Publish. |
 
 ### Components
 - **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), `WorkingLoader` (labor illusion), `ProCard`, `GoalPayoff`, `MePage` (+ `LanguagePicker`, `StartOverCard`).
@@ -255,7 +257,7 @@ public interface IOnboardingStore
 }
 ```
 
-### 6.3 Anonymous session (an input to the auth brainstorm)
+### 6.3 Anonymous session (considered, not used: everyone signs in first)
 These are verified in the packages already referenced:
 - `Plugin.Firebase.Auth` 3.1.1: `SignInAnonymouslyAsync()`, `IFirebaseUser.IsAnonymous`, `LinkWithPhoneNumberVerificationCodeAsync(code)`.
 - `Plugin.Firebase.Auth.Google` 3.1.2: `LinkWithGoogleAsync()`.
@@ -272,9 +274,8 @@ A silent anonymous session at launch gives a UID for Firestore rules and App Che
 - **Pro activation:** preview confirmed (later, listing live). Also drafts left unfinished, and the distribution of rates and goals per trade and town. That last one is real data for the seeker's price hints.
 
 ## 8. Open questions
-1. **The auth workflow** (§2.4). The owner is brainstorming it.
+1. **Edit name:** a Skilled Worker's listing shows the account name. A shop name ("Mang Jun Aircon Services") needs an edit-name option on the Me page.
 2. **Monetization:** subscription, boost or lead fees? This decides when GCash is collected.
-3. **Can Seekers see pro numbers before auth?** Today they can, because auth isn't built.
 4. **Barangay-level location:** needs an authoritative barangay list (PSGC) for the 4 towns.
 5. **Non-trade pros** (web dev, video editing): needs an "Other" path with free text.
 6. **Per-service town coverage:** today a pro's towns apply to all their services. If pros need "I do installs only in Taytay", coverage has to move to each service (and later to barangays).
@@ -283,5 +284,5 @@ A silent anonymous session at launch gives a UID for Firestore rules and App Che
 
 ## 9. Build order
 1. ✅ **Phase 1 (local-first interview):** language, role, both interviews, the money hooks, the store, sample-data results with Call/Text, the pro preview and home. `AuthPage` moved to `/verify`.
-2. **Phase 2:** the auth gate (after the brainstorm), Firestore listings and search, go-live with the server-side anti-fraud checks, work photos.
+2. **Phase 2:** ✅ sign-in first (phone + Google, name, verified-number gate); then in-app chat, Firestore listings and search, go-live with the server-side anti-fraud checks, work photos.
 3. **Phase 3 (Steadfast):** Pro home checklist and Level 2, progress toward the earnings goal, share links (Facebook/Messenger), review prompts, behavior-triggered push.

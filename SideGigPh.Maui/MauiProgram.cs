@@ -37,7 +37,8 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
             builder.Services.AddSingleton<IProfessionalProfileRepository, StubProfessionalProfileRepository>();
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
-            builder.Services.AddSingleton<IInquiryRepository, StubInquiryRepository>();
+            builder.Services.AddSingleton<IUserRepository, StubUserRepository>();
+            builder.Services.AddSingleton<IChatRepository, StubChatRepository>();
             builder.Services.AddSingleton<IReviewRepository, StubReviewRepository>();
             builder.Services.AddSingleton<ProWorkspace>();
             builder.Services.AddSingleton<ProfessionalSearch>();
