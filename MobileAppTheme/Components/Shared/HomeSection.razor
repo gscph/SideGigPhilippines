@@ -1,0 +1,19 @@
+<MudStack HtmlTag="section" Spacing="2" Class="border-t border-solid mud-border-lines-default pt-3">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+        @if (Href is not null)
+        {
+            <MudLink Href="@Href" Underline="Underline.None" Color="Color.Dark" EndIcon="@Icons.Material.Filled.ChevronRight"
+                     Typo="Typo.subtitle1">@Title</MudLink>
+        }
+        else
+        {
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@Title</MudText>
+        }
+        <MudIconButton Icon="@(_expanded ? Icons.Material.Filled.ExpandLess : Icons.Material.Filled.ExpandMore)"
+                       Size="Size.Small" aria-label="@T.Get(CommonCopy.ShowSection)" aria-expanded="@_expanded.ToString().ToLowerInvariant()"
+                       OnClick="Toggle" />
+    </MudStack>
+    <MudCollapse Expanded="_expanded">
+        @ChildContent
+    </MudCollapse>
+</MudStack>

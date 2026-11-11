@@ -1,0 +1,141 @@
+/* ==========================================================================
+   MobileAppTheme: the skeleton's global CSS, served at
+   _content/MobileAppTheme/mobile-app-theme.css. Link it in the app's index.html after
+   MudBlazor.min.css and before the app's own app.css.
+   Colors, type and shape come from the MudTheme (MobileTheme.Create), emitted as
+   --mud-palette-* variables. This file holds only what MudBlazor can't do, and only what
+   any app built on the skeleton needs. App-specific helpers go in the app's app.css.
+   Never hard-code hex here.
+   ========================================================================== */
+
+/* FocusOnNavigate focuses each page's h1; don't draw a ring around the title. */
+h1:focus {
+    outline: none;
+}
+
+/* ==========================================================================
+   MudBlazor gaps: small helpers for things MudBlazor has no parameter or
+   utility class for. Keep this list short.
+   ========================================================================== */
+
+/* Full-screen pages (splash, language, loader, interview step). */
+.full-screen {
+    min-height: 100vh;
+}
+
+/* InterviewStep's Next button stays on screen above the keyboard / long lists. */
+.sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+}
+
+/* ChoiceTiles: a big, left-aligned, two-line answer button. */
+.choice-tile {
+    min-height: 4rem;
+    text-align: start;
+}
+
+/* BrandMark logo: MudIcon only has three fixed sizes. */
+.brand-logo {
+    font-size: 4rem !important;
+}
+
+/* One line of text, cut with "…" (names and message previews in lists). */
+.one-line {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
+
+/* At most two lines of text, cut with "…". */
+.two-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.2 !important;
+}
+
+/* A search box as a dense pill (MudTextField has no rounded-pill option). */
+.app-pill-input .mud-input-outlined-border {
+    border-radius: 999px;
+}
+
+/* ==========================================================================
+   App shell (Components/Layout/AppShell)
+   ========================================================================== */
+
+/* Brand bar: sticks below the iOS status bar. Used with the `sticky` utility. */
+.app-top-bar {
+    top: env(safe-area-inset-top, 0px);
+}
+
+/* Icon tabs fixed to the bottom edge, above the home indicator. */
+.app-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--mud-zindex-appbar);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Page content clears the bottom tabs and the + button. */
+.app-content {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* A page's main action stays pinned just above the bottom tabs.
+   Put it last in the page so it rests there when scrolled to the end. */
+.app-sticky-action {
+    position: sticky;
+    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    z-index: 1;
+}
+
+/* A + button floats above the bottom tabs, bottom right. */
+.app-fab {
+    position: fixed;
+    right: 16px;
+    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    z-index: var(--mud-zindex-appbar);
+}
+
+/* ==========================================================================
+   Blazor error UI (the #blazor-error-ui block in index.html)
+   ========================================================================== */
+#blazor-error-ui {
+    color-scheme: light only;
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }
+
+/* ==========================================================================
+   MAUI status bar safe area (the .status-bar-safe-area block in index.html)
+   ========================================================================== */
+.status-bar-safe-area {
+    display: flex;
+    position: sticky;
+    top: 0;
+    height: env(safe-area-inset-top, 0px);
+    background-color: var(--maui-status-bar-safe-area-background, var(--mud-palette-background));
+    width: 100%;
+    z-index: 1;
+}

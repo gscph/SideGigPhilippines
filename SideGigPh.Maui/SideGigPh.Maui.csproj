@@ -57,7 +57,12 @@
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
-        <PackageReference Include="MudBlazor" Version="9.12.0" />
+    </ItemGroup>
+
+    <!-- The reusable app skeleton: shell, theme builder, generic components, localization and
+         device adapters. MudBlazor comes from here, so its version is set in one place. -->
+    <ItemGroup>
+        <ProjectReference Include="..\MobileAppTheme\MobileAppTheme.csproj" />
     </ItemGroup>
 
     <!-- Firebase (native SDK) — Android/iOS only. Use the modular Auth packages, NOT the

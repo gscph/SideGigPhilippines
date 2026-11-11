@@ -7,7 +7,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// The Search tab. The Seeker types what they need in their own words or taps a trade, narrows
+/// Search results (under the Home tab, opened from the home search box or a trade icon). The Seeker types what they need in their own words or taps a trade, narrows
 /// to a job, and sets town and budget. Results come ranked by <c>SearchRanker</c>: pros who go
 /// to their town first, then other towns, each best-fit first. Tapping a pro opens their profile.
 /// Every change is saved, so the search is still here after Back or a restart.

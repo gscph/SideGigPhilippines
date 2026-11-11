@@ -4,7 +4,7 @@
 #   mud-api.sh enum   <Enum>        enum values (only enums that have XML docs)
 #   mud-api.sh css    <class>       whether a utility CSS class exists, and its rule
 #   mud-api.sh icon   <Name>        whether an icon constant name exists (any icon set)
-# Env: MUD_VERSION overrides the version read from SideGigPh.Maui.csproj.
+# Env: MUD_VERSION overrides the version read from MobileAppTheme.csproj (the skeleton owns MudBlazor).
 set -euo pipefail
 
 mode="${1:-}"; name="${2:-}"
@@ -14,7 +14,7 @@ fi
 
 pkgs="${NUGET_PACKAGES:-$HOME/.nuget/packages}/mudblazor"
 root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
-csproj="$root/SideGigPh.Maui/SideGigPh.Maui.csproj"
+csproj="$root/MobileAppTheme/MobileAppTheme.csproj"
 ver="${MUD_VERSION:-}"
 if [[ -z "$ver" && -f "$csproj" ]]; then
   ver="$(grep -o 'Include="MudBlazor" Version="[^"]*"' "$csproj" | sed 's/.*Version="//; s/"$//' || true)"

@@ -7,8 +7,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
-/// The Seeker's pages inside the shared <see cref="AppShell"/>: tabs Home, Search, Inbox,
-/// Reviews (badge = pros they contacted but haven't rated) and Me (also the avatar).
+/// The Seeker's pages inside the shared <see cref="AppShell"/>: tabs Home (search results sit
+/// under it), Inbox and Me (also the avatar; their reviews sit under it, and the badge counts
+/// pros they contacted but haven't rated).
 /// Loads <see cref="SeekerWorkspace"/> first and sends anyone who hasn't finished the Seeker
 /// interview back to <c>/</c>.
 /// </summary>
@@ -23,11 +24,9 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
 
     private IReadOnlyList<AppTab> Tabs =>
     [
-        new(SeekerRoutes.Home, Icons.Material.Filled.Home, T.Get(Copy.NavHome)),
-        new(SeekerRoutes.Search, Icons.Material.Filled.Search, T.Get(Copy.NavSearch)),
+        new(SeekerRoutes.Home, Icons.Material.Filled.Home, T.Get(Copy.NavHome), MatchPrefix: true),
         new(SeekerRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), MatchPrefix: true),
-        new(SeekerRoutes.Reviews, Icons.Material.Filled.StarOutline, T.Get(Copy.NavReviews), Workspace.ToRate.Count),
-        new(SeekerRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe)),
+        new(SeekerRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe), Workspace.ToRate.Count, MatchPrefix: true),
     ];
 
     protected override async Task OnInitializedAsync()

@@ -198,11 +198,11 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S5, plus the loader at step 6. |
 | `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P8, plus the preview at step 9. |
-| `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Search, Inbox, Reviews, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
-| `/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
+| `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
+| `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |
 | `/inbox` · `/inbox/{id}` | `Inbox/InboxPage` · `Inbox/ThreadPage` | Contacted pros; the thread has a ready message, Send text and Call. |
-| `/reviews` · `/reviews/rate/{id}` · `/me` | `Seeker/*Page` | Rate contacted pros, the Seeker's reviews; `/me` (`SeekerMePage`) has their name, language and Start over. |
+| `/me` · `/me/reviews` · `/me/reviews/rate/{id}` | `Seeker/*Page` | The Me tab (`SeekerMePage`: name, Your reviews link, language, Start over), the Seeker's reviews and pros to rate, and writing a review. |
 | `/professional` | `Professional/ProfessionalHome` | Pro home in the shared `AppShell` (via `ProLayout`): setup checklist, recent inquiries, latest reviews, the goal. |
 | `/professional/inquiries` · `/reviews` · `/me` · `/me/photos` | `Professional/*Page` | The other tabs. Me (`ProMePage`, also the avatar) has the photo, listing, work photos, language and Start over. |
 | `/professional/publish` | `Professional/PublishPage` | Card + pledge, then publish (one number, one listing). |

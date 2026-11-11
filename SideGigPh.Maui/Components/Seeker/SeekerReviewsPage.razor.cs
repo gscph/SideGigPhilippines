@@ -5,7 +5,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
-/// The Seeker's Reviews tab: pros they contacted and can rate now, then the reviews they
+/// The Seeker's reviews, opened from their Me page: pros they contacted and can rate now, then the reviews they
 /// already wrote (tap one to change it). Only contacted pros can be rated.
 /// </summary>
 public partial class SeekerReviewsPage : ComponentBase

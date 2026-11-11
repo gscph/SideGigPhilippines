@@ -1,0 +1,8 @@
+<MudStack AlignItems="AlignItems.Center" Spacing="1">
+    <MudIcon Icon="@Brand.LogoIcon" Color="Color.Primary" Class="brand-logo" aria-hidden="true" />
+    <MudText Typo="Typo.h4" Color="Color.Primary" Align="Align.Center">@Brand.Name</MudText>
+    @if (!string.IsNullOrEmpty(Tagline))
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@Tagline</MudText>
+    }
+</MudStack>

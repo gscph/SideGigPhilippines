@@ -30,7 +30,7 @@ public sealed class SeekerWorkspace(
 
     public SeekerAnswers Answers => _state?.Seeker ?? new SeekerAnswers();
 
-    /// <summary>What the Search tab is showing: the interview answers, as changed on the Search tab since.</summary>
+    /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
     public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
 
     /// <summary>One thread per pro the Seeker contacted, most recent first.</summary>

@@ -1,0 +1,15 @@
+<MudAppBar Color="Color.Primary" Elevation="0" Fixed="false" Class="sticky app-top-bar">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="flex-1">
+        <MudAvatar Rounded="true" Color="Color.Surface" Size="Size.Medium" aria-hidden="true">
+            <MudIcon Icon="@Brand.LogoIcon" Color="Color.Primary" />
+        </MudAvatar>
+        <MudText Typo="Typo.h6" HtmlTag="span">@Brand.Name</MudText>
+    </MudStack>
+
+    <MudLink Href="@ProfileHref" Underline="Underline.None" aria-label="@T.Get(CommonCopy.NavProfile)">
+        <MudBadge Dot="true" Overlap="true" Bordered="true" Color="Color.Success" Origin="Origin.BottomRight"
+                  Visible="ShowStatusDot">
+            <PersonAvatar Name="@(Name ?? string.Empty)" PhotoUrl="@PhotoUrl" Class="mud-elevation-2" />
+        </MudBadge>
+    </MudLink>
+</MudAppBar>

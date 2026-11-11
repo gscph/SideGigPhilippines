@@ -1,14 +1,11 @@
 /* ==========================================================================
-   SideGigPh — global CSS
-   Colors, type and shape come from MudBlazor's theme (Components/Layout/AppTheme.cs),
-   emitted as --mud-palette-* variables. This file holds only what MudBlazor can't do.
+   SideGigPh — app CSS, loaded after the skeleton's
+   _content/MobileAppTheme/mobile-app-theme.css (shell, full-screen, sticky-footer,
+   one-line, app-fab… live there). Colors, type and shape come from MudBlazor's theme
+   (Components/Layout/AppTheme.cs), emitted as --mud-palette-* variables. This file holds
+   only SideGigPh-specific helpers MudBlazor can't do.
    Never hard-code hex here, except the pre-Blazor splash fallbacks below.
    ========================================================================== */
-
-/* FocusOnNavigate focuses each page's h1; don't draw a ring around the title. */
-h1:focus {
-    outline: none;
-}
 
 /* ==========================================================================
    Pre-Blazor splash (index.html only). The theme variables don't exist yet when
@@ -54,32 +51,9 @@ h1:focus {
 }
 
 /* ==========================================================================
-   MudBlazor gaps — small helpers for things MudBlazor has no parameter or
-   utility class for. Keep this list short.
+   MudBlazor gaps (SideGigPh only) — keep this list short. Generic helpers
+   belong in MobileAppTheme/wwwroot/mobile-app-theme.css.
    ========================================================================== */
-
-/* Full-screen pages (splash, language, loader, interview step). */
-.full-screen {
-    min-height: 100vh;
-}
-
-/* Interview step's Next button stays on screen above the keyboard / long lists. */
-.sticky-footer {
-    position: sticky;
-    bottom: 0;
-    z-index: 1;
-}
-
-/* ChoiceTiles: a big, left-aligned, two-line answer button. */
-.choice-tile {
-    min-height: 4rem;
-    text-align: start;
-}
-
-/* Brand logo: MudIcon only has three fixed sizes. */
-.brand-logo {
-    font-size: 4rem !important;
-}
 
 /* The pro's own card inside the mock search list. */
 .own-listing {
@@ -93,62 +67,11 @@ h1:focus {
     aspect-ratio: 1;
 }
 
-/* --- App shell (Components/Layout/AppShell), shared by Pro and Seeker --- */
-
-/* Brand bar: sticks below the iOS status bar. Used with the `sticky` utility. */
-.app-top-bar {
-    top: env(safe-area-inset-top, 0px);
-}
-
-/* Icon tabs fixed to the bottom edge, above the home indicator. */
-.app-bottom-nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: var(--mud-zindex-appbar);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Page content clears the bottom tabs and the + button. */
-.app-content {
-    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
-}
-
-/* A page's main action (Contact, the message box) stays pinned just above the bottom tabs.
-   Put it last in the page so it rests there when scrolled to the end. */
-.app-sticky-action {
-    position: sticky;
-    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
-    z-index: 1;
-}
-
-/* One line of text, cut with "…" (names and message previews in lists). */
-.one-line {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-width: 0;
-}
-
-/* The + button floats above the bottom tabs, bottom right. */
-.app-fab {
-    position: fixed;
-    right: 16px;
-    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
-    z-index: var(--mud-zindex-appbar);
-}
-
 /* Remove button over the corner of a work photo. */
 .photo-remove {
     position: absolute;
     top: 4px;
     right: 4px;
-}
-
-/* Search box as a dense pill (MudTextField has no rounded-pill option). */
-.app-pill-input .mud-input-outlined-border {
-    border-radius: 999px;
 }
 
 /* Seeker home trade icons, DoorDash/Grab style: two rows that scroll sideways. */
@@ -178,55 +101,9 @@ h1:focus {
     height: 3.5rem;
 }
 
-/* At most two lines of text, cut with "…" (category labels). */
-.two-lines {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    line-height: 1.2 !important;
-}
-
 /* The big photo on the profile page; MudAvatar's largest size is too small. */
 .profile-photo {
     width: 6rem !important;
     height: 6rem !important;
     font-size: 2rem !important;
-}
-
-/* ==========================================================================
-   Blazor error UI
-   ========================================================================== */
-#blazor-error-ui {
-    color-scheme: light only;
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    box-sizing: border-box;
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-}
-
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
-
-/* ==========================================================================
-   MAUI status bar safe area
-   ========================================================================== */
-.status-bar-safe-area {
-    display: flex;
-    position: sticky;
-    top: 0;
-    height: env(safe-area-inset-top, 0px);
-    background-color: var(--maui-status-bar-safe-area-background, var(--mud-palette-background, #ffffff));
-    width: 100%;
-    z-index: 1;
 }

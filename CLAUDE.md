@@ -12,7 +12,8 @@ A high-density open local service directory (Carousell/Craigslist style) connect
 
 - **Frontend:** .NET MAUI Blazor Hybrid — shared Razor Class Library for Android and iOS
 - **Target platforms:** Android + iOS only (Windows and Mac Catalyst are not supported)
-- **UI:** Mobile-first. Component library: **MudBlazor** (9.x). Providers (`MudThemeProvider`, `MudPopoverProvider`) sit in `Components/Layout/MainLayout.razor`; its CSS/JS load from `wwwroot/index.html`
+- **UI:** Mobile-first. Component library: **MudBlazor** (9.x, version set once in `MobileAppTheme.csproj`). Providers (`MudThemeProvider`, `MudPopoverProvider`) sit in the skeleton's `MainLayout`; MudBlazor's and the skeleton's CSS/JS load from the app's `wwwroot/index.html`
+- **App skeleton:** **`MobileAppTheme/`** is a reusable Razor class library (plain `net10.0` + `Microsoft.Maui.Essentials`) holding the shell, theme builder, generic components, localization and on-device adapters. `SideGigPh.Maui` references it; the skeleton never references the app, so the next MVP can start from it. See [`MobileAppTheme/README.md`](MobileAppTheme/README.md) and the `mobile-app-theme` skill.
 - **Auth (MVP):** Firebase Authentication — Phone/SMS OTP + Google login
 - **Database (MVP):** Cloud Firestore — provider listings, categories, geo coordinates
 - **Storage (MVP):** Firebase Storage — ID verification cards, work portfolio photos
@@ -40,24 +41,25 @@ All external infrastructure is decoupled behind C# interfaces (Dependency Invers
 
 **`IOnboardingStore`**: the onboarding answers, saved on the device with no account (`Local/FileOnboardingStore`). It writes one JSON file in `FileSystem.AppDataDirectory`, using a source-generated serializer and an atomic write. There is no SQLite yet; add it when local data needs querying. Don't use the WebView's `localStorage`.
 
-**`IContactLauncher`**: Call / Text a pro through the phone's apps (`Local/DeviceContactLauncher`, MAUI `PhoneDialer` / `Sms`). Android needs the `tel` / `smsto` `<queries>` in `AndroidManifest.xml`.
+**`IContactLauncher`** (skeleton): Call / Text a pro through the phone's apps (`MobileAppTheme/Services/Local/DeviceContactLauncher`, MAUI `PhoneDialer` / `Sms`). Android needs the `tel` / `smsto` `<queries>` in `AndroidManifest.xml`.
 
 **`IInquiryRepository`** (`Dev/StubInquiryRepository`): an `Inquiry` is recorded when a Seeker's Call/Text opens the phone app (with the text they sent). The pro reads them as their Inbox (`GetForProfessionalAsync`); the Seeker's Inbox is the same records grouped by pro (`GetForSeekerAsync`). **`IReviewRepository`** (`Dev/StubReviewRepository`): Seekers write one review per pro they contacted (`SaveAsync` replaces); `GetSummariesAsync` feeds search ranking. Both stubs persist to a JSON file on the phone (`dev-inquiries.json`, `dev-reviews.json`) and add SAMPLE rows only in Debug (`Dev/DevSamples`), so a Release build never shows invented activity.
 
-**`Local/JsonFile<T>`**: the one place that reads/writes an app-private JSON file (atomic temp-file write, corrupt file reads as missing, source-generated `JsonTypeInfo`). `FileOnboardingStore` and the stubs use it.
+**`JsonFile<T>`** (skeleton, `MobileAppTheme/Services/Local/`): the one place that reads/writes an app-private JSON file (atomic temp-file write, corrupt file reads as missing, source-generated `JsonTypeInfo`). `FileOnboardingStore` and the stubs use it.
 
-**`LocalAccount`** (`Services/`, singleton): the person on this phone, whichever side: app language (`SetLanguageAsync`, raises `Changed` for the layouts) and **Start over** (`StartOverAsync`): deletes their photos, published listing, inquiries and reviews (`DeleteForPersonAsync` on both repositories), clears `IOnboardingStore` (`ClearAsync`) and makes both workspaces `Forget()`, so `/` restarts onboarding at the language screen. With auth it becomes sign-out / delete account.
+**`LocalAccount`** (`Services/`, singleton, also registered as the skeleton's **`IAppAccount`** that `MePage` uses): the person on this phone, whichever side: app language (`SetLanguageAsync`, raises `Changed` for the layouts) and **Start over** (`StartOverAsync`): deletes their photos, published listing, inquiries and reviews (`DeleteForPersonAsync` on both repositories), clears `IOnboardingStore` (`ClearAsync`) and makes both workspaces `Forget()`, so `/` restarts onboarding at the language screen. With auth it becomes sign-out / delete account.
 
 Until auth, the people on this phone have fixed ids: the pro's listing is `ListingMapper.OwnListingId` (`"own"`), the Seeker is `SeekerWorkspace.LocalSeekerId` (`"me"`). The auth gate replaces both with the user's uid.
 
-**`IPhotoPicker`** (`Local/DevicePhotoPicker`, MAUI `MediaPicker.PickPhotosAsync`, resized to 1280px) and **`IPhotoStore`** (`Local/FilePhotoStore`): photo id = SHA-256 of the bytes (anti-fraud rule 2), files in `AppDataDirectory/photos`, shown in the WebView as data URLs. Gallery-only, no camera, so Android 13+ needs no permission (the manifest has `READ_EXTERNAL_STORAGE` `maxSdkVersion=32` for older phones; iOS has `NSPhotoLibraryUsageDescription`).
+**`IPhotoPicker`** (skeleton `Local/DevicePhotoPicker`, MAUI `MediaPicker.PickPhotosAsync`, resized to 1280px) and **`IPhotoStore`** (skeleton `Local/FilePhotoStore`): photo id = SHA-256 of the bytes (anti-fraud rule 2), files in `AppDataDirectory/photos`, shown in the WebView as data URLs. Gallery-only, no camera, so Android 13+ needs no permission (the manifest has `READ_EXTERNAL_STORAGE` `maxSdkVersion=32` for older phones; iOS has `NSPhotoLibraryUsageDescription`).
 
 **`IProfessionalProfileRepository`**: `PublishAsync` returns `PublishResult.PhoneTaken` for a number that already has a listing (anti-fraud rule 1); `GetByIdAsync` serves the public profile and Inbox; `RemoveAsync` takes a listing out of search (Start over). The stub keeps the published listing in memory only, so it shows in this phone's Seeker search but is lost on restart.
 
 ### App shell (shared by both sides, after the interview)
 
-- **`Components/Layout/AppShell`**, Slack style: `AppTopBar` (brand on the left, the user's `PersonAvatar` on the right linking to their page, optional green status dot), the page in the middle, `AppBottomNav` icon tabs (`AppTab`: href, icon, label, badge, `MatchPrefix` to keep a tab lit on its sub-pages). Fixed parts use the `app-*` gap classes in `app.css`; a page's main action sits last with `app-sticky-action` so it stays just above the tabs.
-- Each side has a thin layout that loads its workspace (non-matching users go back to `/`) and hands `AppShell` its tabs: **`Professional/ProLayout`** and **`Seeker/SeekerLayout`**. Pages opt in with `@layout`. Full-screen steps (`/professional/publish`, `/reviews/rate/{id}`) use `InterviewStep` instead, outside the shell.
+- **`AppShell`** (skeleton, `MobileAppTheme/Components/Layout/`), Slack style: `AppTopBar` (brand name + logo from `AppBrand` on the left, the user's `PersonAvatar` on the right linking to their page, optional green status dot), the page in the middle, `AppBottomNav` icon tabs (`AppTab`: href, icon, label, badge, `MatchPrefix` to keep a tab lit on its sub-pages). Fixed parts use the `app-*` gap classes in the skeleton's `mobile-app-theme.css`; a page's main action sits last with `app-sticky-action` so it stays just above the tabs.
+- The app wires the skeleton in three places: `MauiProgram` (`AddMobileAppTheme(AppTheme.Brand)`, then `IAppAccount`), `Components/Routes.razor` (skeleton `MainLayout` as default layout, its `NotFound` page, its assembly in `AdditionalAssemblies`) and `wwwroot/index.html` (`_content/MobileAppTheme/mobile-app-theme.css`). Skeleton namespaces are global (`GlobalUsings.cs` + `Components/_Imports.razor`).
+- Each side has a thin layout that loads its workspace (non-matching users go back to `/`) and hands `AppShell` its tabs: **`Professional/ProLayout`** and **`Seeker/SeekerLayout`**. Pages opt in with `@layout`. Full-screen steps (`/professional/publish`, `/me/reviews/rate/{id}`) use `InterviewStep` instead, outside the shell.
 - Routes live in `ProRoutes` / `SeekerRoutes`; link through them, never a literal path.
 
 ### Pro side (`Components/Professional/`)
@@ -69,7 +71,7 @@ Until auth, the people on this phone have fixed ids: the pro's listing is `Listi
 ### Seeker side (`Components/Seeker/`, `Search/`, `Inbox/`)
 
 - **`SeekerWorkspace`** (`Services/`, singleton): the current search (saved into `SeekerAnswers`, so it survives Back and restarts), Inbox threads, the Seeker's reviews, and Call/Text (opens the phone app via `IContactLauncher`, then records the `Inquiry`). The pre-written message comes from their answers (job, town, urgency).
-- Tabs: Home `/seeker` (DoorDash/Grab style: dense pill search box, the town `FilterMenu` under it, `CategoryRail` of trade icons in two sideways-scrolling rows, then last search, recent messages, pros to rate), Search `/search`, Inbox `/inbox` (+ thread `/inbox/{proId}`), Reviews `/reviews` (badge = contacted pros not yet rated; write at `/reviews/rate/{proId}`), Me `/me` (`SeekerMePage`, also the avatar: name shown on reviews, then the shared `MePage` parts). The Seeker side has 5 tabs.
+- Tabs: Home `/seeker` (DoorDash/Grab style: dense pill search box, the town `FilterMenu` under it, `CategoryRail` of trade icons in two sideways-scrolling rows, then last search, recent messages, pros to rate), Inbox `/inbox` (+ thread `/inbox/{proId}`), Me `/me` (`SeekerMePage`, also the avatar: name shown on reviews, a Your reviews link, then the shared `MePage` parts; badge = contacted pros not yet rated). The Seeker side has 3 tabs; sub-pages sit under a tab's route so it stays lit: results at `/seeker/search` (from the home search box or a trade icon), reviews at `/me/reviews` (write at `/me/reviews/rate/{proId}`).
 - **Flow:** search → tap a result → public profile `/pro/{id}` (facts, jobs, work photos, reviews, pinned **Contact**) → thread `/inbox/{id}` with a ready message: **Send text** opens SMS, **Call** opens the dialer; both are logged in the thread and on the pro's Inbox. Replies come to the Seeker's phone, outside the app. Only contacted pros can be reviewed.
 - **Search relevance (`Services/Search/`)** — keep it explainable, every weight is a named constant:
   - `SearchText`: normalises typed words (lower case, accents off, English/Tagalog filler words dropped) and scores word matches (exact 1, typed prefix 0.8, longer form 0.7).
@@ -81,7 +83,7 @@ Until auth, the people on this phone have fixed ids: the pro's listing is `Listi
 
 Full spec and research rationale: [`docs/onboarding.md`](docs/onboarding.md).
 
-- **`/` = `Onboarding/LaunchRouter`** (no UI). It applies the saved language, then routes: `/start` (language) → `/start/role` (Seeker / Professional fork) → the saved interview step → `/seeker` (Seeker home) or `/professional` (Professional). Right after the Seeker interview the loader lands on `/search` (the payoff).
+- **`/` = `Onboarding/LaunchRouter`** (no UI). It applies the saved language, then routes: `/start` (language) → `/start/role` (Seeker / Professional fork) → the saved interview step → `/seeker` (Seeker home) or `/professional` (Professional). Right after the Seeker interview the loader lands on `/seeker/search` (the payoff).
 - **Interviews:** `/start/seeker/{step}` covers job → service → town → when → budget, then the labor-illusion loader, then results. `/start/pro/{step}` covers trades → jobs → towns → experience → rate → monthly earnings goal → name → number → preview. There is one URL per step, so Android back walks the steps. Answers are saved as the user moves forward.
 - **Money is the hook on both sides.** Seeker budget and pro rate share one price scale (`ReferenceData.PriceTiers`), which drives the "Pasok sa budget mo" badge and the sort order. The pro's private monthly goal becomes "≈ N jobs a week" (`GoalPayoff`, `Money.JobsPerWeek`).
 - **No login before or during onboarding.** Auth will go *after the interview and before the first benefit* (`SeekerInterview.FinishAsync` / `ProfessionalInterview.FinishAsync`). **That workflow is still being designed by the owner. Don't wire auth into the flow until it's decided.**
@@ -105,22 +107,26 @@ These are hard business rules — never bypass them:
 
 ```
 SideGigPh.slnx
-├── SideGigPh.Maui/          #  Class Library for Business Logic only
-│   ├── Components/            # UI views — one folder per feature
-│   │   ├── Search/           # e.g. Search.razor + Search.razor.cs (code-behind)
-│   │   │   ├── Search.razor #landing page of search
-│   │   │   └── Search.razor.cs
-│   │   ├── Registration/
-│   │   └── Shared/           # Shared components 
-│   │   └── Layout/           # Shared layout / shell components
-│   ├── Models/                # Data contracts only no DTOs
-│   └── Services/              # Interfaces (IIdentityProvider, ITradesmanRepository)
+├── MobileAppTheme/            # Reusable app skeleton (Razor class library) — no SideGigPh code
+│   ├── Branding/              # BrandStyle, MobileTheme.Create → MudTheme, AppBrand
+│   ├── Components/Layout/     # MainLayout, AppShell, AppTopBar, AppBottomNav, AppTab
+│   ├── Components/Shared/     # generic components (InterviewStep, ChoiceTiles, MePage…)
+│   ├── Components/Pages/      # NotFound
+│   ├── Localization/          # AppText, LocalizedText, AppLanguage, TimeAgo, CommonCopy
+│   ├── Models/                # CatalogOption
+│   ├── Services/              # ports: IAppAccount, IContactLauncher, IPhotoPicker, IPhotoStore
+│   │   └── Local/             # on-device adapters + JsonFile<T>
+│   └── wwwroot/mobile-app-theme.css
 │
-├── SideGigPh.BusinessLogic/            # Native app shell (Android/iOS via BlazorWebView)
-│   └── BusinessLogic1.cs         # DI container — binds adapters
+└── SideGigPh.Maui/            # The SideGigPh app (Android/iOS via BlazorWebView), references the skeleton
+    ├── Components/            # UI views — one folder per feature (+ Shared/ for SideGigPh-only generic parts)
+    │   └── Layout/AppTheme.cs # SideGigPh's brand (BrandStyle + AppBrand)
+    ├── Models/                # Data contracts only, no DTOs
+    ├── Services/              # SideGigPh ports, workspaces, search, Dev/ stubs, Firebase adapters
+    └── MauiProgram.cs         # DI container — AddMobileAppTheme, then binds the app's adapters
 ```
 
-The current codebase is a single `SideGigPh` project. It will be restructured into the above layout.
+Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` library; the skeleton stays app-agnostic either way.
 
 ## Coding Standards
 
@@ -130,20 +136,23 @@ The current codebase is a single `SideGigPh` project. It will be restructured in
 - **Mobile-first UI** — every component must work on phone-width viewports
 - **Reusable, composable components** — build small, single-responsibility Razor components and compose them; never create one giant `.razor` page that does everything. Extract repeated or self-contained UI into its own component with `[Parameter]`-driven inputs and `EventCallback` outputs
 - **Component folder structure** — group components by feature under `Components/<Feature>/`, and always use code-behind: each component is a `<Name>.razor` markup file paired with a `<Name>.razor.cs` partial class for its logic. Shared shell/layout components live under `Components/Layout/`
-- **Generic vs feature components** — a component used by two or more features and not tied to any single feature is a *generic* component and belongs in `SideGigPh.Shared` (e.g. `SideGigPh.Shared/Components/`), not under a feature folder. Feature-specific components stay with their feature. Until that project exists, generic components live in `SideGigPh.Maui/Components/Shared/`: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`), `WorkingLoader`, `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview), `ListingFacts` and `ServiceChips` (shared by the card and the public profile; their text comes from `Services/Localization/ListingText`), `PersonAvatar` (photo, initials or a person icon), `HomeSection` (collapsible home section), `ReviewRow` + `RatingSummary`, `FilterMenu` (a chip with a dropdown: Search filters and the home town picker), `GoalPayoff`, `BrandMark` (logo + name), and `MePage` (the Me page frame both sides share: title, the side's own sections, then `LanguagePicker`, the on-this-phone note and `StartOverCard`, a confirm-twice Start over).
-- **MudBlazor only, no raw HTML** — markup is built from MudBlazor components; don't write `<div>`, `<span>`, `<p>`, `<button>`, `<input>` etc. in `.razor` files. Use `MudStack` for layout and spacing (`Row`, `Spacing`, `AlignItems`, `Justify`, `Wrap`), `MudText` for all text (`Typo` for size, `HtmlTag="h1"` for headings — `FocusOnNavigate` focuses the page's `h1`), `MudContainer` for page width, and MudBlazor's own spacing/flex utility classes (`pa-4`, `flex-1`, `mud-width-full`…). Reach for the out-of-the-box component first (`MudButton`, `MudTextField`, `MudChip`, `MudAlert`, `MudCard`, `MudSkeleton`, `MudProgressLinear`…). Only when MudBlazor has no parameter or utility for something, add a small, named helper class in the "MudBlazor gaps" section of `wwwroot/app.css`. Scoped `.razor.css` files don't reach inside MudBlazor components, so don't add them. The only raw HTML is `wwwroot/index.html` (the pre-Blazor splash).
+- **Skeleton vs app vs feature components** (load the `mobile-app-theme` skill to decide):
+  - **Skeleton** (`MobileAppTheme/Components/Shared/`): generic UI any product would use unchanged, with no domain words: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`, `ChoiceItem`), `WorkingLoader`, `PersonAvatar` (photo, initials or a person icon), `HomeSection` (collapsible home section), `FilterMenu` (a chip with a dropdown: Search filters and the home town picker), `BrandMark` (logo + name from `AppBrand`), `LanguagePicker`, `StartOverCard` (confirm-twice Start over, optional `Warning`) and `MePage` (the Me page frame: title, the side's own sections, then `LanguagePicker`, the on-this-phone note and `StartOverCard`; SideGigPh passes its own `StartOverWarning`). The skeleton never references SideGigPh.
+  - **App-generic** (`SideGigPh.Maui/Components/Shared/`): used by two or more SideGigPh features but tied to its domain: `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview), `ListingFacts` and `ServiceChips` (shared by the card and the public profile; their text comes from `Services/Localization/ListingText`), `ReviewRow` + `RatingSummary`, `GoalPayoff`.
+  - **Feature** components stay in their feature folder.
+- **MudBlazor only, no raw HTML** — markup is built from MudBlazor components; don't write `<div>`, `<span>`, `<p>`, `<button>`, `<input>` etc. in `.razor` files. Use `MudStack` for layout and spacing (`Row`, `Spacing`, `AlignItems`, `Justify`, `Wrap`), `MudText` for all text (`Typo` for size, `HtmlTag="h1"` for headings — `FocusOnNavigate` focuses the page's `h1`), `MudContainer` for page width, and MudBlazor's own spacing/flex utility classes (`pa-4`, `flex-1`, `mud-width-full`…). Reach for the out-of-the-box component first (`MudButton`, `MudTextField`, `MudChip`, `MudAlert`, `MudCard`, `MudSkeleton`, `MudProgressLinear`…). Only when MudBlazor has no parameter or utility for something, add a small, named helper class in the "MudBlazor gaps" section of `MobileAppTheme/wwwroot/mobile-app-theme.css` (generic) or `SideGigPh.Maui/wwwroot/app.css` (SideGigPh-only). Scoped `.razor.css` files don't reach inside MudBlazor components, so don't add them. The only raw HTML is `wwwroot/index.html` (the pre-Blazor splash).
 - **Bilingual copy (English / Taglish)**: never hard-code user-facing text in a component.
-  - UI strings are `LocalizedText(English, Taglish)` pairs in `Services/Localization/Copy.cs`. Answer lists (jobs, towns, prices…) are in `Services/ReferenceData.cs`.
-  - Components inject `AppText T` and render `@T.Get(...)` / `@T.Format(...)`.
+  - UI strings are `LocalizedText(English, Taglish)` pairs in `Services/Localization/Copy.cs`. Strings every app shares (Back, Next, Cancel, Start over, Language, "3 hr ago", Not Found) are in the skeleton's `CommonCopy`; use those instead of duplicating them. Answer lists (jobs, towns, prices…) are in `Services/ReferenceData.cs`.
+  - Components inject `AppText T` (skeleton) and render `@T.Get(...)` / `@T.Format(...)`.
   - Write for low English literacy: short plain words, an icon on every choice tile, and numbers (₱, years) doing the work.
   - Taglish is everyday conversational Taglish, not formal Filipino. Use local lingo, not forced translation:
     - Keep the English technical terms (split-type, chemical wash, freon, breaker, inverter, PMS, CCTV, waterproofing).
     - Use the local words people actually say (CR, gripo, lababo, yero, alulod, kisame, semento, poso).
     - Use Pa-/Paki- only where it sounds natural.
   - Job labels stand on their own ("Linis ng aircon"), so they also read correctly inside the pre-filled SMS.
-- **Theming / colors** — the palette, typography and corner radius live in one `MudTheme`: `SideGigPh.Maui/Components/Layout/AppTheme.cs`. The brand palette is **blue/white** (GCash/Microsoft style): primary blue `#0078d4`, white surfaces, navy ink text (`Color.Dark`). `Secondary` is the muted slate, so `Color.Secondary` is the helper-text color; `Info` is the brand blue. Components pick colors only through MudBlazor's `Color` parameters; any rule in `app.css` uses the theme's `var(--mud-palette-...)` variables. Never hard-code hex in components or CSS (the one exception: the pre-Blazor splash fallbacks in `app.css`, which must match `AppTheme`). To restyle the app, change `AppTheme`.
+- **Theming / colors** — SideGigPh's name, logo icon, colors and corner radius live in `SideGigPh.Maui/Components/Layout/AppTheme.cs` (`AppTheme.Style`, a `BrandStyle`, and `AppTheme.Brand`, an `AppBrand`). The skeleton's `MobileTheme.Create` turns them into the `MudTheme` (palette mapping + typography). The brand palette is **blue/white** (GCash/Microsoft style): primary blue `#0078d4`, white surfaces, navy ink text (`Color.Dark`). `Secondary` is the muted slate, so `Color.Secondary` is the helper-text color; `Info` is the brand blue. Components pick colors only through MudBlazor's `Color` parameters; any rule in `app.css` uses the theme's `var(--mud-palette-...)` variables. Never hard-code hex in components or CSS (the one exception: the pre-Blazor splash fallbacks in `app.css`, which must match `AppTheme`). To restyle the app, change `AppTheme`.
 - **No dead code** — delete unused code, don't comment it out
-- Keep business logic in `SideGigPh.Shared`, platform-specific code in `SideGigPh.Maui`
+- Keep business logic in `SideGigPh.Shared` (when it exists), platform-specific code in `SideGigPh.Maui`, and only app-agnostic frame/UI/adapters in `MobileAppTheme`
 - Any change to the project structure , architecture, design patterns, theme, design should reflect in this CLAUDE.md
 
 ## Build & CI
@@ -171,6 +180,7 @@ dotnet workload install maui
 Load the matching skill before doing these tasks. Every folder in `.claude/skills/` is listed here; add a line when you add a skill, and remove it when you delete one.
 
 **Building features**
+- **`mobile-app-theme`**: anything in `MobileAppTheme/`, deciding skeleton vs app for a new component/service/model/CSS helper, promoting a component into the skeleton, rebranding, or starting a new app on the skeleton. Script: `skeleton-check.sh` (no app dependency, no domain words, `CommonCopy` keys).
 - **`new-razor-component`**: any new, split-out or restyled `.razor` component, page, tab or route (folders, code-behind, the `AppShell` layouts and routes). Script: `ui-lint.sh` (raw HTML, hex, literal text, page h1s).
 - **`mudblazor-ui`**: MudBlazor 9 markup, verified parameter/enum/icon/utility names, gap classes, theme. Script: `mud-api.sh`.
 - **`taglish-copy`**: any user-facing text (English/Taglish wording, local lingo, SMS templates). Script: `copy-check.sh` (missing/unused keys, placeholder mismatches).

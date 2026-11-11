@@ -4,9 +4,11 @@ namespace SideGigPh.Maui.Components.Seeker;
 public static class SeekerRoutes
 {
     public const string Home = "/seeker";
-    public const string Search = "/search";
+    /// <summary>Results, opened from the home search box or a trade icon; under <see cref="Home"/> so Home stays lit.</summary>
+    public const string Search = Home + "/search";
     public const string Inbox = "/inbox";
-    public const string Reviews = "/reviews";
+    /// <summary>The Seeker's reviews, opened from the Me page; under <see cref="Me"/> so Me stays lit.</summary>
+    public const string Reviews = Me + "/reviews";
     public const string Me = "/me";
 
     /// <summary>A pro's public profile.</summary>
@@ -15,5 +17,5 @@ public static class SeekerRoutes
     /// <summary>The Inbox thread with a pro, where Contact lands.</summary>
     public static string Thread(string professionalId) => $"/inbox/{Uri.EscapeDataString(professionalId)}";
 
-    public static string Rate(string professionalId) => $"/reviews/rate/{Uri.EscapeDataString(professionalId)}";
+    public static string Rate(string professionalId) => $"{Reviews}/rate/{Uri.EscapeDataString(professionalId)}";
 }

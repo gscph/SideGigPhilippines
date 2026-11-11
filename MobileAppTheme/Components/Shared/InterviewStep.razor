@@ -1,0 +1,41 @@
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack HtmlTag="section" Spacing="0" Class="full-screen">
+        <MudStack HtmlTag="header" Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="px-2 pt-2">
+            @if (OnBack.HasDelegate)
+            {
+                <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" aria-label="@T.Get(CommonCopy.Back)" OnClick="@(() => OnBack.InvokeAsync())" />
+            }
+            @if (Progress > 0)
+            {
+                <MudProgressLinear Value="Percent" Color="Color.Primary" Size="Size.Medium" Rounded="true" Class="flex-1 mr-4" />
+            }
+        </MudStack>
+
+        <MudStack Spacing="5" Class="flex-1 px-4 pt-2 pb-6">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+                @if (!string.IsNullOrEmpty(Why))
+                {
+                    <MudText Typo="Typo.body1" Color="Color.Secondary">@Why</MudText>
+                }
+            </MudStack>
+
+            @ChildContent
+
+            @if (!string.IsNullOrEmpty(Note))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@Note</MudText>
+            }
+        </MudStack>
+
+        @if (OnNext.HasDelegate)
+        {
+            <MudPaper Square="true" Elevation="0" Class="sticky-footer pa-4 border-t border-solid mud-border-lines-default">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           Disabled="!CanContinue" OnClick="@(() => OnNext.InvokeAsync())">
+                    @(NextLabel ?? T.Get(CommonCopy.Next))
+                </MudButton>
+            </MudPaper>
+        }
+    </MudStack>
+</MudContainer>

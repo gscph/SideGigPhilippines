@@ -4,7 +4,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Services;
 
 /// <summary>
-/// The person on this phone, whichever side they're on: their app language and Start over,
+/// SideGigPh's <see cref="IAppAccount"/>: the person on this phone, whichever side they're on: their app language and Start over,
 /// both on the Me page of each side. Until auth, "the account" is what's saved on this phone;
 /// the auth gate will turn Start over into signing out and deleting the account.
 /// Only ports are used here, never adapters.
@@ -17,7 +17,7 @@ public sealed class LocalAccount(
     IReviewRepository reviews,
     ProWorkspace pro,
     SeekerWorkspace seeker,
-    AppText text)
+    AppText text) : IAppAccount
 {
     /// <summary>Raised after the language changes, so the shell re-renders its labels.</summary>
     public event Action? Changed;

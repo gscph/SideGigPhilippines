@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="MobileAppTheme/MobileAppTheme.csproj" Id="f30ae536-3315-4803-956d-42d14e657e53" />
   <Project Path="SideGigPh.Maui/SideGigPh.Maui.csproj">
     <Deploy Solution="Debug|*" />
   </Project>

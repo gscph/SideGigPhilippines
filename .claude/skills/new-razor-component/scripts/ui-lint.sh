@@ -4,13 +4,13 @@
 #          a page (@page) with no h1.
 #   WARN : text written straight into markup (should come from Copy.cs), a page with more than one
 #          h1 in its source (fine only if they're in different @if branches).
-# Usage: ui-lint.sh [path ...]   (default: SideGigPh.Maui/Components). Exit 1 on any ERROR.
+# Usage: ui-lint.sh [path ...]   (default: SideGigPh.Maui/Components and MobileAppTheme/Components). Exit 1 on any ERROR.
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../../../.." && pwd)"
 cd "$ROOT"
 PATHS=("$@")
-[ ${#PATHS[@]} -eq 0 ] && PATHS=("SideGigPh.Maui/Components")
+[ ${#PATHS[@]} -eq 0 ] && PATHS=("SideGigPh.Maui/Components" "MobileAppTheme/Components")
 
 errors=0
 err()  { echo "ERROR $*"; errors=$((errors + 1)); }
@@ -37,7 +37,7 @@ for f in "${FILES[@]}"; do
   fi
 
   case "$base" in
-    _Imports.razor|Routes.razor|MainLayout.razor) ;;  # framework files
+    _Imports.razor|Routes.razor) ;;  # framework files
     *) [ -f "$f.cs" ] || err "$f: no code-behind $base.cs" ;;
   esac
 
@@ -52,7 +52,7 @@ for f in "${FILES[@]}"; do
 
   if grep -qE '^@page ' "$f"; then
     h1=$(grep -cE 'HtmlTag="h1"' "$f")
-    uses_step=$(grep -c '<InterviewStep' "$f")
+    uses_step=$(grep -cE '<(InterviewStep|MePage)[ >]' "$f")  # both render the page h1 from Title
     renders_ui=$(grep -c '<Mud' "$f")
     [ "$base" = "LaunchRouter.razor" ] && renders_ui=0  # splash + redirect, no page title
     if [ "$h1" -eq 0 ] && [ "$uses_step" -eq 0 ] && [ "$renders_ui" -gt 0 ]; then

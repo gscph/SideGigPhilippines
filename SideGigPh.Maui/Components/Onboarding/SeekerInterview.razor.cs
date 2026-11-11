@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -102,7 +103,7 @@ public partial class SeekerInterview : ComponentBase
         if (IsEditing)
         {
             var next = FirstUnanswered();
-            path = next == SeekerStep.Finding ? "/search" : StepPath(next);
+            path = next == SeekerStep.Finding ? SeekerRoutes.Search : StepPath(next);
         }
         else
         {
@@ -121,12 +122,12 @@ public partial class SeekerInterview : ComponentBase
         state.CompletedAt = DateTimeOffset.Now;
         state.ResumePath = null;
         await Store.SaveAsync(state);
-        Nav.NavigateTo("/search", replace: true);
+        Nav.NavigateTo(SeekerRoutes.Search, replace: true);
     }
 
     private void GoBack()
     {
-        var target = IsEditing ? "/search"
+        var target = IsEditing ? SeekerRoutes.Search
             : _step == SeekerStep.Category ? "/start/role"
             : StepPath(_step - 1);
         Nav.NavigateTo(target);

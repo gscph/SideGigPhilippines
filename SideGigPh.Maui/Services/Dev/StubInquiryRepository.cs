@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services.Local;
 
 namespace SideGigPh.Maui.Services.Dev;
 

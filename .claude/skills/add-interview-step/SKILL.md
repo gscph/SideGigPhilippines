@@ -18,7 +18,7 @@ The onboarding is a no-login interview: language, then role fork, then a Seeker 
 | Where Seeker answers are used after the interview | `Services/SeekerWorkspace.cs` (`Request`, `DefaultMessage`, the recorded `Inquiry`), Search tab filters in `Components/Search/SearchPage` |
 | Question text | `Services/Localization/Copy.cs` |
 | Answer options | `Services/ReferenceData.cs` |
-| Step shell / tiles | `Components/Shared/InterviewStep`, `ChoiceTiles` |
+| Step shell / tiles | `InterviewStep`, `ChoiceTiles`, `WorkingLoader` (skeleton: `MobileAppTheme/Components/Shared/`; changing them affects every app, see `mobile-app-theme`) |
 
 ## Adding a question: every place that must change
 

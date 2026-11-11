@@ -1,7 +1,7 @@
 @page "/me"
 @layout SeekerLayout
 
-<MePage Title="@T.Get(Copy.AccountTitle)">
+<MePage Title="@T.Get(Copy.AccountTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)">
     <MudStack AlignItems="AlignItems.Center">
         <PersonAvatar Name="@(Workspace.Answers.ReviewerName ?? string.Empty)" Class="profile-photo" />
     </MudStack>
@@ -13,4 +13,11 @@
             @T.Get(_saved && !NameChanged ? Copy.Saved : Copy.Save)
         </MudButton>
     </MudStack>
+
+    <MudPaper Outlined="true" Elevation="0">
+        <MudList T="string">
+            <MudListItem T="string" Icon="@Icons.Material.Filled.StarOutline" IconColor="Color.Primary" Href="@SeekerRoutes.Reviews"
+                         Text="@T.Get(Copy.YourReviews)" SecondaryText="@ReviewsLabel" />
+        </MudList>
+    </MudPaper>
 </MePage>

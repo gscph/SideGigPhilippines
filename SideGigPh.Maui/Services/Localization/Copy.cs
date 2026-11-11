@@ -1,18 +1,13 @@
-using SideGigPh.Maui.Models;
-
 namespace SideGigPh.Maui.Services.Localization;
 
 /// <summary>
-/// Every UI string, English and Taglish side by side. Many of our users are not confident
+/// Every SideGigPh UI string, English and Taglish side by side (the skeleton's shared strings,
+/// e.g. Back, Next, Start over, are in MobileAppTheme's <see cref="CommonCopy"/>). Many of our users are not confident
 /// English readers: keep both versions short and plain, and keep Taglish conversational.
 /// Reference-data labels (jobs, towns, prices) live in <see cref="ReferenceData"/>.
 /// </summary>
 public static class Copy
 {
-    // --- Common -----------------------------------------------------------
-    public static readonly LocalizedText Next = new("Next", "Next");
-    public static readonly LocalizedText Back = new("Back", "Back");
-
     // --- Role fork --------------------------------------------------------
     public static readonly LocalizedText RoleTitle = new("Find a Job or Hire a Skilled Worker", "Find a Job or Hire a Skilled Worker");
     public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
@@ -38,7 +33,6 @@ public static class Copy
     public static readonly LocalizedText FindingBudget = new("Putting Skilled Workers in your budget first", "Putting Skilled Workers in your budget first");
 
     // --- Seeker shell + home ----------------------------------------------
-    public static readonly LocalizedText NavSearch = new("Search", "Search");
     public static readonly LocalizedText LastSearch = new("Recent Search", "Recent Search");
     public static readonly LocalizedText SeePros = new("View more", "View more");
     public static readonly LocalizedText SectionMessages = new("Recent messages", "Recent messages");
@@ -98,6 +92,7 @@ public static class Copy
     public static readonly LocalizedText ToRateWhy = new("Your stars help neighbors pick the right skilled worker.", "Makakatulong ang rating mo sa mga kapitbahay mo.");
     public static readonly LocalizedText Rate = new("Rate", "I-rate");
     public static readonly LocalizedText YourReviews = new("Your reviews", "Mga review mo");
+    public static readonly LocalizedText ToRateCount = new("{0} to rate", "{0} pa ang ire-rate mo");
     public static readonly LocalizedText SeekerReviewsEmpty = new(
         "No reviews yet. Contact a skilled worker, and after the job, rate them here.",
         "Wala pang review. Mag-contact ng skilled worker, tapos i-rate sila dito pagkatapos ng trabaho.");
@@ -111,22 +106,9 @@ public static class Copy
     // --- Me page (both sides) ---------------------------------------------
     public static readonly LocalizedText NavMe = new("Me", "Ako");
     public static readonly LocalizedText AccountTitle = new("Your account", "Account mo");
-    public static readonly LocalizedText AccountLanguage = new("Language", "Language");
-    public static readonly LocalizedText LanguageEnglish = new("English", "English");
-    public static readonly LocalizedText LanguageTaglish = new("Taglish", "Taglish");
-    public static readonly LocalizedText AccountOnPhone = new(
-        "No sign-in yet: everything you add is saved on this phone.",
-        "Wala pang sign-in: naka-save sa phone na ito lahat ng nilagay mo.");
-    public static readonly LocalizedText StartOver = new("Start over", "Magsimula ulit");
-    public static readonly LocalizedText StartOverWhy = new(
-        "Delete everything on this phone and answer the first questions again.",
-        "Burahin lahat sa phone na ito at sagutin ulit ang mga unang tanong.");
-    public static readonly LocalizedText StartOverAsk = new("Delete everything and start over?", "Burahin lahat at magsimula ulit?");
     public static readonly LocalizedText StartOverWarning = new(
         "Your answers, listing, photos, messages and reviews on this phone will be deleted. You can't undo this.",
         "Mabubura ang mga sagot, listing, photos, message at review mo sa phone na ito. Hindi na ito maibabalik.");
-    public static readonly LocalizedText StartOverYes = new("Yes, delete and start over", "Oo, burahin at magsimula ulit");
-    public static readonly LocalizedText Cancel = new("Cancel", "Huwag na lang");
     public static readonly LocalizedText Save = new("Save", "I-save");
     public static readonly LocalizedText Saved = new("Saved", "Na-save");
 
@@ -186,7 +168,6 @@ public static class Copy
     public static readonly LocalizedText NavHome = new("Home", "Home");
     public static readonly LocalizedText NavInbox = new("Inbox", "Inbox");
     public static readonly LocalizedText NavReviews = new("Reviews", "Reviews");
-    public static readonly LocalizedText NavProfile = new("Profile", "Profile");
 
     // --- Pro home ---------------------------------------------------------
     public static readonly LocalizedText ProHomeNotLive = new("Saved on this phone. Not visible to customers yet.", "Saved on this phone. Hindi pa ito nakikita ng customer.");
@@ -197,7 +178,6 @@ public static class Copy
     public static readonly LocalizedText SectionInquiries = new("Recent inquiries", "Mga bagong nagtanong");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
     public static readonly LocalizedText SectionGoal = new("Your goal", "Goal mo");
-    public static readonly LocalizedText ShowSection = new("Show or hide", "Ipakita o itago");
 
     // Setup checklist on Pro home, until the listing is published.
     public static readonly LocalizedText SetupTitle = new("Get ready for customers", "Ihanda ang listing mo");
@@ -247,11 +227,4 @@ public static class Copy
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
-
-    // Relative times. {0} = a number.
-    public static readonly LocalizedText JustNow = new("Just now", "Ngayon lang");
-    public static readonly LocalizedText MinutesAgo = new("{0} min ago", "{0} min ago");
-    public static readonly LocalizedText HoursAgo = new("{0} hr ago", "{0} hr ago");
-    public static readonly LocalizedText Yesterday = new("Yesterday", "Kahapon");
-    public static readonly LocalizedText DaysAgo = new("{0} days ago", "{0} araw na");
 }

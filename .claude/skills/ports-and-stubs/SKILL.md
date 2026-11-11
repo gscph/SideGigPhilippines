@@ -1,6 +1,6 @@
 ---
 name: ports-and-stubs
-description: Add or change a data/infrastructure port in SideGigPh (an I*Repository / I*Store / I*Picker interface in Services/) with its stand-in adapter — a Dev/ stub that persists to a JSON file via Local/JsonFile<T>, Debug-only sample data via DevSamples, DI registration in MauiProgram, the workspace (ProWorkspace / SeekerWorkspace) that pages use, and the fixed local ids used until auth. Use when a feature needs new stored data (messages, favorites, bookings, reports…), when adding a method to IInquiryRepository / IReviewRepository / IProfessionalProfileRepository / IPhotoStore, when sample data shows up where it shouldn't, or when preparing a Firestore adapter. Not for Firebase Auth (maui-firebase-auth) or UI (new-razor-component).
+description: Add or change a data/infrastructure port in SideGigPh (an I*Repository / I*Store / I*Picker interface in Services/) with its stand-in adapter — a Dev/ stub that persists to a JSON file via the skeleton's JsonFile<T>, Debug-only sample data via DevSamples, DI registration in MauiProgram, the workspace (ProWorkspace / SeekerWorkspace) that pages use, and the fixed local ids used until auth. Use when a feature needs new stored data (messages, favorites, bookings, reports…), when adding a method to IInquiryRepository / IReviewRepository / IProfessionalProfileRepository / IPhotoStore, when sample data shows up where it shouldn't, or when preparing a Firestore adapter. Not for Firebase Auth (maui-firebase-auth) or UI (new-razor-component).
 ---
 
 # Ports and stand-in adapters
@@ -13,8 +13,8 @@ The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. T
 |---|---|---|
 | Model (data contract) | `Models/` | `sealed record` with positional properties, ids from `ReferenceData`, times as `DateTimeOffset`. No behaviour. |
 | Port | `Services/I<Thing>Repository.cs` | Async, intent-named methods (`GetForSeekerAsync`, `GetSummariesAsync`), documented ordering ("newest first"). Return what the screen needs in one call (e.g. summaries for many pros) so a real backend can answer with one query. |
-| Stand-in adapter | `Services/Dev/Stub<Thing>Repository.cs` | Persists with `Local/JsonFile<List<T>>` (`dev-<things>.json`), loads once into a list, writes after each change. |
-| Device adapter | `Services/Local/` | Real phone features (files, photo picker, dialer) behind a port, with errors logged and turned into a result, never thrown at the UI. |
+| Stand-in adapter | `Services/Dev/Stub<Thing>Repository.cs` | Persists with `JsonFile<List<T>>` (skeleton, `MobileAppTheme/Services/Local/`; `dev-<things>.json`), loads once into a list, writes after each change. |
+| Device adapter | Generic phone feature: `MobileAppTheme/Services/Local/` (port in `MobileAppTheme/Services/`, registered with `TryAddSingleton` in `AddMobileAppTheme`); SideGigPh-only: `SideGigPh.Maui/Services/Local/` | Real phone features (files, photo picker, dialer) behind a port, with errors logged and turned into a result, never thrown at the UI. A port any product could use (camera, location, share) belongs in the skeleton; see `mobile-app-theme`. |
 | Business logic | `Services/` (`ProWorkspace`, `SeekerWorkspace`, `Services/Search/`) | Uses **ports only**. Pages call these, not the repositories. |
 | Wiring | `MauiProgram.cs` | `AddSingleton<IPort, Adapter>()`; workspaces and search as singletons. |
 
