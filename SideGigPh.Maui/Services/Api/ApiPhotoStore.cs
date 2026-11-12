@@ -8,8 +8,8 @@ using Microsoft.Extensions.Logging;
 namespace SideGigPh.Maui.Services.Api;
 
 /// <summary>Where the photo API and the photo files live. Neither is a secret.</summary>
-/// <param name="ApiUrl">The Azure Functions API, e.g. <c>https://fredhopper-bdhed2e6dtegb9gz.uksouth-01.azurewebsites.net/api/</c>.</param>
-/// <param name="PhotoBaseUrl">The public blob container, e.g. <c>https://realtimeordertracker.blob.core.windows.net/photos/</c>.</param>
+/// <param name="ApiUrl">The Azure Functions API, e.g. <c>https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/</c>.</param>
+/// <param name="PhotoBaseUrl">The public blob container, e.g. <c>https://sidegigphbfb9.blob.core.windows.net/photos/</c>.</param>
 public sealed record PhotoApiOptions(string ApiUrl, string PhotoBaseUrl);
 
 /// <summary>

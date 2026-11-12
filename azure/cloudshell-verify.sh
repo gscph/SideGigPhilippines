@@ -10,8 +10,8 @@
 bash -s <<'SIDEGIGPH_AZURE_VERIFY'
 set -uo pipefail
 
-STORAGE_ACCOUNT="realtimeordertracker"
-FUNCTION_APP="realtimeordertracking"
+STORAGE_ACCOUNT="sidegigphbfb9"
+FUNCTION_APP="SideGigPhApi"
 CONTAINER="photos"
 
 passed=0; failed=0

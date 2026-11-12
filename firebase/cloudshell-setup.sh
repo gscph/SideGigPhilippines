@@ -98,7 +98,7 @@ service cloud.firestore {
     // A photo stored by SideGigPh.Api: its SHA-256 id and its URL in Azure Blob Storage, which must
     // be that same photo in our container (no links to other sites). Change both if the account moves.
     function photoUrl(id) {
-      return 'https://realtimeordertracker.blob.core.windows.net/photos/' + id + '.jpg';
+      return 'https://sidegigphbfb9.blob.core.windows.net/photos/' + id + '.jpg';
     }
     function isPhoto(value) {
       return value is map && value.keys().hasOnly(['id', 'url'])

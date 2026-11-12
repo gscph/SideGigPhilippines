@@ -24,9 +24,9 @@ set -uo pipefail
 
 RESOURCE_GROUP="sidegigph"
 LOCATION="southeastasia"
-STORAGE_ACCOUNT="realtimeordertracker"   # existing account; photos go in its "photos" container
-                                         # https://realtimeordertracker.blob.core.windows.net/photos/
-FUNCTION_APP="realtimeordertracking"   # https://realtimeordertracking.azurewebsites.net
+STORAGE_ACCOUNT="sidegigphbfb9"   # photos go in its "photos" container; also the Function App's storage
+                                  # https://sidegigphbfb9.blob.core.windows.net/photos/
+FUNCTION_APP="SideGigPhApi"   # https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net
 FIREBASE_PROJECT_ID="sidegigphilippines"
 DOTNET_VERSION="10.0"
 CONTAINER="photos"
@@ -49,7 +49,7 @@ az group create --name "$RESOURCE_GROUP" --location "$LOCATION" -o none || fail 
 echo "Ready."
 
 step "Storage account $STORAGE_ACCOUNT"
-# It may live in another resource group (it's shared with another app), so find it by name.
+# It may live in another resource group (it was created in the portal), so find it by name.
 STORAGE_GROUP=$(az storage account list --query "[?name=='$STORAGE_ACCOUNT'].resourceGroup | [0]" -o tsv)
 if [ -n "$STORAGE_GROUP" ]; then
   echo "Already exists, in resource group $STORAGE_GROUP."

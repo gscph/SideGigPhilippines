@@ -1,6 +1,6 @@
 name: Deploy API (Azure Functions)
 
-# Builds SideGigPh.Api and deploys it to the Function App whenever the API changes on main.
+# Builds SideGigPh.Api and deploys it to the Function App SideGigPhApi. Run it by hand (Actions → Run workflow).
 # Needs one repo secret, AZURE_FUNCTIONAPP_PUBLISH_PROFILE: the publish profile XML downloaded
 # from the Function App (see azure/README.md → "Automatic deploy from GitHub").
 
@@ -13,7 +13,7 @@ concurrency:
 
 env:
   PROJECT: SideGigPh.Api/SideGigPh.Api.csproj
-  FUNCTION_APP: realtimeordertracking
+  FUNCTION_APP: SideGigPhApi
   # azure/cloudshell-setup.sh creates the app on the Flex Consumption plan. If your app is on the
   # classic Consumption or a Premium/App Service plan, set this to '' (empty).
   FUNCTION_SKU: flexconsumption
