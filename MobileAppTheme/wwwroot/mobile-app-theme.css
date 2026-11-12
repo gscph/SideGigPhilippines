@@ -270,6 +270,11 @@ h1:focus {
     z-index: var(--mud-zindex-appbar);
 }
 
+/* Top-bar logo: the same 40px as the PersonAvatar (MudAvatar Medium) on the other side. */
+.app-top-bar-logo {
+    font-size: 2.5rem !important;
+}
+
 /* Icon tabs fixed to the bottom edge, above the home indicator. */
 .app-bottom-nav {
     position: fixed;
