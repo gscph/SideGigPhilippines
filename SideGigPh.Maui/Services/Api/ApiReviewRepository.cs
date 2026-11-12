@@ -18,14 +18,14 @@ public sealed class ApiReviewRepository(ApiClient api) : IReviewRepository
     public async Task SaveAsync(Review review)
     {
         using var response = await api.SendJsonAsync(HttpMethod.Put, "reviews", review.ToSaveRequest(), ApiJson.Default.SaveReviewRequest);
-        api.EnsureWritten(response, $"save the review of {review.ProfessionalId}");
+        await api.EnsureWrittenAsync(response, $"save the review of {review.ProfessionalId}");
     }
 
     /// <summary>Deletes the reviews this person wrote. The ones about them stay (see the server's ReviewStore).</summary>
     public async Task DeleteForPersonAsync(string personId)
     {
         using var response = await api.SendAsync(HttpMethod.Delete, "reviews/mine");
-        api.EnsureWritten(response, "delete my reviews");
+        await api.EnsureWrittenAsync(response, "delete my reviews");
     }
 
     private Task<IReadOnlyList<Review>> ListAsync(string path, string what) => api.ReadAsync<IReadOnlyList<Review>>(async () =>

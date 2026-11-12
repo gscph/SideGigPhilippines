@@ -9,6 +9,9 @@ using SideGigPh.AzureSQL;
 var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 
+// Exceptions come back as JSON with the stack trace (ApiResults.ShowDetails), not the host's empty 500.
+builder.UseMiddleware<ErrorDetailsMiddleware>();
+
 // Settings come from the Function App's "Environment variables" in Azure, or local.settings.json.
 var photoStorage = builder.Configuration["PhotoStorage"]
     ?? throw new InvalidOperationException("Missing setting PhotoStorage (the storage account connection string).");

@@ -7,4 +7,7 @@ public enum PublishResult
 
     /// <summary>Anti-fraud rule 1: the mobile number already has a listing.</summary>
     PhoneTaken,
+
+    /// <summary>Not sent: the listing is missing interview answers (<see cref="ProfessionalDraft.IsListingComplete"/>).</summary>
+    Incomplete,
 }

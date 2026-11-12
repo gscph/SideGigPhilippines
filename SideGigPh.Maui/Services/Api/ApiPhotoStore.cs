@@ -29,7 +29,7 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
                 throw new PhotoStoreException("This photo already belongs to another account.");
             }
 
-            response.EnsureSuccessStatusCode();
+            await api.EnsureWrittenAsync(response, "upload a photo");
             var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto)
                 ?? throw new PhotoStoreException("The photo server sent an empty answer.");
 

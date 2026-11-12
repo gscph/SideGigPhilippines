@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using SideGigPh.Maui.Components.Onboarding;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -39,6 +40,13 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
+        // A listing missing answers (no jobs, area or towns) goes back to the first unanswered question.
+        if (!Workspace.Draft.IsListingComplete)
+        {
+            Nav.NavigateTo(ProfessionalInterview.FirstUnansweredPath, replace: true);
+            return;
+        }
+
         // The listing's number is the account's verified number (a Google sign-in adds one here first).
         if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true) is { } step)
         {
@@ -55,7 +63,14 @@ public partial class PublishPage : ComponentBase
         _failed = false;
         try
         {
-            _phoneTaken = await Workspace.PublishAsync() == PublishResult.PhoneTaken;
+            var result = await Workspace.PublishAsync();
+            if (result == PublishResult.Incomplete)
+            {
+                Nav.NavigateTo(ProfessionalInterview.FirstUnansweredPath, replace: true);
+                return;
+            }
+
+            _phoneTaken = result == PublishResult.PhoneTaken;
         }
         catch (Exception ex)
         {

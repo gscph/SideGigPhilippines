@@ -42,7 +42,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
             return null;
         }
 
-        response.EnsureSuccessStatusCode();
+        await ThrowIfFailedAsync(response, $"read {path}");
         return await response.Content.ReadFromJsonAsync(type, cancellationToken);
     }
 
@@ -74,14 +74,23 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         }
     }
 
-    /// <summary>Throws (logged) unless the write succeeded.</summary>
-    public void EnsureWritten(HttpResponseMessage response, string what, string? error = null)
+    /// <summary>
+    /// Throws (logged) unless the write succeeded. The log and the exception carry the server's whole error answer
+    /// (its code and, while the API sends them, the exception and stack trace).
+    /// </summary>
+    public Task EnsureWrittenAsync(HttpResponseMessage response, string what) => ThrowIfFailedAsync(response, what);
+
+    private async Task ThrowIfFailedAsync(HttpResponseMessage response, string what)
     {
-        if (!response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
-            logger.LogError("API: couldn't {What}: {Status} {Error}.", what, (int)response.StatusCode, error);
-            response.EnsureSuccessStatusCode();
+            return;
         }
+
+        var body = await response.Content.ReadAsStringAsync();
+        logger.LogError("API: couldn't {What}: {Status} {Reason}\n{Body}", what, (int)response.StatusCode, response.ReasonPhrase, body);
+        throw new HttpRequestException(
+            $"API: couldn't {what}: {(int)response.StatusCode} {response.ReasonPhrase}. {body}", null, response.StatusCode);
     }
 
     public static string Escape(string value) => Uri.EscapeDataString(value);

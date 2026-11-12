@@ -31,6 +31,12 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
+    /// <summary>
+    /// Opens the first question still unanswered: a step past it is never shown, so asking for the last step
+    /// lands there (or on the preview when everything is answered). Publish sends incomplete listings here.
+    /// </summary>
+    public static string FirstUnansweredPath => StepPath(ProStep.Preview);
+
     [Parameter] public int? Step { get; set; }
 
     private OnboardingState? _state;

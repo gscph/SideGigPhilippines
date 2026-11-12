@@ -75,13 +75,13 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
     {
         using var response = await api.SendJsonAsync(HttpMethod.Put, "professionals/me", listing.ToPublishRequest(), ApiJson.Default.PublishListingRequest);
         Forget(listing.Id);
-        var error = response.IsSuccessStatusCode ? null : await ErrorOf(response);
-        if (response.StatusCode == HttpStatusCode.Conflict && error == ApiErrors.PhoneTaken)
+        if (response.StatusCode == HttpStatusCode.Conflict
+            && await ErrorOf(response) == ApiErrors.PhoneTaken)
         {
             return PublishResult.PhoneTaken;
         }
 
-        api.EnsureWritten(response, "publish the listing", error);
+        await api.EnsureWrittenAsync(response, "publish the listing");
         return PublishResult.Published;
     }
 
@@ -89,7 +89,7 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
     {
         using var response = await api.SendAsync(HttpMethod.Delete, "professionals/me");
         Forget(professionalId);
-        api.EnsureWritten(response, "remove the listing");
+        await api.EnsureWrittenAsync(response, "remove the listing");
     }
 
     /// <summary>The worker's own listing changed: the next read of it, and every search, asks the server.</summary>

@@ -31,7 +31,7 @@ public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> 
     {
         using var response = await api.SendJsonAsync(HttpMethod.Post, $"chats/{ApiClient.Escape(chat.Id)}/messages",
             chat.ToSendRequest(message), ApiJson.Default.SendMessageRequest);
-        api.EnsureWritten(response, $"send a message in chat {chat.Id}");
+        await api.EnsureWrittenAsync(response, $"send a message in chat {chat.Id}");
         var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.ChatDto)
             ?? throw new HttpRequestException("The API sent an empty answer to a message.");
         return saved.ToModel();
@@ -60,7 +60,7 @@ public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> 
     public async Task DeleteForPersonAsync(string personId)
     {
         using var response = await api.SendAsync(HttpMethod.Delete, "chats/mine");
-        api.EnsureWritten(response, "delete my chats");
+        await api.EnsureWrittenAsync(response, "delete my chats");
     }
 
     /// <summary>Polls one chat until disposed. A failed check (offline) is skipped; the next one tries again.</summary>

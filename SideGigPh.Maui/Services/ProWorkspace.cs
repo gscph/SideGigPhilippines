@@ -219,9 +219,14 @@ public sealed class ProWorkspace(
         }
     }
 
-    /// <summary>The pro took the pledge: make the listing searchable.</summary>
+    /// <summary>The pro took the pledge: make the listing searchable, if it has every interview answer.</summary>
     public async Task<PublishResult> PublishAsync()
     {
+        if (!Draft.IsListingComplete)
+        {
+            return PublishResult.Incomplete;
+        }
+
         // The phone may have been added to the account since the interview.
         Draft.TakeAccount(await identity.GetCurrentUserAsync());
         var result = await profiles.PublishAsync(Listing);
@@ -298,9 +303,9 @@ public sealed class ProWorkspace(
     private async Task SaveAsync(bool listingChanged = false)
     {
         await store.SaveAsync(_state!);
-        if (listingChanged && IsPublished)
+        if (listingChanged && IsPublished && Draft.IsListingComplete)
         {
-            // Keep the live listing in step with new photos.
+            // Keep the live listing in step with new photos (not while an edit has left answers missing).
             await profiles.PublishAsync(Listing);
         }
 

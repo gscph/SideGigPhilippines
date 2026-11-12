@@ -13,12 +13,12 @@ public sealed class ApiUserRepository(ApiClient api) : IUserRepository
     public async Task SaveAsync(UserProfile profile)
     {
         using var response = await api.SendJsonAsync(HttpMethod.Put, "users/me", profile.ToDto(), ApiJson.Default.UserDto);
-        api.EnsureWritten(response, "save the profile");
+        await api.EnsureWrittenAsync(response, "save the profile");
     }
 
     public async Task DeleteAsync(string uid)
     {
         using var response = await api.SendAsync(HttpMethod.Delete, "users/me");
-        api.EnsureWritten(response, "delete the profile");
+        await api.EnsureWrittenAsync(response, "delete the profile");
     }
 }

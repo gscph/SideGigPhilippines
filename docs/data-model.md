@@ -81,6 +81,8 @@ All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, `ReferenceDat
 
 ## 6. API (all need `Authorization: Bearer <Firebase ID token>`)
 
+Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResults.ShowDetails` is on (MVP), `detail` holds the exception and stack trace (`500 exception`, `400 bad-body`) or what was wrong with the request (`400 invalid-{field}` echoes what was received). Turn it off before launch.
+
 | Route | Does |
 |---|---|
 | `GET / PUT / DELETE users/me` | The caller's profile |

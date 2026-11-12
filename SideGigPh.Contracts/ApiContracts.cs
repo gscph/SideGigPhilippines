@@ -34,9 +34,16 @@ public static class ApiErrors
 
     /// <summary>403 on review: only a Seeker who chatted with the Skilled Worker can review them.</summary>
     public const string NoChat = "no-chat";
+
+    /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
+    public const string Exception = "exception";
 }
 
-public sealed record ApiError(string Error);
+/// <summary>
+/// An error answer. <paramref name="Detail"/> is for debugging (the exception with its stack trace, or what was
+/// wrong with the request) while <c>ApiResults.ShowDetails</c> is on; the app logs it and never shows it to users.
+/// </summary>
+public sealed record ApiError(string Error, string? Detail = null);
 
 /// <summary>The signed-in person (<c>GET/PUT users/me</c>).</summary>
 public sealed record UserDto(

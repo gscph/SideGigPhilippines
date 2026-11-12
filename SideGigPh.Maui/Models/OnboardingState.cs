@@ -81,4 +81,13 @@ public sealed class ProfessionalDraft
 
     /// <summary>Set when the pro took the pledge and published the listing.</summary>
     public DateTimeOffset? PublishedAt { get; set; }
+
+    /// <summary>
+    /// Has every answer the listing shows: trade, at least one job, area, at least one town, experience and rate.
+    /// Only then can it be published (the API refuses a listing without trade, area, jobs and towns).
+    /// </summary>
+    public bool IsListingComplete =>
+        CategoryId is not null && ServiceIds.Count > 0
+        && AreaId is not null && CityIds.Count > 0
+        && ExperienceId is not null && RateTierId is not null;
 }

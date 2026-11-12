@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -66,14 +67,15 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
 
         if (await ApiResults.ReadAsync<PublishListingRequest>(request, cancellationToken) is not { } listing)
         {
-            logger.LogWarning("Publish by {Uid}: unreadable body ({ContentType}, {Length} bytes).", caller.Uid, request.ContentType, request.ContentLength);
-            return ApiResults.BadRequest(ApiErrors.BadBody);
+            return ApiResults.BadRequest(ApiErrors.BadBody, "The body was empty (null).");
         }
 
         if (ProfessionalStore.InvalidField(listing) is { } field)
         {
-            logger.LogWarning("Publish by {Uid}: invalid {Field} in {@Listing}.", caller.Uid, field, listing);
-            return ApiResults.BadRequest(ApiErrors.Invalid(field));
+            var sent = JsonSerializer.Serialize(listing, ApiJson.Default.PublishListingRequest);
+            logger.LogWarning("Publish by {Uid}: invalid {Field} in {Listing}.", caller.Uid, field, sent);
+            return ApiResults.BadRequest(ApiErrors.Invalid(field),
+                $"{field} is missing or not a valid id (categoryId, areaId and at least one serviceIds and cityIds are required). Received: {sent}");
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch
