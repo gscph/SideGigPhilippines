@@ -68,3 +68,8 @@ nunit-*.xml
 local.settings.json
 /SideGigPh.Api/Properties
 /SideGigPh.Api/SideGigPh.Api.csproj.user
+
+# Android signing keys: only the shared dev key is committed (docs/android-signing.md)
+*.keystore
+*.jks
+!SideGigPh.Maui/Platforms/Android/Signing/dev.keystore

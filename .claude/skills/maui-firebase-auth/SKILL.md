@@ -121,9 +121,11 @@ registration is **server-side** — once the running APK is signed with a regist
 to rebuild to clear a `10`. To confirm which local keystore matches, fingerprint candidates with
 `keytool -list -v -keystore "<path>" -alias androiddebugkey -storepass android -keypass android | grep SHA1`.
 
-> **CI / other machines:** the Xamarin debug keystore is per-machine; CI and other devs sign with a
-> different key, so register each one, or commit a single explicit debug keystore and point the csproj
-> at it for a stable fingerprint everywhere.
+> **CI / other machines (solved in this repo):** the Xamarin debug keystore is per-machine, so the
+> csproj signs every build with the committed `Platforms/Android/Signing/dev.keystore` (one registered
+> fingerprint everywhere). Only a Release build with `ReleaseKeystore` set uses the store key. See
+> `docs/android-signing.md`. If a fresh clone gets status 10, check that the APK really is signed by that
+> keystore (`keytool -printcert -jarfile <apk>`) and that `google-services.json` is present.
 
 - A status **7** (NETWORK_ERROR) after the account picker is usually the **emulator**, not your config
   — see the `android-emulator-vs-deploy` skill.

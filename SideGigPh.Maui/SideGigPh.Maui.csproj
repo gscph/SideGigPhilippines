@@ -81,6 +81,31 @@
         <ProjectReference Include="..\MobileAppTheme.Firebase\MobileAppTheme.Firebase.csproj" />
     </ItemGroup>
 
+    <!-- Android signing: one fingerprint everywhere, so Firebase (Google sign-in, phone attestation)
+         recognises the APK on every PC and in CI. See docs/android-signing.md.
+         - Default (Debug and Release on any machine): the shared dev key committed in
+           Platforms/Android/Signing/dev.keystore. Its SHA-1/SHA-256 are registered in Firebase.
+         - Store release: set ReleaseKeystore (path) + ReleaseKeyAlias, and the passwords in the
+           SIDEGIGPH_KEYSTORE_PASS / SIDEGIGPH_KEY_PASS environment variables (never in this file).
+           CI does this from GitHub secrets. -->
+    <PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
+        <ReleaseKeystore Condition="'$(ReleaseKeystore)' == ''">$(SIDEGIGPH_KEYSTORE)</ReleaseKeystore>
+        <ReleaseKeyAlias Condition="'$(ReleaseKeyAlias)' == ''">$(SIDEGIGPH_KEY_ALIAS)</ReleaseKeyAlias>
+        <AndroidKeyStore>true</AndroidKeyStore>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(TargetFramework.Contains('-android')) And ('$(Configuration)' != 'Release' Or '$(ReleaseKeystore)' == '' Or !Exists('$(ReleaseKeystore)'))">
+        <AndroidSigningKeyStore>$(MSBuildThisFileDirectory)Platforms\Android\Signing\dev.keystore</AndroidSigningKeyStore>
+        <AndroidSigningKeyAlias>androiddebugkey</AndroidSigningKeyAlias>
+        <AndroidSigningStorePass>android</AndroidSigningStorePass>
+        <AndroidSigningKeyPass>android</AndroidSigningKeyPass>
+    </PropertyGroup>
+    <PropertyGroup Condition="$(TargetFramework.Contains('-android')) And '$(Configuration)' == 'Release' And '$(ReleaseKeystore)' != '' And Exists('$(ReleaseKeystore)')">
+        <AndroidSigningKeyStore>$(ReleaseKeystore)</AndroidSigningKeyStore>
+        <AndroidSigningKeyAlias>$(ReleaseKeyAlias)</AndroidSigningKeyAlias>
+        <AndroidSigningStorePass>env:SIDEGIGPH_KEYSTORE_PASS</AndroidSigningStorePass>
+        <AndroidSigningKeyPass>env:SIDEGIGPH_KEY_PASS</AndroidSigningKeyPass>
+    </PropertyGroup>
+
     <!-- Firebase config files. Referenced only when present so the build works without them.
          Supply these from your Firebase project before an Android/iOS run. -->
     <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
