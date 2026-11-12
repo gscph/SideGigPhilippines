@@ -139,77 +139,21 @@ public static class ReferenceData
         };
 
     /// <summary>
-    /// The areas we serve, in the order pickers show them. A town belongs to exactly one area;
-    /// search treats towns in the Seeker's area as "nearby" (<see cref="AreaOf"/>).
+    /// The one area (province) we serve for the MVP. The interviews never ask for it: it follows from the town
+    /// (<see cref="AreaOf"/>), and listings and search still carry it so more areas can return without a schema change.
     /// </summary>
-    public static readonly IReadOnlyList<CatalogOption> Areas =
-    [
-        new("metro-manila", new("Metro Manila", "Metro Manila"), "🏙️"),
-        new("rizal", new("Rizal", "Rizal"), "⛰️"),
-        new("laguna", new("Laguna", "Laguna"), "🌳"),
-        new("cavite", new("Cavite", "Cavite"), "🌊"),
-    ];
+    public const string ServiceAreaId = "rizal";
 
     // Town IDs are stored in saved answers, listings and chats: never rename them, only
-    // their labels. Within an area, towns are A–Z. Accents stay in labels (Las Piñas), not in IDs.
-    public static readonly IReadOnlyDictionary<string, IReadOnlyList<CatalogOption>> CitiesByArea =
-        new Dictionary<string, IReadOnlyList<CatalogOption>>
-        {
-            ["metro-manila"] =
-            [
-                Town("caloocan", "Caloocan"),
-                Town("las-pinas", "Las Piñas"),
-                Town("makati", "Makati"),
-                Town("malabon", "Malabon"),
-                Town("mandaluyong", "Mandaluyong"),
-                Town("manila", "Manila"),
-                Town("marikina", "Marikina"),
-                Town("muntinlupa", "Muntinlupa"),
-                Town("navotas", "Navotas"),
-                Town("paranaque", "Parañaque"),
-                Town("pasay", "Pasay"),
-                Town("pasig", "Pasig"),
-                Town("pateros", "Pateros"),
-                Town("quezon-city", "Quezon City"),
-                Town("san-juan", "San Juan"),
-                Town("taguig", "Taguig"),
-                Town("valenzuela", "Valenzuela"),
-            ],
-            ["rizal"] =
-            [
-                Town("angono", "Angono"),
-                Town("antipolo", "Antipolo"),
-                Town("binangonan", "Binangonan"),
-                Town("cainta", "Cainta"),
-                Town("rodriguez", "Rodriguez (Montalban)"),
-                Town("san-mateo", "San Mateo"),
-                Town("taytay", "Taytay"),
-            ],
-            ["laguna"] =
-            [
-                Town("binan", "Biñan"),
-                Town("cabuyao", "Cabuyao"),
-                Town("calamba", "Calamba"),
-                Town("los-banos", "Los Baños"),
-                Town("san-pedro", "San Pedro"),
-                Town("santa-rosa", "Santa Rosa (Nuvali)"),
-            ],
-            ["cavite"] =
-            [
-                Town("bacoor", "Bacoor"),
-                Town("carmona", "Carmona"),
-                Town("dasmarinas", "Dasmariñas"),
-                Town("general-trias", "General Trias"),
-                Town("imus", "Imus"),
-                Town("kawit", "Kawit"),
-                Town("silang", "Silang"),
-                Town("tagaytay", "Tagaytay"),
-            ],
-        };
-
-    /// <summary>Every town we serve, grouped by area in <see cref="Areas"/> order.</summary>
+    // their labels. Towns are A–Z. Accents stay in labels (Las Piñas), not in IDs. A saved town
+    // that is no longer here is dropped when the answers load (OnboardingCleanup), so the user picks again.
+    /// <summary>Every town we serve, all in <see cref="ServiceAreaId"/>.</summary>
     public static readonly IReadOnlyList<CatalogOption> Cities =
-        Areas.SelectMany(area => CitiesByArea[area.Id]).ToList();
+    [
+        Town("angono", "Angono"),
+        Town("antipolo", "Antipolo"),
+        Town("taytay", "Taytay"),
+    ];
 
     public static readonly IReadOnlyList<CatalogOption> Urgencies =
     [
@@ -218,12 +162,15 @@ public static class ReferenceData
         new(UrgencyCanvassing, new("Just comparing prices", "Nagca-canvass lang"), "🔍"),
     ];
 
+    /// <summary>The top experience answer; Seekers see it highlighted in the brand color.</summary>
+    public const string TopExperienceId = "10-plus";
+
     public static readonly IReadOnlyList<CatalogOption> Experience =
     [
         new("under-1", new("Less than 1 year", "Wala pang 1 taon"), "🌱"),
         new("1-3", new("1–3 years", "1–3 taon"), "🧰"),
         new("3-10", new("3–10 years", "3–10 taon"), "🛠️"),
-        new("10-plus", new("10+ years", "Mahigit 10 taon"), "🏆"),
+        new(TopExperienceId, new("10+ years", "Mahigit 10 taon"), "🏆"),
     ];
 
     /// <summary>
@@ -270,9 +217,9 @@ public static class ReferenceData
     public static string? CategoryOfService(string serviceId) =>
         ServicesByCategory.FirstOrDefault(pair => pair.Value.Any(s => s.Id == serviceId)).Key;
 
-    /// <summary>The area id (<see cref="Areas"/>) a town belongs to, or null for an unknown town.</summary>
+    /// <summary>The area a town belongs to (<see cref="ServiceAreaId"/>), or null for a town we don't serve.</summary>
     public static string? AreaOf(string? cityId) =>
-        cityId is null ? null : CitiesByArea.FirstOrDefault(pair => pair.Value.Any(c => c.Id == cityId)).Key;
+        Find(Cities, cityId) is null ? null : ServiceAreaId;
 
     // Place names are the same in English and Taglish.
     private static CatalogOption Town(string id, string name) => new(id, new(name, name));

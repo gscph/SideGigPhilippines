@@ -7,7 +7,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// Seeker interview: what job → which area (province) → which town (their one home town) → when →
+/// Seeker interview: what job → which town (their one home town) → when →
 /// budget → results. Each step has its own
 /// URL so Android back walks the steps; every answer is saved as soon as it's tapped.
 /// Once finished, tapping an answer chip on the results reopens one step and returns there.
@@ -18,7 +18,6 @@ public partial class SeekerInterview : ComponentBase
     {
         Category = 1,
         Service,
-        Area,
         City,
         When,
         Budget,
@@ -52,9 +51,6 @@ public partial class SeekerInterview : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         _state = await Store.LoadAsync();
-
-        // Answers saved before the area step had a town but no area: take it from the town.
-        Answers.AreaId ??= ReferenceData.AreaOf(Answers.CityId);
     }
 
     protected override void OnParametersSet()
@@ -87,20 +83,10 @@ public partial class SeekerInterview : ComponentBase
         return AdvanceAsync();
     }
 
-    private Task PickAreaAsync(string id)
-    {
-        if (Answers.AreaId != id)
-        {
-            Answers.AreaId = id;
-            Answers.CityId = null; // The town belonged to the previous area.
-        }
-
-        return AdvanceAsync();
-    }
-
     private Task PickCityAsync(string id)
     {
         Answers.CityId = id;
+        Answers.AreaId = ReferenceData.AreaOf(id); // One area, never asked: it follows from the town.
         return AdvanceAsync();
     }
 
@@ -157,12 +143,14 @@ public partial class SeekerInterview : ComponentBase
     {
         if (Answers.CategoryId is null) return SeekerStep.Category;
         if (Answers.ServiceId is null) return SeekerStep.Service;
-        if (Answers.AreaId is null) return SeekerStep.Area;
         if (Answers.CityId is null) return SeekerStep.City;
         if (Answers.UrgencyId is null) return SeekerStep.When;
         if (Answers.BudgetId is null) return SeekerStep.Budget;
         return SeekerStep.Finding;
     }
+
+    /// <summary>The home-town question. The launch router reopens it when a saved town is no longer served.</summary>
+    public static string TownPath => StepPath(SeekerStep.City);
 
     private static string StepPath(SeekerStep step) => $"/start/seeker/{(int)step}";
 

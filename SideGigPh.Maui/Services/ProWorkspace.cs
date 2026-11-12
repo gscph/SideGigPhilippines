@@ -18,7 +18,7 @@ public sealed class ProWorkspace(
     IIdentityProvider identity)
 {
     /// <summary>Most work photos a listing can have.</summary>
-    public const int MaxWorkPhotos = 12;
+    public const int MaxWorkPhotos = 6;
 
     /// <summary>How long chats and reviews count as fresh: switching tabs within this doesn't ask the server again.</summary>
     public static readonly TimeSpan ActivityFreshFor = TimeSpan.FromSeconds(15);

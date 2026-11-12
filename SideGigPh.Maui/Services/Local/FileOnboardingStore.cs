@@ -27,7 +27,8 @@ public sealed class FileOnboardingStore(ILogger<FileOnboardingStore> logger) : I
         await _file.DeleteAsync();
     }
 
-    private async Task<OnboardingState> ReadAsync() => await _file.ReadAsync() ?? new OnboardingState();
+    // Old answers may name towns we no longer serve; they are dropped so the interview asks again.
+    private async Task<OnboardingState> ReadAsync() => (await _file.ReadAsync() ?? new OnboardingState()).DropUnservedTowns();
 }
 
 /// <summary>Source-generated serializer so the store keeps working with trimming/AOT in Release builds.</summary>

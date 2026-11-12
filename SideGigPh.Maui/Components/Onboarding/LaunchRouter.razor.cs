@@ -45,6 +45,12 @@ public partial class LaunchRouter : ComponentBase
             return state.ResumePath ?? (role == UserRole.Seeker ? "/start/seeker" : "/start/pro");
         }
 
-        return role == UserRole.Seeker ? SeekerRoutes.Home : ProRoutes.Home;
+        // A finished interview can lose its town when coverage shrinks (OnboardingCleanup): ask for it again.
+        if (role == UserRole.Seeker)
+        {
+            return state.Seeker.CityId is null ? SeekerInterview.TownPath : SeekerRoutes.Home;
+        }
+
+        return state.Professional.IsListingComplete ? ProRoutes.Home : ProfessionalInterview.FirstUnansweredPath;
     }
 }

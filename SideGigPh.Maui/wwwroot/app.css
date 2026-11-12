@@ -67,6 +67,25 @@
     aspect-ratio: 1;
 }
 
+/* Work photos two across, scrolling sideways past two (PhotoStrip: public profile, Photos page). */
+.photo-strip {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% - 0.5rem) / 2);
+    gap: 0.5rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+.photo-strip::-webkit-scrollbar {
+    display: none;
+}
+
+.photo-strip > * {
+    scroll-snap-align: start;
+}
+
 /* Remove button over the corner of a work photo. */
 .photo-remove {
     position: absolute;
@@ -106,4 +125,20 @@
     width: 6rem !important;
     height: 6rem !important;
     font-size: 2rem !important;
+}
+
+/* Pro side's "not visible yet" strip under the top bar (NotLiveBanner): tappable, the text fills the row
+   (so it can cut with "…" instead of wrapping) and the chevron sits at the right edge. */
+.app-banner {
+    cursor: pointer;
+}
+
+.app-banner .mud-alert-message {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Lets equal flex-1 boxes (the profile's stat tiles) shrink below their text width so long values wrap. */
+.app-min-w-0 {
+    min-width: 0;
 }

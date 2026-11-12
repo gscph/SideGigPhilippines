@@ -63,7 +63,8 @@ public sealed record PhotoDto(string Id, string Url);
 
 /// <summary>
 /// A published Skilled Worker listing (<c>GET professionals</c>, <c>GET professionals/{id}</c>), with its stars
-/// (null with no reviews yet), so search ranks in one request.
+/// (null with no reviews yet), so search ranks in one request, and how many references vouch for the worker
+/// (only the count: reference names and numbers never leave the server).
 /// </summary>
 public sealed record ListingDto(
     string Id,
@@ -77,7 +78,8 @@ public sealed record ListingDto(
     string? RateTierId,
     PhotoDto? ProfilePhoto,
     IReadOnlyList<PhotoDto> WorkPhotos,
-    ReviewSummaryDto? Reviews = null);
+    ReviewSummaryDto? Reviews = null,
+    int ReferenceCount = 0);
 
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified

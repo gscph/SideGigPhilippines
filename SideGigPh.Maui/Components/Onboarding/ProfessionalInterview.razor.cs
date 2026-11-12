@@ -7,7 +7,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// Professional (Skilled Worker) interview: trades → jobs → area → towns → experience → rate → earnings goal →
+/// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate → earnings goal →
 /// preview. The answers build the listing card the pro sees at the end; its name and number come
 /// from the account (<see cref="ListingMapper.TakeAccount"/>), so they are never asked here.
 /// One URL per step; answers are saved whenever the user moves forward.
@@ -18,7 +18,6 @@ public partial class ProfessionalInterview : ComponentBase
     {
         Skills = 1,
         Services,
-        Area,
         Towns,
         Experience,
         Rate,
@@ -62,9 +61,6 @@ public partial class ProfessionalInterview : ComponentBase
     {
         _state = await Store.LoadAsync();
 
-        // Drafts saved before the area step had towns but no area: take it from their towns.
-        Draft.AreaId ??= ReferenceData.AreaOf(Draft.CityIds.FirstOrDefault());
-
         // The preview card shows the account's name and number.
         Draft.TakeAccount(await Identity.GetCurrentUserAsync());
     }
@@ -94,31 +90,30 @@ public partial class ProfessionalInterview : ComponentBase
 
     private void ToggleService(string serviceId) => Toggle(Draft.ServiceIds, serviceId);
 
-    private Task PickAreaAsync(string areaId)
+    private void ToggleCity(string cityId)
     {
-        if (Draft.AreaId != areaId)
-        {
-            Draft.AreaId = areaId;
-            Draft.CityIds.Clear(); // Towns belonged to the previous area.
-        }
-
-        return AdvanceAsync();
+        Toggle(Draft.CityIds, cityId);
+        SetAreaFromTowns();
     }
 
-    private void ToggleCity(string cityId) => Toggle(Draft.CityIds, cityId);
-
-    /// <summary>"Select all" adds every town in the area; when all are already picked it removes them.</summary>
-    private void ToggleWholeArea()
+    /// <summary>"Select all" adds every town we serve; when all are already picked it removes them.</summary>
+    private void ToggleAllTowns()
     {
-        var towns = ReferenceData.CitiesByArea[Draft.AreaId!].Select(town => town.Id).ToList();
+        var towns = ReferenceData.Cities.Select(town => town.Id).ToList();
         if (towns.All(Draft.CityIds.Contains))
         {
             Draft.CityIds.RemoveAll(towns.Contains);
-            return;
+        }
+        else
+        {
+            Draft.CityIds.AddRange(towns.Except(Draft.CityIds));
         }
 
-        Draft.CityIds.AddRange(towns.Except(Draft.CityIds));
+        SetAreaFromTowns();
     }
+
+    // There is one area, so it is never asked: it follows from the towns (the API needs it on the listing).
+    private void SetAreaFromTowns() => Draft.AreaId = ReferenceData.AreaOf(Draft.CityIds.FirstOrDefault());
 
     private Task PickExperienceAsync(string id)
     {
@@ -182,7 +177,6 @@ public partial class ProfessionalInterview : ComponentBase
     {
         if (Draft.CategoryId is null) return ProStep.Skills;
         if (Draft.ServiceIds.Count == 0) return ProStep.Services;
-        if (Draft.AreaId is null) return ProStep.Area;
         if (Draft.CityIds.Count == 0) return ProStep.Towns;
         if (Draft.ExperienceId is null) return ProStep.Experience;
         if (Draft.RateTierId is null) return ProStep.Rate;

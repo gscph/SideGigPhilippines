@@ -25,6 +25,12 @@ public partial class AppShell : ComponentBase, IDisposable
     /// <summary>A green dot on the avatar, e.g. a profile that is live.</summary>
     [Parameter] public bool ShowStatusDot { get; set; }
 
+    /// <summary>
+    /// An optional one-line strip right under the top bar that sticks with it, e.g. "your profile isn't live yet".
+    /// Null shows the bar alone.
+    /// </summary>
+    [Parameter] public RenderFragment? Banner { get; set; }
+
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private string _path = string.Empty;

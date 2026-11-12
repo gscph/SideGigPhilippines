@@ -19,18 +19,10 @@
             </InterviewStep>
             break;
 
-        case SeekerStep.Area:
-            <InterviewStep Illustration="🗺️" Title="@T.Get(Copy.SeekerCityTitle)" Why="@T.Get(Copy.SeekerAreaWhy)"
-                           Note="@T.Get(Copy.CitiesNote)" Progress="Progress" OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Areas, T)"
-                             SelectedIds="Selected(Answers.AreaId)" OnPick="PickAreaAsync" />
-            </InterviewStep>
-            break;
-
         case SeekerStep.City:
-            <InterviewStep Illustration="📍" Title="@T.Get(Copy.SeekerTownTitle)" Why="@T.Get(Copy.SeekerCityWhy)"
+            <InterviewStep Illustration="📍" Title="@T.Get(Copy.SeekerCityTitle)" Why="@T.Get(Copy.SeekerCityWhy)" Note="@T.Get(Copy.CitiesNote)"
                            Progress="Progress" OnBack="GoBack">
-                <TownPicker AreaId="@(Answers.AreaId!)" SelectedIds="Selected(Answers.CityId)" OnPick="PickCityAsync" />
+                <TownPicker SelectedIds="Selected(Answers.CityId)" OnPick="PickCityAsync" />
             </InterviewStep>
             break;
 

@@ -1,27 +1,12 @@
 <MudStack Spacing="4">
-    @if (ShowFilter)
+    @if (Multiple)
     {
-        <MudTextField T="string" @bind-Value="_filter" Immediate="true" Variant="Variant.Outlined" Margin="Margin.Dense"
-                      Placeholder="@T.Get(Copy.TownFilterPlaceholder)" Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" Clearable="true" Class="app-pill-input" />
-    }
-
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Area.Label)</MudText>
-        @if (Multiple && string.IsNullOrWhiteSpace(_filter))
-        {
+        <MudStack Row="true" Justify="Justify.FlexEnd">
             <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="() => OnPickAll.InvokeAsync()">
-                @T.Get(AllSelected ? Copy.TownAreaClear : Copy.TownAreaAll)
+                @T.Get(AllSelected ? Copy.TownsClear : Copy.TownsAll)
             </MudButton>
-        }
-    </MudStack>
+        </MudStack>
+    }
 
-    @if (Tiles.Count > 0)
-    {
-        <ChoiceTiles Items="Tiles" Multiple="Multiple" Compact="true" SelectedIds="SelectedIds" OnPick="OnPick" />
-    }
-    else
-    {
-        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Get(Copy.TownFilterNone)</MudText>
-    }
+    <ChoiceTiles Items="Tiles" Multiple="Multiple" Compact="true" SelectedIds="SelectedIds" OnPick="OnPick" />
 </MudStack>

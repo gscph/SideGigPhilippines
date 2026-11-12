@@ -4,7 +4,8 @@
 @if (_ready)
 {
     <AppShell Tabs="Tabs" ProfileHref="@ProRoutes.Me" UserName="@Workspace.Draft.DisplayName"
-              UserPhotoUrl="@Workspace.ProfilePhotoUrl" ShowStatusDot="Workspace.IsPublished">
+              UserPhotoUrl="@Workspace.ProfilePhotoUrl" ShowStatusDot="Workspace.IsPublished"
+              Banner="@(Workspace.IsPublished ? null : NotLive)">
         @Body
     </AppShell>
 }

@@ -263,9 +263,11 @@ h1:focus {
    App shell (Components/Layout/AppShell)
    ========================================================================== */
 
-/* Brand bar: sticks below the iOS status bar. Used with the `sticky` utility. */
+/* Brand bar (or the bar + AppShell.Banner stack): sticks below the iOS status bar, above the page.
+   Used with the `sticky` utility. */
 .app-top-bar {
     top: env(safe-area-inset-top, 0px);
+    z-index: var(--mud-zindex-appbar);
 }
 
 /* Icon tabs fixed to the bottom edge, above the home indicator. */

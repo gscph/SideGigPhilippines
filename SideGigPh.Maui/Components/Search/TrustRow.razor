@@ -1,0 +1,10 @@
+<MudStack Row="true" AlignItems="AlignItems.Start" Spacing="3" role="listitem">
+    <MudIcon Icon="@Icon" Color="IconColor" aria-hidden="true" />
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.subtitle1">@Title</MudText>
+        @if (!string.IsNullOrEmpty(Note))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Note</MudText>
+        }
+    </MudStack>
+</MudStack>

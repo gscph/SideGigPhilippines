@@ -11,4 +11,7 @@ public partial class ProCardFact : ComponentBase
 
     /// <summary>Icon color: ink by default; stars use <c>Color.Warning</c> (gold), money <c>Color.Success</c> (green).</summary>
     [Parameter] public MudBlazor.Color IconColor { get; set; } = MudBlazor.Color.Dark;
+
+    /// <summary>Also paints the text in <see cref="IconColor"/>, a little bolder (10+ years of experience).</summary>
+    [Parameter] public bool Highlight { get; set; }
 }

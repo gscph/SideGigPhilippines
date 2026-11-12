@@ -6,9 +6,10 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// A pro as a Seeker sees them after tapping a search result: photo, trade, stars, price,
-/// experience, towns, jobs, work photos and every review. The Contact button stays pinned
-/// above the tabs and opens the Inbox thread with this pro.
+/// A pro as a Seeker sees them after tapping a search result, top to bottom: who they are
+/// (<see cref="ProfileHero"/>), their three numbers (<see cref="ProfileStats"/>), why to trust them
+/// (<see cref="ProfileTrust"/>: verified number, reference count), the jobs they take (<see cref="JobList"/>),
+/// work photos and every review. The Contact button stays pinned above the tabs and opens the Inbox thread.
 /// </summary>
 public partial class PublicProfilePage : ComponentBase
 {

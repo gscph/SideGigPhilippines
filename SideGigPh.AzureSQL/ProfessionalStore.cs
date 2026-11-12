@@ -21,7 +21,7 @@ public enum PublishOutcome
 public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache cache)
 {
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
-    public const int MaxWorkPhotos = 12;
+    public const int MaxWorkPhotos = 6;
 
     /// <summary>Fewest work photos a listing can be published with (the app's <c>ProWorkspace.MinWorkPhotos</c>).</summary>
     public const int MinWorkPhotos = 2;
@@ -164,7 +164,10 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             .Include(p => p.WorkPhotos)
             .AsSplitQuery();
 
-    /// <summary>The listings with their average stars and review count, from one grouped query.</summary>
+    /// <summary>
+    /// The listings with their average stars and review count, and how many references each has (two grouped
+    /// queries). Only the count leaves the server: reference names and numbers stay private.
+    /// </summary>
     private async Task<IReadOnlyList<ListingDto>> WithReviewsAsync(IReadOnlyList<ProfessionalRow> rows, CancellationToken cancellationToken)
     {
         var ids = rows.Select(p => p.Id).ToList();
@@ -175,10 +178,17 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .GroupBy(r => r.ProfessionalId)
                 .Select(g => new { g.Key, Average = g.Average(r => (double)r.Rating), Count = g.Count() })
                 .ToDictionaryAsync(g => g.Key, g => new ReviewSummaryDto(g.Average, g.Count), cancellationToken);
-        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id))).ToList();
+        var references = ids.Count == 0
+            ? new Dictionary<string, int>()
+            : await db.ProfessionalReferences.AsNoTracking()
+                .Where(r => ids.Contains(r.ProfessionalId))
+                .GroupBy(r => r.ProfessionalId)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken);
+        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id))).ToList();
     }
 
-    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews) => new(
+    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount) => new(
         p.Id,
         p.DisplayName,
         p.MobileNumber,
@@ -190,5 +200,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         p.RateTierId,
         p.ProfilePhotoId is { } photoId ? new PhotoDto(photoId, photoLinks.For(photoId)) : null,
         p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList(),
-        reviews);
+        reviews,
+        referenceCount);
 }

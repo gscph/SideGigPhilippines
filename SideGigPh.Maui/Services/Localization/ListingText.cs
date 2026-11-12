@@ -36,6 +36,17 @@ public static class ListingText
             ? text.Format(Copy.ExperienceFact, text.Get(option.Label))
             : null;
 
+    /// <summary>"10+ years" alone (the profile's stat tile), or null when unknown.</summary>
+    public static string? ExperienceLabel(this AppText text, ProfessionalListing listing) =>
+        ReferenceData.Find(ReferenceData.Experience, listing.ExperienceId) is { } option ? text.Get(option.Label) : null;
+
+    /// <summary>"₱500 – ₱1,000" alone (the profile's stat tile), or null when the price depends on the job.</summary>
+    public static string? RateLabel(this AppText text, ProfessionalListing listing) =>
+        ReferenceData.Find(ReferenceData.PriceTiers, listing.RateTierId) is { } tier ? text.Get(tier.Label) : null;
+
+    /// <summary>10+ years on the job: shown in the brand color with an award icon.</summary>
+    public static bool IsSeasoned(this ProfessionalListing listing) => listing.ExperienceId == ReferenceData.TopExperienceId;
+
     /// <summary>"4.7 ★ (3)".</summary>
     public static string Stars(this AppText text, ReviewSummary reviews) =>
         text.Format(Copy.StatRating, reviews.Average.ToString("0.0", CultureInfo.InvariantCulture), reviews.Count);

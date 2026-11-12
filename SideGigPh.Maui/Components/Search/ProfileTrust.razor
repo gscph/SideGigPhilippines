@@ -1,0 +1,12 @@
+<MudStack Spacing="2">
+    <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.ProProfileTrust)</MudText>
+    <MudPaper Outlined="true" Class="app-rounded pa-4">
+        <MudStack Spacing="3" role="list">
+            <TrustRow Icon="@Icons.Material.Filled.VerifiedUser" Title="@T.Get(Copy.TrustPhone)" Note="@T.Get(Copy.TrustPhoneNote)" />
+            @if (Listing.ReferenceCount > 0)
+            {
+                <TrustRow Icon="@Icons.Material.Filled.Groups" Title="@ReferencesTitle" Note="@T.Get(Copy.TrustReferencesNote)" />
+            }
+        </MudStack>
+    </MudPaper>
+</MudStack>

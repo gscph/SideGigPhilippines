@@ -1,4 +1,15 @@
-<AppTopBar Name="@UserName" PhotoUrl="@UserPhotoUrl" ShowStatusDot="ShowStatusDot" ProfileHref="@ProfileHref" />
+@if (Banner is null)
+{
+    <AppTopBar Name="@UserName" PhotoUrl="@UserPhotoUrl" ShowStatusDot="ShowStatusDot" ProfileHref="@ProfileHref" />
+}
+else
+{
+    @* The banner sticks with the bar, so it stays in view while the page scrolls. *@
+    <MudStack Spacing="0" Class="sticky app-top-bar">
+        <AppTopBar Name="@UserName" PhotoUrl="@UserPhotoUrl" ShowStatusDot="ShowStatusDot" ProfileHref="@ProfileHref" />
+        @Banner
+    </MudStack>
+}
 
 <MudContainer MaxWidth="MaxWidth.Small" Class="app-content pt-4">
     @ChildContent

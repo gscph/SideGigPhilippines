@@ -28,4 +28,10 @@ public sealed class ProfessionalListing
 
     /// <summary>Average stars and review count, or null with no reviews yet. Search ranks by it.</summary>
     public ReviewSummary? Reviews { get; init; }
+
+    /// <summary>
+    /// How many people vouch for this worker (their private references). Seekers see only this count,
+    /// never the names or numbers.
+    /// </summary>
+    public int ReferenceCount { get; init; }
 }

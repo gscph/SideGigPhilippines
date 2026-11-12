@@ -1,4 +1,11 @@
 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
     <MudIcon Icon="@Icon" Size="Size.Small" Color="IconColor" aria-hidden="true" />
-    <MudText Typo="Typo.body2">@Text</MudText>
+    @if (Highlight)
+    {
+        <MudText Typo="Typo.subtitle2" Color="IconColor">@Text</MudText>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2">@Text</MudText>
+    }
 </MudStack>

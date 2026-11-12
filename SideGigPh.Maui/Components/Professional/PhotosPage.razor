@@ -27,13 +27,12 @@
     }
     else
     {
-        <MudGrid Spacing="2">
+        <PhotoStrip Label="@T.Get(Copy.PhotosTitle)">
             @foreach (var photo in Workspace.WorkPhotos)
             {
-                <MudItem xs="4" @key="photo.Id">
-                    <PhotoTile Url="@photo.Url" CanRemove="Workspace.CanRemoveWorkPhoto" OnRemove="() => Workspace.RemoveWorkPhotoAsync(photo.Id)" />
-                </MudItem>
+                <PhotoTile Url="@photo.Url" CanRemove="Workspace.CanRemoveWorkPhoto" @key="photo.Id"
+                           OnRemove="() => Workspace.RemoveWorkPhotoAsync(photo.Id)" />
             }
-        </MudGrid>
+        </PhotoStrip>
     }
 </MudStack>

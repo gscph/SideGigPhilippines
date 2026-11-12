@@ -2,7 +2,7 @@
 
 > **Status:** Phase 1 is built (see §9). **Sign-in is now required before the app is used** (owner decision, 2026-11-11; §2.4): language → sign in → role → interview. The interview answers are still saved on the phone; listings, chats and reviews are in Azure SQL behind SideGigPh.Api ([`data-model.md`](data-model.md)).
 
-**Supported areas and towns** (`ReferenceData.Areas` / `CitiesByArea`): **Metro Manila** (all 16 cities + Pateros), **Rizal** (Angono · Antipolo · Binangonan · Cainta · Rodriguez · San Mateo · Taytay), **Laguna** (Biñan · Cabuyao · Calamba · Los Baños · San Pedro · Santa Rosa/Nuvali) and **Cavite** (Bacoor · Carmona · Dasmariñas · General Trias · Imus · Kawit · Silang · Tagaytay). User-facing text calls the provider a **Skilled Worker**.
+**Supported towns (MVP)** (`ReferenceData.Cities`): **Angono · Antipolo · Taytay**, all in Rizal (`ReferenceData.ServiceAreaId`). With one area there is no province question: the area follows from the town. User-facing text calls the provider a **Skilled Worker**.
 
 ## 1. Decisions
 
@@ -34,8 +34,7 @@ flowchart TD
 
     subgraph Seeker["Seeker: 5 taps to results"]
       S1[What do you need done?] --> S2[What kind of job?]
-      S2 --> S3a[Which province?]
-      S3a --> S3[Which town? one home town]
+      S2 --> S3[Which town? one home town]
       S3 --> S4[When?]
       S4 --> S5[What's your budget?]
       S5 --> LI[Finding pros... loader]
@@ -43,8 +42,7 @@ flowchart TD
 
     subgraph Pro["Professional: listing in about 2 min"]
       P1[What work do you do?] --> P2[Which jobs do you take?]
-      P2 --> P3a[Where do you work? one area]
-      P3a --> P3[Which towns do you go to?]
+      P2 --> P3[Which towns do you go to?]
       P3 --> P4[How long have you done this?]
       P4 --> P5[How much do you charge per job?]
       P5 --> P6[How much do you want to earn a month? + payoff]
@@ -72,8 +70,7 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 |------|--------------------------|-------|--------------|------------------|
 | S1 | What do you need done? / Ano'ng ipapagawa mo? | 10 category tiles with icon and hint (aircon, tubero, electrician, bubong at alulod, karpintero, welder, mason & tiles, errands/PasaBuy, solar cleaning, home service massage) | none | Results chip, search |
 | S2 | What kind of job? / Anong klaseng trabaho? | The category's jobs, most-requested first, ending with "Iba pa" | "So you only see pros who do exactly this." | Chip, ranking, **pre-filled text** |
-| S3a | Where's the job? / Saan ang trabaho? | One area: Metro Manila · Rizal · Laguna · Cavite (tiles, advances on tap; changing it clears the town) | "Pick the province first, then your town." | — |
-| S3 | Which town or city? / Saang bayan o city? | One home town in that area, stacked tiles (`TownPicker`, "Type your town" filter for Metro Manila) | "See skilled workers near you." | Chip, search, pre-filled text |
+| S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`, advances on tap; sets the area) | "See skilled workers near you." | Chip, search, pre-filled text |
 | S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Nagca-canvass lang | "We'll tell the pro when you need it." | Chip, pre-filled text |
 | S5 | What's your budget? / Magkano ang budget mo dito? | Price scale + "Di ko pa alam" | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** badge and sort |
 
@@ -83,7 +80,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 - Answer chips at the top. Tapping one reopens that question, and the next pick returns straight to results.
 - Pros in the budget come first, with a green badge.
 - Each pro has **Call** and **Text** buttons. **Text opens the SMS app pre-filled:** *"Hi po! Nakita ko kayo sa SideGigPh. Kailangan ko po: Linis ng aircon, dito sa Taytay, ngayon. Available po ba kayo?"*
-- **Cold start:** if no one serves the town, widen to the other towns in the Seeker's area (never other areas) and say so. Never show an empty screen without a reason.
+- **Cold start:** if no one serves the town, widen to the other served towns and say so. Never show an empty screen without a reason.
 
 ### 2.2 Professional interview (listing in about 2 minutes)
 
@@ -91,8 +88,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 |------|----------|-------|--------------|----------------------|
 | P1 | What work do you do? / Ano'ng trabaho mo? | Multi-select categories | "Pick all that apply." | Trade line |
 | P2 | Which jobs do you take? | Multi-select, grouped by trade | "Customers search for these exact jobs." | Job chips |
-| P3a | Where do you work? / Saan ka nagtatrabaho? | One area: Metro Manila · Rizal · Laguna · Cavite (tiles, advances on tap; changing it clears the towns) | "Pick one area. Next, choose the towns you go to." | — |
-| P3 | Which towns do you go to? | Multi-select towns of that area only (`TownPicker`: stacked tiles with checkboxes, "Select all", filter for Metro Manila) | "Customers in these towns see you first." | 📍 Goes to … |
+| P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles with checkboxes, "Select all"; sets the area) | "Customers in these towns see you first." | 📍 Goes to … |
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
 | P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |
 | P6 | **How much do you want to earn each month?** / Magkano ang gusto mong kitain kada buwan? | ₱5k / ₱10k / ₱20k / ₱30k+ | "Just for you. This won't show on your listing." | 🎯 **"That's about 4 jobs a week at around ₱750 each. Let's get you there!"** |
@@ -276,7 +272,7 @@ A silent anonymous session at launch gives a UID for API calls and App Check wit
 ## 8. Open questions
 1. **Edit name:** a Skilled Worker's listing shows the account name. A shop name ("Mang Jun Aircon Services") needs an edit-name option on the Me page.
 2. **Monetization:** subscription, boost or lead fees? This decides when GCash is collected.
-4. **Barangay-level location:** needs an authoritative barangay list (PSGC) for the 4 towns.
+4. **Barangay-level location:** needs an authoritative barangay list (PSGC) for the 3 towns.
 5. **Non-trade pros** (web dev, video editing): needs an "Other" path with free text.
 6. **Per-service town coverage:** today a pro's towns apply to all their services. If pros need "I do installs only in Taytay", coverage has to move to each service (and later to barangays).
 7. **Category count (10 and growing):** past about 10 tiles, S1 should show popular categories first with a "More" option, or add search (Hick's Law).

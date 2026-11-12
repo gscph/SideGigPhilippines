@@ -44,6 +44,7 @@ internal static partial class ApiMapping
         PhotoUrl = dto.ProfilePhoto?.Url,
         WorkPhotoUrls = dto.WorkPhotos.Select(photo => photo.Url).ToList(),
         Reviews = dto.Reviews is { } reviews ? new ReviewSummary(reviews.Average, reviews.Count) : null,
+        ReferenceCount = dto.ReferenceCount,
     };
 
     /// <summary>

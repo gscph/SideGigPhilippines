@@ -24,19 +24,11 @@ else if (_state is not null)
             </InterviewStep>
             break;
 
-        case ProStep.Area:
-            <InterviewStep Illustration="🗺️" Title="@T.Get(Copy.ProAreaTitle)" Why="@T.Get(Copy.ProAreaWhy)" Note="@T.Get(Copy.CitiesNote)"
-                           Progress="Progress" OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Areas, T)"
-                             SelectedIds="Selected(Draft.AreaId)" OnPick="PickAreaAsync" />
-            </InterviewStep>
-            break;
-
         case ProStep.Towns:
-            <InterviewStep Illustration="📍" Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)"
+            <InterviewStep Illustration="📍" Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)" Note="@T.Get(Copy.CitiesNote)"
                            Progress="Progress" OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.CityIds.Count > 0)">
-                <TownPicker AreaId="@(Draft.AreaId!)" Multiple="true" SelectedIds="Draft.CityIds"
-                            OnPick="ToggleCity" OnPickAll="ToggleWholeArea" />
+                <TownPicker Multiple="true" SelectedIds="Draft.CityIds"
+                            OnPick="ToggleCity" OnPickAll="ToggleAllTowns" />
             </InterviewStep>
             break;
 

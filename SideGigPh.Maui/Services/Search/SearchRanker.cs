@@ -7,7 +7,7 @@ namespace SideGigPh.Maui.Services.Search;
 /// <list type="number">
 /// <item>Job: only pros who list the exact job, unless nobody does yet (then the whole category, flagged).</item>
 /// <item>Town: pros who go to the Seeker's town come first, in their own group; pros from other towns in the
-/// same area (Metro Manila, Rizal, Laguna, Cavite) follow; pros only in other areas are left out.</item>
+/// same area follow (all served towns, Taytay, Angono and Antipolo, are in Rizal); towns we don't serve are ignored.</item>
 /// <item>Score within a group: fits the budget, stars (smoothed so 1 review can't beat 20),
 /// experience, and photos (customers trust a face and real work).</item>
 /// </list>
@@ -44,8 +44,8 @@ public static class SearchRanker
             return new SearchResult(hits, [], fallback);
         }
 
-        // "Nearby" = another town in the Seeker's area (e.g. Cainta for a Taytay Seeker). A worker
-        // who only goes to other areas (Cavite for someone in Rizal) isn't shown at all.
+        // "Nearby" = another town in the Seeker's area (e.g. Antipolo for a Taytay Seeker). A worker
+        // who only goes to towns we don't serve (left from wider coverage) isn't shown at all.
         var area = ReferenceData.AreaOf(request.CityId);
         return new SearchResult(
             hits.Where(h => h.ServesTown).ToList(),

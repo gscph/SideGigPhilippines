@@ -6,7 +6,14 @@
     <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Text="@T.Rate(Listing)" />
     @if (T.Experience(Listing) is { } experience)
     {
-        <ProCardFact Icon="@Icons.Material.Filled.Handyman" Text="@experience" />
+        @if (Listing.IsSeasoned())
+        {
+            <ProCardFact Icon="@Icons.Material.Filled.WorkspacePremium" IconColor="Color.Primary" Highlight="true" Text="@experience" />
+        }
+        else
+        {
+            <ProCardFact Icon="@Icons.Material.Filled.Handyman" Text="@experience" />
+        }
     }
     @if (T.Towns(Listing) is { Length: > 0 } towns)
     {

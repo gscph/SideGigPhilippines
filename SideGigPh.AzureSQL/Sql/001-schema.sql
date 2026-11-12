@@ -109,7 +109,7 @@ BEGIN
     CREATE INDEX IX_ProfessionalCities_City ON dbo.ProfessionalCities (CityId);
 END;
 
-/* ---------- Work photos (up to 12 per listing; the bytes are in Blob Storage) ---------- */
+/* ---------- Work photos (the API keeps up to 6 per listing, the check allows 12; the bytes are in Blob Storage) ---------- */
 IF OBJECT_ID(N'dbo.ProfessionalWorkPhotos', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.ProfessionalWorkPhotos

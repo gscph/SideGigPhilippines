@@ -20,14 +20,10 @@ public static class Copy
     public static readonly LocalizedText SeekerServiceTitle = new("What kind of job?", "Anong klaseng trabaho?");
     public static readonly LocalizedText SeekerServiceWhy = new("So you only see Skilled Workers who do exactly this.", "So you only see Skilled Workers who do exactly this.");
     public static readonly LocalizedText SeekerCityTitle = new("Where's the Job?", "Saan ang trabaho?");
-    public static readonly LocalizedText SeekerAreaWhy = new("Pick the province first, then your town.", "Piliin muna ang probinsya, tapos ang bayan mo.");
-    public static readonly LocalizedText SeekerTownTitle = new("Which town or city?", "Saang bayan o city?");
     public static readonly LocalizedText SeekerCityWhy = new("See skilled workers near you.", "Makikita mo ang mga skilled worker na malapit sa iyo.");
     public static readonly LocalizedText CitiesNote = new("More towns coming soon.", "Marami pang bayan, abangan!");
-    public static readonly LocalizedText TownFilterPlaceholder = new("Type your town", "I-type ang bayan mo");
-    public static readonly LocalizedText TownFilterNone = new("No town matches. Check the spelling.", "Walang tugmang bayan. I-check ang spelling.");
-    public static readonly LocalizedText TownAreaAll = new("Select all", "Piliin lahat");
-    public static readonly LocalizedText TownAreaClear = new("Remove all", "Alisin lahat");
+    public static readonly LocalizedText TownsAll = new("Select all", "Piliin lahat");
+    public static readonly LocalizedText TownsClear = new("Remove all", "Alisin lahat");
     public static readonly LocalizedText SeekerWhenTitle = new("When do you need it?", "Kailan mo kailangan?");
     public static readonly LocalizedText SeekerWhenWhy = new("We'll tell the skilled worker when you need it.", "Sasabihin namin sa skilled worker kung kailan mo kailangan.");
     public static readonly LocalizedText SeekerBudgetTitle = new("What's your budget for this job?", "Magkano ang budget mo dito?");
@@ -67,6 +63,23 @@ public static class Copy
 
     // --- A pro's public profile -------------------------------------------
     public static readonly LocalizedText ProProfileJobs = new("Jobs they take", "Mga tinatanggap na trabaho");
+    public static readonly LocalizedText ProProfileGoesTo = new("Goes to {0}", "Pumupunta sa {0}");
+    public static readonly LocalizedText StatNew = new("New", "Bago");
+    public static readonly LocalizedText StatNoReviews = new("no reviews yet", "wala pang review");
+    public static readonly LocalizedText StatOneReview = new("1 review", "1 review");
+    public static readonly LocalizedText StatReviews = new("{0} reviews", "{0} reviews");
+    public static readonly LocalizedText StatExperience = new("experience", "experience");
+    public static readonly LocalizedText StatPerJob = new("per job", "per job");
+    public static readonly LocalizedText StatAskPrice = new("Ask", "Itanong");
+    public static readonly LocalizedText StatPriceDepends = new("price depends on the job", "depende sa trabaho");
+    public static readonly LocalizedText ProProfileTrust = new("Why you can trust them", "Bakit sila maaasahan");
+    public static readonly LocalizedText TrustPhone = new("Phone number verified", "Verified ang phone number");
+    public static readonly LocalizedText TrustPhoneNote = new("Checked with an SMS code.", "Na-check gamit ang SMS code.");
+    public static readonly LocalizedText TrustOneReference = new("1 reference", "May 1 reference");
+    public static readonly LocalizedText TrustReferences = new("{0} references", "May {0} references");
+    public static readonly LocalizedText TrustReferencesNote = new(
+        "People who can vouch for their work. Ask about them in chat.",
+        "Mga taong pwedeng magpatunay sa gawa nila. Itanong sa chat.");
     public static readonly LocalizedText ProProfilePhotos = new("Photos of their work", "Photos ng mga gawa nila");
     public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet.", "Wala pang review.");
     public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Skilled worker not found");
@@ -142,8 +155,6 @@ public static class Copy
     public static readonly LocalizedText ProSkillsWhy = new("Pick all that apply.", "Piliin kung san ka pinaka magaling.");
     public static readonly LocalizedText ProServicesTitle = new("Which jobs do you take?", "Anong mga trabaho ang tinatanggap mo?");
     public static readonly LocalizedText ProServicesWhy = new("Customers search for these exact jobs. Pick all that apply.", "Ito mismo ang hinahanap ng customer. Piliin lahat.");
-    public static readonly LocalizedText ProAreaTitle = new("Where do you work?", "Saan ka nagtatrabaho?");
-    public static readonly LocalizedText ProAreaWhy = new("Pick one area. Next, choose the towns you go to.", "Pumili ng isang lugar. Susunod, piliin ang mga bayan na pinupuntahan mo.");
     public static readonly LocalizedText ProAreasTitle = new("Which towns do you go to?", "Saang mga bayan ka pumupunta?");
     public static readonly LocalizedText ProAreasWhy = new("Customers in these towns see you first.", "Ikaw ang unang makikita ng customer sa mga bayang ito.");
     public static readonly LocalizedText ProExperienceTitle = new("How long have you done this work?", "Gano na katagal ang experience mo?");
@@ -188,7 +199,8 @@ public static class Copy
     public static readonly LocalizedText SectionGoal = new("Your goal", "Goal mo");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, then the Publish button.
-    public static readonly LocalizedText SetupTitle = new("Get ready for customers", "Ihanda ang listing mo");
+    public static readonly LocalizedText NotLiveBanner = new("Not visible yet · Finish your listing", "Di ka pa nakikita · Tapusin ang listing");
+    public static readonly LocalizedText SetupTitle =new("Get ready for customers", "Ihanda ang listing mo");
     public static readonly LocalizedText SetupPhoto = new("Add a photo of you", "Maglagay ng photo mo");
     public static readonly LocalizedText SetupPhotoWhy = new("Customers trust a face.", "Mas nagtitiwala ang customer kapag may mukha.");
     public static readonly LocalizedText SetupWork = new("Add at least 2 photos of your work", "Maglagay ng 2 o higit pang photos ng gawa mo");
