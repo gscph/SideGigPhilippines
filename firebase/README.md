@@ -1,45 +1,15 @@
 # firebase/
 
-Server-side setup for SideGigPh's Firestore (MVP). The data model is [`docs/data-model.md`](../docs/data-model.md). Photos are **not** in Firebase: they're in Azure Blob Storage, behind `SideGigPh.Api` (see [`azure/`](../azure/README.md)).
+Firebase is SideGigPh's **sign-in provider only** (phone SMS code + Google), behind the skeleton's `IIdentityProvider` (`MobileAppTheme.Firebase/`). The data is in Azure SQL behind `SideGigPh.Api` ([`azure/`](../azure/README.md)), which checks each request's Firebase ID token.
 
 | File | What it is |
 |---|---|
-| `firestore.rules` | Who may read/write each collection, and which fields and values are allowed. Firestore has no server in front of it, so the rules act as the API and the schema. |
-| `firestore.indexes.json` | The composite indexes the Inbox (chats) and review lists need. Search uses only equality filters, which need no composite index. |
-| `firebase.json` | Ties the above together; emulator ports. |
-| `setup.ps1` | Creates the database and deploys everything, from your PC (needs the Firebase CLI). |
-| `cloudshell-setup.sh` | The same, plus the Philippines-only SMS policy and a `_meta/schema` doc, for **Google Cloud Shell**: paste the whole file, nothing to install. It embeds a copy of `firestore.rules`, so regenerate it when the rules change. |
-| `cloudshell-verify.sh` | Read-only check, also pasted into Cloud Shell: APIs, database location, live rules, indexes (built or still building), SMS policy, and a few pretend requests run against the live rules. Prints PASS / WAIT / FAIL with what to do. |
+| `cloudshell-auth.sh` | Paste into **Google Cloud Shell**: turns on the Auth admin API and limits SMS codes to Philippine numbers (blocks SMS-pumping fraud). Safe to run again. |
 
-## First time
+## First time (Firebase console)
 
-1. Firebase console: put the project (the one whose `google-services.json` the app uses) on the **Blaze** plan (needed for SMS sign-in).
-2. Install the CLI and log in:
-
-```powershell
-npm install -g firebase-tools
-```
-
-```powershell
-firebase login
-```
-
-3. Create the database and deploy:
-
-```powershell
-./firebase/setup.ps1 -ProjectId <your-project-id>
-```
-
-## After changing rules or indexes
-
-```powershell
-./firebase/setup.ps1 -ProjectId <your-project-id> -SkipDatabase
-```
-
-## Local emulator (no cloud, no cost)
-
-```powershell
-./firebase/setup.ps1 -Emulator
-```
-
-Runs Auth and Firestore on localhost, with a web UI at http://localhost:4000. Starting it also compiles the rules, so it's the quickest syntax check.
+1. Put the project on the **Blaze** plan (SMS sign-in needs it).
+2. **Authentication → Sign-in method:** turn on **Phone** and **Google**.
+3. **Project settings → Your apps → Android:** add the shared dev key's SHA-1 and SHA-256 (see [`docs/android-signing.md`](../docs/android-signing.md)), then download `google-services.json` into `SideGigPh.Maui/Platforms/Android/` (git-ignored). iOS: `GoogleService-Info.plist` into `Platforms/iOS/`.
+4. Paste `cloudshell-auth.sh` into Cloud Shell.
+5. The API needs the project id: the Function App setting `FirebaseProjectId` (`sidegigphilippines`).

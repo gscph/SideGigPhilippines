@@ -56,20 +56,8 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.15" />
     </ItemGroup>
-
-    <!-- Cloud Firestore: the real users, listings, reviews and chats (Services/Firestore/). Keep every
-         Plugin.Firebase.* package on the same 3.x line as Auth (see docs/data-model.md section 6). -->
-    <ItemGroup>
-        <PackageReference Include="Plugin.Firebase.Firestore" Version="3.1.3" />
-    </ItemGroup>
-
-    <!-- Run on the on-phone stand-ins (Services/Dev) instead of Firestore, e.g. without a Firebase project:
-         dotnet build -p:UseStubData=true -->
-    <PropertyGroup Condition="'$(UseStubData)' == 'true'">
-        <DefineConstants>$(DefineConstants);STUB_DATA</DefineConstants>
-    </PropertyGroup>
 
     <!-- The reusable app skeleton: shell, theme builder, generic components, localization and
          device adapters. MudBlazor comes from here, so its version is set in one place. -->
@@ -79,6 +67,8 @@
     <ItemGroup>
         <ProjectReference Include="..\MobileAppTheme\MobileAppTheme.csproj" />
         <ProjectReference Include="..\MobileAppTheme.Firebase\MobileAppTheme.Firebase.csproj" />
+        <!-- The JSON shapes SideGigPh.Api sends and takes (Services/Api/). -->
+        <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
     </ItemGroup>
 
     <!-- Android signing: one fingerprint everywhere, so Firebase (Google sign-in, phone attestation)

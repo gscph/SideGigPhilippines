@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- SideGigPh's server: Azure Functions (isolated worker). Today it only stores photos in Azure
-       Blob Storage; later it is the "API" step of the SQL path (docs/data-model.md §3).
-       Secrets (the storage connection string) live in the Function App's settings, never in the phone app. -->
+  <!-- SideGigPh's server: Azure Functions (isolated worker). Photos go to Azure Blob Storage; users,
+       listings, reviews and chats to Azure SQL through SideGigPh.AzureSQL (docs/data-model.md).
+       Secrets (the storage and SQL connection strings) live in the Function App's settings, never in the phone app. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
@@ -20,6 +20,11 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" />
     <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.23.0" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.23.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SideGigPh.AzureSQL\SideGigPh.AzureSQL.csproj" />
+    <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

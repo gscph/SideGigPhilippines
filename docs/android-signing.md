@@ -30,7 +30,7 @@ SHA256: 01:BD:75:86:62:4D:36:5C:10:6F:7F:66:36:8E:C3:41:B3:A4:7F:73:21:40:EC:65:
 ## Every machine also needs `google-services.json`
 
 It's git-ignored. Download it from Firebase console → Project settings → your Android app, and put it
-in `SideGigPh.Maui/Platforms/Android/`. Without it the app builds, but Firebase (sign-in, Firestore)
+in `SideGigPh.Maui/Platforms/Android/`. Without it the app builds, but Firebase sign-in
 can't start. Download it again after you add or remove a fingerprint.
 
 ## Creating the release key (once)

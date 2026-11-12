@@ -1,0 +1,180 @@
+using Microsoft.EntityFrameworkCore;
+using SideGigPh.Contracts;
+
+namespace SideGigPh.AzureSQL;
+
+public enum SendOutcome
+{
+    Sent,
+
+    /// <summary>The caller isn't in this chat, or a Skilled Worker tried to start one.</summary>
+    Forbidden,
+
+    /// <summary>The Skilled Worker's listing is gone, so a new chat can't start.</summary>
+    NoListing,
+
+    Invalid,
+}
+
+public sealed record SendResult(SendOutcome Outcome, ChatDto? Chat = null);
+
+/// <summary>
+/// Chats between a Seeker and a Skilled Worker (<c>Chats</c>, id <c>{professionalId}_{seekerId}</c>) and their messages.
+/// Only the two people in a chat can read or write it. A message and the chat's copy of the last message are
+/// saved in one transaction.
+/// </summary>
+public sealed class ChatStore(SideGigPhDb db)
+{
+    public const int MaxText = 1000;
+
+    public static string IdFor(string professionalId, string seekerId) => $"{professionalId}_{seekerId}";
+
+    /// <summary>The person's chats on one side, most recent message first.</summary>
+    public async Task<IReadOnlyList<ChatDto>> InboxAsync(string uid, bool asSeeker, CancellationToken cancellationToken)
+    {
+        var chats = db.Chats.AsNoTracking().Where(c => asSeeker ? c.SeekerId == uid : c.ProfessionalId == uid);
+        var rows = await chats.OrderByDescending(c => c.LastMessageAt).ToListAsync(cancellationToken);
+        return rows.Select(ToDto).ToList();
+    }
+
+    /// <summary>The chat, or null when it doesn't exist or the caller isn't in it.</summary>
+    public async Task<ChatDto?> GetAsync(string chatId, string uid, CancellationToken cancellationToken) =>
+        await db.Chats.AsNoTracking().FirstOrDefaultAsync(c => c.Id == chatId && (c.SeekerId == uid || c.ProfessionalId == uid), cancellationToken)
+            is { } row ? ToDto(row) : null;
+
+    /// <summary>The chat's messages, oldest first, or null when the caller isn't in it.</summary>
+    public async Task<IReadOnlyList<MessageDto>?> MessagesAsync(string chatId, string uid, CancellationToken cancellationToken)
+    {
+        if (!await db.Chats.AnyAsync(c => c.Id == chatId && (c.SeekerId == uid || c.ProfessionalId == uid), cancellationToken))
+        {
+            return null;
+        }
+
+        return await db.ChatMessages.AsNoTracking()
+            .Where(m => m.ChatId == chatId)
+            .OrderBy(m => m.At)
+            .Select(m => new MessageDto(m.Id, m.ChatId, m.SenderId, m.Kind, m.Text, m.At))
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds the caller's message and makes it the chat's last message (the sender has read it). The first message
+    /// creates the chat, and only the Seeker can send it. Sending the same message id again changes nothing.
+    /// </summary>
+    public async Task<SendResult> SendAsync(string chatId, string uid, SendMessageRequest request, CancellationToken cancellationToken)
+    {
+        var isCall = request.Kind == Wire.Call;
+        var text = isCall ? null : StoreText.Limit(request.Text, MaxText);
+        if (chatId != IdFor(request.ProfessionalId, request.SeekerId) || request.MessageId is not { Length: > 0 and <= 64 }
+            || (request.Kind is not (Wire.Text or Wire.Call)) || (!isCall && text is null) || request.ProfessionalId == request.SeekerId)
+        {
+            return new SendResult(SendOutcome.Invalid);
+        }
+
+        if (uid != request.SeekerId && uid != request.ProfessionalId)
+        {
+            return new SendResult(SendOutcome.Forbidden);
+        }
+
+        return await db.InTransactionAsync(async ct =>
+        {
+            var chat = await db.Chats.FirstOrDefaultAsync(c => c.Id == chatId, ct);
+            if (chat is not null && await db.ChatMessages.AnyAsync(m => m.Id == request.MessageId, ct))
+            {
+                return new SendResult(SendOutcome.Sent, ToDto(chat));
+            }
+
+            var now = DateTimeOffset.UtcNow;
+            if (chat is null)
+            {
+                if (uid != request.SeekerId)
+                {
+                    return new SendResult(SendOutcome.Forbidden);
+                }
+
+                if (!await db.Professionals.AnyAsync(p => p.Id == request.ProfessionalId, ct))
+                {
+                    return new SendResult(SendOutcome.NoListing);
+                }
+
+                chat = new ChatRow
+                {
+                    Id = chatId,
+                    ProfessionalId = request.ProfessionalId,
+                    SeekerId = request.SeekerId,
+                    ProfessionalName = StoreText.Name(request.ProfessionalName, 60),
+                    SeekerName = StoreText.Name(request.SeekerName, 60),
+                    ServiceId = Code(request.ServiceId),
+                    CityId = Code(request.CityId),
+                    UrgencyId = Code(request.UrgencyId),
+                    BudgetId = Code(request.BudgetId),
+                    LastMessageId = request.MessageId,
+                    LastMessageSenderId = uid,
+                    LastMessageKind = request.Kind,
+                    CreatedAt = now,
+                };
+                db.Chats.Add(chat);
+            }
+
+            db.ChatMessages.Add(new ChatMessageRow
+            {
+                Id = request.MessageId,
+                ChatId = chatId,
+                SenderId = uid,
+                Kind = request.Kind,
+                Text = text,
+                At = now,
+            });
+
+            chat.LastMessageId = request.MessageId;
+            chat.LastMessageSenderId = uid;
+            chat.LastMessageKind = request.Kind;
+            chat.LastMessageText = text;
+            chat.LastMessageAt = now;
+            if (uid == chat.SeekerId)
+            {
+                chat.SeekerReadAt = now;
+            }
+            else
+            {
+                chat.ProfessionalReadAt = now;
+            }
+
+            await db.SaveChangesAsync(ct);
+            return new SendResult(SendOutcome.Sent, ToDto(chat));
+        }, cancellationToken);
+    }
+
+    /// <summary>The caller has now read everything in the chat on that side. False when they aren't that side of it.</summary>
+    public async Task<bool> MarkReadAsync(string chatId, string uid, bool asSeeker, CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var changed = asSeeker
+            ? await db.Chats.Where(c => c.Id == chatId && c.SeekerId == uid)
+                .ExecuteUpdateAsync(set => set.SetProperty(c => c.SeekerReadAt, now), cancellationToken)
+            : await db.Chats.Where(c => c.Id == chatId && c.ProfessionalId == uid)
+                .ExecuteUpdateAsync(set => set.SetProperty(c => c.ProfessionalReadAt, now), cancellationToken);
+        return changed > 0;
+    }
+
+    /// <summary>Deletes every chat the person is in, on either side (messages cascade).</summary>
+    public Task DeleteForPersonAsync(string uid, CancellationToken cancellationToken) =>
+        db.Chats.Where(c => c.SeekerId == uid || c.ProfessionalId == uid).ExecuteDeleteAsync(cancellationToken);
+
+    private static string? Code(string? value) => StoreText.IsCode(value) ? value : null;
+
+    private static ChatDto ToDto(ChatRow c) => new(
+        c.Id,
+        c.ProfessionalId,
+        c.SeekerId,
+        c.ProfessionalName,
+        c.SeekerName,
+        c.ServiceId,
+        c.CityId,
+        c.UrgencyId,
+        c.BudgetId,
+        new MessageDto(c.LastMessageId, c.Id, c.LastMessageSenderId, c.LastMessageKind, c.LastMessageText, c.LastMessageAt),
+        c.SeekerReadAt,
+        c.ProfessionalReadAt,
+        c.CreatedAt);
+}

@@ -20,7 +20,7 @@ jobs:
       - name: Install MAUI workloads
         run: dotnet workload restore ${{ env.PROJECT }}
 
-      # google-services.json is git-ignored; without it Firebase (sign-in, Firestore) can't start.
+      # google-services.json is git-ignored; without it Firebase sign-in can't start.
       - name: Write google-services.json
         env:
           GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}

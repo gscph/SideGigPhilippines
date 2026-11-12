@@ -6,7 +6,7 @@ public static class ListingMapper
 {
     /// <summary>
     /// Id of the pro's own listing when nobody is signed in (no sign-in provider registered). With an account
-    /// the id is the user's uid (<c>ProWorkspace.MyId</c>), which is what Firestore's rules check.
+    /// the id is the user's uid (<c>ProWorkspace.MyId</c>), which is what SideGigPh.Api checks.
     /// </summary>
     public const string OwnListingId = "own";
 

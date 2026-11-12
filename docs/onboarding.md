@@ -1,6 +1,6 @@
 # Onboarding: Language, Sign In, then the Interview
 
-> **Status:** Phase 1 is built (see §9). **Sign-in is now required before the app is used** (owner decision, 2026-11-11; §2.4): language → sign in → role → interview. The interview answers are still saved on the phone; listings, chats and reviews move to Firestore next ([`data-model.md`](data-model.md)).
+> **Status:** Phase 1 is built (see §9). **Sign-in is now required before the app is used** (owner decision, 2026-11-11; §2.4): language → sign in → role → interview. The interview answers are still saved on the phone; listings, chats and reviews are in Azure SQL behind SideGigPh.Api ([`data-model.md`](data-model.md)).
 
 **Supported areas and towns** (`ReferenceData.Areas` / `CitiesByArea`): **Metro Manila** (all 16 cities + Pateros), **Rizal** (Angono · Antipolo · Binangonan · Cainta · Rodriguez · San Mateo · Taytay), **Laguna** (Biñan · Cabuyao · Calamba · Los Baños · San Pedro · Santa Rosa/Nuvali) and **Cavite** (Bacoor · Carmona · Dasmariñas · General Trias · Imus · Kawit · Silang · Tagaytay). User-facing text calls the provider a **Skilled Worker**.
 
@@ -8,7 +8,7 @@
 
 | # | Decision | Why |
 |---|----------|-----|
-| 1 | **Sign in right after the language question.** `/` is a launch router; it sends anyone not signed in to `/verify`. | Owner decision: every Firestore read and write needs a signed-in user, and a verified phone is how we keep listings honest (anti-fraud rule 1). The research below argues for later sign-in; it was weighed and overruled. |
+| 1 | **Sign in right after the language question.** `/` is a launch router; it sends anyone not signed in to `/verify`. | Owner decision: every API call needs a signed-in user, and a verified phone is how we keep listings honest (anti-fraud rule 1). The research below argues for later sign-in; it was weighed and overruled. |
 | 2 | **First question: English or Taglish.** The screen itself shows both languages. | Many tradesmen aren't confident English readers. Language is the one question we can't phrase in "their" words yet, so it comes first. |
 | 3 | **Second question: the role fork.** *"May ipapagawa ako"* (Seeker) or *"Gusto kong kumita sa skills ko"* (Professional). | A two-sided app has to know who it's talking to before anything can be personal. Fiverr asks this first too (§3.4). |
 | 4 | **Onboarding is an interview.** One question per screen, big icon tiles, mostly one tap. | Short, easy questions build momentum, but only if the answers visibly come back (§3.2). |
@@ -112,14 +112,14 @@ The proposal: ask pros what they want to earn, and ask seekers their budget for 
 
 Both sides use **one price scale:** below ₱500 · ₱500–1,000 · ₱1,000–2,000 · ₱2,000–5,000 · ₱5,000+. A pro "fits" when their starting tier is at or below the seeker's budget tier.
 
-**Guardrail: trust is the product.** No fake counters, no fake scarcity, no shaming copy. Every number shown is the user's own, or real data. The seeker results run on **sample data** until Firestore is in.
+**Guardrail: trust is the product.** No fake counters, no fake scarcity, no shaming copy. Every number shown is the user's own, or real data. Before launch the seeker results include **sample workers** from `SideGigPh.AzureSQL/Sql/002-seed.sql` (ids `seed-…`); its `DELETE` block removes them before go-live.
 
 ### 2.4 Sign-in (built)
 - **Where:** right after the language question, before the role fork. `LaunchRouter` asks the skeleton `SignInGate`, which returns the missing step: `/verify` (sign in), `/verify/name` (name, once, after a phone sign-in), or `/verify/phone` (add a verified number, for pages that need one).
 - **Methods:** phone number + SMS code first (it verifies the number), "Continue with Google" below.
 - **Name and number are never asked in the interview.** The listing takes both from the account (`ListingMapper.TakeAccount`): the name from Google or the name screen, the number the account verified.
 - **Pages that need a verified number:** Search results (`/seeker/search`) and Publish (`/professional/publish`). A Google account adds one there and comes back; the number is linked to the same account (`IIdentityProvider.LinkPhoneAsync`). If another account already has it, they are told to sign in with that number instead.
-- **Anti-fraud rule 1:** Firebase Auth allows one account per number, and the Firestore rules require the listing number to be the account's verified number.
+- **Anti-fraud rule 1:** Firebase Auth allows one account per number, the API takes the listing number from the token's verified number, and Azure SQL has a unique key on it.
 
 ## 3. What each reference contributes
 
@@ -230,7 +230,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 ### Ports
 - `IOnboardingStore` → `Local/FileOnboardingStore` (JSON, source-generated serializer, atomic write).
 - `IContactLauncher` → `Local/DeviceContactLauncher` (MAUI `PhoneDialer` / `Sms`; the Android manifest declares the `tel`/`smsto` intent queries).
-- `IProfessionalProfileRepository.SearchAsync` → `Dev/StubProfessionalProfileRepository` (sample skilled workers across Rizal, Metro Manila, Laguna and Cavite, until Firestore).
+- `IProfessionalProfileRepository.SearchAsync` → `Api/ApiProfessionalProfileRepository` (`GET professionals?categoryId=…&areaId=…` on SideGigPh.Api, Azure SQL).
 
 ## 6. Where answers live on the phone
 
@@ -244,7 +244,7 @@ Blazor Hybrid code runs as **native .NET**, not in a browser. The WebView's `loc
 | Photos | Files in `AppDataDirectory/photos` | App-private files | The pro's own and work photos, named by their SHA-256 |
 | Secrets | `SecureStorage` | Keystore / Keychain | Nothing yet. Firebase keeps its own session. |
 | Queryable data | SQLite (`sqlite-net-pcl`) | — | **Later:** favorites, recently viewed, offline cache |
-| Server cache | Firestore offline persistence | Built-in | Listings, once Firestore is in |
+| Server cache | — | — | **Later:** recent listings and chats for offline use |
 
 **No SQLite yet.** Onboarding is one document, read at launch and written on every answer. Add SQLite when local data needs *querying*. Android Auto Backup (`allowBackup="true"`) restores the file after a reinstall.
 
@@ -262,7 +262,7 @@ These are verified in the packages already referenced:
 - `Plugin.Firebase.Auth` 3.1.1: `SignInAnonymouslyAsync()`, `IFirebaseUser.IsAnonymous`, `LinkWithPhoneNumberVerificationCodeAsync(code)`.
 - `Plugin.Firebase.Auth.Google` 3.1.2: `LinkWithGoogleAsync()`.
 
-A silent anonymous session at launch gives a UID for Firestore rules and App Check without a login screen. At the gate, linking the phone or Google credential keeps the same UID. It needs **Anonymous** enabled in the Firebase console.
+A silent anonymous session at launch gives a UID for API calls and App Check without a login screen. At the gate, linking the phone or Google credential keeps the same UID. It needs **Anonymous** enabled in the Firebase console.
 
 ### 6.4 Anti-fraud tie-ins
 - **Rule 1:** enforced **server-side** when a pro goes live, keyed by E.164 phone (and later the GCash number). The local draft is never trusted for this.
@@ -284,5 +284,5 @@ A silent anonymous session at launch gives a UID for Firestore rules and App Che
 
 ## 9. Build order
 1. ✅ **Phase 1 (local-first interview):** language, role, both interviews, the money hooks, the store, sample-data results with Call/Text, the pro preview and home. `AuthPage` moved to `/verify`.
-2. **Phase 2:** ✅ sign-in first (phone + Google, name, verified-number gate); then in-app chat, Firestore listings and search, go-live with the server-side anti-fraud checks, work photos.
+2. **Phase 2:** ✅ sign-in first (phone + Google, name, verified-number gate); in-app chat, listings and search on Azure SQL through SideGigPh.Api with the server-side anti-fraud checks, work photos.
 3. **Phase 3 (Steadfast):** Pro home checklist and Level 2, progress toward the earnings goal, share links (Facebook/Messenger), review prompts, behavior-triggered push.

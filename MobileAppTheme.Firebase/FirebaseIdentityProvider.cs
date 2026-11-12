@@ -62,7 +62,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             var user = await Auth.LinkWithPhoneNumberVerificationCodeAsync(userEnteredCode);
 
             // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
-            // and backend rules (e.g. Firestore) read the claim from the token.
+            // and a backend may read the claim from the token.
             await user.GetIdTokenResultAsync(forceRefresh: true);
             return AuthResult.Ok(Map(user));
         }

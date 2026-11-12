@@ -12,8 +12,8 @@ This is a **manual, user-invoked** skill. Do not auto-run it. A tool is only wor
 Create or update a script only for a **repeatable, automatable** task:
 - a multi-step check you ran by hand and will run again (lint, search-regression, API verification)
 - a repair procedure with fixed steps (clear caches, rewrite a config, restart a service)
-- a query that exercises real project code outside the MAUI build (like `search-check.sh`)
-- a guard that catches a class of mistake before commit (like `ui-lint.sh`, `copy-check.sh`)
+- a query that exercises real project code outside the MAUI build
+- a guard that catches a class of mistake before commit (like `ui-lint.sh`)
 
 Do **not** make a tool for:
 - a one-off investigation, anything `dotnet build` already catches, a trivially short command, or an ephemeral task. If it won't save time on the *next* occurrence, skip it.
@@ -25,7 +25,7 @@ Do **not** make a tool for:
    - An existing script already covers the area → **edit** it (add the new case, flag, or mode).
    - Nothing covers it → **create** a new script in the matching skill's `scripts/` folder. If no skill owns that area, consider whether a new skill is needed first (suggest `/update-skills`), or place a standalone script under the closest skill.
    - Already captured well → **no-op**.
-3. **Match the house style.** Open an existing script (e.g. `build-check.ps1`, `search-check.sh`, `ui-lint.sh`) and mirror it:
+3. **Match the house style.** Open an existing script (e.g. `build-check.ps1`, `ui-lint.sh`) and mirror it:
    - **Read-only** — never modify repo source, build output, or project state. Scripts that need a work area take a `workdir` argument (the session scratchpad) and refuse to write inside the repo.
    - **Self-contained** — no dependencies beyond what's in the repo and the .NET SDK. No npm, pip, or extra installs.
    - **Exit code** — 0 on success / clean, non-zero on failure / findings. Print a one-line summary at the end.
@@ -33,7 +33,7 @@ Do **not** make a tool for:
    - **Header comment** — what it does, usage line, and that `workdir` must be outside the repo.
 4. **Test the script** before saving. Run it once with representative input and confirm it exits cleanly and its output is useful.
 5. **Wire it up:**
-   - Add a `Script:` line in the parent skill's `SKILL.md` (e.g. `Script: \`search-check.sh\``).
+   - Add a `Script:` line in the parent skill's `SKILL.md` (e.g. `Script: \`ui-lint.sh\``).
    - Update the skill's description if the new script changes its trigger surface.
    - Update `CLAUDE.md`'s "Project Skills" section if the skill entry doesn't already mention the script.
 6. **Report** what you did: created / edited / skipped, one line each, so the user can veto.

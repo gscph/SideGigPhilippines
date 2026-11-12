@@ -26,8 +26,8 @@ $repo = (git rev-parse --show-toplevel).Trim()
 if ($WorkDir.TrimEnd('\','/') -like "$repo*") { throw "WorkDir must be outside the repo, so the copy can't collide with Visual Studio's bin/obj." }
 
 New-Item -ItemType Directory -Force $WorkDir | Out-Null
-# The app plus every project it references (the MobileAppTheme skeleton and its Firebase adapter).
-foreach ($project in 'SideGigPh.Maui', 'MobileAppTheme', 'MobileAppTheme.Firebase') {
+# The app plus every project it references (the MobileAppTheme skeleton, its Firebase adapter, the API contracts).
+foreach ($project in 'SideGigPh.Maui', 'MobileAppTheme', 'MobileAppTheme.Firebase', 'SideGigPh.Contracts') {
     robocopy (Join-Path $repo $project) (Join-Path $WorkDir $project) /MIR /XD bin obj .vs /NFL /NDL /NJH /NJS /NP | Out-Null
     if ($LASTEXITCODE -ge 8) { throw "robocopy $project failed ($LASTEXITCODE)" }
 }

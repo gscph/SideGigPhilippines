@@ -49,6 +49,8 @@ if [ -n "$APP_GROUP" ]; then
     grep -qx "$setting" <<<"$names" && pass "setting $setting is there" \
       || fail "setting $setting is missing: run cloudshell-setup.sh"
   done
+  grep -qx SqlDatabase <<<"$names" && pass "setting SqlDatabase is there" \
+    || fail "setting SqlDatabase is missing: add the Azure SQL connection string (azure/README.md > Azure SQL)"
   host=$(az functionapp show -g "$APP_GROUP" -n "$FUNCTION_APP" --query defaultHostName -o tsv)
   # Without a sign-in token the API must refuse (401). 404 means the code isn't published yet.
   status=$(status_of -X POST "https://$host/api/photos" -H "Content-Type: image/jpeg" --data-binary "x")

@@ -81,7 +81,7 @@ In `MainActivity.OnActivityResult`, after `base`, call `FirebaseAuthSetup.Handle
 - Phone: `CrossFirebaseAuth.Current` (`IFirebaseAuth`).
   - `await auth.VerifyPhoneNumberAsync(phone)` returns **void** (the lib tracks the verification).
   - then `await auth.SignInWithPhoneNumberVerificationCodeAsync(code)` — **one arg** (the code).
-  - Adding a number to the signed-in (Google) account: `VerifyPhoneNumberAsync(phone)` then `LinkWithPhoneNumberVerificationCodeAsync(code)`, then `user.GetIdTokenResultAsync(forceRefresh: true)` so the new `phone_number` claim reaches Firestore rules. A number another account has fails with "already associated with a different user account" (no reason code) → `AuthError.PhoneInUse`.
+  - Adding a number to the signed-in (Google) account: `VerifyPhoneNumberAsync(phone)` then `LinkWithPhoneNumberVerificationCodeAsync(code)`, then `user.GetIdTokenResultAsync(forceRefresh: true)` so the new `phone_number` claim reaches SideGigPh.Api (publishing needs it). A number another account has fails with "already associated with a different user account" (no reason code) → `AuthError.PhoneInUse`.
 - Google: `await CrossFirebaseAuthGoogle.Current.SignInWithGoogleAsync()` (its own cross instance,
   from `Plugin.Firebase.Auth.Google` — NOT a method on `IFirebaseAuth`).
 - `IFirebaseUser` has `Uid`, `DisplayName`, `Email`, `PhotoUrl` (no `PhoneNumber`: read it from `user.ProviderInfos`, the phone provider's entry). Name: `user.UpdateProfileAsync(displayName, photoUrl)`.

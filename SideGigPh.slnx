@@ -1,7 +1,9 @@
 <Solution>
-  <Project Path="MobileAppTheme/MobileAppTheme.csproj" Id="f30ae536-3315-4803-956d-42d14e657e53" />
   <Project Path="MobileAppTheme.Firebase/MobileAppTheme.Firebase.csproj" />
+  <Project Path="MobileAppTheme/MobileAppTheme.csproj" Id="f30ae536-3315-4803-956d-42d14e657e53" />
   <Project Path="SideGigPh.Api/SideGigPh.Api.csproj" />
+  <Project Path="SideGigPh.AzureSQL/SideGigPh.AzureSQL.csproj" Id="0a437b12-5281-4fb3-a05f-69248e847be9" />
+  <Project Path="SideGigPh.Contracts/SideGigPh.Contracts.csproj" />
   <Project Path="SideGigPh.Maui/SideGigPh.Maui.csproj">
     <Deploy Solution="Debug|*" />
   </Project>

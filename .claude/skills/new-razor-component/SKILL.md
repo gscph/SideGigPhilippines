@@ -56,7 +56,7 @@ public partial class SavedSearchCard : ComponentBase
 
 Conventions:
 - `EditorRequired` on mandatory parameters. A component reports what happened; the parent decides what it means (`ChoiceTiles.OnPick`).
-- `[Inject]` **ports and app services only** (`AppText`, `NavigationManager`, `IOnboardingStore`, `IContactLauncher`, `ProWorkspace`, `SeekerWorkspace`…), never an adapter, Firebase or MAUI type. New infrastructure: see the `ports-and-stubs` skill.
+- `[Inject]` **ports and app services only** (`AppText`, `NavigationManager`, `IOnboardingStore`, `IContactLauncher`, `ProWorkspace`, `SeekerWorkspace`…), never an adapter, Firebase or MAUI type. New stored data: see the `ports-and-adapters` skill.
 - A child the parent must style gets `[Parameter] public string? Class` passed to its root Mud component.
 - Private state is `_camelCase`; derived values are expression-bodied properties. Repeated label logic goes in a helper (`Services/Localization/ListingText`), not copied between components.
 

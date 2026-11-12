@@ -7,11 +7,9 @@ using ImageMagick;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
-
-/// <summary>What the app gets back after an upload: the photo id (SHA-256 hex) and its public URL.</summary>
-public sealed record PhotoSaved(string Id, string Url);
 
 /// <summary>
 /// Work photos and profile photos, stored in Azure Blob Storage as photos/{sha256}.jpg.
@@ -90,7 +88,7 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             //}
         }
 
-        return new OkObjectResult(new PhotoSaved(id, blob.Uri.ToString()));
+        return new OkObjectResult(new PhotoDto(id, blob.Uri.ToString()));
     }
 
     [Function("DeletePhoto")]

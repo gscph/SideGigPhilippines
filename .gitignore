@@ -60,6 +60,7 @@ nunit-*.xml
 *.config
 *.json
 !SideGigPh.Api/host.json
+!SideGigPh.Api/local.settings.example.json
 *.v2
 /.vs/ProjectEvaluation
 /.vs/SideGigPh/CopilotIndices/18.11.1093.4562
