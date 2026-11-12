@@ -26,7 +26,7 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
             using var response = await api.SendAsync(HttpMethod.Post, "photos", content);
             if (response.StatusCode == HttpStatusCode.Conflict)
             {
-                throw new PhotoStoreException("This photo already belongs to another account.");
+                throw new PhotoStoreException("This photo already belongs to another account.", taken: true);
             }
 
             await api.EnsureWrittenAsync(response, "upload a photo");

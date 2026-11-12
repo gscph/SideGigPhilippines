@@ -14,6 +14,7 @@ public partial class ProfessionalHome : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private PhotoAddResult? _photoResult;
@@ -26,7 +27,7 @@ public partial class ProfessionalHome : ComponentBase
 
     private async Task AddPhotosAsync()
     {
-        _photoResult = await Workspace.AddWorkPhotosAsync();
+        _photoResult = await Busy.RunAsync(Workspace.AddWorkPhotosAsync);
         if (_photoResult is { Added: > 0, Duplicates: 0, Failed: false })
         {
             Nav.NavigateTo(ProRoutes.Photos);

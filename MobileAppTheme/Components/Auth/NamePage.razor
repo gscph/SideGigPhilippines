@@ -16,7 +16,7 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                Disabled="!CanSave" OnClick="SaveAsync">
         @T.Get(CommonCopy.AuthContinue)
     </MudButton>

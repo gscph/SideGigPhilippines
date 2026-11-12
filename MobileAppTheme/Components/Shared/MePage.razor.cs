@@ -14,6 +14,7 @@ public partial class MePage : ComponentBase
 {
     [Inject] private IAppAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
@@ -31,7 +32,7 @@ public partial class MePage : ComponentBase
         _busy = true;
         try
         {
-            await Account.StartOverAsync();
+            await Busy.RunAsync(Account.StartOverAsync);
         }
         finally
         {

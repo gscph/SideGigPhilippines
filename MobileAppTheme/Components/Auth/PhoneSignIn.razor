@@ -12,7 +12,7 @@
                           InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="tel" />
         </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthPhoneHint)</MudText>
-        <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
             @if (_busy)
             {
@@ -30,7 +30,7 @@
         <MudTextField T="string" @bind-Value="_code" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                       Label="@T.Get(CommonCopy.AuthCodeLabel)" MaxLength="6" Class="app-field app-field-code"
                       InputMode="InputMode.numeric" autocomplete="one-time-code" />
-        <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || string.IsNullOrWhiteSpace(_code))" OnClick="VerifyAsync">
             @if (_busy)
             {

@@ -39,7 +39,7 @@ public sealed class LocalAccount(
 
     /// <summary>
     /// Saves the signed-in person's profile from their account (name, number) and their answers
-    /// (language, side, earnings goal). Called when one of those changes. Does nothing when
+    /// (language, side, earnings goal, profile photo). Called when one of those changes. Does nothing when
     /// nobody is signed in (no sign-in provider registered). A failed save is logged, not thrown.
     /// </summary>
     public async Task SaveProfileAsync()
@@ -63,7 +63,8 @@ public sealed class LocalAccount(
                 state.Role,
                 state.Professional.IncomeGoalId,
                 saved?.CreatedAt ?? now,
-                now));
+                now,
+                state.Role == UserRole.Professional ? state.Professional.ProfilePhotoId : state.Seeker.ProfilePhotoId));
         }
         catch (Exception ex)
         {
@@ -81,7 +82,7 @@ public sealed class LocalAccount(
     {
         var state = await store.LoadAsync();
         var draft = state.Professional;
-        foreach (var photoId in draft.WorkPhotoIds.Append(draft.ProfilePhotoId).OfType<string>().Distinct())
+        foreach (var photoId in draft.WorkPhotoIds.Append(draft.ProfilePhotoId).Append(state.Seeker.ProfilePhotoId).OfType<string>().Distinct())
         {
             await photos.DeleteAsync(photoId);
         }

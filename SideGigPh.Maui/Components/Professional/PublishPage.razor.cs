@@ -17,6 +17,7 @@ public partial class PublishPage : ComponentBase
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ILogger<PublishPage> Logger { get; set; } = default!;
 
@@ -63,7 +64,7 @@ public partial class PublishPage : ComponentBase
         _failed = false;
         try
         {
-            var result = await Workspace.PublishAsync();
+            var result = await Busy.RunAsync(Workspace.PublishAsync);
             if (result == PublishResult.Incomplete)
             {
                 Nav.NavigateTo(ProfessionalInterview.FirstUnansweredPath, replace: true);

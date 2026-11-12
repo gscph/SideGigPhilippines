@@ -37,6 +37,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             user.Property(u => u.Language).HasMaxLength(10);
             user.Property(u => u.Role).HasMaxLength(12);
             user.Property(u => u.IncomeGoalId).HasMaxLength(40);
+            user.Property(u => u.ProfilePhotoId).HasMaxLength(64).IsFixedLength();
+            user.HasIndex(u => u.ProfilePhotoId).IsUnique().HasDatabaseName(Constraints.UserProfilePhoto).HasFilter("[ProfilePhotoId] IS NOT NULL");
         });
 
         model.Entity<ProfessionalRow>(pro =>
@@ -140,5 +142,6 @@ internal static class Constraints
 {
     public const string ProfessionalMobileNumber = "UQ_Professionals_MobileNumber";
     public const string ProfessionalProfilePhoto = "UX_Professionals_ProfilePhoto";
+    public const string UserProfilePhoto = "UX_Users_ProfilePhoto";
     public const string WorkPhotoKey = "PK_ProfessionalWorkPhotos";
 }

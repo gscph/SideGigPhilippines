@@ -2,12 +2,18 @@
 @layout SeekerLayout
 
 <MePage Title="@T.Get(Copy.AccountTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)">
-    <ProfileCard Name="@Workspace.Answers.ReviewerName" />
+    <ProfileCard Name="@Workspace.Answers.ReviewerName" PhotoUrl="@Workspace.ProfilePhotoUrl">
+        <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.PhotoCamera"
+                   Disabled="_busy" OnClick="ChangePhotoAsync">
+            @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
+        </MudButton>
+        <PhotoAddNotice Result="_photoResult" />
+    </ProfileCard>
 
     <MudStack Spacing="3">
         <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Filled" Underline="false" MaxLength="40"
                       Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" Class="app-field" autocomplete="name" />
-        <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true" Disabled="@(!NameChanged)" OnClick="SaveNameAsync">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Disabled="@(!NameChanged)" OnClick="SaveNameAsync">
             @T.Get(_saved && !NameChanged ? Copy.Saved : Copy.Save)
         </MudButton>
     </MudStack>

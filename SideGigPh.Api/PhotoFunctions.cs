@@ -138,7 +138,11 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
         }
     }
 
-    /// <summary>Creates the photos container (readable by URL, not listable) the first time, if it's missing.</summary>
+    /// <summary>
+    /// Makes sure the photos container exists and is readable by URL (blob-level public read, not listable),
+    /// the first time in this process. A container that exists but is private (made by hand, or reset by a
+    /// policy) is switched to public read here, because the app shows photos straight from their URLs.
+    /// </summary>
     private async Task EnsureContainerAsync(CancellationToken cancellationToken)
     {
         if (containerReady)
@@ -146,18 +150,23 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             return;
         }
 
-        if (!await photos.ExistsAsync(cancellationToken))
+        try
         {
-            try
+            if (!await photos.ExistsAsync(cancellationToken))
             {
                 await photos.CreateIfNotExistsAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
             }
-            catch (RequestFailedException e) when (e.ErrorCode == "PublicAccessNotPermitted")
+            else if ((await photos.GetAccessPolicyAsync(cancellationToken: cancellationToken)).Value.BlobPublicAccess != PublicAccessType.Blob)
             {
-                throw new InvalidOperationException(
-                    $"Can't create the '{Container}' container with public read: turn on 'Allow Blob anonymous access' " +
-                    "(storage account > Settings > Configuration), or run azure/cloudshell-setup.sh.", e);
+                await photos.SetAccessPolicyAsync(PublicAccessType.Blob, cancellationToken: cancellationToken);
             }
+        }
+        catch (RequestFailedException e) when (e.ErrorCode == "PublicAccessNotPermitted")
+        {
+            throw new InvalidOperationException(
+                $"Can't make the '{Container}' container readable by URL: turn on 'Allow Blob anonymous access' " +
+                "(storage account > Settings > Configuration), or run azure/cloudshell-setup.sh. If it turns itself " +
+                "off again, an Azure Policy on the subscription is blocking public blobs.", e);
         }
 
         containerReady = true;

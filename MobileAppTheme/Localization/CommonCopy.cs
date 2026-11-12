@@ -16,6 +16,18 @@ public static class CommonCopy
     public static readonly LocalizedText Close = new("Close", "Isara");
     public static readonly LocalizedText Progress = new("Progress", "Progress");
 
+    // --- Busy overlay (rotates while the app waits on something) ----------
+    public static readonly LocalizedText BusyWorking = new("Working on it…", "Ginagawa na…");
+    public static readonly LocalizedText BusyThinking = new("Thinking…", "Nag-iisip…");
+    public static readonly LocalizedText BusyProcessing = new("Processing…", "Pinoproseso…");
+    public static readonly LocalizedText BusyConnecting = new("Connecting…", "Kumokonekta…");
+    public static readonly LocalizedText BusySending = new("Sending…", "Pinapadala…");
+    public static readonly LocalizedText BusyChecking = new("Checking…", "Chine-check…");
+    public static readonly LocalizedText BusySaving = new("Saving…", "Sine-save…");
+    public static readonly LocalizedText BusyTidying = new("Tidying up…", "Inaayos…");
+    public static readonly LocalizedText BusyAlmost = new("Almost there…", "Malapit na…");
+    public static readonly LocalizedText BusyHangTight = new("Hang tight…", "Sandali lang…");
+
     // --- Not found page ---------------------------------------------------
     public static readonly LocalizedText NotFoundTitle = new("Not Found", "Wala dito");
     public static readonly LocalizedText NotFoundBody = new(

@@ -16,7 +16,8 @@ internal static partial class ApiMapping
         dto.Role switch { Wire.Seeker => UserRole.Seeker, Wire.Professional => UserRole.Professional, _ => null },
         dto.IncomeGoalId,
         dto.CreatedAt,
-        dto.UpdatedAt);
+        dto.UpdatedAt,
+        dto.ProfilePhotoId);
 
     public static UserDto ToDto(this UserProfile profile) => new(
         profile.Uid,
@@ -27,7 +28,8 @@ internal static partial class ApiMapping
         profile.Role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null },
         profile.IncomeGoalId,
         profile.CreatedAt,
-        profile.UpdatedAt);
+        profile.UpdatedAt,
+        profile.ProfilePhotoId);
 
     public static ProfessionalListing ToModel(this ListingDto dto) => new()
     {

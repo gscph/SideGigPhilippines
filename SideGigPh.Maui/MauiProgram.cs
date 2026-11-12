@@ -49,6 +49,11 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<LocalAccount>();
             builder.Services.AddSingleton<IAppAccount>(services => services.GetRequiredService<LocalAccount>());
 
+#if ANDROID
+            // App warnings and errors (API failures, photo picker) in logcat: adb logcat -s SideGigPh
+            builder.Logging.AddProvider(new LogcatLoggerProvider());
+#endif
+
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
     		builder.Logging.AddDebug();

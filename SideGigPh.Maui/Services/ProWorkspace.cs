@@ -135,30 +135,25 @@ public sealed class ProWorkspace(
     /// <summary>Lets the pro pick their own photo; it replaces the old one.</summary>
     public async Task<PhotoAddResult> ChangeProfilePhotoAsync()
     {
-        var picked = await picker.PickAsync(1);
-        if (picked is null)
+        var pick = await picker.PickAsync(1);
+        if (pick.Status != PhotoPickStatus.Picked)
         {
-            return PhotoAddResult.Failure;
-        }
-
-        if (picked.Count == 0)
-        {
-            return new PhotoAddResult(0, 0, false);
+            return PhotoAddResult.From(pick.Status);
         }
 
         var oldId = Draft.ProfilePhotoId;
         try
         {
-            Draft.ProfilePhotoId = await StoreAsync(picked[0]);
+            Draft.ProfilePhotoId = await StoreAsync(pick.Photos[0]);
         }
-        catch (PhotoStoreException)
+        catch (PhotoStoreException ex)
         {
-            return PhotoAddResult.Failure;
+            return PhotoAddResult.From(ex);
         }
 
         await SaveAsync(listingChanged: true);
         await DeleteIfUnusedAsync(oldId);
-        return new PhotoAddResult(1, 0, false);
+        return new PhotoAddResult(1, 0);
     }
 
     /// <summary>Lets the pro pick work photos, skipping any already in their gallery.</summary>
@@ -167,28 +162,28 @@ public sealed class ProWorkspace(
         var room = MaxWorkPhotos - Draft.WorkPhotoIds.Count;
         if (room <= 0)
         {
-            return new PhotoAddResult(0, 0, false);
+            return PhotoAddResult.Nothing;
         }
 
-        var picked = await picker.PickAsync(room);
-        if (picked is null)
+        var pick = await picker.PickAsync(room);
+        if (pick.Status != PhotoPickStatus.Picked)
         {
-            return PhotoAddResult.Failure;
+            return PhotoAddResult.From(pick.Status);
         }
 
         int added = 0, duplicates = 0;
-        var failed = false;
-        foreach (var bytes in picked)
+        var problem = PhotoProblem.None;
+        foreach (var bytes in pick.Photos)
         {
             string id;
             try
             {
                 id = await StoreAsync(bytes);
             }
-            catch (PhotoStoreException)
+            catch (PhotoStoreException ex)
             {
                 // Keep the photos that did upload; the notice tells the pro some didn't.
-                failed = true;
+                problem = PhotoAddResult.From(ex).Problem;
                 break;
             }
 
@@ -207,7 +202,7 @@ public sealed class ProWorkspace(
             await SaveAsync(listingChanged: true);
         }
 
-        return new PhotoAddResult(added, duplicates, failed);
+        return new PhotoAddResult(added, duplicates, problem);
     }
 
     public async Task RemoveWorkPhotoAsync(string photoId)

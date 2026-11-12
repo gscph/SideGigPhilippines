@@ -12,6 +12,7 @@ public sealed class UserRow
     public required string Language { get; set; }
     public string? Role { get; set; }
     public string? IncomeGoalId { get; set; }
+    public string? ProfilePhotoId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

@@ -1,6 +1,6 @@
 <MudContainer MaxWidth="MaxWidth.ExtraSmall">
     <MudStack Justify="Justify.Center" Spacing="8" Class="full-screen px-4 py-8" role="status" aria-live="polite">
-        <MudProgressCircular Indeterminate="true" Color="Color.Dark" Size="Size.Medium" />
+        <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Medium" />
         <MudStack Spacing="5" Class="mud-width-full">
             @for (var i = 0; i < Steps.Count; i++)
             {
@@ -9,7 +9,7 @@
                 var label = Steps[i];
                 <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
                     <MudIcon Icon="@(done ? Icons.Material.Rounded.CheckCircle : Icons.Material.Rounded.RadioButtonUnchecked)"
-                             Color="@(done ? Color.Dark : Color.Secondary)" aria-hidden="true" />
+                             Color="@(done ? Color.Primary : Color.Secondary)" aria-hidden="true" />
                     <MudText Typo="@(active ? Typo.subtitle1 : Typo.body1)"
                              Color="@(done || active ? Color.Dark : Color.Secondary)">@label</MudText>
                 </MudStack>

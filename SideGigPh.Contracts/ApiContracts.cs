@@ -45,7 +45,7 @@ public static class ApiErrors
 /// </summary>
 public sealed record ApiError(string Error, string? Detail = null);
 
-/// <summary>The signed-in person (<c>GET/PUT users/me</c>).</summary>
+/// <summary>The signed-in person (<c>GET/PUT users/me</c>). <paramref name="ProfilePhotoId"/> is the account's one profile photo (both sides).</summary>
 public sealed record UserDto(
     string Uid,
     string? DisplayName,
@@ -55,7 +55,8 @@ public sealed record UserDto(
     string? Role,
     string? IncomeGoalId,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    string? ProfilePhotoId = null);
 
 /// <summary>A stored photo: its SHA-256 id and public URL. Also the answer to <c>POST photos</c>.</summary>
 public sealed record PhotoDto(string Id, string Url);

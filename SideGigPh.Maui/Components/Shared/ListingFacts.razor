@@ -1,9 +1,9 @@
 <MudStack Spacing="1">
     @if (Reviews is not null)
     {
-        <ProCardFact Icon="@Icons.Material.Filled.Star" Text="@T.Stars(Reviews)" />
+        <ProCardFact Icon="@Icons.Material.Filled.Star" IconColor="Color.Warning" Text="@T.Stars(Reviews)" />
     }
-    <ProCardFact Icon="@Icons.Material.Filled.Payments" Text="@T.Rate(Listing)" />
+    <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Text="@T.Rate(Listing)" />
     @if (T.Experience(Listing) is { } experience)
     {
         <ProCardFact Icon="@Icons.Material.Filled.Handyman" Text="@experience" />

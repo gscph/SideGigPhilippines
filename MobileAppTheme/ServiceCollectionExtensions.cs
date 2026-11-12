@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddMudServices();
         services.AddSingleton(brand);
         services.AddSingleton<AppText>();
+        services.AddSingleton<BusyIndicator>();
 
         services.TryAddSingleton<IContactLauncher, DeviceContactLauncher>();
         services.TryAddSingleton<IPhotoPicker, DevicePhotoPicker>();

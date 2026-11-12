@@ -61,6 +61,17 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
       ```
 
    4. Set `SqlDatabase` to `Server=tcp:<server>.database.windows.net,1433;Database=<db>;Authentication=Active Directory Managed Identity;Encrypt=True;`.
+
+   **`Login failed for user '<token-identified principal>'` (error 18456):** the token is fine but the database has no user for it. Either step 3 ran in `master` instead of the app's database, or the app's identity was turned off and on again after step 3 (that makes a new identity, and the old user points at the gone one). Fix: in the app's database, as the Entra admin, run
+
+   ```sql
+   DROP USER IF EXISTS [SideGigPhApi];
+   CREATE USER [SideGigPhApi] FROM EXTERNAL PROVIDER;
+   ALTER ROLE db_datareader ADD MEMBER [SideGigPhApi];
+   ALTER ROLE db_datawriter ADD MEMBER [SideGigPhApi];
+   ```
+
+   No restart is needed. To check the mapping: `SELECT name, CONVERT(uniqueidentifier, sid) FROM sys.database_principals WHERE type = 'E';` should show `SideGigPhApi` with the app's identity's **client (application) id** (`az ad sp show --id <principalId from Identity blade> --query appId -o tsv`).
 5. **Changing the schema:** edit `001-schema.sql` **and** `SideGigPhDb.cs` together, run the new part against the database, then deploy the API.
 
 ## Automatic deploy from GitHub

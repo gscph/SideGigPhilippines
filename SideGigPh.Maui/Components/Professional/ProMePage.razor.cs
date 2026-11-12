@@ -14,7 +14,9 @@ namespace SideGigPh.Maui.Components.Professional;
 public partial class ProMePage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
+    [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
 
     private PhotoAddResult? _photoResult;
     private bool _busy;
@@ -32,7 +34,16 @@ public partial class ProMePage : ComponentBase
         _busy = true;
         try
         {
-            _photoResult = await Workspace.ChangeProfilePhotoAsync();
+            _photoResult = await Busy.RunAsync(async () =>
+            {
+                var result = await Workspace.ChangeProfilePhotoAsync();
+                if (result.Added > 0)
+                {
+                    await Account.SaveProfileAsync(); // the account's one profile photo, kept with the profile
+                }
+
+                return result;
+            });
         }
         finally
         {

@@ -18,6 +18,8 @@ public sealed class SeekerWorkspace(
     IReviewRepository reviews,
     IContactLauncher phone,
     IIdentityProvider identity,
+    IPhotoPicker picker,
+    IPhotoStore photos,
     AppText text)
 {
     /// <summary>The Seeker's id when nobody is signed in (no sign-in provider registered). With an account it is their uid: <see cref="MyId"/>.</summary>
@@ -37,6 +39,9 @@ public sealed class SeekerWorkspace(
     public event Action? Changed;
 
     public SeekerAnswers Answers => _state?.Seeker ?? new SeekerAnswers();
+
+    /// <summary>The Seeker's one profile photo (top bar avatar, Me page), or null.</summary>
+    public string? ProfilePhotoUrl { get; private set; }
 
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
     public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
@@ -233,10 +238,45 @@ public sealed class SeekerWorkspace(
         return SaveAsync();
     }
 
+    /// <summary>
+    /// Lets the Seeker pick their profile photo. There is only ever one: the new photo replaces the old one,
+    /// which is then deleted from the photo store.
+    /// </summary>
+    public async Task<PhotoAddResult> ChangeProfilePhotoAsync()
+    {
+        var pick = await picker.PickAsync(1);
+        if (pick.Status != PhotoPickStatus.Picked)
+        {
+            return PhotoAddResult.From(pick.Status);
+        }
+
+        string id;
+        try
+        {
+            id = await photos.SaveAsync(pick.Photos[0]);
+        }
+        catch (PhotoStoreException ex)
+        {
+            return PhotoAddResult.From(ex);
+        }
+
+        var oldId = Answers.ProfilePhotoId;
+        Answers.ProfilePhotoId = id;
+        ProfilePhotoUrl = await photos.GetUrlAsync(id);
+        await SaveAsync();
+        if (oldId is not null && oldId != id)
+        {
+            await photos.DeleteAsync(oldId);
+        }
+
+        return new PhotoAddResult(1, 0);
+    }
+
     /// <summary>Drops what's held in memory after Start over, so the next load reads fresh.</summary>
     public void Forget()
     {
         _state = null;
+        ProfilePhotoUrl = null;
         _loading = null;
         _refreshedAt = DateTimeOffset.MinValue;
         MyId = LocalSeekerId;
@@ -276,6 +316,7 @@ public sealed class SeekerWorkspace(
 
         // Reviews show "Maricel D.", from the account's name, until they change it on the Me page.
         Answers.ReviewerName ??= PersonName.Short(user?.DisplayName);
+        ProfilePhotoUrl = Answers.ProfilePhotoId is { } photoId ? await photos.GetUrlAsync(photoId) : null;
 
         await RefreshActivityAsync();
         return true;

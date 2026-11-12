@@ -44,6 +44,9 @@ public sealed class SeekerAnswers
 
     /// <summary>The name they put on their reviews, e.g. "Maricel D.".</summary>
     public string? ReviewerName { get; set; }
+
+    /// <summary>Their one profile photo (SHA-256 id). A new one replaces it and the old one is deleted.</summary>
+    public string? ProfilePhotoId { get; set; }
 }
 
 /// <summary>A Professional's listing: built in the interview, then photos and publishing on Pro home.</summary>

@@ -3,7 +3,8 @@ namespace SideGigPh.Maui.Models;
 /// <summary>
 /// The signed-in person, whichever side they're on (<c>Users</c> in Azure SQL, through SideGigPh.Api). Name and
 /// phone come from the account; language, role and the private earnings goal from the app.
-/// The interview answers themselves stay on the phone (<c>IOnboardingStore</c>).
+/// The interview answers themselves stay on the phone (<c>IOnboardingStore</c>). <see cref="ProfilePhotoId"/> is the
+/// account's one profile photo: the Seeker's own, or the Skilled Worker's listing photo.
 /// </summary>
 public sealed record UserProfile(
     string Uid,
@@ -14,4 +15,5 @@ public sealed record UserProfile(
     UserRole? Role,
     string? IncomeGoalId,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    string? ProfilePhotoId = null);

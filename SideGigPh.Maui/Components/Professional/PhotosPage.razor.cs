@@ -13,6 +13,7 @@ public partial class PhotosPage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
 
     private PhotoAddResult? _result;
     private bool _busy;
@@ -24,7 +25,7 @@ public partial class PhotosPage : ComponentBase
         _busy = true;
         try
         {
-            _result = await Workspace.AddWorkPhotosAsync();
+            _result = await Busy.RunAsync(Workspace.AddWorkPhotosAsync);
         }
         finally
         {

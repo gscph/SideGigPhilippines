@@ -11,17 +11,17 @@ public enum PhotoKind
 }
 
 /// <summary>
-/// Turns an uploaded photo into the JPEG that gets stored: iPhone HEIC and PNG are converted,
-/// a small JPEG is kept byte-for-byte (so its id matches the SHA-256 the app already computed).
+/// Turns every uploaded photo into the one stored shape, the way photo apps like Airbnb do before serving:
+/// upright (EXIF rotation baked in), sRGB, at most 1280px on the long side (never enlarged: blowing a small photo up
+/// only makes it blurry), JPEG at quality 82, with EXIF and GPS removed. The screens crop it to fit with
+/// object-fit: cover (square avatars, square work thumbnails), so any shape of photo fills them.
+/// Re-encoding is deterministic, so the same upload still gets the same id (anti-fraud rule 2).
 /// </summary>
 public static class PhotoImage
 {
     // Same as the app's picker: photos are shown on a phone, never bigger than this.
     private const uint MaxSide = 1280;
-    private const uint JpegQuality = 85;
-
-    // A JPEG this small is stored as sent; a bigger one is shrunk like the others.
-    private const int MaxStoredJpegBytes = 2 * 1024 * 1024;
+    private const uint JpegQuality = 82;
 
     // HEIC/HEIF "brands" in the file header (bytes 8-11, after "ftyp").
     private static readonly string[] HeicBrands = ["heic", "heix", "hevc", "hevx", "heim", "heis", "mif1", "msf1"];
@@ -56,10 +56,7 @@ public static class PhotoImage
     }
 
     /// <summary>The JPEG to store. Throws <see cref="MagickException"/> when the file is broken.</summary>
-    public static byte[] ToStoredJpeg(byte[] bytes, PhotoKind kind) =>
-        kind == PhotoKind.Jpeg && bytes.Length <= MaxStoredJpegBytes ? bytes : ConvertToJpeg(bytes, kind);
-
-    private static byte[] ConvertToJpeg(byte[] bytes, PhotoKind kind)
+    public static byte[] ToStoredJpeg(byte[] bytes, PhotoKind kind)
     {
         using var image = new MagickImage(bytes, new MagickReadSettings
         {
@@ -97,6 +94,7 @@ public static class PhotoImage
 
         image.Format = MagickFormat.Jpeg;
         image.Quality = JpegQuality;
+        image.Settings.Interlace = Interlace.Plane; // progressive: a blurry whole photo shows first on slow data
         return image.ToByteArray();
     }
 }

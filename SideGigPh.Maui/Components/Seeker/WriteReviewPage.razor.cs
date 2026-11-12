@@ -14,6 +14,7 @@ public partial class WriteReviewPage : ComponentBase
 {
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
@@ -52,7 +53,7 @@ public partial class WriteReviewPage : ComponentBase
         _busy = true;
         try
         {
-            if (await Workspace.SubmitReviewAsync(_pro!, _rating, _comment, _name!))
+            if (await Busy.RunAsync(() => Workspace.SubmitReviewAsync(_pro!, _rating, _comment, _name!)))
             {
                 Nav.NavigateTo(SeekerRoutes.Reviews, replace: true);
             }

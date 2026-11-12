@@ -3,7 +3,8 @@
 
 @if (_ready)
 {
-    <AppShell Tabs="Tabs" ProfileHref="@SeekerRoutes.Me" UserName="@Workspace.Answers.ReviewerName">
+    <AppShell Tabs="Tabs" ProfileHref="@SeekerRoutes.Me" UserName="@Workspace.Answers.ReviewerName"
+              UserPhotoUrl="@Workspace.ProfilePhotoUrl">
         @Body
     </AppShell>
 }

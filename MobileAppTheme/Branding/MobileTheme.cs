@@ -30,7 +30,7 @@ public static class MobileTheme
             Warning = style.Warning,
             Error = style.Error,
 
-            // Dark is the ink: selected tiles, "Next" buttons, own chat bubbles.
+            // Dark is the ink: text-weight icons, own chat bubbles, avatars. Primary is the accent: main buttons, active tab, selected states.
             Dark = style.Ink,
             DarkContrastText = style.Background,
 

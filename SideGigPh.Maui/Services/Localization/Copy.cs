@@ -213,6 +213,10 @@ public static class Copy
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");
     public static readonly LocalizedText PhotosDuplicate = new("Skipped photos you already added.", "Hindi na isinama ang photos na nandito na.");
     public static readonly LocalizedText PhotosFailed = new("Couldn't open your photos. Please try again.", "Hindi mabuksan ang photos mo. Subukan ulit.");
+    public static readonly LocalizedText PhotosNoPermission = new("SideGigPh can't see your photos. Allow Photos in Settings, then try again.", "Hindi makita ng SideGigPh ang photos mo. I-allow ang Photos sa Settings, tapos subukan ulit.");
+    public static readonly LocalizedText PhotosOpenSettings = new("Open Settings", "Buksan ang Settings");
+    public static readonly LocalizedText PhotosUploadFailed = new("Couldn't upload your photo. Check your internet and try again.", "Hindi na-upload ang photo. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");
 
     // --- Profile ----------------------------------------------------------
     public static readonly LocalizedText ProfileTitle = new("Your profile", "Profile");

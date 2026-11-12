@@ -21,5 +21,12 @@ public interface IPhotoStore
     Task DeleteAsync(string photoId);
 }
 
-/// <summary>A photo could not be stored. <see cref="Exception.InnerException"/> has the cause when there is one.</summary>
-public sealed class PhotoStoreException(string message, Exception? inner = null) : Exception(message, inner);
+/// <summary>
+/// A photo could not be stored. <see cref="Taken"/> means the store refused it because another
+/// account already has the same photo (duplicate check); otherwise it was a network or server
+/// problem worth retrying. <see cref="Exception.InnerException"/> has the cause when there is one.
+/// </summary>
+public sealed class PhotoStoreException(string message, Exception? inner = null, bool taken = false) : Exception(message, inner)
+{
+    public bool Taken { get; } = taken;
+}

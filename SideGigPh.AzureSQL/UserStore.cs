@@ -26,8 +26,20 @@ public sealed class UserStore(SideGigPhDb db)
         row.Language = profile.Language == Wire.Taglish ? Wire.Taglish : Wire.English;
         row.Role = profile.Role is Wire.Seeker or Wire.Professional ? profile.Role : null;
         row.IncomeGoalId = StoreText.IsCode(profile.IncomeGoalId) ? profile.IncomeGoalId : null;
+        row.ProfilePhotoId = StoreText.IsPhotoId(profile.ProfilePhotoId) ? profile.ProfilePhotoId : null;
         row.UpdatedAt = now;
-        await db.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await db.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex) when (SqlErrors.Violates(ex, Constraints.UserProfilePhoto))
+        {
+            // Anti-fraud rule 2: another account has this photo (the upload API already refuses that, so this is
+            // a race). Keep the rest of the profile and leave the photo off.
+            row.ProfilePhotoId = null;
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         return ToDto(row);
     }
 
@@ -35,5 +47,5 @@ public sealed class UserStore(SideGigPhDb db)
         db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(cancellationToken);
 
     private static UserDto ToDto(UserRow u) =>
-        new(u.Uid, u.DisplayName, u.PhoneNumber, u.Email, u.Language, u.Role, u.IncomeGoalId, u.CreatedAt, u.UpdatedAt);
+        new(u.Uid, u.DisplayName, u.PhoneNumber, u.Email, u.Language, u.Role, u.IncomeGoalId, u.CreatedAt, u.UpdatedAt, u.ProfilePhotoId);
 }

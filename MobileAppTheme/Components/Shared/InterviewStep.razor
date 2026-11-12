@@ -3,7 +3,7 @@
         <SheetHeader OnBack="OnBack" Divider="false">
             @if (Progress > 0)
             {
-                <MudProgressLinear Value="Percent" Color="Color.Dark" Size="Size.Small" Rounded="true" Class="mud-width-full"
+                <MudProgressLinear Value="Percent" Color="Color.Primary" Size="Size.Small" Rounded="true" Class="mud-width-full"
                                    aria-label="@T.Get(CommonCopy.Progress)" />
             }
         </SheetHeader>
@@ -33,7 +33,7 @@
         @if (OnNext.HasDelegate)
         {
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
-                <MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true"
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                            Disabled="!CanContinue" OnClick="@(() => OnNext.InvokeAsync())">
                     @(NextLabel ?? T.Get(CommonCopy.Next))
                 </MudButton>

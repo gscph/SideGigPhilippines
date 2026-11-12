@@ -1,0 +1,17 @@
+@if (Result is { Problem: PhotoProblem.NoPermission })
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">
+        <MudStack Spacing="1" AlignItems="AlignItems.Start">
+            <MudText Typo="Typo.body2">@T.Get(Copy.PhotosNoPermission)</MudText>
+            <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="Picker.OpenAppSettings">@T.Get(Copy.PhotosOpenSettings)</MudButton>
+        </MudStack>
+    </MudAlert>
+}
+else if (Result is { Failed: true })
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Message)</MudAlert>
+}
+else if (Result is { Duplicates: > 0 })
+{
+    <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.PhotosDuplicate)</MudAlert>
+}

@@ -18,7 +18,8 @@
 
    Anti-fraud rules (CLAUDE.md), enforced here as well as in the API:
      1. One phone, one listing: UQ_Professionals_MobileNumber.
-     2. One photo, one listing: PK_ProfessionalWorkPhotos (global) and UX_Professionals_ProfilePhoto.
+     2. One photo, one listing: PK_ProfessionalWorkPhotos (global), UX_Professionals_ProfilePhoto and
+        UX_Users_ProfilePhoto (an account's one profile photo, for Seekers and Skilled Workers alike).
    ===================================================================================== */
 
 SET XACT_ABORT ON;
@@ -37,10 +38,21 @@ BEGIN
                                                  CONSTRAINT CK_Users_Language CHECK (Language IN ('english', 'taglish')),
         Role          varchar(12)       NULL     CONSTRAINT CK_Users_Role CHECK (Role IN ('seeker', 'professional')),
         IncomeGoalId  varchar(40)       NULL,     -- private monthly goal, never shown on the listing
+        ProfilePhotoId char(64)         NULL     -- the account's one profile photo (photos/{id}.jpg); replaced, never added to
+                                                 CONSTRAINT CK_Users_ProfilePhotoId CHECK (ProfilePhotoId NOT LIKE '%[^0-9a-f]%'),
         CreatedAt     datetimeoffset(3) NOT NULL,
         UpdatedAt     datetimeoffset(3) NOT NULL
     );
 END;
+
+-- Added after the first release: databases made before it get the column here.
+IF COL_LENGTH(N'dbo.Users', N'ProfilePhotoId') IS NULL
+    EXEC (N'ALTER TABLE dbo.Users ADD ProfilePhotoId char(64) NULL
+              CONSTRAINT CK_Users_ProfilePhotoId CHECK (ProfilePhotoId NOT LIKE ''%[^0-9a-f]%'');');
+
+-- Anti-fraud rule 2: two accounts can't share a profile photo. (EXEC: the column may be new in this run.)
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'UX_Users_ProfilePhoto')
+    EXEC (N'CREATE UNIQUE INDEX UX_Users_ProfilePhoto ON dbo.Users (ProfilePhotoId) WHERE ProfilePhotoId IS NOT NULL;');
 
 /* ---------- Professionals: the published Skilled Worker listing, id = the worker's uid ---------- */
 IF OBJECT_ID(N'dbo.Professionals', N'U') IS NULL
