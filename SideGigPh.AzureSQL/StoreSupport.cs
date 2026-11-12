@@ -46,6 +46,12 @@ internal static partial class StoreText
     /// <summary>A ReferenceData-style id: lower case letters, digits, '-' and '_'.</summary>
     public static bool IsCode(string? value) => value is not null && Code().IsMatch(value);
 
+    /// <summary>A Philippine mobile number in E.164, e.g. +639171234567 (the schema's mobile number checks).</summary>
+    public static bool IsMobileNumber(string? value) => value is not null && MobileNumber().IsMatch(value);
+
+    [GeneratedRegex(@"^\+639[0-9]{9}$")]
+    private static partial Regex MobileNumber();
+
     [GeneratedRegex("^[0-9a-f]{64}$")]
     private static partial Regex PhotoId();
 

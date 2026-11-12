@@ -50,7 +50,7 @@ internal static partial class ApiMapping
     /// The listing as the API takes it. Photos go by id, read from their URLs (the file name is the id); a URL that
     /// isn't a stored photo (a leftover on-device data URL) is left out. The number comes from the sign-in token.
     /// </summary>
-    public static PublishListingRequest ToPublishRequest(this ProfessionalListing listing) => new(
+    public static PublishListingRequest ToPublishRequest(this ProfessionalListing listing, IReadOnlyList<WorkReference> references) => new(
         listing.DisplayName,
         listing.CategoryIds.FirstOrDefault() ?? string.Empty,
         ReferenceData.AreaOf(listing.CityIds.FirstOrDefault()) ?? string.Empty,
@@ -59,7 +59,8 @@ internal static partial class ApiMapping
         listing.ExperienceId,
         listing.RateTierId,
         PhotoId(listing.PhotoUrl),
-        listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList());
+        listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
+        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList());
 
     public static Review ToModel(this ReviewDto dto) => new(
         Chat.IdFor(dto.ProfessionalId, dto.SeekerId),

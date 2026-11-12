@@ -25,6 +25,8 @@ public partial class ProMePage : ComponentBase
 
     private string PhotosCountLabel => T.Format(Copy.PhotosCount, Workspace.WorkPhotos.Count, ProWorkspace.MaxWorkPhotos);
 
+    private string ReferencesCountLabel => T.Format(Copy.ReferencesCount, Workspace.Draft.References.Count, ProfessionalDraft.MaxReferences);
+
     private string? JoinedLabel => Workspace.JoinedAt is { } joined
         ? T.Format(Copy.ProfileSince, joined.ToString("MMM yyyy", CultureInfo.InvariantCulture))
         : null;

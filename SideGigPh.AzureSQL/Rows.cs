@@ -56,6 +56,20 @@ public sealed class WorkPhotoRow
     public short Position { get; set; }
 }
 
+/// <summary>Someone who can vouch for a worker. Private: never sent to Seekers.</summary>
+public sealed class ReferenceRow
+{
+    public required string ProfessionalId { get; set; }
+
+    /// <summary>0 = first added.</summary>
+    public short Position { get; set; }
+
+    public required string Name { get; set; }
+
+    /// <summary>E.164, e.g. +639171234567.</summary>
+    public required string MobileNumber { get; set; }
+}
+
 public sealed class ReviewRow
 {
     public required string ProfessionalId { get; set; }

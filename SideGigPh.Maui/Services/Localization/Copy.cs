@@ -168,6 +168,11 @@ public static class Copy
     public static readonly LocalizedText ProPreviewWhy = new("Your listing, built from your answers.", "Ang listing mo, galing sa mga sagot mo.");
     public static readonly LocalizedText ProPreviewConfirm = new("DONE", "DONE");
 
+    // Loader after the preview's Done, while the answers save and Pro home loads.
+    public static readonly LocalizedText SettingUpListing = new("Saving your listing", "Sine-save ang listing mo");
+    public static readonly LocalizedText SettingUpHome = new("Getting your home page ready", "Inihahanda ang home page mo");
+    public static readonly LocalizedText SettingUpChecklist = new("Next: photos and a reference", "Next: photos at reference");
+
     // --- Pro home shell (top bar + bottom tabs) ----------------------------
     public static readonly LocalizedText NavHome = new("Home", "Home");
     public static readonly LocalizedText NavInbox = new("Inbox", "Inbox");
@@ -182,14 +187,35 @@ public static class Copy
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
     public static readonly LocalizedText SectionGoal = new("Your goal", "Goal mo");
 
-    // Setup checklist on Pro home, until the listing is published.
+    // Setup checklist on Pro home: photo, 2 work photos, a reference, then the Publish button.
     public static readonly LocalizedText SetupTitle = new("Get ready for customers", "Ihanda ang listing mo");
     public static readonly LocalizedText SetupPhoto = new("Add a photo of you", "Maglagay ng photo mo");
     public static readonly LocalizedText SetupPhotoWhy = new("Customers trust a face.", "Mas nagtitiwala ang customer kapag may mukha.");
-    public static readonly LocalizedText SetupWork = new("Add photos of your work", "Maglagay ng photos ng gawa mo");
-    public static readonly LocalizedText SetupWorkWhy = new("Show your best jobs.", "Ipakita ang pinakamagandang gawa mo.");
-    public static readonly LocalizedText SetupPublish = new("Publish your listing", "I-publish ang listing mo");
-    public static readonly LocalizedText SetupPublishWhy = new("So customers can find and call you.", "Para makita at matawagan ka ng customer.");
+    public static readonly LocalizedText SetupWork = new("Add at least 2 photos of your work", "Maglagay ng 2 o higit pang photos ng gawa mo");
+    public static readonly LocalizedText SetupWorkWhy = new("Show your best jobs. {0} of 2 added.", "Ipakita ang pinakamagandang gawa mo. {0} sa 2 na.");
+    public static readonly LocalizedText SetupReference = new("Add a reference", "Maglagay ng reference");
+    public static readonly LocalizedText SetupReferenceWhy = new("Someone you worked for who can vouch for you.", "Isang pinagtrabahuhan mo na magsasabing maayos ka.");
+    public static readonly LocalizedText SetupPublishReady = new("All set! Publish your listing to start finding work.", "Ready ka na! I-publish ang listing mo para magka-trabaho.");
+    public static readonly LocalizedText SetupPublishButton = new("Publish and find work", "I-publish at maghanap ng trabaho");
+    public static readonly LocalizedText SetupRepublishNote = new("Your listing is live, but it now needs these to stay up to date.", "Live ang listing mo, pero kailangan na ito para ma-update.");
+
+    // --- References (private, under Me) -------------------------------------
+    public static readonly LocalizedText ReferencesTitle = new("References", "Mga reference");
+    public static readonly LocalizedText ReferencesWhy = new(
+        "Someone you did work for: a past customer or boss. Add 1 to {0}. Only SideGigPh sees these, not customers. We may call to check.",
+        "Isang pinagtrabahuhan mo: dating customer o amo. 1 hanggang {0}. SideGigPh lang ang makakakita, hindi ang customer. Baka tawagan namin para i-check.");
+    public static readonly LocalizedText ReferencesCount = new("{0} of {1}", "{0} sa {1}");
+    public static readonly LocalizedText ReferencesEmpty = new("No reference yet. You need 1 to publish.", "Wala pang reference. Kailangan ng 1 para ma-publish.");
+    public static readonly LocalizedText ReferenceName = new("Their name", "Pangalan niya");
+    public static readonly LocalizedText ReferenceNumber = new("Their mobile number", "Mobile number niya");
+    public static readonly LocalizedText ReferenceAdd = new("Add reference", "I-add ang reference");
+    public static readonly LocalizedText ReferenceRemove = new("Remove reference", "Tanggalin ang reference");
+    public static readonly LocalizedText ReferenceNoName = new("Type their name.", "I-type ang pangalan niya.");
+    public static readonly LocalizedText ReferenceBadNumber = new("That's not a mobile number. Try 0917 123 4567.", "Hindi mobile number 'yan. Halimbawa: 0917 123 4567.");
+    public static readonly LocalizedText ReferenceOwnNumber = new("That's your own number. Add someone else.", "Number mo 'yan. Ibang tao ang ilagay.");
+    public static readonly LocalizedText ReferenceDuplicate = new("That number is already on your list.", "Nasa listahan mo na ang number na 'yan.");
+    public static readonly LocalizedText ReferencesFull = new("You've added {0}, the most you can.", "Naka-{0} ka na, 'yan na ang pinakamarami.");
+    public static readonly LocalizedText ReferenceFailed = new("Couldn't save. Check your internet and try again.", "Hindi na-save. I-check ang internet mo at subukan ulit.");
 
     // --- Pro inbox --------------------------------------------------------
     public static readonly LocalizedText ProInboxWhy = new("Customers who messaged you about a job. Answer them here.", "Mga customer na nag-message tungkol sa trabaho. Dito mo sila sagutin.");
@@ -206,7 +232,7 @@ public static class Copy
     // --- Photos -----------------------------------------------------------
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
     public static readonly LocalizedText PhotosCount = new("{0} of {1} photos", "{0} sa {1} photos");
-    public static readonly LocalizedText PhotosWhy = new("Customers see these on your listing. Up to {0} photos.", "Makikita ito ng customer sa listing mo. Hanggang {0} photos.");
+    public static readonly LocalizedText PhotosWhy = new("Customers see these on your listing. At least {0}, up to {1} photos.", "Makikita ito ng customer sa listing mo. {0} o higit pa, hanggang {1} photos.");
     public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they call.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago tumawag.");
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");

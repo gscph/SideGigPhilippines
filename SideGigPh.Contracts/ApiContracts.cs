@@ -81,7 +81,8 @@ public sealed record ListingDto(
 
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
-/// number, both taken from the sign-in token, never from here. Work photos are newest first.
+/// number, both taken from the sign-in token, never from here. Work photos are newest first. Publishing needs a
+/// profile photo, at least 2 work photos and at least 1 reference; references are private (never in <see cref="ListingDto"/>).
 /// </summary>
 public sealed record PublishListingRequest(
     string DisplayName,
@@ -92,7 +93,11 @@ public sealed record PublishListingRequest(
     string? ExperienceId,
     string? RateTierId,
     string? ProfilePhotoId,
-    IReadOnlyList<string> WorkPhotoIds);
+    IReadOnlyList<string> WorkPhotoIds,
+    IReadOnlyList<ReferenceDto>? References = null);
+
+/// <summary>Someone who can vouch for a Skilled Worker: a name and an E.164 Philippine mobile number.</summary>
+public sealed record ReferenceDto(string Name, string MobileNumber);
 
 public sealed record ReviewDto(
     string ProfessionalId,

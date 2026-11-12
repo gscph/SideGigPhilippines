@@ -23,6 +23,13 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
     public const int MaxWorkPhotos = 12;
 
+    /// <summary>Fewest work photos a listing can be published with (the app's <c>ProWorkspace.MinWorkPhotos</c>).</summary>
+    public const int MinWorkPhotos = 2;
+
+    /// <summary>Fewest and most references a listing has (the app's <c>ProWorkspace.MinReferences</c> / <c>MaxReferences</c>).</summary>
+    public const int MinReferences = 1;
+    public const int MaxReferences = 3;
+
     /// <summary>
     /// One trade's listings with their stars, in one area when given (kept for <see cref="ListingCache.SearchFor"/>).
     /// The phone ranks them (town, budget, stars).
@@ -47,7 +54,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// </summary>
     public async Task<PublishOutcome> PublishAsync(string uid, string mobileNumber, PublishListingRequest request, CancellationToken cancellationToken)
     {
-        if (InvalidField(request) is not null)
+        if (InvalidField(request, mobileNumber) is not null)
         {
             return PublishOutcome.Invalid;
         }
@@ -55,6 +62,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         var services = request.ServiceIds.Distinct().ToList();
         var cities = request.CityIds.Distinct().ToList();
         var workPhotos = request.WorkPhotoIds.Distinct().Take(MaxWorkPhotos).ToList();
+        var references = request.References!;
 
         if (await db.Professionals.AnyAsync(p => p.MobileNumber == mobileNumber && p.Id != uid, cancellationToken))
         {
@@ -86,6 +94,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                     await db.ProfessionalServices.Where(s => s.ProfessionalId == uid).ExecuteDeleteAsync(ct);
                     await db.ProfessionalCities.Where(c => c.ProfessionalId == uid).ExecuteDeleteAsync(ct);
                     await db.ProfessionalWorkPhotos.Where(w => w.ProfessionalId == uid).ExecuteDeleteAsync(ct);
+                    await db.ProfessionalReferences.Where(r => r.ProfessionalId == uid).ExecuteDeleteAsync(ct);
                 }
 
                 row.DisplayName = StoreText.Name(request.DisplayName, 60);
@@ -101,6 +110,8 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 db.ProfessionalCities.AddRange(cities.Select(id => new ProfessionalCityRow { ProfessionalId = uid, CityId = id }));
                 db.ProfessionalWorkPhotos.AddRange(workPhotos.Select((id, i) =>
                     new WorkPhotoRow { PhotoId = id, ProfessionalId = uid, Position = (short)i }));
+                db.ProfessionalReferences.AddRange(references.Select((r, i) =>
+                    new ReferenceRow { ProfessionalId = uid, Position = (short)i, Name = StoreText.Name(r.Name, 60), MobileNumber = r.MobileNumber }));
 
                 await db.SaveChangesAsync(ct);
                 return PublishOutcome.Published;
@@ -118,16 +129,25 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         }
     }
 
-    /// <summary>The first listing field that's missing or not a valid id (its JSON name), or null when it can be published.</summary>
-    public static string? InvalidField(PublishListingRequest request) =>
+    /// <summary>
+    /// The first listing field that's missing or not valid (its JSON name), or null when it can be published.
+    /// Besides the interview answers a listing needs a profile photo, at least <see cref="MinWorkPhotos"/> work
+    /// photos and <see cref="MinReferences"/> to <see cref="MaxReferences"/> references with Philippine mobile
+    /// numbers, none of them <paramref name="ownNumber"/> (the worker's own) and no number twice.
+    /// </summary>
+    public static string? InvalidField(PublishListingRequest request, string ownNumber) =>
         !StoreText.IsCode(request.CategoryId) ? "categoryId"
         : !StoreText.IsCode(request.AreaId) ? "areaId"
         : request.ServiceIds is not { Count: > 0 } || !request.ServiceIds.All(StoreText.IsCode) ? "serviceIds"
         : request.CityIds is not { Count: > 0 } || !request.CityIds.All(StoreText.IsCode) ? "cityIds"
         : request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId) ? "experienceId"
         : request.RateTierId is not null && !StoreText.IsCode(request.RateTierId) ? "rateTierId"
-        : request.ProfilePhotoId is not null && !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
-        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId) ? "workPhotoIds"
+        : !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
+        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId)
+          || request.WorkPhotoIds.Distinct().Count() < MinWorkPhotos ? "workPhotoIds"
+        : request.References is not { Count: >= MinReferences and <= MaxReferences }
+          || !request.References.All(r => StoreText.Limit(r?.Name, 60) is not null && StoreText.IsMobileNumber(r!.MobileNumber) && r.MobileNumber != ownNumber)
+          || request.References.Select(r => r.MobileNumber).Distinct().Count() != request.References.Count ? "references"
         : null;
 
     /// <summary>Takes the listing out of search (its services, towns and photos go with it). Its reviews stay.</summary>

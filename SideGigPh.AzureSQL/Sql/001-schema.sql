@@ -126,6 +126,24 @@ BEGIN
     CREATE UNIQUE CLUSTERED INDEX CX_ProfessionalWorkPhotos_Professional ON dbo.ProfessionalWorkPhotos (ProfessionalId, Position);
 END;
 
+/* ---------- References: people who can vouch for a worker (1 to 3 per listing) ----------
+   Private: never sent to Seekers. A listing needs at least one to be published, plus a
+   profile photo and at least 2 work photos (checked by the API). */
+IF OBJECT_ID(N'dbo.ProfessionalReferences', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ProfessionalReferences
+    (
+        ProfessionalId  varchar(128)  NOT NULL
+                        CONSTRAINT FK_ProfessionalReferences_Professionals REFERENCES dbo.Professionals (Id) ON DELETE CASCADE,
+        Position        smallint      NOT NULL  -- 0 = first added
+                        CONSTRAINT CK_ProfessionalReferences_Position CHECK (Position BETWEEN 0 AND 2),
+        Name            nvarchar(60)  NOT NULL,
+        MobileNumber    varchar(16)   NOT NULL
+                        CONSTRAINT CK_ProfessionalReferences_MobileNumber CHECK (MobileNumber LIKE '+639[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'),
+        CONSTRAINT PK_ProfessionalReferences PRIMARY KEY (ProfessionalId, Position)
+    );
+END;
+
 /* ---------- Reviews: one per Seeker per worker; writing again replaces it ----------
    No foreign key to Professionals on purpose: a worker who removes and republishes their
    listing must not wipe the reviews about them. */

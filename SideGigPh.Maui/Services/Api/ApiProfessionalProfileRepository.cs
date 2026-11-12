@@ -71,9 +71,10 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         }, null, $"the listing of {professionalId}");
     }
 
-    public async Task<PublishResult> PublishAsync(ProfessionalListing listing)
+    public async Task<PublishResult> PublishAsync(ProfessionalListing listing, IReadOnlyList<WorkReference> references)
     {
-        using var response = await api.SendJsonAsync(HttpMethod.Put, "professionals/me", listing.ToPublishRequest(), ApiJson.Default.PublishListingRequest);
+        using var response = await api.SendJsonAsync(HttpMethod.Put, "professionals/me",
+            listing.ToPublishRequest(references), ApiJson.Default.PublishListingRequest);
         Forget(listing.Id);
         if (response.StatusCode == HttpStatusCode.Conflict
             && await ErrorOf(response) == ApiErrors.PhoneTaken)

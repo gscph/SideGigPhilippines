@@ -13,6 +13,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ProfessionalServiceRow> ProfessionalServices => Set<ProfessionalServiceRow>();
     public DbSet<ProfessionalCityRow> ProfessionalCities => Set<ProfessionalCityRow>();
     public DbSet<WorkPhotoRow> ProfessionalWorkPhotos => Set<WorkPhotoRow>();
+    public DbSet<ReferenceRow> ProfessionalReferences => Set<ReferenceRow>();
     public DbSet<ReviewRow> Reviews => Set<ReviewRow>();
     public DbSet<ChatRow> Chats => Set<ChatRow>();
     public DbSet<ChatMessageRow> ChatMessages => Set<ChatMessageRow>();
@@ -86,6 +87,16 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             photo.Property(w => w.PhotoId).HasMaxLength(64).IsFixedLength();
             photo.Property(w => w.ProfessionalId).HasMaxLength(128);
             photo.HasIndex(w => new { w.ProfessionalId, w.Position }).IsUnique().IsClustered();
+        });
+
+        model.Entity<ReferenceRow>(reference =>
+        {
+            reference.ToTable("ProfessionalReferences");
+            reference.HasKey(r => new { r.ProfessionalId, r.Position });
+            reference.Property(r => r.ProfessionalId).HasMaxLength(128);
+            reference.Property(r => r.Name).HasMaxLength(60).IsUnicode();
+            reference.Property(r => r.MobileNumber).HasMaxLength(16);
+            reference.HasOne<ProfessionalRow>().WithMany().HasForeignKey(r => r.ProfessionalId).OnDelete(DeleteBehavior.Cascade);
         });
 
         model.Entity<ReviewRow>(review =>

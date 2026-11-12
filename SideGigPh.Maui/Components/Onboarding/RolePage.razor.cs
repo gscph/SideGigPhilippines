@@ -21,8 +21,8 @@ public partial class RolePage : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Options =>
     [
-        new(nameof(UserRole.Seeker), T.Get(Copy.RoleSeeker), "🏠", T.Get(Copy.RoleSeekerHint)),
         new(nameof(UserRole.Professional), T.Get(Copy.RoleProfessional), "🧰", T.Get(Copy.RoleProfessionalHint)),
+        new(nameof(UserRole.Seeker), T.Get(Copy.RoleSeeker), "🏠", T.Get(Copy.RoleSeekerHint)),       
     ];
 
     private IReadOnlyCollection<string> Selected =>

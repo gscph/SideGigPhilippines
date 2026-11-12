@@ -48,6 +48,13 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
+        // Own photo, 2 work photos and a reference come first: the home checklist shows what's missing.
+        if (!Workspace.Draft.HasProof)
+        {
+            Nav.NavigateTo(ProRoutes.Home, replace: true);
+            return;
+        }
+
         // The listing's number is the account's verified number (a Google sign-in adds one here first).
         if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true) is { } step)
         {
@@ -68,6 +75,12 @@ public partial class PublishPage : ComponentBase
             if (result == PublishResult.Incomplete)
             {
                 Nav.NavigateTo(ProfessionalInterview.FirstUnansweredPath, replace: true);
+                return;
+            }
+
+            if (result == PublishResult.MissingProof)
+            {
+                Nav.NavigateTo(ProRoutes.Home, replace: true);
                 return;
             }
 

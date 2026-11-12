@@ -66,6 +66,7 @@ All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, `ReferenceDat
 | `ProfessionalServices` | (`ProfessionalId`, `ServiceId`) | The jobs they do | Cascade delete with the listing |
 | `ProfessionalCities` | (`ProfessionalId`, `CityId`) | Towns they go to, inside the area | Cascade delete |
 | `ProfessionalWorkPhotos` | `PhotoId` | ≤ 12 work photos, `Position` 0 = newest | **The PK is global** (anti-fraud rule 2), as is `UX_Professionals_ProfilePhoto`. URLs are built from the id. |
+| `ProfessionalReferences` | (`ProfessionalId`, `Position`) | 1–3 people who vouch for the worker: `Name`, `MobileNumber` (+639…) | **Private**: never in `ListingDto`. Replaced on every publish; cascades with the listing. |
 | `Reviews` | (`ProfessionalId`, `SeekerId`) | One per Seeker per worker: `ReviewerName`, `Rating` 1–5, `Comment` ≤ 1000, `ServiceId` | Only after a chat between the two exists. **No FK to `Professionals`**, so a worker who starts over can't wipe their reviews. Averages come from one `GROUP BY` and travel on each listing (`ListingDto.Reviews`). |
 | `Chats` | `Id` = `{proId}_{seekerId}` | Both names, the job (`ServiceId`, `CityId`, `UrgencyId`, `BudgetId`), a copy of the last message, `SeekerReadAt` / `ProfessionalReadAt` | Unread = the other person wrote last after my read time. Each Inbox is one index seek (`IX_Chats_Seeker`, `IX_Chats_Professional`). Only the Seeker can start a chat. |
 | `ChatMessages` | `Id` (made by the phone) | `SenderId`, `Kind` `text`/`call`, `Text` (null for a call), `At` (server time) | Clustered on (`ChatId`, `At`). A message and the chat's last-message copy are saved in one transaction. Resending the same id changes nothing. |
@@ -88,7 +89,7 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `GET / PUT / DELETE users/me` | The caller's profile |
 | `GET professionals?categoryId=…&areaId=…` | One trade's listings in one area, each with its stars (`Reviews`: average and count); the phone ranks them (`SearchRanker`). Kept 30 s per API instance (`ListingCache`), cleared there by a publish, removal or review |
 | `GET professionals/{id}` | One listing with its stars (404 when gone) |
-| `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`) |
+| `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`; publishing also needs a `profilePhotoId`, at least 2 `workPhotoIds` and 1–3 `references` with distinct +639 numbers that aren't the worker's own) |
 | `DELETE professionals/me` | Take the listing out of search (reviews stay) |
 | `GET reviews?professionalId=…` / `?seekerId=…` | Newest first |
 | `PUT reviews` | The caller's review (`403 no-chat` without a chat) |

@@ -5,9 +5,10 @@
 
     <PhotoAddNotice Result="_photoResult" />
 
-    @if (!Workspace.IsPublished)
+    @if (!Workspace.IsPublished || !Workspace.Draft.HasProof)
     {
-        <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" HasWorkPhotos="@(Workspace.WorkPhotos.Count > 0)" />
+        <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"
+                   HasReference="@Workspace.Draft.HasReference" IsPublished="@Workspace.IsPublished" />
     }
 
     <HomeSection Title="@T.Get(Copy.SectionMessages)" Href="@ProRoutes.Inbox">

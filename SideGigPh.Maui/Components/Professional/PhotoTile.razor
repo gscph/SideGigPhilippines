@@ -1,5 +1,8 @@
 <MudPaper Elevation="0" Class="relative overflow-hidden">
     <MudImage Src="@Url" Alt="" ObjectFit="ObjectFit.Cover" Class="work-thumb rounded-lg" />
-    <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark"
-                   Class="photo-remove" aria-label="@T.Get(Copy.PhotoRemove)" OnClick="@(() => OnRemove.InvokeAsync())" />
+    @if (CanRemove)
+    {
+        <MudIconButton Icon="@Icons.Material.Filled.Close" Size="Size.Small" Variant="Variant.Filled" Color="Color.Dark"
+                       Class="photo-remove" aria-label="@T.Get(Copy.PhotoRemove)" OnClick="@(() => OnRemove.InvokeAsync())" />
+    }
 </MudPaper>

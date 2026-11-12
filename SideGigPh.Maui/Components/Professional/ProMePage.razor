@@ -16,9 +16,17 @@
     {
         <MudStack Spacing="3">
             <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProHomeNotLive)</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Href="@ProRoutes.Publish">
-                @T.Get(Copy.PublishConfirm)
-            </MudButton>
+            @if (Workspace.Draft.HasProof)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Href="@ProRoutes.Publish">
+                    @T.Get(Copy.PublishConfirm)
+                </MudButton>
+            }
+            else
+            {
+                <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"
+                           HasReference="@Workspace.Draft.HasReference" />
+            }
         </MudStack>
     }
 
@@ -26,6 +34,8 @@
         <MenuRow Href="/start/pro/1" Icon="@Icons.Material.Rounded.Edit" Text="@T.Get(Copy.ProfileEdit)" />
         <MenuRow Href="@ProRoutes.Photos" Icon="@Icons.Material.Rounded.PhotoLibrary"
                  Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel" />
+        <MenuRow Href="@ProRoutes.References" Icon="@Icons.Material.Rounded.VerifiedUser"
+                 Text="@T.Get(Copy.ReferencesTitle)" SecondaryText="@ReferencesCountLabel" />
     </MudStack>
 
     <MudStack Spacing="3">

@@ -1,0 +1,33 @@
+@page "/professional/me/references"
+@layout ProLayout
+
+<MudStack Spacing="3">
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.ReferencesTitle)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Format(Copy.ReferencesWhy, ProfessionalDraft.MaxReferences)</MudText>
+    </MudStack>
+
+    @if (References.Count == 0)
+    {
+        <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(Copy.ReferencesEmpty)</MudText>
+    }
+    else
+    {
+        <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
+            @foreach (var reference in References)
+            {
+                <ReferenceRow Reference="reference" CanRemove="Workspace.CanRemoveReference" @key="reference.MobileNumber"
+                              OnRemove="() => RemoveAsync(reference)" />
+            }
+        </MudStack>
+    }
+
+    @if (IsFull)
+    {
+        <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@T.Format(Copy.ReferencesFull, ProfessionalDraft.MaxReferences)</MudAlert>
+    }
+    else
+    {
+        <ReferenceForm Busy="_busy" OnAdd="AddAsync" Problem="@Problem" @key="_formVersion" />
+    }
+</MudStack>

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -28,6 +29,8 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
+    [Inject] private ProWorkspace Workspace { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -41,6 +44,14 @@ public partial class ProfessionalInterview : ComponentBase
 
     private OnboardingState? _state;
     private ProStep _step = ProStep.Skills;
+    private Task? _finishing;
+
+    private IReadOnlyList<string> SettingUpSteps =>
+    [
+        T.Get(Copy.SettingUpListing),
+        T.Get(Copy.SettingUpHome),
+        T.Get(Copy.SettingUpChecklist),
+    ];
 
     private ProfessionalDraft Draft => _state!.Professional;
 
@@ -136,6 +147,12 @@ public partial class ProfessionalInterview : ComponentBase
         Nav.NavigateTo(path);
     }
 
+    /// <summary>
+    /// The pro tapped Done: the "setting up" loader shows (like the Seeker's) while the answers are saved and Pro
+    /// home is loaded behind it, so the home page opens filled instead of after a blank pause.
+    /// </summary>
+    private void Finish() => _finishing = FinishAsync();
+
     private async Task FinishAsync()
     {
         var state = _state!;
@@ -143,7 +160,14 @@ public partial class ProfessionalInterview : ComponentBase
         state.ResumePath = null;
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync(); // Their side and earnings goal.
-        Nav.NavigateTo("/professional", replace: true);
+        await Workspace.EnsureLoadedAsync();
+    }
+
+    /// <summary>The loader finished: wait for the saves if the network is slower than the animation, then open Pro home.</summary>
+    private async Task GoHomeAsync()
+    {
+        await Busy.RunAsync(() => _finishing!);
+        Nav.NavigateTo(ProRoutes.Home, replace: true);
     }
 
     private void GoBack()

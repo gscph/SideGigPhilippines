@@ -12,6 +12,9 @@ public static class ProRoutes
     /// <summary>Work photos, opened from the Me page; under <see cref="Me"/> so the Me tab stays lit.</summary>
     public const string Photos = Me + "/photos";
 
+    /// <summary>The pro's private references, opened from the Me page and the setup checklist; under <see cref="Me"/>.</summary>
+    public const string References = Me + "/references";
+
     /// <summary>A chat with a customer; under <see cref="Inbox"/> so the Inbox tab stays lit.</summary>
     public static string Chat(string chatId) => $"{Inbox}/{Uri.EscapeDataString(chatId)}";
 }

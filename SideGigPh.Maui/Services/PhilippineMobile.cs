@@ -33,4 +33,10 @@ public static class PhilippineMobile
         e164 = "+63" + national;
         return true;
     }
+
+    /// <summary>+639171234567 as people write it: "0917 123 4567". Anything else comes back unchanged.</summary>
+    public static string ToLocal(string e164) =>
+        e164 is { Length: 13 } && e164.StartsWith("+639", StringComparison.Ordinal)
+            ? $"0{e164[3..6]} {e164[6..9]} {e164[9..]}"
+            : e164;
 }

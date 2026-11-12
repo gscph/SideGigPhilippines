@@ -70,12 +70,14 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
             return ApiResults.BadRequest(ApiErrors.BadBody, "The body was empty (null).");
         }
 
-        if (ProfessionalStore.InvalidField(listing) is { } field)
+        if (ProfessionalStore.InvalidField(listing, caller.PhoneNumber) is { } field)
         {
             var sent = JsonSerializer.Serialize(listing, ApiJson.Default.PublishListingRequest);
             logger.LogWarning("Publish by {Uid}: invalid {Field} in {Listing}.", caller.Uid, field, sent);
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
-                $"{field} is missing or not a valid id (categoryId, areaId and at least one serviceIds and cityIds are required). Received: {sent}");
+                $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
+                + $"at least {ProfessionalStore.MinWorkPhotos} workPhotoIds and {ProfessionalStore.MinReferences}-{ProfessionalStore.MaxReferences} "
+                + $"references with a name and a distinct +639 number that isn't the worker's own are required). Received: {sent}");
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch

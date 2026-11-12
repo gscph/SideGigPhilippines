@@ -205,16 +205,67 @@ public sealed class ProWorkspace(
         return new PhotoAddResult(added, duplicates, problem);
     }
 
+    /// <summary>A published listing keeps at least <see cref="ProfessionalDraft.MinWorkPhotos"/> work photos.</summary>
+    public bool CanRemoveWorkPhoto => !IsPublished || Draft.WorkPhotoIds.Count > ProfessionalDraft.MinWorkPhotos;
+
     public async Task RemoveWorkPhotoAsync(string photoId)
     {
-        if (Draft.WorkPhotoIds.Remove(photoId))
+        if (CanRemoveWorkPhoto && Draft.WorkPhotoIds.Remove(photoId))
         {
             await SaveAsync(listingChanged: true);
             await DeleteIfUnusedAsync(photoId);
         }
     }
 
-    /// <summary>The pro took the pledge: make the listing searchable, if it has every interview answer.</summary>
+    /// <summary>
+    /// Adds someone who can vouch for the pro. The number is read the way people type it (0917…, +63 917…);
+    /// it can't be the pro's own, nor one already on the list.
+    /// </summary>
+    public async Task<ReferenceAddResult> AddReferenceAsync(string? name, string? typedNumber)
+    {
+        var trimmed = name?.Trim();
+        if (Draft.References.Count >= ProfessionalDraft.MaxReferences)
+        {
+            return ReferenceAddResult.Full;
+        }
+
+        if (string.IsNullOrEmpty(trimmed))
+        {
+            return ReferenceAddResult.NoName;
+        }
+
+        if (!PhilippineMobile.TryNormalize(typedNumber, out var number))
+        {
+            return ReferenceAddResult.InvalidNumber;
+        }
+
+        if (number == Draft.MobileNumber)
+        {
+            return ReferenceAddResult.OwnNumber;
+        }
+
+        if (Draft.References.Any(r => r.MobileNumber == number))
+        {
+            return ReferenceAddResult.Duplicate;
+        }
+
+        Draft.References.Add(new WorkReference(trimmed, number));
+        await SaveAsync(listingChanged: true);
+        return ReferenceAddResult.Added;
+    }
+
+    /// <summary>A published listing keeps at least <see cref="ProfessionalDraft.MinReferences"/> reference.</summary>
+    public bool CanRemoveReference => !IsPublished || Draft.References.Count > ProfessionalDraft.MinReferences;
+
+    public async Task RemoveReferenceAsync(WorkReference reference)
+    {
+        if (CanRemoveReference && Draft.References.Remove(reference))
+        {
+            await SaveAsync(listingChanged: true);
+        }
+    }
+
+    /// <summary>The pro took the pledge: make the listing searchable, if it has every interview answer and the setup checklist is done.</summary>
     public async Task<PublishResult> PublishAsync()
     {
         if (!Draft.IsListingComplete)
@@ -222,9 +273,14 @@ public sealed class ProWorkspace(
             return PublishResult.Incomplete;
         }
 
+        if (!Draft.HasProof)
+        {
+            return PublishResult.MissingProof;
+        }
+
         // The phone may have been added to the account since the interview.
         Draft.TakeAccount(await identity.GetCurrentUserAsync());
-        var result = await profiles.PublishAsync(Listing);
+        var result = await profiles.PublishAsync(Listing, Draft.References);
         if (result == PublishResult.Published)
         {
             Draft.PublishedAt ??= DateTimeOffset.Now;
@@ -298,10 +354,10 @@ public sealed class ProWorkspace(
     private async Task SaveAsync(bool listingChanged = false)
     {
         await store.SaveAsync(_state!);
-        if (listingChanged && IsPublished && Draft.IsListingComplete)
+        if (listingChanged && IsPublished && Draft.IsListingComplete && Draft.HasProof)
         {
-            // Keep the live listing in step with new photos (not while an edit has left answers missing).
-            await profiles.PublishAsync(Listing);
+            // Keep the live listing in step with new photos and references (not while an edit has left something missing).
+            await profiles.PublishAsync(Listing, Draft.References);
         }
 
         Changed?.Invoke();
