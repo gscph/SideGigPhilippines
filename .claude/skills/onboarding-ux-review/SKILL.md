@@ -10,10 +10,9 @@ The source of truth is `docs/onboarding.md`. §3 maps each research source to th
 ## Product context to hold onto
 
 - **Two sides.** Seekers are households needing a job done; Professionals are side-gig pros looking for customers. The role fork comes second, after the language.
-- **Audience:** low English literacy. English / Taglish, icons, numbers.
+- **Audience:** Filipino Blue collar and Middle to Upper Class. Medium English Literacy. English / Taglish, icons, numbers. Filipino's are quite familiar with Facebook so if a label is similarly exist in Facebook make it english. Like Send a Message. Inbox. Profile.
 - **We are an unknown brand. Value comes before friction.** Uber, Grab and Headspace ask for an account in the first seconds, and that pattern is deliberately *not* copied.
 - **Money is the hook on both sides.** Seeker budget and pro rate share one price scale ("Pasok sa budget mo"). The pro's private monthly goal turns into "about N jobs a week".
-- **Auth goes after onboarding, before the first benefit.** The owner is designing that workflow, so don't propose moving it into or before the interview.
 
 ## The checklist (name the principle when you flag something)
 
@@ -47,7 +46,7 @@ The source of truth is `docs/onboarding.md`. §3 maps each research source to th
 - **No fake numbers:** no fake counters, scarcity, social proof or demand signals. Any number shown is the user's own or real data. Before data exists, show none.
 - **No fake competitors:** use skeletons, not invented listings, in previews. Sample pros only come from the dev stub, and their numbers use the unassigned +63 900 prefix.
 - **Ask for permissions in context only,** behind a benefit pre-prompt. "Not now" never blocks the flow. Never during the interview without a reason.
-- **Anti-fraud rules are non-negotiable:** 1 Phone = 1 GCash = 1 Registration, and duplicate-image rejection. They are enforced server-side, never trusting the local draft.
+- **Anti-fraud rules are non-negotiable:** 1 Phone or Email = 1 Registration, and duplicate-image rejection. They are enforced server-side, never trusting the local draft.
 - **Say plainly what isn't built** rather than implying it works.
 
 ## Output format

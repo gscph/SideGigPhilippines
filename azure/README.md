@@ -24,3 +24,16 @@ The account is shared with another app. The setup script allows public read on t
 1. Paste `cloudshell-setup.sh` into Azure Cloud Shell. If it says a name is taken, change it at the top and paste again (`STORAGE_ACCOUNT` and `FUNCTION_APP` must be unique across all of Azure).
 2. Visual Studio: right-click **SideGigPh.Api** → **Publish** → Azure → Azure Function App → `realtimeordertracking`. **Publishing replaces every function already in that app**: `cloudshell-setup.sh` lists any other functions it finds there and warns you first. If it lists some, use a separate Function App (change `FUNCTION_APP` in both scripts).
 3. Paste `cloudshell-verify.sh`.
+
+## Automatic deploy from GitHub
+
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` every time a push to `main` changes something in `SideGigPh.Api/` (or run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow**). It signs in to Azure with the Function App's **publish profile**, kept as a GitHub secret. Set it up once:
+
+1. **Allow publish profiles.** Azure portal → Function App `realtimeordertracking` → Settings → **Configuration** → **General settings** → turn **SCM Basic Auth Publishing Credentials** to **On** → Save. (New apps have it off, and then the download button below is greyed out.)
+2. **Download it.** Function App → **Overview** → **Download publish profile** (older portal: *Get publish profile*). You get a `realtimeordertracking.PublishSettings` file: an XML file with a deploy password inside. Treat it like a password: don't commit it, delete it from Downloads after step 3.
+3. **Store it in GitHub.** Repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**. Name `AZURE_FUNCTIONAPP_PUBLISH_PROFILE`, value = the **whole** contents of the file (open it in Notepad, select all, paste).
+4. Run the workflow once by hand to check it.
+
+- **Hosting plan:** the workflow sets `FUNCTION_SKU: flexconsumption`, matching `cloudshell-setup.sh`. If your app is on another plan (portal → Overview → *App Service plan* / *Plan type*), set it to `''`.
+- **If the deploy fails with 401 / Unauthorized:** the profile is stale (someone pressed *Reset publish profile*, or basic auth was turned off). Download it again and replace the secret.
+- The workflow only replaces the code. App settings such as `PhotoStorage` stay as they are in Azure.

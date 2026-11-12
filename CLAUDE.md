@@ -188,7 +188,8 @@ Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` 
 
 ## Build & CI
 
-- GitHub Actions workflow at `.github/workflows/build.yml`
+- GitHub Actions workflow at `.github/workflows/build.yml` (manual run)
+- `.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` to the Function App `realtimeordertracking` on every push to `main` that touches `SideGigPh.Api/` (also manual). It uses the publish profile in the repo secret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` (setup: [`azure/README.md`](azure/README.md) → Automatic deploy from GitHub)
 - Android builds on `ubuntu-latest`, iOS builds on `macos-latest`
 - Both install .NET 10 + platform-specific MAUI workload
 - Working directory for builds: `SideGigPh.Maui/`

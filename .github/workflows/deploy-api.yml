@@ -1,0 +1,49 @@
+name: Deploy API (Azure Functions)
+
+# Builds SideGigPh.Api and deploys it to the Function App whenever the API changes on main.
+# Needs one repo secret, AZURE_FUNCTIONAPP_PUBLISH_PROFILE: the publish profile XML downloaded
+# from the Function App (see azure/README.md → "Automatic deploy from GitHub").
+
+on:
+  workflow_dispatch:
+  
+concurrency:
+  group: deploy-api
+  cancel-in-progress: false
+
+env:
+  PROJECT: SideGigPh.Api/SideGigPh.Api.csproj
+  FUNCTION_APP: realtimeordertracking
+  # azure/cloudshell-setup.sh creates the app on the Flex Consumption plan. If your app is on the
+  # classic Consumption or a Premium/App Service plan, set this to '' (empty).
+  FUNCTION_SKU: flexconsumption
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish
+        run: dotnet publish ${{ env.PROJECT }} -c Release -o ${{ github.workspace }}/output/api
+
+      - name: Check the publish profile secret
+        env:
+          PUBLISH_PROFILE: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        run: |
+          if [ -z "$PUBLISH_PROFILE" ]; then
+            echo "::error::Secret AZURE_FUNCTIONAPP_PUBLISH_PROFILE is missing (see azure/README.md)"; exit 1
+          fi
+
+      - name: Deploy to Azure Functions
+        uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.FUNCTION_APP }}
+          package: ${{ github.workspace }}/output/api
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+          sku: ${{ env.FUNCTION_SKU }}
