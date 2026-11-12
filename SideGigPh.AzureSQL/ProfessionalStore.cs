@@ -18,22 +18,28 @@ public enum PublishOutcome
 }
 
 /// <summary>Published Skilled Worker listings (<c>Professionals</c> and its services, towns and work photos).</summary>
-public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
+public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache cache)
 {
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
     public const int MaxWorkPhotos = 12;
 
-    /// <summary>One trade's listings, in one area when given. The phone ranks them (town, budget, stars).</summary>
-    public async Task<IReadOnlyList<ListingDto>> SearchAsync(string categoryId, string? areaId, CancellationToken cancellationToken)
-    {
-        var rows = await Listings()
-            .Where(p => p.CategoryId == categoryId && (areaId == null || p.AreaId == areaId))
-            .ToListAsync(cancellationToken);
-        return rows.Select(ToDto).ToList();
-    }
+    /// <summary>
+    /// One trade's listings with their stars, in one area when given (kept for <see cref="ListingCache.SearchFor"/>).
+    /// The phone ranks them (town, budget, stars).
+    /// </summary>
+    public Task<IReadOnlyList<ListingDto>> SearchAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
+        cache.SearchAsync(categoryId, areaId, async () =>
+        {
+            var rows = await Listings()
+                .Where(p => p.CategoryId == categoryId && (areaId == null || p.AreaId == areaId))
+                .ToListAsync(cancellationToken);
+            return await WithReviewsAsync(rows, cancellationToken);
+        });
 
     public async Task<ListingDto?> GetAsync(string id, CancellationToken cancellationToken) =>
-        await Listings().FirstOrDefaultAsync(p => p.Id == id, cancellationToken) is { } row ? ToDto(row) : null;
+        await Listings().FirstOrDefaultAsync(p => p.Id == id, cancellationToken) is { } row
+            ? (await WithReviewsAsync([row], cancellationToken))[0]
+            : null;
 
     /// <summary>
     /// Makes <paramref name="uid"/>'s listing live, or replaces it. The number is the account's verified number
@@ -41,19 +47,14 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
     /// </summary>
     public async Task<PublishOutcome> PublishAsync(string uid, string mobileNumber, PublishListingRequest request, CancellationToken cancellationToken)
     {
-        var services = request.ServiceIds.Distinct().ToList();
-        var cities = request.CityIds.Distinct().ToList();
-        var workPhotos = request.WorkPhotoIds.Distinct().Take(MaxWorkPhotos).ToList();
-        if (!StoreText.IsCode(request.CategoryId) || !StoreText.IsCode(request.AreaId)
-            || services.Count == 0 || !services.All(StoreText.IsCode)
-            || cities.Count == 0 || !cities.All(StoreText.IsCode)
-            || (request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId))
-            || (request.RateTierId is not null && !StoreText.IsCode(request.RateTierId))
-            || (request.ProfilePhotoId is not null && !StoreText.IsPhotoId(request.ProfilePhotoId))
-            || !workPhotos.All(StoreText.IsPhotoId))
+        if (InvalidField(request) is not null)
         {
             return PublishOutcome.Invalid;
         }
+
+        var services = request.ServiceIds.Distinct().ToList();
+        var cities = request.CityIds.Distinct().ToList();
+        var workPhotos = request.WorkPhotoIds.Distinct().Take(MaxWorkPhotos).ToList();
 
         if (await db.Professionals.AnyAsync(p => p.MobileNumber == mobileNumber && p.Id != uid, cancellationToken))
         {
@@ -62,7 +63,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
 
         try
         {
-            return await db.InTransactionAsync(async ct =>
+            var outcome = await db.InTransactionAsync(async ct =>
             {
                 var now = DateTimeOffset.UtcNow;
                 var row = await db.Professionals.FirstOrDefaultAsync(p => p.Id == uid, ct);
@@ -104,6 +105,8 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
                 await db.SaveChangesAsync(ct);
                 return PublishOutcome.Published;
             }, cancellationToken);
+            cache.Clear();
+            return outcome;
         }
         catch (DbUpdateException ex) when (SqlErrors.Violates(ex, Constraints.ProfessionalMobileNumber))
         {
@@ -115,9 +118,24 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
         }
     }
 
+    /// <summary>The first listing field that's missing or not a valid id (its JSON name), or null when it can be published.</summary>
+    public static string? InvalidField(PublishListingRequest request) =>
+        !StoreText.IsCode(request.CategoryId) ? "categoryId"
+        : !StoreText.IsCode(request.AreaId) ? "areaId"
+        : request.ServiceIds is not { Count: > 0 } || !request.ServiceIds.All(StoreText.IsCode) ? "serviceIds"
+        : request.CityIds is not { Count: > 0 } || !request.CityIds.All(StoreText.IsCode) ? "cityIds"
+        : request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId) ? "experienceId"
+        : request.RateTierId is not null && !StoreText.IsCode(request.RateTierId) ? "rateTierId"
+        : request.ProfilePhotoId is not null && !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
+        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId) ? "workPhotoIds"
+        : null;
+
     /// <summary>Takes the listing out of search (its services, towns and photos go with it). Its reviews stay.</summary>
-    public Task RemoveAsync(string uid, CancellationToken cancellationToken) =>
-        db.Professionals.Where(p => p.Id == uid).ExecuteDeleteAsync(cancellationToken);
+    public async Task RemoveAsync(string uid, CancellationToken cancellationToken)
+    {
+        await db.Professionals.Where(p => p.Id == uid).ExecuteDeleteAsync(cancellationToken);
+        cache.Clear();
+    }
 
     private IQueryable<ProfessionalRow> Listings() =>
         db.Professionals.AsNoTracking()
@@ -126,7 +144,21 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
             .Include(p => p.WorkPhotos)
             .AsSplitQuery();
 
-    private ListingDto ToDto(ProfessionalRow p) => new(
+    /// <summary>The listings with their average stars and review count, from one grouped query.</summary>
+    private async Task<IReadOnlyList<ListingDto>> WithReviewsAsync(IReadOnlyList<ProfessionalRow> rows, CancellationToken cancellationToken)
+    {
+        var ids = rows.Select(p => p.Id).ToList();
+        var reviews = ids.Count == 0
+            ? new Dictionary<string, ReviewSummaryDto>()
+            : await db.Reviews.AsNoTracking()
+                .Where(r => ids.Contains(r.ProfessionalId))
+                .GroupBy(r => r.ProfessionalId)
+                .Select(g => new { g.Key, Average = g.Average(r => (double)r.Rating), Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => new ReviewSummaryDto(g.Average, g.Count), cancellationToken);
+        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id))).ToList();
+    }
+
+    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews) => new(
         p.Id,
         p.DisplayName,
         p.MobileNumber,
@@ -137,5 +169,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks)
         p.ExperienceId,
         p.RateTierId,
         p.ProfilePhotoId is { } photoId ? new PhotoDto(photoId, photoLinks.For(photoId)) : null,
-        p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList());
+        p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList(),
+        reviews);
 }

@@ -55,7 +55,7 @@ public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> 
     }
 
     /// <summary>Calls <paramref name="changed"/> when the chat's last message changes, checking every <see cref="WatchInterval"/>.</summary>
-    public IDisposable Watch(string chatId, Action changed) => new ChatPoll(this, chatId, changed);
+    public IDisposable Watch(string chatId, string? lastMessageId, Action<Chat> changed) => new ChatPoll(this, chatId, lastMessageId, changed);
 
     public async Task DeleteForPersonAsync(string personId)
     {
@@ -68,24 +68,23 @@ public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> 
     {
         private readonly CancellationTokenSource _stop = new();
 
-        public ChatPoll(ApiChatRepository chats, string chatId, Action changed) => _ = RunAsync(chats, chatId, changed, _stop.Token);
+        public ChatPoll(ApiChatRepository chats, string chatId, string? lastMessageId, Action<Chat> changed) =>
+            _ = RunAsync(chats, chatId, lastMessageId, changed, _stop.Token);
 
         public void Dispose() => _stop.Cancel();
 
-        private static async Task RunAsync(ApiChatRepository chats, string chatId, Action changed, CancellationToken stop)
+        private static async Task RunAsync(ApiChatRepository chats, string chatId, string? last, Action<Chat> changed, CancellationToken stop)
         {
             try
             {
-                // The page has just read the chat, so only a later message counts.
-                var last = (await chats.GetAsync(chatId))?.LastMessage.Id;
+                // The page has just read the messages, so only a later one counts.
                 using var timer = new PeriodicTimer(WatchInterval);
                 while (await timer.WaitForNextTickAsync(stop))
                 {
-                    var now = (await chats.GetAsync(chatId))?.LastMessage.Id;
-                    if (now is not null && now != last)
+                    if (await chats.GetAsync(chatId) is { } chat && chat.LastMessage.Id != last)
                     {
-                        last = now;
-                        changed();
+                        last = chat.LastMessage.Id;
+                        changed(chat);
                     }
                 }
             }

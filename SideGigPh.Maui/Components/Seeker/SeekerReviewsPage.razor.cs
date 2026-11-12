@@ -13,5 +13,5 @@ public partial class SeekerReviewsPage : ComponentBase
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
 
-    protected override Task OnInitializedAsync() => Workspace.RefreshActivityAsync();
+    protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 }

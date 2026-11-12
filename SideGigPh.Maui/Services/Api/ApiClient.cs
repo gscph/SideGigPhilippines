@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
 using Microsoft.Extensions.Logging;
 
@@ -45,9 +46,16 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         return await response.Content.ReadFromJsonAsync(type, cancellationToken);
     }
 
-    /// <summary>Sends <paramref name="body"/> as JSON. The caller checks the status and disposes the response.</summary>
-    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type) =>
-        SendAsync(method, path, JsonContent.Create(body, type));
+    /// <summary>
+    /// Sends <paramref name="body"/> as JSON with a Content-Length (not streamed/chunked, which the Functions host
+    /// may hand over as an empty body). The caller checks the status and disposes the response.
+    /// </summary>
+    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type)
+    {
+        var content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body, type));
+        content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
+        return SendAsync(method, path, content);
+    }
 
     /// <summary>
     /// A read that can't reach the API (offline, server error) shows as "nothing there", logged: the screens
@@ -67,11 +75,11 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     }
 
     /// <summary>Throws (logged) unless the write succeeded.</summary>
-    public void EnsureWritten(HttpResponseMessage response, string what)
+    public void EnsureWritten(HttpResponseMessage response, string what, string? error = null)
     {
         if (!response.IsSuccessStatusCode)
         {
-            logger.LogError("API: couldn't {What}: {Status}.", what, (int)response.StatusCode);
+            logger.LogError("API: couldn't {What}: {Status} {Error}.", what, (int)response.StatusCode, error);
             response.EnsureSuccessStatusCode();
         }
     }

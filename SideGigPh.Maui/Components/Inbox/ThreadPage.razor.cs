@@ -35,10 +35,11 @@ public partial class ThreadPage : ComponentBase, IDisposable
         _pro = Workspace.ThreadWith(Id)?.Pro ?? await Workspace.GetProAsync(Id);
         if (_pro is not null)
         {
+            var read = Workspace.MarkReadAsync(Id);
             _messages = await Workspace.GetMessagesAsync(Id);
             _message = _messages.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
-            _watch = Workspace.WatchChat(Id, () => InvokeAsync(ReloadAsync));
-            await Workspace.MarkReadAsync(Id);
+            _watch = Workspace.WatchChat(Id, _messages.LastOrDefault()?.Id, chat => InvokeAsync(() => ReloadAsync(chat)));
+            await read;
         }
 
         _loading = false;
@@ -50,9 +51,8 @@ public partial class ThreadPage : ComponentBase, IDisposable
         _error = null;
         try
         {
-            await Workspace.SendAsync(_pro!, _message!);
+            Show(await Workspace.SendAsync(_pro!, _message!));
             _message = null;
-            _messages = await Workspace.GetMessagesAsync(Id);
         }
         catch (Exception ex)
         {
@@ -71,9 +71,9 @@ public partial class ThreadPage : ComponentBase, IDisposable
         _error = null;
         try
         {
-            if (await Workspace.CallAsync(_pro!))
+            if (await Workspace.CallAsync(_pro!) is { } call)
             {
-                _messages = await Workspace.GetMessagesAsync(Id);
+                Show(call);
             }
             else
             {
@@ -86,11 +86,19 @@ public partial class ThreadPage : ComponentBase, IDisposable
         }
     }
 
-    /// <summary>A new message arrived (theirs or ours): show it and mark it read.</summary>
-    private async Task ReloadAsync()
+    /// <summary>The message the server just saved, added under the others (no need to read them all again).</summary>
+    private void Show(ChatMessage message) => _messages = [.. _messages.Where(m => m.Id != message.Id), message];
+
+    /// <summary>The chat got a message: show it and mark it read. Our own, already shown, needs nothing.</summary>
+    private async Task ReloadAsync(Chat chat)
     {
+        Workspace.ChatChanged(chat);
+        if (_messages.Any(m => m.Id == chat.LastMessage.Id))
+        {
+            return;
+        }
+
         _messages = await Workspace.GetMessagesAsync(Id);
-        await Workspace.RefreshActivityAsync();
         await Workspace.MarkReadAsync(Id);
         StateHasChanged();
     }

@@ -79,7 +79,7 @@ Set it up once:
 4. Run the workflow once by hand to check it.
 
 - **Hosting plan:** the workflow sets `FUNCTION_SKU: flexconsumption`, matching `cloudshell-setup.sh`. If your app is on another plan, set it to `''`.
-- **`AADSTS700213` / "no matching federated identity record":** the run wasn't from `main` (the trust names one branch). Run it from `main`, or change `GITHUB_BRANCH` in the script and paste it again.
+- **`AADSTS700213` / "no matching federated identity record":** Azure trusts one exact *subject*, and the run presented another. Compare it with the **subject claim** line in the run's log. GitHub writes it with the owner and repo ids (`repo:maryjuano@20237081/SideGigPhilippines@1449382288:ref:refs/heads/main`), not just the names. If the run wasn't from `main`, run it from `main`. Otherwise paste that line into `GITHUB_SUBJECT` in the script and paste the script again (the ids change only if the repo is renamed, moved or recreated).
 - **403 / AuthorizationFailed on deploy:** the role is missing or still spreading (wait a few minutes). Paste the script again.
 - **Deploy uploads, then fails reading the package:** a Flex Consumption app can read its deployment container with its own identity (portal → Function App → **Deployment settings** → *Storage authentication*). That identity then needs *Storage Blob Data Contributor* on `sidegigphbfb9`; the script adds it when it sees that setting.
 - The workflow only replaces the code. App settings such as `PhotoStorage` and `SqlDatabase` stay as they are in Azure, and it never touches the database: run SQL changes yourself first.

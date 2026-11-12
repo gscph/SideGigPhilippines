@@ -23,6 +23,12 @@ public static class ApiErrors
     /// <summary>409 on upload or publish: anti-fraud rule 2, another account has that photo.</summary>
     public const string PhotoInUse = "photo-in-use";
 
+    /// <summary>400 on any write: the request body is missing or isn't the expected JSON.</summary>
+    public const string BadBody = "bad-body";
+
+    /// <summary>400 on publish: this listing field is missing or not a valid id, e.g. <c>invalid-categoryId</c>.</summary>
+    public static string Invalid(string field) => $"invalid-{field}";
+
     /// <summary>403 on publish: the account has no verified phone number yet.</summary>
     public const string PhoneRequired = "phone-required";
 
@@ -47,7 +53,10 @@ public sealed record UserDto(
 /// <summary>A stored photo: its SHA-256 id and public URL. Also the answer to <c>POST photos</c>.</summary>
 public sealed record PhotoDto(string Id, string Url);
 
-/// <summary>A published Skilled Worker listing (<c>GET professionals</c>, <c>GET professionals/{id}</c>).</summary>
+/// <summary>
+/// A published Skilled Worker listing (<c>GET professionals</c>, <c>GET professionals/{id}</c>), with its stars
+/// (null with no reviews yet), so search ranks in one request.
+/// </summary>
 public sealed record ListingDto(
     string Id,
     string DisplayName,
@@ -59,7 +68,8 @@ public sealed record ListingDto(
     string? ExperienceId,
     string? RateTierId,
     PhotoDto? ProfilePhoto,
-    IReadOnlyList<PhotoDto> WorkPhotos);
+    IReadOnlyList<PhotoDto> WorkPhotos,
+    ReviewSummaryDto? Reviews = null);
 
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
@@ -89,10 +99,8 @@ public sealed record ReviewDto(
 /// <summary><c>PUT reviews</c>: the caller's review of a Skilled Worker, replacing their earlier one.</summary>
 public sealed record SaveReviewRequest(string ProfessionalId, string ReviewerName, int Rating, string? Comment, string? ServiceId);
 
-/// <summary><c>POST reviews/summaries</c>.</summary>
-public sealed record ReviewSummariesRequest(IReadOnlyList<string> ProfessionalIds);
-
-public sealed record ReviewSummaryDto(string ProfessionalId, double Average, int Count);
+/// <summary>A worker's average stars and how many reviews, on their <see cref="ListingDto"/>.</summary>
+public sealed record ReviewSummaryDto(double Average, int Count);
 
 public sealed record MessageDto(string Id, string ChatId, string SenderId, string Kind, string? Text, DateTimeOffset At);
 

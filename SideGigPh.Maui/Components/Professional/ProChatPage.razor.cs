@@ -38,9 +38,10 @@ public partial class ProChatPage : ComponentBase, IDisposable
             return;
         }
 
+        var read = Workspace.MarkReadAsync(ChatId);
         _messages = await Workspace.GetMessagesAsync(ChatId);
-        _watch = Workspace.WatchChat(ChatId, () => InvokeAsync(ReloadAsync));
-        await Workspace.MarkReadAsync(ChatId);
+        _watch = Workspace.WatchChat(ChatId, _messages.LastOrDefault()?.Id, chat => InvokeAsync(() => ReloadAsync(chat)));
+        await read;
     }
 
     private async Task SendAsync()
@@ -49,9 +50,9 @@ public partial class ProChatPage : ComponentBase, IDisposable
         _error = null;
         try
         {
-            await Workspace.ReplyAsync(_chat!, _message!);
+            var reply = await Workspace.ReplyAsync(_chat!, _message!);
+            _messages = [.. _messages.Where(m => m.Id != reply.Id), reply];
             _message = null;
-            _messages = await Workspace.GetMessagesAsync(ChatId);
         }
         catch (Exception ex)
         {
@@ -64,11 +65,16 @@ public partial class ProChatPage : ComponentBase, IDisposable
         }
     }
 
-    /// <summary>A new message arrived (theirs or ours): show it and mark it read.</summary>
-    private async Task ReloadAsync()
+    /// <summary>The chat got a message: show it and mark it read. Our own reply, already shown, needs nothing.</summary>
+    private async Task ReloadAsync(Chat chat)
     {
+        Workspace.ChatChanged(chat);
+        if (_messages.Any(m => m.Id == chat.LastMessage.Id))
+        {
+            return;
+        }
+
         _messages = await Workspace.GetMessagesAsync(ChatId);
-        await Workspace.RefreshActivityAsync();
         await Workspace.MarkReadAsync(ChatId);
         StateHasChanged();
     }

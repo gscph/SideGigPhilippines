@@ -32,25 +32,6 @@ public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore rev
             : new OkObjectResult(await reviews.BySeekerAsync(seekerId, cancellationToken));
     }
 
-    /// <summary>Average stars and count for many workers at once (search ranking).</summary>
-    [Function("GetReviewSummaries")]
-    public async Task<IActionResult> Summaries(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "reviews/summaries")] HttpRequest request,
-        CancellationToken cancellationToken)
-    {
-        if (await auth.GetUidAsync(request, cancellationToken) is null)
-        {
-            return new UnauthorizedResult();
-        }
-
-        if (await ApiResults.ReadAsync<ReviewSummariesRequest>(request, cancellationToken) is not { } body)
-        {
-            return ApiResults.BadRequest();
-        }
-
-        return new OkObjectResult(await reviews.SummariesAsync(body.ProfessionalIds, cancellationToken));
-    }
-
     /// <summary>The caller's review of a worker, replacing their earlier one.</summary>
     [Function("SaveReview")]
     public async Task<IActionResult> Save(

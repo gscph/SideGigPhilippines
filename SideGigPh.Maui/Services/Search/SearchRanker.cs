@@ -27,15 +27,14 @@ public static class SearchRanker
 
     public static SearchResult Rank(
         IReadOnlyList<ProfessionalListing> pros,
-        SearchRequest request,
-        IReadOnlyDictionary<string, ReviewSummary> reviews)
+        SearchRequest request)
     {
         var service = request.ServiceId;
         var offering = service is null ? pros : pros.Where(p => p.ServiceIds.Contains(service)).ToList();
         var fallback = service is not null && offering.Count == 0 && pros.Count > 0;
 
         var hits = (fallback ? pros : offering)
-            .Select(pro => Score(pro, request, reviews.GetValueOrDefault(pro.Id)))
+            .Select(pro => Score(pro, request, pro.Reviews))
             .OrderByDescending(hit => hit.Score)
             .ThenBy(hit => hit.Pro.DisplayName, StringComparer.OrdinalIgnoreCase)
             .ToList();

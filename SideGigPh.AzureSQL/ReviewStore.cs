@@ -14,11 +14,8 @@ public enum ReviewOutcome
 }
 
 /// <summary>Seekers' reviews of the Skilled Workers they chatted with: one per pair, writing again replaces it.</summary>
-public sealed class ReviewStore(SideGigPhDb db)
+public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
 {
-    /// <summary>Most pros one summaries request may ask about (a page of search results is far fewer).</summary>
-    public const int MaxSummaries = 500;
-
     public async Task<IReadOnlyList<ReviewDto>> ForProfessionalAsync(string professionalId, CancellationToken cancellationToken) =>
         await db.Reviews.AsNoTracking()
             .Where(r => r.ProfessionalId == professionalId)
@@ -32,17 +29,6 @@ public sealed class ReviewStore(SideGigPhDb db)
             .OrderByDescending(r => r.CreatedAt)
             .Select(r => ToDto(r))
             .ToListAsync(cancellationToken);
-
-    /// <summary>Average stars and count per pro, for ranking. Pros with no reviews are left out.</summary>
-    public async Task<IReadOnlyList<ReviewSummaryDto>> SummariesAsync(IReadOnlyCollection<string> professionalIds, CancellationToken cancellationToken)
-    {
-        var ids = professionalIds.Distinct().Take(MaxSummaries).ToList();
-        return await db.Reviews.AsNoTracking()
-            .Where(r => ids.Contains(r.ProfessionalId))
-            .GroupBy(r => r.ProfessionalId)
-            .Select(g => new ReviewSummaryDto(g.Key, g.Average(r => (double)r.Rating), g.Count()))
-            .ToListAsync(cancellationToken);
-    }
 
     /// <summary>The caller's review of a Skilled Worker they chatted with. The first write's time is kept.</summary>
     public async Task<ReviewOutcome> SaveAsync(string seekerUid, SaveReviewRequest request, CancellationToken cancellationToken)
@@ -72,6 +58,7 @@ public sealed class ReviewStore(SideGigPhDb db)
         row.ServiceId = request.ServiceId;
         row.UpdatedAt = now;
         await db.SaveChangesAsync(cancellationToken);
+        listings.Clear(); // search results carry the stars
         return ReviewOutcome.Saved;
     }
 
@@ -79,8 +66,11 @@ public sealed class ReviewStore(SideGigPhDb db)
     /// Deletes the reviews this person wrote. The ones about them stay, or a Skilled Worker could wipe their bad
     /// reviews by starting over. They show again only if the worker publishes again.
     /// </summary>
-    public Task DeleteWrittenByAsync(string seekerUid, CancellationToken cancellationToken) =>
-        db.Reviews.Where(r => r.SeekerId == seekerUid).ExecuteDeleteAsync(cancellationToken);
+    public async Task DeleteWrittenByAsync(string seekerUid, CancellationToken cancellationToken)
+    {
+        await db.Reviews.Where(r => r.SeekerId == seekerUid).ExecuteDeleteAsync(cancellationToken);
+        listings.Clear();
+    }
 
     private static ReviewDto ToDto(ReviewRow r) =>
         new(r.ProfessionalId, r.SeekerId, r.ReviewerName, r.Rating, r.Comment, r.ServiceId, r.CreatedAt, r.UpdatedAt);

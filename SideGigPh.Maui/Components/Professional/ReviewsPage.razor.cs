@@ -10,5 +10,5 @@ public partial class ReviewsPage : ComponentBase
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
 
-    protected override Task OnInitializedAsync() => Workspace.RefreshActivityAsync();
+    protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 }

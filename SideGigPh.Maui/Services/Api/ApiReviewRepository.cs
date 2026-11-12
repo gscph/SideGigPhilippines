@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
@@ -15,22 +14,6 @@ public sealed class ApiReviewRepository(ApiClient api) : IReviewRepository
 
     public Task<IReadOnlyList<Review>> GetBySeekerAsync(string seekerId) =>
         ListAsync($"reviews?seekerId={ApiClient.Escape(seekerId)}", $"the reviews written by {seekerId}");
-
-    /// <summary>The stars of many pros at once, for ranking: averaged by the database in one request.</summary>
-    public Task<IReadOnlyDictionary<string, ReviewSummary>> GetSummariesAsync(IReadOnlyCollection<string> professionalIds) =>
-        api.ReadAsync<IReadOnlyDictionary<string, ReviewSummary>>(async () =>
-        {
-            if (professionalIds.Count == 0)
-            {
-                return new Dictionary<string, ReviewSummary>();
-            }
-
-            using var response = await api.SendJsonAsync(HttpMethod.Post, "reviews/summaries",
-                new ReviewSummariesRequest(professionalIds.Distinct().ToList()), ApiJson.Default.ReviewSummariesRequest);
-            response.EnsureSuccessStatusCode();
-            var summaries = await response.Content.ReadFromJsonAsync(ApiJson.Default.ListReviewSummaryDto) ?? [];
-            return summaries.ToDictionary(s => s.ProfessionalId, s => new ReviewSummary(s.Average, s.Count));
-        }, new Dictionary<string, ReviewSummary>(), "review summaries");
 
     public async Task SaveAsync(Review review)
     {

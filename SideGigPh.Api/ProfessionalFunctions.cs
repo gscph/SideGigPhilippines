@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -10,7 +11,7 @@ namespace SideGigPh.Api;
 /// Skilled Worker listings. Any signed-in user can search and read them; only the worker publishes or removes
 /// their own (<c>professionals/me</c>, id = their uid).
 /// </summary>
-public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, ProfessionalStore professionals)
+public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, ProfessionalStore professionals, ILogger<ProfessionalFunctions> logger)
 {
     /// <summary><c>GET professionals?categoryId=aircon&amp;areaId=rizal</c> (areaId optional).</summary>
     [Function("SearchProfessionals")]
@@ -65,7 +66,14 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
 
         if (await ApiResults.ReadAsync<PublishListingRequest>(request, cancellationToken) is not { } listing)
         {
-            return ApiResults.BadRequest();
+            logger.LogWarning("Publish by {Uid}: unreadable body ({ContentType}, {Length} bytes).", caller.Uid, request.ContentType, request.ContentLength);
+            return ApiResults.BadRequest(ApiErrors.BadBody);
+        }
+
+        if (ProfessionalStore.InvalidField(listing) is { } field)
+        {
+            logger.LogWarning("Publish by {Uid}: invalid {Field} in {@Listing}.", caller.Uid, field, listing);
+            return ApiResults.BadRequest(ApiErrors.Invalid(field));
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch

@@ -26,8 +26,11 @@ public interface IChatRepository
     /// <summary>That side has now read everything in the chat (clears its unread badge).</summary>
     Task MarkReadAsync(string chatId, ChatSide side);
 
-    /// <summary>Calls <paramref name="changed"/> whenever the chat gets a message, until disposed.</summary>
-    IDisposable Watch(string chatId, Action changed);
+    /// <summary>
+    /// Calls <paramref name="changed"/> with the chat whenever it gets a message after <paramref name="lastMessageId"/>
+    /// (the last one the page already shows, or null), until disposed.
+    /// </summary>
+    IDisposable Watch(string chatId, string? lastMessageId, Action<Chat> changed);
 
     /// <summary>Deletes every chat this person is in, with its messages (Start over / delete account).</summary>
     Task DeleteForPersonAsync(string personId);

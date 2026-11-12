@@ -39,7 +39,7 @@ public partial class SeekerHome : ComponentBase
         }
     }
 
-    protected override Task OnInitializedAsync() => Workspace.RefreshActivityAsync();
+    protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 
     private async Task SearchAsync(string words)
     {

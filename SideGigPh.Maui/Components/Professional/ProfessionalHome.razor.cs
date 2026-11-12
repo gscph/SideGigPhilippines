@@ -22,7 +22,7 @@ public partial class ProfessionalHome : ComponentBase
         ? T.Get(goal.Label)
         : null;
 
-    protected override Task OnInitializedAsync() => Workspace.RefreshActivityAsync();
+    protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 
     private async Task AddPhotosAsync()
     {

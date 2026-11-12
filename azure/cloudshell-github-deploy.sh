@@ -24,6 +24,9 @@ STORAGE_ACCOUNT="sidegigphbfb9"
 DEPLOY_IDENTITY="sidegigph-github-deploy"
 GITHUB_REPO="maryjuano/SideGigPhilippines"   # owner/name
 GITHUB_BRANCH="main"                         # the workflow may only deploy from this branch
+# GitHub's sign-in token names the repo with its owner and repo ids (owner@id/name@id). If a run fails
+# with AADSTS700213, copy the "subject claim" line from that run's log and paste it here.
+GITHUB_SUBJECT="repo:maryjuano@20237081/SideGigPhilippines@1449382288:ref:refs/heads/$GITHUB_BRANCH"
 
 step() { printf '\n== %s\n' "$1"; }
 fail() { printf '\n!! STOPPED: %s\n' "$1"; exit 1; }
@@ -64,7 +67,7 @@ DEPLOY_PRINCIPAL=$(az identity show -g "$APP_GROUP" -n "$DEPLOY_IDENTITY" --quer
 echo "Ready (client id $CLIENT_ID)."
 
 step "Trust GitHub Actions ($GITHUB_REPO, branch $GITHUB_BRANCH)"
-SUBJECT="repo:$GITHUB_REPO:ref:refs/heads/$GITHUB_BRANCH"
+SUBJECT="$GITHUB_SUBJECT"
 if az identity federated-credential show -g "$APP_GROUP" --identity-name "$DEPLOY_IDENTITY" -n github-main -o none 2>/dev/null; then
   az identity federated-credential update -g "$APP_GROUP" --identity-name "$DEPLOY_IDENTITY" -n github-main \
     --issuer "https://token.actions.githubusercontent.com" --subject "$SUBJECT" \

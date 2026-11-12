@@ -14,11 +14,13 @@ public sealed record PhotoLinks(string BaseUrl)
 
 public static class AzureSqlServiceCollectionExtensions
 {
-    /// <summary>The database and the four stores the API's functions use.</summary>
+    /// <summary>The database, the four stores the API's functions use, and the search cache they share.</summary>
     public static IServiceCollection AddSideGigPhSql(this IServiceCollection services, string connectionString, PhotoLinks photoLinks)
     {
         services.AddDbContext<SideGigPhDb>(options => options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
         services.AddSingleton(photoLinks);
+        services.AddMemoryCache();
+        services.AddSingleton<ListingCache>();
         services.AddScoped<UserStore>();
         services.AddScoped<ProfessionalStore>();
         services.AddScoped<ReviewStore>();

@@ -4,10 +4,10 @@ namespace SideGigPh.Maui.Services.Search;
 
 /// <summary>
 /// Runs a Seeker's search: fetches the category's pros from every town in the Seeker's area (so pros
-/// from nearby towns can follow the local ones), adds their star ratings, and ranks them with
+/// from nearby towns can follow the local ones), each with their star rating, and ranks them with
 /// <see cref="SearchRanker"/>. Free text is turned into a request by <see cref="SearchIntentParser"/> first.
 /// </summary>
-public sealed class ProfessionalSearch(IProfessionalProfileRepository profiles, IReviewRepository reviews)
+public sealed class ProfessionalSearch(IProfessionalProfileRepository profiles)
 {
     public async Task<SearchResult> SearchAsync(SearchRequest request)
     {
@@ -17,7 +17,6 @@ public sealed class ProfessionalSearch(IProfessionalProfileRepository profiles, 
         }
 
         var pros = await profiles.SearchAsync(new ProfessionalSearchQuery(categoryId, ReferenceData.AreaOf(request.CityId)));
-        var summaries = await reviews.GetSummariesAsync(pros.Select(pro => pro.Id).ToList());
-        return SearchRanker.Rank(pros, request, summaries);
+        return SearchRanker.Rank(pros, request);
     }
 }

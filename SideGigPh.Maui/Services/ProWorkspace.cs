@@ -20,9 +20,13 @@ public sealed class ProWorkspace(
     /// <summary>Most work photos a listing can have.</summary>
     public const int MaxWorkPhotos = 12;
 
+    /// <summary>How long chats and reviews count as fresh: switching tabs within this doesn't ask the server again.</summary>
+    public static readonly TimeSpan ActivityFreshFor = TimeSpan.FromSeconds(15);
+
     private readonly Dictionary<string, string> _photoUrls = [];
     private OnboardingState? _state;
     private Task<bool>? _loading;
+    private DateTimeOffset _refreshedAt = DateTimeOffset.MinValue;
 
     /// <summary>
     /// The pro's id in chats and as the listing id: the signed-in user's uid (set when the workspace loads),
@@ -79,11 +83,18 @@ public sealed class ProWorkspace(
         return loaded;
     }
 
-    /// <summary>Re-reads chats and reviews, which change without the pro doing anything.</summary>
+    /// <summary>Re-reads chats and reviews unless they were read within <see cref="ActivityFreshFor"/> (a tab opening).</summary>
+    public Task RefreshIfStaleAsync() =>
+        DateTimeOffset.UtcNow - _refreshedAt < ActivityFreshFor ? Task.CompletedTask : RefreshActivityAsync();
+
+    /// <summary>Re-reads chats and reviews side by side: they change without the pro doing anything.</summary>
     public async Task RefreshActivityAsync()
     {
-        Chats = await chats.GetInboxAsync(MyId, ChatSide.Professional);
-        Reviews = await reviews.GetForProfessionalAsync(MyId);
+        var inbox = chats.GetInboxAsync(MyId, ChatSide.Professional);
+        var about = reviews.GetForProfessionalAsync(MyId);
+        Chats = await inbox;
+        Reviews = await about;
+        _refreshedAt = DateTimeOffset.UtcNow;
         Changed?.Invoke();
     }
 
@@ -92,16 +103,23 @@ public sealed class ProWorkspace(
     /// <summary>The chat's messages, oldest first.</summary>
     public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId) => chats.GetMessagesAsync(chatId);
 
-    /// <summary>Calls <paramref name="changed"/> when the chat gets a message, until disposed.</summary>
-    public IDisposable WatchChat(string chatId, Action changed) => chats.Watch(chatId, changed);
+    /// <summary>
+    /// Calls <paramref name="changed"/> with the chat when it gets a message after <paramref name="lastMessageId"/>, until disposed.
+    /// Pass the chat on to <see cref="ChatChanged"/>.
+    /// </summary>
+    public IDisposable WatchChat(string chatId, string? lastMessageId, Action<Chat> changed) => chats.Watch(chatId, lastMessageId, changed);
 
-    /// <summary>The pro answers a customer in their chat.</summary>
-    public async Task ReplyAsync(Chat chat, string message)
+    /// <summary>A watched chat got a message: its Inbox row shows it, without re-reading the Inbox.</summary>
+    public void ChatChanged(Chat chat) => Put(chat);
+
+    /// <summary>The pro answers a customer in their chat. Returns the reply as the server saved it, for the page to show.</summary>
+    public async Task<ChatMessage> ReplyAsync(Chat chat, string message)
     {
         var reply = new ChatMessage(Guid.NewGuid().ToString("N"), chat.Id, MyId,
             ChatMessageKind.Text, message.Trim(), DateTimeOffset.Now);
-        await chats.SendAsync(chat, reply);
-        await RefreshActivityAsync();
+        var saved = await chats.SendAsync(chat, reply);
+        Put(saved);
+        return saved.LastMessage;
     }
 
     /// <summary>The pro opened the chat: the customer's messages are read.</summary>
@@ -110,7 +128,7 @@ public sealed class ProWorkspace(
         if (Chats.FirstOrDefault(c => c.Id == chatId) is { } chat && chat.IsUnreadFor(ChatSide.Professional))
         {
             await chats.MarkReadAsync(chatId, ChatSide.Professional);
-            await RefreshActivityAsync();
+            Put(chat with { ProfessionalReadAt = DateTimeOffset.Now });
         }
     }
 
@@ -221,6 +239,7 @@ public sealed class ProWorkspace(
     {
         _state = null;
         _loading = null;
+        _refreshedAt = DateTimeOffset.MinValue;
         MyId = ListingMapper.OwnListingId;
         _photoUrls.Clear();
         Chats = [];
@@ -249,6 +268,13 @@ public sealed class ProWorkspace(
 
         await RefreshActivityAsync();
         return true;
+    }
+
+    /// <summary>Puts the chat at the top of the Inbox (replacing its old row), as the server just answered.</summary>
+    private void Put(Chat chat)
+    {
+        Chats = [chat, .. Chats.Where(c => c.Id != chat.Id)];
+        Changed?.Invoke();
     }
 
     private async Task<string> StoreAsync(byte[] bytes)

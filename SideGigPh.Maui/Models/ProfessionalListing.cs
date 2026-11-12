@@ -25,4 +25,7 @@ public sealed class ProfessionalListing
 
     /// <summary>Photos of their work as image sources, newest first.</summary>
     public IReadOnlyList<string> WorkPhotoUrls { get; init; } = [];
+
+    /// <summary>Average stars and review count, or null with no reviews yet. Search ranks by it.</summary>
+    public ReviewSummary? Reviews { get; init; }
 }

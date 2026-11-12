@@ -23,8 +23,12 @@ public sealed class SeekerWorkspace(
     /// <summary>The Seeker's id when nobody is signed in (no sign-in provider registered). With an account it is their uid: <see cref="MyId"/>.</summary>
     public const string LocalSeekerId = "me";
 
+    /// <summary>How long the Inbox and reviews count as fresh: switching tabs within this doesn't ask the server again.</summary>
+    public static readonly TimeSpan ActivityFreshFor = TimeSpan.FromSeconds(15);
+
     private OnboardingState? _state;
     private Task<bool>? _loading;
+    private DateTimeOffset _refreshedAt = DateTimeOffset.MinValue;
 
     /// <summary>The Seeker's id in chats and reviews: the signed-in user's uid (set when the workspace loads), or <see cref="LocalSeekerId"/>.</summary>
     public string MyId { get; private set; } = LocalSeekerId;
@@ -151,22 +155,37 @@ public sealed class SeekerWorkspace(
     /// <summary>The chat with a pro, oldest message first (empty before the first message).</summary>
     public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string professionalId) => chats.GetMessagesAsync(ChatIdWith(professionalId));
 
-    /// <summary>Calls <paramref name="changed"/> when the chat with the pro gets a message, until disposed.</summary>
-    public IDisposable WatchChat(string professionalId, Action changed) => chats.Watch(ChatIdWith(professionalId), changed);
+    /// <summary>
+    /// Calls <paramref name="changed"/> with the chat when it gets a message after <paramref name="lastMessageId"/>, until disposed.
+    /// Pass the chat on to <see cref="ChatChanged"/>.
+    /// </summary>
+    public IDisposable WatchChat(string professionalId, string? lastMessageId, Action<Chat> changed) =>
+        chats.Watch(ChatIdWith(professionalId), lastMessageId, changed);
 
-    /// <summary>Sends a message to the pro; the first one starts the chat, with the job from the Seeker's answers.</summary>
-    public Task SendAsync(ProfessionalListing pro, string message) => PostAsync(pro, ChatMessageKind.Text, message.Trim());
+    /// <summary>A watched chat got a message: its Inbox row shows it, without re-reading the Inbox.</summary>
+    public void ChatChanged(Chat chat)
+    {
+        if (ThreadWith(chat.ProfessionalId) is { } thread)
+        {
+            Put(thread.Pro, chat);
+        }
+    }
 
-    /// <summary>Opens the dialer and logs the call in the chat. False if the dialer couldn't open.</summary>
-    public async Task<bool> CallAsync(ProfessionalListing pro)
+    /// <summary>
+    /// Sends a message to the pro; the first one starts the chat, with the job from the Seeker's answers.
+    /// Returns the message as the server saved it, for the page to show.
+    /// </summary>
+    public Task<ChatMessage> SendAsync(ProfessionalListing pro, string message) => PostAsync(pro, ChatMessageKind.Text, message.Trim());
+
+    /// <summary>Opens the dialer and logs the call in the chat: the logged message, or null if the dialer couldn't open.</summary>
+    public async Task<ChatMessage?> CallAsync(ProfessionalListing pro)
     {
         if (!await phone.CallAsync(pro.MobileNumber))
         {
-            return false;
+            return null;
         }
 
-        await PostAsync(pro, ChatMessageKind.Call, null);
-        return true;
+        return await PostAsync(pro, ChatMessageKind.Call, null);
     }
 
     /// <summary>The Seeker opened the chat: the pro's messages are read.</summary>
@@ -175,7 +194,7 @@ public sealed class SeekerWorkspace(
         if (ThreadWith(professionalId) is { } thread && thread.Chat.IsUnreadFor(ChatSide.Seeker))
         {
             await chats.MarkReadAsync(thread.Chat.Id, ChatSide.Seeker);
-            await RefreshActivityAsync();
+            Put(thread.Pro, thread.Chat with { SeekerReadAt = DateTimeOffset.Now });
         }
     }
 
@@ -191,7 +210,7 @@ public sealed class SeekerWorkspace(
         }
 
         var name = reviewerName.Trim();
-        await reviews.SaveAsync(new Review(
+        var review = new Review(
             Chat.IdFor(pro.Id, MyId),
             pro.Id,
             MyId,
@@ -199,11 +218,12 @@ public sealed class SeekerWorkspace(
             rating,
             string.IsNullOrWhiteSpace(comment) ? null : comment.Trim(),
             thread.Chat.ServiceId,
-            DateTimeOffset.Now));
+            DateTimeOffset.Now);
+        await reviews.SaveAsync(review);
+        MyReviews = [review, .. MyReviews.Where(r => r.ProfessionalId != pro.Id)];
 
         Answers.ReviewerName = name;
-        await store.SaveAsync(_state!);
-        await RefreshActivityAsync();
+        await SaveAsync();
         return true;
     }
 
@@ -218,26 +238,28 @@ public sealed class SeekerWorkspace(
     {
         _state = null;
         _loading = null;
+        _refreshedAt = DateTimeOffset.MinValue;
         MyId = LocalSeekerId;
         Threads = [];
         MyReviews = [];
     }
 
-    /// <summary>Re-reads the Inbox and the Seeker's reviews.</summary>
+    /// <summary>Re-reads the Inbox and reviews unless they were read within <see cref="ActivityFreshFor"/> (a tab opening).</summary>
+    public Task RefreshIfStaleAsync() =>
+        DateTimeOffset.UtcNow - _refreshedAt < ActivityFreshFor ? Task.CompletedTask : RefreshActivityAsync();
+
+    /// <summary>Re-reads the Inbox and the Seeker's reviews, side by side; the pros' listings come from the cache when it has them.</summary>
     public async Task RefreshActivityAsync()
     {
-        var threads = new List<InboxThread>();
-        foreach (var chat in await chats.GetInboxAsync(MyId, ChatSide.Seeker))
-        {
-            // A pro who took their listing down drops out of the Inbox.
-            if (await profiles.GetByIdAsync(chat.ProfessionalId) is { } pro)
-            {
-                threads.Add(new InboxThread(pro, chat));
-            }
-        }
+        var inbox = chats.GetInboxAsync(MyId, ChatSide.Seeker);
+        var written = reviews.GetBySeekerAsync(MyId);
+        var chatList = await inbox;
+        var pros = await Task.WhenAll(chatList.Select(chat => profiles.GetByIdAsync(chat.ProfessionalId)));
 
-        Threads = threads;
-        MyReviews = await reviews.GetBySeekerAsync(MyId);
+        // A pro who took their listing down drops out of the Inbox.
+        Threads = chatList.Zip(pros, (chat, pro) => pro is null ? null : new InboxThread(pro, chat)).OfType<InboxThread>().ToList();
+        MyReviews = await written;
+        _refreshedAt = DateTimeOffset.UtcNow;
         Changed?.Invoke();
     }
 
@@ -259,7 +281,7 @@ public sealed class SeekerWorkspace(
         return true;
     }
 
-    private async Task PostAsync(ProfessionalListing pro, ChatMessageKind kind, string? message)
+    private async Task<ChatMessage> PostAsync(ProfessionalListing pro, ChatMessageKind kind, string? message)
     {
         var chatId = ChatIdWith(pro.Id);
         var sent = new ChatMessage(Guid.NewGuid().ToString("N"), chatId, MyId, kind, message, DateTimeOffset.Now);
@@ -267,8 +289,16 @@ public sealed class SeekerWorkspace(
         // Only used when this starts the chat: the job comes from the Seeker's answers.
         var chat = new Chat(chatId, pro.Id, MyId, pro.DisplayName, Answers.ReviewerName ?? text.Get(Copy.ChatCustomer),
             JobFor(pro), Answers.CityId, Answers.UrgencyId, Answers.BudgetId, sent, sent.At, null, sent.At);
-        await chats.SendAsync(chat, sent);
-        await RefreshActivityAsync();
+        var saved = await chats.SendAsync(chat, sent);
+        Put(pro, saved);
+        return saved.LastMessage;
+    }
+
+    /// <summary>Puts the chat at the top of the Inbox (replacing its old row), as the server just answered.</summary>
+    private void Put(ProfessionalListing pro, Chat chat)
+    {
+        Threads = [new InboxThread(pro, chat), .. Threads.Where(t => t.Chat.Id != chat.Id)];
+        Changed?.Invoke();
     }
 
     /// <summary>The searched job, if this pro does it.</summary>

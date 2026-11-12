@@ -34,11 +34,11 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "photos")] HttpRequest request,
         CancellationToken cancellationToken)
     {
-        //var uid = await auth.GetUidAsync(request, cancellationToken);
-        //if (uid is null)
-        //{
-        //    return new UnauthorizedResult();
-        //}
+        var uid = await auth.GetUidAsync(request, cancellationToken);
+        if (uid is null)
+        {
+            return new UnauthorizedResult();
+        }
 
         var bytes = await ReadAtMostAsync(request.Body, MaxBytes + 1, cancellationToken);
         if (bytes.Length > MaxBytes)
@@ -75,17 +75,17 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
                     // Same id = same bytes forever, so phones can cache it for good.
                     CacheControl = "public, max-age=31536000, immutable",
                 },
-                //Metadata = new Dictionary<string, string> { [OwnerKey] = uid },
+                Metadata = new Dictionary<string, string> { [OwnerKey] = uid },
                 Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All },
             }, cancellationToken);
         }
         catch (RequestFailedException e) when (e.Status == StatusCodes.Status409Conflict)
         {
-            //// Already stored: fine if it's this account's own photo (saving the same bytes again).
-            //if (await OwnerOfAsync(blob, cancellationToken) != uid)
-            //{
-            //    return new ConflictObjectResult(new { error = "photo-in-use" });
-            //}
+            // Already stored: fine if it's this account's own photo (saving the same bytes again).
+            if (await OwnerOfAsync(blob, cancellationToken) != uid)
+            {
+                return new ConflictObjectResult(new { error = "photo-in-use" });
+            }
         }
 
         return new OkObjectResult(new PhotoDto(id, blob.Uri.ToString()));

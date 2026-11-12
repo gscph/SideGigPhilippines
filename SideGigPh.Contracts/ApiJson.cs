@@ -14,8 +14,6 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(ReviewDto))]
 [JsonSerializable(typeof(List<ReviewDto>))]
 [JsonSerializable(typeof(SaveReviewRequest))]
-[JsonSerializable(typeof(ReviewSummariesRequest))]
-[JsonSerializable(typeof(List<ReviewSummaryDto>))]
 [JsonSerializable(typeof(ChatDto))]
 [JsonSerializable(typeof(List<ChatDto>))]
 [JsonSerializable(typeof(List<MessageDto>))]
