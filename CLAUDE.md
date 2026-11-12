@@ -191,7 +191,7 @@ Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` 
 ## Build & CI
 
 - GitHub Actions workflow at `.github/workflows/build.yml` (manual run)
-- `.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` to the Function App `SideGigPhApi` (Flex Consumption, Linux, Southeast Asia) when run by hand (Actions → Run workflow). It uses the publish profile in the repo secret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE` (setup: [`azure/README.md`](azure/README.md) → Automatic deploy from GitHub)
+- `.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` to the Function App `SideGigPhApi` (Flex Consumption, Linux, Southeast Asia) when run by hand (Actions → Run workflow). It signs in with OIDC as the user-assigned managed identity `sidegigph-github-deploy` (repo secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, made by `azure/cloudshell-github-deploy.sh`; trusts `main` only), so there is no publish profile; the app's own system-assigned identity is what reaches Azure SQL (setup: [`azure/README.md`](azure/README.md) → Automatic deploy from GitHub)
 - Android builds on `ubuntu-latest`, iOS builds on `macos-latest`
 - Both install .NET 10 + platform-specific MAUI workload
 - Working directory for builds: `SideGigPh.Maui/`

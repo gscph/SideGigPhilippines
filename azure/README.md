@@ -14,6 +14,7 @@ The storage account is also the Function App's own storage (its deployment packa
 | File | What it is |
 |---|---|
 | `cloudshell-setup.sh` | Paste into **Azure Cloud Shell** (https://shell.azure.com, Bash). Creates the resource group, the storage account and its `photos` container and the Function App, and puts the storage connection string into the Function App's settings. Safe to run again. It doesn't create the database (see Azure SQL below). |
+| `cloudshell-github-deploy.sh` | Paste the same way, once: lets the GitHub workflow deploy `SideGigPh.Api` as a managed identity (no publish profile). See Automatic deploy from GitHub below. |
 | `cloudshell-verify.sh` | A read-only check, pasted the same way, after publishing `SideGigPh.Api`: storage, public photo URLs, settings present, and that the API answers. Prints PASS / FAIL with what to do. |
 
 ## Where the connection strings go
@@ -64,13 +65,21 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
 
 ## Automatic deploy from GitHub
 
-`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow**. It signs in to Azure with the Function App's **publish profile**, kept as a GitHub secret. Set it up once:
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
 
-1. **Allow publish profiles.** Azure portal → Function App `SideGigPhApi` → Settings → **Configuration** → **General settings** → turn **SCM Basic Auth Publishing Credentials** to **On** → Save. (New apps have it off, and then the download button below is greyed out.)
-2. **Download it.** Function App → **Overview** → **Download publish profile** (older portal: *Get publish profile*). You get a `SideGigPhApi.PublishSettings` file: an XML file with a deploy password inside. Treat it like a password: don't commit it, and delete it from Downloads after step 3.
-3. **Store it in GitHub.** Repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**. Name it `AZURE_FUNCTIONAPP_PUBLISH_PROFILE`; the value is the **whole** contents of the file (open it in Notepad, select all, paste).
+There are **two identities**, each with one job:
+- the Function App's **system-assigned identity**: the running API uses it to reach Azure SQL (`Authentication=Active Directory Managed Identity`);
+- the **user-assigned identity `sidegigph-github-deploy`**: GitHub signs in as it to upload code. It has *Website Contributor* on `SideGigPhApi` only.
+
+Set it up once:
+
+1. Paste **`cloudshell-github-deploy.sh`** into Azure Cloud Shell (you need Owner on the resource group, to hand out the role). It keeps the app's own identity on, creates the deploy identity, trusts GitHub, gives it the role, and prints three values.
+2. GitHub → repo **Settings** → **Secrets and variables** → **Actions** → add them as repository secrets: `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`. None of them is a password.
+3. Delete the old secret `AZURE_FUNCTIONAPP_PUBLISH_PROFILE`. You can leave **SCM Basic Auth Publishing Credentials** off.
 4. Run the workflow once by hand to check it.
 
-- **Hosting plan:** the workflow sets `FUNCTION_SKU: flexconsumption`, matching `cloudshell-setup.sh`. If your app is on another plan (portal → Overview → *App Service plan* / *Plan type*), set it to `''`.
-- **If the deploy fails with 401 / Unauthorized:** the profile is stale (someone pressed *Reset publish profile*, or basic auth was turned off). Download it again and replace the secret.
+- **Hosting plan:** the workflow sets `FUNCTION_SKU: flexconsumption`, matching `cloudshell-setup.sh`. If your app is on another plan, set it to `''`.
+- **`AADSTS700213` / "no matching federated identity record":** the run wasn't from `main` (the trust names one branch). Run it from `main`, or change `GITHUB_BRANCH` in the script and paste it again.
+- **403 / AuthorizationFailed on deploy:** the role is missing or still spreading (wait a few minutes). Paste the script again.
+- **Deploy uploads, then fails reading the package:** a Flex Consumption app can read its deployment container with its own identity (portal → Function App → **Deployment settings** → *Storage authentication*). That identity then needs *Storage Blob Data Contributor* on `sidegigphbfb9`; the script adds it when it sees that setting.
 - The workflow only replaces the code. App settings such as `PhotoStorage` and `SqlDatabase` stay as they are in Azure, and it never touches the database: run SQL changes yourself first.
