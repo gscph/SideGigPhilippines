@@ -16,4 +16,10 @@ public enum PublishResult
     /// <see cref="ProfessionalDraft.HasProof"/>).
     /// </summary>
     MissingProof,
+
+    /// <summary>
+    /// A reference has the worker's own number: possible when the references were added before a Google
+    /// account linked its phone. Caught before sending, or answered by the server as <c>invalid-references</c>.
+    /// </summary>
+    BadReference,
 }

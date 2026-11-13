@@ -25,6 +25,7 @@ public partial class PublishPage : ComponentBase
     private bool _pledged;
     private bool _busy;
     private bool _phoneTaken;
+    private bool _badReference;
     private bool _failed;
 
     protected override async Task OnInitializedAsync()
@@ -68,6 +69,7 @@ public partial class PublishPage : ComponentBase
     private async Task PublishAsync()
     {
         _busy = true;
+        _badReference = false;
         _failed = false;
         try
         {
@@ -85,6 +87,7 @@ public partial class PublishPage : ComponentBase
             }
 
             _phoneTaken = result == PublishResult.PhoneTaken;
+            _badReference = result == PublishResult.BadReference;
         }
         catch (Exception ex)
         {
@@ -96,7 +99,7 @@ public partial class PublishPage : ComponentBase
             _busy = false;
         }
 
-        if (!_phoneTaken && !_failed)
+        if (!_phoneTaken && !_badReference && !_failed)
         {
             Nav.NavigateTo(ProRoutes.Home, replace: true);
         }

@@ -82,6 +82,12 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
             return PublishResult.PhoneTaken;
         }
 
+        if (response.StatusCode == HttpStatusCode.BadRequest
+            && await ErrorOf(response) == ApiErrors.Invalid("references"))
+        {
+            return PublishResult.BadReference;
+        }
+
         await api.EnsureWrittenAsync(response, "publish the listing");
         return PublishResult.Published;
     }

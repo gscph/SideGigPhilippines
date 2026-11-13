@@ -269,5 +269,9 @@ public static class Copy
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
-    public static readonly LocalizedText PublishFailed = new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText PublishBadReference = new(
+        "One of your references has your own number. Change it to someone you worked for.",
+        "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");
+    public static readonly LocalizedText PublishFixReferences = new("Fix references", "Ayusin ang reference");
+    public static readonly LocalizedText PublishFailed =new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
 }

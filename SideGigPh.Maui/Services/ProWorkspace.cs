@@ -280,6 +280,13 @@ public sealed class ProWorkspace(
 
         // The phone may have been added to the account since the interview.
         Draft.TakeAccount(await identity.GetCurrentUserAsync());
+
+        // References added before that couldn't be checked against it.
+        if (Draft.References.Any(r => r.MobileNumber == Draft.MobileNumber))
+        {
+            return PublishResult.BadReference;
+        }
+
         var result = await profiles.PublishAsync(Listing, Draft.References);
         if (result == PublishResult.Published)
         {
