@@ -40,6 +40,9 @@ public static class ApiErrors
     /// <summary>403 on review: only a Seeker who chatted with the Skilled Worker can review them.</summary>
     public const string NoChat = "no-chat";
 
+    /// <summary>403 on review: the chat started less than <see cref="ReviewRules.WaitAfterChatStarts"/> ago.</summary>
+    public const string ReviewTooSoon = "review-too-soon";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }
@@ -117,6 +120,16 @@ public sealed record ReviewDto(
     DateTimeOffset UpdatedAt);
 
 /// <summary><c>PUT reviews</c>: the caller's review of a Skilled Worker, replacing their earlier one.</summary>
+/// <summary>When a Seeker may rate a Skilled Worker. The app hides the Rate buttons until then, and the server refuses earlier reviews.</summary>
+public static class ReviewRules
+{
+    /// <summary>A Skilled Worker can be rated only this long after the Seeker's first message, so stars are about the job, not the first reply.</summary>
+    public static readonly TimeSpan WaitAfterChatStarts = TimeSpan.FromHours(24);
+
+    /// <summary>True once <see cref="WaitAfterChatStarts"/> has passed since the chat started.</summary>
+    public static bool CanRate(DateTimeOffset chatStartedAt, DateTimeOffset now) => now - chatStartedAt >= WaitAfterChatStarts;
+}
+
 public sealed record SaveReviewRequest(string ProfessionalId, string ReviewerName, int Rating, string? Comment, string? ServiceId);
 
 /// <summary>A worker's average stars and how many reviews, on their <see cref="ListingDto"/>.</summary>

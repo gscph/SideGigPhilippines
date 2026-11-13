@@ -52,6 +52,7 @@ public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore rev
         {
             ReviewOutcome.Saved => new NoContentResult(),
             ReviewOutcome.NoChat => ApiResults.Forbidden(ApiErrors.NoChat),
+            ReviewOutcome.TooSoon => ApiResults.Forbidden(ApiErrors.ReviewTooSoon),
             _ => ApiResults.BadRequest(),
         };
     }

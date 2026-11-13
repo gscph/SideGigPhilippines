@@ -92,6 +92,18 @@ public sealed class ApiTestHost : IAsyncLifetime
         _database?.Dispose();
     }
 
+    /// <summary>Moves a chat's start back by <paramref name="by"/>, as if the Seeker wrote first that long ago (reviews open 24 hours after it).</summary>
+    public async Task StartChatEarlierAsync(string chatId, TimeSpan by)
+    {
+        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
+            "UPDATE Chats SET CreatedAt = DATEADD(second, -@seconds, CreatedAt) WHERE Id = @id", connection);
+        command.Parameters.AddWithValue("@seconds", (int)by.TotalSeconds);
+        command.Parameters.AddWithValue("@id", chatId);
+        (await command.ExecuteNonQueryAsync()).Should().Be(1, "the chat exists");
+    }
+
     /// <summary>A raw HTTP client to the API, signed in with <paramref name="token"/> when given.</summary>
     public HttpClient Client(string? token = null)
     {

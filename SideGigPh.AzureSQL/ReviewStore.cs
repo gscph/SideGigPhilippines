@@ -10,6 +10,9 @@ public enum ReviewOutcome
     /// <summary>Only a Seeker who chatted with the Skilled Worker can review them.</summary>
     NoChat,
 
+    /// <summary>The chat started less than <see cref="ReviewRules.WaitAfterChatStarts"/> ago and there is no earlier review to change.</summary>
+    TooSoon,
+
     Invalid,
 }
 
@@ -30,7 +33,10 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
             .Select(r => ToDto(r))
             .ToListAsync(cancellationToken);
 
-    /// <summary>The caller's review of a Skilled Worker they chatted with. The first write's time is kept.</summary>
+    /// <summary>
+    /// The caller's review of a Skilled Worker they chatted with, at least <see cref="ReviewRules.WaitAfterChatStarts"/>
+    /// after the chat started (an earlier review can always be changed). The first write's time is kept.
+    /// </summary>
     public async Task<ReviewOutcome> SaveAsync(string seekerUid, SaveReviewRequest request, CancellationToken cancellationToken)
     {
         if (request.Rating is < 1 or > 5 || string.IsNullOrWhiteSpace(request.ProfessionalId) || request.ProfessionalId == seekerUid
@@ -39,7 +45,11 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
             return ReviewOutcome.Invalid;
         }
 
-        if (!await db.Chats.AnyAsync(c => c.ProfessionalId == request.ProfessionalId && c.SeekerId == seekerUid, cancellationToken))
+        var chatStartedAt = await db.Chats
+            .Where(c => c.ProfessionalId == request.ProfessionalId && c.SeekerId == seekerUid)
+            .Select(c => (DateTimeOffset?)c.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (chatStartedAt is not { } startedAt)
         {
             return ReviewOutcome.NoChat;
         }
@@ -48,6 +58,11 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
         var row = await db.Reviews.FirstOrDefaultAsync(r => r.ProfessionalId == request.ProfessionalId && r.SeekerId == seekerUid, cancellationToken);
         if (row is null)
         {
+            if (!ReviewRules.CanRate(startedAt, now))
+            {
+                return ReviewOutcome.TooSoon;
+            }
+
             row = new ReviewRow { ProfessionalId = request.ProfessionalId, SeekerId = seekerUid, ReviewerName = string.Empty, CreatedAt = now };
             db.Reviews.Add(row);
         }

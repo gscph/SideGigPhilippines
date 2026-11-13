@@ -98,7 +98,7 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 phone-used-by-seeker` (another account uses the number as a Job Seeker), `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`; publishing also needs a `profilePhotoId`, at least 2 `workPhotoIds` and 1–3 `references` with distinct +639 numbers that aren't the worker's own) |
 | `DELETE professionals/me` | Take the listing out of search (reviews stay) |
 | `GET reviews?professionalId=…` / `?seekerId=…` | Newest first |
-| `PUT reviews` | The caller's review (`403 no-chat` without a chat) |
+| `PUT reviews` | The caller's review (`403 no-chat` without a chat, `403 review-too-soon` in the first 24 hours of the chat unless changing an earlier review) |
 | `DELETE reviews/mine` | Reviews the caller wrote |
 | `GET chats?side=seeker\|professional` | The caller's Inbox |
 | `GET chats/{id}`, `GET chats/{id}/messages` | Only for the two people in it |

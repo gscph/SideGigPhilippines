@@ -121,6 +121,7 @@ public class WireContractTests
         ApiErrors.BadBody.Should().Be("bad-body");
         ApiErrors.PhoneRequired.Should().Be("phone-required");
         ApiErrors.NoChat.Should().Be("no-chat");
+        ApiErrors.ReviewTooSoon.Should().Be("review-too-soon");
         ApiErrors.Exception.Should().Be("exception");
         ApiErrors.Invalid("references").Should().Be("invalid-references");
 

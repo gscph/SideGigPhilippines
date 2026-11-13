@@ -122,7 +122,7 @@ public class InboxTests
 
         app.Seeker.Threads.Should().ContainSingle().Which.Pro.Id.Should().Be("ana");
         app.Seeker.UnreadCount.Should().Be(1, "Ana wrote last and the Seeker hasn't opened it");
-        app.Seeker.ToRate.Should().ContainSingle("contacted workers can be rated");
+        app.Seeker.ToRate.Should().BeEmpty("the chat started an hour ago; rating opens 24 hours after it starts");
     }
 
     [Fact]

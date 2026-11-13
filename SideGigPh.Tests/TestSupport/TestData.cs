@@ -65,12 +65,14 @@ public static class TestData
     };
 
     /// <summary>A chat between a pro and the test Seeker whose last message came from <paramref name="lastSenderId"/>.</summary>
-    public static Chat ChatWith(string proId, string lastSenderId, DateTimeOffset? seekerReadAt = null, DateTimeOffset? proReadAt = null)
+    /// <summary>A chat whose last message was an hour ago; it started then too unless <paramref name="startedAt"/> says earlier.</summary>
+    public static Chat ChatWith(
+        string proId, string lastSenderId, DateTimeOffset? seekerReadAt = null, DateTimeOffset? proReadAt = null, DateTimeOffset? startedAt = null)
     {
         var id = Chat.IdFor(proId, SeekerUid);
         var at = DateTimeOffset.Now.AddHours(-1);
         return new Chat(id, proId, SeekerUid, proId, "Maricel D.", "aircon-cleaning", "taytay", ReferenceData.UrgencyToday, "500-1000",
-            new ChatMessage("m-" + proId, id, lastSenderId, ChatMessageKind.Text, "Hi po", at), seekerReadAt, proReadAt, at);
+            new ChatMessage("m-" + proId, id, lastSenderId, ChatMessageKind.Text, "Hi po", at), seekerReadAt, proReadAt, startedAt ?? at);
     }
 
     /// <summary>A search result as the API would send it.</summary>

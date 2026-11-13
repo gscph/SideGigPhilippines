@@ -88,6 +88,8 @@ public class WorkerToCustomerTests(ApiTestHost api)
         var seeker = await TestPhone.SeekerAsync(api, "Fe", Answers("aircon-freon"));
         var listing = (await seeker.Seeker.GetProAsync(worker.Uid))!;
         await seeker.Seeker.SendAsync(listing, "Hi po");
+        await api.StartChatEarlierAsync(seeker.Seeker.ChatIdWith(worker.Uid), TimeSpan.FromHours(25));
+        await seeker.Seeker.RefreshActivityAsync();
 
         var saved = await seeker.Seeker.SubmitReviewAsync(listing, 4, "Maayos", "Fe S.");
 
@@ -98,6 +100,24 @@ public class WorkerToCustomerTests(ApiTestHost api)
         await worker.Pro.RefreshActivityAsync();
         worker.Pro.ReviewSummary.Should().Be(new ReviewSummary(4, 1));
         worker.Pro.Reviews.Single().Comment.Should().Be("Maayos");
+    }
+
+    [IntegrationFact]
+    public async Task ReviewInTheFirst24Hours_IsRefusedByTheServer()
+    {
+        // The app hides the Rate button until then, but the server must refuse it too.
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Lito");
+        await worker.Pro.PublishAsync();
+        var seeker = await TestPhone.SeekerAsync(api, "Mila");
+        await seeker.Seeker.SendAsync((await seeker.Seeker.GetProAsync(worker.Uid))!, "Hi po");
+        var save = () => seeker.Get<SideGigPh.Maui.Services.IReviewRepository>().SaveAsync(
+            new Review("x", worker.Uid, seeker.Uid, "Mila", 5, null, null, DateTimeOffset.Now));
+
+        (await save.Should().ThrowAsync<HttpRequestException>()).Which.StatusCode.Should().Be(System.Net.HttpStatusCode.Forbidden);
+        seeker.Seeker.CanRate(worker.Uid).Should().BeFalse();
+
+        await api.StartChatEarlierAsync(seeker.Seeker.ChatIdWith(worker.Uid), TimeSpan.FromHours(25));
+        await save.Should().NotThrowAsync("24 hours have passed since the first message");
     }
 
     [IntegrationFact]

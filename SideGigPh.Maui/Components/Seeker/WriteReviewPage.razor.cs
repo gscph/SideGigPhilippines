@@ -7,7 +7,8 @@ namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
 /// Rate a pro: stars, an optional comment, and the name shown on the review (remembered for
-/// next time). Full screen like an interview step. Only for pros the Seeker contacted; an
+/// next time). Full screen like an interview step. Only for pros the Seeker contacted at least
+/// 24 hours ago (<see cref="SeekerWorkspace.CanRate"/>); an
 /// earlier review of the same pro is loaded so it can be changed.
 /// </summary>
 public partial class WriteReviewPage : ComponentBase
@@ -35,7 +36,7 @@ public partial class WriteReviewPage : ComponentBase
             return;
         }
 
-        if (Workspace.ThreadWith(Id)?.Pro is not { } pro)
+        if (!Workspace.CanRate(Id) || Workspace.ThreadWith(Id)?.Pro is not { } pro)
         {
             Nav.NavigateTo(SeekerRoutes.Reviews, replace: true);
             return;

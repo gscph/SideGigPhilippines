@@ -1,3 +1,4 @@
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Tests.TestSupport;
 
@@ -5,19 +6,59 @@ namespace SideGigPh.Tests.Unit.Reviews;
 
 /// <summary>
 /// Reviews are how good workers rise in search and how Seekers decide whom to trust. Only Seekers who contacted a
-/// worker may review them (no fake reviews), stars must be 1–5, and writing again replaces the old review.
+/// worker may review them (no fake reviews), only 24 hours after the chat started (stars about the job, not the
+/// first reply), stars must be 1–5, and writing again replaces the old review.
 /// </summary>
 public class ReviewTests
 {
     private static ProfessionalListing Ana() => TestData.Listing("Ana");
 
-    private static Task<FakeApp> SeekerWhoContactedAna(List<Review>? written = null) =>
+    private static Task<FakeApp> SeekerWhoContactedAna(List<Review>? written = null, TimeSpan? chatAge = null) =>
         FakeApp.SeekerAsync(before: app =>
         {
-            app.Chats.Inbox = [TestData.ChatWith("ana", TestData.SeekerUid)];
+            app.Chats.Inbox = [TestData.ChatWith("ana", TestData.SeekerUid, startedAt: DateTimeOffset.Now - (chatAge ?? TimeSpan.FromDays(2)))];
             app.Profiles.ById["ana"] = Ana();
             app.Reviews.BySeeker = written ?? [];
         });
+
+    [Fact]
+    public async Task ChatStartedLessThan24HoursAgo_CannotRateYet()
+    {
+        var app = await SeekerWhoContactedAna(chatAge: TimeSpan.FromHours(23));
+
+        app.Seeker.CanRate("ana").Should().BeFalse();
+        app.Seeker.ToRate.Should().BeEmpty("rating opens 24 hours after the first message");
+        (await app.Seeker.SubmitReviewAsync(Ana(), 5, null, "Maricel")).Should().BeFalse();
+        app.Reviews.Saved.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ChatStarted24HoursAgo_CanRate()
+    {
+        var app = await SeekerWhoContactedAna(chatAge: TimeSpan.FromHours(24.1));
+
+        app.Seeker.CanRate("ana").Should().BeTrue();
+        app.Seeker.ToRate.Should().ContainSingle().Which.Id.Should().Be("ana");
+    }
+
+    [Fact]
+    public async Task EarlierReview_CanStillBeChanged_EvenOnARecentChat()
+    {
+        var old = new Review("ana_seeker-uid", "ana", TestData.SeekerUid, "Maricel", 2, null, null, DateTimeOffset.Now.AddHours(-1));
+        var app = await SeekerWhoContactedAna([old], chatAge: TimeSpan.FromHours(2));
+
+        app.Seeker.CanRate("ana").Should().BeTrue();
+        (await app.Seeker.SubmitReviewAsync(Ana(), 4, null, "Maricel")).Should().BeTrue();
+    }
+
+    [Fact]
+    public void ReviewRules_OpenExactly24HoursAfterTheChatStarts()
+    {
+        var started = new DateTimeOffset(2026, 11, 1, 8, 0, 0, TimeSpan.Zero);
+
+        ReviewRules.CanRate(started, started.AddHours(24).AddTicks(-1)).Should().BeFalse();
+        ReviewRules.CanRate(started, started.AddHours(24)).Should().BeTrue();
+    }
 
     [Fact]
     public async Task SubmitReview_ContactedWorker_SavesItWithTheJobFromTheChat()

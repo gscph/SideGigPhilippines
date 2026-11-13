@@ -108,7 +108,10 @@ public static class Copy
     public static readonly LocalizedText Call = new("Call", "Tawagan");
     public static readonly LocalizedText ViewProfile = new("View profile", "Tingnan ang profile");
     public static readonly LocalizedText RateThisPro = new("Rate this skilled worker", "I-rate ang skilled worker na ito");
-    public static readonly LocalizedText EditYourReview = new("Edit your review", "Baguhin ang review mo");
+    public static readonly LocalizedText RateLater = new(
+        "You can rate {0} 24 hours after your first message.",
+        "Puwede mo nang i-rate si {0} 24 oras pagkatapos ng una mong message.");
+    public static readonly LocalizedText EditYourReview =new("Edit your review", "Baguhin ang review mo");
     public static readonly LocalizedText ContactFailed = new("Couldn't open your phone app. Please try again.", "Hindi mabuksan ang phone app mo. Subukan ulit.");
 
     // --- Seeker reviews ---------------------------------------------------

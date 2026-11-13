@@ -1,3 +1,4 @@
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services.Localization;
 using SideGigPh.Maui.Services.Search;
@@ -59,9 +60,17 @@ public sealed class SeekerWorkspace(
     /// <summary>Reviews this Seeker wrote, newest first.</summary>
     public IReadOnlyList<Review> MyReviews { get; private set; } = [];
 
-    /// <summary>Pros the Seeker contacted but hasn't reviewed yet.</summary>
+    /// <summary>Pros the Seeker contacted at least <see cref="ReviewRules.WaitAfterChatStarts"/> ago but hasn't reviewed yet.</summary>
     public IReadOnlyList<ProfessionalListing> ToRate =>
-        Threads.Select(thread => thread.Pro).Where(pro => MyReviewOf(pro.Id) is null).ToList();
+        Threads.Where(thread => MyReviewOf(thread.Pro.Id) is null && CanRate(thread.Pro.Id)).Select(thread => thread.Pro).ToList();
+
+    /// <summary>
+    /// Whether the Seeker may rate this pro now: they chatted, and the chat started at least
+    /// <see cref="ReviewRules.WaitAfterChatStarts"/> ago (so the stars are about the job). An earlier review can always be changed.
+    /// </summary>
+    public bool CanRate(string professionalId) =>
+        ThreadWith(professionalId) is { } thread
+        && (MyReviewOf(professionalId) is not null || ReviewRules.CanRate(thread.Chat.CreatedAt, DateTimeOffset.UtcNow));
 
     /// <summary>
     /// Loads the saved answers and Inbox once. False if this user hasn't finished the Seeker
@@ -212,11 +221,11 @@ public sealed class SeekerWorkspace(
 
     /// <summary>
     /// Saves the Seeker's review of a pro they contacted (replacing an earlier one), and
-    /// remembers the name they put on it. Pros they never contacted can't be reviewed.
+    /// remembers the name they put on it. Pros they never contacted, or only just contacted (<see cref="CanRate"/>), can't be reviewed.
     /// </summary>
     public async Task<bool> SubmitReviewAsync(ProfessionalListing pro, int rating, string? comment, string reviewerName)
     {
-        if (ThreadWith(pro.Id) is not { } thread || rating is < 1 or > 5)
+        if (!CanRate(pro.Id) || ThreadWith(pro.Id) is not { } thread || rating is < 1 or > 5)
         {
             return false;
         }
