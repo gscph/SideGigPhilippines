@@ -1,7 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Components.Professional;
-using SideGigPh.Maui.Components.Seeker;
-using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
 
@@ -25,32 +22,11 @@ public partial class LaunchRouter : ComponentBase
         if (state.Language is not { } language)
         {
             // The sign-in screen needs their language, so this comes first.
-            Nav.NavigateTo("/start", replace: true);
+            Nav.NavigateTo(OnboardingSteps.LanguagePath, replace: true);
             return;
         }
 
         T.Use(language);
-        Nav.NavigateTo(await Gate.RedirectAsync("/") ?? Destination(state), replace: true);
-    }
-
-    private static string Destination(OnboardingState state)
-    {
-        if (state.Role is not { } role)
-        {
-            return "/start/role";
-        }
-
-        if (state.CompletedAt is null)
-        {
-            return state.ResumePath ?? (role == UserRole.Seeker ? "/start/seeker" : "/start/pro");
-        }
-
-        // A finished interview can lose its town when coverage shrinks (OnboardingCleanup): ask for it again.
-        if (role == UserRole.Seeker)
-        {
-            return state.Seeker.CityId is null ? SeekerInterview.TownPath : SeekerRoutes.Home;
-        }
-
-        return state.Professional.IsListingComplete ? ProRoutes.Home : ProfessionalInterview.FirstUnansweredPath;
+        Nav.NavigateTo(await Gate.RedirectAsync("/") ?? OnboardingSteps.LaunchPath(state), replace: true);
     }
 }

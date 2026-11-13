@@ -50,7 +50,11 @@ public sealed class SeekerWorkspace(
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
 
     /// <summary>Chats where the pro wrote last and the Seeker hasn't opened it since: the Inbox badge.</summary>
-    public int UnreadCount => Threads.Count(thread => thread.Chat.IsUnreadFor(ChatSide.Seeker));
+    public int UnreadCount => UnreadChatIds.Count;
+
+    /// <summary>The unread chats' ids: the app icon's badge and which notifications stay in the tray.</summary>
+    public IReadOnlyList<string> UnreadChatIds =>
+        Threads.Where(thread => thread.Chat.IsUnreadFor(ChatSide.Seeker)).Select(thread => thread.Chat.Id).ToList();
 
     /// <summary>Reviews this Seeker wrote, newest first.</summary>
     public IReadOnlyList<Review> MyReviews { get; private set; } = [];

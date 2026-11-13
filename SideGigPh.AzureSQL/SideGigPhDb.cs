@@ -17,6 +17,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ReviewRow> Reviews => Set<ReviewRow>();
     public DbSet<ChatRow> Chats => Set<ChatRow>();
     public DbSet<ChatMessageRow> ChatMessages => Set<ChatMessageRow>();
+    public DbSet<PushDeviceRow> PushDevices => Set<PushDeviceRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
@@ -145,6 +146,16 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             message.HasIndex(m => new { m.ChatId, m.At }).IsClustered();
             message.HasOne<ChatRow>().WithMany().HasForeignKey(m => m.ChatId).OnDelete(DeleteBehavior.Cascade);
         });
+
+        model.Entity<PushDeviceRow>(device =>
+        {
+            device.ToTable("PushDevices");
+            device.HasKey(d => d.Token);
+            device.Property(d => d.Token).HasMaxLength(512);
+            device.Property(d => d.Uid).HasMaxLength(128);
+            device.Property(d => d.Platform).HasMaxLength(10);
+            device.HasIndex(d => d.Uid);
+        });
     }
 }
 
@@ -155,4 +166,5 @@ internal static class Constraints
     public const string ProfessionalProfilePhoto = "UX_Professionals_ProfilePhoto";
     public const string UserProfilePhoto = "UX_Users_ProfilePhoto";
     public const string WorkPhotoKey = "PK_ProfessionalWorkPhotos";
+    public const string PushDeviceKey = "PK_PushDevices";
 }

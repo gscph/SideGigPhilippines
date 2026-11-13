@@ -16,6 +16,12 @@ public sealed class ApiUserRepository(ApiClient api) : IUserRepository
         await api.EnsureWrittenAsync(response, "save the profile");
     }
 
+    public async Task SaveDeviceAsync(string token, string platform)
+    {
+        using var response = await api.SendJsonAsync(HttpMethod.Put, "users/me/devices", new SaveDeviceRequest(token, platform), ApiJson.Default.SaveDeviceRequest);
+        await api.EnsureWrittenAsync(response, "register this phone for notifications");
+    }
+
     public async Task DeleteAsync(string uid)
     {
         using var response = await api.SendAsync(HttpMethod.Delete, "users/me");

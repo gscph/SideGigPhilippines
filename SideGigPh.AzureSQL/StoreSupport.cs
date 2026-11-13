@@ -14,7 +14,7 @@ public sealed record PhotoLinks(string BaseUrl)
 
 public static class AzureSqlServiceCollectionExtensions
 {
-    /// <summary>The database, the four stores the API's functions use, and the search cache they share.</summary>
+    /// <summary>The database, the stores the API's functions use, and the search cache they share.</summary>
     public static IServiceCollection AddSideGigPhSql(this IServiceCollection services, string connectionString, PhotoLinks photoLinks)
     {
         services.AddDbContext<SideGigPhDb>(options => options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
@@ -25,6 +25,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<ProfessionalStore>();
         services.AddScoped<ReviewStore>();
         services.AddScoped<ChatStore>();
+        services.AddScoped<PushDeviceStore>();
         return services;
     }
 }
@@ -64,8 +65,6 @@ internal static class SqlErrors
     /// <summary>A save refused by the named unique key, primary key or unique index.</summary>
     public static bool Violates(DbUpdateException ex, string constraint) =>
         ex.InnerException is SqlException { Number: 2601 or 2627 } sql && sql.Message.Contains(constraint, StringComparison.Ordinal);
-
-    public static bool IsDuplicateKey(DbUpdateException ex) => ex.InnerException is SqlException { Number: 2601 or 2627 };
 }
 
 internal static class Transactions

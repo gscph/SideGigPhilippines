@@ -59,7 +59,11 @@ public sealed class ProWorkspace(
     public IReadOnlyList<Review> Reviews { get; private set; } = [];
 
     /// <summary>Chats where the customer wrote last and the pro hasn't opened it since: the Inbox badge.</summary>
-    public int UnreadCount => Chats.Count(chat => chat.IsUnreadFor(ChatSide.Professional));
+    public int UnreadCount => UnreadChatIds.Count;
+
+    /// <summary>The unread chats' ids: the app icon's badge and which notifications stay in the tray.</summary>
+    public IReadOnlyList<string> UnreadChatIds =>
+        Chats.Where(chat => chat.IsUnreadFor(ChatSide.Professional)).Select(chat => chat.Id).ToList();
 
     /// <summary>Average stars and count, or null with no reviews.</summary>
     public ReviewSummary? ReviewSummary => Reviews.Count == 0 ? null : new ReviewSummary(Reviews.Average(r => r.Rating), Reviews.Count);

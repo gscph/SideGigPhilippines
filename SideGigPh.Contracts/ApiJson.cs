@@ -20,4 +20,5 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(List<ChatDto>))]
 [JsonSerializable(typeof(List<MessageDto>))]
 [JsonSerializable(typeof(SendMessageRequest))]
+[JsonSerializable(typeof(SaveDeviceRequest))]
 public sealed partial class ApiJson : JsonSerializerContext;

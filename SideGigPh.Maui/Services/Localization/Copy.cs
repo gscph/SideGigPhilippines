@@ -126,6 +126,10 @@ public static class Copy
 
     // --- Me page (both sides) ---------------------------------------------
     public static readonly LocalizedText NavMe = new("Me", "Ako");
+
+    // --- Notification channels (Android Settings › Notifications; made at launch, before the language is known, so English) ---
+    public static readonly LocalizedText PushChannelCustomers = new("New customers", "Bagong customer");
+    public static readonly LocalizedText PushChannelReplies = new("Replies from skilled workers", "Sagot ng skilled worker");
     public static readonly LocalizedText AccountTitle = new("Your account", "Account mo");
     public static readonly LocalizedText StartOverWarning = new(
         "Your answers, listing, photos, messages and reviews on this phone will be deleted. You can't undo this.",

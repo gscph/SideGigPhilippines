@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- SideGigPh's automated tests (xUnit + FluentAssertions).
+         Unit/         fast checks of one piece at a time, no network or database
+         Integration/  the real API functions + database + the app's API adapters, wired together
+       Run: dotnet test SideGigPh.Tests   (see README.md in this folder) -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <RootNamespace>SideGigPh.Tests</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <!-- 7.x on purpose: FluentAssertions 8+ needs a paid licence for commercial use; 7.x is Apache-2.0. -->
+    <PackageReference Include="FluentAssertions" Version="7.2.0" />
+    <!-- Hosts the API's functions in memory for the integration tests (no Azure, no ports). -->
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="10.0.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+    <!-- MAUI adds this using to the app implicitly; the linked app files expect it. -->
+    <Using Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
+
+  <!-- Plain net10.0 projects: referenced directly. -->
+  <ItemGroup>
+    <ProjectReference Include="..\MobileAppTheme\MobileAppTheme.csproj" />
+    <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
+    <ProjectReference Include="..\SideGigPh.AzureSQL\SideGigPh.AzureSQL.csproj" />
+    <ProjectReference Include="..\SideGigPh.Api\SideGigPh.Api.csproj" />
+  </ItemGroup>
+
+  <!-- SideGigPh.Maui targets only Android/iOS, so a plain test project can't reference it. Its logic (Models/ and
+       Services/, which never touch MAUI or a page) is compiled into the tests from where it lives, so a change in
+       the app is tested straight away. Pages (.razor) are not compiled here: keep their rules in Services/
+       (e.g. OnboardingSteps) so they can be tested. CLAUDE.md anticipates moving this code into a SideGigPh.Shared
+       library one day; then these lines become one ProjectReference. -->
+  <ItemGroup>
+    <Compile Include="..\SideGigPh.Maui\GlobalUsings.cs" Link="App\GlobalUsings.cs" />
+    <Compile Include="..\SideGigPh.Maui\Models\**\*.cs" Link="App\Models\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\SideGigPh.Maui\Services\**\*.cs" Link="App\Services\%(RecursiveDir)%(Filename)%(Extension)" />
+    <Compile Include="..\SideGigPh.Maui\Components\Professional\ProRoutes.cs" Link="App\Components\ProRoutes.cs" />
+    <Compile Include="..\SideGigPh.Maui\Components\Seeker\SeekerRoutes.cs" Link="App\Components\SeekerRoutes.cs" />
+  </ItemGroup>
+
+  <!-- The integration tests build their database from the real schema script. -->
+  <ItemGroup>
+    <None Include="..\SideGigPh.AzureSQL\Sql\001-schema.sql" Link="Sql\001-schema.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

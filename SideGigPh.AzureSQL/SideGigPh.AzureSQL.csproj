@@ -16,4 +16,9 @@
     <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
   </ItemGroup>
 
+  <!-- SideGigPh.Tests checks the data rules in StoreText (internal) directly. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="SideGigPh.Tests" />
+  </ItemGroup>
+
 </Project>

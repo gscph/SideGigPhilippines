@@ -214,9 +214,6 @@ public static class ReferenceData
     public static CatalogOption? FindService(string? id) =>
         Find(ServicesByCategory.Values.SelectMany(services => services), id);
 
-    public static string? CategoryOfService(string serviceId) =>
-        ServicesByCategory.FirstOrDefault(pair => pair.Value.Any(s => s.Id == serviceId)).Key;
-
     /// <summary>The area a town belongs to (<see cref="ServiceAreaId"/>), or null for a town we don't serve.</summary>
     public static string? AreaOf(string? cityId) =>
         Find(Cities, cityId) is null ? null : ServiceAreaId;

@@ -14,6 +14,7 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.30.1" />
+    <PackageReference Include="FirebaseAdmin" Version="3.7.0" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="15.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.1" />
@@ -25,6 +26,11 @@
   <ItemGroup>
     <ProjectReference Include="..\SideGigPh.AzureSQL\SideGigPh.AzureSQL.csproj" />
     <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
+  </ItemGroup>
+
+  <!-- SideGigPh.Tests calls the internal helpers (ApiResults, ErrorDetailsMiddleware) in its tests. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="SideGigPh.Tests" />
   </ItemGroup>
 
   <ItemGroup>

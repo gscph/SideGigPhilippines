@@ -16,7 +16,8 @@ public static class ServiceCollectionExtensions
     /// and a default adapter for each skeleton port. The defaults use <c>TryAdd</c>, so an app that
     /// registers its own adapter for a port first keeps it (and one registered later wins).
     /// Auth defaults: <see cref="NoIdentityProvider"/> (no sign-in until the app adds a provider such
-    /// as <c>AddFirebaseAuth</c>), <see cref="HomeAuthLanding"/> and <see cref="E164PhoneNumberFormat"/>.
+    /// as <c>AddFirebaseAuth</c>), <see cref="HomeAuthLanding"/> and <see cref="E164PhoneNumberFormat"/>;
+    /// push: <see cref="NoPushNotifications"/> (until the app adds a provider such as <c>AddFirebasePush</c>).
     /// The app still registers <see cref="IAppAccount"/> (needed by <c>MePage</c>) and its own ports.
     /// </summary>
     public static IServiceCollection AddMobileAppTheme(this IServiceCollection services, AppBrand brand)
@@ -29,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IContactLauncher, DeviceContactLauncher>();
         services.TryAddSingleton<IPhotoPicker, DevicePhotoPicker>();
         services.TryAddSingleton<IPhotoStore, FilePhotoStore>();
+        services.TryAddSingleton<IPushNotifications, NoPushNotifications>();
 
         services.TryAddSingleton<IIdentityProvider, NoIdentityProvider>();
         services.TryAddSingleton<IAuthLanding, HomeAuthLanding>();

@@ -18,8 +18,10 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     private bool _ready;
+    private IDisposable? _alerts;
 
     /// <summary>Under the top bar until the listing is published: customers can't see the worker yet.</summary>
     private static readonly RenderFragment NotLive = builder =>
@@ -47,13 +49,27 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
         }
 
         _ready = true;
+        _alerts = Alerts.Attach(Workspace.RefreshActivityAsync, path => InvokeAsync(() => Nav.NavigateTo(path)));
+        Alerts.ShowUnread(Workspace.UnreadChatIds);
+
+        // A live listing is the reason to want notifications: customers write in. Asks once (the system remembers).
+        _ = Workspace.IsPublished ? Alerts.AskAsync() : Alerts.RegisterAsync();
     }
 
     public void Dispose()
     {
         Workspace.Changed -= OnWorkspaceChanged;
         Account.Changed -= OnWorkspaceChanged;
+        _alerts?.Dispose();
     }
 
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
+    private void OnWorkspaceChanged()
+    {
+        if (_ready)
+        {
+            Alerts.ShowUnread(Workspace.UnreadChatIds);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
 }

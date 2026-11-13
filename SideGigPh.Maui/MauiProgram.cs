@@ -5,6 +5,8 @@ using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Local;
 using SideGigPh.Maui.Services.Search;
 using MobileAppTheme.Firebase;
+using SideGigPh.Contracts;
+using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui
 {
@@ -37,6 +39,12 @@ namespace SideGigPh.Maui
             // Sign-in provider. To switch, replace this line (and the project reference) with another
             // IIdentityProvider adapter; nothing else in the app knows which provider it is.
             builder.AddFirebaseAuth(GoogleWebClientId);
+            // New-message notifications (Firebase Cloud Messaging). The server picks the channel: customers writing to a
+            // worker ring; workers answering a Seeker are silent (only the dot on the app icon).
+            builder.AddFirebasePush(
+                new PushChannel(PushData.CustomersChannel, Copy.PushChannelCustomers.English, Alert: true),
+                new PushChannel(PushData.RepliesChannel, Copy.PushChannelReplies.English, Alert: false));
+            builder.Services.AddSingleton<ChatAlerts>();
             builder.Services.AddSingleton<IAuthLanding, SideGigPhAuthLanding>();
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
             // Users, listings, reviews and chats (Azure SQL) and photos (Blob Storage), all through SideGigPh.Api.

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Line coverage of the app's core code (run-tests.sh with the coverage option, or
+     dotnet test SideGigPh.Tests collect:"XPlat Code Coverage" settings:SideGigPh.Tests/coverage.runsettings).
+     Measured: the app's logic (SideGigPh.Maui.Models / Services, compiled into the test assembly), the server's data
+     rules (SideGigPh.AzureSQL) and functions (SideGigPh.Api), and the contracts.
+     Left out, with the reason:
+       * SideGigPh.Maui.Services.Local.FileOnboardingStore: reads/writes a file in the phone's app folder
+         (FileSystem.AppDataDirectory exists only on a phone); its JSON format is tested in SavedAnswersTests.
+       * Program (SideGigPh.Api startup): runs only inside the Azure Functions host.
+       * Generated code (JSON serializers, regexes). -->
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat code coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <Include>[SideGigPh.Tests]SideGigPh.Maui.Models.*,[SideGigPh.Tests]SideGigPh.Maui.Services*,[SideGigPh.Tests]SideGigPh.Maui.Components.*Routes,[SideGigPh.AzureSQL]*,[SideGigPh.Api]*,[SideGigPh.Contracts]*</Include>
+          <Exclude>[SideGigPh.Tests]SideGigPh.Maui.Services.Local.FileOnboardingStore,[SideGigPh.Tests]SideGigPh.Maui.Services.Local.OnboardingJsonContext,[SideGigPh.Api]Program,[SideGigPh.Contracts]SideGigPh.Contracts.ApiJson</Exclude>
+          <!-- Only GeneratedCode: excluding CompilerGenerated would also hide every async method body. -->
+          <ExcludeByAttribute>GeneratedCodeAttribute</ExcludeByAttribute>
+          <SkipAutoProps>true</SkipAutoProps>
+          <!-- The app code is compiled into the test assembly (linked files), so it must be measured too. -->
+          <IncludeTestAssembly>true</IncludeTestAssembly>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

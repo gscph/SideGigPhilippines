@@ -217,5 +217,22 @@ BEGIN
     CREATE CLUSTERED INDEX CX_ChatMessages_Chat_At ON dbo.ChatMessages (ChatId, At);
 END;
 
+/* ---------- Push devices: where a person's phone gets new-message notifications ----------
+   One row per phone (the Firebase Cloud Messaging token). Signing in as someone else on the same
+   phone moves the token to them. Tokens Google says are dead are deleted when a send fails. */
+IF OBJECT_ID(N'dbo.PushDevices', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.PushDevices
+    (
+        Token      varchar(512)      NOT NULL CONSTRAINT PK_PushDevices PRIMARY KEY,
+        Uid        varchar(128)      NOT NULL,
+        Platform   varchar(10)       NOT NULL CONSTRAINT CK_PushDevices_Platform CHECK (Platform IN ('android', 'ios')),
+        UpdatedAt  datetimeoffset(3) NOT NULL
+    );
+
+    -- A person's phones, read on every message sent to them.
+    CREATE INDEX IX_PushDevices_Uid ON dbo.PushDevices (Uid);
+END;
+
 COMMIT TRANSACTION;
 PRINT 'SideGigPh schema is ready.';

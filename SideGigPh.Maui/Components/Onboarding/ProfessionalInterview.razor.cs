@@ -10,21 +10,11 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate → earnings goal →
 /// preview. The answers build the listing card the pro sees at the end; its name and number come
 /// from the account (<see cref="ListingMapper.TakeAccount"/>), so they are never asked here.
-/// One URL per step; answers are saved whenever the user moves forward.
+/// One URL per step; answers are saved whenever the user moves forward. The rules (which step, what an
+/// answer clears, where Back goes) are in <see cref="OnboardingSteps"/>.
 /// </summary>
 public partial class ProfessionalInterview : ComponentBase
 {
-    private enum ProStep
-    {
-        Skills = 1,
-        Services,
-        Towns,
-        Experience,
-        Rate,
-        Goal,
-        Preview,
-    }
-
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
@@ -37,7 +27,7 @@ public partial class ProfessionalInterview : ComponentBase
     /// Opens the first question still unanswered: a step past it is never shown, so asking for the last step
     /// lands there (or on the preview when everything is answered). Publish sends incomplete listings here.
     /// </summary>
-    public static string FirstUnansweredPath => StepPath(ProStep.Preview);
+    public static string FirstUnansweredPath => OnboardingSteps.ProFirstUnansweredPath;
 
     [Parameter] public int? Step { get; set; }
 
@@ -72,48 +62,20 @@ public partial class ProfessionalInterview : ComponentBase
             return;
         }
 
-        var requested = (ProStep)Math.Clamp(Step ?? 1, 1, (int)ProStep.Preview);
-        var firstUnanswered = FirstUnanswered();
-        _step = requested > firstUnanswered ? firstUnanswered : requested;
+        _step = Draft.StepToShow(Step);
     }
 
     private Task PickSkillAsync(string categoryId)
     {
-        if (Draft.CategoryId != categoryId)
-        {
-            Draft.CategoryId = categoryId;
-            Draft.ServiceIds.Clear(); // Jobs belonged to the previous trade.
-        }
-
+        Draft.PickTrade(categoryId);
         return AdvanceAsync();
     }
 
-    private void ToggleService(string serviceId) => Toggle(Draft.ServiceIds, serviceId);
+    private void ToggleService(string serviceId) => Draft.ToggleService(serviceId);
 
-    private void ToggleCity(string cityId)
-    {
-        Toggle(Draft.CityIds, cityId);
-        SetAreaFromTowns();
-    }
+    private void ToggleCity(string cityId) => Draft.ToggleTown(cityId);
 
-    /// <summary>"Select all" adds every town we serve; when all are already picked it removes them.</summary>
-    private void ToggleAllTowns()
-    {
-        var towns = ReferenceData.Cities.Select(town => town.Id).ToList();
-        if (towns.All(Draft.CityIds.Contains))
-        {
-            Draft.CityIds.RemoveAll(towns.Contains);
-        }
-        else
-        {
-            Draft.CityIds.AddRange(towns.Except(Draft.CityIds));
-        }
-
-        SetAreaFromTowns();
-    }
-
-    // There is one area, so it is never asked: it follows from the towns (the API needs it on the listing).
-    private void SetAreaFromTowns() => Draft.AreaId = ReferenceData.AreaOf(Draft.CityIds.FirstOrDefault());
+    private void ToggleAllTowns() => Draft.ToggleAllTowns();
 
     private Task PickExperienceAsync(string id)
     {
@@ -132,7 +94,7 @@ public partial class ProfessionalInterview : ComponentBase
     private async Task AdvanceAsync()
     {
         var state = _state!;
-        var path = StepPath(_step + 1);
+        var path = OnboardingSteps.PathOf(_step + 1);
         if (state.CompletedAt is null)
         {
             state.ResumePath = path;
@@ -165,34 +127,7 @@ public partial class ProfessionalInterview : ComponentBase
         Nav.NavigateTo(ProRoutes.Home, replace: true);
     }
 
-    private void GoBack()
-    {
-        var target = _step != ProStep.Skills ? StepPath(_step - 1)
-            : _state!.CompletedAt is not null ? "/professional"
-            : "/start/role";
-        Nav.NavigateTo(target);
-    }
-
-    private ProStep FirstUnanswered()
-    {
-        if (Draft.CategoryId is null) return ProStep.Skills;
-        if (Draft.ServiceIds.Count == 0) return ProStep.Services;
-        if (Draft.CityIds.Count == 0) return ProStep.Towns;
-        if (Draft.ExperienceId is null) return ProStep.Experience;
-        if (Draft.RateTierId is null) return ProStep.Rate;
-        if (Draft.IncomeGoalId is null) return ProStep.Goal;
-        return ProStep.Preview;
-    }
-
-    private static void Toggle(List<string> ids, string id)
-    {
-        if (!ids.Remove(id))
-        {
-            ids.Add(id);
-        }
-    }
-
-    private static string StepPath(ProStep step) => $"/start/pro/{(int)step}";
+    private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, finished: _state!.CompletedAt is not null));
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };

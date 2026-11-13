@@ -47,8 +47,8 @@ Razor page → ProWorkspace / SeekerWorkspace → port (IProfessionalProfileRepo
 | Project | Holds |
 |---|---|
 | `SideGigPh.Contracts` | The JSON records both sides use (`ListingDto`, `ChatDto`, `PublishListingRequest`…), plus the source-generated `ApiJson`. No dependencies. |
-| `SideGigPh.AzureSQL` | `Sql/001-schema.sql`, `Sql/002-seed.sql`, the `*Row` classes, `SideGigPhDb` (mapping) and the stores (`UserStore`, `ProfessionalStore`, `ReviewStore`, `ChatStore`), which hold the data rules. |
-| `SideGigPh.Api` | One function class per area (`UserFunctions`, `ProfessionalFunctions`, `ReviewFunctions`, `ChatFunctions`, `PhotoFunctions`). Each checks the token first, then calls a store. |
+| `SideGigPh.AzureSQL` | `Sql/001-schema.sql`, `Sql/002-seed.sql`, the `*Row` classes, `SideGigPhDb` (mapping) and the stores (`UserStore`, `ProfessionalStore`, `ReviewStore`, `ChatStore`, `PushDeviceStore`), which hold the data rules. |
+| `SideGigPh.Api` | One function class per area (`UserFunctions`, `ProfessionalFunctions`, `ReviewFunctions`, `ChatFunctions`, `PhotoFunctions`). Each checks the token first, then calls a store. `ChatNotifier` + `IPushSender` send new-message notifications. |
 | `SideGigPh.Maui/Services/Api/` | `ApiClient`, `Api*Repository` adapters, `ApiPhotoStore`, `ApiMapping` (contracts ↔ `Models/`). Registered by `AddSideGigPhApi()`. |
 
 - **Reads that fail** (offline, server error) are logged and come back empty; the screens already have empty states. **Writes** log and throw, and the pages say "didn't send / didn't publish".
@@ -70,6 +70,7 @@ All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, `ReferenceDat
 | `Reviews` | (`ProfessionalId`, `SeekerId`) | One per Seeker per worker: `ReviewerName`, `Rating` 1–5, `Comment` ≤ 1000, `ServiceId` | Only after a chat between the two exists. **No FK to `Professionals`**, so a worker who starts over can't wipe their reviews. Averages come from one `GROUP BY` and travel on each listing (`ListingDto.Reviews`). |
 | `Chats` | `Id` = `{proId}_{seekerId}` | Both names, the job (`ServiceId`, `CityId`, `UrgencyId`, `BudgetId`), a copy of the last message, `SeekerReadAt` / `ProfessionalReadAt` | Unread = the other person wrote last after my read time. Each Inbox is one index seek (`IX_Chats_Seeker`, `IX_Chats_Professional`). Only the Seeker can start a chat. |
 | `ChatMessages` | `Id` (made by the phone) | `SenderId`, `Kind` `text`/`call`, `Text` (null for a call), `At` (server time) | Clustered on (`ChatId`, `At`). A message and the chat's last-message copy are saved in one transaction. Resending the same id changes nothing. |
+| `PushDevices` | `Token` | One row per phone that gets the person's notifications: `Uid`, `Platform` (`android`/`ios`), `UpdatedAt` | A token belongs to whoever registered it last (a phone that changes account moves). `IX_PushDevices_Uid` serves each send. Tokens Google calls dead are deleted after a send; Start over (`DELETE users/me`) deletes the person's. |
 
 **Sample data** (`002-seed.sql`): 31 Skilled Workers across all trades and areas, 8 Seekers and their reviews. Every id starts `seed-` and the numbers use the unassigned `+63 900` prefix. There are no chats and no photos. It's safe to re-run, and its `DELETE` block removes the samples before go-live.
 
@@ -86,7 +87,8 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 
 | Route | Does |
 |---|---|
-| `GET / PUT / DELETE users/me` | The caller's profile |
+| `GET / PUT / DELETE users/me` | The caller's profile (DELETE also forgets their phones) |
+| `PUT users/me/devices` | This phone gets the caller's notifications (`SaveDeviceRequest`: `token`, `platform`). `400` for an empty token or unknown platform |
 | `GET professionals?categoryId=…&areaId=…` | One trade's listings in one area, each with its stars (`Reviews`: average and count); the phone ranks them (`SearchRanker`). Kept 30 s per API instance (`ListingCache`), cleared there by a publish, removal or review |
 | `GET professionals/{id}` | One listing with its stars (404 when gone) |
 | `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`; publishing also needs a `profilePhotoId`, at least 2 `workPhotoIds` and 1–3 `references` with distinct +639 numbers that aren't the worker's own) |
@@ -96,13 +98,24 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `DELETE reviews/mine` | Reviews the caller wrote |
 | `GET chats?side=seeker\|professional` | The caller's Inbox |
 | `GET chats/{id}`, `GET chats/{id}/messages` | Only for the two people in it |
-| `POST chats/{id}/messages` | Send; the first message creates the chat (Seeker only). Returns the chat |
+| `POST chats/{id}/messages` | Send; the first message creates the chat (Seeker only). Notifies the other person (§6.1). Returns the chat |
 | `POST chats/{id}/read?side=…` | Clear the caller's unread badge |
 | `DELETE chats/mine` | Every chat the caller is in |
 | `POST photos`, `DELETE photos/{id}` | §5 |
 
-**Live chat:** an open chat polls `GET chats/{id}` every 5 seconds (`ApiChatRepository.WatchInterval`) and reloads when the last message changes. Push notifications replace this later (§7).
+**Live chat:** an open chat polls `GET chats/{id}` every 5 seconds (`ApiChatRepository.WatchInterval`) and reloads when the last message changes. A message that arrives while the app is open but the chat isn't refreshes the Inbox through its notification (§6.1).
+
+### 6.1 New-message notifications (Firebase Cloud Messaging)
+
+Not SignalR: SignalR only reaches an app that is open, and the open app already polls. A notification reaches a closed phone.
+
+- **Server:** after `ChatStore.SendAsync` saves a **new** message (a retried message id sends nothing), `ChatNotifier` reads the receiver's phones, language and unread-chat count (`PushDeviceStore.TargetAsync`) and sends through `IPushSender` (`FcmPushSender`, Firebase Admin SDK, setting **`FirebaseServiceAccount`**: the Firebase project's service-account JSON; without it `NoPushSender` logs and nobody is told). A failed notification is logged and never fails the message.
+- **Customer → Skilled Worker = loud:** Android channel `customers` (high importance), iOS alert + sound. Title "New customer: Liza" / "Bagong customer: Liza" on the first message, then just the name; body = the message (≤ 120 chars, one line) or "Called you" / "Tumawag sa'yo".
+- **Skilled Worker → Seeker = quiet:** Android channel `replies` (low importance: no sound, no pop-up, only the tray line that puts the dot on the icon); iOS badge only, no alert.
+- **Every notification** has the chat id as its tag (Android) and `apns-collapse-id` (iOS), so one chat = one notification; the badge number = the receiver's unread chats; data `chatId`, `professionalId`, `side` (`PushData`); and `is_silent_in_foreground` so an open app shows nothing and refreshes its Inbox instead.
+- **App:** `ChatAlerts` (`Services/`) registers the phone (`IUserRepository.SaveDeviceAsync`), asks to allow notifications only with a reason (a Skilled Worker with a live listing when Pro home opens; a Seeker right after sending a message; never at first launch), opens the chat on a tap (`ChatAlerts.PathFor`), and on every Inbox change calls `IPushNotifications.ShowOnly(unread chat ids)`: read chats leave the tray and the icon badge follows.
+
 
 ## 7. Later (alpha feedback decides)
 
-Push notifications for new messages (the API sends them after saving; device tokens table; a skeleton `IPushNotifications` port) · Delete account (Start over plus the Firebase account itself; Google Play requires it) · businesses / org accounts · photos in chat · block a user · review photos · a Skilled Worker's reply to a review · "available today" toggle · saved workers · report a worker or review · search logs · ID verification badge · perceptual hash for edited copies of photos · GCash · PostGIS distance search.
+Delete account (Start over plus the Firebase account itself; Google Play requires it) · businesses / org accounts · photos in chat · block a user · review photos · a Skilled Worker's reply to a review · "available today" toggle · saved workers · report a worker or review · search logs · ID verification badge · perceptual hash for edited copies of photos · GCash · PostGIS distance search.

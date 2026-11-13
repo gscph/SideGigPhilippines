@@ -16,7 +16,8 @@ public enum SendOutcome
     Invalid,
 }
 
-public sealed record SendResult(SendOutcome Outcome, ChatDto? Chat = null);
+/// <param name="IsNew">True when this call saved the message; false when it was already saved (a retry), so nobody is told twice.</param>
+public sealed record SendResult(SendOutcome Outcome, ChatDto? Chat = null, bool IsNew = false);
 
 /// <summary>
 /// Chats between a Seeker and a Skilled Worker (<c>Chats</c>, id <c>{professionalId}_{seekerId}</c>) and their messages.
@@ -141,7 +142,7 @@ public sealed class ChatStore(SideGigPhDb db)
             }
 
             await db.SaveChangesAsync(ct);
-            return new SendResult(SendOutcome.Sent, ToDto(chat));
+            return new SendResult(SendOutcome.Sent, ToDto(chat), IsNew: true);
         }, cancellationToken);
     }
 

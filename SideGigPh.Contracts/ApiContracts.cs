@@ -3,7 +3,7 @@ namespace SideGigPh.Contracts;
 // What goes over the wire between the app and SideGigPh.Api. Ids are the app's ReferenceData ids
 // (categories, services, towns, price tiers…) and Firebase uids. Times are UTC.
 
-/// <summary><c>english</c> / <c>taglish</c>, <c>seeker</c> / <c>professional</c>, <c>text</c> / <c>call</c>.</summary>
+/// <summary><c>english</c> / <c>taglish</c>, <c>seeker</c> / <c>professional</c>, <c>text</c> / <c>call</c>, <c>android</c> / <c>ios</c>.</summary>
 public static class Wire
 {
     public const string English = "english";
@@ -12,6 +12,8 @@ public static class Wire
     public const string Professional = "professional";
     public const string Text = "text";
     public const string Call = "call";
+    public const string Android = "android";
+    public const string Ios = "ios";
 }
 
 /// <summary>The error codes the API answers with, as <c>{ "error": "…" }</c>.</summary>
@@ -150,3 +152,28 @@ public sealed record SendMessageRequest(
     string? CityId,
     string? UrgencyId,
     string? BudgetId);
+
+/// <summary><c>PUT users/me/devices</c>: this phone gets the caller's new-message notifications (<see cref="Wire.Android"/> / <see cref="Wire.Ios"/>).</summary>
+public sealed record SaveDeviceRequest(string Token, string Platform);
+
+/// <summary>
+/// What a new-message notification carries, read by the app when it arrives or is tapped, and the Android
+/// notification channels it lands on. The server and the app must agree on these, so they live here.
+/// </summary>
+public static class PushData
+{
+    /// <summary>The chat the message is in.</summary>
+    public const string ChatId = "chatId";
+
+    /// <summary>The Skilled Worker in that chat (the Seeker's chat page is keyed by them).</summary>
+    public const string ProfessionalId = "professionalId";
+
+    /// <summary>Which side the receiver is on: <see cref="Wire.Seeker"/> or <see cref="Wire.Professional"/>.</summary>
+    public const string Side = "side";
+
+    /// <summary>Android channel for a customer writing to a Skilled Worker: a normal notification (sound, pop-up).</summary>
+    public const string CustomersChannel = "customers";
+
+    /// <summary>Android channel for a Skilled Worker answering a Seeker: silent, only the tray line and the icon dot.</summary>
+    public const string RepliesChannel = "replies";
+}

@@ -7,7 +7,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>In-app chat. Every call is about the caller's own chats; nobody else's can be read.</summary>
-public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats)
+public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier)
 {
     /// <summary><c>GET chats?side=seeker</c> or <c>?side=professional</c>: the caller's Inbox on that side, newest first.</summary>
     [Function("GetInbox")]
@@ -53,7 +53,7 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats)
         return await chats.MessagesAsync(chatId, uid, cancellationToken) is { } messages ? new OkObjectResult(messages) : new NotFoundResult();
     }
 
-    /// <summary>Sends a message; the first one creates the chat. Answers with the chat as saved.</summary>
+    /// <summary>Sends a message; the first one creates the chat. Tells the other person (<see cref="ChatNotifier"/>). Answers with the chat as saved.</summary>
     [Function("SendChatMessage")]
     public async Task<IActionResult> Send(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}/messages")] HttpRequest request,
@@ -71,6 +71,11 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats)
         }
 
         var result = await chats.SendAsync(chatId, uid, message, cancellationToken);
+        if (result is { Outcome: SendOutcome.Sent, IsNew: true, Chat: { } sent })
+        {
+            await notifier.NotifyAsync(sent, uid, cancellationToken);
+        }
+
         return result.Outcome switch
         {
             SendOutcome.Sent => new OkObjectResult(result.Chat),

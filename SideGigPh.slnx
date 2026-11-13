@@ -7,4 +7,5 @@
   <Project Path="SideGigPh.Maui/SideGigPh.Maui.csproj">
     <Deploy Solution="Debug|*" />
   </Project>
+  <Project Path="SideGigPh.Tests/SideGigPh.Tests.csproj" Id="3d792515-bcf0-4de9-8dd2-dd5a9f52f2e0" />
 </Solution>

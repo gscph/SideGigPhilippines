@@ -5,6 +5,7 @@
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "PhotoStorage": "UseDevelopmentStorage=true",
     "SqlDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=SideGigPh;Trusted_Connection=True;TrustServerCertificate=True",
-    "FirebaseProjectId": "sidegigphilippines"
+    "FirebaseProjectId": "sidegigphilippines",
+    "FirebaseServiceAccount": ""
   }
 }

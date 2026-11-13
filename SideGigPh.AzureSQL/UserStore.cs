@@ -43,8 +43,12 @@ public sealed class UserStore(SideGigPhDb db)
         return ToDto(row);
     }
 
-    public Task DeleteAsync(string uid, CancellationToken cancellationToken) =>
-        db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(cancellationToken);
+    /// <summary>Deletes the profile and the phones registered for its notifications (Start over).</summary>
+    public async Task DeleteAsync(string uid, CancellationToken cancellationToken)
+    {
+        await db.PushDevices.Where(d => d.Uid == uid).ExecuteDeleteAsync(cancellationToken);
+        await db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(cancellationToken);
+    }
 
     private static UserDto ToDto(UserRow u) =>
         new(u.Uid, u.DisplayName, u.PhoneNumber, u.Email, u.Language, u.Role, u.IncomeGoalId, u.CreatedAt, u.UpdatedAt, u.ProfilePhotoId);

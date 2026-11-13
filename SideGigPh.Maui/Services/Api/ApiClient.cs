@@ -10,7 +10,8 @@ namespace SideGigPh.Maui.Services.Api;
 /// <summary>Where SideGigPh.Api and the photo files live. Neither is a secret.</summary>
 /// <param name="ApiUrl">The Azure Functions API, e.g. <c>https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/</c>.</param>
 /// <param name="PhotoBaseUrl">The public blob container, e.g. <c>https://sidegigphbfb9.blob.core.windows.net/photos/</c>.</param>
-public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl);
+/// <param name="Handler">Leave null in the app. Tests pass one to talk to an in-process API instead of the network.</param>
+public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl, HttpMessageHandler? Handler = null);
 
 /// <summary>
 /// The one HTTP connection to SideGigPh.Api. Every request carries the signed-in user's ID token
@@ -19,7 +20,7 @@ public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl);
 /// </summary>
 public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger)
 {
-    private readonly HttpClient _http = new() { BaseAddress = new Uri(options.ApiUrl), Timeout = TimeSpan.FromSeconds(60) };
+    private readonly HttpClient _http = CreateHttp(options);
 
     /// <summary>Sends the request with the sign-in token. The caller disposes the response.</summary>
     public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null, CancellationToken cancellationToken = default)
@@ -94,4 +95,13 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     }
 
     public static string Escape(string value) => Uri.EscapeDataString(value);
+
+    // The platform's default handler in the app (new HttpClient()); a test handler only when one is given.
+    private static HttpClient CreateHttp(ApiOptions options)
+    {
+        var http = options.Handler is null ? new HttpClient() : new HttpClient(options.Handler, disposeHandler: false);
+        http.BaseAddress = new Uri(options.ApiUrl);
+        http.Timeout = TimeSpan.FromSeconds(60);
+        return http;
+    }
 }

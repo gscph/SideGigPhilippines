@@ -16,6 +16,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private ILogger<ThreadPage> Logger { get; set; } = default!;
+    [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -53,6 +54,9 @@ public partial class ThreadPage : ComponentBase, IDisposable
         {
             Show(await Workspace.SendAsync(_pro!, _message!));
             _message = null;
+
+            // Now there's a reply to wait for: allow the red dot on the app icon (asked once; the system remembers).
+            _ = Alerts.AskAsync();
         }
         catch (Exception ex)
         {

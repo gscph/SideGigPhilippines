@@ -12,10 +12,11 @@ public sealed record Caller(string Uid, string? PhoneNumber);
 /// <summary>
 /// Checks the Firebase ID token the app sends as "Authorization: Bearer …" and says who is calling.
 /// Google's signing keys are fetched from Firebase's public OpenID configuration and cached.
+/// Tests pass their own <paramref name="signingKeys"/> so they can sign tokens without Google; the app never does.
 /// </summary>
-public sealed class FirebaseTokenValidator(string projectId)
+public sealed class FirebaseTokenValidator(string projectId, IConfigurationManager<OpenIdConnectConfiguration>? signingKeys = null)
 {
-    private readonly ConfigurationManager<OpenIdConnectConfiguration> keys = new(
+    private readonly IConfigurationManager<OpenIdConnectConfiguration> keys = signingKeys ?? new ConfigurationManager<OpenIdConnectConfiguration>(
         $"https://securetoken.google.com/{projectId}/.well-known/openid-configuration",
         new OpenIdConnectConfigurationRetriever(),
         new HttpDocumentRetriever());

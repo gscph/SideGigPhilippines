@@ -19,8 +19,10 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     private bool _ready;
+    private IDisposable? _alerts;
 
     private IReadOnlyList<AppTab> Tabs =>
     [
@@ -40,13 +42,27 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
         }
 
         _ready = true;
+        _alerts = Alerts.Attach(Workspace.RefreshActivityAsync, path => InvokeAsync(() => Nav.NavigateTo(path)));
+        Alerts.ShowUnread(Workspace.UnreadChatIds);
+
+        // Seekers are asked only after they write to a worker (ThreadPage); here the phone is just registered.
+        _ = Alerts.RegisterAsync();
     }
 
     public void Dispose()
     {
         Workspace.Changed -= OnWorkspaceChanged;
         Account.Changed -= OnWorkspaceChanged;
+        _alerts?.Dispose();
     }
 
-    private void OnWorkspaceChanged() => InvokeAsync(StateHasChanged);
+    private void OnWorkspaceChanged()
+    {
+        if (_ready)
+        {
+            Alerts.ShowUnread(Workspace.UnreadChatIds);
+        }
+
+        InvokeAsync(StateHasChanged);
+    }
 }

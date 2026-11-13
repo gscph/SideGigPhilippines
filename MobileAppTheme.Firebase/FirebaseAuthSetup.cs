@@ -6,9 +6,6 @@ using Plugin.Firebase.Auth.Google;
 #if ANDROID
 using Android.App;
 using Android.Content;
-using Plugin.Firebase.Core.Platforms.Android;
-#elif IOS
-using Plugin.Firebase.Core.Platforms.iOS;
 #endif
 
 namespace MobileAppTheme.Firebase;
@@ -29,19 +26,16 @@ public static class FirebaseAuthSetup
         builder.ConfigureLifecycleEvents(events =>
         {
 #if ANDROID
-            events.AddAndroid(android => android.OnCreate((activity, _) => TryInitialize(() =>
+            events.AddAndroid(android => android.OnCreate((activity, _) =>
             {
-                CrossFirebase.Initialize(activity);
-                FirebaseAuthGoogleImplementation.Initialize(googleWebClientId);
-            })));
+                FirebaseCore.Start(activity);
+                FirebaseCore.TryRun("Google sign-in", () => FirebaseAuthGoogleImplementation.Initialize(googleWebClientId));
+            }));
 #elif IOS
             events.AddiOS(ios => ios.WillFinishLaunching((_, __) =>
             {
-                TryInitialize(() =>
-                {
-                    CrossFirebase.Initialize();
-                    FirebaseAuthGoogleImplementation.Initialize();
-                });
+                FirebaseCore.Start();
+                FirebaseCore.TryRun("Google sign-in", FirebaseAuthGoogleImplementation.Initialize);
                 return false;
             }));
 #endif
@@ -80,18 +74,4 @@ public static class FirebaseAuthSetup
 
     /// <summary>True while a Google sign-in is waiting for the account picker's result.</summary>
     internal static volatile bool GoogleSignInPending;
-
-    // Initialization throws when google-services.json / GoogleService-Info.plist is missing. Don't
-    // let that crash launch: the app loads and sign-in fails gracefully instead.
-    private static void TryInitialize(Action initialize)
-    {
-        try
-        {
-            initialize();
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[Firebase] initialization skipped: {ex}");
-        }
-    }
 }

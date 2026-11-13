@@ -22,6 +22,7 @@ The storage account is also the Function App's own storage (its deployment packa
 **Only in the Function App's settings:**
 - `PhotoStorage` (storage): `cloudshell-setup.sh` puts it there.
 - `SqlDatabase` (Azure SQL): you add it (see Azure SQL below).
+- `FirebaseServiceAccount` (sends new-message notifications): you add it, see [`firebase/README.md`](../firebase/README.md) → Notifications. Optional on a PC (leave it empty in `local.settings.json`: messages still send, nobody is notified).
 
 To see or change them: Azure portal → Function App `SideGigPhApi` → Settings → **Environment variables**.
 

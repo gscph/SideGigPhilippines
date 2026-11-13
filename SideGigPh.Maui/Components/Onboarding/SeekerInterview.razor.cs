@@ -11,19 +11,10 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// budget → results. Each step has its own
 /// URL so Android back walks the steps; every answer is saved as soon as it's tapped.
 /// Once finished, tapping an answer chip on the results reopens one step and returns there.
+/// The rules (which step, what an answer clears, where Next and Back go) are in <see cref="OnboardingSteps"/>.
 /// </summary>
 public partial class SeekerInterview : ComponentBase
 {
-    private enum SeekerStep
-    {
-        Category = 1,
-        Service,
-        City,
-        When,
-        Budget,
-        Finding,
-    }
-
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
@@ -61,19 +52,12 @@ public partial class SeekerInterview : ComponentBase
         }
 
         // Never show a step whose earlier answers are missing (e.g. a stale resume path).
-        var requested = (SeekerStep)Math.Clamp(Step ?? 1, 1, (int)SeekerStep.Finding);
-        var firstUnanswered = FirstUnanswered();
-        _step = requested > firstUnanswered ? firstUnanswered : requested;
+        _step = Answers.StepToShow(Step);
     }
 
     private Task PickCategoryAsync(string id)
     {
-        if (Answers.CategoryId != id)
-        {
-            Answers.CategoryId = id;
-            Answers.ServiceId = null;
-        }
-
+        Answers.PickCategory(id);
         return AdvanceAsync();
     }
 
@@ -85,8 +69,7 @@ public partial class SeekerInterview : ComponentBase
 
     private Task PickCityAsync(string id)
     {
-        Answers.CityId = id;
-        Answers.AreaId = ReferenceData.AreaOf(id); // One area, never asked: it follows from the town.
+        Answers.PickTown(id);
         return AdvanceAsync();
     }
 
@@ -105,15 +88,9 @@ public partial class SeekerInterview : ComponentBase
     private async Task AdvanceAsync()
     {
         var state = _state!;
-        string path;
-        if (IsEditing)
+        var path = Answers.NextPath(_step, IsEditing);
+        if (!IsEditing)
         {
-            var next = FirstUnanswered();
-            path = next == SeekerStep.Finding ? SeekerRoutes.Search : StepPath(next);
-        }
-        else
-        {
-            path = StepPath(_step + 1);
             state.ResumePath = path;
         }
 
@@ -131,28 +108,7 @@ public partial class SeekerInterview : ComponentBase
         Nav.NavigateTo(SeekerRoutes.Search, replace: true);
     }
 
-    private void GoBack()
-    {
-        var target = IsEditing ? SeekerRoutes.Search
-            : _step == SeekerStep.Category ? "/start/role"
-            : StepPath(_step - 1);
-        Nav.NavigateTo(target);
-    }
-
-    private SeekerStep FirstUnanswered()
-    {
-        if (Answers.CategoryId is null) return SeekerStep.Category;
-        if (Answers.ServiceId is null) return SeekerStep.Service;
-        if (Answers.CityId is null) return SeekerStep.City;
-        if (Answers.UrgencyId is null) return SeekerStep.When;
-        if (Answers.BudgetId is null) return SeekerStep.Budget;
-        return SeekerStep.Finding;
-    }
-
-    /// <summary>The home-town question. The launch router reopens it when a saved town is no longer served.</summary>
-    public static string TownPath => StepPath(SeekerStep.City);
-
-    private static string StepPath(SeekerStep step) => $"/start/seeker/{(int)step}";
+    private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, IsEditing));
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };

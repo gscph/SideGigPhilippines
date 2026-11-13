@@ -112,3 +112,11 @@ public sealed class ChatMessageRow
     public string? Text { get; set; }
     public DateTimeOffset At { get; set; }
 }
+
+public sealed class PushDeviceRow
+{
+    public required string Token { get; set; }
+    public required string Uid { get; set; }
+    public required string Platform { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}

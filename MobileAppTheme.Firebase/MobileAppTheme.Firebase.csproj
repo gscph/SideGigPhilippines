@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-    <!-- MobileAppTheme.Firebase: the Firebase Authentication adapter for the skeleton's
-         IIdentityProvider (phone SMS code + Google), Android + iOS only. Optional: an app that
+    <!-- MobileAppTheme.Firebase: the Firebase adapters for the skeleton's IIdentityProvider (phone
+         SMS code + Google) and IPushNotifications (Cloud Messaging), Android + iOS only. Optional: an app that
          uses another provider references that provider's project instead (see README.md).
          A plain MAUI library (Microsoft.NET.Sdk, not Razor), so MAUI doesn't add the WebView host
          package and its static assets don't clash with the app's. -->
@@ -27,6 +27,8 @@
              their build targets flow to the app, which needs them to process google-services.json. -->
         <PackageReference Include="Plugin.Firebase.Auth" Version="3.1.1" PrivateAssets="none" />
         <PackageReference Include="Plugin.Firebase.Auth.Google" Version="3.1.2" PrivateAssets="none" />
+        <!-- New-message notifications (FirebasePushNotifications), the same modular family. -->
+        <PackageReference Include="Plugin.Firebase.CloudMessaging" Version="3.1.2" PrivateAssets="none" />
     </ItemGroup>
 
     <ItemGroup>
