@@ -28,6 +28,9 @@ public sealed class SeekerAnswers
 
     public string? ServiceId { get; set; }
 
+    /// <summary>What they typed after picking the trade's "Others" job (sent for analytics; also words their first message).</summary>
+    public string? OtherJobText { get; set; }
+
     /// <summary>The area of their home town (<c>ReferenceData.AreaOf</c>), never asked: set with <see cref="CityId"/>.</summary>
     public string? AreaId { get; set; }
 
@@ -56,6 +59,9 @@ public sealed class ProfessionalDraft
     public string? CategoryId { get; set; }
 
     public List<string> ServiceIds { get; set; } = [];
+
+    /// <summary>What they typed when they ticked the trade's "Others" job (sent for analytics, never shown).</summary>
+    public string? OtherJobText { get; set; }
 
     /// <summary>The one area they work in (<c>ReferenceData.AreaOf</c> their towns), never asked: set with <see cref="CityIds"/>.</summary>
     public string? AreaId { get; set; }

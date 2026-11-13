@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme; // MAUI has an AppTheme enum too
+using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Local;
@@ -47,10 +48,18 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<ChatAlerts>();
             builder.Services.AddSingleton<IAuthLanding, SideGigPhAuthLanding>();
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
-            // Users, listings, reviews and chats (Azure SQL) and photos (Blob Storage), all through SideGigPh.Api.
+            // Users, listings, reviews, chats and the trades and jobs (Azure SQL) and photos (Blob Storage), all through SideGigPh.Api.
             // Replaces the skeleton's on-device FilePhotoStore.
             builder.Services.AddSideGigPhApi(new ApiOptions(ApiUrl, PhotoBaseUrl));
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
+            // The app config (trades and jobs, towns, prices…): loaded once while the splash shows (LaunchRouter), kept
+            // on the phone (config.json) and used with no network call for 12 hours, then re-checked by ETag.
+            builder.Services.AddSingleton<IConfigCache<AppConfig>>(services => new FileConfigCache<AppConfig>(
+                "config.json", AppConfigJsonContext.Default.StampedAppConfig, services.GetRequiredService<ILogger<FileConfigCache<AppConfig>>>()));
+            builder.Services.AddSingleton(AppConfigService.Rules);
+            builder.Services.AddSingleton<RemoteConfig<AppConfig>>();
+            builder.Services.AddSingleton<AppConfigService>();
+            builder.Services.AddSingleton<OtherJobNotes>();
             builder.Services.AddSingleton<ProWorkspace>();
             builder.Services.AddSingleton<ProfessionalSearch>();
             builder.Services.AddSingleton<SeekerWorkspace>();

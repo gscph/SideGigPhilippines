@@ -269,9 +269,25 @@ public class OnboardingStepsTests
             .Should().Be("/seeker");
 
     [Fact]
-    public void LaunchPath_FinishedSeekerWhoseTownIsNoLongerServed_AsksTheTownAgain() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now })
+    public void LaunchPath_FinishedSeekerWhoseTownIsNoLongerServed_AsksTheTownAgain()
+    {
+        var seeker = FullSeeker();
+        seeker.CityId = null;
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
             .Should().Be(OnboardingSteps.SeekerTownPath);
+    }
+
+    [Fact]
+    public void LaunchPath_FinishedSeekerWhoseTradeWasRetired_AsksTheTradeAgain()
+    {
+        var seeker = FullSeeker();
+        seeker.CategoryId = null;
+        seeker.ServiceId = null;
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+            .Should().Be(OnboardingSteps.PathOf(SeekerStep.Category));
+    }
 
     [Fact]
     public void LaunchPath_FinishedWorker_OpensProHome() =>

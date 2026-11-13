@@ -180,3 +180,40 @@ public static class PushData
     /// <summary>Android channel for a Skilled Worker answering a Seeker: silent, only the tray line and the icon dot.</summary>
     public const string RepliesChannel = "replies";
 }
+
+/// <summary>
+/// The app's config (<c>GET config</c>): every answer list that is fine to be a few hours stale, loaded once when the
+/// app opens and kept on the phone for <c>ConfigFor</c>. All lists are in display order and leave out retired rows.
+/// <paramref name="Catalog"/>: the trades, each with its jobs most-requested first and "Others" last.
+/// <paramref name="PriceTiers"/>: cheapest first (the Seeker's budget and the worker's rate are compared by position).
+/// </summary>
+public sealed record ConfigDto(
+    List<CategoryDto> Catalog,
+    List<OptionDto> Towns,
+    List<OptionDto> PriceTiers,
+    List<OptionDto> Experience,
+    List<OptionDto> Urgencies,
+    List<OptionDto> IncomeGoals);
+
+/// <summary>One answer in a config list: <c>taytay</c> "Taytay", <c>500-1000</c> "₱500 – ₱1,000" (Amount 750)…</summary>
+/// <param name="Amount">Pesos for price tiers (a typical job) and income goals (per month); 0 otherwise.</param>
+public sealed record OptionDto(string Id, string English, string Taglish, string? Icon, int Amount);
+
+/// <summary>A trade: <c>aircon</c>, "Aircon Technician", ❄️, with its jobs.</summary>
+public sealed record CategoryDto(
+    string Id,
+    string English,
+    string Taglish,
+    string? Icon,
+    string? HintEnglish,
+    string? HintTaglish,
+    List<ServiceDto> Services);
+
+/// <summary>A job within a trade: <c>aircon-cleaning</c>, "Aircon cleaning" / "Pa-linis ng aircon".</summary>
+public sealed record ServiceDto(string Id, string English, string Taglish, string? Icon);
+
+/// <summary>
+/// What someone typed after picking "Others" in a trade (<c>POST other-jobs</c>), kept for analytics only:
+/// it never becomes a job and is never shown. <paramref name="Side"/> is <see cref="Wire.Seeker"/> or <see cref="Wire.Professional"/>.
+/// </summary>
+public sealed record OtherJobRequest(string CategoryId, string Side, string Text);

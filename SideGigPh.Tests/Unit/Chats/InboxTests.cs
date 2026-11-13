@@ -34,7 +34,7 @@ public class InboxTests
         var app = await FakeApp.SeekerAsync();
         var installer = TestData.Listing("Ike", services: ["aircon-install"]);
 
-        app.Seeker.DefaultMessage(installer).Should().Contain("I need: Aircon,");
+        app.Seeker.DefaultMessage(installer).Should().Contain("I need: Aircon Technician,");
     }
 
     [Fact]

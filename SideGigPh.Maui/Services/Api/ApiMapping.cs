@@ -109,6 +109,26 @@ internal static partial class ApiMapping
 
     public static string ToWire(this ChatSide side) => side == ChatSide.Seeker ? Wire.Seeker : Wire.Professional;
 
+    public static AppConfig ToModel(this ConfigDto dto) => new(
+        dto.Catalog.Select(c => new CatalogOption(c.Id, new(c.English, c.Taglish), c.Icon, Hint(c.HintEnglish, c.HintTaglish))).ToList(),
+        dto.Catalog.ToDictionary(
+            c => c.Id,
+            c => (IReadOnlyList<CatalogOption>)c.Services.Select(s => new CatalogOption(s.Id, new(s.English, s.Taglish), s.Icon)).ToList()),
+        Options(dto.Towns),
+        Options(dto.PriceTiers),
+        Options(dto.Experience),
+        Options(dto.Urgencies),
+        Options(dto.IncomeGoals));
+
+    private static IReadOnlyList<CatalogOption> Options(List<OptionDto>? options) =>
+        (options ?? []).Select(o => new CatalogOption(o.Id, new(o.English, o.Taglish), o.Icon, Amount: o.Amount)).ToList();
+
+    public static OtherJobRequest ToRequest(this OtherJobNote note) =>
+        new(note.CategoryId, note.Side == UserRole.Seeker ? Wire.Seeker : Wire.Professional, note.Text);
+
+    private static LocalizedText? Hint(string? english, string? taglish) =>
+        english is null && taglish is null ? null : new(english ?? taglish!, taglish ?? english!);
+
     private static string? PhotoId(string? url) =>
         url is not null && PhotoUrl().Match(url) is { Success: true } match ? match.Groups["id"].Value : null;
 

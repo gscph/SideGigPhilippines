@@ -2,17 +2,21 @@
    SideGigPh: Azure SQL schema. Creates every table, key, check and index the API uses.
 
    How: Azure portal > SQL database > Query editor (or SSMS / Azure Data Studio), paste this
-   WHOLE file, Run. Safe to run again: it only creates what's missing. Then run 002-seed.sql
-   for sample data.
+   WHOLE file, Run. Safe to run again: it only creates what's missing. Then run 004-config.sql
+   (the trades and jobs: required) and, for sample data, 002-seed.sql.
 
    This script is the schema's source of truth. SideGigPh.AzureSQL/SideGigPhDb.cs maps to it
    (EF Core, no migrations): a change here needs the same change there, and the reverse.
 
    Ids:
      - People: the Firebase Auth uid (Firebase stays the sign-in provider).
-     - Categories, services, areas, towns, price tiers, experience, urgency: the app's
-       ReferenceData ids ("aircon", "aircon-cleaning", "rizal", "taytay", "500-1000"…). They are
-       stable, so they're stored as plain text with no lookup tables.
+     - Categories and services (trades and jobs): rows in dbo.Categories / dbo.Services, filled by
+       004-config.sql and served to the app by GET config ("aircon", "aircon-cleaning"…). Ids are
+       stable; a trade we stop offering is retired (IsActive = 0), never deleted or renamed.
+     - Towns, price tiers, experience, urgency, income goals: rows in dbo.ConfigOptions (same script,
+       same GET config). The area ("rizal") is the app's one ServiceAreaId.
+     Listings, chats and reviews keep all these ids as plain text (no foreign key), so a retired
+     trade's or town's old rows stay readable.
      - Photos: the SHA-256 hex of the stored JPEG (the blob is photos/{id}.jpg in Blob Storage).
    Times are UTC datetimeoffset.
 
@@ -232,6 +236,74 @@ BEGIN
 
     -- A person's phones, read on every message sent to them.
     CREATE INDEX IX_PushDevices_Uid ON dbo.PushDevices (Uid);
+END;
+
+/* ---------- Categories and Services: the trades and their jobs (GET config). Rows come from 004-config.sql ---------- */
+IF OBJECT_ID(N'dbo.Categories', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Categories
+    (
+        Id            varchar(40)    NOT NULL CONSTRAINT PK_Categories PRIMARY KEY,  -- stable: never renamed, only retired
+        LabelEnglish  nvarchar(60)   NOT NULL,
+        LabelTaglish  nvarchar(60)   NOT NULL,
+        Icon          nvarchar(16)   NULL,                                            -- an emoji
+        HintEnglish   nvarchar(120)  NULL,
+        HintTaglish   nvarchar(120)  NULL,
+        SortOrder     int            NOT NULL,
+        IsActive      bit            NOT NULL CONSTRAINT DF_Categories_IsActive DEFAULT (1)  -- 0 = retired: no longer offered
+    );
+END;
+
+IF OBJECT_ID(N'dbo.Services', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Services
+    (
+        Id            varchar(40)    NOT NULL CONSTRAINT PK_Services PRIMARY KEY,    -- stable, unique across all trades
+        CategoryId    varchar(40)    NOT NULL CONSTRAINT FK_Services_Categories REFERENCES dbo.Categories (Id),
+        LabelEnglish  nvarchar(100)  NOT NULL,
+        LabelTaglish  nvarchar(100)  NOT NULL,
+        Icon          nvarchar(16)   NULL,
+        SortOrder     int            NOT NULL,                                        -- most-requested first, "Others" last
+        IsActive      bit            NOT NULL CONSTRAINT DF_Services_IsActive DEFAULT (1)
+    );
+
+    -- A trade's jobs in order, read with the catalog.
+    CREATE INDEX IX_Services_Category ON dbo.Services (CategoryId, SortOrder);
+END;
+
+/* ---------- ConfigOptions: the other answer lists in GET config (towns, price tiers, experience, urgency, goals) ---------- */
+IF OBJECT_ID(N'dbo.ConfigOptions', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.ConfigOptions
+    (
+        ListId        varchar(40)    NOT NULL,   -- 'towns', 'price-tiers', 'experience', 'urgencies', 'income-goals'
+        Id            varchar(40)    NOT NULL,   -- stable, like the trades
+        LabelEnglish  nvarchar(100)  NOT NULL,
+        LabelTaglish  nvarchar(100)  NOT NULL,
+        Icon          nvarchar(16)   NULL,
+        Amount        int            NOT NULL CONSTRAINT DF_ConfigOptions_Amount DEFAULT (0),  -- pesos (price tiers, goals), else 0
+        SortOrder     int            NOT NULL,
+        IsActive      bit            NOT NULL CONSTRAINT DF_ConfigOptions_IsActive DEFAULT (1),
+        CONSTRAINT PK_ConfigOptions PRIMARY KEY (ListId, Id)
+    );
+END;
+
+/* ---------- OtherJobNotes: what people typed after picking "Others" (analytics only, never shown) ---------- */
+IF OBJECT_ID(N'dbo.OtherJobNotes', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.OtherJobNotes
+    (
+        Id          bigint            IDENTITY(1, 1) NOT NULL CONSTRAINT PK_OtherJobNotes PRIMARY KEY,
+        Uid         varchar(128)      NULL,      -- who typed it; cleared when they delete their account
+        Side        varchar(12)       NOT NULL CONSTRAINT CK_OtherJobNotes_Side CHECK (Side IN ('seeker', 'professional')),
+        CategoryId  varchar(40)       NOT NULL,
+        Text        nvarchar(100)     NOT NULL,
+        CreatedAt   datetimeoffset(3) NOT NULL
+    );
+
+    -- "What do people ask for under Others in this trade?"
+    CREATE INDEX IX_OtherJobNotes_Category ON dbo.OtherJobNotes (CategoryId, CreatedAt);
+    CREATE INDEX IX_OtherJobNotes_Uid ON dbo.OtherJobNotes (Uid);
 END;
 
 COMMIT TRANSACTION;

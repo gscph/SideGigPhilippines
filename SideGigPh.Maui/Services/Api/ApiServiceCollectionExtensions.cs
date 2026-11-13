@@ -1,9 +1,11 @@
+using SideGigPh.Maui.Models;
+
 namespace SideGigPh.Maui.Services.Api;
 
 public static class ApiServiceCollectionExtensions
 {
     /// <summary>
-    /// The real data, all through SideGigPh.Api: users, listings, reviews and chats (Azure SQL on the server) and
+    /// The real data, all through SideGigPh.Api: users, listings, reviews, chats and the app config (Azure SQL on the server) and
     /// photos (Azure Blob Storage; replaces the skeleton's on-device <c>FilePhotoStore</c>, so call it after
     /// <c>AddMobileAppTheme</c>). Every request carries the signed-in user's ID token, which the server checks.
     /// </summary>
@@ -16,6 +18,9 @@ public static class ApiServiceCollectionExtensions
         services.AddSingleton<IUserRepository, ApiUserRepository>();
         services.AddSingleton<IChatRepository, ApiChatRepository>();
         services.AddSingleton<IReviewRepository, ApiReviewRepository>();
+        services.AddSingleton<ApiConfigRepository>();
+        services.AddSingleton<IConfigSource<AppConfig>>(provider => provider.GetRequiredService<ApiConfigRepository>());
+        services.AddSingleton<IOtherJobNoteRepository>(provider => provider.GetRequiredService<ApiConfigRepository>());
         return services;
     }
 }

@@ -24,7 +24,8 @@ public class ListingTextTests
     {
         var text = English();
 
-        text.Trades(Card).Should().Be("Aircon");
+        text.Trades(Card).Should().Be("Aircon Technician");
+        Card.TradeOptions().Select(trade => trade.Id).Should().Equal("aircon"); // the trade badge
         text.Towns(Card).Should().Be("Taytay, Angono");
         text.JobLabels(Card).Should().Equal("Aircon cleaning"); // an unknown job id is skipped, not shown blank
         text.Rate(Card).Should().Be("₱500 – ₱1,000 per job");

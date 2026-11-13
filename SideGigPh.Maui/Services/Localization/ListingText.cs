@@ -13,6 +13,13 @@ public static class ListingText
     public static string Trades(this AppText text, ProfessionalListing listing) =>
         string.Join(" · ", text.Labels(ReferenceData.Categories, listing.CategoryIds));
 
+    /// <summary>The listing's trades still offered, for its trade badge (icon + label). A retired trade shows no badge.</summary>
+    public static IReadOnlyList<CatalogOption> TradeOptions(this ProfessionalListing listing) =>
+        listing.CategoryIds
+            .Select(id => ReferenceData.Find(ReferenceData.Categories, id))
+            .OfType<CatalogOption>()
+            .ToList();
+
     /// <summary>"Taytay, Angono".</summary>
     public static string Towns(this AppText text, ProfessionalListing listing) =>
         string.Join(", ", text.Labels(ReferenceData.Cities, listing.CityIds));

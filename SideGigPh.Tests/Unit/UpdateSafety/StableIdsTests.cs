@@ -13,8 +13,18 @@ public class StableIdsTests
     [Fact]
     public void CategoryIds_NeverChange() =>
         ReferenceData.Categories.Select(c => c.Id).Should().Equal(
-            "aircon", "plumbing", "electrical", "roofing", "carpentry", "welder", "masonry_tiling", "errand_runner",
-            "solar_cleaning", "home_massage");
+            "aircon", "plumbing", "electrical", "roofing", "carpentry", "welder", "masonry_tiling", "car_mechanic",
+            "errand_runner", "solar_cleaning");
+
+    // A retired trade keeps its id in the database (004-config.sql, IsActive = 0) so old listings and reviews still
+    // read. Giving the id to a new trade would relabel those old listings.
+    [Fact]
+    public void RetiredIds_AreNeverReused()
+    {
+        ReferenceData.BuiltInConfig.Categories.Select(c => c.Id).Should().NotContain("home_massage");
+        ReferenceData.BuiltInConfig.ServicesByCategory.Values.SelectMany(s => s).Select(s => s.Id)
+            .Should().NotContain(id => id.StartsWith("massage-"));
+    }
 
     public static TheoryData<string, string[]> ServiceIdsByCategory => new()
     {
@@ -26,8 +36,8 @@ public class StableIdsTests
         { "welder", ["welder-repair", "welder-gate", "welder-grills", "welder-railings", "welder-frame", "welder-other"] },
         { "masonry_tiling", ["masonry-tiles", "masonry-cement", "masonry-crack", "masonry-wall", "masonry-cr-renovation", "masonry-other"] },
         { "errand_runner", ["errand-grocery", "errand-bills", "errand-pasabuy", "errand-documents", "errand-parcel", "errand-other"] },
+        { "car_mechanic", ["mechanic-suspension", "mechanic-engine", "mechanic-electronics", "mechanic-other"] },
         { "solar_cleaning", ["solar-cleaning", "solar-checkup", "solar-inverter", "solar-other"] },
-        { "home_massage", ["massage-full-body", "massage-hilot", "massage-ventosa", "massage-foot", "massage-other"] },
     };
 
     // Order may change (most-requested first), ids may not, so this compares as a set.
@@ -42,8 +52,11 @@ public class StableIdsTests
         foreach (var category in ReferenceData.Categories)
         {
             ReferenceData.ServicesByCategory.Should().ContainKey(category.Id);
-            ReferenceData.ServicesByCategory[category.Id].Last().Id.Should().EndWith("-other",
-                "every trade ends with an \"Other / Iba pa\" option so nobody is forced into a wrong pick");
+            var last = ReferenceData.ServicesByCategory[category.Id].Last();
+            last.Id.Should().EndWith(ReferenceData.OtherJobSuffix,
+                "every trade ends with an \"Others / Wala sa nabanggit\" option so nobody is forced into a wrong pick");
+            last.Label.Should().Be(new LocalizedText("Others", "Wala sa nabanggit"));
+            ReferenceData.IsOtherJob(last.Id).Should().BeTrue();
         }
     }
 

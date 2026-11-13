@@ -48,6 +48,30 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     }
 
     /// <summary>
+    /// A GET that downloads only when the server's copy changed: sends <paramref name="knownVersion"/> as
+    /// <c>If-None-Match</c>. Answers the new value and its version (the <c>ETag</c>), or a null value with the known
+    /// version when the server says 304 Not Modified. Throws for any failure.
+    /// </summary>
+    public async Task<(T? Value, string? Version)> GetIfChangedAsync<T>(string path, string? knownVersion, JsonTypeInfo<T> type, CancellationToken cancellationToken)
+        where T : class
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, path);
+        if (knownVersion is not null && EntityTagHeaderValue.TryParse(knownVersion, out var tag))
+        {
+            request.Headers.IfNoneMatch.Add(tag);
+        }
+
+        using var response = await _http.SendAsync(request, cancellationToken);
+        if (response.StatusCode == HttpStatusCode.NotModified)
+        {
+            return (null, response.Headers.ETag?.ToString() ?? knownVersion);
+        }
+
+        await ThrowIfFailedAsync(response, $"read {path}");
+        return (await response.Content.ReadFromJsonAsync(type, cancellationToken), response.Headers.ETag?.ToString());
+    }
+
+    /// <summary>
     /// Sends <paramref name="body"/> as JSON with a Content-Length (not streamed/chunked, which the Functions host
     /// may hand over as an empty body). The caller checks the status and disposes the response.
     /// </summary>

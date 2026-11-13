@@ -76,7 +76,7 @@ INSERT INTO @Pros (Num, Name, CategoryId, AreaId, ExperienceId, RateTierId, Lang
 (12, N'Mang Pido Tiles & Semento',    'masonry_tiling', 'rizal',        '10-plus',  '2000-5000', 'taglish', 'masonry-tiles,masonry-cement,masonry-crack,masonry-cr-renovation',      'binangonan,angono'),
 (13, N'Ate Liza PasaBuy',             'errand_runner',  'rizal',        '1-3',      'under-500', 'taglish', 'errand-grocery,errand-bills,errand-pasabuy,errand-parcel',             'taytay,antipolo'),
 (14, N'SunClean Solar Services',      'solar_cleaning', 'rizal',        '1-3',      '1000-2000', 'english', 'solar-cleaning,solar-checkup,solar-inverter',                          'antipolo,binangonan'),
-(15, N'Aling Nena Hilot & Massage',   'home_massage',   'rizal',        '10-plus',  '500-1000',  'taglish', 'massage-full-body,massage-hilot,massage-ventosa,massage-foot',         'angono,binangonan,taytay'),
+(15, N'Mang Tonyo Auto Repair',       'car_mechanic',   'rizal',        '10-plus',  '500-1000',  'taglish', 'mechanic-engine,mechanic-suspension,mechanic-electronics',              'angono,binangonan,taytay'),
 -- Metro Manila
 (16, N'QC Aircon Doctors',            'aircon',         'metro-manila', '3-10',     '500-1000',  'english', 'aircon-cleaning,aircon-repair,aircon-freon',                           'quezon-city,marikina,san-juan'),
 (17, N'Pasig Tubero Express',         'plumbing',       'metro-manila', '10-plus',  '1000-2000', 'taglish', 'plumbing-leak,plumbing-clog,plumbing-install',                         'pasig,mandaluyong,makati'),
@@ -87,14 +87,14 @@ INSERT INTO @Pros (Num, Name, CategoryId, AreaId, ExperienceId, RateTierId, Lang
 (26, N'BrightPanel Solar Care',       'solar_cleaning', 'metro-manila', '3-10',     '1000-2000', 'english', 'solar-cleaning,solar-checkup',                                         'paranaque,las-pinas,muntinlupa'),
 (27, N'Mang Lito Karpintero QC',      'carpentry',      'metro-manila', '10-plus',  '500-1000',  'taglish', 'carpentry-furniture,carpentry-door-window,carpentry-ceiling-roof',     'quezon-city,caloocan'),
 (28, N'Taguig Aircon Pros',           'aircon',         'metro-manila', '1-3',      'quote',     'english', 'aircon-cleaning,aircon-pms,aircon-relocate,aircon-install',            'taguig,pateros,pasig,makati'),
-(31, N'Bagong Simula Hilot',          'home_massage',   'metro-manila', 'under-1',  'under-500', 'taglish', 'massage-hilot,massage-foot',                                           'pasig,marikina'),
+(31, N'Bagong Simula Mekaniko',       'car_mechanic',   'metro-manila', 'under-1',  'under-500', 'taglish', 'mechanic-engine,mechanic-suspension', 'pasig,marikina'),
 -- Laguna
 (18, N'Nuvali Home Aircon',           'aircon',         'laguna',       '3-10',     '1000-2000', 'english', 'aircon-cleaning,aircon-install,aircon-repair',                         'santa-rosa,calamba,cabuyao'),
 (19, N'Sta. Rosa Electrical',         'electrical',     'laguna',       '1-3',      '500-1000',  'taglish', 'electrical-no-power,electrical-wiring,electrical-outlet',              'santa-rosa,binan,san-pedro'),
 (29, N'Calamba Tubero 24/7',          'plumbing',       'laguna',       '3-10',     '1000-2000', 'taglish', 'plumbing-clog,plumbing-septic,plumbing-water-heater',                  'calamba,los-banos,cabuyao'),
 -- Cavite
 (20, N'Bacoor Plumbing Masters',      'plumbing',       'cavite',       '3-10',     '500-1000',  'taglish', 'plumbing-leak,plumbing-replace,plumbing-pump',                         'bacoor,imus,kawit'),
-(21, N'Imus Home Massage',            'home_massage',   'cavite',       '1-3',      '500-1000',  'taglish', 'massage-full-body,massage-hilot,massage-foot',                         'imus,dasmarinas,general-trias'),
+(21, N'Imus Auto Electrical',         'car_mechanic',   'cavite',       '1-3',      '500-1000',  'taglish', 'mechanic-electronics,mechanic-engine', 'imus,dasmarinas,general-trias'),
 (30, N'Dasma Electrician',            'electrical',     'cavite',       '3-10',     '2000-5000', 'english', 'electrical-cctv,electrical-meter,electrical-breaker-panel,electrical-no-power', 'dasmarinas,silang,tagaytay,carmona');
 
 DECLARE @ProIds TABLE (Num int NOT NULL PRIMARY KEY, Id varchar(128) NOT NULL, Mobile varchar(16) NOT NULL);
@@ -176,17 +176,17 @@ INSERT INTO @Reviews (ProNum, SeekerNum, Rating, ServiceId, DaysAgo, Comment) VA
 (13, 7, 5, 'errand-bills',          2, N'Nabayaran lahat ng bills on time. Laking tulong!'),
 (13, 8, 5, 'errand-grocery',       15, NULL),
 (14, 1, 4, 'solar-cleaning',       17, N'Malinis ang panels, tumaas ulit ang output.'),
-(15, 2, 5, 'massage-hilot',         3, N'Ang galing ni Aling Nena, nawala ang lamig ko.'),
-(15, 3, 5, 'massage-full-body',    19, NULL),
-(15, 4, 4, 'massage-ventosa',      36, NULL),
+(15, 2, 5, 'mechanic-engine',       3, N'Ang galing ni Mang Tonyo, umandar ulit ang kotse namin.'),
+(15, 3, 5, 'mechanic-suspension',  19, NULL),
+(15, 4, 4, 'mechanic-electronics', 36, NULL),
 (16, 5, 5, 'aircon-cleaning',       4, N'On time at maayos kausap.'),
 (16, 6, 4, 'aircon-freon',         22, NULL),
 (17, 7, 4, 'plumbing-leak',         6, N'Naayos ang tulo sa ilalim ng lababo.'),
 (17, 8, 5, 'plumbing-install',     28, N'Pinalitan ang buong shower set, ang linis ng gawa.'),
 (18, 1, 5, 'aircon-install',       13, N'Maayos ang installation ng split-type.'),
 (20, 2, 4, 'plumbing-pump',        16, NULL),
-(21, 3, 5, 'massage-full-body',     5, N'Relaxing, babalikan ko ulit.'),
-(21, 4, 5, 'massage-foot',         25, NULL),
+(21, 3, 5, 'mechanic-electronics',  5, N'Naayos ang ilaw at battery ng kotse, babalikan ko ulit.'),
+(21, 4, 5, 'mechanic-engine',      25, NULL),
 (22, 5, 4, 'roofing-gutter',       12, N'Nalinis ang alulod, wala nang bara.'),
 (23, 6, 5, 'welder-grills',         7, N'Matibay ang grills, maganda pa ang design.'),
 (24, 7, 5, 'masonry-cr-renovation',24, N'Parang bago ang CR namin. Sulit ang bayad.'),

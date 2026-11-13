@@ -3,7 +3,8 @@ using Microsoft.Data.SqlClient;
 namespace SideGigPh.Tests.Integration.Support;
 
 /// <summary>
-/// A brand-new SQL Server database for one test run, built from <c>SideGigPh.AzureSQL/Sql/001-schema.sql</c> (the real
+/// A brand-new SQL Server database for one test run, built from <c>SideGigPh.AzureSQL/Sql/001-schema.sql</c> and filled with the
+/// trades and jobs from <c>004-config.sql</c> (the real
 /// schema, so a script that doesn't match the code fails here, not in Azure), and dropped afterwards.
 /// <para>
 /// Which server: the connection string in the <c>SIDEGIGPH_TEST_SQL</c> environment variable (CI sets it to a SQL
@@ -36,6 +37,7 @@ public sealed class TestDatabase : IDisposable
         ConnectionString = new SqlConnectionStringBuilder(server) { InitialCatalog = _name }.ConnectionString;
         using var db = Open(ConnectionString);
         Execute(db, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "001-schema.sql")));
+        Execute(db, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "004-config.sql")));
     }
 
     /// <summary>Whether a SQL Server was found; integration tests skip themselves when not.</summary>

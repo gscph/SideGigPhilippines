@@ -21,4 +21,12 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(List<MessageDto>))]
 [JsonSerializable(typeof(SendMessageRequest))]
 [JsonSerializable(typeof(SaveDeviceRequest))]
+[JsonSerializable(typeof(ConfigDto))]
+[JsonSerializable(typeof(OptionDto))]
+[JsonSerializable(typeof(List<OptionDto>))]
+[JsonSerializable(typeof(CategoryDto))]
+[JsonSerializable(typeof(List<CategoryDto>))]
+[JsonSerializable(typeof(ServiceDto))]
+[JsonSerializable(typeof(List<ServiceDto>))]
+[JsonSerializable(typeof(OtherJobRequest))]
 public sealed partial class ApiJson : JsonSerializerContext;

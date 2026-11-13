@@ -18,6 +18,10 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ChatRow> Chats => Set<ChatRow>();
     public DbSet<ChatMessageRow> ChatMessages => Set<ChatMessageRow>();
     public DbSet<PushDeviceRow> PushDevices => Set<PushDeviceRow>();
+    public DbSet<CategoryRow> Categories => Set<CategoryRow>();
+    public DbSet<ServiceRow> Services => Set<ServiceRow>();
+    public DbSet<OtherJobNoteRow> OtherJobNotes => Set<OtherJobNoteRow>();
+    public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
@@ -155,6 +159,55 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             device.Property(d => d.Uid).HasMaxLength(128);
             device.Property(d => d.Platform).HasMaxLength(10);
             device.HasIndex(d => d.Uid);
+        });
+
+        model.Entity<CategoryRow>(category =>
+        {
+            category.ToTable("Categories");
+            category.HasKey(c => c.Id);
+            category.Property(c => c.Id).HasMaxLength(40);
+            category.Property(c => c.LabelEnglish).HasMaxLength(60).IsUnicode();
+            category.Property(c => c.LabelTaglish).HasMaxLength(60).IsUnicode();
+            category.Property(c => c.Icon).HasMaxLength(16).IsUnicode();
+            category.Property(c => c.HintEnglish).HasMaxLength(120).IsUnicode();
+            category.Property(c => c.HintTaglish).HasMaxLength(120).IsUnicode();
+        });
+
+        model.Entity<ServiceRow>(service =>
+        {
+            service.ToTable("Services");
+            service.HasKey(s => s.Id);
+            service.Property(s => s.Id).HasMaxLength(40);
+            service.Property(s => s.CategoryId).HasMaxLength(40);
+            service.Property(s => s.LabelEnglish).HasMaxLength(100).IsUnicode();
+            service.Property(s => s.LabelTaglish).HasMaxLength(100).IsUnicode();
+            service.Property(s => s.Icon).HasMaxLength(16).IsUnicode();
+            service.HasOne<CategoryRow>().WithMany().HasForeignKey(s => s.CategoryId).HasConstraintName("FK_Services_Categories");
+            service.HasIndex(s => new { s.CategoryId, s.SortOrder }).HasDatabaseName("IX_Services_Category");
+        });
+
+        model.Entity<OtherJobNoteRow>(note =>
+        {
+            note.ToTable("OtherJobNotes");
+            note.HasKey(n => n.Id);
+            note.Property(n => n.Id).UseIdentityColumn();
+            note.Property(n => n.Uid).HasMaxLength(128);
+            note.Property(n => n.Side).HasMaxLength(12);
+            note.Property(n => n.CategoryId).HasMaxLength(40);
+            note.Property(n => n.Text).HasMaxLength(100).IsUnicode();
+            note.HasIndex(n => new { n.CategoryId, n.CreatedAt }).HasDatabaseName("IX_OtherJobNotes_Category");
+            note.HasIndex(n => n.Uid).HasDatabaseName("IX_OtherJobNotes_Uid");
+        });
+
+        model.Entity<ConfigOptionRow>(option =>
+        {
+            option.ToTable("ConfigOptions");
+            option.HasKey(o => new { o.ListId, o.Id }).HasName("PK_ConfigOptions");
+            option.Property(o => o.ListId).HasMaxLength(40);
+            option.Property(o => o.Id).HasMaxLength(40);
+            option.Property(o => o.LabelEnglish).HasMaxLength(100).IsUnicode();
+            option.Property(o => o.LabelTaglish).HasMaxLength(100).IsUnicode();
+            option.Property(o => o.Icon).HasMaxLength(16).IsUnicode();
         });
     }
 }

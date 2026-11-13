@@ -80,6 +80,22 @@ public class WireContractTests
     public void SaveDeviceRequest_FieldNamesNeverChange() =>
         FieldNames(new SaveDeviceRequest("token", Wire.Android), ApiJson.Default.SaveDeviceRequest).Should().Equal("token", "platform");
 
+    [Fact]
+    public void ConfigContracts_FieldNamesNeverChange()
+    {
+        var service = new ServiceDto("aircon-cleaning", "Aircon cleaning", "Pa-linis ng aircon", "🧽");
+        var category = new CategoryDto("aircon", "Aircon Technician", "Aircon Technician", "❄️", "Cleaning", "Linis", [service]);
+
+        var option = new OptionDto("under-500", "Under ₱500", "Below ₱500", null, 400);
+
+        FieldNames(new ConfigDto([category], [option], [option], [option], [option], [option]), ApiJson.Default.ConfigDto)
+            .Should().Equal("catalog", "towns", "priceTiers", "experience", "urgencies", "incomeGoals");
+        FieldNames(option, ApiJson.Default.OptionDto).Should().Equal("id", "english", "taglish", "icon", "amount");
+        FieldNames(category, ApiJson.Default.CategoryDto).Should().Equal("id", "english", "taglish", "icon", "hintEnglish", "hintTaglish", "services");
+        FieldNames(service, ApiJson.Default.ServiceDto).Should().Equal("id", "english", "taglish", "icon");
+        FieldNames(new OtherJobRequest("aircon", Wire.Seeker, "thermostat"), ApiJson.Default.OtherJobRequest).Should().Equal("categoryId", "side", "text");
+    }
+
     // Phones already installed read these keys from a notification and created these Android channels at launch.
     [Fact]
     public void NotificationKeysAndChannels_NeverChange()

@@ -56,6 +56,7 @@
   <!-- The integration tests build their database from the real schema script. -->
   <ItemGroup>
     <None Include="..\SideGigPh.AzureSQL\Sql\001-schema.sql" Link="Sql\001-schema.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\SideGigPh.AzureSQL\Sql\004-config.sql" Link="Sql\004-config.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

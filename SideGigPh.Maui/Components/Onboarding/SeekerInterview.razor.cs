@@ -17,6 +17,7 @@ public partial class SeekerInterview : ComponentBase
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
+    [Inject] private OtherJobNotes Notes { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -25,7 +26,15 @@ public partial class SeekerInterview : ComponentBase
     private OnboardingState? _state;
     private SeekerStep _step = SeekerStep.Category;
 
+    // The "Others" text already sent, so going back and forward doesn't send it twice.
+    private string? _notedOtherJob;
+
     private SeekerAnswers Answers => _state!.Seeker;
+
+    private bool PickedOtherJob => ReferenceData.IsOtherJob(Answers.ServiceId);
+
+    // Next shows only under "Others"; any other job moves on when tapped.
+    private EventCallback OtherJobNext => PickedOtherJob ? EventCallback.Factory.Create(this, NextFromOtherJobAsync) : default;
 
     private bool IsEditing => _state!.CompletedAt is not null;
 
@@ -42,6 +51,7 @@ public partial class SeekerInterview : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         _state = await Store.LoadAsync();
+        _notedOtherJob = Answers.OtherJobText?.Trim();
     }
 
     protected override void OnParametersSet()
@@ -63,8 +73,23 @@ public partial class SeekerInterview : ComponentBase
 
     private Task PickServiceAsync(string id)
     {
-        Answers.ServiceId = id;
-        return AdvanceAsync();
+        Answers.PickService(id);
+
+        // "Others" waits for Next, so they can type the job first.
+        return PickedOtherJob ? Store.SaveAsync(_state!) : AdvanceAsync();
+    }
+
+    private void SetOtherJobText(string text) => Answers.OtherJobText = text;
+
+    private async Task NextFromOtherJobAsync()
+    {
+        if (Answers.OtherJobText?.Trim() is { Length: > 0 } typed && typed != _notedOtherJob)
+        {
+            _notedOtherJob = typed;
+            _ = Notes.NoteAsync(Answers.CategoryId, UserRole.Seeker, typed);  // never holds up the interview
+        }
+
+        await AdvanceAsync();
     }
 
     private Task PickCityAsync(string id)

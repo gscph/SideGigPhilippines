@@ -47,6 +47,8 @@ public sealed class UserStore(SideGigPhDb db)
     public async Task DeleteAsync(string uid, CancellationToken cancellationToken)
     {
         await db.PushDevices.Where(d => d.Uid == uid).ExecuteDeleteAsync(cancellationToken);
+        // Their "Others" notes stay for analytics, without saying who wrote them.
+        await db.OtherJobNotes.Where(n => n.Uid == uid).ExecuteUpdateAsync(set => set.SetProperty(n => n.Uid, (string?)null), cancellationToken);
         await db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(cancellationToken);
     }
 

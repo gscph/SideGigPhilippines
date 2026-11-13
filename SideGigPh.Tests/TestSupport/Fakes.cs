@@ -351,3 +351,82 @@ public sealed class FakePush : IPushNotifications
 
     public void ChangeToken(string token) => TokenChanged?.Invoke(token);
 }
+
+/// <summary>
+/// The server's config: answers <see cref="Config"/> with <see cref="Version"/>, "unchanged" when the phone sends that
+/// version, null when <see cref="Unreachable"/>; <see cref="Hang"/> never answers (until cancelled).
+/// </summary>
+public sealed class FakeConfigSource : IConfigSource<AppConfig>
+{
+    public AppConfig? Config { get; set; }
+
+    public string? Version { get; set; } = "\"v1\"";
+
+    public bool Unreachable { get; set; }
+
+    public bool Hang { get; set; }
+
+    public List<string?> AskedWith { get; } = [];
+
+    public async Task<ConfigFetch<AppConfig>?> FetchAsync(string? savedVersion, CancellationToken cancellationToken)
+    {
+        AskedWith.Add(savedVersion);
+        if (Hang)
+        {
+            await Task.Delay(Timeout.Infinite, cancellationToken);
+        }
+
+        if (Unreachable || Config is null)
+        {
+            return null;
+        }
+
+        return savedVersion is not null && savedVersion == Version
+            ? new ConfigFetch<AppConfig>(null, Version)
+            : new ConfigFetch<AppConfig>(Config, Version);
+    }
+}
+
+/// <summary>The config file on the phone, in memory.</summary>
+public sealed class FakeConfigCache : IConfigCache<AppConfig>
+{
+    public Stamped<AppConfig>? Saved { get; set; }
+
+    public int Writes { get; private set; }
+
+    public Task<Stamped<AppConfig>?> ReadAsync() => Task.FromResult(Saved);
+
+    public Task WriteAsync(Stamped<AppConfig> saved)
+    {
+        Saved = saved;
+        Writes++;
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>The server's "Others" notes: remembers them, or throws when <see cref="Fail"/>.</summary>
+public sealed class FakeOtherJobNoteRepository : IOtherJobNoteRepository
+{
+    public bool Fail { get; set; }
+
+    public List<OtherJobNote> Notes { get; } = [];
+
+    public Task SaveAsync(OtherJobNote note)
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+
+        Notes.Add(note);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>A clock the test sets (timers still run in real time).</summary>
+public sealed class FakeClock(DateTimeOffset now) : TimeProvider
+{
+    public DateTimeOffset Now { get; set; } = now;
+
+    public override DateTimeOffset GetUtcNow() => Now;
+}

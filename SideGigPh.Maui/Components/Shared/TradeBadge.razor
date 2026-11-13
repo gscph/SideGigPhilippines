@@ -1,0 +1,11 @@
+@if (Trades.Count > 0)
+{
+    <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="1" Justify="Justify" Class="@Class">
+        @foreach (var trade in Trades)
+        {
+            <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size" Class="ma-0">
+                <MudText Typo="Typo.subtitle2" HtmlTag="span">@Text(trade)</MudText>
+            </MudChip>
+        }
+    </MudStack>
+}

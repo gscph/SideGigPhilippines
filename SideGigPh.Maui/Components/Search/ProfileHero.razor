@@ -1,7 +1,7 @@
 <MudStack AlignItems="AlignItems.Center" Spacing="1">
     <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Class="profile-photo" />
     <MudText Typo="Typo.h5" HtmlTag="h1" Align="Align.Center">@Listing.DisplayName</MudText>
-    <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@T.Trades(Listing)</MudText>
+    <TradeBadge Listing="Listing" Size="Size.Medium" Justify="Justify.Center" />
     @if (T.Towns(Listing) is { Length: > 0 } towns)
     {
         <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="1">

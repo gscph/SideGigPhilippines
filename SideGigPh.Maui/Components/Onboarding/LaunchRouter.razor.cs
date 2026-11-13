@@ -12,12 +12,15 @@ namespace SideGigPh.Maui.Components.Onboarding;
 public partial class LaunchRouter : ComponentBase
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
+    [Inject] private AppConfigService Config { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
+        // The config first (once per launch, while the splash shows): the saved answers are checked against it as they load (OnboardingCleanup).
+        await Config.LoadAsync();
         var state = await Store.LoadAsync();
         if (state.Language is not { } language)
         {

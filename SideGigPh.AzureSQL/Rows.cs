@@ -120,3 +120,52 @@ public sealed class PushDeviceRow
     public required string Platform { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
+
+/// <summary>A trade (<c>Categories</c>). <see cref="IsActive"/> false = retired: kept for old listings, no longer offered.</summary>
+public sealed class CategoryRow
+{
+    public required string Id { get; set; }
+    public required string LabelEnglish { get; set; }
+    public required string LabelTaglish { get; set; }
+    public string? Icon { get; set; }
+    public string? HintEnglish { get; set; }
+    public string? HintTaglish { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; }
+}
+
+/// <summary>A job within a trade (<c>Services</c>).</summary>
+public sealed class ServiceRow
+{
+    public required string Id { get; set; }
+    public required string CategoryId { get; set; }
+    public required string LabelEnglish { get; set; }
+    public required string LabelTaglish { get; set; }
+    public string? Icon { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; }
+}
+
+/// <summary>What someone typed after picking "Others" (<c>OtherJobNotes</c>), for analytics.</summary>
+public sealed class OtherJobNoteRow
+{
+    public long Id { get; set; }
+    public string? Uid { get; set; }
+    public required string Side { get; set; }
+    public required string CategoryId { get; set; }
+    public required string Text { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>One answer in a config list (<c>ConfigOptions</c>): a town, price tier, experience, urgency or income goal.</summary>
+public sealed class ConfigOptionRow
+{
+    public required string ListId { get; set; }
+    public required string Id { get; set; }
+    public required string LabelEnglish { get; set; }
+    public required string LabelTaglish { get; set; }
+    public string? Icon { get; set; }
+    public int Amount { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; }
+}

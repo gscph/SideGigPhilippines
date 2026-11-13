@@ -55,7 +55,7 @@ public partial class SearchPage : ComponentBase
         get
         {
             var category = ReferenceData.Find(ReferenceData.Categories, Request.CategoryId);
-            IReadOnlyList<CatalogOption> services = category is null ? [] : ReferenceData.ServicesByCategory[category.Id];
+            var services = ReferenceData.ServicesOf(category?.Id);
             return
             [
                 new ChoiceItem(AllJobs, T.Format(Copy.SearchAllJobs, Label(category))),

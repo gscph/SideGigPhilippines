@@ -13,9 +13,13 @@
 
         case SeekerStep.Service:
             <InterviewStep Illustration="🔧" Title="@T.Get(Copy.SeekerServiceTitle)" Why="@T.Get(Copy.SeekerServiceWhy)"
-                           Progress="Progress" OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[Answers.CategoryId!], T)"
+                           Progress="Progress" OnBack="GoBack" OnNext="OtherJobNext">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesOf(Answers.CategoryId), T)"
                              SelectedIds="Selected(Answers.ServiceId)" OnPick="PickServiceAsync" />
+                @if (PickedOtherJob)
+                {
+                    <OtherJobField Label="@T.Get(Copy.OtherJobSeekerLabel)" Value="@Answers.OtherJobText" ValueChanged="SetOtherJobText" />
+                }
             </InterviewStep>
             break;
 

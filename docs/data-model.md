@@ -47,8 +47,8 @@ Razor page → ProWorkspace / SeekerWorkspace → port (IProfessionalProfileRepo
 | Project | Holds |
 |---|---|
 | `SideGigPh.Contracts` | The JSON records both sides use (`ListingDto`, `ChatDto`, `PublishListingRequest`…), plus the source-generated `ApiJson`. No dependencies. |
-| `SideGigPh.AzureSQL` | `Sql/001-schema.sql`, `Sql/002-seed.sql`, the `*Row` classes, `SideGigPhDb` (mapping) and the stores (`UserStore`, `ProfessionalStore`, `ReviewStore`, `ChatStore`, `PushDeviceStore`), which hold the data rules. |
-| `SideGigPh.Api` | One function class per area (`UserFunctions`, `ProfessionalFunctions`, `ReviewFunctions`, `ChatFunctions`, `PhotoFunctions`). Each checks the token first, then calls a store. `ChatNotifier` + `IPushSender` send new-message notifications. |
+| `SideGigPh.AzureSQL` | `Sql/001-schema.sql`, `Sql/004-config.sql` (the trades, jobs and other answer lists), `Sql/002-seed.sql`, the `*Row` classes, `SideGigPhDb` (mapping) and the stores (`UserStore`, `ProfessionalStore`, `ReviewStore`, `ChatStore`, `PushDeviceStore`, `CatalogStore`), which hold the data rules. |
+| `SideGigPh.Api` | One function class per area (`UserFunctions`, `ProfessionalFunctions`, `ReviewFunctions`, `ChatFunctions`, `PhotoFunctions`, `ConfigFunctions`). Each checks the token first, then calls a store. `ChatNotifier` + `IPushSender` send new-message notifications. |
 | `SideGigPh.Maui/Services/Api/` | `ApiClient`, `Api*Repository` adapters, `ApiPhotoStore`, `ApiMapping` (contracts ↔ `Models/`). Registered by `AddSideGigPhApi()`. |
 
 - **Reads that fail** (offline, server error) are logged and come back empty; the screens already have empty states. **Writes** log and throw, and the pages say "didn't send / didn't publish".
@@ -57,7 +57,7 @@ Razor page → ProWorkspace / SeekerWorkspace → port (IProfessionalProfileRepo
 
 ## 4. Tables
 
-All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, `ReferenceData` ids (`aircon`, `aircon-cleaning`, `rizal`, `taytay`, `500-1000`…), and SHA-256 hex for photos. `ReferenceData` ids are stable, so there are no lookup tables. Times are `datetimeoffset(3)` UTC.
+All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, catalog ids (`aircon`, `aircon-cleaning`, rows of `Categories` / `Services`), `ReferenceData` ids (`rizal`, `taytay`, `500-1000`…), and SHA-256 hex for photos. All these ids are stable. Listings, chats and reviews keep category/service ids as plain text with no foreign key, so a retired trade's old rows still read. Times are `datetimeoffset(3)` UTC.
 
 | Table | Key | What | Notes |
 |---|---|---|---|
@@ -71,6 +71,10 @@ All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, `ReferenceDat
 | `Chats` | `Id` = `{proId}_{seekerId}` | Both names, the job (`ServiceId`, `CityId`, `UrgencyId`, `BudgetId`), a copy of the last message, `SeekerReadAt` / `ProfessionalReadAt` | Unread = the other person wrote last after my read time. Each Inbox is one index seek (`IX_Chats_Seeker`, `IX_Chats_Professional`). Only the Seeker can start a chat. |
 | `ChatMessages` | `Id` (made by the phone) | `SenderId`, `Kind` `text`/`call`, `Text` (null for a call), `At` (server time) | Clustered on (`ChatId`, `At`). A message and the chat's last-message copy are saved in one transaction. Resending the same id changes nothing. |
 | `PushDevices` | `Token` | One row per phone that gets the person's notifications: `Uid`, `Platform` (`android`/`ios`), `UpdatedAt` | A token belongs to whoever registered it last (a phone that changes account moves). `IX_PushDevices_Uid` serves each send. Tokens Google calls dead are deleted after a send; Start over (`DELETE users/me`) deletes the person's. |
+| `Categories` | `Id` | The trades: `LabelEnglish` / `LabelTaglish`, `Icon` (emoji), hints, `SortOrder`, `IsActive` | Filled by **`004-config.sql`** (required data; re-run it after editing: it upserts, and retires rows it no longer lists). `IsActive = 0` = retired (e.g. `home_massage`): not served, id kept. Served by `GET config` (kept 12 h per API instance, ETag-versioned). |
+| `Services` | `Id` | The jobs of a trade (`CategoryId` FK): labels, `Icon`, `SortOrder` (most-requested first, `…-other` "Others / Wala sa nabanggit" last), `IsActive` | `IX_Services_Category`. Ids are unique across trades. |
+| `OtherJobNotes` | `Id` (identity) | What someone typed after picking "Others": `Uid`, `Side` (`seeker`/`professional`), `CategoryId`, `Text` ≤ 100, `CreatedAt` | **Analytics only**: never becomes a job, never shown. `DELETE users/me` sets `Uid` to null and keeps the note. Query e.g. `SELECT CategoryId, Text, COUNT(*) FROM dbo.OtherJobNotes GROUP BY CategoryId, Text ORDER BY 3 DESC`. |
+| `ConfigOptions` | (`ListId`, `Id`) | The other answer lists of the app config: `ListId` `towns` / `price-tiers` / `experience` / `urgencies` / `income-goals`, labels, `Icon`, `Amount` (pesos for price tiers and goals, else 0), `SortOrder`, `IsActive` | Filled by `004-config.sql` like `Categories`; served in `GET config`. The ids the code names (`10-plus`, the urgency ids, `rizal` towns) must stay. |
 
 **Sample data** (`002-seed.sql`): 31 Skilled Workers across all trades and areas, 8 Seekers and their reviews. Every id starts `seed-` and the numbers use the unassigned `+63 900` prefix. There are no chats and no photos. It's safe to re-run, and its `DELETE` block removes the samples before go-live.
 
@@ -81,7 +85,7 @@ All created by `001-schema.sql`. Ids are `varchar`: Firebase uids, `ReferenceDat
 - **`DELETE /api/photos/{id}`:** the owner only.
 - **Listings** keep only photo ids (`ProfilePhotoId`, `ProfessionalWorkPhotos`); the API turns them into URLs.
 
-## 6. API (all need `Authorization: Bearer <Firebase ID token>`)
+## 6. API (all but `GET config` need `Authorization: Bearer <Firebase ID token>`)
 
 Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResults.ShowDetails` is on (MVP), `detail` holds the exception and stack trace (`500 exception`, `400 bad-body`) or what was wrong with the request (`400 invalid-{field}` echoes what was received). Turn it off before launch.
 
@@ -102,6 +106,8 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `POST chats/{id}/read?side=…` | Clear the caller's unread badge |
 | `DELETE chats/mine` | Every chat the caller is in |
 | `POST photos`, `DELETE photos/{id}` | §5 |
+| `GET config` | **Public** (no token): the app config (`ConfigDto`): active trades with their active jobs, towns, price tiers, experience, urgencies, income goals, in order. Answers an `ETag` (hash of the content) and `Cache-Control: public, max-age=43200`; with a matching `If-None-Match` it answers `304` and no body. The phone loads it once per launch, at most every 12 h, and keeps it for the next launch, even offline |
+| `POST other-jobs` | What the caller typed under "Others" (`OtherJobRequest`: `categoryId`, `side`, `text`). `400` for empty text, a bad id or side |
 
 **Live chat:** an open chat polls `GET chats/{id}` every 5 seconds (`ApiChatRepository.WatchInterval`) and reloads when the last message changes. A message that arrives while the app is open but the chat isn't refreshes the Inbox through its notification (§6.1).
 

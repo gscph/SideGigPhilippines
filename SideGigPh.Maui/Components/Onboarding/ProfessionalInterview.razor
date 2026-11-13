@@ -19,8 +19,12 @@ else if (_state is not null)
         case ProStep.Services:
             <InterviewStep Illustration="✅" Title="@T.Get(Copy.ProServicesTitle)" Why="@T.Get(Copy.ProServicesWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.ServiceIds.Count > 0)">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesByCategory[Draft.CategoryId!], T)" Multiple="true"
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesOf(Draft.CategoryId), T)" Multiple="true"
                              SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
+                @if (Draft.ServiceIds.Any(ReferenceData.IsOtherJob))
+                {
+                    <OtherJobField Label="@T.Get(Copy.OtherJobProLabel)" Value="@Draft.OtherJobText" ValueChanged="SetOtherJobText" />
+                }
             </InterviewStep>
             break;
 

@@ -75,10 +75,19 @@ public static class OnboardingSteps
         {
             draft.CategoryId = categoryId;
             draft.ServiceIds.Clear();
+            draft.OtherJobText = null;
         }
     }
 
-    public static void ToggleService(this ProfessionalDraft draft, string serviceId) => Toggle(draft.ServiceIds, serviceId);
+    /// <summary>Ticks or unticks a job. Unticking "Others" forgets what they typed for it.</summary>
+    public static void ToggleService(this ProfessionalDraft draft, string serviceId)
+    {
+        Toggle(draft.ServiceIds, serviceId);
+        if (!draft.ServiceIds.Any(ReferenceData.IsOtherJob))
+        {
+            draft.OtherJobText = null;
+        }
+    }
 
     public static void ToggleTown(this ProfessionalDraft draft, string cityId)
     {
@@ -138,6 +147,17 @@ public static class OnboardingSteps
         {
             answers.CategoryId = categoryId;
             answers.ServiceId = null;
+            answers.OtherJobText = null;
+        }
+    }
+
+    /// <summary>Picks the job. A job other than "Others" forgets what they typed for "Others".</summary>
+    public static void PickService(this SeekerAnswers answers, string serviceId)
+    {
+        answers.ServiceId = serviceId;
+        if (!ReferenceData.IsOtherJob(serviceId))
+        {
+            answers.OtherJobText = null;
         }
     }
 
@@ -173,7 +193,7 @@ public static class OnboardingSteps
 
     /// <summary>
     /// Where the app opens once the language is known and the person is signed in: the role fork, the interview step
-    /// they left, or their home. A finished interview that lost its town (coverage shrank, <see cref="OnboardingCleanup"/>)
+    /// they left, or their home. A finished interview that lost its town or trade (coverage shrank, a trade was retired: <see cref="OnboardingCleanup"/>)
     /// or an answer reopens that question.
     /// </summary>
     public static string LaunchPath(OnboardingState state)
@@ -190,7 +210,9 @@ public static class OnboardingSteps
 
         if (role == UserRole.Seeker)
         {
-            return state.Seeker.CityId is null ? SeekerTownPath : SeekerRoutes.Home;
+            // A lost answer (retired trade, unserved town) reopens its question; budget and urgency are never lost.
+            var missing = state.Seeker.FirstUnanswered();
+            return missing is SeekerStep.Category or SeekerStep.Service or SeekerStep.City ? PathOf(missing) : SeekerRoutes.Home;
         }
 
         return state.Professional.IsListingComplete ? ProRoutes.Home : ProFirstUnansweredPath;

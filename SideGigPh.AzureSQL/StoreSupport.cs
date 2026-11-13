@@ -26,6 +26,8 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<ReviewStore>();
         services.AddScoped<ChatStore>();
         services.AddScoped<PushDeviceStore>();
+        services.AddScoped<ConfigStore>();
+        services.AddScoped<OtherJobNoteStore>();
         return services;
     }
 }

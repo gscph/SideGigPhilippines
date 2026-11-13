@@ -20,6 +20,7 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
+    [Inject] private OtherJobNotes Notes { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -34,6 +35,9 @@ public partial class ProfessionalInterview : ComponentBase
     private OnboardingState? _state;
     private ProStep _step = ProStep.Skills;
     private Task? _finishing;
+
+    // The "Others" text already sent, so going back and forward doesn't send it twice.
+    private string? _notedOtherJob;
 
     private IReadOnlyList<string> SettingUpSteps =>
     [
@@ -50,6 +54,7 @@ public partial class ProfessionalInterview : ComponentBase
     protected override async Task OnInitializedAsync()
     {
         _state = await Store.LoadAsync();
+        _notedOtherJob = Draft.OtherJobText?.Trim();
 
         // The preview card shows the account's name and number.
         Draft.TakeAccount(await Identity.GetCurrentUserAsync());
@@ -91,8 +96,16 @@ public partial class ProfessionalInterview : ComponentBase
 
     private void PickGoal(string id) => Draft.IncomeGoalId = id;
 
+    private void SetOtherJobText(string text) => Draft.OtherJobText = text;
+
     private async Task AdvanceAsync()
     {
+        if (_step == ProStep.Services && Draft.OtherJobText?.Trim() is { Length: > 0 } typed && typed != _notedOtherJob)
+        {
+            _notedOtherJob = typed;
+            _ = Notes.NoteAsync(Draft.CategoryId, UserRole.Professional, typed);  // never holds up the interview
+        }
+
         var state = _state!;
         var path = OnboardingSteps.PathOf(_step + 1);
         if (state.CompletedAt is null)

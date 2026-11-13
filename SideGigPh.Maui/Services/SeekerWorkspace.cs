@@ -146,9 +146,12 @@ public sealed class SeekerWorkspace(
     /// </summary>
     public string DefaultMessage(ProfessionalListing pro)
     {
-        var job = JobFor(pro) is { } serviceId
-            ? ReferenceData.FindService(serviceId)
-            : ReferenceData.Find(ReferenceData.Categories, pro.CategoryIds.FirstOrDefault());
+        var serviceId = JobFor(pro);
+        var trade = ReferenceData.Find(ReferenceData.Categories, pro.CategoryIds.FirstOrDefault());
+        // "Others" says what they typed, or the pro's trade: "Others" alone means nothing in a message.
+        var job = !ReferenceData.IsOtherJob(serviceId) && ReferenceData.FindService(serviceId) is { } service ? Label(service)
+            : ReferenceData.IsOtherJob(serviceId) && Answers.OtherJobText?.Trim() is { Length: > 0 } typed ? typed
+            : Label(trade);
         var town = ReferenceData.Find(ReferenceData.Cities, Answers.CityId ?? pro.CityIds.FirstOrDefault());
         var template = Answers.UrgencyId switch
         {
@@ -156,7 +159,7 @@ public sealed class SeekerWorkspace(
             ReferenceData.UrgencyThisWeek => Copy.MessageThisWeek,
             _ => Copy.MessageCanvass,
         };
-        return text.Format(template, Label(job), Label(town));
+        return text.Format(template, job, Label(town));
     }
 
     public string ChatIdWith(string professionalId) => Chat.IdFor(professionalId, MyId);

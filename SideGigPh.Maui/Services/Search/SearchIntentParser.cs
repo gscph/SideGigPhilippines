@@ -45,10 +45,11 @@ public static class SearchIntentParser
         ["masonry_tiling"] = ["mason", "masonry", "tile", "tiles", "semento", "cement", "hollow", "blocks", "bakod", "fence", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
-        ["home_massage"] = ["masahe", "massage", "hilot", "spa", "therapist", "likod", "pagod", "lamig"],
+        ["car_mechanic"] = ["mechanic", "mekaniko", "car", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
     };
 
-    private static readonly Lazy<IReadOnlyList<CategoryIndex>> Index = new(BuildIndex);
+    /// <summary>The words of the catalog in use, rebuilt when the server's config replaces the built-in one.</summary>
+    private static CatalogWords? _index;
 
     public static SearchIntent Parse(string? text)
     {
@@ -58,7 +59,7 @@ public static class SearchIntentParser
             return SearchIntent.None;
         }
 
-        var ranked = Index.Value
+        var ranked = Index()
             .Select(category => (category, score: TradeScore(words, category.Words)))
             .Where(match => match.score > 0)
             .OrderByDescending(match => match.score)
@@ -99,11 +100,24 @@ public static class SearchIntentParser
         return services.Count > 1 && services[1].score >= services[0].score ? null : services[0].Id;
     }
 
-    private static IReadOnlyList<CategoryIndex> BuildIndex() => ReferenceData.Categories
+    private static IReadOnlyList<CategoryIndex> Index()
+    {
+        var trades = ReferenceData.Config;
+        if (Volatile.Read(ref _index) is { } cached && ReferenceEquals(cached.Trades, trades))
+        {
+            return cached.Categories;
+        }
+
+        var built = BuildIndex(trades);
+        Volatile.Write(ref _index, new CatalogWords(trades, built));
+        return built;
+    }
+
+    private static IReadOnlyList<CategoryIndex> BuildIndex(AppConfig trades) => trades.Categories
         .Select(category =>
         {
-            var services = ReferenceData.ServicesByCategory[category.Id]
-                .Where(service => !service.Id.EndsWith("-other", StringComparison.Ordinal))
+            var services = trades.ServicesByCategory.GetValueOrDefault(category.Id, [])
+                .Where(service => !ReferenceData.IsOtherJob(service.Id))
                 .Select(service => new ServiceIndex(service.Id, WordsOf(service.Label).ToHashSet()))
                 .ToList();
             var words = WordsOf(category.Label)
@@ -121,4 +135,6 @@ public static class SearchIntentParser
     private sealed record CategoryIndex(string Id, HashSet<string> Words, IReadOnlyList<ServiceIndex> Services);
 
     private sealed record ServiceIndex(string Id, HashSet<string> Words);
+
+    private sealed record CatalogWords(AppConfig Trades, IReadOnlyList<CategoryIndex> Categories);
 }

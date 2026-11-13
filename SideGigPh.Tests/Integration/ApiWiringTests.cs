@@ -23,13 +23,17 @@ public class ApiWiringTests(ApiTestHost api)
             "GET reviews", "PUT reviews", "DELETE reviews/mine",
             "GET chats", "GET chats/{chatId}", "GET chats/{chatId}/messages", "POST chats/{chatId}/messages",
             "POST chats/{chatId}/read", "DELETE chats/mine",
-            "POST photos", "DELETE photos/{id}");
+            "POST photos", "DELETE photos/{id}",
+            "GET config", "POST other-jobs");
+
+    /// <summary>Public reference data: the trades and jobs, read before the account is ready. Nothing else is public.</summary>
+    private static readonly string[] PublicRoutes = ["GET config"];
 
     [IntegrationFact]
     public async Task EveryRoute_WithoutAToken_Is401()
     {
         var anonymous = api.Client();
-        foreach (var route in ApiTestHost.Routes)
+        foreach (var route in ApiTestHost.Routes.Except(PublicRoutes))
         {
             var parts = route.Split(' ');
             var path = parts[1].Replace("{id}", "x").Replace("{chatId}", "x");
@@ -39,6 +43,14 @@ public class ApiWiringTests(ApiTestHost api)
 
             response.StatusCode.Should().Be(HttpStatusCode.Unauthorized, $"{route} must check the sign-in token");
         }
+    }
+
+    [IntegrationFact]
+    public async Task PublicRoutes_AnswerWithoutAToken()
+    {
+        using var response = await api.Client().GetAsync("config");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [IntegrationFact]
