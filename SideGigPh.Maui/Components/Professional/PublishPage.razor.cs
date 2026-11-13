@@ -24,7 +24,7 @@ public partial class PublishPage : ComponentBase
     private bool _loaded;
     private bool _pledged;
     private bool _busy;
-    private bool _phoneTaken;
+    private LocalizedText? _phoneProblem;
     private bool _badReference;
     private bool _failed;
 
@@ -86,7 +86,12 @@ public partial class PublishPage : ComponentBase
                 return;
             }
 
-            _phoneTaken = result == PublishResult.PhoneTaken;
+            _phoneProblem = result switch
+            {
+                PublishResult.PhoneTaken => Copy.PublishPhoneTaken,
+                PublishResult.PhoneUsedBySeeker => Copy.PublishPhoneUsedBySeeker,
+                _ => null,
+            };
             _badReference = result == PublishResult.BadReference;
         }
         catch (Exception ex)
@@ -99,7 +104,7 @@ public partial class PublishPage : ComponentBase
             _busy = false;
         }
 
-        if (!_phoneTaken && !_badReference && !_failed)
+        if (_phoneProblem is null && !_badReference && !_failed)
         {
             Nav.NavigateTo(ProRoutes.Home, replace: true);
         }

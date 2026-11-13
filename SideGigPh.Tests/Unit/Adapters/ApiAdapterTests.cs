@@ -122,6 +122,7 @@ public class ApiAdapterTests
 
     [Theory]
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhoneTaken, PublishResult.PhoneTaken)]
+    [InlineData(HttpStatusCode.Conflict, ApiErrors.PhoneUsedBySeeker, PublishResult.PhoneUsedBySeeker)]
     [InlineData(HttpStatusCode.BadRequest, "invalid-references", PublishResult.BadReference)]
     public async Task Publish_Refused_TellsThePageWhy(HttpStatusCode status, string code, PublishResult expected)
     {

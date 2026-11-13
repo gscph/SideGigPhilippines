@@ -202,7 +202,7 @@ public static class Copy
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
     public static readonly LocalizedText SectionGoal = new("Your goal", "Goal mo");
 
-    // Setup checklist on Pro home: photo, 2 work photos, a reference, then the Publish button.
+    // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.
     public static readonly LocalizedText NotLiveBanner = new("Not visible yet · Finish your listing", "Di ka pa nakikita · Tapusin ang listing");
     public static readonly LocalizedText SetupTitle =new("Get ready for customers", "Ihanda ang listing mo");
     public static readonly LocalizedText SetupPhoto = new("Add a photo of you", "Maglagay ng photo mo");
@@ -211,6 +211,9 @@ public static class Copy
     public static readonly LocalizedText SetupWorkWhy = new("Show your best jobs. {0} of 2 added.", "Ipakita ang pinakamagandang gawa mo. {0} sa 2 na.");
     public static readonly LocalizedText SetupReference = new("Add a reference", "Maglagay ng reference");
     public static readonly LocalizedText SetupReferenceWhy = new("Someone you worked for who can vouch for you.", "Isang pinagtrabahuhan mo na magsasabing maayos ka.");
+    public static readonly LocalizedText SetupPhone = new("Confirm your number", "I-confirm ang number mo");
+    public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. Customers call this number.", "Ite-text ka namin ng code. Ito ang tatawagan ng customer.");
+    public static readonly LocalizedText SetupPhoneDone = new("Confirmed with a text code.", "Na-confirm na gamit ang code sa text.");
     public static readonly LocalizedText SetupPublishReady = new("All set! Publish your listing to start finding work.", "Ready ka na! I-publish ang listing mo para magka-trabaho.");
     public static readonly LocalizedText SetupPublishButton = new("Publish and find work", "I-publish at maghanap ng trabaho");
     public static readonly LocalizedText SetupRepublishNote = new("Your listing is live, but it now needs these to stay up to date.", "Live ang listing mo, pero kailangan na ito para ma-update.");
@@ -273,6 +276,9 @@ public static class Copy
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
+    public static readonly LocalizedText PublishPhoneUsedBySeeker = new(
+        "This number is already used by a customer account. One number, one account.",
+        "Gamit na ang number na ito ng isang customer account. Isang number, isang account lang.");
     public static readonly LocalizedText PublishBadReference = new(
         "One of your references has your own number. Change it to someone you worked for.",
         "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");

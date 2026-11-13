@@ -10,7 +10,7 @@ namespace SideGigPh.Maui.Components.Professional;
 /// The Professional's pages inside the shared <see cref="AppShell"/>: tabs Home, Inbox (with an
 /// unread badge), Reviews and Me (profile, work photos, language, Start over); the avatar opens
 /// Me too, with a green dot once published; until then a <see cref="NotLiveBanner"/> sits under the top bar. Loads <see cref="ProWorkspace"/> first and sends anyone who hasn't finished the
-/// Professional interview back to <c>/</c>.
+/// Professional interview back to <c>/</c>. When the setup checklist gets finished it opens the Publish page once.
 /// </summary>
 public partial class ProLayout : LayoutComponentBase, IDisposable
 {
@@ -56,6 +56,19 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
         _ = Workspace.IsPublished ? Alerts.AskAsync() : Alerts.RegisterAsync();
     }
 
+    /// <summary>
+    /// On every page change (the layout's body changes): picks up a number just linked on the add-phone page, then
+    /// opens Publish once when that finished the checklist.
+    /// </summary>
+    protected override async Task OnParametersSetAsync()
+    {
+        if (_ready)
+        {
+            await Workspace.RefreshAccountAsync();
+            PromptPublish();
+        }
+    }
+
     public void Dispose()
     {
         Workspace.Changed -= OnWorkspaceChanged;
@@ -70,6 +83,19 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
             Alerts.ShowUnread(Workspace.UnreadChatIds);
         }
 
-        InvokeAsync(StateHasChanged);
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+            PromptPublish();
+        });
+    }
+
+    /// <summary>The last setup step (photo, work photo, reference, number) was just done: straight to Publish, once.</summary>
+    private void PromptPublish()
+    {
+        if (_ready && Workspace.TakePublishPrompt())
+        {
+            Nav.NavigateTo(ProRoutes.Publish);
+        }
     }
 }

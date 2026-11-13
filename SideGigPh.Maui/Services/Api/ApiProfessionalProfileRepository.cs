@@ -76,10 +76,18 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         using var response = await api.SendJsonAsync(HttpMethod.Put, "professionals/me",
             listing.ToPublishRequest(references), ApiJson.Default.PublishListingRequest);
         Forget(listing.Id);
-        if (response.StatusCode == HttpStatusCode.Conflict
-            && await ErrorOf(response) == ApiErrors.PhoneTaken)
+        if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            return PublishResult.PhoneTaken;
+            var error = await ErrorOf(response);
+            if (error == ApiErrors.PhoneTaken)
+            {
+                return PublishResult.PhoneTaken;
+            }
+
+            if (error == ApiErrors.PhoneUsedBySeeker)
+            {
+                return PublishResult.PhoneUsedBySeeker;
+            }
         }
 
         if (response.StatusCode == HttpStatusCode.BadRequest

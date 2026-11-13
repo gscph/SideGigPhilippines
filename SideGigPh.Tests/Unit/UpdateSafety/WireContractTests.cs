@@ -100,6 +100,7 @@ public class WireContractTests
     public void ErrorCodesAndWireWords_NeverChange()
     {
         ApiErrors.PhoneTaken.Should().Be("phone-taken");
+        ApiErrors.PhoneUsedBySeeker.Should().Be("phone-used-by-seeker");
         ApiErrors.PhotoInUse.Should().Be("photo-in-use");
         ApiErrors.BadBody.Should().Be("bad-body");
         ApiErrors.PhoneRequired.Should().Be("phone-required");

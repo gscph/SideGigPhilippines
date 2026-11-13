@@ -113,6 +113,7 @@ public class PublishListingTests
 
     [Theory]
     [InlineData(PublishResult.PhoneTaken)]
+    [InlineData(PublishResult.PhoneUsedBySeeker)]
     [InlineData(PublishResult.BadReference)]
     public async Task Publish_ServerRefuses_PassesReasonOnAndStaysUnpublished(PublishResult serverAnswer)
     {

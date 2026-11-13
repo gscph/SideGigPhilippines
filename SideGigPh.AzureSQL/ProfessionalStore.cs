@@ -10,6 +10,9 @@ public enum PublishOutcome
     /// <summary>Anti-fraud rule 1: another listing has this number.</summary>
     PhoneTaken,
 
+    /// <summary>Anti-fraud rule 1: another account uses this number as a Job Seeker, so it can't list a Skilled Worker too.</summary>
+    PhoneUsedBySeeker,
+
     /// <summary>Anti-fraud rule 2: another listing has one of these photos.</summary>
     PhotoInUse,
 
@@ -50,7 +53,8 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     /// <summary>
     /// Makes <paramref name="uid"/>'s listing live, or replaces it. The number is the account's verified number
-    /// (from the sign-in token), so one phone gets one listing (anti-fraud rule 1); a photo can be on one listing only (rule 2).
+    /// (from the sign-in token), so one phone gets one listing and can't also be another account's Job Seeker number
+    /// (anti-fraud rule 1); a photo can be on one listing only (rule 2).
     /// </summary>
     public async Task<PublishOutcome> PublishAsync(string uid, string mobileNumber, PublishListingRequest request, CancellationToken cancellationToken)
     {
@@ -67,6 +71,12 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         if (await db.Professionals.AnyAsync(p => p.MobileNumber == mobileNumber && p.Id != uid, cancellationToken))
         {
             return PublishOutcome.PhoneTaken;
+        }
+
+        // Users.PhoneNumber is always the token's verified number (UserFunctions.Save), so a profile can't fake it.
+        if (await db.Users.AnyAsync(u => u.PhoneNumber == mobileNumber && u.Uid != uid && u.Role == Wire.Seeker, cancellationToken))
+        {
+            return PublishOutcome.PhoneUsedBySeeker;
         }
 
         try

@@ -23,12 +23,18 @@ public partial class ProfessionalHome : ComponentBase
         ? T.Get(goal.Label)
         : null;
 
+    /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
+    private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Home);
+
     protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 
     private async Task AddPhotosAsync()
     {
+        var from = Nav.Uri;
         _photoResult = await Busy.RunAsync(Workspace.AddWorkPhotosAsync);
-        if (_photoResult is { Added: > 0, Duplicates: 0, Failed: false })
+
+        // Unless those photos finished the checklist and the layout already opened Publish.
+        if (_photoResult is { Added: > 0, Duplicates: 0, Failed: false } && Nav.Uri == from)
         {
             Nav.NavigateTo(ProRoutes.Photos);
         }

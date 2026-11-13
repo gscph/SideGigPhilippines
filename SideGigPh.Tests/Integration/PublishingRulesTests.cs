@@ -4,6 +4,7 @@ using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Tests.Integration.Support;
+using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Integration;
 
@@ -38,6 +39,32 @@ public class PublishingRulesTests(ApiTestHost api)
         second.Identity.User = new AuthUser { Uid = second.Uid, DisplayName = "Oscar", PhoneNumber = first.PhoneNumber };
 
         (await second.Pro.PublishAsync()).Should().Be(PublishResult.PhoneTaken);
+    }
+
+    [IntegrationFact]
+    public async Task NumberOfAnotherAccountsSeekerProfile_IsPhoneUsedBySeeker()
+    {
+        // Anti-fraud rule 1 across sides: a Job Seeker's verified number can't also list a Skilled Worker.
+        var seeker = new TestPhone(api, "Sally", state: TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()));
+        await seeker.Account.SaveProfileAsync();
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Sam");
+        worker.Identity.User = new AuthUser { Uid = worker.Uid, DisplayName = "Sam", PhoneNumber = seeker.PhoneNumber };
+
+        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.PhoneUsedBySeeker);
+        worker.Pro.IsPublished.Should().BeFalse();
+    }
+
+    [IntegrationFact]
+    public async Task ProfileClaimingAnotherNumber_SavesTheTokensVerifiedNumber()
+    {
+        // Otherwise a Seeker profile could claim a worker's number and block their listing.
+        var profile = new UserDto("ignored", "Name", "+639170000001", null, Wire.English, Wire.Seeker, null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null);
+
+        using var withPhone = await api.Client(api.Tokens.For("claims-a", "+639170000002")).PutAsJsonAsync("users/me", profile, ApiJson.Default.UserDto);
+        using var withoutPhone = await api.Client(api.Tokens.For("claims-b")).PutAsJsonAsync("users/me", profile, ApiJson.Default.UserDto);
+
+        (await withPhone.Content.ReadFromJsonAsync(ApiJson.Default.UserDto))!.PhoneNumber.Should().Be("+639170000002");
+        (await withoutPhone.Content.ReadFromJsonAsync(ApiJson.Default.UserDto))!.PhoneNumber.Should().BeNull();
     }
 
     [IntegrationFact]

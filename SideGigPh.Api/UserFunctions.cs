@@ -22,12 +22,16 @@ public sealed class UserFunctions(FirebaseTokenValidator auth, UserStore users, 
         return await users.GetAsync(uid, cancellationToken) is { } profile ? new OkObjectResult(profile) : new NotFoundResult();
     }
 
+    /// <summary>
+    /// <c>PUT users/me</c>. The number saved is the token's verified one, never the body's, so a profile can't claim
+    /// someone else's number (publishing refuses a number another account uses as a Job Seeker).
+    /// </summary>
     [Function("SaveMe")]
     public async Task<IActionResult> Save(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "users/me")] HttpRequest request,
         CancellationToken cancellationToken)
     {
-        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        if (await auth.GetCallerAsync(request, cancellationToken) is not { } caller)
         {
             return new UnauthorizedResult();
         }
@@ -37,7 +41,7 @@ public sealed class UserFunctions(FirebaseTokenValidator auth, UserStore users, 
             return ApiResults.BadRequest();
         }
 
-        return new OkObjectResult(await users.SaveAsync(uid, profile, cancellationToken));
+        return new OkObjectResult(await users.SaveAsync(caller.Uid, profile with { PhoneNumber = caller.PhoneNumber }, cancellationToken));
     }
 
     /// <summary><c>PUT users/me/devices</c>: this phone gets the caller's new-message notifications.</summary>

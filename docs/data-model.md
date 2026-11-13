@@ -91,7 +91,7 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `PUT users/me/devices` | This phone gets the caller's notifications (`SaveDeviceRequest`: `token`, `platform`). `400` for an empty token or unknown platform |
 | `GET professionals?categoryId=…&areaId=…` | One trade's listings in one area, each with its stars (`Reviews`: average and count); the phone ranks them (`SearchRanker`). Kept 30 s per API instance (`ListingCache`), cleared there by a publish, removal or review |
 | `GET professionals/{id}` | One listing with its stars (404 when gone) |
-| `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`; publishing also needs a `profilePhotoId`, at least 2 `workPhotoIds` and 1–3 `references` with distinct +639 numbers that aren't the worker's own) |
+| `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 phone-used-by-seeker` (another account uses the number as a Job Seeker), `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`; publishing also needs a `profilePhotoId`, at least 2 `workPhotoIds` and 1–3 `references` with distinct +639 numbers that aren't the worker's own) |
 | `DELETE professionals/me` | Take the listing out of search (reviews stay) |
 | `GET reviews?professionalId=…` / `?seekerId=…` | Newest first |
 | `PUT reviews` | The caller's review (`403 no-chat` without a chat) |

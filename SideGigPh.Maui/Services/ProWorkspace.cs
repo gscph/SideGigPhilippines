@@ -27,6 +27,7 @@ public sealed class ProWorkspace(
     private OnboardingState? _state;
     private Task<bool>? _loading;
     private DateTimeOffset _refreshedAt = DateTimeOffset.MinValue;
+    private bool _publishPrompted;
 
     /// <summary>
     /// The pro's id in chats and as the listing id: the signed-in user's uid (set when the workspace loads),
@@ -301,12 +302,48 @@ public sealed class ProWorkspace(
         return result;
     }
 
+    /// <summary>
+    /// The listing's number was confirmed with an SMS code: it is the account's verified number (a phone sign-in,
+    /// or a number a Google account linked). Always true when the app has no sign-in.
+    /// </summary>
+    public bool HasVerifiedPhone => identity.Methods == AuthMethods.None || !string.IsNullOrEmpty(Draft.MobileNumber);
+
+    /// <summary>Not live yet and every setup step is done: interview answers, proof and a verified number.</summary>
+    public bool IsReadyToPublish => !IsPublished && Draft.IsListingComplete && Draft.HasProof && HasVerifiedPhone;
+
+    /// <summary>Re-reads the account's name and number: one may have been linked on the add-phone page since loading.</summary>
+    public async Task RefreshAccountAsync()
+    {
+        var hadPhone = HasVerifiedPhone;
+        Draft.TakeAccount(await identity.GetCurrentUserAsync());
+        if (hadPhone != HasVerifiedPhone)
+        {
+            Changed?.Invoke();
+        }
+    }
+
+    /// <summary>
+    /// True once, when the setup checklist has just been finished (<see cref="IsReadyToPublish"/>): the shell then
+    /// opens the Publish page so the worker doesn't miss it. Backing out leaves the checklist's Publish button.
+    /// </summary>
+    public bool TakePublishPrompt()
+    {
+        if (_publishPrompted || !IsReadyToPublish)
+        {
+            return false;
+        }
+
+        _publishPrompted = true;
+        return true;
+    }
+
     /// <summary>Drops what's held in memory after Start over, so the next load reads fresh.</summary>
     public void Forget()
     {
         _state = null;
         _loading = null;
         _refreshedAt = DateTimeOffset.MinValue;
+        _publishPrompted = false;
         MyId = ListingMapper.OwnListingId;
         _photoUrls.Clear();
         Chats = [];

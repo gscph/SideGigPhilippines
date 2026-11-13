@@ -8,6 +8,9 @@ public enum PublishResult
     /// <summary>Anti-fraud rule 1: the mobile number already has a listing.</summary>
     PhoneTaken,
 
+    /// <summary>Anti-fraud rule 1: another account uses this mobile number as a Job Seeker.</summary>
+    PhoneUsedBySeeker,
+
     /// <summary>Not sent: the listing is missing interview answers (<see cref="ProfessionalDraft.IsListingComplete"/>).</summary>
     Incomplete,
 

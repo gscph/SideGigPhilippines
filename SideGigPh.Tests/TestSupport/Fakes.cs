@@ -77,7 +77,8 @@ public sealed class FakeIdentity(AuthUser? user) : IIdentityProvider
 {
     public AuthUser? User { get; set; } = user;
 
-    public AuthMethods Methods => AuthMethods.None;
+    /// <summary>None by default (no sign-in: no step asks for a phone); set it to test the phone checks.</summary>
+    public AuthMethods Methods { get; set; } = AuthMethods.None;
 
     public Task<AuthUser?> GetCurrentUserAsync() => Task.FromResult(User);
 

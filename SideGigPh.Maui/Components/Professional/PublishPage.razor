@@ -6,9 +6,9 @@
                    OnNext="PublishAsync" NextLabel="@T.Get(Copy.PublishConfirm)" CanContinue="@(_pledged && !_busy)">
         <ProCard Listing="Workspace.Listing" Class="own-listing" />
         <MudCheckBox T="bool" @bind-Value="_pledged" Color="Color.Primary" Label="@T.Get(Copy.PublishPledge)" />
-        @if (_phoneTaken)
+        @if (_phoneProblem is not null)
         {
-            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(Copy.PublishPhoneTaken)</MudAlert>
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(_phoneProblem)</MudAlert>
         }
         @if (_badReference)
         {
