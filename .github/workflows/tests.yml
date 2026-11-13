@@ -4,7 +4,7 @@ name: Tests
 # can see, and before every API deploy (deploy-api.yml calls this workflow). A change to only CSS, images, .razor
 # markup or docs doesn't start it: those can't change a test result.
 # The integration tests get a real SQL Server (a container next to the runner), built from
-# SideGigPh.AzureSQL/Sql/001-schema.sql by the tests themselves.
+# SideGigPh.AzureSQL/Sql/001-schema.sql and every later NNN-schema-*.sql by the tests themselves.
 
 on:
   push:

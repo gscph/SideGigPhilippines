@@ -43,6 +43,21 @@ public sealed class UserStore(SideGigPhDb db)
         return ToDto(row);
     }
 
+    /// <summary>How often <see cref="TouchAsync"/> writes at most: activity is ranked in days, so an hour is plenty.</summary>
+    public static readonly TimeSpan ActivityResolution = TimeSpan.FromHours(1);
+
+    /// <summary>
+    /// The person is using the app now (<c>Users.LastActiveAt</c>, which search ranking reads). Writes at most once per
+    /// <see cref="ActivityResolution"/>, so calling it on every Inbox read costs one cheap no-op update.
+    /// </summary>
+    public Task TouchAsync(string uid, CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var stale = now - ActivityResolution;
+        return db.Users.Where(u => u.Uid == uid && (u.LastActiveAt == null || u.LastActiveAt < stale))
+            .ExecuteUpdateAsync(set => set.SetProperty(u => u.LastActiveAt, now), cancellationToken);
+    }
+
     /// <summary>Deletes the profile and the phones registered for its notifications (Start over).</summary>
     public async Task DeleteAsync(string uid, CancellationToken cancellationToken)
     {

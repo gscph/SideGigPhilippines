@@ -46,7 +46,7 @@ To see or change them: Azure portal → Function App `SideGigPhApi` → Settings
 The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../SideGigPh.AzureSQL/Sql/). `SideGigPh.AzureSQL` (EF Core) maps to them; there are no EF migrations.
 
 1. **Create the database** (once): Azure portal → **SQL databases** → Create, in **Southeast Asia** next to the Function App. The serverless General Purpose tier (auto-pause), or the free offer, is plenty for testing. On its server, go to **Networking**: allow Azure services to access the server, and add your own IP so you can use the Query editor.
-2. **Run `001-schema.sql`:** database → **Query editor** → sign in → paste the whole file → Run. It's safe to run again; it only creates what's missing.
+2. **Run `001-schema.sql`, then every `NNN-schema-*.sql` in number order** (`005-schema-ranking-signals.sql`, …): database → **Query editor** → sign in → paste the whole file → Run. Each is safe to run again: every step checks first and skips what exists. `SELECT * FROM dbo.SchemaChanges` lists the changes a database already has.
    Then **run `004-config.sql`** the same way (required): it fills the trades and jobs and the other answer lists (towns, price tiers…) the app shows (`GET config`). Re-run it after you edit it: it updates labels and order, adds new rows, and retires (`IsActive = 0`) any trade or job it no longer lists. Keep `ReferenceData.BuiltInConfig` in the app in step (the integration tests check). Each API instance keeps the config 12 h and phones keep theirs 12 h, so restart the Function App to apply an edit sooner; phones then pick it up within 12 h (unchanged configs cost them no download, by ETag).
 3. **Run `002-seed.sql`** the same way. It adds sample Skilled Workers and reviews, with no chats and no photos, and is safe to run again. Before go-live, run only its `DELETE` block to take the samples out.
 4. **Give the API the connection string:** database → **Connection strings** → ADO.NET (SQL authentication). Put the password in. Then go to Function App → Environment variables, add `SqlDatabase` with that value, and Apply. The Function App restarts.
@@ -74,7 +74,7 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
    ```
 
    No restart is needed. To check the mapping: `SELECT name, CONVERT(uniqueidentifier, sid) FROM sys.database_principals WHERE type = 'E';` should show `SideGigPhApi` with the app's identity's **client (application) id** (`az ad sp show --id <principalId from Identity blade> --query appId -o tsv`).
-5. **Changing the schema:** edit `001-schema.sql` **and** `SideGigPhDb.cs` together, run the new part against the database, then deploy the API.
+5. **Changing the schema:** the database is live, so `001-schema.sql` is frozen. Add a new guarded `NNN-schema-<what>.sql` (the `db-migration` skill: `new-migration.sh`) and change `Rows.cs` / `SideGigPhDb.cs` to match. Run the script in the Query editor as the admin **first**, then deploy the API (an API deployed first fails on the missing column).
 
 ## Automatic deploy from GitHub
 

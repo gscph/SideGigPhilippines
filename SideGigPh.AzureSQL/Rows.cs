@@ -1,6 +1,6 @@
 namespace SideGigPh.AzureSQL;
 
-// One class per table in Sql/001-schema.sql. Only this project sees them: the API answers with the
+// One class per table in Sql/001-schema.sql and the later NNN-schema-*.sql changes. Only this project sees them: the API answers with the
 // SideGigPh.Contracts records, which the stores map to.
 
 public sealed class UserRow
@@ -15,6 +15,7 @@ public sealed class UserRow
     public string? ProfilePhotoId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+    public DateTimeOffset? LastActiveAt { get; set; }
 }
 
 public sealed class ProfessionalRow
@@ -100,6 +101,7 @@ public sealed class ChatRow
     public DateTimeOffset LastMessageAt { get; set; }
     public DateTimeOffset? SeekerReadAt { get; set; }
     public DateTimeOffset? ProfessionalReadAt { get; set; }
+    public DateTimeOffset? ProfessionalRepliedAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
 }
 

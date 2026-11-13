@@ -25,16 +25,14 @@ public sealed record SearchHit(
 /// <summary>
 /// Ranked results loaded so far: pros who go to the Seeker's town first, then pros from other towns. They come a page
 /// at a time; <see cref="InTownTotal"/> and <see cref="OtherTownsTotal"/> count every result, loaded or not.
-/// <see cref="ServiceFallback"/> means nobody lists the exact job yet, so these are the category's pros instead.
 /// </summary>
 public sealed record SearchResult(
     IReadOnlyList<SearchHit> InTown,
     IReadOnlyList<SearchHit> OtherTowns,
-    bool ServiceFallback,
     int InTownTotal,
     int OtherTownsTotal)
 {
-    public static SearchResult Empty { get; } = new([], [], false, 0, 0);
+    public static SearchResult Empty { get; } = new([], [], 0, 0);
 
     /// <summary>How many results are loaded.</summary>
     public int Count => InTown.Count + OtherTowns.Count;
@@ -54,7 +52,6 @@ public sealed record SearchResult(
         return new SearchResult(
             [.. InTown, .. next.InTown.Where(h => shown.Add(h.Pro.Id))],
             [.. OtherTowns, .. next.OtherTowns.Where(h => shown.Add(h.Pro.Id))],
-            next.ServiceFallback,
             next.InTownTotal,
             next.OtherTownsTotal);
     }

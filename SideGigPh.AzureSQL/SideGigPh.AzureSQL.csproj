@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <!-- SideGigPh's Azure SQL data access (EF Core). Only SideGigPh.Api references it; the phone never
-       talks to the database. The schema is Sql/001-schema.sql (no EF migrations): keep SideGigPhDb in step with it. -->
+       talks to the database. The schema is Sql/001-schema.sql plus the numbered NNN-schema-*.sql changes (no EF migrations): keep SideGigPhDb in step. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

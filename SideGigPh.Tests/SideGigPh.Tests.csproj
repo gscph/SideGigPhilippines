@@ -53,9 +53,9 @@
     <Compile Include="..\SideGigPh.Maui\Components\Seeker\SeekerRoutes.cs" Link="App\Components\SeekerRoutes.cs" />
   </ItemGroup>
 
-  <!-- The integration tests build their database from the real schema script. -->
+  <!-- The integration tests build their database from the real scripts: 001-schema, every later NNN-schema-* change, then 004-config. -->
   <ItemGroup>
-    <None Include="..\SideGigPh.AzureSQL\Sql\001-schema.sql" Link="Sql\001-schema.sql" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\SideGigPh.AzureSQL\Sql\*-schema*.sql" Link="Sql\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="..\SideGigPh.AzureSQL\Sql\004-config.sql" Link="Sql\004-config.sql" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

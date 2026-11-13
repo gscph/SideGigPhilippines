@@ -105,6 +105,21 @@ public static class TestData
         [.. ReferenceData.Experience.Select(e => e.Id)],
         ReferenceData.Cities.Select(c => c.Id).ToHashSet());
 
+    /// <summary>The clock ranking tests run at, so activity and tenure don't drift with the real date.</summary>
+    public static readonly DateTimeOffset RankNow = new(2026, 6, 1, 8, 0, 0, TimeSpan.Zero);
+
+    /// <summary>A worker's app behaviour for ranking; the defaults are an ordinary worker (no chats yet, active yesterday, 3 months in).</summary>
+    public static WorkerSignals Signals(
+        int received = 0,
+        int answered = 0,
+        double? replyMinutes = null,
+        double activeDaysAgo = 1,
+        double joinedDaysAgo = 90) =>
+        new(received, answered, replyMinutes, RankNow.AddDays(-activeDaysAgo), RankNow.AddDays(-joinedDaysAgo));
+
+    /// <summary>A listing as the ranker gets it, with <see cref="Signals"/> (ordinary ones unless given).</summary>
+    public static RankCandidate Candidate(ListingDto listing, WorkerSignals? signals = null) => new(listing, signals ?? Signals());
+
     /// <summary>A search result as the API would send it.</summary>
     public static ProfessionalListing Listing(
         string name,

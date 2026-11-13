@@ -37,17 +37,11 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public const int MaxSearchPage = 50;
 
     /// <summary>
-    /// One trade's listings with their stars, in one area when given (kept for <see cref="ListingCache.SearchFor"/>),
-    /// unranked. <c>GET professionals</c> for app versions before paging; <see cref="SearchPageAsync"/> ranks.
+    /// One trade's listings with their stars, in one area when given, unranked. <c>GET professionals</c> for app
+    /// versions before paging; <see cref="SearchPageAsync"/> ranks.
     /// </summary>
-    public Task<IReadOnlyList<ListingDto>> SearchAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
-        cache.SearchAsync(categoryId, areaId, async () =>
-        {
-            var rows = await Listings()
-                .Where(p => p.CategoryId == categoryId && (areaId == null || p.AreaId == areaId))
-                .ToListAsync(cancellationToken);
-            return await WithReviewsAsync(rows, cancellationToken);
-        });
+    public async Task<IReadOnlyList<ListingDto>> SearchAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
+        [.. (await CandidatesAsync(categoryId, areaId, cancellationToken)).Select(c => c.Listing)];
 
     /// <summary>
     /// One page of a trade's workers ranked for this Seeker (<see cref="SearchRanker"/>), <paramref name="take"/> at
@@ -57,9 +51,72 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public async Task<SearchPageDto> SearchPageAsync(
         string categoryId, string? areaId, RankRequest request, int skip, int take, CancellationToken cancellationToken)
     {
-        var listings = await SearchAsync(categoryId, areaId, cancellationToken);
+        var candidates = await CandidatesAsync(categoryId, areaId, cancellationToken);
         var scales = RankScales.From((await config.GetAsync(cancellationToken)).Config);
-        return SearchRanker.Rank(listings, request, scales).Page(Math.Max(0, skip), Math.Clamp(take, 1, MaxSearchPage));
+        return SearchRanker.Rank(candidates, request, scales, DateTimeOffset.UtcNow)
+            .Page(Math.Max(0, skip), Math.Clamp(take, 1, MaxSearchPage));
+    }
+
+    /// <summary>A trade's listings with their ranking signals, kept for <see cref="ListingCache.SearchFor"/>.</summary>
+    private Task<IReadOnlyList<RankCandidate>> CandidatesAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
+        cache.SearchAsync(categoryId, areaId, async () =>
+        {
+            var rows = await Listings()
+                .Where(p => p.CategoryId == categoryId && (areaId == null || p.AreaId == areaId))
+                .ToListAsync(cancellationToken);
+            var listings = await WithReviewsAsync(rows, cancellationToken);
+            var signals = await SignalsAsync(rows, cancellationToken);
+            return [.. listings.Select(l => new RankCandidate(l, signals[l.Id]))];
+        });
+
+    /// <summary>
+    /// How each worker behaves on the app (<see cref="WorkerSignals"/>), in two grouped queries: their chats from the
+    /// last <see cref="SearchRanker.ResponsivenessWindow"/>, and their account's activity and age. A worker with no
+    /// <c>Users</c> row (sample data) counts as active when they last edited the listing and joined when they published.
+    /// </summary>
+    private async Task<Dictionary<string, WorkerSignals>> SignalsAsync(IReadOnlyList<ProfessionalRow> rows, CancellationToken cancellationToken)
+    {
+        var ids = rows.Select(p => p.Id).ToList();
+        var now = DateTimeOffset.UtcNow;
+        var since = now - SearchRanker.ResponsivenessWindow;
+        var graceCutoff = now - SearchRanker.ReplyGrace;
+        const int dayInMinutes = 24 * 60;
+
+        var chats = ids.Count == 0
+            ? []
+            : await db.Chats.AsNoTracking()
+                .Where(c => ids.Contains(c.ProfessionalId) && c.CreatedAt >= since)
+                // A just-started chat isn't held against them yet, and a chat where the Seeker called may have been
+                // answered on the phone, so only a reply counts for those.
+                .Where(c => c.ProfessionalRepliedAt != null
+                    || (c.CreatedAt < graceCutoff && !db.ChatMessages.Any(m => m.ChatId == c.Id && m.Kind == Wire.Call)))
+                .GroupBy(c => c.ProfessionalId)
+                .Select(g => new
+                {
+                    g.Key,
+                    Received = g.Count(),
+                    Answered = g.Count(c => c.ProfessionalRepliedAt != null),
+                    AverageMinutes = g.Average(c => c.ProfessionalRepliedAt == null
+                        ? (double?)null
+                        : EF.Functions.DateDiffMinute(c.CreatedAt, c.ProfessionalRepliedAt.Value) > dayInMinutes
+                            ? dayInMinutes
+                            : EF.Functions.DateDiffMinute(c.CreatedAt, c.ProfessionalRepliedAt.Value)),
+                })
+                .ToDictionaryAsync(g => g.Key, cancellationToken);
+        var users = ids.Count == 0
+            ? []
+            : await db.Users.AsNoTracking()
+                .Where(u => ids.Contains(u.Uid))
+                .Select(u => new { u.Uid, u.LastActiveAt, u.CreatedAt })
+                .ToDictionaryAsync(u => u.Uid, cancellationToken);
+
+        return rows.ToDictionary(p => p.Id, p =>
+        {
+            var chat = chats.GetValueOrDefault(p.Id);
+            var user = users.GetValueOrDefault(p.Id);
+            var lastActive = user?.LastActiveAt is { } active && active > p.UpdatedAt ? active : p.UpdatedAt;
+            return new WorkerSignals(chat?.Received ?? 0, chat?.Answered ?? 0, chat?.AverageMinutes, lastActive, user?.CreatedAt ?? p.PublishedAt);
+        });
     }
 
     public async Task<ListingDto?> GetAsync(string id, CancellationToken cancellationToken) =>

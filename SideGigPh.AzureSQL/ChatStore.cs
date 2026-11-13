@@ -171,6 +171,7 @@ public sealed class ChatStore(SideGigPhDb db)
             else
             {
                 chat.ProfessionalReadAt = now;
+                chat.ProfessionalRepliedAt ??= now;  // their first reply: how responsive they are (search ranking)
             }
 
             await db.SaveChangesAsync(ct);

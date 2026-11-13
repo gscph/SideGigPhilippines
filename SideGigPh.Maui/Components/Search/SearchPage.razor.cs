@@ -72,11 +72,6 @@ public partial class SearchPage : ComponentBase
         ? T.Get(Copy.ResultsTitleOne)
         : T.Format(Copy.ResultsTitle, _result.Total);
 
-    private string FallbackNote => T.Format(
-        Copy.ResultsServiceFallback,
-        Label(ReferenceData.FindService(Request.ServiceId)),
-        Label(ReferenceData.Find(ReferenceData.Categories, Request.CategoryId)));
-
     protected override async Task OnInitializedAsync()
     {
         // Searching needs a verified phone (a Google sign-in adds one here first).

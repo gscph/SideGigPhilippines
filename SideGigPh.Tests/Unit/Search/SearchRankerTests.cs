@@ -7,15 +7,23 @@ namespace SideGigPh.Tests.Unit.Search;
 
 /// <summary>
 /// The order of search results decides which worker gets the customer. These tests pin down the promises the app
-/// makes: workers who go to your town first, workers in your budget before others, many good reviews beating one
-/// lucky review, and only workers who do the job you asked for.
+/// makes: only workers who do the job you asked for, workers who go to your town first, then a score out of 100 from
+/// reviews (many good reviews beat one lucky review), how well they answer chats, how active they are, budget fit and
+/// experience, with fair starting points for new workers.
 /// </summary>
 public class SearchRankerTests
 {
     private static RankRequest Request(string? service = "aircon-cleaning", string? city = "taytay", string? budget = "500-1000") =>
         new(service, city, budget);
 
-    private static RankedResult Rank(IReadOnlyList<ListingDto> pros, RankRequest request) => SearchRanker.Rank(pros, request, Scales);
+    private static RankedResult Rank(IReadOnlyList<ListingDto> pros, RankRequest request) =>
+        SearchRanker.Rank([.. pros.Select(p => Candidate(p))], request, Scales, RankNow);
+
+    private static RankedResult Rank(IReadOnlyList<RankCandidate> pros, RankRequest? request = null) =>
+        SearchRanker.Rank(pros, request ?? Request(), Scales, RankNow);
+
+    private static RankScore Score(RankCandidate pro, RankRequest? request = null) =>
+        SearchRanker.Score(pro, request ?? Request(), Scales, RankNow);
 
     private static string[] Names(IEnumerable<SearchHitDto> hits) => hits.Select(h => h.Listing.DisplayName).ToArray();
 
@@ -28,6 +36,23 @@ public class SearchRankerTests
 
         Names(result.InTown).Should().Equal("Taytay Tess");
         Names(result.OtherTowns).Should().Equal("Antipolo Ana");
+    }
+
+    [Fact]
+    public void Rank_ABetterWorkerNearby_StillComesAfterAWorkerInYourTown()
+    {
+        // The town is a hard rule: the score only orders workers inside each group.
+        var pros = new[]
+        {
+            Candidate(Dto("Star Antipolo", cities: ["antipolo"], experience: "10-plus", reviews: new ReviewSummary(5, 50)),
+                Signals(received: 20, answered: 20, replyMinutes: 5, activeDaysAgo: 0, joinedDaysAgo: 400)),
+            Candidate(Dto("Plain Taytay", experience: null), Signals(activeDaysAgo: 30, joinedDaysAgo: 1)),
+        };
+
+        var result = Rank(pros);
+
+        Names(result.InTown).Should().Equal("Plain Taytay");
+        Names(result.OtherTowns).Should().Equal("Star Antipolo");
     }
 
     [Fact]
@@ -66,6 +91,14 @@ public class SearchRankerTests
     }
 
     [Fact]
+    public void Rank_BadReviews_RankBelowNoReviewsYet()
+    {
+        var pros = new ListingDto[] { Dto("Poor Pete", reviews: new ReviewSummary(2.0, 10)), Dto("New Nina") };
+
+        Names(Rank(pros, Request()).InTown).Should().Equal("New Nina", "Poor Pete");
+    }
+
+    [Fact]
     public void Rank_OnlyWorkersWhoDoTheJob_AreShown()
     {
         var pros = new ListingDto[] { Dto("Cleaner Cora", services: ["aircon-cleaning"]), Dto("Installer Ike", services: ["aircon-install"]) };
@@ -73,19 +106,19 @@ public class SearchRankerTests
         var result = Rank(pros, Request(service: "aircon-install"));
 
         Names(result.InTown).Should().Equal("Installer Ike");
-        result.ServiceFallback.Should().BeFalse();
+        result.OtherTowns.Should().BeEmpty();
     }
 
     [Fact]
-    public void Rank_NobodyDoesTheJobYet_ShowsTheWholeTradeFlagged()
+    public void Rank_NobodyDoesTheJobYet_ShowsNobody()
     {
-        // Better to show aircon techs than an empty page; the page says so.
+        // The job is a hard filter: a worker who doesn't list it is never shown for it.
         var pros = new ListingDto[] { Dto("Cleaner Cora", services: ["aircon-cleaning"]) };
 
-        var result = Rank(pros, Request(service: "aircon-freon"));
+        var page = Rank(pros, Request(service: "aircon-freon")).Page(0, Paging.Search);
 
-        result.ServiceFallback.Should().BeTrue();
-        Names(result.InTown).Should().Equal("Cleaner Cora");
+        page.Hits.Should().BeEmpty();
+        page.ServiceFallback.Should().BeFalse("kept in the contract for older apps, never set now");
     }
 
     [Fact]
@@ -118,11 +151,10 @@ public class SearchRankerTests
     [Fact]
     public void Rank_NoBudgetGiven_DoesNotPenaliseAnyPrice()
     {
-        var pros = new ListingDto[] { Dto("Pricey Pia", rate: "5000-up"), Dto("Quote Quin", rate: "quote") };
+        var pros = new[] { Candidate(Dto("Pricey Pia", rate: "5000-up")), Candidate(Dto("Quote Quin", rate: "quote")) };
 
-        var hits = Rank(pros, Request(budget: "unsure")).InTown;
-
-        hits.Select(h => SearchRanker.Score(h.Listing, Request(budget: "unsure"), Scales)).Distinct().Should().ContainSingle("without a budget, price doesn't change the order");
+        pros.Select(p => Score(p, Request(budget: "unsure")).BudgetFit).Distinct()
+            .Should().ContainSingle("without a budget, price doesn't change the order");
     }
 
     [Fact]
@@ -134,6 +166,90 @@ public class SearchRankerTests
     }
 
     [Fact]
+    public void Rank_WorkerWhoAnswersChats_BeatsOneWhoIgnoresThem()
+    {
+        var pros = new[]
+        {
+            Candidate(Dto("Silent Sam"), Signals(received: 10, answered: 2, replyMinutes: 300)),
+            Candidate(Dto("Replies Rita"), Signals(received: 10, answered: 10, replyMinutes: 300)),
+        };
+
+        Names(Rank(pros).InTown).Should().Equal("Replies Rita", "Silent Sam");
+    }
+
+    [Fact]
+    public void Rank_FastReplies_BeatSlowReplies()
+    {
+        var pros = new[]
+        {
+            Candidate(Dto("Slow Sid"), Signals(received: 5, answered: 5, replyMinutes: 600)),
+            Candidate(Dto("Quick Quela"), Signals(received: 5, answered: 5, replyMinutes: 10)),
+        };
+
+        Names(Rank(pros).InTown).Should().Equal("Quick Quela", "Slow Sid");
+    }
+
+    [Fact]
+    public void Rank_NewWorkerWithNoChatsYet_BeatsOneWhoIgnoresMostChats()
+    {
+        // Cold start: a new worker starts from a fair guess instead of zero, so they can win their first customers.
+        var pros = new[]
+        {
+            Candidate(Dto("Ghost Gary"), Signals(received: 12, answered: 2, replyMinutes: 900)),
+            Candidate(Dto("New Nena"), Signals()),
+        };
+
+        Names(Rank(pros).InTown).Should().Equal("New Nena", "Ghost Gary");
+    }
+
+    [Fact]
+    public void Rank_ActiveThisWeek_BeatsAwayForAMonth()
+    {
+        var pros = new[]
+        {
+            Candidate(Dto("Away Ami"), Signals(activeDaysAgo: 30)),
+            Candidate(Dto("Here Hana"), Signals(activeDaysAgo: 0)),
+        };
+
+        Names(Rank(pros).InTown).Should().Equal("Here Hana", "Away Ami");
+    }
+
+    [Fact]
+    public void Rank_LongerOnTheApp_BeatsJustJoined_WhenAllElseIsEqual()
+    {
+        var pros = new[]
+        {
+            Candidate(Dto("Fresh Fely"), Signals(joinedDaysAgo: 2)),
+            Candidate(Dto("Old Oscar"), Signals(joinedDaysAgo: 365)),
+        };
+
+        Names(Rank(pros).InTown).Should().Equal("Old Oscar", "Fresh Fely");
+    }
+
+    [Fact]
+    public void Score_IsOutOf100_AndTheBestWorkerGetsNearlyAll()
+    {
+        var weights = SearchRanker.ReviewStarsWeight + SearchRanker.ReviewCountWeight + SearchRanker.ReplyRateWeight
+            + SearchRanker.ReplySpeedWeight + SearchRanker.RecentActivityWeight + SearchRanker.TenureWeight
+            + SearchRanker.BudgetFitWeight + SearchRanker.ExperienceWeight;
+        var best = Candidate(
+            Dto("Best Bea", rate: "under-500", experience: "10-plus", reviews: new ReviewSummary(5, 200)),
+            Signals(received: 200, answered: 200, replyMinutes: 0, activeDaysAgo: 0, joinedDaysAgo: 400));
+
+        weights.Should().Be(100);
+        Score(best).Total.Should().BeInRange(97, 100);
+    }
+
+    [Fact]
+    public void Score_ExplainsEachPart()
+    {
+        var score = Score(Candidate(Dto("Pricey Pia", rate: "5000-up")));
+
+        score.BudgetFit.Should().Be(0, "far over the Seeker's budget");
+        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience);
+    }
+
+    [Fact]
     public void Rank_NoWorkers_IsEmpty() =>
-        Rank([], Request()).InTown.Should().BeEmpty();
+        Rank(Array.Empty<ListingDto>(), Request()).InTown.Should().BeEmpty();
 }

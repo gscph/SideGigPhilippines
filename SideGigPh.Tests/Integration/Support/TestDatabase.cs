@@ -3,9 +3,9 @@ using Microsoft.Data.SqlClient;
 namespace SideGigPh.Tests.Integration.Support;
 
 /// <summary>
-/// A brand-new SQL Server database for one test run, built from <c>SideGigPh.AzureSQL/Sql/001-schema.sql</c> and filled with the
-/// trades and jobs from <c>004-config.sql</c> (the real
-/// schema, so a script that doesn't match the code fails here, not in Azure), and dropped afterwards.
+/// A brand-new SQL Server database for one test run, built the way the live database is upgraded: <c>001-schema.sql</c>,
+/// then every later schema change in number order (<see cref="SchemaScripts"/>), then the trades and jobs from
+/// <c>004-config.sql</c>. A script that doesn't match the code fails here, not in Azure. Dropped afterwards.
 /// <para>
 /// Which server: the connection string in the <c>SIDEGIGPH_TEST_SQL</c> environment variable (CI sets it to a SQL
 /// Server container), else SQL Server LocalDB on Windows (installed with Visual Studio). With neither, the
@@ -36,8 +36,25 @@ public sealed class TestDatabase : IDisposable
 
         ConnectionString = new SqlConnectionStringBuilder(server) { InitialCatalog = _name }.ConnectionString;
         using var db = Open(ConnectionString);
-        Execute(db, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "001-schema.sql")));
+        RunSchemaScripts(ConnectionString);
         Execute(db, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "004-config.sql")));
+    }
+
+    /// <summary>
+    /// The schema scripts in the order a database gets them: <c>001-schema.sql</c> (the first release), then each
+    /// <c>NNN-schema-*.sql</c> change. Data scripts (<c>002-seed</c>, <c>003-rollback-seed</c>, <c>004-config</c>) aren't schema.
+    /// </summary>
+    public static IReadOnlyList<string> SchemaScripts =>
+        [.. Directory.GetFiles(Path.Combine(AppContext.BaseDirectory, "Sql"), "???-schema*.sql").Order(StringComparer.Ordinal)];
+
+    /// <summary>Runs every schema script on a database, in order.</summary>
+    public static void RunSchemaScripts(string connectionString)
+    {
+        using var db = Open(connectionString);
+        foreach (var script in SchemaScripts)
+        {
+            Execute(db, File.ReadAllText(script));
+        }
     }
 
     /// <summary>Whether a SQL Server was found; integration tests skip themselves when not.</summary>

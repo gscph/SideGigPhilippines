@@ -18,8 +18,7 @@ public class SearchResultPagingTests
 
     private static readonly RankedResult Ranked = new(
         [HitDto("Town 1"), HitDto("Town 2"), HitDto("Town 3")],
-        [HitDto("Near 1", false), HitDto("Near 2", false), HitDto("Near 3", false)],
-        ServiceFallback: true);
+        [HitDto("Near 1", false), HitDto("Near 2", false), HitDto("Near 3", false)]);
 
     private static string[] Names(IEnumerable<SearchHit> hits) => hits.Select(h => h.Pro.DisplayName).ToArray();
 
@@ -31,7 +30,6 @@ public class SearchResultPagingTests
         page.Hits.Select(h => h.Listing.DisplayName).Should().Equal("Town 1", "Town 2", "Town 3", "Near 1");
         page.InTownCount.Should().Be(3);
         page.OtherTownsCount.Should().Be(3);
-        page.ServiceFallback.Should().BeTrue();
     }
 
     [Fact]

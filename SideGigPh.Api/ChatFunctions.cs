@@ -7,9 +7,12 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>In-app chat. Every call is about the caller's own chats; nobody else's can be read.</summary>
-public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier)
+public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier, UserStore users)
 {
-    /// <summary><c>GET chats?side=seeker</c> or <c>?side=professional</c>: the caller's Inbox on that side, newest first.</summary>
+    /// <summary>
+    /// <c>GET chats?side=seeker</c> or <c>?side=professional</c>: the caller's Inbox on that side, newest first. A
+    /// Skilled Worker reading theirs is active on the app (<see cref="UserStore.TouchAsync"/>, ranked in search).
+    /// </summary>
     [Function("GetInbox")]
     public async Task<IActionResult> Inbox(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats")] HttpRequest request,
@@ -20,9 +23,17 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             return new UnauthorizedResult();
         }
 
-        return Side(request) is { } asSeeker
-            ? new OkObjectResult(await chats.InboxAsync(uid, asSeeker, cancellationToken))
-            : ApiResults.BadRequest("side-required");
+        if (Side(request) is not { } asSeeker)
+        {
+            return ApiResults.BadRequest("side-required");
+        }
+
+        if (!asSeeker)
+        {
+            await users.TouchAsync(uid, cancellationToken);
+        }
+
+        return new OkObjectResult(await chats.InboxAsync(uid, asSeeker, cancellationToken));
     }
 
     [Function("GetChat")]

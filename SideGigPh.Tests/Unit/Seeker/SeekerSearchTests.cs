@@ -133,7 +133,7 @@ public class SeekerSearchTests
     public async Task Search_SendsTheWholeSearchToTheServer_AndShowsItsFirstPage()
     {
         var app = await FakeApp.SeekerAsync();
-        app.Profiles.SearchResults = new SearchResult([Hit("Local Lito")], [Hit("Nearby Nora")], false, 3, 5);
+        app.Profiles.SearchResults = new SearchResult([Hit("Local Lito")], [Hit("Nearby Nora")], 3, 5);
 
         var result = await app.Seeker.SearchAsync();
 
@@ -148,8 +148,8 @@ public class SeekerSearchTests
     public async Task MoreResults_AsksForThePageAfterWhatIsShown_AndAddsItUnder()
     {
         var app = await FakeApp.SeekerAsync();
-        var shown = new SearchResult([Hit("Ana"), Hit("Bea")], [], false, 3, 0);
-        app.Profiles.SearchResults = new SearchResult([Hit("Carlo")], [], false, 3, 0);
+        var shown = new SearchResult([Hit("Ana"), Hit("Bea")], [], 3, 0);
+        app.Profiles.SearchResults = new SearchResult([Hit("Carlo")], [], 3, 0);
 
         var more = await app.Seeker.MoreResultsAsync(shown);
 
@@ -162,7 +162,7 @@ public class SeekerSearchTests
     public async Task MoreResults_EverythingShown_DoesNotAskTheServer()
     {
         var app = await FakeApp.SeekerAsync();
-        var shown = new SearchResult([Hit("Ana")], [], false, 1, 0);
+        var shown = new SearchResult([Hit("Ana")], [], 1, 0);
 
         (await app.Seeker.MoreResultsAsync(shown)).Should().BeSameAs(shown);
         app.Profiles.Searches.Should().BeEmpty();
@@ -173,7 +173,7 @@ public class SeekerSearchTests
     {
         // Offline: the adapter answers an empty page. The results stay, and the next scroll tries again.
         var app = await FakeApp.SeekerAsync();
-        var shown = new SearchResult([Hit("Ana")], [], false, 5, 0);
+        var shown = new SearchResult([Hit("Ana")], [], 5, 0);
 
         (await app.Seeker.MoreResultsAsync(shown)).Should().BeSameAs(shown);
     }

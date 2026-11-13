@@ -248,6 +248,6 @@ public sealed record SearchHitDto(ListingDto Listing, bool OffersService, bool S
 /// <c>GET search/professionals</c>: one page of results, ranked on the server. <paramref name="Hits"/> run in ranked
 /// order across both groups, in-town first: the first <paramref name="InTownCount"/> results of the whole list go to the
 /// Seeker's town, the next <paramref name="OtherTownsCount"/> come from other towns nearby.
-/// <paramref name="ServiceFallback"/>: nobody lists the exact job yet, so these are the trade's workers instead.
+/// <paramref name="ServiceFallback"/>: always false now (the job is a hard filter); kept for app versions that read it.
 /// </summary>
 public sealed record SearchPageDto(List<SearchHitDto> Hits, int InTownCount, int OtherTownsCount, bool ServiceFallback);

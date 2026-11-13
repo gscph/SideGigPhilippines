@@ -1,6 +1,6 @@
 ---
 name: ports-and-adapters
-description: Add or change stored data or a data port in SideGigPh, end to end. That means the Azure SQL table (SideGigPh.AzureSQL/Sql/001-schema.sql, plus sample rows in 002-seed.sql), the EF Core row and SideGigPhDb mapping, the store, the JSON contract (SideGigPh.Contracts + ApiJson), the Azure Function in SideGigPh.Api, the app's HTTP adapter in SideGigPh.Maui/Services/Api/, the port, DI and the workspace pages use. Use it when a feature needs new stored data (favorites, bookings, reports…), when adding a method to IChatRepository / IReviewRepository / IProfessionalProfileRepository / IUserRepository / IPhotoStore, or when changing a column. Not for Firebase sign-in (maui-firebase-auth) or UI (new-razor-component).
+description: Add or change stored data or a data port in SideGigPh, end to end. That means the Azure SQL change (a new guarded SideGigPh.AzureSQL/Sql/NNN-schema-*.sql via the db-migration skill, plus sample rows in 002-seed.sql), the EF Core row and SideGigPhDb mapping, the store, the JSON contract (SideGigPh.Contracts + ApiJson), the Azure Function in SideGigPh.Api, the app's HTTP adapter in SideGigPh.Maui/Services/Api/, the port, DI and the workspace pages use. Use it when a feature needs new stored data (favorites, bookings, reports…), when adding a method to IChatRepository / IReviewRepository / IProfessionalProfileRepository / IUserRepository / IPhotoStore, or when changing a column. Not for Firebase sign-in (maui-firebase-auth) or UI (new-razor-component).
 ---
 
 # Ports and adapters (app → API → Azure SQL)
@@ -11,7 +11,7 @@ The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. T
 
 | Layer | Where | Rule |
 |---|---|---|
-| Schema (source of truth) | `SideGigPh.AzureSQL/Sql/001-schema.sql` | Idempotent T-SQL (`IF OBJECT_ID(...) IS NULL`). Named constraints. Ids are `varchar` (Firebase uids, `ReferenceData` ids, SHA-256 hex), text people type is `nvarchar`, times are `datetimeoffset(3)` UTC. An index for every read the app makes. There are no EF migrations. |
+| Schema (source of truth) | `SideGigPh.AzureSQL/Sql/001-schema.sql` (frozen: the database is live) + the numbered `NNN-schema-*.sql` changes | **Load `db-migration`.** A change is a new script, every step guarded (`IF OBJECT_ID(...) IS NULL`, `COL_LENGTH(...) IS NULL`). Named constraints. Ids are `varchar` (Firebase uids, `ReferenceData` ids, SHA-256 hex), text people type is `nvarchar`, times are `datetimeoffset(3)` UTC. An index for every read the app makes. There are no EF migrations. |
 | Sample data | `SideGigPh.AzureSQL/Sql/002-seed.sql` | Every sample id starts `seed-`, and the script deletes those first, so it can run again. Phone numbers use the unassigned `+63 900` prefix. No chats, no photos. |
 | Row + mapping | `SideGigPh.AzureSQL/Rows.cs`, `SideGigPhDb.cs` | One `*Row` class per table. `OnModelCreating` repeats the script's lengths, unicode, keys and index names. Strings default to `varchar` (`ConfigureConventions`), so mark `nvarchar` columns `.IsUnicode()`. |
 | Store | `SideGigPh.AzureSQL/<Thing>Store.cs` | The data rules: validation, who may write what, anti-fraud. Takes the caller's uid, never trusts an id in the body. Answers with `SideGigPh.Contracts` records or an outcome enum. Multi-row writes go through `db.InTransactionAsync` (retry-safe). A unique-key race is caught with `SqlErrors.Violates(ex, Constraints.X)`. Register it in `AddSideGigPhSql`. |
@@ -25,7 +25,7 @@ Device adapters (files, photo picker, dialer) are another kind of adapter. A gen
 
 ## Adding a stored feature (recipe)
 
-1. Add the table, keys and indexes to `001-schema.sql` in a new `IF OBJECT_ID … IS NULL` block. Add sample rows to `002-seed.sql` if the UI needs something to show.
+1. Make a new schema change (`db-migration` skill: `new-migration.sh <what>`) with the table, keys and indexes, each step guarded; never edit `001-schema.sql`. Add sample rows to `002-seed.sql` if the UI needs something to show.
 2. Add the `*Row` and its `OnModelCreating` block (the same lengths and names as the script), and a `DbSet`.
 3. Add a store method holding the rules, and register it in `AddSideGigPhSql`.
 4. Add the contract records plus their `[JsonSerializable]` lines.
@@ -59,4 +59,4 @@ A signed-in person's id is their Firebase uid: `ProWorkspace.MyId` (also the lis
 
 - The API project builds (copy it to the scratchpad and run `dotnet build`) and `build-check` passes for the app.
 - No page injects an adapter (`grep -rn "Services.Api" SideGigPh.Maui/Components` finds nothing).
-- `001-schema.sql` and `SideGigPhDb` agree; `CLAUDE.md` is updated.
+- `001-schema.sql` + the `NNN-schema-*.sql` changes and `SideGigPhDb` agree; `migration-check.sh` passes; `CLAUDE.md` is updated.

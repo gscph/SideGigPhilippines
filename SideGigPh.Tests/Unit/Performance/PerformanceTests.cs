@@ -18,17 +18,18 @@ namespace SideGigPh.Tests.Unit.Performance;
 /// </summary>
 public class PerformanceTests
 {
-    private static List<ListingDto> ManyWorkers(int count)
+    private static List<RankCandidate> ManyWorkers(int count)
     {
         var towns = ReferenceData.Cities.Select(c => c.Id).ToArray();
         var rates = ReferenceData.RateOptions.Select(r => r.Id).ToArray();
         var services = ReferenceData.ServicesByCategory["aircon"].Select(s => s.Id).ToArray();
-        return Enumerable.Range(0, count).Select(i => TestData.Dto(
+        return Enumerable.Range(0, count).Select(i => TestData.Candidate(TestData.Dto(
             $"Worker {i}",
             cities: [towns[i % towns.Length]],
             services: [services[i % services.Length], services[(i + 3) % services.Length]],
             rate: rates[i % rates.Length],
-            reviews: i % 4 == 0 ? null : new ReviewSummary(3 + (i % 20) / 10.0, i % 50))).ToList();
+            reviews: i % 4 == 0 ? null : new ReviewSummary(3 + (i % 20) / 10.0, i % 50)),
+            TestData.Signals(received: i % 12, answered: (i % 12) / 2, replyMinutes: i % 7 == 0 ? null : i % 300, activeDaysAgo: i % 40, joinedDaysAgo: i % 400))).ToList();
     }
 
     [Fact]
@@ -36,10 +37,10 @@ public class PerformanceTests
     {
         var workers = ManyWorkers(5000);
         var request = new RankRequest("aircon-cleaning", "taytay", "500-1000");
-        SearchRanker.Rank(workers, request, TestData.Scales); // warm up
+        SearchRanker.Rank(workers, request, TestData.Scales, TestData.RankNow); // warm up
 
         var clock = Stopwatch.StartNew();
-        var result = SearchRanker.Rank(workers, request, TestData.Scales);
+        var result = SearchRanker.Rank(workers, request, TestData.Scales, TestData.RankNow);
         clock.Stop();
 
         result.InTown.Should().NotBeEmpty();
@@ -143,10 +144,10 @@ public class PerformanceTests
     {
         var cache = new ListingCache(new MemoryCache(new MemoryCacheOptions()));
         var reads = 0;
-        Task<IReadOnlyList<ListingDto>> Read()
+        Task<IReadOnlyList<RankCandidate>> Read()
         {
             reads++;
-            return Task.FromResult<IReadOnlyList<ListingDto>>([]);
+            return Task.FromResult<IReadOnlyList<RankCandidate>>([]);
         }
 
         await cache.SearchAsync("aircon", "rizal", Read);

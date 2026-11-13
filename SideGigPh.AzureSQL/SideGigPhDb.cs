@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 namespace SideGigPh.AzureSQL;
 
 /// <summary>
-/// The SideGigPh database. Maps to the tables, keys and indexes made by <c>Sql/001-schema.sql</c>, which is the
+/// The SideGigPh database. Maps to the tables, keys and indexes made by <c>Sql/001-schema.sql</c> plus every later <c>NNN-schema-*.sql</c>, which are the
 /// source of truth (there are no EF migrations): change both together.
 /// </summary>
 public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbContext(options)

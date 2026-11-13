@@ -61,7 +61,6 @@ internal static partial class ApiMapping
         return new SearchResult(
             [.. hits.Where(h => h.Place < page.InTownCount).Select(h => h.Hit)],
             [.. hits.Where(h => h.Place >= page.InTownCount).Select(h => h.Hit)],
-            page.ServiceFallback,
             page.InTownCount,
             page.OtherTownsCount);
     }

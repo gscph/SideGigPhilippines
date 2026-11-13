@@ -60,7 +60,6 @@ public static class Copy
     public static readonly LocalizedText ResultsInTown = new("Goes to {0}", "Pumupunta sa {0}");
     public static readonly LocalizedText ResultsOtherTowns = new("Other towns nearby", "Taga-ibang bayan na malapit");
     public static readonly LocalizedText ResultsWidened = new("No skilled workers in {0} yet, so here are skilled workers from nearby towns.", "Wala pang skilled worker sa {0}, kaya heto ang mga skilled worker sa kalapit na bayan.");
-    public static readonly LocalizedText ResultsServiceFallback = new("No skilled workers list \"{0}\" yet, so here are other {1} skilled workers.", "Wala pang skilled worker na may \"{0}\", kaya heto ang ibang {1}.");
     public static readonly LocalizedText ResultsEmpty = new("No skilled workers for this job yet. We're adding more soon.", "Wala pang skilled worker para dito. Magdadagdag pa kami.");
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");
 
