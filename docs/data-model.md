@@ -78,6 +78,8 @@ All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql
 
 **Sample data** (`002-seed.sql`): 31 Skilled Workers across all trades and areas, 8 Seekers and their reviews. Every id starts `seed-` and the numbers use the unassigned `+63 900` prefix. There are no chats and no photos. It's safe to re-run, and its `DELETE` block removes the samples before go-live.
 
+**Search ranking test data** (`006-seed-search-ranking.sql`): 45 sample workers tagged `seed-s2-`, with reviews, chats (answered, ignored, call-only, fresh) and activity/tenure dates relative to now, one trade per ranking signal. How to use it: [search-ranking-test-plan.md](search-ranking-test-plan.md). Set `@RemoveOnly = 1` to remove it.
+
 ## 5. Photos (Azure Blob Storage, through `SideGigPh.Api`)
 
 - **Where:** the storage account `sidegigphbfb9` (also the Function App's own storage; only `photos` is public), container `photos`. A photo is `https://sidegigphbfb9.blob.core.windows.net/photos/{sha256}.jpg`: readable by exact URL, not listable.

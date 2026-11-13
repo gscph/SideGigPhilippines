@@ -43,7 +43,10 @@ for file in "$sql"/[0-9][0-9][0-9]-schema-*.sql; do
         if (!(depth > 0 || guardNext || prevIf)) { printf "FAIL: %s:%d unguarded: %s\n", f, NR, line; bad = 1 }
       }
       if (upper ~ /DROP TABLE/) { printf "FAIL: %s:%d drops a table (loses live data): %s\n", f, NR, line; bad = 1 }
-      if (line != "") { prevIf = (upper ~ /^IF[ (]/ && upper !~ /BEGIN$/); if (upper !~ /^IF[ (]/) guardNext = 0 }
+      # An IF whose condition goes on over AND / OR lines still guards the statement after it.
+      continued = (upper ~ /^(AND|OR)[ (]/) && prevIf
+      if (continued && upper ~ /BEGIN$/) { depth++ }
+      if (line != "") { prevIf = ((upper ~ /^IF[ (]/ || continued) && upper !~ /BEGIN$/); if (upper !~ /^IF[ (]/ && !continued) guardNext = 0 }
     }
     END { exit bad }
   ' "$file" || problems=$((problems + 1))

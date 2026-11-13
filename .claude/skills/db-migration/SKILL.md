@@ -55,4 +55,4 @@ testers write rows to it. So:
 ## Data scripts are different
 
 `004-config.sql` (required answer lists, an idempotent upsert you re-run after editing it) and `002-seed.sql` /
-`003-rollback-seed.sql` (sample data) change rows, not schema. They keep their own numbers and are edited in place.
+`003-rollback-seed.sql` / `006-seed-search-ranking.sql` (sample data) change rows, not schema. They keep their own numbers and are edited in place.

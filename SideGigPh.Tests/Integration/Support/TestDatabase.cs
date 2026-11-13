@@ -57,6 +57,13 @@ public sealed class TestDatabase : IDisposable
         }
     }
 
+    /// <summary>Runs one more script from <c>SideGigPh.AzureSQL/Sql/</c> on this database (e.g. a sample-data seed).</summary>
+    public void RunScript(string fileName)
+    {
+        using var db = Open(ConnectionString);
+        Execute(db, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", fileName)));
+    }
+
     /// <summary>Whether a SQL Server was found; integration tests skip themselves when not.</summary>
     public static bool IsAvailable => Server.Value is not null;
 
