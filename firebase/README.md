@@ -4,7 +4,7 @@ Firebase is SideGigPh's **sign-in provider** (phone SMS code + Google), behind t
 
 | File | What it is |
 |---|---|
-| `cloudshell-auth.sh` | Paste into **Google Cloud Shell**: turns on the Auth admin API and limits SMS codes to Philippine numbers (blocks SMS-pumping fraud). Safe to run again. |
+| `cloudshell-auth.sh` | Paste into **Google Cloud Shell**: turns on the Auth admin API and the Play Integrity API, and limits SMS codes to Philippine numbers (blocks SMS-pumping fraud). Safe to run again. |
 
 ## First time (Firebase console)
 
@@ -13,6 +13,17 @@ Firebase is SideGigPh's **sign-in provider** (phone SMS code + Google), behind t
 3. **Project settings → Your apps → Android:** add the shared dev key's SHA-1 and SHA-256 (see [`docs/android-signing.md`](../docs/android-signing.md)), then download `google-services.json` into `SideGigPh.Maui/Platforms/Android/` (git-ignored). iOS: `GoogleService-Info.plist` into `Platforms/iOS/`.
 4. Paste `cloudshell-auth.sh` into Cloud Shell.
 5. The API needs the project id: the Function App setting `FirebaseProjectId` (`sidegigphilippines`).
+
+## Phone sign-in: no SMS arrives
+
+Read the real error: `adb logcat | grep -E "FirebaseAuth|SideGigPh"`. Authentication → Usage stays at 0 when Firebase refused to send.
+
+| Log says | Fix |
+|---|---|
+| `17028 Invalid app info in play_integrity_token` / "This app is not authorized" | The Android app's **SHA-256** (not only SHA-1) is missing in Project settings → Your apps, or the **Play Integrity API** is off (run `cloudshell-auth.sh` again). Can take a few minutes to apply. On an **emulator** it fails anyway (Play can't vouch for an app it didn't install), so `AddFirebaseAuth` switches emulators to the reCAPTCHA check (a browser tab opens before the code is sent). |
+| No error, the code screen shows, Usage 0 | The number is under Sign-in method → Phone → *Phone numbers for testing*: no SMS is sent, use its fixed code. |
+| `DEVELOPMENT_MODE_MISMATCH` on the code | The code belongs to a testing-number session; ask for a new code. |
+| Usage counts the SMS but it never arrives | Carrier filtering: check the phone's Spam folder, try another network. |
 
 ## Notifications (Cloud Messaging)
 

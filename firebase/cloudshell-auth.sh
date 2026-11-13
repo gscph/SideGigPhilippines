@@ -7,7 +7,9 @@
 #
 # What it does:
 #   1. turns on the Identity Toolkit API (Firebase Auth's admin API)
-#   2. limits SMS sign-in codes to Philippine numbers (blocks SMS-pumping fraud)
+#   2. turns on the Play Integrity API (Android phone sign-in checks the app with it; without it
+#      sending a code fails with 17028 "Invalid app info in play_integrity_token")
+#   3. limits SMS sign-in codes to Philippine numbers (blocks SMS-pumping fraud)
 #
 # Turning on the Phone and Google providers, the Blaze plan and the app's SHA-1/SHA-256 stay
 # in the Firebase console: see firebase/README.md.
@@ -27,6 +29,9 @@ gcloud config set project "$PROJECT_ID" >/dev/null 2>&1 \
 
 step "Turning on the Auth admin API"
 gcloud services enable identitytoolkit.googleapis.com || fail "couldn't turn on identitytoolkit.googleapis.com."
+
+step "Turning on the Play Integrity API (Android phone sign-in)"
+gcloud services enable playintegrity.googleapis.com || fail "couldn't turn on playintegrity.googleapis.com."
 
 step "SMS sign-in codes: Philippine numbers only"
 response=$(curl -sS -X PATCH \

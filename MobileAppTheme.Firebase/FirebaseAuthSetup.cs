@@ -30,6 +30,7 @@ public static class FirebaseAuthSetup
             {
                 FirebaseCore.Start(activity);
                 FirebaseCore.TryRun("Google sign-in", () => FirebaseAuthGoogleImplementation.Initialize(googleWebClientId));
+                FirebaseCore.TryRun("Emulator phone check", UseRecaptchaOnEmulator);
             }));
 #elif IOS
             events.AddiOS(ios => ios.WillFinishLaunching((_, __) =>
@@ -47,6 +48,20 @@ public static class FirebaseAuthSetup
     }
 
 #if ANDROID
+    /// <summary>
+    /// Phone sign-in proves the app is genuine with Play Integrity. On an emulator Play can't vouch for an app it
+    /// didn't install, so Firebase refuses to send the code (17028 "Invalid app info in play_integrity_token") instead
+    /// of falling back. On an emulator, use the reCAPTCHA check (a browser tab, needs the SHA-1) instead. Real phones
+    /// keep Play Integrity.
+    /// </summary>
+    private static void UseRecaptchaOnEmulator()
+    {
+        if (DeviceInfo.Current.DeviceType == DeviceType.Virtual)
+        {
+            global::Firebase.Auth.FirebaseAuth.Instance.FirebaseAuthSettings.ForceRecaptchaFlowForTesting(true);
+        }
+    }
+
     /// <summary>
     /// Call from <c>MainActivity.OnActivityResult</c> (after <c>base</c>). Google sign-in returns its
     /// result through the activity; without forwarding it, <c>SignInWithGoogleAsync</c> never completes
