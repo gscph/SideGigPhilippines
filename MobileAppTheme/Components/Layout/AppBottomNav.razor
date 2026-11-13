@@ -1,6 +1,6 @@
 <MudPaper Square="true" Elevation="4" Class="app-bottom-nav" role="navigation">
     <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
-        <MudStack Row="true" Spacing="0" StretchItems="StretchItems.All" Class="px-1 py-1">
+        <MudStack Row="true" Spacing="0" StretchItems="StretchItems.All" AlignItems="AlignItems.Center" Class="app-bottom-nav-row px-1">
             @foreach (var tab in Tabs)
             {
                 <AppNavItem Tab="tab" Active="@(tab == ActiveTab)" />

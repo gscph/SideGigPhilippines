@@ -29,4 +29,7 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(ServiceDto))]
 [JsonSerializable(typeof(List<ServiceDto>))]
 [JsonSerializable(typeof(OtherJobRequest))]
+[JsonSerializable(typeof(SearchHitDto))]
+[JsonSerializable(typeof(List<SearchHitDto>))]
+[JsonSerializable(typeof(SearchPageDto))]
 public sealed partial class ApiJson : JsonSerializerContext;

@@ -23,8 +23,9 @@ public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> 
         (await api.GetAsync($"chats/{ApiClient.Escape(chatId)}", ApiJson.Default.ChatDto))?.ToModel(),
         null, $"chat {chatId}");
 
-    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId) => api.ReadAsync<IReadOnlyList<ChatMessage>>(async () =>
-        (await api.GetAsync($"chats/{ApiClient.Escape(chatId)}/messages", ApiJson.Default.ListMessageDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId, string? beforeMessageId = null) => api.ReadAsync<IReadOnlyList<ChatMessage>>(async () =>
+        (await api.GetAsync($"chats/{ApiClient.Escape(chatId)}/messages?take={Paging.Messages}"
+            + (beforeMessageId is null ? string.Empty : $"&before={ApiClient.Escape(beforeMessageId)}"), ApiJson.Default.ListMessageDto) ?? []).Select(dto => dto.ToModel()).ToList(),
         [], $"the messages of chat {chatId}");
 
     public async Task<Chat> SendAsync(Chat chat, ChatMessage message)

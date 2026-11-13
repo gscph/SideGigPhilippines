@@ -9,8 +9,8 @@ namespace SideGigPh.Maui.Services.Api;
 /// <see cref="IProfessionalProfileRepository"/> on SideGigPh.Api (<c>professionals</c>). The listing id is the caller's
 /// uid and its number the account's verified number: the server takes both from the sign-in token.
 /// <para>
-/// Listings change rarely, so answers are kept a while: a search for <see cref="SearchFreshFor"/> (changing the
-/// Seeker's town, budget or job in the same area ranks the same list again, with no request), a listing for
+/// Listings change rarely, so answers are kept a while: a page of search results for <see cref="SearchFreshFor"/> (the
+/// server ranks them, so each query and page is its own request; Back to an earlier search reuses it), a listing for
 /// <see cref="ListingFreshFor"/> (the Inbox, the public profile and chats reuse it). Publishing or removing drops both.
 /// </para>
 /// </summary>
@@ -19,37 +19,41 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
     public static readonly TimeSpan SearchFreshFor = TimeSpan.FromSeconds(60);
     public static readonly TimeSpan ListingFreshFor = TimeSpan.FromMinutes(5);
 
-    private readonly TimedCache<IReadOnlyList<ProfessionalListing>> _searches = new(SearchFreshFor);
+    private readonly TimedCache<SearchResult> _searches = new(SearchFreshFor);
     private readonly TimedCache<ProfessionalListing> _listings = new(ListingFreshFor);
 
     public async Task<bool> HasProfileAsync(string uid) => await GetByIdAsync(uid) is not null;
 
-    public Task<IReadOnlyList<ProfessionalListing>> SearchAsync(ProfessionalSearchQuery query)
+    public Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip)
     {
-        var key = $"{query.CategoryId}|{query.AreaId}";
-        if (_searches.TryGet(key, out var cached))
+        var path = $"search/professionals?categoryId={ApiClient.Escape(query.CategoryId)}"
+            + Param("areaId", query.AreaId) + Param("serviceId", query.ServiceId)
+            + Param("cityId", query.CityId) + Param("budgetId", query.BudgetId)
+            + $"&skip={skip}&take={Paging.Search}";
+        if (_searches.TryGet(path, out var cached))
         {
             return Task.FromResult(cached);
         }
 
-        return api.ReadAsync<IReadOnlyList<ProfessionalListing>>(async () =>
+        return api.ReadAsync(async () =>
         {
-            var path = $"professionals?categoryId={ApiClient.Escape(query.CategoryId)}";
-            if (query.AreaId is not null)
+            if (await api.GetAsync(path, ApiJson.Default.SearchPageDto) is not { } page)
             {
-                path += $"&areaId={ApiClient.Escape(query.AreaId)}";
+                return SearchResult.Empty;
             }
 
-            var listings = (await api.GetAsync(path, ApiJson.Default.ListListingDto) ?? []).Select(dto => dto.ToModel()).ToList();
-            _searches.Set(key, listings);
-            foreach (var listing in listings)
+            var result = page.ToModel(skip);
+            _searches.Set(path, result);
+            foreach (var hit in result.InTown.Concat(result.OtherTowns))
             {
-                _listings.Set(listing.Id, listing);
+                _listings.Set(hit.Pro.Id, hit.Pro);
             }
 
-            return listings;
-        }, [], $"pros in {query.CategoryId}/{query.AreaId}");
+            return result;
+        }, SearchResult.Empty, $"pros in {query.CategoryId}/{query.AreaId} from {skip}");
     }
+
+    private static string Param(string name, string? value) => value is null ? string.Empty : $"&{name}={ApiClient.Escape(value)}";
 
     public Task<ProfessionalListing?> GetByIdAsync(string professionalId)
     {

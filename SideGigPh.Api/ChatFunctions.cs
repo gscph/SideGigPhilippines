@@ -39,6 +39,10 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
         return await chats.GetAsync(chatId, uid, cancellationToken) is { } chat ? new OkObjectResult(chat) : new NotFoundResult();
     }
 
+    /// <summary>
+    /// <c>GET chats/{chatId}/messages?take=20&amp;before={messageId}</c>: one page of messages, oldest first: the newest
+    /// <c>take</c> before message <c>before</c> (or the latest without it). Without <c>take</c>, every message.
+    /// </summary>
     [Function("GetChatMessages")]
     public async Task<IActionResult> Messages(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "chats/{chatId}/messages")] HttpRequest request,
@@ -50,7 +54,21 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             return new UnauthorizedResult();
         }
 
-        return await chats.MessagesAsync(chatId, uid, cancellationToken) is { } messages ? new OkObjectResult(messages) : new NotFoundResult();
+        int? take = null;
+        if (request.Query.ContainsKey("take"))
+        {
+            if (!int.TryParse(request.Query["take"], out var count) || count < 1)
+            {
+                return ApiResults.BadRequest(ApiErrors.Invalid("take"));
+            }
+
+            take = count;
+        }
+
+        string? before = request.Query["before"];
+        return await chats.MessagesAsync(chatId, uid, take, string.IsNullOrEmpty(before) ? null : before, cancellationToken) is { } messages
+            ? new OkObjectResult(messages)
+            : new NotFoundResult();
     }
 
     /// <summary>Sends a message; the first one creates the chat. Tells the other person (<see cref="ChatNotifier"/>). Answers with the chat as saved.</summary>

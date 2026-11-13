@@ -40,9 +40,10 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
 
     public List<(ProfessionalListing Listing, IReadOnlyList<WorkReference> References)> Published { get; } = [];
 
-    public List<ProfessionalListing> SearchResults { get; set; } = [];
+    /// <summary>What every search page answers (the server ranks; this fake only hands it back).</summary>
+    public SearchResult SearchResults { get; set; } = SearchResult.Empty;
 
-    public List<ProfessionalSearchQuery> Searches { get; } = [];
+    public List<(ProfessionalSearchQuery Query, int Skip)> Searches { get; } = [];
 
     public Dictionary<string, ProfessionalListing> ById { get; } = [];
 
@@ -50,10 +51,10 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
 
     public Task<bool> HasProfileAsync(string uid) => Task.FromResult(ById.ContainsKey(uid));
 
-    public Task<IReadOnlyList<ProfessionalListing>> SearchAsync(ProfessionalSearchQuery query)
+    public Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip)
     {
-        Searches.Add(query);
-        return Task.FromResult<IReadOnlyList<ProfessionalListing>>(SearchResults);
+        Searches.Add((query, skip));
+        return Task.FromResult(SearchResults);
     }
 
     public Task<ProfessionalListing?> GetByIdAsync(string professionalId) =>
@@ -174,8 +175,14 @@ public sealed class FakeChats : IChatRepository
 
     public Task<Chat?> GetAsync(string chatId) => Task.FromResult(Inbox.FirstOrDefault(c => c.Id == chatId));
 
-    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId) =>
-        Task.FromResult<IReadOnlyList<ChatMessage>>(Messages.Where(m => m.ChatId == chatId).ToList());
+    /// <summary>Like the server: the newest page before <paramref name="beforeMessageId"/>, oldest first.</summary>
+    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId, string? beforeMessageId = null)
+    {
+        var all = Messages.Where(m => m.ChatId == chatId).OrderBy(m => m.At).ToList();
+        var end = beforeMessageId is null ? all.Count : all.FindIndex(m => m.Id == beforeMessageId);
+        var start = Math.Max(0, end - SideGigPh.Contracts.Paging.Messages);
+        return Task.FromResult<IReadOnlyList<ChatMessage>>(all.GetRange(start, Math.Max(0, end - start)));
+    }
 
     public Task<Chat> SendAsync(Chat chat, ChatMessage message)
     {

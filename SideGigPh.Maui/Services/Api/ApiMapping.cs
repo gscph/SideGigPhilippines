@@ -48,6 +48,25 @@ internal static partial class ApiMapping
     };
 
     /// <summary>
+    /// A page of ranked results that starts at result <paramref name="skip"/> of the whole list. Results run in-town
+    /// first, so a result's place in the whole list says its group: the first <c>InTownCount</c> go to the Seeker's town.
+    /// </summary>
+    public static SearchResult ToModel(this SearchPageDto page, int skip)
+    {
+        var hits = page.Hits.Select((hit, i) =>
+        {
+            var pro = hit.Listing.ToModel();
+            return (Place: skip + i, Hit: new SearchHit(pro, pro.Reviews, hit.OffersService, hit.ServesTown, hit.FitsBudget));
+        }).ToList();
+        return new SearchResult(
+            [.. hits.Where(h => h.Place < page.InTownCount).Select(h => h.Hit)],
+            [.. hits.Where(h => h.Place >= page.InTownCount).Select(h => h.Hit)],
+            page.ServiceFallback,
+            page.InTownCount,
+            page.OtherTownsCount);
+    }
+
+    /// <summary>
     /// The listing as the API takes it. Photos go by id, read from their URLs (the file name is the id); a URL that
     /// isn't a stored photo (a leftover on-device data URL) is left out. The number comes from the sign-in token.
     /// </summary>

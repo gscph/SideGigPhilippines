@@ -18,12 +18,12 @@ namespace SideGigPh.Tests.Unit.Performance;
 /// </summary>
 public class PerformanceTests
 {
-    private static List<ProfessionalListing> ManyWorkers(int count)
+    private static List<ListingDto> ManyWorkers(int count)
     {
         var towns = ReferenceData.Cities.Select(c => c.Id).ToArray();
         var rates = ReferenceData.RateOptions.Select(r => r.Id).ToArray();
         var services = ReferenceData.ServicesByCategory["aircon"].Select(s => s.Id).ToArray();
-        return Enumerable.Range(0, count).Select(i => TestData.Listing(
+        return Enumerable.Range(0, count).Select(i => TestData.Dto(
             $"Worker {i}",
             cities: [towns[i % towns.Length]],
             services: [services[i % services.Length], services[(i + 3) % services.Length]],
@@ -35,14 +35,14 @@ public class PerformanceTests
     public void Ranking5000Workers_TakesUnderHalfASecond()
     {
         var workers = ManyWorkers(5000);
-        var request = new SearchRequest("aircon", "aircon-cleaning", "taytay", "500-1000");
-        SearchRanker.Rank(workers, request); // warm up
+        var request = new RankRequest("aircon-cleaning", "taytay", "500-1000");
+        SearchRanker.Rank(workers, request, TestData.Scales); // warm up
 
         var clock = Stopwatch.StartNew();
-        var result = SearchRanker.Rank(workers, request);
+        var result = SearchRanker.Rank(workers, request, TestData.Scales);
         clock.Stop();
 
-        result.Count.Should().BeGreaterThan(0);
+        result.InTown.Should().NotBeEmpty();
         clock.Elapsed.Should().BeLessThan(TimeSpan.FromMilliseconds(500));
     }
 

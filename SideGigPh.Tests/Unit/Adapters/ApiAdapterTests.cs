@@ -27,16 +27,27 @@ public class ApiAdapterTests
 
     // --- Listings ---------------------------------------------------------------
 
+    private const string FirstPage = "GET search/professionals?categoryId=aircon&skip=0&take=4";
+
+    private static ProfessionalSearchQuery Query(string? areaId = null, string? cityId = null) => new("aircon", areaId, null, cityId, null);
+
+    private static string Page(params SearchHitDto[] hits) =>
+        Json(new SearchPageDto([.. hits], hits.Count(h => h.ServesTown), hits.Count(h => !h.ServesTown), false), ApiJson.Default.SearchPageDto);
+
+    private static SearchHitDto Hit(string id = "pro-1", bool inTown = true) => new(ListingDto(id), true, inTown, true);
+
     [Fact]
-    public async Task Search_SendsTheTokenAndReadsListings()
+    public async Task Search_SendsTheTokenAndTheWholeSearch_AndReadsOnePage()
     {
         var server = new StubServer();
-        server.Answer("GET professionals?categoryId=aircon&areaId=rizal", HttpStatusCode.OK, Json(new List<ListingDto> { ListingDto() }, ApiJson.Default.ListListingDto));
+        server.Answer("GET search/professionals?categoryId=aircon&areaId=rizal&serviceId=aircon-cleaning&cityId=taytay&budgetId=500-1000&skip=4&take=4",
+            HttpStatusCode.OK, Page(Hit("pro-1"), Hit("pro-2", inTown: false)));
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        var listings = await repo.SearchAsync(new ProfessionalSearchQuery("aircon", "rizal"));
+        var page = await repo.SearchAsync(new ProfessionalSearchQuery("aircon", "rizal", "aircon-cleaning", "taytay", "500-1000"), skip: 4);
 
-        listings.Should().ContainSingle().Which.DisplayName.Should().Be("Maria");
+        page.Count.Should().Be(2);
+        page.Total.Should().Be(2);
         server.Requests.Single().Token.Should().Be($"token-for-{TestData.WorkerUid}");
     }
 
@@ -44,15 +55,28 @@ public class ApiAdapterTests
     public async Task Search_Again_WithinTheFreshWindow_MakesNoRequest_AndFillsTheListingCache()
     {
         var server = new StubServer();
-        server.Answer("GET professionals?categoryId=aircon", HttpStatusCode.OK, Json(new List<ListingDto> { ListingDto() }, ApiJson.Default.ListListingDto));
+        server.Answer(FirstPage, HttpStatusCode.OK, Page(Hit()));
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null));
-        await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null));
+        await repo.SearchAsync(Query(), 0);
+        await repo.SearchAsync(Query(), 0);
         var profile = await repo.GetByIdAsync("pro-1");
 
         server.Requests.Should().ContainSingle("the second search and the profile come from memory");
         profile!.Id.Should().Be("pro-1");
+    }
+
+    [Fact]
+    public async Task Search_NextPage_IsItsOwnRequest()
+    {
+        var server = new StubServer();
+        server.Answer(FirstPage, HttpStatusCode.OK, Page(Hit()));
+        var repo = new ApiProfessionalProfileRepository(server.Client());
+
+        await repo.SearchAsync(Query(), 0);
+        await repo.SearchAsync(Query(), 4);
+
+        server.CountOf("GET search/professionals?categoryId=aircon&skip=4&take=4").Should().Be(1);
     }
 
     [Fact]
@@ -61,20 +85,20 @@ public class ApiAdapterTests
         var server = new StubServer { Offline = true };
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        (await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null))).Should().BeEmpty();
+        (await repo.SearchAsync(Query(), 0)).Should().Be(SearchResult.Empty);
     }
 
     [Fact]
     public async Task Search_FailedRead_IsNotCached_SoTheNextTryAsksAgain()
     {
         var server = new StubServer();
-        server.Answer("GET professionals?categoryId=aircon", HttpStatusCode.InternalServerError, Error(ApiErrors.Exception));
+        server.Answer(FirstPage, HttpStatusCode.InternalServerError, Error(ApiErrors.Exception));
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        (await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null))).Should().BeEmpty();
-        await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null));
+        (await repo.SearchAsync(Query(), 0)).Should().Be(SearchResult.Empty);
+        await repo.SearchAsync(Query(), 0);
 
-        server.CountOf("GET professionals?categoryId=aircon").Should().Be(2);
+        server.CountOf(FirstPage).Should().Be(2);
     }
 
     [Fact]
@@ -106,16 +130,16 @@ public class ApiAdapterTests
     public async Task Publish_Ok_IsPublished_AndClearsTheCaches()
     {
         var server = new StubServer();
-        server.Answer("GET professionals?categoryId=aircon", HttpStatusCode.OK, "[]");
+        server.Answer(FirstPage, HttpStatusCode.OK, Page());
         server.Answer("PUT professionals/me", HttpStatusCode.OK, Json(ListingDto(), ApiJson.Default.ListingDto));
         var repo = new ApiProfessionalProfileRepository(server.Client());
-        await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null));
+        await repo.SearchAsync(Query(), 0);
 
         var result = await repo.PublishAsync(TestData.ReadyDraft().ToListing(TestData.WorkerUid), TestData.ReadyDraft().References);
-        await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null));
+        await repo.SearchAsync(Query(), 0);
 
         result.Should().Be(PublishResult.Published);
-        server.CountOf("GET professionals?categoryId=aircon").Should().Be(2, "a new listing must show in the next search");
+        server.CountOf(FirstPage).Should().Be(2, "a new listing must show in the next search");
         var sent = JsonSerializer.Deserialize(server.Requests.Single(r => r.Route == "PUT professionals/me").Body!, ApiJson.Default.PublishListingRequest)!;
         sent.References.Should().ContainSingle();
     }
@@ -235,13 +259,24 @@ public class ApiAdapterTests
         var server = new StubServer();
         server.Answer("GET chats?side=seeker", HttpStatusCode.OK, Json(new List<ChatDto> { ChatDto() }, ApiJson.Default.ListChatDto));
         server.Answer("GET chats/pro-1_seeker-1", HttpStatusCode.OK, Json(ChatDto(), ApiJson.Default.ChatDto));
-        server.Answer("GET chats/pro-1_seeker-1/messages", HttpStatusCode.OK,
+        server.Answer("GET chats/pro-1_seeker-1/messages?take=20", HttpStatusCode.OK,
             Json(new List<MessageDto> { ChatDto().LastMessage, ChatDto().LastMessage with { Id = "m2", Kind = Wire.Call, Text = null } }, ApiJson.Default.ListMessageDto));
         var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
 
         (await chats.GetInboxAsync("seeker-1", ChatSide.Seeker)).Should().ContainSingle().Which.LastMessage.Text.Should().Be("Hi po");
         (await chats.GetAsync("pro-1_seeker-1"))!.ServiceId.Should().Be("aircon-cleaning");
         (await chats.GetMessagesAsync("pro-1_seeker-1")).Select(m => m.Kind).Should().Equal(ChatMessageKind.Text, ChatMessageKind.Call);
+    }
+
+    [Fact]
+    public async Task Chats_OlderMessages_AskForThePageBeforeTheOldestShown()
+    {
+        var server = new StubServer();
+        server.Answer("GET chats/pro-1_seeker-1/messages?take=20&before=m-1", HttpStatusCode.OK,
+            Json(new List<MessageDto> { ChatDto().LastMessage with { Id = "m-0" } }, ApiJson.Default.ListMessageDto));
+        var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
+
+        (await chats.GetMessagesAsync("pro-1_seeker-1", "m-1")).Should().ContainSingle().Which.Id.Should().Be("m-0");
     }
 
     [Fact]

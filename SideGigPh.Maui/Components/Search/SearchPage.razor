@@ -32,16 +32,17 @@
             <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@FallbackNote</MudAlert>
         }
 
-        @if (_result.Count == 0)
+        @if (_result.Total == 0)
         {
             <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.ResultsEmpty)</MudText>
         }
-        else if (_result.InTown.Count == 0)
+        else if (_result.InTownTotal == 0)
         {
             <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@T.Format(Copy.ResultsWidened, TownLabel)</MudAlert>
         }
 
-        <ResultGroup Title="@T.Format(Copy.ResultsInTown, TownLabel)" Hits="_result.InTown" />
-        <ResultGroup Title="@T.Get(Copy.ResultsOtherTowns)" Hits="_result.OtherTowns" />
+        <ResultGroup Title="@T.Format(Copy.ResultsInTown, TownLabel)" Hits="_result.InTown" Total="_result.InTownTotal" />
+        <ResultGroup Title="@T.Get(Copy.ResultsOtherTowns)" Hits="_result.OtherTowns" Total="_result.OtherTownsTotal" />
+        <LoadMoreOnScroll HasMore="_result.HasMore" OnLoadMore="LoadMoreAsync" />
     }
 </MudStack>

@@ -46,7 +46,7 @@ public class ServerRefusalTests(ApiTestHost api)
         using var again = await client.PostAsJsonAsync($"chats/{chatId}/messages", resend, ApiJson.Default.SendMessageRequest);
 
         again.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await seeker.Seeker.GetMessagesAsync(worker.Uid)).Count(m => m.Id == "resent-1").Should().Be(1);
+        (await seeker.Seeker.GetMessagesAsync(worker.Uid)).Messages.Count(m => m.Id == "resent-1").Should().Be(1);
     }
 
     [IntegrationFact]

@@ -105,8 +105,15 @@ public sealed class ProWorkspace(
 
     public Task<Chat?> GetChatAsync(string chatId) => chats.GetAsync(chatId);
 
-    /// <summary>The chat's messages, oldest first.</summary>
-    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId) => chats.GetMessagesAsync(chatId);
+    /// <summary>The chat's newest page of messages, as it opens.</summary>
+    public async Task<ChatHistory> GetMessagesAsync(string chatId) => ChatHistory.FromLatest(await chats.GetMessagesAsync(chatId));
+
+    /// <summary><paramref name="shown"/> with the page before its oldest message added above (the worker scrolled to the top).</summary>
+    public async Task<ChatHistory> OlderMessagesAsync(string chatId, ChatHistory shown) =>
+        shown.HasOlder ? shown.WithOlder(await chats.GetMessagesAsync(chatId, shown.OldestId)) : shown;
+
+    /// <summary><paramref name="shown"/> with the chat's newest messages added under it (a message arrived).</summary>
+    public async Task<ChatHistory> NewMessagesAsync(string chatId, ChatHistory shown) => shown.WithLatest(await chats.GetMessagesAsync(chatId));
 
     /// <summary>
     /// Calls <paramref name="changed"/> with the chat when it gets a message after <paramref name="lastMessageId"/>, until disposed.

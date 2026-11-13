@@ -8,6 +8,12 @@
    Never hard-code hex here.
    ========================================================================== */
 
+/* Bottom tab bar height (AppBottomNav), 1.5x its natural 3.75rem. The page padding, sticky actions and
+   the + button are placed from it. */
+:root {
+    --app-bottom-nav-height: 5.625rem;
+}
+
 /* FocusOnNavigate focuses each page's h1; don't draw a ring around the title. */
 h1:focus {
     outline: none;
@@ -285,16 +291,21 @@ h1:focus {
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* The tab row inside it, tabs centered in the bar's height. */
+.app-bottom-nav-row {
+    min-height: var(--app-bottom-nav-height);
+}
+
 /* Page content clears the bottom tabs and the + button. */
 .app-content {
-    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(var(--app-bottom-nav-height) + 3.25rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* A page's main action stays pinned just above the bottom tabs.
    Put it last in the page so it rests there when scrolled to the end. */
 .app-sticky-action {
     position: sticky;
-    bottom: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--app-bottom-nav-height) + 0.75rem + env(safe-area-inset-bottom, 0px));
     z-index: 1;
 }
 
@@ -302,7 +313,7 @@ h1:focus {
 .app-fab {
     position: fixed;
     right: 16px;
-    bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    bottom: calc(var(--app-bottom-nav-height) + 1.25rem + env(safe-area-inset-bottom, 0px));
     z-index: var(--mud-zindex-appbar);
 }
 

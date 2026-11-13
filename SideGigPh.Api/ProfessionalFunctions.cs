@@ -14,7 +14,49 @@ namespace SideGigPh.Api;
 /// </summary>
 public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, ProfessionalStore professionals, ILogger<ProfessionalFunctions> logger)
 {
-    /// <summary><c>GET professionals?categoryId=aircon&amp;areaId=rizal</c> (areaId optional).</summary>
+    /// <summary>
+    /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;skip=0&amp;take=4</c>:
+    /// one page of the trade's workers ranked for this Seeker (only <c>categoryId</c> is required; <c>take</c> defaults
+    /// to <see cref="Paging.Search"/>).
+    /// </summary>
+    [Function("SearchProfessionalsRanked")]
+    public async Task<IActionResult> SearchRanked(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "search/professionals")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is null)
+        {
+            return new UnauthorizedResult();
+        }
+
+        var query = request.Query;
+        string? categoryId = query["categoryId"];
+        if (string.IsNullOrEmpty(categoryId))
+        {
+            return ApiResults.BadRequest("categoryId-required");
+        }
+
+        if (Number(query["skip"], 0) is not { } skip || skip < 0)
+        {
+            return ApiResults.BadRequest(ApiErrors.Invalid("skip"));
+        }
+
+        if (Number(query["take"], Paging.Search) is not { } take || take < 1)
+        {
+            return ApiResults.BadRequest(ApiErrors.Invalid("take"));
+        }
+
+        var rank = new RankRequest(Optional(query["serviceId"]), Optional(query["cityId"]), Optional(query["budgetId"]));
+        return new OkObjectResult(await professionals.SearchPageAsync(categoryId, Optional(query["areaId"]), rank, skip, take, cancellationToken));
+    }
+
+    private static string? Optional(string? value) => string.IsNullOrEmpty(value) ? null : value;
+
+    /// <summary>A whole-number query value, <paramref name="missing"/> when absent, or null when it isn't a number.</summary>
+    private static int? Number(string? value, int missing) =>
+        string.IsNullOrEmpty(value) ? missing : int.TryParse(value, out var number) ? number : null;
+
+    /// <summary><c>GET professionals?categoryId=aircon&amp;areaId=rizal</c> (areaId optional), unranked: for app versions before paging.</summary>
     [Function("SearchProfessionals")]
     public async Task<IActionResult> Search(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "professionals")] HttpRequest request,

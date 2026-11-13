@@ -51,7 +51,7 @@ public class WorkerToCustomerTests(ApiTestHost api)
         worker.Pro.UnreadCount.Should().Be(1);
         chat.ServiceId.Should().Be("aircon-cleaning");
         chat.CityId.Should().Be("taytay");
-        (await worker.Pro.GetMessagesAsync(chat.Id)).Single().Text.Should().Contain("Aircon cleaning");
+        (await worker.Pro.GetMessagesAsync(chat.Id)).Messages.Single().Text.Should().Contain("Aircon cleaning");
 
         // Opening it clears the badge; the reply reaches the Seeker.
         await worker.Pro.MarkReadAsync(chat.Id);
@@ -61,7 +61,7 @@ public class WorkerToCustomerTests(ApiTestHost api)
 
         await seeker.Seeker.RefreshActivityAsync();
         seeker.Seeker.UnreadCount.Should().Be(1);
-        (await seeker.Seeker.GetMessagesAsync(worker.Uid)).Select(m => m.Text).Should().EndWith("Available po ako bukas.");
+        (await seeker.Seeker.GetMessagesAsync(worker.Uid)).Messages.Select(m => m.Text).Should().EndWith("Available po ako bukas.");
     }
 
     [IntegrationFact]

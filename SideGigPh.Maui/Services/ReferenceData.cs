@@ -275,21 +275,6 @@ public static class ReferenceData
     // Place names are the same in English and Taglish.
     private static CatalogOption Town(string id, string name) => new(id, new(name, name));
 
-    /// <summary>Position on <see cref="PriceTiers"/> (0 = cheapest), or -1 for "not sure" / "quote" / unanswered.</summary>
-    public static int PriceRank(string? tierId)
-    {
-        var tiers = PriceTiers;
-        for (var i = 0; i < tiers.Count; i++)
-        {
-            if (tiers[i].Id == tierId)
-            {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     /// <summary>A config with the lists built from it, swapped in as one so a page never sees half of each.</summary>
     private sealed class Loaded(AppConfig config)
     {

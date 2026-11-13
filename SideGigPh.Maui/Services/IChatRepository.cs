@@ -14,8 +14,11 @@ public interface IChatRepository
     /// <summary>One chat, or null if it doesn't exist (yet).</summary>
     Task<Chat?> GetAsync(string chatId);
 
-    /// <summary>The chat's messages, oldest first.</summary>
-    Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId);
+    /// <summary>
+    /// One page of the chat's messages, oldest first: the newest <c>Paging.Messages</c> before message
+    /// <paramref name="beforeMessageId"/>, or the latest page without it. A full page means there may be older ones.
+    /// </summary>
+    Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string chatId, string? beforeMessageId = null);
 
     /// <summary>
     /// Adds the message and makes it the chat's last message; the sender has read it. The first

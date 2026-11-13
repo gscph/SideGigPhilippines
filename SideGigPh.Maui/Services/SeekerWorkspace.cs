@@ -91,7 +91,11 @@ public sealed class SeekerWorkspace(
     /// <summary>How the saved search words were understood (None when the job was picked by tapping).</summary>
     public SearchIntent CurrentIntent => SearchIntentParser.Parse(Answers.SearchText);
 
+    /// <summary>The first page of results for the saved search.</summary>
     public Task<SearchResult> SearchAsync() => search.SearchAsync(Request);
+
+    /// <summary>The results shown so far with the next page added (the Seeker scrolled to the end).</summary>
+    public Task<SearchResult> MoreResultsAsync(SearchResult shown) => search.MoreAsync(Request, shown);
 
     /// <summary>
     /// Free-text search: works out the job from the words and searches for it. When nothing
@@ -173,8 +177,17 @@ public sealed class SeekerWorkspace(
 
     public string ChatIdWith(string professionalId) => Chat.IdFor(professionalId, MyId);
 
-    /// <summary>The chat with a pro, oldest message first (empty before the first message).</summary>
-    public Task<IReadOnlyList<ChatMessage>> GetMessagesAsync(string professionalId) => chats.GetMessagesAsync(ChatIdWith(professionalId));
+    /// <summary>The chat with a pro: its newest page of messages, oldest first (empty before the first message).</summary>
+    public async Task<ChatHistory> GetMessagesAsync(string professionalId) =>
+        ChatHistory.FromLatest(await chats.GetMessagesAsync(ChatIdWith(professionalId)));
+
+    /// <summary><paramref name="shown"/> with the page before its oldest message added above (the Seeker scrolled to the top).</summary>
+    public async Task<ChatHistory> OlderMessagesAsync(string professionalId, ChatHistory shown) =>
+        shown.HasOlder ? shown.WithOlder(await chats.GetMessagesAsync(ChatIdWith(professionalId), shown.OldestId)) : shown;
+
+    /// <summary><paramref name="shown"/> with the chat's newest messages added under it (a message arrived).</summary>
+    public async Task<ChatHistory> NewMessagesAsync(string professionalId, ChatHistory shown) =>
+        shown.WithLatest(await chats.GetMessagesAsync(ChatIdWith(professionalId)));
 
     /// <summary>
     /// Calls <paramref name="changed"/> with the chat when it gets a message after <paramref name="lastMessageId"/>, until disposed.

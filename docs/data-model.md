@@ -93,7 +93,8 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 |---|---|
 | `GET / PUT / DELETE users/me` | The caller's profile (DELETE also forgets their phones) |
 | `PUT users/me/devices` | This phone gets the caller's notifications (`SaveDeviceRequest`: `token`, `platform`). `400` for an empty token or unknown platform |
-| `GET professionals?categoryId=…&areaId=…` | One trade's listings in one area, each with its stars (`Reviews`: average and count); the phone ranks them (`SearchRanker`). Kept 30 s per API instance (`ListingCache`), cleared there by a publish, removal or review |
+| `GET search/professionals?categoryId=…&areaId=…&serviceId=…&cityId=…&budgetId=…&skip=0&take=4` | One page of a trade's workers ranked for the Seeker on the server (`SearchRanker`: their town first, then other served towns; budget, stars, experience, photos), as a `SearchPageDto` (hits in ranked order + `InTownCount`, `OtherTownsCount`, `ServiceFallback`). Only `categoryId` is required; `take` defaults to 4, at most 50; `400 invalid-skip` / `invalid-take` |
+| `GET professionals?categoryId=…&areaId=…` | For app versions before paging: one trade's listings in one area, each with its stars (`Reviews`: average and count), unranked. Both search routes share the 30 s per-instance `ListingCache`, cleared there by a publish, removal or review |
 | `GET professionals/{id}` | One listing with its stars (404 when gone) |
 | `PUT professionals/me` | Publish or replace the caller's listing. `403 phone-required` with no verified phone, `409 phone-taken`, `409 phone-used-by-seeker` (another account uses the number as a Job Seeker), `409 photo-in-use`, `400 bad-body` (body missing or not JSON), `400 invalid-{field}` (e.g. `invalid-categoryId`; publishing also needs a `profilePhotoId`, at least 2 `workPhotoIds` and 1–3 `references` with distinct +639 numbers that aren't the worker's own) |
 | `DELETE professionals/me` | Take the listing out of search (reviews stay) |
@@ -101,7 +102,7 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `PUT reviews` | The caller's review (`403 no-chat` without a chat, `403 review-too-soon` in the first 24 hours of the chat unless changing an earlier review) |
 | `DELETE reviews/mine` | Reviews the caller wrote |
 | `GET chats?side=seeker\|professional` | The caller's Inbox |
-| `GET chats/{id}`, `GET chats/{id}/messages` | Only for the two people in it |
+| `GET chats/{id}`, `GET chats/{id}/messages?take=20&before={messageId}` | Only for the two people in it. Messages oldest first: the newest `take` (at most 100) before message `before`, or the latest without it; without `take`, every message (app versions before paging). `400 invalid-take` |
 | `POST chats/{id}/messages` | Send; the first message creates the chat (Seeker only). Notifies the other person (§6.1). Returns the chat |
 | `POST chats/{id}/read?side=…` | Clear the caller's unread badge |
 | `DELETE chats/mine` | Every chat the caller is in |

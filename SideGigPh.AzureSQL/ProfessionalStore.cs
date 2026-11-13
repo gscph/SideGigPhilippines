@@ -21,7 +21,7 @@ public enum PublishOutcome
 }
 
 /// <summary>Published Skilled Worker listings (<c>Professionals</c> and its services, towns and work photos).</summary>
-public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache cache)
+public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache cache, ConfigStore config)
 {
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
     public const int MaxWorkPhotos = 6;
@@ -33,9 +33,12 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public const int MinReferences = 1;
     public const int MaxReferences = 3;
 
+    /// <summary>The most search results one page may ask for.</summary>
+    public const int MaxSearchPage = 50;
+
     /// <summary>
-    /// One trade's listings with their stars, in one area when given (kept for <see cref="ListingCache.SearchFor"/>).
-    /// The phone ranks them (town, budget, stars).
+    /// One trade's listings with their stars, in one area when given (kept for <see cref="ListingCache.SearchFor"/>),
+    /// unranked. <c>GET professionals</c> for app versions before paging; <see cref="SearchPageAsync"/> ranks.
     /// </summary>
     public Task<IReadOnlyList<ListingDto>> SearchAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
         cache.SearchAsync(categoryId, areaId, async () =>
@@ -45,6 +48,19 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .ToListAsync(cancellationToken);
             return await WithReviewsAsync(rows, cancellationToken);
         });
+
+    /// <summary>
+    /// One page of a trade's workers ranked for this Seeker (<see cref="SearchRanker"/>), <paramref name="take"/> at
+    /// most <see cref="MaxSearchPage"/>. The listings come from the 30 s <see cref="ListingCache"/>, so the next pages
+    /// rank the same list again without reading the database.
+    /// </summary>
+    public async Task<SearchPageDto> SearchPageAsync(
+        string categoryId, string? areaId, RankRequest request, int skip, int take, CancellationToken cancellationToken)
+    {
+        var listings = await SearchAsync(categoryId, areaId, cancellationToken);
+        var scales = RankScales.From((await config.GetAsync(cancellationToken)).Config);
+        return SearchRanker.Rank(listings, request, scales).Page(Math.Max(0, skip), Math.Clamp(take, 1, MaxSearchPage));
+    }
 
     public async Task<ListingDto?> GetAsync(string id, CancellationToken cancellationToken) =>
         await Listings().FirstOrDefaultAsync(p => p.Id == id, cancellationToken) is { } row

@@ -230,3 +230,24 @@ public sealed record ServiceDto(string Id, string English, string Taglish, strin
 /// it never becomes a job and is never shown. <paramref name="Side"/> is <see cref="Wire.Seeker"/> or <see cref="Wire.Professional"/>.
 /// </summary>
 public sealed record OtherJobRequest(string CategoryId, string Side, string Text);
+
+/// <summary>Page sizes the app asks for; the server caps what it gives (<c>ChatStore.MaxPage</c>, <c>ProfessionalStore.MaxSearchPage</c>).</summary>
+public static class Paging
+{
+    /// <summary>Chat messages per page: a chat opens on its newest 20 and loads 20 older each time the person scrolls to the top.</summary>
+    public const int Messages = 20;
+
+    /// <summary>Search results per page: 4 at first, 4 more each time the Seeker scrolls to the end.</summary>
+    public const int Search = 4;
+}
+
+/// <summary>One worker in ranked search results, with why they ranked where they did.</summary>
+public sealed record SearchHitDto(ListingDto Listing, bool OffersService, bool ServesTown, bool FitsBudget);
+
+/// <summary>
+/// <c>GET search/professionals</c>: one page of results, ranked on the server. <paramref name="Hits"/> run in ranked
+/// order across both groups, in-town first: the first <paramref name="InTownCount"/> results of the whole list go to the
+/// Seeker's town, the next <paramref name="OtherTownsCount"/> come from other towns nearby.
+/// <paramref name="ServiceFallback"/>: nobody lists the exact job yet, so these are the trade's workers instead.
+/// </summary>
+public sealed record SearchPageDto(List<SearchHitDto> Hits, int InTownCount, int OtherTownsCount, bool ServiceFallback);

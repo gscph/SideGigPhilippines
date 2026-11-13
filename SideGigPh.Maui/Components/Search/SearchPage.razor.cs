@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
 /// Search results (under the Home tab, opened from the home search box or a trade icon). The Seeker types what they need in their own words or taps a trade, narrows
-/// to a job, and sets town and budget. Results come ranked by <c>SearchRanker</c>: pros who go
+/// to a job, and sets town and budget. Results come ranked by the server, 4 at a time (more as they scroll): pros who go
 /// to their town first, then other towns, each best-fit first. Tapping a pro opens their profile.
 /// Every change is saved, so the search is still here after Back or a restart.
 /// </summary>
@@ -68,9 +68,9 @@ public partial class SearchPage : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(ReferenceData.BudgetOptions, T);
 
-    private string Summary => _result!.Count == 1
+    private string Summary => _result!.Total == 1
         ? T.Get(Copy.ResultsTitleOne)
-        : T.Format(Copy.ResultsTitle, _result.Count);
+        : T.Format(Copy.ResultsTitle, _result.Total);
 
     private string FallbackNote => T.Format(
         Copy.ResultsServiceFallback,
@@ -134,6 +134,22 @@ public partial class SearchPage : ComponentBase
         if (version == _searchVersion)
         {
             _result = result;
+        }
+    }
+
+    /// <summary>The Seeker scrolled to the end: the next page goes under the results (unless the search changed meanwhile).</summary>
+    private async Task LoadMoreAsync()
+    {
+        if (_result is null)
+        {
+            return;
+        }
+
+        var version = _searchVersion;
+        var more = await Workspace.MoreResultsAsync(_result);
+        if (version == _searchVersion)
+        {
+            _result = more;
         }
     }
 

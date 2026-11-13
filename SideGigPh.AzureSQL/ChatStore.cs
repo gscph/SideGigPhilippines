@@ -43,20 +43,52 @@ public sealed class ChatStore(SideGigPhDb db)
         await db.Chats.AsNoTracking().FirstOrDefaultAsync(c => c.Id == chatId && (c.SeekerId == uid || c.ProfessionalId == uid), cancellationToken)
             is { } row ? ToDto(row) : null;
 
-    /// <summary>The chat's messages, oldest first, or null when the caller isn't in it.</summary>
-    public async Task<IReadOnlyList<MessageDto>?> MessagesAsync(string chatId, string uid, CancellationToken cancellationToken)
+    /// <summary>The most messages one page may ask for.</summary>
+    public const int MaxPage = 100;
+
+    /// <summary>
+    /// The chat's messages, oldest first, or null when the caller isn't in it. With <paramref name="take"/>, only the
+    /// newest <paramref name="take"/> (at most <see cref="MaxPage"/>) that came before message
+    /// <paramref name="beforeId"/>, or before now without it: the chat opens on its latest page and loads older ones
+    /// as the person scrolls up. Without <paramref name="take"/> it is every message (app versions before paging).
+    /// Messages sent in the same millisecond keep a fixed order by id.
+    /// </summary>
+    public async Task<IReadOnlyList<MessageDto>?> MessagesAsync(
+        string chatId, string uid, int? take, string? beforeId, CancellationToken cancellationToken)
     {
         if (!await db.Chats.AnyAsync(c => c.Id == chatId && (c.SeekerId == uid || c.ProfessionalId == uid), cancellationToken))
         {
             return null;
         }
 
-        return await db.ChatMessages.AsNoTracking()
-            .Where(m => m.ChatId == chatId)
-            .OrderBy(m => m.At)
-            .Select(m => new MessageDto(m.Id, m.ChatId, m.SenderId, m.Kind, m.Text, m.At))
+        var messages = db.ChatMessages.AsNoTracking().Where(m => m.ChatId == chatId);
+        if (take is null)
+        {
+            return await messages.OrderBy(m => m.At).ThenBy(m => m.Id).Select(MessageToDto).ToListAsync(cancellationToken);
+        }
+
+        if (beforeId is not null)
+        {
+            var before = await messages.Where(m => m.Id == beforeId).Select(m => (DateTimeOffset?)m.At).FirstOrDefaultAsync(cancellationToken);
+            if (before is not { } at)
+            {
+                return [];
+            }
+
+            messages = messages.Where(m => m.At < at || (m.At == at && string.Compare(m.Id, beforeId) < 0));
+        }
+
+        var newest = await messages
+            .OrderByDescending(m => m.At).ThenByDescending(m => m.Id)
+            .Take(Math.Clamp(take.Value, 1, MaxPage))
+            .Select(MessageToDto)
             .ToListAsync(cancellationToken);
+        newest.Reverse();
+        return newest;
     }
+
+    private static readonly System.Linq.Expressions.Expression<Func<ChatMessageRow, MessageDto>> MessageToDto =
+        m => new MessageDto(m.Id, m.ChatId, m.SenderId, m.Kind, m.Text, m.At);
 
     /// <summary>
     /// Adds the caller's message and makes it the chat's last message (the sender has read it). The first message

@@ -38,23 +38,24 @@
             @T.Format(Copy.ThreadHowItWorks, _pro.DisplayName)
         </MudText>
 
-        @if (_messages.Count == 0)
+        @if (_history.Count == 0)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">@T.Get(Copy.ThreadStart)</MudText>
         }
 
+        <LoadMoreOnScroll Edge="LoadMoreEdge.Top" HasMore="_history.HasOlder" OnLoadMore="LoadOlderAsync" @key="Id" />
         <MudStack Spacing="3">
-            @foreach (var message in _messages)
+            @foreach (var message in _history.Messages)
             {
                 <ChatBubble Message="message" Mine="@(message.SenderId == Workspace.MyId)" @key="message.Id" />
             }
         </MudStack>
 
-        @if (_messages.Count > 0 && !Workspace.CanRate(_pro.Id))
+        @if (_history.Count > 0 && !Workspace.CanRate(_pro.Id))
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Format(Copy.RateLater, _pro.DisplayName)</MudText>
         }
-        else if (_messages.Count > 0)
+        else if (_history.Count > 0)
         {
             <MudButton Variant="Variant.Text" Class="app-link-button align-self-center" StartIcon="@Icons.Material.Rounded.StarOutline"
                        Href="@SeekerRoutes.Rate(_pro.Id)">

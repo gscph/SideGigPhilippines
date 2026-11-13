@@ -3,20 +3,31 @@ using SideGigPh.Maui.Models;
 namespace SideGigPh.Maui.Services.Search;
 
 /// <summary>
-/// Runs a Seeker's search: fetches the category's pros from every town in the Seeker's area (so pros
-/// from nearby towns can follow the local ones), each with their star rating, and ranks them with
-/// <see cref="SearchRanker"/>. Free text is turned into a request by <see cref="SearchIntentParser"/> first.
+/// Runs a Seeker's search a page at a time: the server ranks the trade's workers from every town in the Seeker's area
+/// (their town first, then nearby towns; budget, stars, experience, photos) and sends <c>Paging.Search</c> at a time.
+/// Free text is turned into a request by <see cref="SearchIntentParser"/> first.
 /// </summary>
 public sealed class ProfessionalSearch(IProfessionalProfileRepository profiles)
 {
-    public async Task<SearchResult> SearchAsync(SearchRequest request)
+    /// <summary>The first page of results.</summary>
+    public Task<SearchResult> SearchAsync(SearchRequest request) => PageAsync(request, SearchResult.Empty);
+
+    /// <summary><paramref name="shown"/> with the next page added under it, or as it is when there is no more.</summary>
+    public Task<SearchResult> MoreAsync(SearchRequest request, SearchResult shown) =>
+        shown.HasMore ? PageAsync(request, shown) : Task.FromResult(shown);
+
+    private async Task<SearchResult> PageAsync(SearchRequest request, SearchResult shown)
     {
         if (request.CategoryId is not { } categoryId)
         {
             return SearchResult.Empty;
         }
 
-        var pros = await profiles.SearchAsync(new ProfessionalSearchQuery(categoryId, ReferenceData.AreaOf(request.CityId)));
-        return SearchRanker.Rank(pros, request);
+        var query = new ProfessionalSearchQuery(
+            categoryId, ReferenceData.AreaOf(request.CityId), request.ServiceId, request.CityId, request.BudgetId);
+        var page = await profiles.SearchAsync(query, shown.Count);
+
+        // A page that didn't load (offline) leaves what is shown; scrolling again tries again.
+        return shown.Count == 0 ? page : page.Total == 0 ? shown : shown.Append(page);
     }
 }

@@ -23,6 +23,12 @@ public partial class ProCard : ComponentBase
     /// <summary>Optional green badge, e.g. "Fits your budget".</summary>
     [Parameter] public string? Highlight { get; set; }
 
+    /// <summary>
+    /// Compact search-result card (photo, name, trade, one row of facts, budget badge) so 3–4 fit on screen.
+    /// The full card (work photos, jobs, towns) is the worker's own preview.
+    /// </summary>
+    [Parameter] public bool Dense { get; set; }
+
     /// <summary>Extra CSS classes on the card, e.g. to outline the pro's own listing.</summary>
     [Parameter] public string? Class { get; set; }
 }

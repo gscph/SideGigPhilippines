@@ -1,7 +1,7 @@
 @if (Hits.Count > 0)
 {
     <MudStack HtmlTag="section" Spacing="2">
-        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@($"{Title} ({Hits.Count})")</MudText>
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@($"{Title} ({Total})")</MudText>
         @foreach (var hit in Hits)
         {
             <ResultCard Hit="hit" @key="hit.Pro.Id" />

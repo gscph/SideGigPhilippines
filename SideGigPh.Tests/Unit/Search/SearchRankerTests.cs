@@ -1,5 +1,6 @@
+using SideGigPh.AzureSQL;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services.Search;
 using static SideGigPh.Tests.TestSupport.TestData;
 
 namespace SideGigPh.Tests.Unit.Search;
@@ -11,17 +12,19 @@ namespace SideGigPh.Tests.Unit.Search;
 /// </summary>
 public class SearchRankerTests
 {
-    private static SearchRequest Request(string? service = "aircon-cleaning", string? city = "taytay", string? budget = "500-1000") =>
-        new("aircon", service, city, budget);
+    private static RankRequest Request(string? service = "aircon-cleaning", string? city = "taytay", string? budget = "500-1000") =>
+        new(service, city, budget);
 
-    private static string[] Names(IEnumerable<SearchHit> hits) => hits.Select(h => h.Pro.DisplayName).ToArray();
+    private static RankedResult Rank(IReadOnlyList<ListingDto> pros, RankRequest request) => SearchRanker.Rank(pros, request, Scales);
+
+    private static string[] Names(IEnumerable<SearchHitDto> hits) => hits.Select(h => h.Listing.DisplayName).ToArray();
 
     [Fact]
     public void Rank_WorkersInYourTownComeFirst_NearbyTownsAfter()
     {
-        var pros = new[] { Listing("Antipolo Ana", cities: ["antipolo"]), Listing("Taytay Tess", cities: ["taytay"]) };
+        var pros = new ListingDto[] { Dto("Antipolo Ana", cities: ["antipolo"]), Dto("Taytay Tess", cities: ["taytay"]) };
 
-        var result = SearchRanker.Rank(pros, Request());
+        var result = Rank(pros, Request());
 
         Names(result.InTown).Should().Equal("Taytay Tess");
         Names(result.OtherTowns).Should().Equal("Antipolo Ana");
@@ -30,20 +33,20 @@ public class SearchRankerTests
     [Fact]
     public void Rank_WorkerOnlyInATownWeDontServe_IsLeftOut()
     {
-        var pros = new[] { Listing("Makati Mark", cities: ["makati"]), Listing("Taytay Tess") };
+        var pros = new ListingDto[] { Dto("Makati Mark", cities: ["makati"]), Dto("Taytay Tess") };
 
-        var result = SearchRanker.Rank(pros, Request());
+        var result = Rank(pros, Request());
 
-        result.Count.Should().Be(1);
+        (result.InTown.Count + result.OtherTowns.Count).Should().Be(1);
         Names(result.InTown).Should().Equal("Taytay Tess");
     }
 
     [Fact]
     public void Rank_WorkerInYourBudget_BeatsWorkerOverIt()
     {
-        var pros = new[] { Listing("Pricey Pia", rate: "2000-5000"), Listing("Budget Ben", rate: "under-500") };
+        var pros = new ListingDto[] { Dto("Pricey Pia", rate: "2000-5000"), Dto("Budget Ben", rate: "under-500") };
 
-        var result = SearchRanker.Rank(pros, Request(budget: "500-1000"));
+        var result = Rank(pros, Request(budget: "500-1000"));
 
         Names(result.InTown).Should().Equal("Budget Ben", "Pricey Pia");
         result.InTown[0].FitsBudget.Should().BeTrue();
@@ -53,21 +56,21 @@ public class SearchRankerTests
     [Fact]
     public void Rank_ManyGoodReviews_BeatOnePerfectReview()
     {
-        var pros = new[]
+        var pros = new ListingDto[]
         {
-            Listing("Lucky Lito", reviews: new ReviewSummary(5.0, 1)),
-            Listing("Steady Sol", reviews: new ReviewSummary(4.8, 40)),
+            Dto("Lucky Lito", reviews: new ReviewSummary(5.0, 1)),
+            Dto("Steady Sol", reviews: new ReviewSummary(4.8, 40)),
         };
 
-        Names(SearchRanker.Rank(pros, Request()).InTown).Should().Equal("Steady Sol", "Lucky Lito");
+        Names(Rank(pros, Request()).InTown).Should().Equal("Steady Sol", "Lucky Lito");
     }
 
     [Fact]
     public void Rank_OnlyWorkersWhoDoTheJob_AreShown()
     {
-        var pros = new[] { Listing("Cleaner Cora", services: ["aircon-cleaning"]), Listing("Installer Ike", services: ["aircon-install"]) };
+        var pros = new ListingDto[] { Dto("Cleaner Cora", services: ["aircon-cleaning"]), Dto("Installer Ike", services: ["aircon-install"]) };
 
-        var result = SearchRanker.Rank(pros, Request(service: "aircon-install"));
+        var result = Rank(pros, Request(service: "aircon-install"));
 
         Names(result.InTown).Should().Equal("Installer Ike");
         result.ServiceFallback.Should().BeFalse();
@@ -77,9 +80,9 @@ public class SearchRankerTests
     public void Rank_NobodyDoesTheJobYet_ShowsTheWholeTradeFlagged()
     {
         // Better to show aircon techs than an empty page; the page says so.
-        var pros = new[] { Listing("Cleaner Cora", services: ["aircon-cleaning"]) };
+        var pros = new ListingDto[] { Dto("Cleaner Cora", services: ["aircon-cleaning"]) };
 
-        var result = SearchRanker.Rank(pros, Request(service: "aircon-freon"));
+        var result = Rank(pros, Request(service: "aircon-freon"));
 
         result.ServiceFallback.Should().BeTrue();
         Names(result.InTown).Should().Equal("Cleaner Cora");
@@ -88,9 +91,9 @@ public class SearchRankerTests
     [Fact]
     public void Rank_NoTownChosen_PutsEveryoneInOneList()
     {
-        var pros = new[] { Listing("A", cities: ["antipolo"]), Listing("B", cities: ["angono"]) };
+        var pros = new ListingDto[] { Dto("A", cities: ["antipolo"]), Dto("B", cities: ["angono"]) };
 
-        var result = SearchRanker.Rank(pros, Request(city: null));
+        var result = Rank(pros, Request(city: null));
 
         result.InTown.Should().HaveCount(2);
         result.OtherTowns.Should().BeEmpty();
@@ -99,38 +102,38 @@ public class SearchRankerTests
     [Fact]
     public void Rank_SameScore_IsOrderedByName_SoResultsDontJumpAround()
     {
-        var pros = new[] { Listing("Carlo"), Listing("ana"), Listing("Bea") };
+        var pros = new ListingDto[] { Dto("Carlo"), Dto("ana"), Dto("Bea") };
 
-        Names(SearchRanker.Rank(pros, Request()).InTown).Should().Equal("ana", "Bea", "Carlo");
+        Names(Rank(pros, Request()).InTown).Should().Equal("ana", "Bea", "Carlo");
     }
 
     [Fact]
     public void Rank_MoreExperience_RanksHigher_UnknownExperienceCountsAsNone()
     {
-        var pros = new[] { Listing("New Nico", experience: null), Listing("Veteran Vic", experience: "10-plus"), Listing("Mid Mel", experience: "3-10") };
+        var pros = new ListingDto[] { Dto("New Nico", experience: null), Dto("Veteran Vic", experience: "10-plus"), Dto("Mid Mel", experience: "3-10") };
 
-        Names(SearchRanker.Rank(pros, Request()).InTown).Should().Equal("Veteran Vic", "Mid Mel", "New Nico");
+        Names(Rank(pros, Request()).InTown).Should().Equal("Veteran Vic", "Mid Mel", "New Nico");
     }
 
     [Fact]
     public void Rank_NoBudgetGiven_DoesNotPenaliseAnyPrice()
     {
-        var pros = new[] { Listing("Pricey Pia", rate: "5000-up"), Listing("Quote Quin", rate: "quote") };
+        var pros = new ListingDto[] { Dto("Pricey Pia", rate: "5000-up"), Dto("Quote Quin", rate: "quote") };
 
-        var hits = SearchRanker.Rank(pros, Request(budget: "unsure")).InTown;
+        var hits = Rank(pros, Request(budget: "unsure")).InTown;
 
-        hits.Select(h => h.Score).Distinct().Should().ContainSingle("without a budget, price doesn't change the order");
+        hits.Select(h => SearchRanker.Score(h.Listing, Request(budget: "unsure"), Scales)).Distinct().Should().ContainSingle("without a budget, price doesn't change the order");
     }
 
     [Fact]
     public void Rank_QuoteOnly_SitsBetweenInBudgetAndOverBudget()
     {
-        var pros = new[] { Listing("Over Olga", rate: "5000-up"), Listing("Quote Quin", rate: "quote"), Listing("Fits Fe", rate: "under-500") };
+        var pros = new ListingDto[] { Dto("Over Olga", rate: "5000-up"), Dto("Quote Quin", rate: "quote"), Dto("Fits Fe", rate: "under-500") };
 
-        Names(SearchRanker.Rank(pros, Request(budget: "500-1000")).InTown).Should().Equal("Fits Fe", "Quote Quin", "Over Olga");
+        Names(Rank(pros, Request(budget: "500-1000")).InTown).Should().Equal("Fits Fe", "Quote Quin", "Over Olga");
     }
 
     [Fact]
     public void Rank_NoWorkers_IsEmpty() =>
-        SearchRanker.Rank([], Request()).Count.Should().Be(0);
+        Rank([], Request()).InTown.Should().BeEmpty();
 }

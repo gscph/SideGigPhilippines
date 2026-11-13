@@ -127,17 +127,55 @@ public class SeekerSearchTests
         app.Store.Saves.Should().Be(2);
     }
 
+    private static SearchHit Hit(string name) => new(TestData.Listing(name), null, true, true, true);
+
     [Fact]
-    public async Task Search_AsksForTheTradeInTheSeekersArea_AndRanksTheAnswer()
+    public async Task Search_SendsTheWholeSearchToTheServer_AndShowsItsFirstPage()
     {
         var app = await FakeApp.SeekerAsync();
-        app.Profiles.SearchResults = [TestData.Listing("Nearby Nora", cities: ["antipolo"]), TestData.Listing("Local Lito")];
+        app.Profiles.SearchResults = new SearchResult([Hit("Local Lito")], [Hit("Nearby Nora")], false, 3, 5);
 
         var result = await app.Seeker.SearchAsync();
 
-        app.Profiles.Searches.Should().ContainSingle().Which.Should().Be(new ProfessionalSearchQuery("aircon", ReferenceData.ServiceAreaId));
+        app.Profiles.Searches.Should().ContainSingle().Which.Should().Be(
+            (new ProfessionalSearchQuery("aircon", ReferenceData.ServiceAreaId, "aircon-cleaning", "taytay", "500-1000"), 0));
         result.InTown.Select(h => h.Pro.DisplayName).Should().Equal("Local Lito");
         result.OtherTowns.Select(h => h.Pro.DisplayName).Should().Equal("Nearby Nora");
+        result.HasMore.Should().BeTrue("2 of 8 are shown");
+    }
+
+    [Fact]
+    public async Task MoreResults_AsksForThePageAfterWhatIsShown_AndAddsItUnder()
+    {
+        var app = await FakeApp.SeekerAsync();
+        var shown = new SearchResult([Hit("Ana"), Hit("Bea")], [], false, 3, 0);
+        app.Profiles.SearchResults = new SearchResult([Hit("Carlo")], [], false, 3, 0);
+
+        var more = await app.Seeker.MoreResultsAsync(shown);
+
+        app.Profiles.Searches.Should().ContainSingle().Which.Skip.Should().Be(2);
+        more.InTown.Select(h => h.Pro.DisplayName).Should().Equal("Ana", "Bea", "Carlo");
+        more.HasMore.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task MoreResults_EverythingShown_DoesNotAskTheServer()
+    {
+        var app = await FakeApp.SeekerAsync();
+        var shown = new SearchResult([Hit("Ana")], [], false, 1, 0);
+
+        (await app.Seeker.MoreResultsAsync(shown)).Should().BeSameAs(shown);
+        app.Profiles.Searches.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task MoreResults_PageDidNotLoad_KeepsWhatIsShown()
+    {
+        // Offline: the adapter answers an empty page. The results stay, and the next scroll tries again.
+        var app = await FakeApp.SeekerAsync();
+        var shown = new SearchResult([Hit("Ana")], [], false, 5, 0);
+
+        (await app.Seeker.MoreResultsAsync(shown)).Should().BeSameAs(shown);
     }
 
     [Fact]

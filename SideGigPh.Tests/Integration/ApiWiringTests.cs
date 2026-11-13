@@ -19,7 +19,7 @@ public class ApiWiringTests(ApiTestHost api)
     public void EveryRouteTheAppCalls_IsServed() =>
         ApiTestHost.Routes.Should().BeEquivalentTo(
             "GET users/me", "PUT users/me", "DELETE users/me", "PUT users/me/devices",
-            "GET professionals", "GET professionals/{id}", "PUT professionals/me", "DELETE professionals/me",
+            "GET professionals", "GET search/professionals", "GET professionals/{id}", "PUT professionals/me", "DELETE professionals/me",
             "GET reviews", "PUT reviews", "DELETE reviews/mine",
             "GET chats", "GET chats/{chatId}", "GET chats/{chatId}/messages", "POST chats/{chatId}/messages",
             "POST chats/{chatId}/read", "DELETE chats/mine",

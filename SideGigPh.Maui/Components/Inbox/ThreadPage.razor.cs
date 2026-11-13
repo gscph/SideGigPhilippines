@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using MudBlazor;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -15,18 +16,22 @@ public partial class ThreadPage : ComponentBase, IDisposable
 {
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private IScrollManager Scroll { get; set; } = default!;
     [Inject] private ILogger<ThreadPage> Logger { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
     private ProfessionalListing? _pro;
-    private IReadOnlyList<ChatMessage> _messages = [];
+    private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
     private string? _message;
     private string? _error;
     private bool _loading = true;
     private bool _busy;
+
+    /// <summary>A message was just added at the bottom: scroll to it after the next render.</summary>
+    private bool _scrollToEnd;
 
     protected override async Task OnParametersSetAsync()
     {
@@ -37,9 +42,9 @@ public partial class ThreadPage : ComponentBase, IDisposable
         if (_pro is not null)
         {
             var read = Workspace.MarkReadAsync(Id);
-            _messages = await Workspace.GetMessagesAsync(Id);
-            _message = _messages.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
-            _watch = Workspace.WatchChat(Id, _messages.LastOrDefault()?.Id, chat => InvokeAsync(() => ReloadAsync(chat)));
+            _history = await Workspace.GetMessagesAsync(Id);
+            _message = _history.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
+            _watch = Workspace.WatchChat(Id, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
             await read;
         }
 
@@ -91,20 +96,45 @@ public partial class ThreadPage : ComponentBase, IDisposable
     }
 
     /// <summary>The message the server just saved, added under the others (no need to read them all again).</summary>
-    private void Show(ChatMessage message) => _messages = [.. _messages.Where(m => m.Id != message.Id), message];
+    private void Show(ChatMessage message)
+    {
+        _history = _history.With(message);
+        _scrollToEnd = true;
+    }
 
     /// <summary>The chat got a message: show it and mark it read. Our own, already shown, needs nothing.</summary>
     private async Task ReloadAsync(Chat chat)
     {
         Workspace.ChatChanged(chat);
-        if (_messages.Any(m => m.Id == chat.LastMessage.Id))
+        if (_history.Contains(chat.LastMessage.Id))
         {
             return;
         }
 
-        _messages = await Workspace.GetMessagesAsync(Id);
+        _history = await Workspace.NewMessagesAsync(Id, _history);
+        _scrollToEnd = true;
         await Workspace.MarkReadAsync(Id);
         StateHasChanged();
+    }
+
+    /// <summary>The person scrolled to the top: the page of messages before the oldest one goes above.</summary>
+    private async Task LoadOlderAsync()
+    {
+        var chatId = Id;
+        var older = await Workspace.OlderMessagesAsync(chatId, _history);
+        if (chatId == Id)
+        {
+            _history = older;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_scrollToEnd)
+        {
+            _scrollToEnd = false;
+            await Scroll.ScrollToBottomAsync("html", ScrollBehavior.Smooth);
+        }
     }
 
     public void Dispose() => _watch?.Dispose();

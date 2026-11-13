@@ -181,7 +181,7 @@ public class InboxTests
         var chatId = Chat.IdFor("ana", TestData.SeekerUid);
         app.Chats.Messages = [new ChatMessage("m1", chatId, "ana", ChatMessageKind.Text, "Hi", DateTimeOffset.Now)];
 
-        (await app.Seeker.GetMessagesAsync("ana")).Should().ContainSingle();
+        (await app.Seeker.GetMessagesAsync("ana")).Messages.Should().ContainSingle();
         using (app.Seeker.WatchChat("ana", "m1", _ => { }))
         {
             app.Chats.Watching.Should().Be((chatId, "m1"));
@@ -261,7 +261,7 @@ public class InboxTests
         app.Chats.Messages = [chat.LastMessage];
 
         (await app.Pro.GetChatAsync(chat.Id)).Should().Be(chat);
-        (await app.Pro.GetMessagesAsync(chat.Id)).Should().ContainSingle();
+        (await app.Pro.GetMessagesAsync(chat.Id)).Messages.Should().ContainSingle();
         using (app.Pro.WatchChat(chat.Id, "m-s1", _ => { }))
         {
             app.Chats.Watching.Should().Be((chat.Id, "m-s1"));

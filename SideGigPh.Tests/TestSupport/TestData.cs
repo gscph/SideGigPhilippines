@@ -1,3 +1,5 @@
+using SideGigPh.AzureSQL;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 
@@ -74,6 +76,34 @@ public static class TestData
         return new Chat(id, proId, SeekerUid, proId, "Maricel D.", "aircon-cleaning", "taytay", ReferenceData.UrgencyToday, "500-1000",
             new ChatMessage("m-" + proId, id, lastSenderId, ChatMessageKind.Text, "Hi po", at), seekerReadAt, proReadAt, startedAt ?? at);
     }
+
+    /// <summary>A listing as the server stores and ranks it (same defaults as <see cref="Listing"/>).</summary>
+    public static ListingDto Dto(
+        string name,
+        string[]? cities = null,
+        string[]? services = null,
+        string? rate = "500-1000",
+        string? experience = "1-3",
+        ReviewSummary? reviews = null,
+        bool photo = true) => new(
+        name.ToLowerInvariant(),
+        name,
+        WorkerNumber,
+        "aircon",
+        ReferenceData.ServiceAreaId,
+        services ?? ["aircon-cleaning"],
+        cities ?? ["taytay"],
+        experience,
+        rate,
+        photo ? new PhotoDto("p", "https://example/p.jpg") : null,
+        photo ? [new PhotoDto("w", "https://example/w.jpg")] : [],
+        reviews is null ? null : new ReviewSummaryDto(reviews.Average, reviews.Count));
+
+    /// <summary>The server's ranking scales, from the app's built-in config (the same lists as <c>004-config.sql</c>).</summary>
+    public static RankScales Scales => new(
+        [.. ReferenceData.PriceTiers.Select(t => t.Id)],
+        [.. ReferenceData.Experience.Select(e => e.Id)],
+        ReferenceData.Cities.Select(c => c.Id).ToHashSet());
 
     /// <summary>A search result as the API would send it.</summary>
     public static ProfessionalListing Listing(

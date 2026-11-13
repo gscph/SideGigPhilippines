@@ -12,8 +12,11 @@ public interface IProfessionalProfileRepository
     /// <summary>Whether the authenticated user already has a Professional profile.</summary>
     Task<bool> HasProfileAsync(string uid);
 
-    /// <summary>Professionals offering a category, limited to an area when one is given.</summary>
-    Task<IReadOnlyList<ProfessionalListing>> SearchAsync(ProfessionalSearchQuery query);
+    /// <summary>
+    /// One page of a search, ranked by the server: the <c>Paging.Search</c> results after the first
+    /// <paramref name="skip"/> (the ones already shown).
+    /// </summary>
+    Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip);
 
     /// <summary>One published listing, or null if it's gone.</summary>
     Task<ProfessionalListing?> GetByIdAsync(string professionalId);
