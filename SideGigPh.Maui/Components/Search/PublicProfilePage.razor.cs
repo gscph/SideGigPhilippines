@@ -15,6 +15,7 @@ public partial class PublicProfilePage : ComponentBase
 {
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -28,9 +29,12 @@ public partial class PublicProfilePage : ComponentBase
     {
         _loading = true;
         // Side by side: the listing usually comes from the search just made, the reviews from the server.
-        var reviews = Workspace.GetReviewsAsync(Id);
-        _pro = await Workspace.GetProAsync(Id);
-        _reviews = _pro is null ? [] : await reviews;
+        await Busy.RunAsync(async () =>
+        {
+            var reviews = Workspace.GetReviewsAsync(Id);
+            _pro = await Workspace.GetProAsync(Id);
+            _reviews = _pro is null ? [] : await reviews;
+        });
         _loading = false;
     }
 }

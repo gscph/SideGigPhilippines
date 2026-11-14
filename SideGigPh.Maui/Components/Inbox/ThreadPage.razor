@@ -23,9 +23,7 @@
 
     @if (_loading)
     {
-        <MudStack AlignItems="AlignItems.Center" Class="py-12">
-            <MudProgressCircular Indeterminate="true" Color="Color.Primary" />
-        </MudStack>
+        @* The brand splash (BusyOverlay) covers a slow load. *@
     }
     else if (_pro is null)
     {

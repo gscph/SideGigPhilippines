@@ -211,7 +211,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/verify/phone` | `Auth/AddPhonePage` (skeleton) | Adds a verified number to a Google account, before Search results or Publish. |
 
 ### Components
-- **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), `WorkingLoader` (labor illusion), `ProCard`, `GoalPayoff`, `MePage` (+ `LanguagePicker`, `StartOverCard`).
+- **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), the brand splash at the end (`Busy.RunAsync`), `ProCard`, `GoalPayoff`, `MePage` (+ `LanguagePicker`, `StartOverCard`).
 - **Onboarding:** `LaunchRouter`, `LanguagePage`, `RolePage`, `SeekerInterview`, `ProfessionalInterview`, `ListingPreview`.
 - **Layout:** `AppShell` (`AppTopBar`, `AppBottomNav`, `AppNavItem`), used by `ProLayout` and `SeekerLayout`.
 - **Search:** `SearchPage`, `SearchBox`, `ChipStrip`, `FilterMenu`, `ResultGroup`, `ResultCard`, `PublicProfilePage` (`FilterMenu` is in Shared); ranking in `Services/Search`.

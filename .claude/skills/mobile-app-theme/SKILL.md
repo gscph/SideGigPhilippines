@@ -23,7 +23,7 @@ unchanged?"**
 | It is… | Goes in | Examples |
 |---|---|---|
 | App frame, navigation, theme mechanism | `MobileAppTheme/Components/Layout/`, `Branding/` | `AppShell`, `AppTopBar`, `AppBottomNav`, `AppTab`, `MainLayout`, `MobileTheme`, `BrandStyle`, `AppBrand` |
-| UI with no domain nouns, data in via `[Parameter]` | `MobileAppTheme/Components/Shared/` | `InterviewStep`, `ChoiceTiles`, `WorkingLoader`, `PersonAvatar`, `HomeSection`, `FilterMenu`, `BrandMark`, `MePage`, `StartOverCard`, `LanguagePicker` |
+| UI with no domain nouns, data in via `[Parameter]` | `MobileAppTheme/Components/Shared/` | `InterviewStep`, `ChoiceTiles`, `PersonAvatar`, `HomeSection`, `FilterMenu`, `BrandMark`, `MePage`, `StartOverCard`, `LanguagePicker` |
 | Localization mechanism + strings every app needs | `MobileAppTheme/Localization/` | `AppText`, `LocalizedText`, `AppLanguage`, `TimeAgo`, `CommonCopy` (Back, Next, Cancel, Start over, "3 hr ago") |
 | A port for a phone capability + its on-device adapter | `MobileAppTheme/Services/` + `Services/Local/` | `IContactLauncher`, `IPhotoPicker`, `IPhotoStore`, `JsonFile<T>`, `IAppAccount` (port only) |
 | Sign-in contract + screens (provider-neutral) | `MobileAppTheme/Auth/`, `Components/Auth/` | `IIdentityProvider`, `AuthError`, `IAuthLanding`, `IPhoneNumberFormat`, `AuthPage`, `PhoneSignIn`, `GoogleSignInButton` |

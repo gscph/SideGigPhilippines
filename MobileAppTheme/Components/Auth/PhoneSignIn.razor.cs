@@ -67,6 +67,11 @@ public partial class PhoneSignIn : ComponentBase
             _step = Step.EnterCode;
             await SentToChanged.InvokeAsync(e164);
         }
+        catch (TimeoutException ex)
+        {
+            // The provider never answered (no signal, or its app check stalled): say so instead of spinning.
+            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Network, ex.Message));
+        }
         catch (Exception ex)
         {
             // The adapter has already logged the full exception.

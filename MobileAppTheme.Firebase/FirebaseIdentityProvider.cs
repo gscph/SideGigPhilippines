@@ -22,6 +22,18 @@ namespace MobileAppTheme.Firebase;
 /// </summary>
 public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> logger) : IIdentityProvider
 {
+    /// <summary>
+    /// The longest sending an SMS code may take (Firebase checks the app first, sometimes with a reCAPTCHA page).
+    /// Past it the person sees "couldn't send" instead of a spinner that never stops.
+    /// </summary>
+    public static readonly TimeSpan SendCodeLimit = TimeSpan.FromSeconds(90);
+
+    /// <summary>
+    /// The longest getting the sign-in token may take. Every API call waits for it, so past this the call goes out
+    /// without one (and fails fast) instead of freezing the screen that waits for it.
+    /// </summary>
+    public static readonly TimeSpan TokenLimit = TimeSpan.FromSeconds(15);
+
     private static IFirebaseAuth Auth => CrossFirebaseAuth.Current;
 
     public AuthMethods Methods => AuthMethods.Phone | AuthMethods.Google;
@@ -31,7 +43,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         try
         {
             // Plugin.Firebase tracks the verification itself; VerifyPhoneOtpAsync only needs the code.
-            await Auth.VerifyPhoneNumberAsync(phoneNumber);
+            await Auth.VerifyPhoneNumberAsync(phoneNumber).WaitAsync(SendCodeLimit);
             return new PhoneVerification { VerificationId = string.Empty };
         }
         catch (Exception ex)
@@ -63,7 +75,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 
             // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
             // and a backend may read the claim from the token.
-            await user.GetIdTokenResultAsync(forceRefresh: true);
+            await user.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
             return AuthResult.Ok(Map(user));
         }
         catch (Exception ex)
@@ -132,8 +144,13 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         try
         {
             // Not forced: the SDK hands back the cached token and refreshes it once it has expired.
-            var result = Auth.CurrentUser is { } user ? await user.GetIdTokenResultAsync(forceRefresh: false) : null;
+            var result = Auth.CurrentUser is { } user ? await user.GetIdTokenResultAsync(forceRefresh: false).WaitAsync(TokenLimit) : null;
             return result?.Token;
+        }
+        catch (TimeoutException)
+        {
+            logger.LogError("Firebase gave no ID token within {Seconds} s.", TokenLimit.TotalSeconds);
+            return null;
         }
         catch (Exception ex)
         {

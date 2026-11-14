@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -25,6 +26,8 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private OtherJobNotes Notes { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
+    [Inject] private ILogger<ProfessionalInterview> Logger { get; set; } = default!;
 
     /// <summary>
     /// Opens the first question still unanswered: a step past it is never shown, so asking for the last step
@@ -36,7 +39,7 @@ public partial class ProfessionalInterview : ComponentBase
 
     private OnboardingState? _state;
     private ProStep _step = ProStep.Skills;
-    private Task? _finishing;
+    private bool _finishing;
 
     // The "Others" text already sent, so going back and forward doesn't send it twice.
     private string? _notedOtherJob;
@@ -47,13 +50,6 @@ public partial class ProfessionalInterview : ComponentBase
     private bool _otherTradeNoted;
 
     private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, NoteOtherTrade) : default;
-
-    private IReadOnlyList<string> SettingUpSteps =>
-    [
-        T.Get(Copy.SettingUpListing),
-        T.Get(Copy.SettingUpHome),
-        T.Get(Copy.SettingUpChecklist),
-    ];
 
     private ProfessionalDraft Draft => _state!.Professional;
 
@@ -149,12 +145,23 @@ public partial class ProfessionalInterview : ComponentBase
     }
 
     /// <summary>
-    /// The pro tapped Done: the "setting up" loader shows (like the Seeker's) while the answers are saved and Pro
-    /// home is loaded behind it, so the home page opens filled instead of after a blank pause.
+    /// The pro tapped Done: the brand splash (<see cref="BusyIndicator"/>, the same one as at launch) stays up while the
+    /// answers and profile are saved and Pro home is loaded behind it, so home opens filled. It waits at most
+    /// <see cref="OnboardingFinish.WaitLimit"/>, and not when a save failed: home loads its own data anyway.
     /// </summary>
-    private void Finish() => _finishing = FinishAsync();
-
     private async Task FinishAsync()
+    {
+        if (_finishing)
+        {
+            return;  // a second tap on Done
+        }
+
+        _finishing = true;
+        await Busy.RunAsync(() => OnboardingFinish.WaitAsync(SaveAndLoadHomeAsync(), Logger, Clock));
+        Nav.NavigateTo(ProRoutes.Home, replace: true);
+    }
+
+    private async Task SaveAndLoadHomeAsync()
     {
         var state = _state!;
         state.CompletedAt ??= DateTimeOffset.Now;
@@ -162,13 +169,6 @@ public partial class ProfessionalInterview : ComponentBase
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync(); // Their side and earnings goal.
         await Workspace.EnsureLoadedAsync();
-    }
-
-    /// <summary>The loader finished: wait for the saves if the network is slower than the animation, then open Pro home.</summary>
-    private async Task GoHomeAsync()
-    {
-        await Busy.RunAsync(() => _finishing!);
-        Nav.NavigateTo(ProRoutes.Home, replace: true);
     }
 
     private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, finished: _state!.CompletedAt is not null));

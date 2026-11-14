@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
@@ -23,6 +24,9 @@ public partial class SeekerInterview : ComponentBase
     [Inject] private OtherJobNotes Notes { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
+    [Inject] private ILogger<SeekerInterview> Logger { get; set; } = default!;
 
     [Parameter] public int? Step { get; set; }
 
@@ -41,6 +45,9 @@ public partial class SeekerInterview : ComponentBase
     private bool _customBudget;
     private int? _customMin;
     private int? _customMax;
+
+    // The last step started saving (it runs once, however often the page renders).
+    private bool _finishing;
 
     private SeekerAnswers Answers => _state!.Seeker;
 
@@ -74,13 +81,6 @@ public partial class SeekerInterview : ComponentBase
 
     // Step 1 already shows some progress (endowed progress); the loader step is 100%.
     private double Progress => (int)_step / (double)SeekerStep.Finding;
-
-    private IReadOnlyList<string> FindingSteps =>
-    [
-        T.Format(Copy.FindingService, Label(ReferenceData.FindService(Answers.ServiceId))),
-        T.Format(Copy.FindingCity, Label(ReferenceData.Find(ReferenceData.Cities, Answers.CityId))),
-        T.Get(Copy.FindingBudget),
-    ];
 
     protected override async Task OnInitializedAsync()
     {
@@ -194,14 +194,32 @@ public partial class SeekerInterview : ComponentBase
         Nav.NavigateTo(path);
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (_state is not null && _step == SeekerStep.Finding && !_finishing)
+        {
+            _finishing = true;
+            await FinishAsync();
+        }
+    }
+
+    /// <summary>
+    /// The last step: the brand splash (<see cref="BusyIndicator"/>, the same one as at launch) stays up while the
+    /// answers and profile are saved, at most <see cref="OnboardingFinish.WaitLimit"/>, then the results open.
+    /// </summary>
     private async Task FinishAsync()
     {
         var state = _state!;
         state.CompletedAt = DateTimeOffset.Now;
         state.ResumePath = null;
+        await Busy.RunAsync(() => OnboardingFinish.WaitAsync(SaveAsync(state), Logger, Clock));
+        Nav.NavigateTo(SeekerRoutes.Search, replace: true);
+    }
+
+    private async Task SaveAsync(OnboardingState state)
+    {
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync();
-        Nav.NavigateTo(SeekerRoutes.Search, replace: true);
     }
 
     private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, IsEditing));

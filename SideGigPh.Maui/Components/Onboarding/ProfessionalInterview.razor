@@ -1,10 +1,6 @@
 @page "/start/pro/{Step:int?}"
 
-@if (_finishing is not null)
-{
-    <WorkingLoader Steps="SettingUpSteps" OnDone="GoHomeAsync" />
-}
-else if (_state is not null)
+@if (_state is not null)
 {
     switch (_step)
     {
@@ -73,7 +69,7 @@ else if (_state is not null)
 
         case ProStep.Preview:
             <InterviewStep Illustration="👀" Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
-                           OnBack="GoBack" OnNext="Finish" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
+                           OnBack="GoBack" OnNext="FinishAsync" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
                 <ListingPreview Listing="Draft.ToListing()" />
                 <GoalPayoff RateTierId="@Draft.RateTierId" ServiceIds="Draft.ServiceIds" IncomeGoalId="@Draft.IncomeGoalId" />
             </InterviewStep>

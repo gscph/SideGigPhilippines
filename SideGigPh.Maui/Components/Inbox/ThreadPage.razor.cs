@@ -19,6 +19,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private IScrollManager Scroll { get; set; } = default!;
     [Inject] private ILogger<ThreadPage> Logger { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -38,6 +39,12 @@ public partial class ThreadPage : ComponentBase, IDisposable
         _loading = true;
         _error = null;
         _watch?.Dispose();
+        await Busy.RunAsync(LoadAsync);
+        _loading = false;
+    }
+
+    private async Task LoadAsync()
+    {
         _pro = Workspace.ThreadWith(Id)?.Pro ?? await Workspace.GetProAsync(Id);
         if (_pro is not null)
         {
@@ -47,8 +54,6 @@ public partial class ThreadPage : ComponentBase, IDisposable
             _watch = Workspace.WatchChat(Id, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
             await read;
         }
-
-        _loading = false;
     }
 
     private async Task SendAsync()

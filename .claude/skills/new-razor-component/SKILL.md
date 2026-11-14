@@ -88,7 +88,7 @@ Add `LocalizedText` pairs to `Services/Localization/Copy.cs` under the matching 
 - Avoid member names that shadow namespaces or MAUI types (`Services`, `Contact`, `Layout`, `Search`). Global usings include `Microsoft.Maui.Controls` and `Microsoft.Maui.ApplicationModel.Communication`.
 - A lowercase attribute that matches a parameter name binds to the parameter (`inputmode` → `InputMode`); see `mudblazor-ui` gotchas.
 - Async results that can arrive out of order (search-as-you-type) need a version counter so an older result never overwrites a newer one (`SearchPage.RunSearchAsync`).
-- Cancel timers and delays in `Dispose` (`WorkingLoader`).
+- Cancel timers and delays in `Dispose` (`BusyOverlay`).
 
 ## 7. Finish
 

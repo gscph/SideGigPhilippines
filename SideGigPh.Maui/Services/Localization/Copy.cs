@@ -74,9 +74,6 @@ public static class Copy
     public static readonly LocalizedText OtherTradePickAnother = new("Pick another", "Pumili ng iba");
 
     // Labor-illusion loader. {0} = job or town label.
-    public static readonly LocalizedText FindingService = new("Finding Skilled Worker for {0}", "Finding Skilled Worker for {0}");
-    public static readonly LocalizedText FindingCity = new("Checking who goes to {0}", "Checking who goes to {0}");
-    public static readonly LocalizedText FindingBudget = new("Putting Skilled Workers in your budget first", "Putting Skilled Workers in your budget first");
 
     // --- Seeker shell + home ----------------------------------------------
     public static readonly LocalizedText LastSearch = new("Recent Search", "Recent Search");
@@ -237,9 +234,6 @@ public static class Copy
     public static readonly LocalizedText ProPreviewConfirm = new("DONE", "DONE");
 
     // Loader after the preview's Done, while the answers save and Pro home loads.
-    public static readonly LocalizedText SettingUpListing = new("Saving your listing", "Sine-save ang listing mo");
-    public static readonly LocalizedText SettingUpHome = new("Getting your home page ready", "Inihahanda ang home page mo");
-    public static readonly LocalizedText SettingUpChecklist = new("Next: photos and a reference", "Next: photos at reference");
 
     // --- Pro home shell (top bar + bottom tabs) ----------------------------
     public static readonly LocalizedText NavHome = new("Home", "Home");

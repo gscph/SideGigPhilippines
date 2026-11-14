@@ -19,6 +19,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private IScrollManager Scroll { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ILogger<ProChatPage> Logger { get; set; } = default!;
+    [Inject] private BusyIndicator Busy { get; set; } = default!;
 
     [Parameter] public string ChatId { get; set; } = string.Empty;
 
@@ -40,17 +41,27 @@ public partial class ProChatPage : ComponentBase, IDisposable
         _error = null;
         _loaded = false;
         _watch?.Dispose();
-        _chat = Workspace.Chats.FirstOrDefault(c => c.Id == ChatId) ?? await Workspace.GetChatAsync(ChatId);
+        await Busy.RunAsync(LoadAsync);
         if (_chat is null)
         {
             Nav.NavigateTo(ProRoutes.Inbox, replace: true);
             return;
         }
 
-        var read = Workspace.MarkReadAsync(ChatId);
-        _history = await Workspace.GetMessagesAsync(ChatId);
         _loaded = true;
         _watch = Workspace.WatchChat(ChatId, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
+    }
+
+    private async Task LoadAsync()
+    {
+        _chat = Workspace.Chats.FirstOrDefault(c => c.Id == ChatId) ?? await Workspace.GetChatAsync(ChatId);
+        if (_chat is null)
+        {
+            return;
+        }
+
+        var read = Workspace.MarkReadAsync(ChatId);
+        _history = await Workspace.GetMessagesAsync(ChatId);
         await read;
     }
 
