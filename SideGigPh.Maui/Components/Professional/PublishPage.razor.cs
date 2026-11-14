@@ -30,7 +30,7 @@ public partial class PublishPage : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        if (!await Workspace.EnsureLoadedAsync())
+        if (!await Workspace.EnsureDraftLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);
             return;

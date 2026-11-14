@@ -167,7 +167,7 @@ public partial class ProfessionalInterview : ComponentBase
         state.ResumePath = null;
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync(); // Their side.
-        await Workspace.EnsureLoadedAsync();
+        await Workspace.EnsureDraftLoadedAsync(); // The setup comes next; Pro home loads chats and reviews itself.
     }
 
     private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, finished: _state!.CompletedAt is not null));

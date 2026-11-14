@@ -26,6 +26,7 @@ public sealed class ProWorkspace(
     private readonly Dictionary<string, string> _photoUrls = [];
     private OnboardingState? _state;
     private Task<bool>? _loading;
+    private Task? _activity;
     private DateTimeOffset _refreshedAt = DateTimeOffset.MinValue;
     private bool _publishPrompted;
 
@@ -76,10 +77,26 @@ public sealed class ProWorkspace(
     public ProfessionalListing Listing => Draft.ToListing(MyId, ProfilePhotoUrl, WorkPhotos.Select(photo => photo.Url).ToList());
 
     /// <summary>
-    /// Loads the saved listing and photos once. False if this user hasn't finished the
-    /// Professional interview, in which case the caller sends them back to <c>/</c>.
+    /// Loads the saved listing and photos, then the pro's chats and reviews, once. False if this user hasn't finished
+    /// the Professional interview, in which case the caller sends them back to <c>/</c>.
     /// </summary>
     public async Task<bool> EnsureLoadedAsync()
+    {
+        if (!await EnsureDraftLoadedAsync())
+        {
+            return false;
+        }
+
+        await (_activity ??= RefreshActivityAsync());
+        return true;
+    }
+
+    /// <summary>
+    /// Loads only what is on the phone (the saved listing, photos, the signed-in account), with no network call, for
+    /// the screens that need nothing else (the setup, Publish): they show at once even on a slow connection. False as
+    /// in <see cref="EnsureLoadedAsync"/>.
+    /// </summary>
+    public async Task<bool> EnsureDraftLoadedAsync()
     {
         _loading ??= LoadAsync();
         var loaded = await _loading;
@@ -380,6 +397,7 @@ public sealed class ProWorkspace(
     {
         _state = null;
         _loading = null;
+        _activity = null;
         _refreshedAt = DateTimeOffset.MinValue;
         _publishPrompted = false;
         MyId = ListingMapper.OwnListingId;
@@ -409,7 +427,6 @@ public sealed class ProWorkspace(
             }
         }
 
-        await RefreshActivityAsync();
         return true;
     }
 

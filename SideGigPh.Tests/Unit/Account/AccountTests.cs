@@ -159,6 +159,31 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task ProWorkspace_DraftLoad_ReadsNothingFromTheServer_SoTheSetupShowsOnASlowConnection()
+    {
+        var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());
+
+        (await app.Pro.EnsureDraftLoadedAsync()).Should().BeTrue();
+
+        app.Chats.InboxReads.Should().Be(0);
+        app.Reviews.Reads.Should().Be(0);
+        app.Pro.MyId.Should().Be(TestData.Worker().Uid);
+    }
+
+    [Fact]
+    public async Task ProWorkspace_FullLoad_AfterTheDraft_ReadsChatsAndReviewsOnce()
+    {
+        var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());
+        await app.Pro.EnsureDraftLoadedAsync();
+
+        await app.Pro.EnsureLoadedAsync();
+        await app.Pro.EnsureLoadedAsync();
+
+        app.Chats.InboxReads.Should().Be(1);
+        app.Reviews.Reads.Should().Be(1);
+    }
+
+    [Fact]
     public async Task ProWorkspace_Load_NoSignIn_UsesTheLocalListingId()
     {
         var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), user: null);

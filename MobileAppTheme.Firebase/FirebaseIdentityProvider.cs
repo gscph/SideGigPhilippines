@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using MobileAppTheme.Auth;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.Auth.Google;
+using Plugin.Firebase.Core.Exceptions;
 
 namespace MobileAppTheme.Firebase;
 
@@ -152,6 +153,13 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             logger.LogError("Firebase gave no ID token within {Seconds} s.", TokenLimit.TotalSeconds);
             return null;
         }
+        catch (FirebaseAuthException ex) when (ex.Reason is FIRAuthError.UserTokenExpired or FIRAuthError.UserNotFound or FIRAuthError.UserDisabled)
+        {
+            // The account was deleted or disabled, or its session revoked: nothing will work until they sign in again.
+            logger.LogWarning(ex, "Firebase session is no longer valid ({Reason}); signing out.", ex.Reason);
+            await SignOutQuietlyAsync();
+            return null;
+        }
         catch (Exception ex)
         {
             logger.LogWarning(ex, "Firebase could not give an ID token.");
@@ -160,6 +168,18 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     }
 
     public Task SignOutAsync() => Auth.SignOutAsync();
+
+    private async Task SignOutQuietlyAsync()
+    {
+        try
+        {
+            await Auth.SignOutAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Firebase could not sign out the dead session.");
+        }
+    }
 
     private static AuthUser Map(IFirebaseUser user, string? displayName = null) => new()
     {

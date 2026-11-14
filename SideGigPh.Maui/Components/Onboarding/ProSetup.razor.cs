@@ -39,7 +39,7 @@ public partial class ProSetup : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        if (!await Busy.RunAsync(Workspace.EnsureLoadedAsync))
+        if (!await Busy.RunAsync(Workspace.EnsureDraftLoadedAsync))
         {
             Nav.NavigateTo("/", replace: true);
             return;

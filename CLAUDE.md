@@ -35,7 +35,7 @@ changing that area.**
 
 - **Ports** (`SideGigPh.Maui/Services/`, skeleton ports in `MobileAppTheme/Services/` and `Auth/`): `IIdentityProvider`
   (sign-in; Firebase adapter), `IOnboardingStore` (answers on the phone, one JSON file via the skeleton `JsonFile<T>`,
-  never the WebView's `localStorage`, no SQLite until local data needs querying), `IChatRepository`, `IUserRepository`,
+  never the WebView's `localStorage`, no SQLite until local data needs querying; Android backup is off so a reinstall starts fresh), `IChatRepository`, `IUserRepository`,
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
   `IErrorLogStore` (error reports), `IAppAccount` (= `LocalAccount`: language + Start over), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
