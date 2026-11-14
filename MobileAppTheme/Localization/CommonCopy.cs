@@ -81,7 +81,7 @@ public static class CommonCopy
     public static readonly LocalizedText AuthFirstName = new("First name", "Pangalan");
     public static readonly LocalizedText AuthLastName = new("Last name", "Apelyido");
     public static readonly LocalizedText AuthPhoneTitle = new("Add your mobile number", "Ilagay ang mobile number mo");
-    public static readonly LocalizedText AuthPhoneWhy = new("We'll text you a code to check it's yours. You only do this once.", "Ite-text ka namin ng code para masigurong sa'yo ito. Isang beses lang 'to.");
+    public static readonly LocalizedText AuthPhoneWhy = new("This is the number people reach you on. You only add it once.", "Dito ka nila tatawagan o ite-text. Isang beses mo lang 'to ilalagay.");
     public static readonly LocalizedText AuthErrorTooManyAttempts = new("Too many tries. Wait a while, then try again.", "Sobrang daming try. Maghintay muna bago ulitin.");
     public static readonly LocalizedText AuthErrorNotAvailable = new("Sign-in isn't working right now. Please try again later.", "Hindi gumagana ang sign-in ngayon. Subukan ulit mamaya.");
     public static readonly LocalizedText AuthErrorUnknown = new("Sign-in failed. Please try again.", "Hindi naka-sign in. Subukan ulit.");

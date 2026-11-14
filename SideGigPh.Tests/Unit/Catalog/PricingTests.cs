@@ -37,14 +37,6 @@ public class PricingTests
     }
 
     [Fact]
-    public void GoalPayoffPrice_IsTheMeanOfTheRatesPrices_OrAnOldTiersTypicalPrice()
-    {
-        Pricing.TypicalPrice(PriceLevels.Average, ["aircon-cleaning", "aircon-install"]).Should().Be(2250);
-        Pricing.TypicalPrice("500-1000", ["aircon-cleaning"]).Should().Be(750, "a listing saved before price guides keeps its tier");
-        Pricing.TypicalPrice(ReferenceData.Quote, ["aircon-cleaning"]).Should().BeNull();
-    }
-
-    [Fact]
     public void ListingPrice_IsForTheJobSearched_ElseOverAllTheirJobs()
     {
         var text = new AppText();

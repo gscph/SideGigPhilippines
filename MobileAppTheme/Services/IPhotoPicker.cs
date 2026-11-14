@@ -1,6 +1,6 @@
 namespace MobileAppTheme.Services;
 
-/// <summary>Lets the user choose photos from their phone's gallery.</summary>
+/// <summary>Lets the user choose photos from their phone's gallery, or take a selfie.</summary>
 public interface IPhotoPicker
 {
     /// <summary>
@@ -8,6 +8,12 @@ public interface IPhotoPicker
     /// The photos come back resized for upload.
     /// </summary>
     Task<PhotoPick> PickAsync(int maxCount);
+
+    /// <summary>
+    /// Asks for the camera permission, then opens the camera for one photo of the user, on the front lens where the
+    /// phone lets the app choose. The photo comes back resized for upload, like a picked one.
+    /// </summary>
+    Task<PhotoPick> TakeSelfieAsync();
 
     /// <summary>Opens this app's page in the phone's Settings, where a denied permission can be turned on.</summary>
     void OpenAppSettings();
@@ -27,6 +33,9 @@ public enum PhotoPickStatus
 
     /// <summary>The picker couldn't open or a photo couldn't be read; the adapter logged why.</summary>
     Failed,
+
+    /// <summary>The phone said no to the camera (the user denied it, or it's off in Settings).</summary>
+    CameraDenied,
 }
 
 /// <summary>The outcome of a pick and, when <see cref="PhotoPickStatus.Picked"/>, the photos' bytes.</summary>
@@ -37,4 +46,6 @@ public sealed record PhotoPick(PhotoPickStatus Status, IReadOnlyList<byte[]> Pho
     public static PhotoPick PermissionDenied { get; } = new(PhotoPickStatus.PermissionDenied, []);
 
     public static PhotoPick Failed { get; } = new(PhotoPickStatus.Failed, []);
+
+    public static PhotoPick CameraDenied { get; } = new(PhotoPickStatus.CameraDenied, []);
 }

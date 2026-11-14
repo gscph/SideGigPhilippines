@@ -82,7 +82,7 @@ changing that area.**
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
 - **Pro side:** publishing needs a complete listing (`IsListingComplete`) **and proof** (`HasProof`: profile photo,
   2–6 work photos, 1–3 private references; Seekers see only the count) and a verified number; the server checks
-  the same (`ProfessionalStore.InvalidField`). Pro home's `SetupCard` walks the steps and opens Publish once when done.
+  the same (`ProfessionalStore.InvalidField`). **The interview's Done leads straight into the setup** (`Onboarding/ProSetup`, `/start/pro/setup/{1-3}`: a selfie (asks for the camera, opens the front camera by itself, moves on when saved; Android: `Platforms/Android/AndroidPhotoPicker`) → work photos → references, then Publish; rules `ProSetupStep` / `AfterInterviewPath` in `OnboardingSteps`), and launch resumes it until the listing is live; Pro home's `SetupCard` covers whatever is still missing after that.
 - **Seeker side:** search → public profile `/pro/{id}` → chat with a ready first message (Send or Call). Search
   words are parsed in the app (`SearchText`, `SearchIntentParser`, synonyms in `TradeWords`); ranking is on the server
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of

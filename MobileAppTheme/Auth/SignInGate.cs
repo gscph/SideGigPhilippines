@@ -10,7 +10,8 @@ public sealed class SignInGate(IIdentityProvider identity)
 {
     /// <param name="returnPath">Where to come back to once the missing step is done.</param>
     /// <param name="requirePhone">The page needs a verified phone number (e.g. contacting people).</param>
-    public async Task<string?> RedirectAsync(string returnPath, bool requirePhone = false)
+    /// <param name="backPath">Where the add-number step's Back goes (<see cref="AuthRoutes.AddPhone"/>).</param>
+    public async Task<string?> RedirectAsync(string returnPath, bool requirePhone = false, string? backPath = null)
     {
         if (identity.Methods == AuthMethods.None)
         {
@@ -28,6 +29,6 @@ public sealed class SignInGate(IIdentityProvider identity)
             return AuthRoutes.Name(returnPath);
         }
 
-        return requirePhone && !user.HasVerifiedPhone ? AuthRoutes.AddPhone(returnPath) : null;
+        return requirePhone && !user.HasVerifiedPhone ? AuthRoutes.AddPhone(returnPath, backPath) : null;
     }
 }

@@ -18,7 +18,6 @@ public class OnboardingStepsTests
         AreaId = "rizal",
         ExperienceId = "1-3",
         RateTierId = "quote",
-        IncomeGoalId = "10000",
     };
 
     // --- Skilled Worker interview -----------------------------------------
@@ -30,7 +29,6 @@ public class OnboardingStepsTests
         { "towns", ProStep.Towns },
         { "experience", ProStep.Experience },
         { "rate", ProStep.Rate },
-        { "goal", ProStep.Goal },
     };
 
     [Theory]
@@ -45,7 +43,6 @@ public class OnboardingStepsTests
             case "towns": draft.CityIds.Clear(); break;
             case "experience": draft.ExperienceId = null; break;
             case "rate": draft.RateTierId = null; break;
-            case "goal": draft.IncomeGoalId = null; break;
         }
 
         draft.FirstUnanswered().Should().Be(expected);
@@ -290,9 +287,96 @@ public class OnboardingStepsTests
     }
 
     [Fact]
-    public void LaunchPath_FinishedWorker_OpensProHome() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = FullyAnsweredDraft() })
+    public void LaunchPath_LiveWorker_OpensProHome()
+    {
+        var draft = WithProof(FullyAnsweredDraft());
+        draft.PublishedAt = DateTimeOffset.Now;
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = draft })
             .Should().Be("/professional");
+    }
+
+    [Fact]
+    public void LaunchPath_FinishedWorkerNotLive_ResumesTheSetup() =>
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = FullyAnsweredDraft() })
+            .Should().Be("/start/pro/setup/1");
+
+    [Fact]
+    public void LaunchPath_FinishedWorkerWithProofNotLive_OpensPublish() =>
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
+            .Should().Be("/professional/publish");
+
+    // --- Skilled Worker setup (proof, then Publish) -------------------------
+
+    private static ProfessionalDraft WithProof(ProfessionalDraft draft)
+    {
+        draft.ProfilePhotoId = "me";
+        draft.WorkPhotoIds.AddRange(["w1", "w2"]);
+        draft.References.Add(new WorkReference("Aling Nena", "+639171234567"));
+        return draft;
+    }
+
+    [Fact]
+    public void Setup_OpensAtTheFirstMissingProof_InOrder()
+    {
+        var draft = FullyAnsweredDraft();
+        draft.FirstUnfinished().Should().Be(ProSetupStep.Photo);
+
+        draft.ProfilePhotoId = "me";
+        draft.FirstUnfinished().Should().Be(ProSetupStep.WorkPhotos);
+
+        draft.WorkPhotoIds.Add("w1");
+        draft.FirstUnfinished().Should().Be(ProSetupStep.WorkPhotos, "one work photo isn't enough");
+
+        draft.WorkPhotoIds.Add("w2");
+        draft.FirstUnfinished().Should().Be(ProSetupStep.References);
+
+        draft.References.Add(new WorkReference("Aling Nena", "+639171234567"));
+        draft.FirstUnfinished().Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(null, ProSetupStep.Photo)]
+    [InlineData(3, ProSetupStep.Photo)]
+    [InlineData(99, ProSetupStep.Photo)]
+    [InlineData(-1, ProSetupStep.Photo)]
+    public void SetupStep_NeverSkipsAMissingProof(int? requested, ProSetupStep expected) =>
+        FullyAnsweredDraft().SetupStepToShow(requested).Should().Be(expected);
+
+    [Theory]
+    [InlineData(1, ProSetupStep.Photo)]
+    [InlineData(3, ProSetupStep.References)]
+    [InlineData(99, ProSetupStep.References)]
+    public void SetupStep_AllDone_AnyStepCanBeRevisited(int requested, ProSetupStep expected) =>
+        WithProof(FullyAnsweredDraft()).SetupStepToShow(requested).Should().Be(expected);
+
+    [Fact]
+    public void Setup_NextWalksTheStepsThenPublish()
+    {
+        OnboardingSteps.NextPath(ProSetupStep.Photo).Should().Be("/start/pro/setup/2");
+        OnboardingSteps.NextPath(ProSetupStep.WorkPhotos).Should().Be("/start/pro/setup/3");
+        OnboardingSteps.NextPath(ProSetupStep.References).Should().Be("/professional/publish");
+    }
+
+    [Fact]
+    public void Setup_BackFromTheFirstStep_IsTheInterviewPreview()
+    {
+        OnboardingSteps.BackPath(ProSetupStep.Photo).Should().Be(OnboardingSteps.PathOf(ProStep.Preview));
+        OnboardingSteps.BackPath(ProSetupStep.References).Should().Be("/start/pro/setup/2");
+    }
+
+    [Fact]
+    public void AfterInterview_GoesToSetup_ThenPublish_ThenHomeOnceLive()
+    {
+        var draft = FullyAnsweredDraft();
+        draft.AfterInterviewPath().Should().Be("/start/pro/setup/1");
+
+        WithProof(draft);
+        draft.AfterInterviewPath().Should().Be("/professional/publish");
+
+        draft.PublishedAt = DateTimeOffset.Now;
+        draft.AfterInterviewPath().Should().Be("/professional", "editing the interview of a live listing goes home");
+    }
 
     [Fact]
     public void LaunchPath_FinishedWorkerMissingAnAnswer_ReopensTheInterview() =>

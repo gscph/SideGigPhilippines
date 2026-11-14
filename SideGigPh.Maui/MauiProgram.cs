@@ -36,6 +36,10 @@ namespace SideGigPh.Maui
             // --- MobileAppTheme skeleton: MudBlazor, brand/theme, AppText, and the on-device
             // adapters for IContactLauncher, IPhotoPicker and IPhotoStore ---
             builder.Services.AddMobileAppTheme(AppTheme.Brand);
+#if ANDROID
+            // The selfie opens on the front camera (the skeleton's MAUI camera call can't choose the lens).
+            builder.Services.AddSingleton<IPhotoPicker, SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker>();
+#endif
 
             // --- Ports & Adapters (see CLAUDE.md) ---
             // Sign-in provider. To switch, replace this line (and the project reference) with another

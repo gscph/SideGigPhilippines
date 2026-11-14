@@ -27,10 +27,9 @@ public class AccountTests
     }
 
     [Fact]
-    public async Task SaveProfile_Worker_SavesAccountDetailsGoalAndListingPhoto()
+    public async Task SaveProfile_Worker_SavesAccountDetailsAndListingPhoto()
     {
         var draft = TestData.ReadyDraft();
-        draft.IncomeGoalId = "20000";
         var app = new FakeApp(TestData.FinishedPro(draft), TestData.Worker());
 
         await app.Account.SaveProfileAsync();
@@ -39,7 +38,6 @@ public class AccountTests
         profile.DisplayName.Should().Be("Juan Dela Cruz");
         profile.PhoneNumber.Should().Be(TestData.WorkerNumber);
         profile.Role.Should().Be(UserRole.Professional);
-        profile.IncomeGoalId.Should().Be("20000");
         profile.ProfilePhotoId.Should().Be(TestData.PhotoId(1));
     }
 
@@ -50,7 +48,7 @@ public class AccountTests
         answers.ProfilePhotoId = TestData.PhotoId(9);
         var app = new FakeApp(TestData.FinishedSeeker(answers), TestData.SeekerUser());
         var firstSave = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
-        app.Users.Profiles[TestData.SeekerUid] = new UserProfile(TestData.SeekerUid, null, null, null, AppLanguage.English, null, null, firstSave, firstSave);
+        app.Users.Profiles[TestData.SeekerUid] = new UserProfile(TestData.SeekerUid, null, null, null, AppLanguage.English, null, firstSave, firstSave);
 
         await app.Account.SaveProfileAsync();
 

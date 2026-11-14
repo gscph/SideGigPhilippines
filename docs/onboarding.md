@@ -12,7 +12,7 @@
 | 2 | **First question: English or Taglish.** The screen itself shows both languages. | Many tradesmen aren't confident English readers. Language is the one question we can't phrase in "their" words yet, so it comes first. |
 | 3 | **Second question: the role fork.** *"May ipapagawa ako"* (Seeker) or *"Gusto kong kumita sa skills ko"* (Professional). | A two-sided app has to know who it's talking to before anything can be personal. Fiverr asks this first too (§3.4). |
 | 4 | **Onboarding is an interview.** One question per screen, big icon tiles, mostly one tap. | Short, easy questions build momentum, but only if the answers visibly come back (§3.2). |
-| 5 | **Money is the hook on both sides.** The Seeker gives a budget for the job. The Professional gives a rate per job and a monthly earnings goal. | It's the real pain on both sides: households fear overpaying, pros want income. Both answers sit on **one shared price scale**, so they meet in the middle as "Pasok sa budget mo" (§2.3). |
+| 5 | **Money is the hook on both sides.** The Seeker gives a budget for the job. The Professional gives a rate per job (the earnings-goal question was removed). | It's the real pain on both sides: households fear overpaying, pros want income. Both answers sit on **one shared price scale**, so they meet in the middle as "Pasok sa budget mo" (§2.3). |
 | 6 | **Answers are saved on the phone, with no account.** They go through `IOnboardingStore`, backed by one JSON file in app-private storage. | It's free, works offline and survives restarts. It can move to the server later behind the same port (§6). |
 | 7 | **Phone number + SMS code is the main sign-in; Google is below it.** A phone sign-in verifies the number and asks the name once. A Google sign-in brings the name, but must add a verified number before searching (Seeker) or publishing (Skilled Worker). | The listing number must be a number the worker proved they own, and nobody types their name or number twice. |
 
@@ -45,8 +45,7 @@ flowchart TD
       P2 --> P3[Which towns do you go to?]
       P3 --> P4[How long have you done this?]
       P4 --> P5[How much do you charge per job?]
-      P5 --> P6[How much do you want to earn a month? + payoff]
-      P6 --> PV[Preview: how customers see you]
+      P5 --> PV[Preview: how customers see you]
     end
 
     LI -.->|Google with no number: add phone| R[Results, budget fits first]
@@ -91,10 +90,9 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 | P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles with checkboxes, "Select all"; sets the area) | "Customers in these towns see you first." | 📍 Goes to … |
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
 | P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |
-| P6 | **How much do you want to earn each month?** / Magkano ang gusto mong kitain kada buwan? | ₱5k / ₱10k / ₱20k / ₱30k+ | "Just for you. This won't show on your listing." | 🎯 **"That's about 4 jobs a week at around ₱750 each. Let's get you there!"** |
-| Preview | This is how customers will see you | Their card inside a mock search list, with the goal payoff | "Your listing, built from your answers." | "Ayos na 'to!" |
+| Preview | This is how customers will see you | Their card inside a mock search list | "Your listing, built from your answers." | "Ayos na 'to!" |
 
-**Pro home** (Phase 1) shows the saved card, the goal with its payoff, and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
+**Pro home** (Phase 1) shows the saved card and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
 
 **Not in the interview:** work photos. They are added on Pro home or from the Me tab (`/professional/me/photos`), kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
 
@@ -127,7 +125,7 @@ Users arrive with different intentions and different familiarity, so onboarding 
 | Principle | Article's test | Applied |
 |-----------|----------------|---------|
 | **Integrated** | Onboarding should be "indistinguishable from the 'natural' product", not "an interface on top of your interface". | The interview *is* the product. Seeker answers become the search, and pro answers become the real listing card (the same `ProCard` that search results use). There are no coach marks, carousels or intro video. |
-| **Empowering** | Is it "guiding users into actions that genuinely lead to progress in their lives, or just a better understanding of your UI?" | Every step moves toward a real outcome: a fixed aircon at a fair price, or the pro's monthly income goal. |
+| **Empowering** | Is it "guiding users into actions that genuinely lead to progress in their lives, or just a better understanding of your UI?" | Every step moves toward a real outcome: a fixed aircon at a fair price, or the pro's first customers. |
 | **Steadfast** | Activation "can easily take days, if not weeks". | Onboarding continues on Pro home with the goal, and later a checklist, Level 2 and behavior-triggered push. |
 
 It also endorses three patterns we use: empty states that give a reason plus a CTA, progression systems ("graduate them to Level 2"), and behavior-driven lifecycle messages.
@@ -140,7 +138,7 @@ None of the 52 studies is a two-sided services app. We took the principles from 
 | Principle (site's name) | Lesson | Where it lives |
 |---|---|---|
 | **Spark Effect** (Grammarly) | Start with short, simple questions. | Language and role are one tap each, and every question is mostly tiles. |
-| **Reciprocity: "When users give, they expect to get"** (Grammarly) | Questionnaires raise expectations, so show early that you listened. | The goal payoff right after P6, the answer chips on results, the pre-filled SMS. |
+| **Reciprocity: "When users give, they expect to get"** (Grammarly) | Questionnaires raise expectations, so show early that you listened. | The preview card right after the rate, the answer chips on results, the pre-filled SMS. |
 | **Personalization Clarity** (Grammarly, Blinkist) | Personalization done badly "can be worse than none". Never ask twice. | Every answer has a visible destination (the "reused at" columns). |
 | **Respect > Data** (Blinkist) | "Build trust before you ask for data. And explain clearly why you need it." | The "Why we ask" line, the private-goal note, and auth only after the interview. |
 | **Labor Illusion** (Headspace) | Visible effort raises perceived value, and spinners waste the moment. | The "Finding pros…" checklist loader. |
@@ -198,6 +196,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S5, plus the loader at step 6. |
 | `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
+| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo, 2 work photos (2–6), 3 references (1–3), each required, then `/professional/publish` (a Google account adds a verified number there first). Launch resumes here until the listing is live. |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
 | `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |
@@ -211,7 +210,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/verify/phone` | `Auth/AddPhonePage` (skeleton) | Adds a verified number to a Google account, before Search results or Publish. |
 
 ### Components
-- **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), the brand splash at the end (`Busy.RunAsync`), `ProCard`, `GoalPayoff`, `MePage` (+ `LanguagePicker`, `StartOverCard`).
+- **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), the brand splash at the end (`Busy.RunAsync`), `ProCard`, `MePage` (+ `LanguagePicker`, `StartOverCard`).
 - **Onboarding:** `LaunchRouter`, `LanguagePage`, `RolePage`, `SeekerInterview`, `ProfessionalInterview`, `ListingPreview`.
 - **Layout:** `AppShell` (`AppTopBar`, `AppBottomNav`, `AppNavItem`), used by `ProLayout` and `SeekerLayout`.
 - **Search:** `SearchPage`, `SearchBox`, `ChipStrip`, `FilterMenu`, `ResultGroup`, `ResultCard`, `PublicProfilePage` (`FilterMenu` is in Shared); ranking in `Services/Search`.
@@ -221,7 +220,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 ### Text and reference data
 - `Services/Localization/AppText`: a singleton holding the chosen language. Use `T.Get(text)` and `T.Format(text, args)`.
 - `Services/Localization/Copy`: **every UI string** as a `LocalizedText(English, Taglish)` pair, side by side, so the Taglish copy can be reviewed in one file.
-- `Services/ReferenceData`: categories and jobs, towns, urgency, experience, the shared price scale and income goals, all bilingual.
+- `Services/ReferenceData`: categories and jobs, towns, urgency, experience, the shared price scale (income goals only for older app versions), all bilingual.
 
 ### Ports
 - `IOnboardingStore` → `Local/FileOnboardingStore` (JSON, source-generated serializer, atomic write).
@@ -281,4 +280,4 @@ A silent anonymous session at launch gives a UID for API calls and App Check wit
 ## 9. Build order
 1. ✅ **Phase 1 (local-first interview):** language, role, both interviews, the money hooks, the store, sample-data results with Call/Text, the pro preview and home. `AuthPage` moved to `/verify`.
 2. **Phase 2:** ✅ sign-in first (phone + Google, name, verified-number gate); in-app chat, listings and search on Azure SQL through SideGigPh.Api with the server-side anti-fraud checks, work photos.
-3. **Phase 3 (Steadfast):** Pro home checklist and Level 2, progress toward the earnings goal, share links (Facebook/Messenger), review prompts, behavior-triggered push.
+3. **Phase 3 (Steadfast):** Pro home checklist and Level 2, share links (Facebook/Messenger), review prompts, behavior-triggered push.

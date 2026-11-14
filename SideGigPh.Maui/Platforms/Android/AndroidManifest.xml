@@ -14,6 +14,9 @@
     <!-- Pro photos (MediaPicker). Android 13+ uses the system photo picker, which needs no
          permission; Android 12 and lower need storage read access to pick from the gallery. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- The Skilled Worker's selfie in the setup after the interview (asked there, with the reason on screen). -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <!-- Android 11+ package visibility: lets MAUI PhoneDialer / Sms find the dialer and SMS apps
          (Seeker results "Call" / "Text"). Without these both report "not supported". -->
     <queries>
@@ -28,6 +31,9 @@
         <intent>
             <action android:name="android.intent.action.SENDTO" />
             <data android:scheme="smsto" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
 </manifest>

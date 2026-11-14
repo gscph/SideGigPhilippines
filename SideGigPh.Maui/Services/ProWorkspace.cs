@@ -167,9 +167,15 @@ public sealed class ProWorkspace(
     }
 
     /// <summary>Lets the pro pick their own photo; it replaces the old one.</summary>
-    public async Task<PhotoAddResult> ChangeProfilePhotoAsync()
+    public async Task<PhotoAddResult> ChangeProfilePhotoAsync() => await SetProfilePhotoAsync(await picker.PickAsync(1));
+
+    /// <summary>
+    /// Saves a photo the page already got (a selfie: <see cref="IPhotoPicker.TakeSelfieAsync"/>) as the pro's own; it
+    /// replaces the old one. Split from taking it so the loading screen covers only the upload, not the camera and its
+    /// permission prompt.
+    /// </summary>
+    public async Task<PhotoAddResult> SetProfilePhotoAsync(PhotoPick pick)
     {
-        var pick = await picker.PickAsync(1);
         if (pick.Status != PhotoPickStatus.Picked)
         {
             return PhotoAddResult.From(pick.Status);
@@ -190,16 +196,19 @@ public sealed class ProWorkspace(
         return new PhotoAddResult(1, 0);
     }
 
-    /// <summary>Lets the pro pick work photos, skipping any already in their gallery.</summary>
-    public async Task<PhotoAddResult> AddWorkPhotosAsync()
-    {
-        var room = MaxWorkPhotos - Draft.WorkPhotoIds.Count;
-        if (room <= 0)
-        {
-            return PhotoAddResult.Nothing;
-        }
+    /// <summary>How many more work photos fit in the gallery.</summary>
+    public int WorkPhotoRoom => Math.Max(0, MaxWorkPhotos - Draft.WorkPhotoIds.Count);
 
-        var pick = await picker.PickAsync(room);
+    /// <summary>Lets the pro pick work photos, skipping any already in their gallery.</summary>
+    public async Task<PhotoAddResult> AddWorkPhotosAsync() =>
+        WorkPhotoRoom > 0 ? await AddWorkPhotosAsync(await picker.PickAsync(WorkPhotoRoom)) : PhotoAddResult.Nothing;
+
+    /// <summary>
+    /// Saves work photos the page already picked (at most <see cref="WorkPhotoRoom"/>), skipping any already in the
+    /// gallery. Split from picking so the loading screen covers only the upload, not the phone's photo picker.
+    /// </summary>
+    public async Task<PhotoAddResult> AddWorkPhotosAsync(PhotoPick pick)
+    {
         if (pick.Status != PhotoPickStatus.Picked)
         {
             return PhotoAddResult.From(pick.Status);

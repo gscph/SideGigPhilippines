@@ -17,6 +17,8 @@ public partial class AddPhonePage : ComponentBase
 
     [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
 
+    [SupplyParameterFromQuery(Name = "back")] public string? Back { get; set; }
+
     private string? _error;
     private PhoneSignIn? _phone;
     private string? _sentTo;
@@ -53,7 +55,7 @@ public partial class AddPhonePage : ComponentBase
         _error = null;
     }
 
-    // From the code step, back to the number; from the number, out.
+    // From the code step, back to the number; from the number, out (to `back`, else home).
     private async Task GoBackAsync()
     {
         if (_sentTo is not null && _phone is not null)
@@ -62,6 +64,6 @@ public partial class AddPhonePage : ComponentBase
             return;
         }
 
-        Nav.NavigateTo("/");
+        Nav.NavigateTo(AuthRoutes.SafeReturn(Back) ?? "/");
     }
 }

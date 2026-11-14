@@ -74,9 +74,12 @@ public class ApiMappingTests
     public void UserProfile_RoundTripsThroughTheWire()
     {
         var profile = new UserProfile("uid", "Juan", "+639171234567", null, AppLanguage.Taglish, UserRole.Professional,
-            "10000", DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, TestData.PhotoId(1));
+            DateTimeOffset.UnixEpoch, DateTimeOffset.UnixEpoch, TestData.PhotoId(1));
 
-        profile.ToDto().ToModel().Should().Be(profile);
+        var dto = profile.ToDto();
+
+        dto.ToModel().Should().Be(profile);
+        dto.IncomeGoalId.Should().BeNull("the earnings goal is no longer asked");
     }
 
     [Fact]

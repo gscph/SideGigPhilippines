@@ -34,6 +34,8 @@
         <!-- Release channel, sent with error reports: dev (Debug builds), beta (Release builds, the default), prod
              (store builds: dotnet publish ... -p:AppChannel=prod). Read at run time by MauiProgram.BuildInfo. -->
         <AppChannel Condition="'$(AppChannel)' == '' And '$(Configuration)' == 'Release'">beta</AppChannel>
+        <!-- A component tag Razor can't find (a missing @using) renders nothing at all: fail the build instead of a warning. -->
+        <WarningsAsErrors>$(WarningsAsErrors);RZ10012</WarningsAsErrors>
         <AppChannel Condition="'$(AppChannel)' == ''">dev</AppChannel>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>

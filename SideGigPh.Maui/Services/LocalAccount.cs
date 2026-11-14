@@ -39,7 +39,7 @@ public sealed class LocalAccount(
 
     /// <summary>
     /// Saves the signed-in person's profile from their account (name, number) and their answers
-    /// (language, side, earnings goal, profile photo). Called when one of those changes. Does nothing when
+    /// (language, side, profile photo). Called when one of those changes. Does nothing when
     /// nobody is signed in (no sign-in provider registered). A failed save is logged, not thrown.
     /// </summary>
     public async Task SaveProfileAsync()
@@ -61,7 +61,6 @@ public sealed class LocalAccount(
                 user.Email,
                 state.Language ?? text.Language,
                 state.Role,
-                state.Professional.IncomeGoalId,
                 saved?.CreatedAt ?? now,
                 now,
                 state.Role == UserRole.Professional ? state.Professional.ProfilePhotoId : state.Seeker.ProfilePhotoId));

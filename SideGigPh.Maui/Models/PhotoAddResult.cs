@@ -16,6 +16,7 @@ public sealed record PhotoAddResult(int Added, int Duplicates, PhotoProblem Prob
     {
         PhotoPickStatus.Picked or PhotoPickStatus.Cancelled => PhotoProblem.None,
         PhotoPickStatus.PermissionDenied => PhotoProblem.NoPermission,
+        PhotoPickStatus.CameraDenied => PhotoProblem.NoCamera,
         _ => PhotoProblem.CouldNotOpen,
     });
 
@@ -34,6 +35,9 @@ public enum PhotoProblem
 
     /// <summary>The phone denied access to the photos.</summary>
     NoPermission,
+
+    /// <summary>The phone denied the camera (for a selfie).</summary>
+    NoCamera,
 
     /// <summary>The upload failed (no internet, server error): worth trying again.</summary>
     UploadFailed,

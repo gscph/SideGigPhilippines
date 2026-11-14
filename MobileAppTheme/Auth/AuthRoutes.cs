@@ -1,8 +1,8 @@
 namespace MobileAppTheme.Auth;
 
 /// <summary>
-/// The sign-in screens' routes. <c>then</c> is where to go once the step is done; only a path
-/// inside the app is accepted (<see cref="SafeReturn"/>).
+/// The sign-in screens' routes. <c>then</c> is where to go once the step is done, <c>back</c> where its Back
+/// button goes (the app's home when not given); only a path inside the app is accepted (<see cref="SafeReturn"/>).
 /// </summary>
 public static class AuthRoutes
 {
@@ -14,7 +14,14 @@ public static class AuthRoutes
 
     public static string Name(string? then) => WithReturn(NamePath, then);
 
-    public static string AddPhone(string? then) => WithReturn(PhonePath, then);
+    /// <param name="back">
+    /// Where Back goes, for a page that would send them straight here again (the app's home resumes it).
+    /// </param>
+    public static string AddPhone(string? then, string? back = null)
+    {
+        var path = WithReturn(PhonePath, then);
+        return SafeReturn(back) is { } safe ? $"{path}{(path.Contains('?') ? '&' : '?')}back={Uri.EscapeDataString(safe)}" : path;
+    }
 
     /// <summary><paramref name="then"/> if it's a path inside the app, else null.</summary>
     public static string? SafeReturn(string? then) =>

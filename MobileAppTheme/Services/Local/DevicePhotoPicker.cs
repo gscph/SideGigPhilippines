@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Media;
+using Microsoft.Maui.Storage;
 
 namespace MobileAppTheme.Services.Local;
 
@@ -8,7 +9,9 @@ namespace MobileAppTheme.Services.Local;
 /// The phone's own photo picker via MAUI <see cref="MediaPicker"/>. Android 13+ and iOS use the
 /// system photo picker, which needs no permission (the user chooses each photo). Android 12 and
 /// older need READ_EXTERNAL_STORAGE, so it is checked and asked for first. Photos are scaled down
-/// and recompressed so they stay small enough to show and upload.
+/// and recompressed so they stay small enough to show and upload. <see cref="TakeSelfieAsync"/> asks for the camera and
+/// opens it with MAUI's <see cref="MediaPicker.CapturePhotoAsync"/>, which can't choose the lens (an app may wrap this
+/// adapter to ask for the front one, as Tarbaho does on Android).
 /// </summary>
 public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhotoPicker
 {
@@ -45,10 +48,7 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
             var photos = new List<byte[]>();
             foreach (var file in files.Take(maxCount))
             {
-                await using var stream = await file.OpenReadAsync();
-                using var buffer = new MemoryStream();
-                await stream.CopyToAsync(buffer);
-                photos.Add(buffer.ToArray());
+                photos.Add(await ReadAsync(file));
             }
 
             return new PhotoPick(PhotoPickStatus.Picked, photos);
@@ -65,7 +65,52 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
         }
     }
 
+    public async Task<PhotoPick> TakeSelfieAsync()
+    {
+        try
+        {
+            var status = await MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                var current = await Permissions.CheckStatusAsync<Permissions.Camera>();
+                return current == PermissionStatus.Granted ? current : await Permissions.RequestAsync<Permissions.Camera>();
+            });
+            if (status != PermissionStatus.Granted)
+            {
+                logger.LogWarning("Camera permission denied.");
+                return PhotoPick.CameraDenied;
+            }
+
+            var options = new MediaPickerOptions
+            {
+                MaximumWidth = MaxSide,
+                MaximumHeight = MaxSide,
+                CompressionQuality = JpegQuality,
+                RotateImage = true,
+            };
+            var file = await MainThread.InvokeOnMainThreadAsync(() => MediaPicker.Default.CapturePhotoAsync(options));
+            return file is null ? PhotoPick.Cancelled : new PhotoPick(PhotoPickStatus.Picked, [await ReadAsync(file)]);
+        }
+        catch (PermissionException ex)
+        {
+            logger.LogWarning(ex, "Camera permission denied by the camera.");
+            return PhotoPick.CameraDenied;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Could not take a selfie.");
+            return PhotoPick.Failed;
+        }
+    }
+
     public void OpenAppSettings() => AppInfo.Current.ShowSettingsUI();
+
+    private static async Task<byte[]> ReadAsync(FileResult file)
+    {
+        await using var stream = await file.OpenReadAsync();
+        using var buffer = new MemoryStream();
+        await stream.CopyToAsync(buffer);
+        return buffer.ToArray();
+    }
 
     private static async Task<bool> EnsurePermissionAsync()
     {

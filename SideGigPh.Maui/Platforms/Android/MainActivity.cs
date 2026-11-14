@@ -28,6 +28,7 @@ namespace SideGigPh.Maui
         {
             base.OnActivityResult(requestCode, resultCode, data);
             FirebaseAuthSetup.HandleActivityResult(requestCode, resultCode, data);
+            SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker.HandleActivityResult(requestCode, resultCode);
         }
     }
 }

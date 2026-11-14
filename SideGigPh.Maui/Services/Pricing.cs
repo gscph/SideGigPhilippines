@@ -43,21 +43,6 @@ public static class Pricing
         return prices.Count == 0 ? null : (prices.Min(), prices.Max());
     }
 
-    /// <summary>
-    /// A typical price for the goal payoff: the mean of the rate's prices over the jobs, or an old tier's typical price;
-    /// null for "depends on the job".
-    /// </summary>
-    public static int? TypicalPrice(string? rateId, IEnumerable<string> serviceIds)
-    {
-        if (ReferenceData.Find(ReferenceData.PriceTiers, rateId) is { } tier)
-        {
-            return tier.Amount;
-        }
-
-        var prices = serviceIds.Select(id => PriceAt(rateId, id)).OfType<int>().ToList();
-        return prices.Count == 0 ? null : RoundedMean(prices);
-    }
-
     /// <summary>The rate tiles for a worker's jobs: each level with its price ("₱755 – ₱2,500 per job"), then "depends on the job".</summary>
     public static IReadOnlyList<CatalogOption> RateChoices(IReadOnlyCollection<string> serviceIds) =>
     [

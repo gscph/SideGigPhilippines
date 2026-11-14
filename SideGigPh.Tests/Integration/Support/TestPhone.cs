@@ -91,7 +91,6 @@ public sealed class TestPhone
             AreaId = ReferenceData.ServiceAreaId,
             ExperienceId = "3-10",
             RateTierId = rate,
-            IncomeGoalId = "10000",
         };
         var phone = new TestPhone(api, name, state: TestData.FinishedPro(draft));
         (await phone.Pro.EnsureLoadedAsync()).Should().BeTrue();

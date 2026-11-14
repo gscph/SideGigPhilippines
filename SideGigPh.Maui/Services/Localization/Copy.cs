@@ -215,19 +215,8 @@ public static class Copy
     public static readonly LocalizedText ProRateNote = new(
         "The minimum is never below the NCR minimum wage ({0} a day).",
         "Hindi bababa sa minimum wage sa NCR ({0} kada araw) ang pinakamababa.");
-    public static readonly LocalizedText ProGoalTitle = new("How much do you want to earn each month?", "Magkano ang gusto mong kitain kada buwan?");
-    public static readonly LocalizedText ProGoalWhy = new("Just for you. This won't show on your listing.", "Hindi ito makikita sa listing mo.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
-    public static readonly LocalizedText GoalPayoff = new(
-        "That's about {0} jobs a week at around {1} each. Let's get you there!",
-        "Mga {0} na trabaho kada linggo 'yan, sa mga {1} bawat isa.");
-    public static readonly LocalizedText GoalPayoffOne = new(
-        "That's about 1 job a week at around {0}. Let's get you there!",
-        "Mga 1 trabaho kada linggo 'yan, sa mga {0}.");
-    public static readonly LocalizedText GoalPayoffQuote = new(
-        "Let's get you there! Customers will ask you for a quote.",
-        "Kaya natin 'yan! Magpapa-quote sa 'yo ang mga customer.");
 
     public static readonly LocalizedText ProPreviewTitle = new("This is how customers will see you", "Ganito ka makikita ng mga customer");
     public static readonly LocalizedText ProPreviewWhy = new("Your listing, built from your answers.", "Ang listing mo, galing sa mga sagot mo.");
@@ -242,12 +231,10 @@ public static class Copy
 
     // --- Pro home ---------------------------------------------------------
     public static readonly LocalizedText ProHomeNotLive = new("Saved on this phone. Not visible to customers yet.", "Saved on this phone. Hindi pa ito nakikita ng customer.");
-    public static readonly LocalizedText ProHomeGoal = new("Your goal: {0} a month", "Goal mo: {0} kada buwan");
     public static readonly LocalizedText StatusPublished = new("Published", "Naka-publish na");
     public static readonly LocalizedText StatusNotPublished = new("Not published yet", "Hindi pa naka-publish");
     public static readonly LocalizedText StatRating = new("{0} ★ ({1})", "{0} ★ ({1})");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
-    public static readonly LocalizedText SectionGoal = new("Your goal", "Goal mo");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.
     public static readonly LocalizedText NotLiveBanner = new("Not visible yet · Finish your listing", "Di ka pa nakikita · Tapusin ang listing");
@@ -306,6 +293,11 @@ public static class Copy
     public static readonly LocalizedText PhotosDuplicate = new("Skipped photos you already added.", "Hindi na isinama ang photos na nandito na.");
     public static readonly LocalizedText PhotosFailed = new("Couldn't open your photos. Please try again.", "Hindi mabuksan ang photos mo. Subukan ulit.");
     public static readonly LocalizedText PhotosNoPermission = new("Tarbaho can't see your photos. Allow Photos in Settings, then try again.", "Hindi makita ng Tarbaho ang photos mo. I-allow ang Photos sa Settings, tapos subukan ulit.");
+    public static readonly LocalizedText CameraNoPermission = new("Tarbaho can't use your camera. Allow Camera in Settings, or choose a photo instead.", "Hindi magamit ng Tarbaho ang camera mo. I-allow ang Camera sa Settings, o pumili na lang ng photo.");
+    public static readonly LocalizedText SelfieTake = new("Take a selfie", "Mag-selfie");
+    public static readonly LocalizedText SelfieRetake = new("Take another", "Mag-selfie ulit");
+    public static readonly LocalizedText SelfieFromPhotos = new("Choose from your photos", "Pumili sa photos mo");
+    public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Your front camera will open.", "Mas nagtitiwala ang customer kapag may mukha. Bubukas ang front camera mo.");
     public static readonly LocalizedText PhotosOpenSettings = new("Open Settings", "Buksan ang Settings");
     public static readonly LocalizedText PhotosUploadFailed = new("Couldn't upload your photo. Check your internet and try again.", "Hindi na-upload ang photo. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");

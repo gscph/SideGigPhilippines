@@ -145,6 +145,15 @@ public sealed class FakePhotoPicker : IPhotoPicker
         return Task.FromResult(Next);
     }
 
+    /// <summary>How many times the camera was opened for a selfie.</summary>
+    public int Selfies { get; private set; }
+
+    public Task<PhotoPick> TakeSelfieAsync()
+    {
+        Selfies++;
+        return Task.FromResult(Next);
+    }
+
     public void OpenAppSettings()
     {
     }

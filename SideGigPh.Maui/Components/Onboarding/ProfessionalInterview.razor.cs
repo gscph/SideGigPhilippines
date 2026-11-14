@@ -8,7 +8,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate → earnings goal →
+/// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate →
 /// preview. "Others" after the trades lets a worker type a kind of work we don't list (sent for analytics), then thanks
 /// them and goes back to the trades. The rate is a point of each job's price guide (minimum, average, above average,
 /// each tile showing its prices for their jobs: <see cref="Pricing.RateChoices"/>) or "depends on the job". The answers build the listing card the pro sees at the end; its name and number come
@@ -121,8 +121,6 @@ public partial class ProfessionalInterview : ComponentBase
         return AdvanceAsync();
     }
 
-    private void PickGoal(string id) => Draft.IncomeGoalId = id;
-
     private void SetOtherJobText(string text) => Draft.OtherJobText = text;
 
     private async Task AdvanceAsync()
@@ -146,8 +144,9 @@ public partial class ProfessionalInterview : ComponentBase
 
     /// <summary>
     /// The pro tapped Done: the brand splash (<see cref="BusyIndicator"/>, the same one as at launch) stays up while the
-    /// answers and profile are saved and Pro home is loaded behind it, so home opens filled. It waits at most
-    /// <see cref="OnboardingFinish.WaitLimit"/>, and not when a save failed: home loads its own data anyway.
+    /// answers and profile are saved and their workspace is loaded behind it, then the setup opens (photo, work photos,
+    /// references, Publish: <see cref="OnboardingSteps.AfterInterviewPath"/>), or Pro home once live. It waits at most
+    /// <see cref="OnboardingFinish.WaitLimit"/>, and not when a save failed: the next page loads its own data anyway.
     /// </summary>
     private async Task FinishAsync()
     {
@@ -158,7 +157,7 @@ public partial class ProfessionalInterview : ComponentBase
 
         _finishing = true;
         await Busy.RunAsync(() => OnboardingFinish.WaitAsync(SaveAndLoadHomeAsync(), Logger, Clock));
-        Nav.NavigateTo(ProRoutes.Home, replace: true);
+        Nav.NavigateTo(Draft.AfterInterviewPath(), replace: true);
     }
 
     private async Task SaveAndLoadHomeAsync()
@@ -167,7 +166,7 @@ public partial class ProfessionalInterview : ComponentBase
         state.CompletedAt ??= DateTimeOffset.Now;
         state.ResumePath = null;
         await Store.SaveAsync(state);
-        await Account.SaveProfileAsync(); // Their side and earnings goal.
+        await Account.SaveProfileAsync(); // Their side.
         await Workspace.EnsureLoadedAsync();
     }
 

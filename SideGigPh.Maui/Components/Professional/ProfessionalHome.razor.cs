@@ -7,7 +7,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// Pro home, Slack style: the setup checklist until the listing is published, then
-/// collapsible sections for recent messages, latest reviews and the earnings goal.
+/// collapsible sections for recent messages and latest reviews.
 /// The + button adds work photos.
 /// </summary>
 public partial class ProfessionalHome : ComponentBase
@@ -18,10 +18,6 @@ public partial class ProfessionalHome : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private PhotoAddResult? _photoResult;
-
-    private string? GoalLabel => ReferenceData.Find(ReferenceData.IncomeGoals, Workspace.Draft.IncomeGoalId) is { } goal
-        ? T.Get(goal.Label)
-        : null;
 
     /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
     private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Home);

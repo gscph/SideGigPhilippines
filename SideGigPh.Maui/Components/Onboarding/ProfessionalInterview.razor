@@ -57,21 +57,10 @@
             </InterviewStep>
             break;
 
-        case ProStep.Goal:
-            @* No auto-advance here: the payoff under the tiles is the reward for answering. *@
-            <InterviewStep Illustration="🎯" Title="@T.Get(Copy.ProGoalTitle)" Why="@T.Get(Copy.ProGoalWhy)" Progress="Progress"
-                           OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.IncomeGoalId is not null)">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.IncomeGoals, T)" Compact="true"
-                             SelectedIds="Selected(Draft.IncomeGoalId)" OnPick="PickGoal" />
-                <GoalPayoff RateTierId="@Draft.RateTierId" ServiceIds="Draft.ServiceIds" IncomeGoalId="@Draft.IncomeGoalId" />
-            </InterviewStep>
-            break;
-
         case ProStep.Preview:
             <InterviewStep Illustration="👀" Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="FinishAsync" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
                 <ListingPreview Listing="Draft.ToListing()" />
-                <GoalPayoff RateTierId="@Draft.RateTierId" ServiceIds="Draft.ServiceIds" IncomeGoalId="@Draft.IncomeGoalId" />
             </InterviewStep>
             break;
     }

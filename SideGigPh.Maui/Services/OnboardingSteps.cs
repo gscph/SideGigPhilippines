@@ -12,8 +12,18 @@ public enum ProStep
     Towns,
     Experience,
     Rate,
-    Goal,
     Preview,
+}
+
+/// <summary>
+/// The Skilled Worker's setup after the interview, in order (<c>/start/pro/setup/{n}</c>): the proof a listing needs
+/// before Publish (<see cref="ProfessionalDraft.HasProof"/>). Publish, with its verified-number check, comes after.
+/// </summary>
+public enum ProSetupStep
+{
+    Photo = 1,
+    WorkPhotos,
+    References,
 }
 
 /// <summary>The Seeker interview's questions, in order; the number is the step in its URL (<c>/start/seeker/{n}</c>).</summary>
@@ -56,7 +66,6 @@ public static class OnboardingSteps
         if (draft.CityIds.Count == 0) return ProStep.Towns;
         if (draft.ExperienceId is null) return ProStep.Experience;
         if (draft.RateTierId is null) return ProStep.Rate;
-        if (draft.IncomeGoalId is null) return ProStep.Goal;
         return ProStep.Preview;
     }
 
@@ -116,6 +125,43 @@ public static class OnboardingSteps
         step != ProStep.Skills ? PathOf(step - 1)
         : finished ? ProRoutes.Home
         : RolePath;
+
+    // --- Skilled Worker setup (proof, then Publish) ---------------------------
+
+    public static string PathOf(ProSetupStep step) => $"/start/pro/setup/{(int)step}";
+
+    /// <summary>The first proof still missing (own photo, work photos, a reference), or null when all are there.</summary>
+    public static ProSetupStep? FirstUnfinished(this ProfessionalDraft draft)
+    {
+        if (!draft.HasProfilePhoto) return ProSetupStep.Photo;
+        if (!draft.HasEnoughWorkPhotos) return ProSetupStep.WorkPhotos;
+        if (!draft.HasReference) return ProSetupStep.References;
+        return null;
+    }
+
+    /// <summary>The setup step a URL asks for, clamped to the real steps and never past the first unfinished one.</summary>
+    public static ProSetupStep SetupStepToShow(this ProfessionalDraft draft, int? requested)
+    {
+        var step = (ProSetupStep)Math.Clamp(requested ?? 1, 1, (int)ProSetupStep.References);
+        return draft.FirstUnfinished() is { } unfinished && step > unfinished ? unfinished : step;
+    }
+
+    /// <summary>
+    /// Where the interview's Done (and launch) leads a Skilled Worker: Pro home once live, else the first missing proof,
+    /// else Publish (which asks a Google account to add a verified number first).
+    /// </summary>
+    public static string AfterInterviewPath(this ProfessionalDraft draft) =>
+        draft.PublishedAt is not null ? ProRoutes.Home
+        : draft.FirstUnfinished() is { } unfinished ? PathOf(unfinished)
+        : ProRoutes.Publish;
+
+    /// <summary>Next from a setup step: the next one, Publish after the last.</summary>
+    public static string NextPath(ProSetupStep step) =>
+        step == ProSetupStep.References ? ProRoutes.Publish : PathOf(step + 1);
+
+    /// <summary>Back from a setup step: the previous one, the interview's preview from the first.</summary>
+    public static string BackPath(ProSetupStep step) =>
+        step == ProSetupStep.Photo ? PathOf(ProStep.Preview) : PathOf(step - 1);
 
     // There is one area, so it is never asked: it follows from the towns (the API needs it on the listing).
     private static void SetAreaFromTowns(this ProfessionalDraft draft) => draft.AreaId = ReferenceData.AreaOf(draft.CityIds.FirstOrDefault());
@@ -215,7 +261,8 @@ public static class OnboardingSteps
             return missing is SeekerStep.Category or SeekerStep.Service or SeekerStep.City ? PathOf(missing) : SeekerRoutes.Home;
         }
 
-        return state.Professional.IsListingComplete ? ProRoutes.Home : ProFirstUnansweredPath;
+        // Not live yet: back into the setup (photos, references, Publish) where they left it.
+        return state.Professional.IsListingComplete ? state.Professional.AfterInterviewPath() : ProFirstUnansweredPath;
     }
 
     private static void Toggle(List<string> ids, string id)

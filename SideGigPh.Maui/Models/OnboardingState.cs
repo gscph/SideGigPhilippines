@@ -80,9 +80,6 @@ public sealed class ProfessionalDraft
     /// </summary>
     public string? RateTierId { get; set; }
 
-    /// <summary>Private monthly earnings goal; never shown on the listing.</summary>
-    public string? IncomeGoalId { get; set; }
-
     public string? DisplayName { get; set; }
 
     /// <summary>E.164 format, e.g. +639171234567.</summary>

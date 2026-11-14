@@ -47,6 +47,32 @@ public class PhotoTests
             .Which.Listing.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
     }
 
+    [Fact]
+    public async Task Selfie_Taken_BecomesTheirPhoto()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        app.Picker.Picks(50);
+
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
+
+        result.Should().Be(new PhotoAddResult(1, 0));
+        app.Picker.Selfies.Should().Be(1);
+        app.Picker.LastMaxCount.Should().BeNull("the camera opened, not the gallery");
+        app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(50));
+    }
+
+    [Fact]
+    public async Task Selfie_CameraDenied_SaysSo_AndKeepsTheOldPhoto()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        app.Picker.Next = PhotoPick.CameraDenied;
+
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
+
+        result.Problem.Should().Be(PhotoProblem.NoCamera);
+        app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(1));
+    }
+
     [Theory]
     [InlineData(PhotoPickStatus.Cancelled, PhotoProblem.None)]
     [InlineData(PhotoPickStatus.PermissionDenied, PhotoProblem.NoPermission)]

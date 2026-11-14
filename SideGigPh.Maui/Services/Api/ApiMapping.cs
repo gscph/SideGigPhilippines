@@ -14,7 +14,6 @@ internal static partial class ApiMapping
         dto.Email,
         dto.Language == Wire.Taglish ? AppLanguage.Taglish : AppLanguage.English,
         dto.Role switch { Wire.Seeker => UserRole.Seeker, Wire.Professional => UserRole.Professional, _ => null },
-        dto.IncomeGoalId,
         dto.CreatedAt,
         dto.UpdatedAt,
         dto.ProfilePhotoId);
@@ -26,7 +25,7 @@ internal static partial class ApiMapping
         profile.Email,
         profile.Language == AppLanguage.Taglish ? Wire.Taglish : Wire.English,
         profile.Role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null },
-        profile.IncomeGoalId,
+        null, // IncomeGoalId: no longer asked (older apps still send theirs)
         profile.CreatedAt,
         profile.UpdatedAt,
         profile.ProfilePhotoId);

@@ -35,13 +35,6 @@ public class ChatTests
     public void YourOwnMessage_IsNeverUnreadForYou() =>
         ChatWithLastMessageFrom("pro").IsUnreadFor(ChatSide.Professional).Should().BeFalse();
 
-    [Theory]
-    [InlineData(10000, 750, 4)]  // ₱10,000 a month at ₱750 a job ≈ 3.1 → 4 jobs a week (rounded up)
-    [InlineData(5000, 5000, 1)]  // never less than 1
-    [InlineData(30000, 400, 18)]
-    public void JobsPerWeek_RoundsUp_AndIsAtLeastOne(int monthlyGoal, int pricePerJob, int expected) =>
-        Money.JobsPerWeek(monthlyGoal, pricePerJob).Should().Be(expected);
-
     [Fact]
     public void Peso_UsesThePesoSignAndThousandsCommas() => Money.Peso(12500).Should().Be("₱12,500");
 }
