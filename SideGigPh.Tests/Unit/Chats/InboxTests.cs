@@ -16,9 +16,9 @@ public class InboxTests
     // --- Seeker side ----------------------------------------------------------
 
     [Theory]
-    [InlineData(ReferenceData.UrgencyToday, "Hi! I found you on SideGigPh. I need: Aircon cleaning, in Taytay, today. Are you available?")]
-    [InlineData(ReferenceData.UrgencyThisWeek, "Hi! I found you on SideGigPh. I need: Aircon cleaning, in Taytay, this week. Are you available?")]
-    [InlineData(ReferenceData.UrgencyCanvassing, "Hi! I found you on SideGigPh. I need: Aircon cleaning, in Taytay. How much do you charge?")]
+    [InlineData(ReferenceData.UrgencyToday, "Hi! I found you on Tarbaho. I need: Aircon cleaning, in Taytay, today. Are you available?")]
+    [InlineData(ReferenceData.UrgencyThisWeek, "Hi! I found you on Tarbaho. I need: Aircon cleaning, in Taytay, this week. Are you available?")]
+    [InlineData(ReferenceData.UrgencyCanvassing, "Hi! I found you on Tarbaho. I need: Aircon cleaning, in Taytay. How much do you charge?")]
     public async Task DefaultMessage_SaysTheJobTownAndHowSoon(string urgency, string expected)
     {
         var answers = TestData.AirconCleaningInTaytay();
@@ -46,7 +46,7 @@ public class InboxTests
         app.Text.Use(AppLanguage.Taglish);
 
         app.Seeker.DefaultMessage(TestData.Listing("Ana", cities: ["angono"]))
-            .Should().Be("Hi po! Nakita ko kayo sa SideGigPh. Kailangan ko po: Pa-linis ng aircon, dito sa Angono, ngayon. Available po ba kayo?");
+            .Should().Be("Hi po! Nakita ko kayo sa Tarbaho. Kailangan ko po: Pa-linis ng aircon, dito sa Angono, ngayon. Available po ba kayo?");
     }
 
     [Fact]

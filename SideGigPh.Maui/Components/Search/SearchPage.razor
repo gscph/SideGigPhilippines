@@ -3,7 +3,7 @@
 
 <MudStack Spacing="3">
     
-    <SearchBox Value="@Workspace.Answers.SearchText" Live="true" OnSearch="SearchForAsync" />   
+    <SearchBox Value="@Workspace.Answers.SearchText" CategoryId="@Request.CategoryId" Live="true" OnSearch="SearchForAsync" />   
 
     <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
         <FilterMenu Icon="@Icons.Material.Filled.Place" Label="@T.Get(Copy.FilterTown)" Options="Towns"
@@ -29,7 +29,7 @@
 
         @if (_result.Total == 0)
         {
-            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.ResultsEmpty)</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)</MudText>
         }
         else if (_result.InTownTotal == 0)
         {

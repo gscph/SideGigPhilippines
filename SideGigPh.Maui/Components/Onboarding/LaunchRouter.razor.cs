@@ -17,6 +17,13 @@ public partial class LaunchRouter : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
+    /// <summary>A different honorific each launch ("Find Ates nearby" / "May Ate para diyan").</summary>
+    private readonly string _honorific = Honorifics.Random();
+
+    private string SeekerLine(AppLanguage language) => language == AppLanguage.Taglish
+        ? string.Format(Copy.SeekerTagline.Taglish, _honorific)
+        : string.Format(Copy.SeekerTagline.English, Honorifics.Plural(_honorific));
+
     protected override async Task OnInitializedAsync()
     {
         // The config first (once per launch, while the splash shows): the saved answers are checked against it as they load (OnboardingCleanup).

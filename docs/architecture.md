@@ -2,6 +2,26 @@
 
 The detail behind the short rules in [`CLAUDE.md`](../CLAUDE.md) → Architecture map. Read the section for the area you are changing, and keep it accurate when the code changes (CLAUDE.md keeps only the rules every session needs).
 
+## Brand (Tarbaho)
+
+Users see the app as **Tarbaho** (how kids say "trabaho"); solution, projects, namespaces, the package id
+`com.sidegigph.app`, Firebase and Azure names keep SideGigPh. The name shows from `AppTheme.Brand` (top bar,
+language and sign-in screens, `BrandMark` on the splash), `ApplicationTitle` in `SideGigPh.Maui.csproj` (launcher
+label), the window title in `App.xaml.cs` and the pre-Blazor splash in `wwwroot/index.html`; copy that names the app
+says "Tarbaho" in `Copy.cs`.
+
+- **Taglines:** Pros "Find work near you" / "Umextra para sa Pamilya" (`Copy.RoleProfessionalHint`); Seekers
+  "Find ___ nearby" / "May ___ para diyan" (`Copy.SeekerTagline`); before the role is known, `AppTheme.Brand.Tagline`
+  says both.
+- **Honorifics** (`Services/Honorifics`): workers are Manong, Kuya, Ate or Manang, never "laborers". The name never
+  changes, only the honorific: a random one each launch on the `LaunchRouter` splash (both languages, since a first
+  launch doesn't know the language yet) and in the search box until a trade is picked; after that the trade's own
+  (`Honorifics.For`: Manong for roofing, carpentry, welder, masonry; Ate for errands; Kuya for everyday repairs and any
+  new trade). Copy takes the word as `{0}`; English lines that want the plural ("Find Kuyas nearby", the empty search
+  "No Kuyas…") pass `englishPlural: true` to `AppText.FormatHonorific`. Ate and Manang always stay in the rotation.
+- Spell "maghanap" as one word. The logo is still the hard-hat worker; a crew illustration logo, a small nav mark,
+  the wordmark font and the final palette are still to come.
+
 ## Photos
 
 - **Photos (MVP):** Azure Blob Storage (storage account `sidegigphbfb9`, also the Function App's own storage; container `photos`, blob `{sha256}.jpg`, readable by URL), written only through **`SideGigPh.Api`** (Azure Functions, isolated worker, .NET 10, published to the Function App `SideGigPhApi`, https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/). The API checks the user's Firebase ID token, refuses a photo whose header says it is over 64 MP or 16,384px on a side before decoding it (`PhotoImage.IsTooBig`, `413 too-large`; a 48 MP phone photo fits), re-encodes every upload the same way (`PhotoImage`: upright, sRGB, at most 1280px on the long side and never enlarged, progressive JPEG quality 82, EXIF/GPS stripped; screens crop with object-fit cover), hashes the result and refuses a photo another account already stored (anti-fraud rule 2). Photos show straight from their public blob URL, so the container must allow blob-level anonymous read: the API switches a private `photos` container to it on first upload, and fails with a clear message when the account blocks anonymous access (`azure/cloudshell-setup.sh` turns it on; `cloudshell-verify.sh` checks it). **The storage connection string lives only in the Function App's settings (`PhotoStorage`)** or, on a PC, the git-ignored `SideGigPh.Api/local.settings.json`; never in the phone app. Setup and checks: [`azure/`](../azure/README.md). The app reaches it through **`ApiPhotoStore`** (`SideGigPh.Maui/Services/Api/`, registered in `MauiProgram` after `AddMobileAppTheme`, so it replaces the skeleton's `FilePhotoStore`): `POST photos` uploads, `DELETE photos/{id}` removes, each with the user's ID token (`IIdentityProvider.GetIdTokenAsync`). The server's returned id is the photo id; photos show from their public blob URL. The API URL and blob base URL are constants in `MauiProgram` (not secrets).

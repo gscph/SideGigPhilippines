@@ -12,7 +12,7 @@
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            var window = new Window(new MainPage()) { Title = "SideGigPh" };
+            var window = new Window(new MainPage()) { Title = "Tarbaho" };
 
             // Background work (an open chat's poll) pauses while the app is hidden.
             window.Stopped += (_, _) => _visibility.Set(false);

@@ -1,19 +1,23 @@
 namespace SideGigPh.Maui.Services.Localization;
 
 /// <summary>
-/// Every SideGigPh UI string, English and Taglish side by side (the skeleton's shared strings,
+/// Every Tarbaho UI string, English and Taglish side by side (the skeleton's shared strings,
 /// e.g. Back, Next, Start over, are in MobileAppTheme's <see cref="CommonCopy"/>). Many of our users are not confident
 /// English readers: keep both versions short and plain, and keep Taglish conversational.
 /// Reference-data labels (jobs, towns, prices) live in <see cref="ReferenceData"/>.
 /// </summary>
 public static class Copy
 {
+    // --- Brand taglines (Tarbaho) -------------------------------------------
+    /// <summary>The Seeker line under the logo; {0} = a rotating honorific, plural in English (<see cref="Honorifics"/>).</summary>
+    public static readonly LocalizedText SeekerTagline = new("Find {0} nearby", "May {0} para diyan");
+
     // --- Role fork --------------------------------------------------------
     public static readonly LocalizedText RoleTitle = new("Find a Job or Hire a Skilled Worker", "Find a Job or Hire a Skilled Worker");
     public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, plumbing, repairs, errands, mechanic", "Aircon, tubero, repair, PasaBuy, mekaniko");
     public static readonly LocalizedText RoleProfessional = new("I want to earn money", "Gusto kong kumita sa trabaho");
-    public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Maka kuha ng trabaho malapit sayo");
+    public static readonly LocalizedText RoleProfessionalHint = new("Find work near you", "Umextra para sa Pamilya");
 
     // --- Seeker interview -------------------------------------------------
     public static readonly LocalizedText SeekerCategoryTitle = new("What do you need done?", "Ano'ng ipapagawa mo?");
@@ -72,7 +76,8 @@ public static class Copy
 
     // --- Search -----------------------------------------------------------
     public static readonly LocalizedText SearchTitle = new("Find a Skilled Worker", "Maghanap ng Skilled Worker");
-    public static readonly LocalizedText SearchPlaceholder = new("Search for Skilled Worker", "Maghanap ng Skilled Worker");
+    /// <summary>{0} = an honorific (<see cref="Honorifics"/>), e.g. "Find a Manong…" / "Hanap ng Kuya…".</summary>
+    public static readonly LocalizedText SearchPlaceholder = new("Find a {0}…", "Hanap ng {0}…");
     public static readonly LocalizedText SearchNoMatch = new("We couldn't tell what job \"{0}\" is. Pick one below.", "Hindi namin makuha kung anong trabaho ang \"{0}\". Pumili sa baba.");
     public static readonly LocalizedText SearchPickTrade = new("Which kind of skilled worker is \"{0}\" for? Pick one below.", "Which kind of skilled worker is \"{0}\"? Pumili sa baba.");
     public static readonly LocalizedText SearchTradesLabel =new("Kind of skilled worker", "Klase ng skilled worker");
@@ -88,7 +93,8 @@ public static class Copy
     public static readonly LocalizedText ResultsInTown = new("Goes to {0}", "Pumupunta sa {0}");
     public static readonly LocalizedText ResultsOtherTowns = new("Other towns nearby", "Taga-ibang bayan na malapit");
     public static readonly LocalizedText ResultsWidened = new("No skilled workers in {0} yet, so here are skilled workers from nearby towns.", "Wala pang skilled worker sa {0}, kaya heto ang mga skilled worker sa kalapit na bayan.");
-    public static readonly LocalizedText ResultsEmpty = new("No skilled workers for this job yet. We're adding more soon.", "Wala pang skilled worker para dito. Magdadagdag pa kami.");
+    /// <summary>{0} = the trade's honorific, plural in English (<see cref="Honorifics"/>).</summary>
+    public static readonly LocalizedText ResultsEmpty = new("No {0} for this job here yet… soon!", "Wala pang {0} dito… soon!");
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");
 
     // --- A pro's public profile -------------------------------------------
@@ -172,14 +178,14 @@ public static class Copy
 
     // Pre-filled SMS to a pro, by urgency. {0} = job, {1} = town.
     public static readonly LocalizedText MessageToday = new(
-        "Hi! I found you on SideGigPh. I need: {0}, in {1}, today. Are you available?",
-        "Hi po! Nakita ko kayo sa SideGigPh. Kailangan ko po: {0}, dito sa {1}, ngayon. Available po ba kayo?");
+        "Hi! I found you on Tarbaho. I need: {0}, in {1}, today. Are you available?",
+        "Hi po! Nakita ko kayo sa Tarbaho. Kailangan ko po: {0}, dito sa {1}, ngayon. Available po ba kayo?");
     public static readonly LocalizedText MessageThisWeek = new(
-        "Hi! I found you on SideGigPh. I need: {0}, in {1}, this week. Are you available?",
-        "Hi po! Nakita ko kayo sa SideGigPh. Kailangan ko po: {0}, dito sa {1}, ngayong linggo. Available po ba kayo?");
+        "Hi! I found you on Tarbaho. I need: {0}, in {1}, this week. Are you available?",
+        "Hi po! Nakita ko kayo sa Tarbaho. Kailangan ko po: {0}, dito sa {1}, ngayong linggo. Available po ba kayo?");
     public static readonly LocalizedText MessageCanvass = new(
-        "Hi! I found you on SideGigPh. I need: {0}, in {1}. How much do you charge?",
-        "Hi po! Nakita ko kayo sa SideGigPh. Kailangan ko po: {0}, dito sa {1}. Magkano po ang singil ninyo?");
+        "Hi! I found you on Tarbaho. I need: {0}, in {1}. How much do you charge?",
+        "Hi po! Nakita ko kayo sa Tarbaho. Kailangan ko po: {0}, dito sa {1}. Magkano po ang singil ninyo?");
 
     // --- Pro card ---------------------------------------------------------
     public static readonly LocalizedText RatePerJob = new("{0} per job", "{0} per job");
@@ -259,8 +265,8 @@ public static class Copy
     // --- References (private, under Me) -------------------------------------
     public static readonly LocalizedText ReferencesTitle = new("References", "Mga reference");
     public static readonly LocalizedText ReferencesWhy = new(
-        "Someone you did work for: a past customer or boss. Add 1 to {0}. Only SideGigPh sees these, not customers. We may call to check.",
-        "Isang pinagtrabahuhan mo: dating customer o amo. 1 hanggang {0}. SideGigPh lang ang makakakita, hindi ang customer. Baka tawagan namin para i-check.");
+        "Someone you did work for: a past customer or boss. Add 1 to {0}. Only Tarbaho sees these, not customers. We may call to check.",
+        "Isang pinagtrabahuhan mo: dating customer o amo. 1 hanggang {0}. Tarbaho lang ang makakakita, hindi ang customer. Baka tawagan namin para i-check.");
     public static readonly LocalizedText ReferencesCount = new("{0} of {1}", "{0} sa {1}");
     public static readonly LocalizedText ReferencesEmpty = new("No reference yet. You need 1 to publish.", "Wala pang reference. Kailangan ng 1 para ma-publish.");
     public static readonly LocalizedText ReferenceName = new("Their name", "Pangalan niya");
@@ -284,7 +290,7 @@ public static class Copy
     public static readonly LocalizedText ReviewsCount = new("{0} reviews", "{0} reviews");
     public static readonly LocalizedText ReviewsCountOne = new("1 review", "1 review");
     public static readonly LocalizedText OverallRating = new("Overall rating", "Overall rating");
-    public static readonly LocalizedText ReviewsEmpty = new("No reviews yet. After a job, ask your customer to rate you on SideGigPh.", "Wala pang review. Pagkatapos ng trabaho, sabihan ang customer na i-rate ka sa SideGigPh.");
+    public static readonly LocalizedText ReviewsEmpty = new("No reviews yet. After a job, ask your customer to rate you on Tarbaho.", "Wala pang review. Pagkatapos ng trabaho, sabihan ang customer na i-rate ka sa Tarbaho.");
 
     // --- Photos -----------------------------------------------------------
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
@@ -296,7 +302,7 @@ public static class Copy
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");
     public static readonly LocalizedText PhotosDuplicate = new("Skipped photos you already added.", "Hindi na isinama ang photos na nandito na.");
     public static readonly LocalizedText PhotosFailed = new("Couldn't open your photos. Please try again.", "Hindi mabuksan ang photos mo. Subukan ulit.");
-    public static readonly LocalizedText PhotosNoPermission = new("SideGigPh can't see your photos. Allow Photos in Settings, then try again.", "Hindi makita ng SideGigPh ang photos mo. I-allow ang Photos sa Settings, tapos subukan ulit.");
+    public static readonly LocalizedText PhotosNoPermission = new("Tarbaho can't see your photos. Allow Photos in Settings, then try again.", "Hindi makita ng Tarbaho ang photos mo. I-allow ang Photos sa Settings, tapos subukan ulit.");
     public static readonly LocalizedText PhotosOpenSettings = new("Open Settings", "Buksan ang Settings");
     public static readonly LocalizedText PhotosUploadFailed = new("Couldn't upload your photo. Check your internet and try again.", "Hindi na-upload ang photo. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");
@@ -306,7 +312,7 @@ public static class Copy
     public static readonly LocalizedText ProfilePhotoAdd = new("Add your photo", "Maglagay ng photo mo");
     public static readonly LocalizedText ProfilePhotoChange = new("Change photo", "Palitan ang photo");
     public static readonly LocalizedText ProfileEdit = new("Edit listing", "Edit listing");
-    public static readonly LocalizedText ProfileSince = new("On SideGigPh since {0}", "Nasa SideGigPh mula {0}");
+    public static readonly LocalizedText ProfileSince = new("On Tarbaho since {0}", "Nasa Tarbaho mula {0}");
 
     // --- Publish ----------------------------------------------------------
     public static readonly LocalizedText PublishTitle = new("Ready to publish?", "Ready na bang i-publish?");

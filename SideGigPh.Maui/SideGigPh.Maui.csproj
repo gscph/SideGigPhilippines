@@ -22,7 +22,7 @@
         <MauiXamlInflator>SourceGen</MauiXamlInflator>
 
         <!-- Display name -->
-        <ApplicationTitle>SideGigPh</ApplicationTitle>
+        <ApplicationTitle>Tarbaho</ApplicationTitle>
 
         <!-- App Identifier -->
         <ApplicationId>com.sidegigph.app</ApplicationId>
