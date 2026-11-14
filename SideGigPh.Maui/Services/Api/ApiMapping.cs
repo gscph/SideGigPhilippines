@@ -148,6 +148,11 @@ internal static partial class ApiMapping
     public static OtherJobRequest ToRequest(this OtherJobNote note) =>
         new(note.CategoryId, note.Side == UserRole.Seeker ? Wire.Seeker : Wire.Professional, note.Text);
 
+    public static ErrorReportBatch ToBatch(this IReadOnlyList<ErrorReport> reports, string installId, DeviceStamp device) =>
+        new(installId, device.AppVersion, device.Platform, device.Device, [.. reports.Select(r => new ErrorReportDto(
+            r.Kind switch { ErrorKind.Crash => ErrorKinds.Crash, ErrorKind.Slow => ErrorKinds.Slow, _ => ErrorKinds.Error },
+            r.Source, r.Message, r.Detail, r.Route, r.Trail, r.Count, r.FirstAt, r.LastAt))]);
+
     private static LocalizedText? Hint(string? english, string? taglish) =>
         english is null && taglish is null ? null : new(english ?? taglish!, taglish ?? english!);
 

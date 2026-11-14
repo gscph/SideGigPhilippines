@@ -98,6 +98,20 @@ public class WireContractTests
         FieldNames(new OtherJobRequest("aircon", Wire.Seeker, "thermostat"), ApiJson.Default.OtherJobRequest).Should().Equal("categoryId", "side", "text");
     }
 
+    // Phones keep error reports for days before sending them, so an older app's batch must still be read.
+    [Fact]
+    public void ErrorReportFieldNamesAndKinds_NeverChange()
+    {
+        var report = new ErrorReportDto(ErrorKinds.Slow, "Loading", "Stuck", "stack", "/start/pro/done", "trail", 2, At, At);
+        FieldNames(new ErrorReportBatch("id", "1.0", "android 14", "samsung", [report]), ApiJson.Default.ErrorReportBatch)
+            .Should().Equal("installId", "appVersion", "platform", "device", "reports");
+        FieldNames(report, ApiJson.Default.ErrorReportDto)
+            .Should().Equal("kind", "source", "message", "detail", "route", "trail", "count", "firstAt", "lastAt");
+        ErrorKinds.Error.Should().Be("error");
+        ErrorKinds.Crash.Should().Be("crash");
+        ErrorKinds.Slow.Should().Be("slow");
+    }
+
     // Phones already installed read these keys from a notification and created these Android channels at launch.
     [Fact]
     public void NotificationKeysAndChannels_NeverChange()

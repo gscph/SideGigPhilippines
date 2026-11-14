@@ -22,6 +22,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ServiceRow> Services => Set<ServiceRow>();
     public DbSet<OtherJobNoteRow> OtherJobNotes => Set<OtherJobNoteRow>();
     public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
+    public DbSet<ErrorReportRow> ErrorReports => Set<ErrorReportRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
@@ -210,6 +211,25 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             option.Property(o => o.LabelEnglish).HasMaxLength(100).IsUnicode();
             option.Property(o => o.LabelTaglish).HasMaxLength(100).IsUnicode();
             option.Property(o => o.Icon).HasMaxLength(16).IsUnicode();
+        });
+
+        model.Entity<ErrorReportRow>(report =>
+        {
+            report.ToTable("ErrorReports");
+            report.HasKey(r => r.Id);
+            report.Property(r => r.Id).UseIdentityColumn();
+            report.Property(r => r.InstallId).HasMaxLength(36);
+            report.Property(r => r.AppVersion).HasMaxLength(30);
+            report.Property(r => r.Platform).HasMaxLength(30);
+            report.Property(r => r.Device).HasMaxLength(80).IsUnicode();
+            report.Property(r => r.Kind).HasMaxLength(12);
+            report.Property(r => r.Source).HasMaxLength(200);
+            report.Property(r => r.Message).HasMaxLength(1000).IsUnicode();
+            report.Property(r => r.Detail).HasMaxLength(4000).IsUnicode();
+            report.Property(r => r.Route).HasMaxLength(200);
+            report.Property(r => r.Trail).HasMaxLength(2000).IsUnicode();
+            report.HasIndex(r => r.ReceivedAt).HasDatabaseName("IX_ErrorReports_ReceivedAt");
+            report.HasIndex(r => new { r.Source, r.AppVersion }).HasDatabaseName("IX_ErrorReports_Source");
         });
     }
 }

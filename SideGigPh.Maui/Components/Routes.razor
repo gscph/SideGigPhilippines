@@ -1,4 +1,5 @@
 @* MobileAppTheme supplies MainLayout (theme + popovers) and the NotFound page, so its assembly is routable too. *@
+<ScreenTrail />
 <Router AppAssembly="typeof(MauiProgram).Assembly" AdditionalAssemblies="new[] { typeof(MainLayout).Assembly }"
         NotFoundPage="typeof(MobileAppTheme.Components.Pages.NotFound)">
     <Found Context="routeData">

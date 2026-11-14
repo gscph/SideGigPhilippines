@@ -8,6 +8,9 @@ public enum Limited
     /// <summary>A chat message (text or a logged call).</summary>
     Message,
 
+    /// <summary>A batch of error reports from the app (diagnostics).</summary>
+    ErrorReport,
+
     /// <summary>A Seeker starting a chat with a new Skilled Worker (each one rings that worker's phone).</summary>
     NewChat,
 
@@ -32,6 +35,7 @@ public sealed class CallerLimits : IDisposable
     /// <summary>How many of each write one account may make in the window.</summary>
     public static readonly IReadOnlyDictionary<Limited, (int Permits, TimeSpan Window)> Rules = new Dictionary<Limited, (int, TimeSpan)>
     {
+        [Limited.ErrorReport] = (12, TimeSpan.FromHours(1)),
         [Limited.Message] = (30, TimeSpan.FromMinutes(1)),
         [Limited.NewChat] = (20, TimeSpan.FromHours(1)),
         [Limited.OtherJobNote] = (20, TimeSpan.FromHours(1)),

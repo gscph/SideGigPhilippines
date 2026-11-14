@@ -33,4 +33,7 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(SearchHitDto))]
 [JsonSerializable(typeof(List<SearchHitDto>))]
 [JsonSerializable(typeof(SearchPageDto))]
+[JsonSerializable(typeof(ErrorReportDto))]
+[JsonSerializable(typeof(List<ErrorReportDto>))]
+[JsonSerializable(typeof(ErrorReportBatch))]
 public sealed partial class ApiJson : JsonSerializerContext;

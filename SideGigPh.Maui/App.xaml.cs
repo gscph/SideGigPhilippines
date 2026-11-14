@@ -1,13 +1,18 @@
-﻿namespace SideGigPh.Maui
+﻿using SideGigPh.Maui.Services.Diagnostics;
+
+namespace SideGigPh.Maui
 {
     public partial class App : Application
     {
         private readonly AppVisibility _visibility;
 
-        public App(AppVisibility visibility)
+        public App(AppVisibility visibility, ErrorReporting errorReporting)
         {
             _visibility = visibility;
             InitializeComponent();
+
+            // Crashes, stuck loading screens and logged errors go into the error log, sent in the background.
+            errorReporting.Start();
         }
 
         protected override Window CreateWindow(IActivationState? activationState)

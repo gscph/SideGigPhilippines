@@ -441,3 +441,41 @@ public sealed class FakeClock(DateTimeOffset now) : TimeProvider
 
     public override DateTimeOffset GetUtcNow() => Now;
 }
+
+/// <summary>The phone's error log file, in memory.</summary>
+public sealed class FakeErrorLogStore : IErrorLogStore
+{
+    public DiagnosticsState? Saved { get; set; }
+
+    public int Saves { get; private set; }
+
+    public Task<DiagnosticsState?> LoadAsync() => Task.FromResult(Saved);
+
+    public Task SaveAsync(DiagnosticsState state)
+    {
+        Saves++;
+        Saved = state;
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>The error reports API: records each batch; set <see cref="Answer"/> to refuse, or <see cref="Fail"/> to throw.</summary>
+public sealed class FakeErrorReportRepository : IErrorReportRepository
+{
+    public List<IReadOnlyList<ErrorReport>> Batches { get; } = [];
+
+    public bool Answer { get; set; } = true;
+
+    public bool Fail { get; set; }
+
+    public Task<bool> SendAsync(string installId, DeviceStamp device, IReadOnlyList<ErrorReport> reports)
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+
+        Batches.Add(reports);
+        return Task.FromResult(Answer);
+    }
+}

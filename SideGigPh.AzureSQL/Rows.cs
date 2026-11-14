@@ -164,6 +164,26 @@ public sealed class OtherJobNoteRow
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>A problem the app had on a phone (<c>ErrorReports</c>): diagnostics with no personal data, kept 90 days.</summary>
+public sealed class ErrorReportRow
+{
+    public long Id { get; set; }
+    public required string InstallId { get; set; }
+    public required string AppVersion { get; set; }
+    public required string Platform { get; set; }
+    public string? Device { get; set; }
+    public required string Kind { get; set; }
+    public required string Source { get; set; }
+    public required string Message { get; set; }
+    public string? Detail { get; set; }
+    public string? Route { get; set; }
+    public string? Trail { get; set; }
+    public int Count { get; set; }
+    public DateTimeOffset FirstAt { get; set; }
+    public DateTimeOffset LastAt { get; set; }
+    public DateTimeOffset ReceivedAt { get; set; }
+}
+
 /// <summary>One answer in a config list (<c>ConfigOptions</c>): a town, price tier, experience, urgency or income goal.</summary>
 public sealed class ConfigOptionRow
 {

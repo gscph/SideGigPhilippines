@@ -312,6 +312,11 @@ public static class Copy
     public static readonly LocalizedText ProfilePhotoAdd = new("Add your photo", "Maglagay ng photo mo");
     public static readonly LocalizedText ProfilePhotoChange = new("Change photo", "Palitan ang photo");
     public static readonly LocalizedText ProfileEdit = new("Edit listing", "Edit listing");
+    // Me page: the error reports switch (Services/Diagnostics).
+    public static readonly LocalizedText ErrorReportsLabel = new("Send error reports", "Magpadala ng error reports");
+    public static readonly LocalizedText ErrorReportsHelp = new(
+        "If the app has a problem, it sends us a technical report so we can fix it. It never includes your messages, name or number.",
+        "Kapag nagka-problema ang app, magpapadala ito ng technical report para maayos namin. Walang kasamang messages, pangalan o number mo.");
     public static readonly LocalizedText ProfileSince = new("On Tarbaho since {0}", "Nasa Tarbaho mula {0}");
 
     // --- Publish ----------------------------------------------------------

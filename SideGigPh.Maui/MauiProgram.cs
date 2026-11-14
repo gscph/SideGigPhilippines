@@ -3,6 +3,7 @@ using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme; // MAUI has an AppTh
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Api;
+using SideGigPh.Maui.Services.Diagnostics;
 using SideGigPh.Maui.Services.Local;
 using SideGigPh.Maui.Services.Search;
 using MobileAppTheme.Firebase;
@@ -65,6 +66,18 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<SeekerWorkspace>();
             builder.Services.AddSingleton<LocalAccount>();
             builder.Services.AddSingleton<IAppAccount>(services => services.GetRequiredService<LocalAccount>());
+
+            // Error reports (Services/Diagnostics): errors, crashes and stuck loading screens, scrubbed of personal data, kept
+            // on the phone (diagnostics.json) and sent in the background while signed in; the Me page's switch turns it off.
+            builder.Services.AddSingleton(new DeviceStamp(
+                $"{AppInfo.VersionString} ({AppInfo.BuildString})",
+                $"{DeviceInfo.Platform} {DeviceInfo.VersionString}".ToLowerInvariant(),
+                $"{DeviceInfo.Manufacturer} {DeviceInfo.Model}"));
+            builder.Services.AddSingleton<IErrorLogStore, FileErrorLogStore>();
+            builder.Services.AddSingleton<ErrorLog>();
+            builder.Services.AddSingleton<ErrorReportSender>();
+            builder.Services.AddSingleton<ErrorReporting>();
+            builder.Services.AddSingleton<ILoggerProvider>(services => new ErrorLogLoggerProvider(services.GetRequiredService<ErrorLog>()));
 
 #if ANDROID
             // App warnings and errors (API failures, photo picker) in logcat: adb logcat -s SideGigPh

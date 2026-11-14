@@ -24,7 +24,7 @@ public class ApiWiringTests(ApiTestHost api)
             "GET chats", "GET chats/{chatId}", "GET chats/{chatId}/messages", "POST chats/{chatId}/messages",
             "POST chats/{chatId}/read", "DELETE chats/mine",
             "POST photos", "DELETE photos/{id}",
-            "GET config", "POST other-jobs");
+            "GET config", "POST other-jobs", "POST error-reports");
 
     /// <summary>Public reference data: the trades and jobs, read before the account is ready. Nothing else is public.</summary>
     private static readonly string[] PublicRoutes = ["GET config"];

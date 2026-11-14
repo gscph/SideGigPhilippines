@@ -1,0 +1,7 @@
+<MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
+    <MudIcon Icon="@Icons.Material.Rounded.BugReport" Color="Color.Secondary" Size="Size.Small" aria-hidden="true" Class="mt-2" />
+    <MudStack Spacing="0" Class="flex-1">
+        <MudSwitch T="bool" Value="_on" ValueChanged="SetAsync" Color="Color.Primary" Label="@T.Get(Copy.ErrorReportsLabel)" />
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ErrorReportsHelp)</MudText>
+    </MudStack>
+</MudStack>
