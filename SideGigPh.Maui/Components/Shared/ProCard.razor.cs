@@ -20,6 +20,9 @@ public partial class ProCard : ComponentBase
     /// <summary>The pro's stars, shown when they have reviews.</summary>
     [Parameter] public ReviewSummary? Reviews { get; set; }
 
+    /// <summary>The job searched for, so the price fact is the worker's price for that job.</summary>
+    [Parameter] public string? ServiceId { get; set; }
+
     /// <summary>Optional green badge, e.g. "Fits your budget".</summary>
     [Parameter] public string? Highlight { get; set; }
 

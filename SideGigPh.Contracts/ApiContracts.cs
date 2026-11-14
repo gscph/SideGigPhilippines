@@ -43,6 +43,9 @@ public static class ApiErrors
     /// <summary>403 on review: the chat started less than <see cref="ReviewRules.WaitAfterChatStarts"/> ago.</summary>
     public const string ReviewTooSoon = "review-too-soon";
 
+    /// <summary>429 on a chat message, new chat, "Others" note, photo upload or review: this account sent too many too fast.</summary>
+    public const string TooManyRequests = "too-many-requests";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }
@@ -198,7 +201,10 @@ public static class PushData
 /// The app's config (<c>GET config</c>): every answer list that is fine to be a few hours stale, loaded once when the
 /// app opens and kept on the phone for <c>ConfigFor</c>. All lists are in display order and leave out retired rows.
 /// <paramref name="Catalog"/>: the trades, each with its jobs most-requested first and "Others" last.
-/// <paramref name="PriceTiers"/>: cheapest first (the Seeker's budget and the worker's rate are compared by position).
+/// <paramref name="PriceTiers"/>: cheapest first, the one price scale of app versions before price guides (their budgets and
+/// rates are still read). Newer apps price each job from its <see cref="ServiceDto.Price"/>.
+/// <paramref name="MinimumWage"/>: the NCR daily minimum wage in pesos; no job's lowest price, and no Seeker budget, is under it
+/// (0 from a server before price guides).
 /// </summary>
 public sealed record ConfigDto(
     List<CategoryDto> Catalog,
@@ -206,7 +212,8 @@ public sealed record ConfigDto(
     List<OptionDto> PriceTiers,
     List<OptionDto> Experience,
     List<OptionDto> Urgencies,
-    List<OptionDto> IncomeGoals);
+    List<OptionDto> IncomeGoals,
+    int MinimumWage = 0);
 
 /// <summary>One answer in a config list: <c>taytay</c> "Taytay", <c>500-1000</c> "₱500 – ₱1,000" (Amount 750)…</summary>
 /// <param name="Amount">Pesos for price tiers (a typical job) and income goals (per month); 0 otherwise.</param>
@@ -222,8 +229,94 @@ public sealed record CategoryDto(
     string? HintTaglish,
     List<ServiceDto> Services);
 
-/// <summary>A job within a trade: <c>aircon-cleaning</c>, "Aircon cleaning" / "Pa-linis ng aircon".</summary>
-public sealed record ServiceDto(string Id, string English, string Taglish, string? Icon);
+/// <summary>
+/// A job within a trade: <c>aircon-cleaning</c>, "Aircon cleaning" / "Pa-linis ng aircon", with what it usually costs
+/// (<paramref name="Price"/>; null from a server before price guides).
+/// </summary>
+public sealed record ServiceDto(string Id, string English, string Taglish, string? Icon, PriceGuideDto? Price = null);
+
+/// <summary>
+/// What a job usually costs, in pesos (labor only): the lowest fair price (never under the minimum wage), the average,
+/// and above average. A Skilled Worker's rate is one of the three (<see cref="PriceLevels"/>).
+/// </summary>
+public sealed record PriceGuideDto(int Min, int Average, int High)
+{
+    /// <summary>The price at a <see cref="PriceLevels"/> id, or null for another id ("quote", an old price tier).</summary>
+    public int? At(string? level) => level switch
+    {
+        PriceLevels.Minimum => Min,
+        PriceLevels.Average => Average,
+        PriceLevels.AboveAverage => High,
+        _ => null,
+    };
+}
+
+/// <summary>
+/// A Skilled Worker's rate (<c>ListingDto.RateTierId</c>): which point of each job's <see cref="PriceGuideDto"/> they charge.
+/// Listings from app versions before price guides carry an old price tier id instead (<c>500-1000</c>…), or <c>quote</c>.
+/// </summary>
+public static class PriceLevels
+{
+    public const string Minimum = "minimum";
+    public const string Average = "average";
+    public const string AboveAverage = "above-average";
+
+    public static bool IsLevel(string? id) => id is Minimum or Average or AboveAverage;
+}
+
+/// <summary>
+/// A Seeker's budget as it travels (<c>budgetId</c> on search, <c>ChatDto.BudgetId</c>): a peso range
+/// <c>"800-1500"</c>, open-ended <c>"1500-up"</c>, or <c>"under-500"</c>. The price tiers of older app versions are written
+/// the same way (<c>500-1000</c>, <c>5000-up</c>), so they read as ranges too. Anything else (<c>unsure</c>) is no budget.
+/// </summary>
+public static class BudgetRange
+{
+    private const string Up = "-up";
+    private const string Under = "under-";
+
+    /// <summary><c>"800-1500"</c>, or <c>"800-up"</c> with no top.</summary>
+    public static string Format(int min, int? max) => max is { } top ? $"{min}-{top}" : $"{min}{Up}";
+
+    /// <summary>Reads a budget id; false for "not sure", an empty or a malformed one.</summary>
+    public static bool TryParse(string? id, out int min, out int? max)
+    {
+        min = 0;
+        max = null;
+        if (string.IsNullOrEmpty(id))
+        {
+            return false;
+        }
+
+        if (id.StartsWith(Under, StringComparison.Ordinal))
+        {
+            if (!TryAmount(id[Under.Length..], out var top))
+            {
+                return false;
+            }
+
+            max = top;
+            return true;
+        }
+
+        if (id.EndsWith(Up, StringComparison.Ordinal))
+        {
+            return TryAmount(id[..^Up.Length], out min);
+        }
+
+        var dash = id.IndexOf('-');
+        if (dash <= 0 || !TryAmount(id[..dash], out min) || !TryAmount(id[(dash + 1)..], out var upper) || upper < min)
+        {
+            min = 0;
+            return false;
+        }
+
+        max = upper;
+        return true;
+    }
+
+    private static bool TryAmount(string text, out int amount) =>
+        int.TryParse(text, System.Globalization.NumberStyles.None, System.Globalization.CultureInfo.InvariantCulture, out amount) && amount > 0;
+}
 
 /// <summary>
 /// What someone typed after picking "Others" in a trade (<c>POST other-jobs</c>), kept for analytics only:

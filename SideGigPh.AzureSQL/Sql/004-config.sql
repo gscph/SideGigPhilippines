@@ -15,6 +15,9 @@
        To stop offering a trade, keep its rows here with IsActive = 0 (see home_massage).
      - Each trade's jobs are ordered most-requested first and end with "Others / Wala sa nabanggit"
        (the -other job). What people type after picking it goes to dbo.OtherJobNotes.
+     - Every active job has a price guide (PriceMin <= PriceAverage <= PriceHigh, pesos, labor only), and
+       PriceMin is never below the 'minimum-wage' amount. Needs 008-schema-service-prices.sql first.
+     - Price tiers stay for app versions before price guides (their budgets and rates); don't retire them.
      - The app's code depends on some ids: price tiers cheapest first (budget vs rate), experience
        '10-plus', urgencies 'today' / 'this-week' / 'canvassing'. Don't retire those.
      - English first, then everyday Taglish (local words where people use them: Tubero, Karpintero…).
@@ -59,89 +62,96 @@ DECLARE @Services TABLE
     LabelTaglish  nvarchar(100)  NOT NULL,
     Icon          nvarchar(16)   NULL,
     SortOrder     int            NOT NULL,
-    IsActive      bit            NOT NULL
+    IsActive      bit            NOT NULL,
+    PriceMin      int            NULL,
+    PriceAverage  int            NULL,
+    PriceHigh     int            NULL
 );
 
-INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive) VALUES
-('aircon-cleaning',          'aircon',         N'Aircon cleaning',                           N'Pa-linis ng aircon',                         N'🧽', 1, 1),
-('aircon-repair',            'aircon',         N'Aircon not cooling / repair',               N'Hindi lumalamig / pa-repair ng aircon',      N'🌡️', 2, 1),
-('aircon-leak',              'aircon',         N'Aircon leaking water',                      N'Tumutulo ang aircon',                        N'💧', 3, 1),
-('aircon-freon',             'aircon',         N'Freon recharge',                            N'Pa-freon ng aircon',                         N'🧪', 4, 1),
-('aircon-install',           'aircon',         N'Aircon installation (window / split-type)', N'Pakabit ng aircon (window / split-type)',    N'🔧', 5, 1),
-('aircon-relocate',          'aircon',         N'Aircon removal or transfer',                N'Pabaklas o palipat ng aircon',               N'🚚', 6, 1),
-('aircon-pms',               'aircon',         N'Aircon PMS / check-up',                     N'PMS / check-up ng aircon',                   N'📋', 7, 1),
-('aircon-other',             'aircon',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+-- The last three numbers: what the job usually costs in pesos (labor only): the lowest fair price (never below the
+-- minimum wage, 'minimum-wage' below), the average, and above average. Skilled Workers pick one as their rate;
+-- Seekers pick a budget range built from them. Sources (Nov 2026): NCR Wage Order NCR-28 (PHP 755 a day) and
+-- published Metro Manila / Rizal service rates; Rizal labor runs a little under Manila's.
+INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive, PriceMin, PriceAverage, PriceHigh) VALUES
+('aircon-cleaning',          'aircon',         N'Aircon cleaning',                           N'Pa-linis ng aircon',                         N'🧽', 1, 1,   755,  1000,  1500),
+('aircon-repair',            'aircon',         N'Aircon not cooling / repair',               N'Hindi lumalamig / pa-repair ng aircon',      N'🌡️', 2, 1,   755,  1500,  2500),
+('aircon-leak',              'aircon',         N'Aircon leaking water',                      N'Tumutulo ang aircon',                        N'💧', 3, 1,   755,  1000,  1500),
+('aircon-freon',             'aircon',         N'Freon recharge',                            N'Pa-freon ng aircon',                         N'🧪', 4, 1,  1200,  2000,  3000),
+('aircon-install',           'aircon',         N'Aircon installation (window / split-type)', N'Pakabit ng aircon (window / split-type)',    N'🔧', 5, 1,  2500,  3500,  5000),
+('aircon-relocate',          'aircon',         N'Aircon removal or transfer',                N'Pabaklas o palipat ng aircon',               N'🚚', 6, 1,  1500,  2500,  4000),
+('aircon-pms',               'aircon',         N'Aircon PMS / check-up',                     N'PMS / check-up ng aircon',                   N'📋', 7, 1,   755,  1200,  1800),
+('aircon-other',             'aircon',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
 
-('plumbing-clog',            'plumbing',       N'Clogged sink, drain or CR',                 N'Barado ang lababo, drain o CR',              N'🪠', 1, 1),
-('plumbing-leak',            'plumbing',       N'Leaking pipe or faucet',                    N'May tagas ang tubo o gripo',                 N'💧', 2, 1),
-('plumbing-toilet',          'plumbing',       N'Toilet / CR repair',                        N'Sirang inidoro / CR',                        N'🚽', 3, 1),
-('plumbing-replace',         'plumbing',       N'Replace faucet or pipe',                    N'Palit ng gripo o tubo',                      N'🔧', 4, 1),
-('plumbing-install',         'plumbing',       N'Install sink, toilet or shower',            N'Pakabit ng lababo, inidoro o shower',        N'🚿', 5, 1),
-('plumbing-water-heater',    'plumbing',       N'Water heater install or repair',            N'Pakabit o repair ng water heater',           N'♨️', 6, 1),
-('plumbing-pump',            'plumbing',       N'Water pump, tank or poso',                  N'Water pump, tangke o poso',                  N'🛢️', 7, 1),
-('plumbing-septic',          'plumbing',       N'Septic tank siphoning',                     N'Pa-siphon ng poso negro',                    N'🚛', 8, 1),
-('plumbing-other',           'plumbing',       N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('plumbing-clog',            'plumbing',       N'Clogged sink, drain or CR',                 N'Barado ang lababo, drain o CR',              N'🪠', 1, 1,   755,  1000,  1800),
+('plumbing-leak',            'plumbing',       N'Leaking pipe or faucet',                    N'May tagas ang tubo o gripo',                 N'💧', 2, 1,   755,  1000,  1500),
+('plumbing-toilet',          'plumbing',       N'Toilet / CR repair',                        N'Sirang inidoro / CR',                        N'🚽', 3, 1,   755,  1200,  2000),
+('plumbing-replace',         'plumbing',       N'Replace faucet or pipe',                    N'Palit ng gripo o tubo',                      N'🔧', 4, 1,   755,  1000,  1500),
+('plumbing-install',         'plumbing',       N'Install sink, toilet or shower',            N'Pakabit ng lababo, inidoro o shower',        N'🚿', 5, 1,  1000,  1800,  3000),
+('plumbing-water-heater',    'plumbing',       N'Water heater install or repair',            N'Pakabit o repair ng water heater',           N'♨️', 6, 1,  1000,  1800,  3000),
+('plumbing-pump',            'plumbing',       N'Water pump, tank or poso',                  N'Water pump, tangke o poso',                  N'🛢️', 7, 1,  1000,  2000,  3500),
+('plumbing-septic',          'plumbing',       N'Septic tank siphoning',                     N'Pa-siphon ng poso negro',                    N'🚛', 8, 1,  3500,  5000,  7000),
+('plumbing-other',           'plumbing',       N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
 
-('electrical-no-power',      'electrical',     N'No power / breaker keeps tripping',         N'Walang kuryente / nagta-trip ang breaker',   N'🔌', 1, 1),
-('electrical-outlet',        'electrical',     N'Outlet or switch repair',                   N'Sirang outlet o switch',                     N'🔧', 2, 1),
-('electrical-lights',        'electrical',     N'Lights or ceiling fan',                     N'Pakabit ng ilaw o ceiling fan',              N'💡', 3, 1),
-('electrical-wiring',        'electrical',     N'Wiring or rewiring',                        N'Wiring o rewiring',                          N'🧵', 4, 1),
-('electrical-breaker-panel', 'electrical',     N'Breaker or panel box',                      N'Palit ng breaker o panel box',               N'🗃️', 5, 1),
-('electrical-meter',         'electrical',     N'Meralco meter / new line',                  N'Pakabit ng metro / bagong linya (Meralco)',  N'📟', 6, 1),
-('electrical-cctv',          'electrical',     N'CCTV installation',                         N'Pakabit ng CCTV',                            N'📹', 7, 1),
-('electrical-other',         'electrical',     N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('electrical-no-power',      'electrical',     N'No power / breaker keeps tripping',         N'Walang kuryente / nagta-trip ang breaker',   N'🔌', 1, 1,   755,  1000,  1500),
+('electrical-outlet',        'electrical',     N'Outlet or switch repair',                   N'Sirang outlet o switch',                     N'🔧', 2, 1,   755,   900,  1300),
+('electrical-lights',        'electrical',     N'Lights or ceiling fan',                     N'Pakabit ng ilaw o ceiling fan',              N'💡', 3, 1,   755,  1000,  1500),
+('electrical-wiring',        'electrical',     N'Wiring or rewiring',                        N'Wiring o rewiring',                          N'🧵', 4, 1,  1500,  3000,  5000),
+('electrical-breaker-panel', 'electrical',     N'Breaker or panel box',                      N'Palit ng breaker o panel box',               N'🗃️', 5, 1,  1000,  1800,  3000),
+('electrical-meter',         'electrical',     N'Meralco meter / new line',                  N'Pakabit ng metro / bagong linya (Meralco)',  N'📟', 6, 1,  1500,  2500,  4000),
+('electrical-cctv',          'electrical',     N'CCTV installation',                         N'Pakabit ng CCTV',                            N'📹', 7, 1,  1500,  2500,  4000),
+('electrical-other',         'electrical',     N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
 
-('roofing-leak',             'roofing',        N'Roof leak repair',                          N'Tulo sa bubong',                             N'🌧️', 1, 1),
-('roofing-gutter',           'roofing',        N'Gutter cleaning or repair',                 N'Linis o repair ng alulod',                   N'🍂', 2, 1),
-('roofing-sheet',            'roofing',        N'Roof sheet replacement',                    N'Palit ng yero',                              N'🔩', 3, 1),
-('roofing-waterproofing',    'roofing',        N'Waterproofing (roof deck, walls)',          N'Waterproofing ng roof deck o pader',         N'🛡️', 4, 1),
-('roofing-paint',            'roofing',        N'Roof painting',                             N'Pintura ng bubong',                          N'🎨', 5, 1),
-('roofing-other',            'roofing',        N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('roofing-leak',             'roofing',        N'Roof leak repair',                          N'Tulo sa bubong',                             N'🌧️', 1, 1,  1000,  2000,  3500),
+('roofing-gutter',           'roofing',        N'Gutter cleaning or repair',                 N'Linis o repair ng alulod',                   N'🍂', 2, 1,   755,  1500,  2500),
+('roofing-sheet',            'roofing',        N'Roof sheet replacement',                    N'Palit ng yero',                              N'🔩', 3, 1,  1500,  3000,  5000),
+('roofing-waterproofing',    'roofing',        N'Waterproofing (roof deck, walls)',          N'Waterproofing ng roof deck o pader',         N'🛡️', 4, 1,  2000,  4000,  7000),
+('roofing-paint',            'roofing',        N'Roof painting',                             N'Pintura ng bubong',                          N'🎨', 5, 1,  2000,  3500,  6000),
+('roofing-other',            'roofing',        N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
 
-('carpentry-furniture',      'carpentry',      N'Furniture repair',                          N'Repair ng furniture',                        N'🪑', 1, 1),
-('carpentry-door-window',    'carpentry',      N'Door or window repair',                     N'Repair ng pinto o bintana',                  N'🚪', 2, 1),
-('carpentry-cabinet',        'carpentry',      N'Custom cabinets or shelves',                N'Pagawa ng cabinet o estante',                N'🗄️', 3, 1),
-('carpentry-ceiling-roof',   'carpentry',      N'Ceiling repair',                            N'Repair ng kisame',                           N'🏠', 4, 1),
-('carpentry-partition',      'carpentry',      N'Partition or drywall',                      N'Partition o drywall',                        N'🧱', 5, 1),
-('carpentry-other',          'carpentry',      N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('carpentry-furniture',      'carpentry',      N'Furniture repair',                          N'Repair ng furniture',                        N'🪑', 1, 1,   755,  1200,  2000),
+('carpentry-door-window',    'carpentry',      N'Door or window repair',                     N'Repair ng pinto o bintana',                  N'🚪', 2, 1,   755,  1200,  2000),
+('carpentry-cabinet',        'carpentry',      N'Custom cabinets or shelves',                N'Pagawa ng cabinet o estante',                N'🗄️', 3, 1,  2500,  5000,  8000),
+('carpentry-ceiling-roof',   'carpentry',      N'Ceiling repair',                            N'Repair ng kisame',                           N'🏠', 4, 1,  1000,  2000,  3500),
+('carpentry-partition',      'carpentry',      N'Partition or drywall',                      N'Partition o drywall',                        N'🧱', 5, 1,  2000,  4000,  7000),
+('carpentry-other',          'carpentry',      N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  1800,  3000),
 
-('welder-repair',            'welder',         N'Welding repair',                            N'Pa-weld ng sira',                            N'🔥', 1, 1),
-('welder-gate',              'welder',         N'Gate (new or repair)',                      N'Pagawa o repair ng gate',                    N'🚧', 2, 1),
-('welder-grills',            'welder',         N'Window grills',                             N'Grills sa bintana',                          N'🪟', 3, 1),
-('welder-railings',          'welder',         N'Stair or balcony railings',                 N'Rehas sa hagdan o balcony',                  N'🪜', 4, 1),
-('welder-frame',             'welder',         N'Steel frame or trusses',                    N'Bakal na frame o trusses',                   N'🏗️', 5, 1),
-('welder-other',             'welder',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('welder-repair',            'welder',         N'Welding repair',                            N'Pa-weld ng sira',                            N'🔥', 1, 1,   755,  1200,  2000),
+('welder-gate',              'welder',         N'Gate (new or repair)',                      N'Pagawa o repair ng gate',                    N'🚧', 2, 1,  2000,  4000,  7000),
+('welder-grills',            'welder',         N'Window grills',                             N'Grills sa bintana',                          N'🪟', 3, 1,  1500,  3000,  5000),
+('welder-railings',          'welder',         N'Stair or balcony railings',                 N'Rehas sa hagdan o balcony',                  N'🪜', 4, 1,  2000,  4000,  7000),
+('welder-frame',             'welder',         N'Steel frame or trusses',                    N'Bakal na frame o trusses',                   N'🏗️', 5, 1,  3000,  6000, 10000),
+('welder-other',             'welder',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
 
-('masonry-tiles',            'masonry_tiling', N'Tile installation or replacement',          N'Pakabit o palit ng tiles',                   N'🔲', 1, 1),
-('masonry-cement',           'masonry_tiling', N'Cement work / plastering',                  N'Semento / palitada',                         N'🪣', 2, 1),
-('masonry-crack',            'masonry_tiling', N'Crack repair (wall or floor)',              N'Ayos ng bitak sa pader o sahig',             N'🔨', 3, 1),
-('masonry-wall',             'masonry_tiling', N'Wall or fence (hollow blocks)',             N'Pader o bakod (hollow blocks)',              N'🧱', 4, 1),
-('masonry-cr-renovation',    'masonry_tiling', N'CR / bathroom renovation',                  N'Renovate ng CR / banyo',                     N'🚿', 5, 1),
-('masonry-other',            'masonry_tiling', N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('masonry-tiles',            'masonry_tiling', N'Tile installation or replacement',          N'Pakabit o palit ng tiles',                   N'🔲', 1, 1,  1500,  3000,  5000),
+('masonry-cement',           'masonry_tiling', N'Cement work / plastering',                  N'Semento / palitada',                         N'🪣', 2, 1,  1000,  2000,  3500),
+('masonry-crack',            'masonry_tiling', N'Crack repair (wall or floor)',              N'Ayos ng bitak sa pader o sahig',             N'🔨', 3, 1,   755,  1500,  2500),
+('masonry-wall',             'masonry_tiling', N'Wall or fence (hollow blocks)',             N'Pader o bakod (hollow blocks)',              N'🧱', 4, 1,  2000,  4000,  7000),
+('masonry-cr-renovation',    'masonry_tiling', N'CR / bathroom renovation',                  N'Renovate ng CR / banyo',                     N'🚿', 5, 1,  5000, 10000, 18000),
+('masonry-other',            'masonry_tiling', N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
 
-('mechanic-suspension',      'car_mechanic',   N'Suspension',                                N'Suspension',                                 N'🛞', 1, 1),
-('mechanic-engine',          'car_mechanic',   N'Engine',                                    N'Makina',                                     N'⚙️', 2, 1),
-('mechanic-electronics',     'car_mechanic',   N'Electronics',                               N'Electronics',                                N'🔋', 3, 1),
-('mechanic-other',           'car_mechanic',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('mechanic-suspension',      'car_mechanic',   N'Suspension',                                N'Suspension',                                 N'🛞', 1, 1,  1000,  2000,  3500),
+('mechanic-engine',          'car_mechanic',   N'Engine',                                    N'Makina',                                     N'⚙️', 2, 1,  1500,  3000,  5000),
+('mechanic-electronics',     'car_mechanic',   N'Electronics',                               N'Electronics',                                N'🔋', 3, 1,  1000,  2000,  3500),
+('mechanic-other',           'car_mechanic',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
 
-('errand-grocery',           'errand_runner',  N'Grocery or market run',                     N'Pa-grocery o pa-palengke',                   N'🛒', 1, 1),
-('errand-bills',             'errand_runner',  N'Bills payment',                             N'Pabayad ng bills',                           N'🧾', 2, 1),
-('errand-pasabuy',           'errand_runner',  N'PasaBuy (buy and deliver)',                 N'PasaBuy',                                    N'🛍️', 3, 1),
-('errand-documents',         'errand_runner',  N'Document pickup or delivery',               N'Pakuha o pahatid ng papeles',                N'📄', 4, 1),
-('errand-parcel',            'errand_runner',  N'Parcel pickup or drop-off',                 N'Pa-pickup o pa-drop off ng parcel',          N'📦', 5, 1),
-('errand-other',             'errand_runner',  N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('errand-grocery',           'errand_runner',  N'Grocery or market run',                     N'Pa-grocery o pa-palengke',                   N'🛒', 1, 1,   755,   900,  1200),
+('errand-bills',             'errand_runner',  N'Bills payment',                             N'Pabayad ng bills',                           N'🧾', 2, 1,   755,   850,  1000),
+('errand-pasabuy',           'errand_runner',  N'PasaBuy (buy and deliver)',                 N'PasaBuy',                                    N'🛍️', 3, 1,   755,   900,  1200),
+('errand-documents',         'errand_runner',  N'Document pickup or delivery',               N'Pakuha o pahatid ng papeles',                N'📄', 4, 1,   755,   900,  1200),
+('errand-parcel',            'errand_runner',  N'Parcel pickup or drop-off',                 N'Pa-pickup o pa-drop off ng parcel',          N'📦', 5, 1,   755,   850,  1000),
+('errand-other',             'errand_runner',  N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,   900,  1200),
 
-('solar-cleaning',           'solar_cleaning', N'Solar panel cleaning',                      N'Pa-linis ng solar panel',                    N'🧽', 1, 1),
-('solar-checkup',            'solar_cleaning', N'Solar check-up / maintenance',              N'Check-up o maintenance ng solar',            N'📋', 2, 1),
-('solar-inverter',           'solar_cleaning', N'Inverter or battery check',                 N'Check ng inverter o battery',                N'🔋', 3, 1),
-('solar-other',              'solar_cleaning', N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1),
+('solar-cleaning',           'solar_cleaning', N'Solar panel cleaning',                      N'Pa-linis ng solar panel',                    N'🧽', 1, 1,  1000,  2000,  3500),
+('solar-checkup',            'solar_cleaning', N'Solar check-up / maintenance',              N'Check-up o maintenance ng solar',            N'📋', 2, 1,  1000,  1800,  3000),
+('solar-inverter',           'solar_cleaning', N'Inverter or battery check',                 N'Check ng inverter o battery',                N'🔋', 3, 1,  1000,  2000,  3500),
+('solar-other',              'solar_cleaning', N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
 
 -- Retired with home_massage.
-('massage-full-body',        'home_massage',   N'Full body massage',                         N'Full body massage',                          N'💆', 1, 0),
-('massage-hilot',            'home_massage',   N'Hilot',                                     N'Hilot',                                      N'🤲', 2, 0),
-('massage-ventosa',          'home_massage',   N'Ventosa',                                   N'Ventosa',                                    N'🫙', 3, 0),
-('massage-foot',             'home_massage',   N'Foot reflexology',                          N'Foot reflexology',                           N'🦶', 4, 0),
-('massage-other',            'home_massage',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 0);
+('massage-full-body',        'home_massage',   N'Full body massage',                         N'Full body massage',                          N'💆', 1, 0,  NULL,  NULL,  NULL),
+('massage-hilot',            'home_massage',   N'Hilot',                                     N'Hilot',                                      N'🤲', 2, 0,  NULL,  NULL,  NULL),
+('massage-ventosa',          'home_massage',   N'Ventosa',                                   N'Ventosa',                                    N'🫙', 3, 0,  NULL,  NULL,  NULL),
+('massage-foot',             'home_massage',   N'Foot reflexology',                          N'Foot reflexology',                           N'🦶', 4, 0,  NULL,  NULL,  NULL),
+('massage-other',            'home_massage',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 0,  NULL,  NULL,  NULL);
 
 DECLARE @Options TABLE
 (
@@ -161,12 +171,15 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 ('towns',        'angono',     N'Angono',                  N'Angono',                  NULL,     0, 1, 1),
 ('towns',        'antipolo',   N'Antipolo',                N'Antipolo',                NULL,     0, 2, 1),
 ('towns',        'taytay',     N'Taytay',                  N'Taytay',                  NULL,     0, 3, 1),
--- One price scale for the Seeker's budget and the worker's rate, CHEAPEST FIRST. Amount = a typical job price.
+-- The old one price scale, CHEAPEST FIRST, read only for budgets and rates from app versions before price guides
+-- (newer apps price each job, above). Amount = a typical job price.
 ('price-tiers',  'under-500',  N'Below ₱500',              N'Mas mababa sa ₱500',      NULL,   400, 1, 1),
 ('price-tiers',  '500-1000',   N'₱500 – ₱1,000',           N'₱500 – ₱1,000',           NULL,   750, 2, 1),
 ('price-tiers',  '1000-2000',  N'₱1,000 – ₱2,000',         N'₱1,000 – ₱2,000',         NULL,  1500, 3, 1),
 ('price-tiers',  '2000-5000',  N'₱2,000 – ₱5,000',         N'₱2,000 – ₱5,000',         NULL,  3500, 4, 1),
 ('price-tiers',  '5000-up',    N'₱5,000 and up',           N'₱5,000 pataas',           NULL,  5000, 5, 1),
+-- The NCR daily minimum wage (Wage Order NCR-28, from 26 Sept 2026): no job's lowest price goes under it.
+('minimum-wage', 'ncr',        N'NCR minimum wage (a day)', N'Minimum wage sa NCR (kada araw)', NULL, 755, 1, 1),
 ('experience',   'under-1',    N'Less than 1 year',        N'Wala pang 1 taon',        N'🌱',    0, 1, 1),
 ('experience',   '1-3',        N'1–3 years',               N'1–3 taon',                N'🧰',    0, 2, 1),
 ('experience',   '3-10',       N'3–10 years',              N'3–10 taon',               N'🛠️',    0, 3, 1),
@@ -175,10 +188,10 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 ('urgencies',    'this-week',  N'This week',               N'Ngayong linggo',          N'📅',    0, 2, 1),
 ('urgencies',    'canvassing', N'Just comparing prices',   N'Nagca-canvass lang',      N'🔍',    0, 3, 1),
 -- Monthly earnings goals (private to the worker). Amount = pesos per month.
-('income-goals', '5000',       N'₱5,000',                  N'₱5,000',                  N'🎯', 5000, 1, 1),
-('income-goals', '10000',      N'₱10,000',                 N'₱10,000',                 N'🎯', 10000, 2, 1),
-('income-goals', '20000',      N'₱20,000',                 N'₱20,000',                 N'🎯', 20000, 3, 1),
-('income-goals', '30000-up',   N'₱30,000 or more',         N'₱30,000 pataas',          N'🎯', 30000, 4, 1);
+('income-goals', '5000',       N'₱5,000',                  N'₱5,000',                  NULL,  5000, 1, 1),
+('income-goals', '10000',      N'₱10,000',                 N'₱10,000',                 NULL,  10000, 2, 1),
+('income-goals', '20000',      N'₱20,000',                 N'₱20,000',                 NULL,  20000, 3, 1),
+('income-goals', '30000-up',   N'₱30,000 or more',         N'₱30,000 pataas',          NULL,  30000, 4, 1);
 
 BEGIN TRANSACTION;
 
@@ -206,10 +219,12 @@ MERGE dbo.Services AS target
 USING @Services AS source ON target.Id = source.Id
 WHEN MATCHED THEN UPDATE SET
     CategoryId = source.CategoryId, LabelEnglish = source.LabelEnglish, LabelTaglish = source.LabelTaglish,
-    Icon = source.Icon, SortOrder = source.SortOrder, IsActive = source.IsActive
+    Icon = source.Icon, SortOrder = source.SortOrder, IsActive = source.IsActive,
+    PriceMin = source.PriceMin, PriceAverage = source.PriceAverage, PriceHigh = source.PriceHigh
 WHEN NOT MATCHED BY TARGET THEN
-    INSERT (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive)
-    VALUES (source.Id, source.CategoryId, source.LabelEnglish, source.LabelTaglish, source.Icon, source.SortOrder, source.IsActive)
+    INSERT (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive, PriceMin, PriceAverage, PriceHigh)
+    VALUES (source.Id, source.CategoryId, source.LabelEnglish, source.LabelTaglish, source.Icon, source.SortOrder, source.IsActive,
+            source.PriceMin, source.PriceAverage, source.PriceHigh)
 WHEN NOT MATCHED BY SOURCE THEN UPDATE SET IsActive = 0;
 
 COMMIT TRANSACTION;

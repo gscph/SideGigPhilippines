@@ -14,6 +14,9 @@ public partial class GoalPayoff : ComponentBase
 
     [Parameter] public string? RateTierId { get; set; }
 
+    /// <summary>The jobs they take: their rate's typical price is the mean over these.</summary>
+    [Parameter] public IReadOnlyCollection<string> ServiceIds { get; set; } = [];
+
     [Parameter] public string? IncomeGoalId { get; set; }
 
     private string? Message
@@ -25,13 +28,13 @@ public partial class GoalPayoff : ComponentBase
                 return null;
             }
 
-            if (ReferenceData.Find(ReferenceData.PriceTiers, RateTierId) is not { } tier)
+            if (Pricing.TypicalPrice(RateTierId, ServiceIds) is not { } typical)
             {
                 return T.Get(Copy.GoalPayoffQuote);
             }
 
-            var jobs = Money.JobsPerWeek(goal.Amount, tier.Amount);
-            var price = Money.Peso(tier.Amount);
+            var jobs = Money.JobsPerWeek(goal.Amount, typical);
+            var price = Money.Peso(typical);
             return jobs == 1 ? T.Format(Copy.GoalPayoffOne, price) : T.Format(Copy.GoalPayoff, jobs, price);
         }
     }

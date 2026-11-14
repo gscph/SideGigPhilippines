@@ -8,7 +8,9 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate → earnings goal →
-/// preview. The answers build the listing card the pro sees at the end; its name and number come
+/// preview. "Others" after the trades lets a worker type a kind of work we don't list (sent for analytics), then thanks
+/// them and goes back to the trades. The rate is a point of each job's price guide (minimum, average, above average,
+/// each tile showing its prices for their jobs: <see cref="Pricing.RateChoices"/>) or "depends on the job". The answers build the listing card the pro sees at the end; its name and number come
 /// from the account (<see cref="ListingMapper.TakeAccount"/>), so they are never asked here.
 /// One URL per step; answers are saved whenever the user moves forward. The rules (which step, what an
 /// answer clears, where Back goes) are in <see cref="OnboardingSteps"/>.
@@ -39,6 +41,13 @@ public partial class ProfessionalInterview : ComponentBase
     // The "Others" text already sent, so going back and forward doesn't send it twice.
     private string? _notedOtherJob;
 
+    // "Others" after the trades: never saved as a trade, only typed, sent and thanked for.
+    private bool _pickedOtherTrade;
+    private string? _otherTradeText;
+    private bool _otherTradeNoted;
+
+    private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, NoteOtherTrade) : default;
+
     private IReadOnlyList<string> SettingUpSteps =>
     [
         T.Get(Copy.SettingUpListing),
@@ -68,12 +77,34 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         _step = Draft.StepToShow(Step);
+        PickAnotherTrade();
     }
 
     private Task PickSkillAsync(string categoryId)
     {
+        _pickedOtherTrade = categoryId == ReferenceData.OtherTradeId;
+        if (_pickedOtherTrade)
+        {
+            return Task.CompletedTask;  // waits for what they type, then Next
+        }
+
         Draft.PickTrade(categoryId);
         return AdvanceAsync();
+    }
+
+    private void SetOtherTradeText(string text) => _otherTradeText = text;
+
+    private void NoteOtherTrade()
+    {
+        _ = Notes.NoteAsync(ReferenceData.OtherTradeId, UserRole.Professional, _otherTradeText);  // never holds up the interview
+        _otherTradeNoted = true;
+    }
+
+    private void PickAnotherTrade()
+    {
+        _pickedOtherTrade = false;
+        _otherTradeText = null;
+        _otherTradeNoted = false;
     }
 
     private void ToggleService(string serviceId) => Draft.ToggleService(serviceId);

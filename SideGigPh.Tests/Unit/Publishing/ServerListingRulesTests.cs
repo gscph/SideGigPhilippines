@@ -114,7 +114,8 @@ public class ServerListingRulesTests
             .Concat(Maui.Services.ReferenceData.ServicesByCategory.Values.SelectMany(s => s))
             .Concat(Maui.Services.ReferenceData.Cities)
             .Concat(Maui.Services.ReferenceData.Experience)
-            .Concat(Maui.Services.ReferenceData.RateOptions)
+            .Concat(Maui.Services.ReferenceData.RateLevels)
+            .Append(Maui.Services.ReferenceData.QuoteOption)
             .Select(option => option.Id)
             .Append(Maui.Services.ReferenceData.ServiceAreaId);
 

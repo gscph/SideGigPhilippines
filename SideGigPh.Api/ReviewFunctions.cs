@@ -7,7 +7,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>Reviews: anyone signed in reads them; a Seeker writes one per Skilled Worker they chatted with.</summary>
-public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore reviews)
+public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore reviews, CallerLimits limits)
 {
     /// <summary><c>GET reviews?professionalId=…</c> (about a worker) or <c>GET reviews?seekerId=…</c> (written by a Seeker), newest first.</summary>
     [Function("GetReviews")]
@@ -41,6 +41,11 @@ public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore rev
         if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
         {
             return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.Review, uid))
+        {
+            return ApiResults.TooMany();
         }
 
         if (await ApiResults.ReadAsync<SaveReviewRequest>(request, cancellationToken) is not { } review)

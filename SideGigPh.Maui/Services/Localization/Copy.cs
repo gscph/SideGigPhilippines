@@ -32,6 +32,34 @@ public static class Copy
     public static readonly LocalizedText SeekerBudgetTitle = new("What's your budget for this job?", "Magkano ang budget mo dito?");
     public static readonly LocalizedText SeekerBudgetWhy = new("Skilled workers who fit your budget show up first.", "Uunahin namin ang mga skilled worker na pasok sa budget mo.");
 
+    // Budget. {0} = a peso amount or range, {1} = the job.
+    public static readonly LocalizedText BudgetTypical = new("Most people pay {0} for {1}.", "Karaniwang bayad sa {1}: {0}.");
+    public static readonly LocalizedText BudgetLow = new("Budget-friendly", "Tipid");
+    public static readonly LocalizedText BudgetMid = new("Average", "Karaniwan");
+    public static readonly LocalizedText BudgetHigh = new("For bigger or harder jobs", "Para sa mas malaki o mahirap na trabaho");
+    public static readonly LocalizedText BudgetCustom = new("Other amount", "Ibang halaga");
+    public static readonly LocalizedText BudgetCustomHint = new("Type your own range", "I-type ang sarili mong budget");
+    public static readonly LocalizedText BudgetRange = new("{0} – {1}", "{0} – {1}");
+    public static readonly LocalizedText BudgetUpTo = new("Up to {0}", "Hanggang {0}");
+    public static readonly LocalizedText BudgetAndUp = new("{0} and up", "{0} pataas");
+    public static readonly LocalizedText BudgetFromLabel = new("From (₱)", "Mula (₱)");
+    public static readonly LocalizedText BudgetToLabel = new("Up to (₱)", "Hanggang (₱)");
+    public static readonly LocalizedText BudgetFromHelp = new("At least {0}, the minimum wage", "Hindi bababa sa {0}, ang minimum wage");
+    public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat pareho o mas mataas sa unang halaga");
+
+    // "Others" after the trades: kinds of work we don't offer yet (sent for analytics).
+    public static readonly LocalizedText OtherTradeSeekerLabel = new("What work do you need?", "Anong klaseng trabaho ang kailangan mo?");
+    public static readonly LocalizedText OtherTradeProLabel = new("What kind of work do you do?", "Anong klaseng trabaho mo?");
+    public static readonly LocalizedText OtherTradeHelp = new("We use this to add new kinds of work.", "Gagamitin namin ito para magdagdag ng bagong trabaho.");
+    public static readonly LocalizedText OtherTradeThanksTitle = new("Thanks! We noted it.", "Salamat! Na-note namin.");
+    public static readonly LocalizedText OtherTradeSeekerThanks = new(
+        "We don't have skilled workers for this yet. It helps us choose what to add next.",
+        "Wala pa kaming skilled worker para dito. Makakatulong ito sa pagpili namin ng susunod na idadagdag.");
+    public static readonly LocalizedText OtherTradeProThanks = new(
+        "We don't list this kind of work yet. It helps us choose what to add next. For now, you can pick the closest one.",
+        "Hindi pa namin nililista ang ganitong trabaho. Makakatulong ito sa pagpili namin ng idadagdag. Pwede ka munang pumili ng pinakamalapit.");
+    public static readonly LocalizedText OtherTradePickAnother = new("Pick another", "Pumili ng iba");
+
     // Labor-illusion loader. {0} = job or town label.
     public static readonly LocalizedText FindingService = new("Finding Skilled Worker for {0}", "Finding Skilled Worker for {0}");
     public static readonly LocalizedText FindingCity = new("Checking who goes to {0}", "Checking who goes to {0}");
@@ -169,7 +197,12 @@ public static class Copy
     public static readonly LocalizedText ProExperienceTitle = new("How long have you done this work?", "Gano na katagal ang experience mo?");
     public static readonly LocalizedText ProExperienceWhy = new("Customers look at this first.", "Ito ang hinahanap ng mga customer.");
     public static readonly LocalizedText ProRateTitle = new("How much do you usually charge per job?", "Magkano ang singil mo kada trabaho?");
-    public static readonly LocalizedText ProRateWhy = new("Your starting price. You can still agree on the final price with the customer.", "Pwede parin pag usapan ninyo ang presyo ng customer.");
+    public static readonly LocalizedText ProRateWhy = new(
+        "Each job has its own price. Customers see your price for the job they need, and you can still agree on the final price.",
+        "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
+    public static readonly LocalizedText ProRateNote = new(
+        "The minimum is never below the NCR minimum wage ({0} a day).",
+        "Hindi bababa sa minimum wage sa NCR ({0} kada araw) ang pinakamababa.");
     public static readonly LocalizedText ProGoalTitle = new("How much do you want to earn each month?", "Magkano ang gusto mong kitain kada buwan?");
     public static readonly LocalizedText ProGoalWhy = new("Just for you. This won't show on your listing.", "Hindi ito makikita sa listing mo.");
 

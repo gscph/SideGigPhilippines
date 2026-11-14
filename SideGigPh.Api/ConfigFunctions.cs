@@ -7,7 +7,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>The app's config (answer lists that may be stale), and the "Others" notes people type (analytics).</summary>
-public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteStore notes)
+public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteStore notes, CallerLimits limits)
 {
     /// <summary>
     /// <c>GET config</c>: the trades and jobs, towns, price tiers, experience, urgency and income goals. Public reference
@@ -40,6 +40,11 @@ public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore con
         if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
         {
             return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.OtherJobNote, uid))
+        {
+            return ApiResults.TooMany();
         }
 
         if (await ApiResults.ReadAsync<OtherJobRequest>(request, cancellationToken) is not { } note)

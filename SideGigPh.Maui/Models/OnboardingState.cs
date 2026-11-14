@@ -39,7 +39,10 @@ public sealed class SeekerAnswers
 
     public string? UrgencyId { get; set; }
 
-    /// <summary>A price tier id, or <c>ReferenceData.Unsure</c>.</summary>
+    /// <summary>
+    /// A peso range (<c>BudgetRange</c>: <c>"800-1500"</c>, <c>"1500-up"</c>; an old price tier id reads the same way), or
+    /// <c>ReferenceData.Unsure</c>.
+    /// </summary>
     public string? BudgetId { get; set; }
 
     /// <summary>What they last typed in the search box, shown again when they come back.</summary>
@@ -71,7 +74,10 @@ public sealed class ProfessionalDraft
 
     public string? ExperienceId { get; set; }
 
-    /// <summary>A price tier id, or <c>ReferenceData.Quote</c>.</summary>
+    /// <summary>
+    /// Which point of each job's price guide they charge (<c>ReferenceData.RateLevels</c>: minimum, average, above
+    /// average), or <c>ReferenceData.Quote</c>. Answers saved before price guides held an old tier id, dropped on load.
+    /// </summary>
     public string? RateTierId { get; set; }
 
     /// <summary>Private monthly earnings goal; never shown on the listing.</summary>

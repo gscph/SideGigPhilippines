@@ -4,13 +4,30 @@ namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// Fits saved answers to what we offer now. Answers saved earlier can hold a town or area that is gone
-/// (<see cref="DropUnservedTowns"/>) or a trade or job that was retired (<see cref="DropRetiredJobs"/>): those are
-/// dropped, so the interview asks the question again instead of showing something we no longer offer.
+/// (<see cref="DropUnservedTowns"/>), a trade or job that was retired (<see cref="DropRetiredJobs"/>) or a rate on the
+/// old price scale (<see cref="DropOldRate"/>): those are dropped, so the interview asks the question again instead
+/// of showing something we no longer offer.
 /// </summary>
 public static class OnboardingCleanup
 {
-    /// <summary>Both cleanups, as the saved answers load.</summary>
-    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropRetiredJobs();
+    /// <summary>Every cleanup, as the saved answers load.</summary>
+    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropRetiredJobs().DropOldRate();
+
+    /// <summary>
+    /// A Skilled Worker rate from before price guides (an old one-scale tier such as <c>500-1000</c>) is dropped, so the
+    /// interview asks the rate again on today's per-job prices (<see cref="ReferenceData.RateLevels"/> or "depends on
+    /// the job"). Seeker budgets need nothing: old tiers read as peso ranges.
+    /// </summary>
+    public static OnboardingState DropOldRate(this OnboardingState state)
+    {
+        var pro = state.Professional;
+        if (pro.RateTierId is { } rate && rate != ReferenceData.Quote && ReferenceData.Find(ReferenceData.RateLevels, rate) is null)
+        {
+            pro.RateTierId = null;
+        }
+
+        return state;
+    }
 
     public static OnboardingState DropUnservedTowns(this OnboardingState state)
     {

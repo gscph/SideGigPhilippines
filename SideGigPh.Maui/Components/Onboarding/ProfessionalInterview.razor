@@ -8,11 +8,20 @@ else if (_state is not null)
 {
     switch (_step)
     {
+        case ProStep.Skills when _otherTradeNoted:
+            <OtherTradeThanks Message="@T.Get(Copy.OtherTradeProThanks)" Progress="Progress" OnPickAnother="PickAnotherTrade" />
+            break;
+
         case ProStep.Skills:
             <InterviewStep Illustration="🛠️" Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
-                           OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)"
-                             SelectedIds="Selected(Draft.CategoryId)" OnPick="PickSkillAsync" />
+                           OnBack="GoBack" OnNext="OtherTradeNext" CanContinue="@(!string.IsNullOrWhiteSpace(_otherTradeText))">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.TradeChoices, T)"
+                             SelectedIds="Selected(_pickedOtherTrade ? ReferenceData.OtherTradeId : Draft.CategoryId)" OnPick="PickSkillAsync" />
+                @if (_pickedOtherTrade)
+                {
+                    <OtherJobField Label="@T.Get(Copy.OtherTradeProLabel)" Help="@T.Get(Copy.OtherTradeHelp)"
+                                   Value="@_otherTradeText" ValueChanged="SetOtherTradeText" />
+                }
             </InterviewStep>
             break;
 
@@ -46,8 +55,8 @@ else if (_state is not null)
 
         case ProStep.Rate:
             <InterviewStep Illustration="💵" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
-                           Progress="Progress" OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.RateOptions, T)"
+                           Note="@T.Format(Copy.ProRateNote, Money.Peso(ReferenceData.MinimumWage))" Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(Pricing.RateChoices(Draft.ServiceIds), T)"
                              SelectedIds="Selected(Draft.RateTierId)" OnPick="PickRateAsync" />
             </InterviewStep>
             break;
@@ -58,7 +67,7 @@ else if (_state is not null)
                            OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.IncomeGoalId is not null)">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.IncomeGoals, T)" Compact="true"
                              SelectedIds="Selected(Draft.IncomeGoalId)" OnPick="PickGoal" />
-                <GoalPayoff RateTierId="@Draft.RateTierId" IncomeGoalId="@Draft.IncomeGoalId" />
+                <GoalPayoff RateTierId="@Draft.RateTierId" ServiceIds="Draft.ServiceIds" IncomeGoalId="@Draft.IncomeGoalId" />
             </InterviewStep>
             break;
 
@@ -66,7 +75,7 @@ else if (_state is not null)
             <InterviewStep Illustration="👀" Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="Finish" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
                 <ListingPreview Listing="Draft.ToListing()" />
-                <GoalPayoff RateTierId="@Draft.RateTierId" IncomeGoalId="@Draft.IncomeGoalId" />
+                <GoalPayoff RateTierId="@Draft.RateTierId" ServiceIds="Draft.ServiceIds" IncomeGoalId="@Draft.IncomeGoalId" />
             </InterviewStep>
             break;
     }

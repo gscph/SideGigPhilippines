@@ -35,7 +35,7 @@ Each part is a 0–1 feature multiplied by a weight. The weights add up to 100 a
 | **Responsiveness**: reply speed | 8 | Each answered chat scores 1 / (1 + minutes to first reply / 60), so a reply after an hour earns half; reply times are capped at 1 day. An unanswered chat scores 0, so never replying can't beat replying late. Smoothed like the reply rate, as if the worker already had 3 chats answered in an hour. |
 | **Activity**: recent | 14 | 0.5^(days since last active / 7): halves every week away. Last active = last opened their Inbox (`Users.LastActiveAt`, stamped at most hourly) or last edited the listing, whichever is later. |
 | **Activity**: tenure | 6 | Days since the account was made / 180, full at 6 months. Small on purpose, so new workers aren't buried. |
-| **Budget fit** | 20 | Within budget = 1, "depends on the job" = 0.4, each price tier over budget loses 0.5. No budget given = 1 for everyone. |
+| **Budget fit** | 20 | The worker's price for the searched job (that job's price guide at their rate: minimum, average or above average; their cheapest job when the whole trade is searched) against the top of the Seeker's range: at or under = 1, "depends on the job" = 0.4, over loses fit in step with how far over (50% over = 0.5, double = 0). No budget, or a range with no top = 1 for everyone. Listings and budgets from app versions before price guides read as their old tier's typical price and range. |
 | **Experience** | 10 | Position on the experience scale (0 = least, 1 = 10+ years). |
 
 **Why these weights.** They follow the order you suggested (reviews, then responsiveness, then activity), with the

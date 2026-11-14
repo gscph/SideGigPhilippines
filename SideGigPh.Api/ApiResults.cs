@@ -9,9 +9,17 @@ internal static class ApiResults
 {
     /// <summary>
     /// While building the MVP, error answers carry <see cref="ApiError.Detail"/> (exception + stack trace, or what
-    /// was wrong with the request). Turn this off before launch: it shows the server's internals to any caller.
+    /// was wrong with the request). Set by the Function App setting <c>ShowErrorDetails</c> (<see cref="ShowDetailsSetting"/>):
+    /// on unless it says <c>false</c>. Set it to <c>false</c> before launch: details show the server's internals to any caller.
     /// </summary>
-    public const bool ShowDetails = true;
+    public static bool ShowDetails { get; set; } = true;
+
+    /// <summary>The Function App setting that turns <see cref="ShowDetails"/> off (<c>false</c>).</summary>
+    public const string ShowDetailsSetting = "ShowErrorDetails";
+
+    /// <summary><c>429 too-many-requests</c>: the caller passed one of <see cref="CallerLimits.Rules"/>.</summary>
+    public static IActionResult TooMany() =>
+        new ObjectResult(new ApiError(ApiErrors.TooManyRequests)) { StatusCode = StatusCodes.Status429TooManyRequests };
 
     public static IActionResult Conflict(string error) => new ConflictObjectResult(new ApiError(error));
 

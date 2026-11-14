@@ -7,7 +7,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>In-app chat. Every call is about the caller's own chats; nobody else's can be read.</summary>
-public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier, UserStore users)
+public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier, UserStore users, CallerLimits limits)
 {
     /// <summary>
     /// <c>GET chats?side=seeker</c> or <c>?side=professional</c>: the caller's Inbox on that side, newest first. A
@@ -82,7 +82,10 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             : new NotFoundResult();
     }
 
-    /// <summary>Sends a message; the first one creates the chat. Tells the other person (<see cref="ChatNotifier"/>). Answers with the chat as saved.</summary>
+    /// <summary>
+    /// Sends a message; the first one creates the chat. Tells the other person (<see cref="ChatNotifier"/>). Answers with
+    /// the chat as saved, or <c>429</c> past <see cref="Limited.Message"/> / <see cref="Limited.NewChat"/>.
+    /// </summary>
     [Function("SendChatMessage")]
     public async Task<IActionResult> Send(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "chats/{chatId}/messages")] HttpRequest request,
@@ -94,12 +97,17 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             return new UnauthorizedResult();
         }
 
+        if (!limits.TryTake(Limited.Message, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
         if (await ApiResults.ReadAsync<SendMessageRequest>(request, cancellationToken) is not { } message)
         {
             return ApiResults.BadRequest();
         }
 
-        var result = await chats.SendAsync(chatId, uid, message, cancellationToken);
+        var result = await chats.SendAsync(chatId, uid, message, () => limits.TryTake(Limited.NewChat, uid), cancellationToken);
         if (result is { Outcome: SendOutcome.Sent, IsNew: true, Chat: { } sent })
         {
             await notifier.NotifyAsync(sent, uid, cancellationToken);
@@ -110,6 +118,7 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             SendOutcome.Sent => new OkObjectResult(result.Chat),
             SendOutcome.Forbidden => new StatusCodeResult(StatusCodes.Status403Forbidden),
             SendOutcome.NoListing => new NotFoundResult(),
+            SendOutcome.TooManyChats => ApiResults.TooMany(),
             _ => ApiResults.BadRequest(),
         };
     }

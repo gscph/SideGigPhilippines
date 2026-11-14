@@ -28,6 +28,7 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(List<CategoryDto>))]
 [JsonSerializable(typeof(ServiceDto))]
 [JsonSerializable(typeof(List<ServiceDto>))]
+[JsonSerializable(typeof(PriceGuideDto))]
 [JsonSerializable(typeof(OtherJobRequest))]
 [JsonSerializable(typeof(SearchHitDto))]
 [JsonSerializable(typeof(List<SearchHitDto>))]

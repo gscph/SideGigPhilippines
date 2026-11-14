@@ -41,7 +41,7 @@
         <HomeSection Title="@T.Get(Copy.SectionGoal)">
             <MudStack Spacing="2">
                 <MudText Typo="Typo.body1">@T.Format(Copy.ProHomeGoal, GoalLabel)</MudText>
-                <GoalPayoff RateTierId="@Workspace.Draft.RateTierId" IncomeGoalId="@Workspace.Draft.IncomeGoalId" />
+                <GoalPayoff RateTierId="@Workspace.Draft.RateTierId" ServiceIds="Workspace.Draft.ServiceIds" IncomeGoalId="@Workspace.Draft.IncomeGoalId" />
             </MudStack>
         </HomeSection>
     }

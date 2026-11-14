@@ -16,6 +16,9 @@ public partial class ListingFacts : ComponentBase
 
     [Parameter] public ReviewSummary? Reviews { get; set; }
 
+    /// <summary>The job the Seeker searched for: the price shown is the worker's price for it (else over all their jobs).</summary>
+    [Parameter] public string? ServiceId { get; set; }
+
     /// <summary>Side by side, without towns: the compact search-result card.</summary>
     [Parameter] public bool Dense { get; set; }
 }

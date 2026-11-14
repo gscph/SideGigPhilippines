@@ -62,6 +62,7 @@ public sealed class ApiTestHost : IAsyncLifetime
                     // The same registrations as SideGigPh.Api/Program.cs, with test stand-ins for Google, Blob Storage and push.
                     services.AddSingleton<BlobContainerClient>(Blobs);
                     services.AddSingleton(new FirebaseTokenValidator(TestTokens.ProjectId, Tokens.SigningKeys));
+                    services.AddSingleton<CallerLimits>();
                     services.AddSideGigPhSql(_database.ConnectionString, new PhotoLinks($"{InMemoryBlobContainer.ContainerUri}/"));
                     services.AddSingleton<IPushSender>(Pushes);
                     services.AddScoped<ChatNotifier>();

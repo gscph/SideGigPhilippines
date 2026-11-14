@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services.Api;
@@ -13,6 +14,7 @@ public static class ApiServiceCollectionExtensions
     {
         services.AddSingleton(options);
         services.AddSingleton<ApiClient>();
+        services.TryAddSingleton<AppVisibility>(); // AddMobileAppTheme's; tests call only this
         services.AddSingleton<IPhotoStore, ApiPhotoStore>();
         services.AddSingleton<IProfessionalProfileRepository, ApiProfessionalProfileRepository>();
         services.AddSingleton<IUserRepository, ApiUserRepository>();

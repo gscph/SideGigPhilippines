@@ -44,6 +44,8 @@ public class ConfigTests(ApiTestHost api)
         config.Experience.Should().Equal(builtIn.Experience, because);
         config.Urgencies.Should().Equal(builtIn.Urgencies, because);
         config.IncomeGoals.Should().Equal(builtIn.IncomeGoals, because);
+        config.Prices.Should().BeEquivalentTo(builtIn.Prices, because);
+        config.MinimumWage.Should().Be(builtIn.MinimumWage, because);
         ReferenceData.CanUse(config).Should().BeTrue();
     }
 

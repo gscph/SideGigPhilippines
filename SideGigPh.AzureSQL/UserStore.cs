@@ -26,7 +26,11 @@ public sealed class UserStore(SideGigPhDb db)
         row.Language = profile.Language == Wire.Taglish ? Wire.Taglish : Wire.English;
         row.Role = profile.Role is Wire.Seeker or Wire.Professional ? profile.Role : null;
         row.IncomeGoalId = StoreText.IsCode(profile.IncomeGoalId) ? profile.IncomeGoalId : null;
-        row.ProfilePhotoId = StoreText.IsPhotoId(profile.ProfilePhotoId) ? profile.ProfilePhotoId : null;
+        // Anti-fraud rule 2: a photo another account uses (its profile, listing or work photo) is left off.
+        row.ProfilePhotoId = StoreText.IsPhotoId(profile.ProfilePhotoId)
+            && !await db.UsedByAnotherAsync(uid, [profile.ProfilePhotoId!], cancellationToken)
+                ? profile.ProfilePhotoId
+                : null;
         row.UpdatedAt = now;
         try
         {

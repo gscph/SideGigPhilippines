@@ -9,8 +9,9 @@ using SideGigPh.AzureSQL;
 var builder = FunctionsApplication.CreateBuilder(args);
 builder.ConfigureFunctionsWebApplication();
 
-// Exceptions come back as JSON with the stack trace (ApiResults.ShowDetails), not the host's empty 500.
+// Exceptions come back as JSON, not the host's empty 500; with the stack trace unless ShowErrorDetails is "false".
 builder.UseMiddleware<ErrorDetailsMiddleware>();
+ApiResults.ShowDetails = !string.Equals(builder.Configuration[ApiResults.ShowDetailsSetting], "false", StringComparison.OrdinalIgnoreCase);
 
 // Settings come from the Function App's "Environment variables" in Azure, or local.settings.json.
 var photoStorage = builder.Configuration["PhotoStorage"]
@@ -24,6 +25,7 @@ var firebaseProjectId = builder.Configuration["FirebaseProjectId"]
 var photos = new BlobServiceClient(photoStorage).GetBlobContainerClient(PhotoFunctions.Container);
 builder.Services.AddSingleton(photos);
 builder.Services.AddSingleton(new FirebaseTokenValidator(firebaseProjectId));
+builder.Services.AddSingleton<CallerLimits>();
 
 // Users, listings, reviews and chats in Azure SQL. Listing photos are stored as ids and shown from the public container.
 builder.Services.AddSideGigPhSql(sqlDatabase, new PhotoLinks($"{photos.Uri.ToString().TrimEnd('/')}/"));

@@ -21,7 +21,7 @@ public class PerformanceTests
     private static List<RankCandidate> ManyWorkers(int count)
     {
         var towns = ReferenceData.Cities.Select(c => c.Id).ToArray();
-        var rates = ReferenceData.RateOptions.Select(r => r.Id).ToArray();
+        var rates = ReferenceData.RateLevels.Append(ReferenceData.QuoteOption).Concat(ReferenceData.PriceTiers).Select(r => r.Id).ToArray();
         var services = ReferenceData.ServicesByCategory["aircon"].Select(s => s.Id).ToArray();
         return Enumerable.Range(0, count).Select(i => TestData.Candidate(TestData.Dto(
             $"Worker {i}",

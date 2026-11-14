@@ -1,0 +1,10 @@
+<MudStack Spacing="0" Class="app-field-group">
+    <MudNumericField T="int?" Value="@Min" ValueChanged="MinChanged" Immediate="true" HideSpinButtons="true"
+                     Variant="Variant.Filled" Underline="false" Class="app-field" InputMode="InputMode.numeric"
+                     Label="@T.Get(Copy.BudgetFromLabel)" HelperText="@MinHelp"
+                     Error="@(Min is { } from && from < ReferenceData.MinimumWage)" />
+    <MudNumericField T="int?" Value="@Max" ValueChanged="MaxChanged" Immediate="true" HideSpinButtons="true"
+                     Variant="Variant.Filled" Underline="false" Class="app-field" InputMode="InputMode.numeric"
+                     Label="@T.Get(Copy.BudgetToLabel)"
+                     Error="@MaxTooLow" ErrorText="@T.Get(Copy.BudgetToError)" />
+</MudStack>

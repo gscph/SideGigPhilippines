@@ -261,7 +261,7 @@ public class ApiAdapterTests
         server.Answer("GET chats/pro-1_seeker-1", HttpStatusCode.OK, Json(ChatDto(), ApiJson.Default.ChatDto));
         server.Answer("GET chats/pro-1_seeker-1/messages?take=20", HttpStatusCode.OK,
             Json(new List<MessageDto> { ChatDto().LastMessage, ChatDto().LastMessage with { Id = "m2", Kind = Wire.Call, Text = null } }, ApiJson.Default.ListMessageDto));
-        var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
+        var chats = new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
 
         (await chats.GetInboxAsync("seeker-1", ChatSide.Seeker)).Should().ContainSingle().Which.LastMessage.Text.Should().Be("Hi po");
         (await chats.GetAsync("pro-1_seeker-1"))!.ServiceId.Should().Be("aircon-cleaning");
@@ -274,7 +274,7 @@ public class ApiAdapterTests
         var server = new StubServer();
         server.Answer("GET chats/pro-1_seeker-1/messages?take=20&before=m-1", HttpStatusCode.OK,
             Json(new List<MessageDto> { ChatDto().LastMessage with { Id = "m-0" } }, ApiJson.Default.ListMessageDto));
-        var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
+        var chats = new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
 
         (await chats.GetMessagesAsync("pro-1_seeker-1", "m-1")).Should().ContainSingle().Which.Id.Should().Be("m-0");
     }
@@ -282,7 +282,7 @@ public class ApiAdapterTests
     [Fact]
     public async Task Chats_Offline_ShowEmptyInbox()
     {
-        var chats = new ApiChatRepository(new StubServer { Offline = true }.Client(), NullLogger<ApiChatRepository>.Instance);
+        var chats = new ApiChatRepository(new StubServer { Offline = true }.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
 
         (await chats.GetInboxAsync("p", ChatSide.Professional)).Should().BeEmpty();
         (await chats.GetAsync("x")).Should().BeNull();
@@ -294,7 +294,7 @@ public class ApiAdapterTests
     {
         var server = new StubServer();
         server.Answer("POST chats/pro-1_seeker-1/messages", HttpStatusCode.OK, Json(ChatDto("m9"), ApiJson.Default.ChatDto));
-        var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
+        var chats = new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
         var chat = ChatDto().ToModel();
 
         var saved = await chats.SendAsync(chat, chat.LastMessage with { Id = "m9" });
@@ -309,7 +309,7 @@ public class ApiAdapterTests
     {
         var server = new StubServer();
         server.Answer("POST chats/pro-1_seeker-1/messages", status, body);
-        var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
+        var chats = new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
         var chat = ChatDto().ToModel();
 
         await chats.Invoking(c => c.SendAsync(chat, chat.LastMessage)).Should().ThrowAsync<HttpRequestException>();
@@ -321,9 +321,9 @@ public class ApiAdapterTests
         var refused = new StubServer();
         var offline = new StubServer { Offline = true };
 
-        await new ApiChatRepository(refused.Client(), NullLogger<ApiChatRepository>.Instance)
+        await new ApiChatRepository(refused.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance)
             .Invoking(c => c.MarkReadAsync("x", ChatSide.Professional)).Should().NotThrowAsync();
-        await new ApiChatRepository(offline.Client(), NullLogger<ApiChatRepository>.Instance)
+        await new ApiChatRepository(offline.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance)
             .Invoking(c => c.MarkReadAsync("x", ChatSide.Professional)).Should().NotThrowAsync();
         refused.Requests.Single().Route.Should().Be("POST chats/x/read?side=professional");
     }
@@ -334,7 +334,7 @@ public class ApiAdapterTests
         var server = new StubServer();
         server.Answer("DELETE chats/mine", HttpStatusCode.NoContent);
 
-        await new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance).DeleteForPersonAsync("me");
+        await new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance).DeleteForPersonAsync("me");
 
         server.CountOf("DELETE chats/mine").Should().Be(1);
     }
@@ -346,7 +346,7 @@ public class ApiAdapterTests
     {
         var server = new StubServer();
         server.Answer("GET chats/pro-1_seeker-1", HttpStatusCode.OK, Json(ChatDto("m1"), ApiJson.Default.ChatDto));
-        var chats = new ApiChatRepository(server.Client(), NullLogger<ApiChatRepository>.Instance);
+        var chats = new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
         var reported = new List<string>();
         var arrived = new TaskCompletionSource<Chat>();
 
@@ -367,6 +367,28 @@ public class ApiAdapterTests
         }
 
         reported.Should().Equal("m2");
+    }
+
+    // A phone left on a chat with the screen off doesn't keep polling; it checks again once the app is back.
+    [Fact]
+    public async Task Chats_Watch_SkipsChecksWhileTheAppIsHidden()
+    {
+        var server = new StubServer();
+        server.Answer("GET chats/pro-1_seeker-1", HttpStatusCode.OK, Json(ChatDto("m2"), ApiJson.Default.ChatDto));
+        var visibility = new AppVisibility();
+        visibility.Set(false);
+        var chats = new ApiChatRepository(server.Client(), visibility, NullLogger<ApiChatRepository>.Instance);
+        var arrived = new TaskCompletionSource<Chat>();
+
+        using (chats.Watch("pro-1_seeker-1", "m1", chat => arrived.TrySetResult(chat)))
+        {
+            await Task.Delay(ApiChatRepository.WatchInterval * 1.5);
+            server.CountOf("GET chats/pro-1_seeker-1").Should().Be(0, "a hidden app makes no requests");
+
+            visibility.Set(true);
+            var winner = await Task.WhenAny(arrived.Task, Task.Delay(ApiChatRepository.WatchInterval * 3));
+            winner.Should().Be(arrived.Task, "the first check after the app comes back finds the new message");
+        }
     }
 
     // --- Reviews and profile ----------------------------------------------------------

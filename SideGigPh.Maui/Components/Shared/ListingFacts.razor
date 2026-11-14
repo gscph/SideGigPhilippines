@@ -3,7 +3,7 @@
     {
         <ProCardFact Icon="@Icons.Material.Filled.Star" IconColor="Color.Warning" Text="@T.Stars(Reviews)" />
     }
-    <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Text="@T.Rate(Listing)" />
+    <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Text="@T.Rate(Listing, ServiceId)" />
     @if (T.Experience(Listing) is { } experience)
     {
         @if (Listing.IsSeasoned())

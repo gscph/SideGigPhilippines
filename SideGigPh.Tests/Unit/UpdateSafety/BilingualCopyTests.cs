@@ -35,8 +35,11 @@ public partial class BilingualCopyTests
             .Concat(ReferenceData.Cities)
             .Concat(ReferenceData.Urgencies)
             .Concat(ReferenceData.Experience)
-            .Concat(ReferenceData.BudgetOptions)
-            .Concat(ReferenceData.RateOptions)
+            .Concat(ReferenceData.PriceTiers)
+            .Concat(ReferenceData.RateLevels)
+            .Concat(ReferenceData.TradeChoices)
+            .Append(ReferenceData.UnsureOption)
+            .Append(ReferenceData.QuoteOption)
             .Concat(ReferenceData.IncomeGoals)
             .DistinctBy(o => o.Id);
         foreach (var option in options)

@@ -8,12 +8,14 @@ namespace SideGigPh.Maui.Services.Api;
 /// <summary>
 /// <see cref="IChatRepository"/> on SideGigPh.Api (<c>chats</c>). The server saves a message and the chat's new last
 /// message in one transaction, and only lets the two people in a chat read or write it. Live updates while a chat is
-/// open are a light poll of the chat (<see cref="WatchInterval"/>); push notifications come later.
+/// open are a light poll of the chat (<see cref="WatchInterval"/>), paused while the app is hidden (<see cref="AppVisibility"/>).
 /// </summary>
-public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> logger) : IChatRepository
+public sealed class ApiChatRepository(ApiClient api, AppVisibility visibility, ILogger<ApiChatRepository> logger) : IChatRepository
 {
     /// <summary>How often an open chat checks for a new message.</summary>
     public static readonly TimeSpan WatchInterval = TimeSpan.FromSeconds(5);
+
+    private readonly AppVisibility _visibility = visibility;
 
     public Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side) => api.ReadAsync<IReadOnlyList<Chat>>(async () =>
         (await api.GetAsync($"chats?side={side.ToWire()}", ApiJson.Default.ListChatDto) ?? []).Select(dto => dto.ToModel()).ToList(),
@@ -82,7 +84,8 @@ public sealed class ApiChatRepository(ApiClient api, ILogger<ApiChatRepository> 
                 using var timer = new PeriodicTimer(WatchInterval);
                 while (await timer.WaitForNextTickAsync(stop))
                 {
-                    if (await chats.GetAsync(chatId) is { } chat && chat.LastMessage.Id != last)
+                    // Hidden (screen off, another app): skip; the first tick after the app comes back checks.
+                    if (chats._visibility.IsVisible && await chats.GetAsync(chatId) is { } chat && chat.LastMessage.Id != last)
                     {
                         last = chat.LastMessage.Id;
                         changed(chat);

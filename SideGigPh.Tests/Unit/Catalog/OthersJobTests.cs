@@ -115,4 +115,33 @@ public class OthersJobTests
         state.Professional.ServiceIds.Should().Equal("aircon-cleaning", "aircon-other");
         state.Professional.OtherJobText.Should().Be("duct");
     }
+
+    [Fact]
+    public void OthersTile_ComesAfterTheTrades_AndIsNeverATrade()
+    {
+        ReferenceData.TradeChoices.Select(t => t.Id).Should().Equal(
+            ReferenceData.Categories.Select(c => c.Id).Append(ReferenceData.OtherTradeId));
+        ReferenceData.TradeChoices[^1].Label.Should().Be(new LocalizedText("Others", "Wala sa nabanggit"));
+        ReferenceData.Categories.Should().NotContain(c => c.Id == ReferenceData.OtherTradeId);
+        AzureSQL.StoreText.IsCode(ReferenceData.OtherTradeId).Should().BeTrue("the server keeps its notes under this id");
+    }
+
+    [Theory]
+    [InlineData("500-1000", null)]           // the old one-scale tier: asked again on per-job prices
+    [InlineData("minimum", "minimum")]
+    [InlineData("above-average", "above-average")]
+    [InlineData("quote", "quote")]
+    public void SavedAnswers_OldRate_IsDropped_SoTheRateIsAskedAgain(string saved, string? kept)
+    {
+        var state = new OnboardingState
+        {
+            Seeker = new SeekerAnswers { BudgetId = "500-1000" },
+            Professional = new ProfessionalDraft { RateTierId = saved },
+        };
+
+        state.FitToCatalog();
+
+        state.Professional.RateTierId.Should().Be(kept);
+        state.Seeker.BudgetId.Should().Be("500-1000", "an old budget reads as a peso range");
+    }
 }

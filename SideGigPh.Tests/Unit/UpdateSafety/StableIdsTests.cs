@@ -1,3 +1,4 @@
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Services;
 
 namespace SideGigPh.Tests.Unit.UpdateSafety;
@@ -75,7 +76,7 @@ public class StableIdsTests
     public void EveryTown_BelongsToTheServiceArea() =>
         ReferenceData.Cities.Should().OnlyContain(c => ReferenceData.AreaOf(c.Id) == ReferenceData.ServiceAreaId);
 
-    // Order matters here: budget and rate are compared by position on this scale.
+    // Old app versions still send these as budgets and rates, and they read as peso ranges (BudgetRange).
     [Fact]
     public void PriceTierIds_NeverChange_CheapestFirst()
     {
@@ -92,5 +93,28 @@ public class StableIdsTests
         ReferenceData.TopExperienceId.Should().Be("10-plus");
         ReferenceData.Urgencies.Select(u => u.Id).Should().Equal("today", "this-week", "canvassing");
         ReferenceData.IncomeGoals.Select(g => g.Id).Should().Equal("5000", "10000", "20000", "30000-up");
+        ReferenceData.OtherTradeId.Should().Be("other");
+    }
+
+    // Saved in drafts and listings (RateTierId) and read by the server's ranking (PriceLevels in SideGigPh.Contracts).
+    [Fact]
+    public void RateLevelIds_NeverChange_CheapestFirst() =>
+        ReferenceData.RateLevels.Select(r => r.Id).Should().Equal("minimum", "average", "above-average");
+
+    // Budgets travel as text in chats and search ("800-1500"); old price tiers must keep reading as ranges.
+    [Theory]
+    [InlineData("800-1500", 800, 1500)]
+    [InlineData("1500-up", 1500, null)]
+    [InlineData("under-500", 0, 500)]
+    [InlineData("500-1000", 500, 1000)]
+    [InlineData("5000-up", 5000, null)]
+    public void BudgetIds_KeepTheirFormat(string id, int min, int? max)
+    {
+        BudgetRange.TryParse(id, out var readMin, out var readMax).Should().BeTrue();
+        (readMin, readMax).Should().Be((min, max));
+        if (!id.StartsWith("under-"))
+        {
+            BudgetRange.Format(min, max).Should().Be(id);
+        }
     }
 }

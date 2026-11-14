@@ -24,6 +24,9 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
         public const string Experience = "experience";
         public const string Urgencies = "urgencies";
         public const string IncomeGoals = "income-goals";
+
+        /// <summary>One row: the NCR daily minimum wage (its Amount), the floor of every job's price.</summary>
+        public const string MinimumWage = "minimum-wage";
     }
 
     private const string CacheKey = "config";
@@ -61,14 +64,18 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
         return new ConfigDto(
             categories
                 .Select(c => new CategoryDto(c.Id, c.LabelEnglish, c.LabelTaglish, c.Icon, c.HintEnglish, c.HintTaglish,
-                    services[c.Id].Select(s => new ServiceDto(s.Id, s.LabelEnglish, s.LabelTaglish, s.Icon)).ToList()))
+                    services[c.Id].Select(s => new ServiceDto(s.Id, s.LabelEnglish, s.LabelTaglish, s.Icon, Price(s))).ToList()))
                 .ToList(),
             List(Lists.Towns),
             List(Lists.PriceTiers),
             List(Lists.Experience),
             List(Lists.Urgencies),
-            List(Lists.IncomeGoals));
+            List(Lists.IncomeGoals),
+            options[Lists.MinimumWage].Select(o => o.Amount).FirstOrDefault());
     }
+
+    private static PriceGuideDto? Price(ServiceRow s) =>
+        s is { PriceMin: { } min, PriceAverage: { } average, PriceHigh: { } high } ? new PriceGuideDto(min, average, high) : null;
 }
 
 /// <summary>The config and its <paramref name="Version"/>: a quoted ETag, e.g. <c>"3f9a…"</c>.</summary>

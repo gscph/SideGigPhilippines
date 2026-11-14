@@ -1,10 +1,11 @@
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// The answer lists the app offers, in English and Taglish. The lists that may be stale (trades and jobs, towns,
-/// price tiers, experience, urgency, income goals) come from the server's <c>GET config</c>, loaded once when the app
+/// price guides, experience, urgency, income goals) come from the server's <c>GET config</c>, loaded once when the app
 /// opens (<see cref="AppConfigService"/>) and read here by every page; until then, and offline on a first launch,
 /// <see cref="BuiltInConfig"/> is used. The ids the code depends on are constants here. Taglish uses the words
 /// customers actually search with: English technical terms stay (split-type, chemical wash,
@@ -20,6 +21,12 @@ public static class ReferenceData
 
     /// <summary>Professional rate answer: "depends on the job".</summary>
     public const string Quote = "quote";
+
+    /// <summary>
+    /// The "Others / Wala sa nabanggit" tile after the trades in both interviews: someone whose kind of work we don't
+    /// offer types it, and it is sent for analytics (<c>OtherJobNotes</c> with this as the trade). Never saved as a trade.
+    /// </summary>
+    public const string OtherTradeId = "other";
 
     public const string UrgencyToday = "today";
     public const string UrgencyThisWeek = "this-week";
@@ -39,9 +46,21 @@ public static class ReferenceData
 
     private static readonly LocalizedText OtherJob = new("Others", "Wala sa nabanggit");
 
-    // The two answers that live with the code (they mean "no tier"), added after the server's price scale.
-    private static readonly CatalogOption UnsureOption = new(Unsure, new("Not sure yet", "Di ko pa alam"), "🤔");
-    private static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the job", "Depende sa trabaho"), "💬");
+    // The answers that live with the code: "no budget", "no set price", and the three rates a worker can charge
+    // (a point of each job's price guide, PriceLevels in SideGigPh.Contracts, shared with the server's ranking).
+    public static readonly CatalogOption UnsureOption = new(Unsure, new("Not sure yet", "Di ko pa alam"), "🤔");
+    public static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the job", "Depende sa trabaho"), "💬");
+
+    /// <summary>The rates a Skilled Worker can pick, cheapest first: each job's lowest, average or above-average price.</summary>
+    public static IReadOnlyList<CatalogOption> RateLevels { get; } =
+    [
+        new(PriceLevels.Minimum, new("Minimum price", "Pinakamababang presyo"), "🪙"),
+        new(PriceLevels.Average, new("Average price", "Karaniwang presyo"), "💵"),
+        new(PriceLevels.AboveAverage, new("Above average", "Mas mataas sa karaniwan"), "💎"),
+    ];
+
+    private static readonly CatalogOption OtherTradeOption = new(
+        OtherTradeId, OtherJob, "➕", new("Something else? Type it", "Iba pa? I-type mo"));
 
     // --- The config in use ------------------------------------------------------
 
@@ -61,17 +80,21 @@ public static class ReferenceData
 
     public static IReadOnlyList<CatalogOption> Experience => Current.Config.Experience;
 
+    /// <summary>The trades + "Others", the tiles of both interviews' trade question.</summary>
+    public static IReadOnlyList<CatalogOption> TradeChoices => Current.TradeChoices;
+
     /// <summary>
-    /// The one price scale both sides answer on, cheapest first, so a Seeker's budget and a Professional's rate can be
-    /// compared. <see cref="CatalogOption.Amount"/> is a typical job price inside the tier.
+    /// The old one-scale price tiers, cheapest first, kept only to read listings and budgets saved by app versions
+    /// before price guides. <see cref="CatalogOption.Amount"/> is a typical job price inside the tier. New answers use
+    /// <see cref="Prices"/> (<see cref="Pricing"/>).
     /// </summary>
     public static IReadOnlyList<CatalogOption> PriceTiers => Current.Config.PriceTiers;
 
-    /// <summary><see cref="PriceTiers"/> + "Not sure yet".</summary>
-    public static IReadOnlyList<CatalogOption> BudgetOptions => Current.BudgetOptions;
+    /// <summary>Each job's price guide, by job id. Read through <see cref="Pricing"/>.</summary>
+    public static IReadOnlyDictionary<string, PriceGuide> Prices => Current.Config.Prices;
 
-    /// <summary><see cref="PriceTiers"/> + "Depends on the job".</summary>
-    public static IReadOnlyList<CatalogOption> RateOptions => Current.RateOptions;
+    /// <summary>The NCR daily minimum wage (pesos): no job's lowest price and no Seeker budget goes under it.</summary>
+    public static int MinimumWage => Current.Config.MinimumWage;
 
     /// <summary>Monthly earnings goals. <see cref="CatalogOption.Amount"/> is pesos per month.</summary>
     public static IReadOnlyList<CatalogOption> IncomeGoals => Current.Config.IncomeGoals;
@@ -89,15 +112,24 @@ public static class ReferenceData
     }
 
     /// <summary>
-    /// A config the app can run on: every list has answers, every trade has jobs, and the ids the code depends on
-    /// (<see cref="TopExperienceId"/>, the urgencies) are there. Anything else is never used or saved.
+    /// A config the app can run on: every list has answers, every trade has jobs and every job a price guide (lowest at
+    /// or above the minimum wage, then average, then above average), no trade takes the "Others" tile's id, and the ids
+    /// the code depends on (<see cref="TopExperienceId"/>, the urgencies) are there. Anything else (e.g. a copy saved
+    /// before price guides) is never used or saved.
     /// </summary>
     public static bool CanUse(AppConfig config) =>
-        config.Categories.Count > 0
-        && config.Categories.All(category => config.ServicesByCategory.TryGetValue(category.Id, out var services) && services.Count > 0)
+        config.Prices is not null  // a copy saved before price guides reads back with none
+        && config.Categories.Count > 0
+        && config.Categories.All(category => category.Id != OtherTradeId
+            && config.ServicesByCategory.TryGetValue(category.Id, out var services) && services.Count > 0
+            && services.All(service => config.Prices.TryGetValue(service.Id, out var price) && IsSound(price, config.MinimumWage)))
+        && config.MinimumWage > 0
         && config.Cities.Count > 0 && config.PriceTiers.Count > 0 && config.IncomeGoals.Count > 0
         && Find(config.Experience, TopExperienceId) is not null
         && new[] { UrgencyToday, UrgencyThisWeek, UrgencyCanvassing }.All(id => Find(config.Urgencies, id) is not null);
+
+    private static bool IsSound(PriceGuide price, int minimumWage) =>
+        price.Min >= minimumWage && price.Min <= price.Average && price.Average <= price.High;
 
     /// <summary>A trade's jobs, or none for a trade that isn't offered (retired).</summary>
     public static IReadOnlyList<CatalogOption> ServicesOf(string? categoryId) =>
@@ -111,8 +143,9 @@ public static class ReferenceData
     // SideGigPh.AzureSQL/Sql/004-config.sql as it was when this app was built, used on the very first launch before
     // the server's config loads. Ids are stored in saved answers, listings and chats: never rename them, only their
     // labels. Within each trade, jobs are listed most-requested first, and every trade ends with "Others" so nobody
-    // is forced into a wrong pick. Towns are A–Z; price tiers cheapest first. Keep this in step with 004-config.sql
-    // (an integration test compares them).
+    // is forced into a wrong pick. Towns are A–Z; price tiers cheapest first; prices are pesos, labor only (lowest,
+    // average, above average; the lowest never under the NCR minimum wage, Wage Order NCR-28). Keep this in step with
+    // 004-config.sql (an integration test compares them).
     public static AppConfig BuiltInConfig { get; } = new(
     [
         new("aircon", new("Aircon Technician", "Aircon Technician"), "❄️", new("Cleaning, repair, installation", "Linis, repair, pakabit")),
@@ -251,11 +284,78 @@ public static class ReferenceData
     ],
     IncomeGoals:
     [
-        new("5000", new("₱5,000", "₱5,000"), "🎯", Amount: 5000),
-        new("10000", new("₱10,000", "₱10,000"), "🎯", Amount: 10000),
-        new("20000", new("₱20,000", "₱20,000"), "🎯", Amount: 20000),
-        new("30000-up", new("₱30,000 or more", "₱30,000 pataas"), "🎯", Amount: 30000),
-    ]);
+        new("5000", new("₱5,000", "₱5,000"), Amount: 5000),
+        new("10000", new("₱10,000", "₱10,000"), Amount: 10000),
+        new("20000", new("₱20,000", "₱20,000"), Amount: 20000),
+        new("30000-up", new("₱30,000 or more", "₱30,000 pataas"), Amount: 30000),
+    ],
+    Prices: new Dictionary<string, PriceGuide>
+    {
+        ["aircon-cleaning"] = new(755, 1000, 1500),
+        ["aircon-repair"] = new(755, 1500, 2500),
+        ["aircon-leak"] = new(755, 1000, 1500),
+        ["aircon-freon"] = new(1200, 2000, 3000),
+        ["aircon-install"] = new(2500, 3500, 5000),
+        ["aircon-relocate"] = new(1500, 2500, 4000),
+        ["aircon-pms"] = new(755, 1200, 1800),
+        ["aircon-other"] = new(755, 1200, 2000),
+        ["plumbing-clog"] = new(755, 1000, 1800),
+        ["plumbing-leak"] = new(755, 1000, 1500),
+        ["plumbing-toilet"] = new(755, 1200, 2000),
+        ["plumbing-replace"] = new(755, 1000, 1500),
+        ["plumbing-install"] = new(1000, 1800, 3000),
+        ["plumbing-water-heater"] = new(1000, 1800, 3000),
+        ["plumbing-pump"] = new(1000, 2000, 3500),
+        ["plumbing-septic"] = new(3500, 5000, 7000),
+        ["plumbing-other"] = new(755, 1200, 2000),
+        ["electrical-no-power"] = new(755, 1000, 1500),
+        ["electrical-outlet"] = new(755, 900, 1300),
+        ["electrical-lights"] = new(755, 1000, 1500),
+        ["electrical-wiring"] = new(1500, 3000, 5000),
+        ["electrical-breaker-panel"] = new(1000, 1800, 3000),
+        ["electrical-meter"] = new(1500, 2500, 4000),
+        ["electrical-cctv"] = new(1500, 2500, 4000),
+        ["electrical-other"] = new(755, 1200, 2000),
+        ["roofing-leak"] = new(1000, 2000, 3500),
+        ["roofing-gutter"] = new(755, 1500, 2500),
+        ["roofing-sheet"] = new(1500, 3000, 5000),
+        ["roofing-waterproofing"] = new(2000, 4000, 7000),
+        ["roofing-paint"] = new(2000, 3500, 6000),
+        ["roofing-other"] = new(1000, 2000, 3500),
+        ["carpentry-furniture"] = new(755, 1200, 2000),
+        ["carpentry-door-window"] = new(755, 1200, 2000),
+        ["carpentry-cabinet"] = new(2500, 5000, 8000),
+        ["carpentry-ceiling-roof"] = new(1000, 2000, 3500),
+        ["carpentry-partition"] = new(2000, 4000, 7000),
+        ["carpentry-other"] = new(1000, 1800, 3000),
+        ["welder-repair"] = new(755, 1200, 2000),
+        ["welder-gate"] = new(2000, 4000, 7000),
+        ["welder-grills"] = new(1500, 3000, 5000),
+        ["welder-railings"] = new(2000, 4000, 7000),
+        ["welder-frame"] = new(3000, 6000, 10000),
+        ["welder-other"] = new(1000, 2000, 3500),
+        ["masonry-tiles"] = new(1500, 3000, 5000),
+        ["masonry-cement"] = new(1000, 2000, 3500),
+        ["masonry-crack"] = new(755, 1500, 2500),
+        ["masonry-wall"] = new(2000, 4000, 7000),
+        ["masonry-cr-renovation"] = new(5000, 10000, 18000),
+        ["masonry-other"] = new(1000, 2000, 3500),
+        ["mechanic-suspension"] = new(1000, 2000, 3500),
+        ["mechanic-engine"] = new(1500, 3000, 5000),
+        ["mechanic-electronics"] = new(1000, 2000, 3500),
+        ["mechanic-other"] = new(1000, 2000, 3500),
+        ["errand-grocery"] = new(755, 900, 1200),
+        ["errand-bills"] = new(755, 850, 1000),
+        ["errand-pasabuy"] = new(755, 900, 1200),
+        ["errand-documents"] = new(755, 900, 1200),
+        ["errand-parcel"] = new(755, 850, 1000),
+        ["errand-other"] = new(755, 900, 1200),
+        ["solar-cleaning"] = new(1000, 2000, 3500),
+        ["solar-checkup"] = new(1000, 1800, 3000),
+        ["solar-inverter"] = new(1000, 2000, 3500),
+        ["solar-other"] = new(1000, 2000, 3500),
+    },
+    MinimumWage: 755);
 
     // After BuiltInConfig: static fields start in the order they are written.
     private static Loaded _current = new(BuiltInConfig);
@@ -280,8 +380,6 @@ public static class ReferenceData
     {
         public AppConfig Config { get; } = config;
 
-        public IReadOnlyList<CatalogOption> BudgetOptions { get; } = [.. config.PriceTiers, UnsureOption];
-
-        public IReadOnlyList<CatalogOption> RateOptions { get; } = [.. config.PriceTiers, QuoteOption];
+        public IReadOnlyList<CatalogOption> TradeChoices { get; } = [.. config.Categories, OtherTradeOption];
     }
 }

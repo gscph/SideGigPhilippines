@@ -78,6 +78,47 @@ public class SearchRankerTests
         result.InTown[1].FitsBudget.Should().BeFalse();
     }
 
+    // Aircon cleaning's guide: ₱755 / ₱1,000 / ₱1,500. A Seeker budget of ₱755–₱1,000 fits the minimum and average rates.
+    [Fact]
+    public void Rank_PriceIsTheJobsGuideAtTheWorkersRate_ComparedWithTheTopOfTheBudget()
+    {
+        var pros = new ListingDto[]
+        {
+            Dto("Above Abe", rate: PriceLevels.AboveAverage),
+            Dto("Average Ava", rate: PriceLevels.Average),
+            Dto("Minimum Mia", rate: PriceLevels.Minimum),
+        };
+
+        var result = Rank(pros, Request(budget: "755-1000"));
+
+        result.InTown.Where(h => h.FitsBudget).Select(h => h.Listing.DisplayName).Should().BeEquivalentTo("Average Ava", "Minimum Mia");
+        Names(result.InTown).Last().Should().Be("Above Abe");
+        Score(Candidate(pros[0]), Request(budget: "755-1000")).BudgetFit
+            .Should().BeApproximately(SearchRanker.BudgetFitWeight * 0.5, 0.001, "₱1,500 is 50% over a ₱1,000 top: half the fit left");
+        Score(Candidate(pros[0]), Request(budget: "500-750")).BudgetFit
+            .Should().Be(0, "₱1,500 is double a ₱750 top: no fit left");
+    }
+
+    [Fact]
+    public void Rank_SameRate_DifferentJob_DifferentPrice()
+    {
+        var pro = Dto("Ana", services: ["aircon-cleaning", "aircon-install"], rate: PriceLevels.Minimum);
+
+        Rank([pro], Request(service: "aircon-cleaning", budget: "755-1000")).InTown.Single().FitsBudget.Should().BeTrue();
+        Rank([pro], Request(service: "aircon-install", budget: "755-1000")).InTown.Single().FitsBudget
+            .Should().BeFalse("installation starts at ₱2,500");
+    }
+
+    [Fact]
+    public void Rank_OpenTopBudget_EveryPriceFits_OldAndNewSeekersAlike()
+    {
+        var pricey = Candidate(Dto("Pricey Pia", rate: PriceLevels.AboveAverage));
+
+        Score(pricey, Request(budget: "1500-up")).BudgetFit.Should().Be(SearchRanker.BudgetFitWeight);
+        Score(pricey, Request(budget: "5000-up")).BudgetFit.Should().Be(SearchRanker.BudgetFitWeight, "an old app's top tier");
+        Rank([pricey.Listing], Request(budget: "1500-up")).InTown.Single().FitsBudget.Should().BeTrue();
+    }
+
     [Fact]
     public void Rank_ManyGoodReviews_BeatOnePerfectReview()
     {

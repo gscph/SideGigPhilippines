@@ -2,19 +2,49 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.AzureSQL;
 
-/// <summary>What a Seeker searched for, as ids: the job (null = the whole trade), their town and their budget.</summary>
+/// <summary>
+/// What a Seeker searched for, as ids: the job (null = the whole trade), their town and their budget
+/// (a <see cref="BudgetRange"/> id such as <c>800-1500</c>, or an old price tier id, which reads the same way).
+/// </summary>
 public sealed record RankRequest(string? ServiceId, string? CityId, string? BudgetId);
 
 /// <summary>
-/// The config lists ranking compares by position: price tiers cheapest first, experience least first, and the towns we
-/// serve (all in one area, so "nearby" = any other served town).
+/// What ranking reads from the config: each job's price guide (a worker's price = the guide at their
+/// <see cref="PriceLevels"/> rate), the old price tiers' typical prices (listings from app versions before price
+/// guides), experience least first, and the towns we serve (all in one area, so "nearby" = any other served town).
 /// </summary>
-public sealed record RankScales(IReadOnlyList<string> PriceTierIds, IReadOnlyList<string> ExperienceIds, IReadOnlySet<string> TownIds)
+public sealed record RankScales(
+    IReadOnlyDictionary<string, PriceGuideDto> Prices,
+    IReadOnlyDictionary<string, int> TierPrices,
+    IReadOnlyList<string> ExperienceIds,
+    IReadOnlySet<string> TownIds)
 {
     public static RankScales From(ConfigDto config) => new(
-        [.. config.PriceTiers.Select(t => t.Id)],
+        config.Catalog.SelectMany(c => c.Services).Where(s => s.Price is not null).ToDictionary(s => s.Id, s => s.Price!),
+        config.PriceTiers.ToDictionary(t => t.Id, t => t.Amount),
         [.. config.Experience.Select(e => e.Id)],
         config.Towns.Select(t => t.Id).ToHashSet());
+
+    /// <summary>
+    /// What the worker charges for <paramref name="serviceId"/> (pesos), or for their cheapest listed job when the
+    /// Seeker searched the whole trade; null when the price depends on the job ("quote") or isn't known.
+    /// </summary>
+    public int? PriceOf(ListingDto pro, string? serviceId)
+    {
+        if (pro.RateTierId is { } tier && TierPrices.TryGetValue(tier, out var tierPrice))
+        {
+            return tierPrice;
+        }
+
+        if (!PriceLevels.IsLevel(pro.RateTierId))
+        {
+            return null;
+        }
+
+        IEnumerable<string> jobs = serviceId is not null ? [serviceId] : pro.ServiceIds;
+        var prices = jobs.Select(id => Prices.TryGetValue(id, out var guide) ? guide.At(pro.RateTierId) : null).OfType<int>().ToList();
+        return prices.Count == 0 ? null : prices.Min();
+    }
 }
 
 /// <summary>
@@ -103,9 +133,10 @@ public static class SearchRanker
     private const double ActivityHalfLifeDays = 7;
     private const double TenureDaysForFull = 180;
 
-    // Budget: within budget earns it all, "depends on the job" (no price) some, each tier over budget loses half.
+    // Budget: a price at or under the top of the Seeker's range earns it all, "depends on the job" (no price) some, and
+    // a price over it loses fit in step with how far over: 50% over budget keeps half, double the budget keeps none.
     private const double QuoteFit = 0.4;
-    private const double FitLostPerTierOver = 0.5;
+    private const double FitLostPerShareOver = 1;
 
     public static RankedResult Rank(IReadOnlyList<RankCandidate> pros, RankRequest request, RankScales scales, DateTimeOffset now)
     {
@@ -177,35 +208,34 @@ public static class SearchRanker
     private static double TenureFeature(WorkerSignals s, DateTimeOffset now) =>
         Clamp((now - s.JoinedAt).TotalDays / TenureDaysForFull);
 
-    /// <summary>No budget given: every price fits.</summary>
+    /// <summary>No budget given, or a range with no top: every price fits.</summary>
     private static double BudgetFeature(ListingDto pro, RankRequest request, RankScales scales)
     {
-        var budget = Position(scales.PriceTierIds, request.BudgetId);
-        var rate = Position(scales.PriceTierIds, pro.RateTierId);
-        return budget < 0 ? 1
-            : rate < 0 ? QuoteFit
-            : rate <= budget ? 1
-            : Clamp(1 - ((rate - budget) * FitLostPerTierOver));
+        if (!BudgetRange.TryParse(request.BudgetId, out _, out var top) || top is not { } max)
+        {
+            return 1;
+        }
+
+        return scales.PriceOf(pro, request.ServiceId) is not { } price ? QuoteFit
+            : price <= max ? 1
+            : Clamp(1 - ((price - max) / (double)max * FitLostPerShareOver));
     }
 
     /// <summary>Unknown experience counts as the least.</summary>
     private static double ExperienceFeature(ListingDto pro, RankScales scales) =>
         scales.ExperienceIds.Count < 2 ? 0 : Math.Max(0, Position(scales.ExperienceIds, pro.ExperienceId)) / (double)(scales.ExperienceIds.Count - 1);
 
-    private static SearchHitDto Hit(ListingDto pro, RankRequest request, RankScales scales)
-    {
-        var budget = Position(scales.PriceTierIds, request.BudgetId);
-        var rate = Position(scales.PriceTierIds, pro.RateTierId);
-        return new SearchHitDto(
-            pro,
-            OffersService: request.ServiceId is not null && pro.ServiceIds.Contains(request.ServiceId),
-            ServesTown: request.CityId is not null && pro.CityIds.Contains(request.CityId),
-            FitsBudget: budget >= 0 && rate >= 0 && rate <= budget);
-    }
+    private static SearchHitDto Hit(ListingDto pro, RankRequest request, RankScales scales) => new(
+        pro,
+        OffersService: request.ServiceId is not null && pro.ServiceIds.Contains(request.ServiceId),
+        ServesTown: request.CityId is not null && pro.CityIds.Contains(request.CityId),
+        FitsBudget: BudgetRange.TryParse(request.BudgetId, out _, out var max)
+            && scales.PriceOf(pro, request.ServiceId) is { } price
+            && (max is null || price <= max));
 
     private static double Clamp(double value) => Math.Clamp(value, 0, 1);
 
-    /// <summary>Position on a config list, or -1 for an id that isn't on it ("not sure", "quote", unanswered).</summary>
+    /// <summary>Position on a config list, or -1 for an id that isn't on it (unanswered).</summary>
     private static int Position(IReadOnlyList<string> ids, string? id)
     {
         for (var i = 0; i < ids.Count; i++)

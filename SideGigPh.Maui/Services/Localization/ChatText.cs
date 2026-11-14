@@ -4,7 +4,7 @@ namespace SideGigPh.Maui.Services.Localization;
 
 /// <summary>
 /// The job a chat is about, from the Seeker's answers, as short lines for the Skilled Worker:
-/// "Pa-linis ng aircon · Taytay" and "Ngayong araw · Budget: ₱500 – ₱1,000".
+/// "Pa-linis ng aircon · Taytay" and "Ngayong araw · Budget: ₱800 – ₱1,500".
 /// </summary>
 public static class ChatText
 {
@@ -14,8 +14,8 @@ public static class ChatText
 
     public static string WhenAndBudget(this AppText text, Chat chat) => Join(
         Label(text, ReferenceData.Find(ReferenceData.Urgencies, chat.UrgencyId)),
-        Label(text, ReferenceData.Find(ReferenceData.BudgetOptions, chat.BudgetId)) is { } budget
-            ? text.Format(Copy.ChatBudget, budget)
+        Pricing.BudgetLabel(chat.BudgetId) is { } budget
+            ? text.Format(Copy.ChatBudget, text.Get(budget))
             : null);
 
     /// <summary>The Seeker's name as the Skilled Worker sees it, or "Customer" if they gave none.</summary>

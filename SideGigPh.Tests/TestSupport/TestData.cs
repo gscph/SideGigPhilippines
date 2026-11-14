@@ -101,7 +101,8 @@ public static class TestData
 
     /// <summary>The server's ranking scales, from the app's built-in config (the same lists as <c>004-config.sql</c>).</summary>
     public static RankScales Scales => new(
-        [.. ReferenceData.PriceTiers.Select(t => t.Id)],
+        ReferenceData.Prices.ToDictionary(p => p.Key, p => new PriceGuideDto(p.Value.Min, p.Value.Average, p.Value.High)),
+        ReferenceData.PriceTiers.ToDictionary(t => t.Id, t => t.Amount),
         [.. ReferenceData.Experience.Select(e => e.Id)],
         ReferenceData.Cities.Select(c => c.Id).ToHashSet());
 

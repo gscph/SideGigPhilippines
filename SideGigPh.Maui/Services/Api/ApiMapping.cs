@@ -136,7 +136,11 @@ internal static partial class ApiMapping
         Options(dto.PriceTiers),
         Options(dto.Experience),
         Options(dto.Urgencies),
-        Options(dto.IncomeGoals));
+        Options(dto.IncomeGoals),
+        dto.Catalog.SelectMany(c => c.Services)
+            .Where(s => s.Price is not null)
+            .ToDictionary(s => s.Id, s => new PriceGuide(s.Price!.Min, s.Price.Average, s.Price.High)),
+        dto.MinimumWage);
 
     private static IReadOnlyList<CatalogOption> Options(List<OptionDto>? options) =>
         (options ?? []).Select(o => new CatalogOption(o.Id, new(o.English, o.Taglish), o.Icon, Amount: o.Amount)).ToList();

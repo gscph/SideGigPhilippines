@@ -66,7 +66,7 @@ public partial class SearchPage : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
 
-    private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(ReferenceData.BudgetOptions, T);
+    private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(Pricing.BudgetChoices(Request.ServiceId, Request.CategoryId, Request.BudgetId), T);
 
     private string Summary => _result!.Total == 1
         ? T.Get(Copy.ResultsTitleOne)

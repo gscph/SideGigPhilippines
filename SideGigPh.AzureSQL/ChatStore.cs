@@ -13,6 +13,9 @@ public enum SendOutcome
     /// <summary>The Skilled Worker's listing is gone, so a new chat can't start.</summary>
     NoListing,
 
+    /// <summary>The Seeker has started too many chats lately (the caller's <c>canStartChat</c> said no).</summary>
+    TooManyChats,
+
     Invalid,
 }
 
@@ -27,6 +30,9 @@ public sealed record SendResult(SendOutcome Outcome, ChatDto? Chat = null, bool 
 public sealed class ChatStore(SideGigPhDb db)
 {
     public const int MaxText = 1000;
+
+    /// <summary>The longest uid a chat can name (<c>Users.Uid</c>, varchar(128)).</summary>
+    public const int MaxUid = 128;
 
     public static string IdFor(string professionalId, string seekerId) => $"{professionalId}_{seekerId}";
 
@@ -92,13 +98,17 @@ public sealed class ChatStore(SideGigPhDb db)
 
     /// <summary>
     /// Adds the caller's message and makes it the chat's last message (the sender has read it). The first message
-    /// creates the chat, and only the Seeker can send it. Sending the same message id again changes nothing.
+    /// creates the chat, only the Seeker can send it, and only when <paramref name="canStartChat"/> agrees (a limit on
+    /// new chats); the chat takes the worker's name from their listing, not the request. Sending the same message id
+    /// again changes nothing.
     /// </summary>
-    public async Task<SendResult> SendAsync(string chatId, string uid, SendMessageRequest request, CancellationToken cancellationToken)
+    public async Task<SendResult> SendAsync(
+        string chatId, string uid, SendMessageRequest request, Func<bool> canStartChat, CancellationToken cancellationToken)
     {
         var isCall = request.Kind == Wire.Call;
         var text = isCall ? null : StoreText.Limit(request.Text, MaxText);
-        if (chatId != IdFor(request.ProfessionalId, request.SeekerId) || request.MessageId is not { Length: > 0 and <= 64 }
+        if (request.ProfessionalId is not { Length: > 0 and <= MaxUid } || request.SeekerId is not { Length: > 0 and <= MaxUid }
+            || chatId != IdFor(request.ProfessionalId, request.SeekerId) || request.MessageId is not { Length: > 0 and <= 64 }
             || (request.Kind is not (Wire.Text or Wire.Call)) || (!isCall && text is null) || request.ProfessionalId == request.SeekerId)
         {
             return new SendResult(SendOutcome.Invalid);
@@ -125,9 +135,18 @@ public sealed class ChatStore(SideGigPhDb db)
                     return new SendResult(SendOutcome.Forbidden);
                 }
 
-                if (!await db.Professionals.AnyAsync(p => p.Id == request.ProfessionalId, ct))
+                var professionalName = await db.Professionals
+                    .Where(p => p.Id == request.ProfessionalId)
+                    .Select(p => p.DisplayName)
+                    .FirstOrDefaultAsync(ct);
+                if (professionalName is null)
                 {
                     return new SendResult(SendOutcome.NoListing);
+                }
+
+                if (!canStartChat())
+                {
+                    return new SendResult(SendOutcome.TooManyChats);
                 }
 
                 chat = new ChatRow
@@ -135,7 +154,7 @@ public sealed class ChatStore(SideGigPhDb db)
                     Id = chatId,
                     ProfessionalId = request.ProfessionalId,
                     SeekerId = request.SeekerId,
-                    ProfessionalName = StoreText.Name(request.ProfessionalName, 60),
+                    ProfessionalName = StoreText.Name(professionalName, 60),
                     SeekerName = StoreText.Name(request.SeekerName, 60),
                     ServiceId = Code(request.ServiceId),
                     CityId = Code(request.CityId),

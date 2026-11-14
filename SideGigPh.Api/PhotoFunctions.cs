@@ -18,7 +18,7 @@ namespace SideGigPh.Api;
 /// Anti-fraud rule 2: the server hashes the bytes itself and keeps one blob per hash, owned by the
 /// account that uploaded it first. Another account uploading the same photo gets 409 photo-in-use.
 /// </summary>
-public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseTokenValidator auth)
+public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseTokenValidator auth, CallerLimits limits)
 {
     public const string Container = "photos";
 
@@ -38,6 +38,12 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
         if (uid is null)
         {
             return new UnauthorizedResult();
+        }
+
+        // Each distinct photo is a new blob, so uploads are limited per account.
+        if (!limits.TryTake(Limited.PhotoUpload, uid))
+        {
+            return ApiResults.TooMany();
         }
 
         var bytes = await ReadAtMostAsync(request.Body, MaxBytes + 1, cancellationToken);

@@ -83,16 +83,18 @@ public class WireContractTests
     [Fact]
     public void ConfigContracts_FieldNamesNeverChange()
     {
-        var service = new ServiceDto("aircon-cleaning", "Aircon cleaning", "Pa-linis ng aircon", "🧽");
+        var price = new PriceGuideDto(755, 1000, 1500);
+        var service = new ServiceDto("aircon-cleaning", "Aircon cleaning", "Pa-linis ng aircon", "🧽", price);
         var category = new CategoryDto("aircon", "Aircon Technician", "Aircon Technician", "❄️", "Cleaning", "Linis", [service]);
 
         var option = new OptionDto("under-500", "Under ₱500", "Below ₱500", null, 400);
 
-        FieldNames(new ConfigDto([category], [option], [option], [option], [option], [option]), ApiJson.Default.ConfigDto)
-            .Should().Equal("catalog", "towns", "priceTiers", "experience", "urgencies", "incomeGoals");
+        FieldNames(new ConfigDto([category], [option], [option], [option], [option], [option], 755), ApiJson.Default.ConfigDto)
+            .Should().Equal("catalog", "towns", "priceTiers", "experience", "urgencies", "incomeGoals", "minimumWage");
         FieldNames(option, ApiJson.Default.OptionDto).Should().Equal("id", "english", "taglish", "icon", "amount");
         FieldNames(category, ApiJson.Default.CategoryDto).Should().Equal("id", "english", "taglish", "icon", "hintEnglish", "hintTaglish", "services");
-        FieldNames(service, ApiJson.Default.ServiceDto).Should().Equal("id", "english", "taglish", "icon");
+        FieldNames(service, ApiJson.Default.ServiceDto).Should().Equal("id", "english", "taglish", "icon", "price");
+        FieldNames(price, ApiJson.Default.PriceGuideDto).Should().Equal("min", "average", "high");
         FieldNames(new OtherJobRequest("aircon", Wire.Seeker, "thermostat"), ApiJson.Default.OtherJobRequest).Should().Equal("categoryId", "side", "text");
     }
 
@@ -123,6 +125,7 @@ public class WireContractTests
         ApiErrors.NoChat.Should().Be("no-chat");
         ApiErrors.ReviewTooSoon.Should().Be("review-too-soon");
         ApiErrors.Exception.Should().Be("exception");
+        ApiErrors.TooManyRequests.Should().Be("too-many-requests");
         ApiErrors.Invalid("references").Should().Be("invalid-references");
 
         Wire.English.Should().Be("english");

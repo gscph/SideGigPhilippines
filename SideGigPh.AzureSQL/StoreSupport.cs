@@ -69,6 +69,20 @@ internal static class SqlErrors
         ex.InnerException is SqlException { Number: 2601 or 2627 } sql && sql.Message.Contains(constraint, StringComparison.Ordinal);
 }
 
+internal static class PhotoUse
+{
+    /// <summary>
+    /// Anti-fraud rule 2 across tables: true when another account already uses one of <paramref name="photoIds"/> as
+    /// its profile photo (<c>Users</c>, either side), its listing photo or a work photo. Each table's unique index
+    /// only covers itself, and photo ids are public (they're in the photo URLs), so a stolen id is caught here.
+    /// </summary>
+    public static async Task<bool> UsedByAnotherAsync(this SideGigPhDb db, string uid, IReadOnlyCollection<string> photoIds, CancellationToken cancellationToken) =>
+        photoIds.Count > 0
+        && (await db.Users.AnyAsync(u => u.Uid != uid && u.ProfilePhotoId != null && photoIds.Contains(u.ProfilePhotoId), cancellationToken)
+            || await db.Professionals.AnyAsync(p => p.Id != uid && p.ProfilePhotoId != null && photoIds.Contains(p.ProfilePhotoId), cancellationToken)
+            || await db.ProfessionalWorkPhotos.AnyAsync(w => w.ProfessionalId != uid && photoIds.Contains(w.PhotoId), cancellationToken));
+}
+
 internal static class Transactions
 {
     /// <summary>Runs <paramref name="work"/> in one transaction, retried as a whole on a transient Azure SQL error.</summary>

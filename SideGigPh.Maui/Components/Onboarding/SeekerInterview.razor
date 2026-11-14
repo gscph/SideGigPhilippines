@@ -4,10 +4,20 @@
 {
     switch (_step)
     {
+        case SeekerStep.Category when _otherTradeNoted:
+            <OtherTradeThanks Message="@T.Get(Copy.OtherTradeSeekerThanks)" Progress="Progress" OnPickAnother="PickAnotherTrade" />
+            break;
+
         case SeekerStep.Category:
-            <InterviewStep Illustration="🧰" Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Categories, T)"
-                             SelectedIds="Selected(Answers.CategoryId)" OnPick="PickCategoryAsync" />
+            <InterviewStep Illustration="🧰" Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack"
+                           OnNext="OtherTradeNext" CanContinue="@HasOtherTradeText">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.TradeChoices, T)"
+                             SelectedIds="Selected(_pickedOtherTrade ? ReferenceData.OtherTradeId : Answers.CategoryId)" OnPick="PickCategoryAsync" />
+                @if (_pickedOtherTrade)
+                {
+                    <OtherJobField Label="@T.Get(Copy.OtherTradeSeekerLabel)" Help="@T.Get(Copy.OtherTradeHelp)"
+                                   Value="@_otherTradeText" ValueChanged="SetOtherTradeText" />
+                }
             </InterviewStep>
             break;
 
@@ -39,10 +49,14 @@
             break;
 
         case SeekerStep.Budget:
-            <InterviewStep Illustration="💰" Title="@T.Get(Copy.SeekerBudgetTitle)" Why="@T.Get(Copy.SeekerBudgetWhy)"
-                           Progress="Progress" OnBack="GoBack">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.BudgetOptions, T)"
-                             SelectedIds="Selected(Answers.BudgetId)" OnPick="PickBudgetAsync" />
+            <InterviewStep Illustration="💰" Title="@T.Get(Copy.SeekerBudgetTitle)" Why="@BudgetWhy" Note="@T.Get(Copy.SeekerBudgetWhy)"
+                           Progress="Progress" OnBack="GoBack" OnNext="CustomBudgetNext" CanContinue="@Pricing.IsValidBudget(_customMin, _customMax)">
+                <ChoiceTiles Items="ChoiceItem.From(BudgetChoices, T)"
+                             SelectedIds="Selected(_customBudget ? Pricing.CustomBudget : Answers.BudgetId)" OnPick="PickBudgetAsync" />
+                @if (_customBudget)
+                {
+                    <BudgetRangeFields @bind-Min="_customMin" @bind-Max="_customMax" />
+                }
             </InterviewStep>
             break;
 

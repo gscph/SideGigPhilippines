@@ -33,6 +33,12 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public const int MinReferences = 1;
     public const int MaxReferences = 3;
 
+    /// <summary>
+    /// The most jobs or towns one listing may send: far more than any trade has jobs or we serve towns, so a client
+    /// can't make one publish insert thousands of rows.
+    /// </summary>
+    public const int MaxListed = 100;
+
     /// <summary>The most search results one page may ask for.</summary>
     public const int MaxSearchPage = 50;
 
@@ -57,17 +63,22 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             .Page(Math.Max(0, skip), Math.Clamp(take, 1, MaxSearchPage));
     }
 
-    /// <summary>A trade's listings with their ranking signals, kept for <see cref="ListingCache.SearchFor"/>.</summary>
+    /// <summary>
+    /// A trade's listings with their ranking signals, kept for <see cref="ListingCache.SearchFor"/>. Ids that can't be a
+    /// trade or area find nobody without a database read or a cache entry (random ids would otherwise fill the cache).
+    /// </summary>
     private Task<IReadOnlyList<RankCandidate>> CandidatesAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
-        cache.SearchAsync(categoryId, areaId, async () =>
-        {
-            var rows = await Listings()
-                .Where(p => p.CategoryId == categoryId && (areaId == null || p.AreaId == areaId))
-                .ToListAsync(cancellationToken);
-            var listings = await WithReviewsAsync(rows, cancellationToken);
-            var signals = await SignalsAsync(rows, cancellationToken);
-            return [.. listings.Select(l => new RankCandidate(l, signals[l.Id]))];
-        });
+        !StoreText.IsCode(categoryId) || (areaId is not null && !StoreText.IsCode(areaId))
+            ? Task.FromResult<IReadOnlyList<RankCandidate>>([])
+            : cache.SearchAsync(categoryId, areaId, async () =>
+            {
+                var rows = await Listings()
+                    .Where(p => p.CategoryId == categoryId && (areaId == null || p.AreaId == areaId))
+                    .ToListAsync(cancellationToken);
+                var listings = await WithReviewsAsync(rows, cancellationToken);
+                var signals = await SignalsAsync(rows, cancellationToken);
+                return [.. listings.Select(l => new RankCandidate(l, signals[l.Id]))];
+            });
 
     /// <summary>
     /// How each worker behaves on the app (<see cref="WorkerSignals"/>), in two grouped queries: their chats from the
@@ -152,6 +163,11 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             return PublishOutcome.PhoneUsedBySeeker;
         }
 
+        if (await db.UsedByAnotherAsync(uid, [request.ProfilePhotoId!, .. workPhotos], cancellationToken))
+        {
+            return PublishOutcome.PhotoInUse;
+        }
+
         try
         {
             var outcome = await db.InTransactionAsync(async ct =>
@@ -221,8 +237,8 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public static string? InvalidField(PublishListingRequest request, string ownNumber) =>
         !StoreText.IsCode(request.CategoryId) ? "categoryId"
         : !StoreText.IsCode(request.AreaId) ? "areaId"
-        : request.ServiceIds is not { Count: > 0 } || !request.ServiceIds.All(StoreText.IsCode) ? "serviceIds"
-        : request.CityIds is not { Count: > 0 } || !request.CityIds.All(StoreText.IsCode) ? "cityIds"
+        : request.ServiceIds is not { Count: > 0 and <= MaxListed } || !request.ServiceIds.All(StoreText.IsCode) ? "serviceIds"
+        : request.CityIds is not { Count: > 0 and <= MaxListed } || !request.CityIds.All(StoreText.IsCode) ? "cityIds"
         : request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId) ? "experienceId"
         : request.RateTierId is not null && !StoreText.IsCode(request.RateTierId) ? "rateTierId"
         : !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"

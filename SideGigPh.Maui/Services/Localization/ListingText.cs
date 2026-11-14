@@ -31,11 +31,12 @@ public static class ListingText
             .Select(option => text.Get(option.Label))
             .ToList();
 
-    /// <summary>"₱500 – ₱1,000 per job", or "Price depends on the job".</summary>
-    public static string Rate(this AppText text, ProfessionalListing listing) =>
-        ReferenceData.Find(ReferenceData.PriceTiers, listing.RateTierId) is { } tier
-            ? text.Format(Copy.RatePerJob, text.Get(tier.Label))
-            : text.Get(Copy.RateQuote);
+    /// <summary>
+    /// "₱1,000 per job" (their price for <paramref name="serviceId"/>, e.g. the job searched for), "₱755 – ₱2,500 per job"
+    /// (over all their jobs), or "Price depends on the job".
+    /// </summary>
+    public static string Rate(this AppText text, ProfessionalListing listing, string? serviceId = null) =>
+        text.RateLabel(listing, serviceId) is { } price ? text.Format(Copy.RatePerJob, price) : text.Get(Copy.RateQuote);
 
     /// <summary>"Exp: 3–10 years", or null when unknown.</summary>
     public static string? Experience(this AppText text, ProfessionalListing listing) =>
@@ -47,9 +48,20 @@ public static class ListingText
     public static string? ExperienceLabel(this AppText text, ProfessionalListing listing) =>
         ReferenceData.Find(ReferenceData.Experience, listing.ExperienceId) is { } option ? text.Get(option.Label) : null;
 
-    /// <summary>"₱500 – ₱1,000" alone (the profile's stat tile), or null when the price depends on the job.</summary>
-    public static string? RateLabel(this AppText text, ProfessionalListing listing) =>
-        ReferenceData.Find(ReferenceData.PriceTiers, listing.RateTierId) is { } tier ? text.Get(tier.Label) : null;
+    /// <summary>
+    /// "₱1,000" or "₱755 – ₱2,500" alone (the profile's stat tile), or null when the price depends on the job. A listing
+    /// from an app version before price guides shows its old tier ("₱500 – ₱1,000").
+    /// </summary>
+    public static string? RateLabel(this AppText text, ProfessionalListing listing, string? serviceId = null)
+    {
+        if (ReferenceData.Find(ReferenceData.PriceTiers, listing.RateTierId) is { } tier)
+        {
+            return text.Get(tier.Label);
+        }
+
+        IEnumerable<string> jobs = serviceId is not null && listing.ServiceIds.Contains(serviceId) ? [serviceId] : listing.ServiceIds;
+        return Pricing.RateRange(listing.RateTierId, jobs) is { } range ? text.Get(Pricing.PriceText(range)) : null;
+    }
 
     /// <summary>10+ years on the job: shown in the brand color with an award icon.</summary>
     public static bool IsSeasoned(this ProfessionalListing listing) => listing.ExperienceId == ReferenceData.TopExperienceId;

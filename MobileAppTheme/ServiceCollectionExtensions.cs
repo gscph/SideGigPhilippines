@@ -26,6 +26,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(brand);
         services.AddSingleton<AppText>();
         services.AddSingleton<BusyIndicator>();
+        services.TryAddSingleton<AppVisibility>();
         services.TryAddSingleton(TimeProvider.System);
 
         services.TryAddSingleton<IContactLauncher, DeviceContactLauncher>();

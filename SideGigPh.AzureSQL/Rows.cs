@@ -146,6 +146,11 @@ public sealed class ServiceRow
     public string? Icon { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; }
+
+    /// <summary>The job's price guide in pesos (labor only), added by <c>008-schema-service-prices.sql</c>; null on retired jobs.</summary>
+    public int? PriceMin { get; set; }
+    public int? PriceAverage { get; set; }
+    public int? PriceHigh { get; set; }
 }
 
 /// <summary>What someone typed after picking "Others" (<c>OtherJobNotes</c>), for analytics.</summary>
