@@ -1,12 +1,6 @@
 @page "/"
 
-@* Same brand splash as index.html, so there's no flash while the saved state loads. The Seeker line rotates the
-   honorific on every launch and speaks both languages, since a first launch doesn't know the language yet. *@
-<MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="5" Class="full-screen">
-    <MudStack AlignItems="AlignItems.Center" Spacing="2">
-        <BrandMark />
-        <MudText Typo="Typo.body1" Align="Align.Center">@SeekerLine(AppLanguage.English)</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@SeekerLine(AppLanguage.Taglish)</MudText>
-    </MudStack>
-    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
-</MudStack>
+@* Same brand splash as index.html (and the busy splash), so there's no flash while the saved state loads. The role
+   isn't known yet, so it shows the Seeker line with a random honorific, in both languages since a first launch
+   doesn't know the language yet. *@
+<SplashScreen Line="@_line.English" SubLine="@_line.Taglish" />

@@ -16,12 +16,13 @@ public sealed class ErrorReportStore(SideGigPhDb db)
     /// <summary>The most one report may say the problem repeated.</summary>
     public const int MaxCount = 100_000;
 
-    /// <summary>Keeps the batch's reports. False for a batch with no install id, too many reports, or a bad one.</summary>
+    /// <summary>Keeps the batch's reports. False for a batch with no install id or version, an unknown channel, too many reports, or a bad one.</summary>
     public async Task<bool> SaveAsync(ErrorReportBatch batch, CancellationToken cancellationToken)
     {
         var appVersion = ErrorReportRules.Clean(batch.AppVersion, ErrorReportRules.MaxVersion);
         var platform = ErrorReportRules.Clean(batch.Platform, ErrorReportRules.MaxVersion);
-        if (!Guid.TryParse(batch.InstallId, out var installId) || appVersion is null || platform is null
+        var codeVersion = ErrorReportRules.Clean(batch.CodeVersion, ErrorReportRules.MaxCodeVersion) ?? "unknown";
+        if (!Guid.TryParse(batch.InstallId, out var installId) || appVersion is null || platform is null || !AppChannels.IsKnown(batch.Channel)
             || batch.Reports is not { Count: > 0 and <= ErrorReportRules.MaxReports } reports
             || reports.Any(r => !ErrorKinds.IsKnown(r?.Kind)))
         {
@@ -37,6 +38,8 @@ public sealed class ErrorReportStore(SideGigPhDb db)
             {
                 InstallId = installId.ToString(),
                 AppVersion = appVersion,
+                CodeVersion = codeVersion,
+                Channel = batch.Channel,
                 Platform = platform,
                 Device = device,
                 Kind = report.Kind,

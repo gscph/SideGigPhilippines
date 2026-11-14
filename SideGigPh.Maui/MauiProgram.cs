@@ -53,6 +53,7 @@ namespace SideGigPh.Maui
             // Replaces the skeleton's on-device FilePhotoStore.
             builder.Services.AddSideGigPhApi(new ApiOptions(ApiUrl, PhotoBaseUrl));
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
+            builder.Services.AddSingleton<ISplashLines, RoleSplashLines>();
             // The app config (trades and jobs, towns, prices…): loaded once while the splash shows (LaunchRouter), kept
             // on the phone (config.json) and used with no network call for 12 hours, then re-checked by ETag.
             builder.Services.AddSingleton<IConfigCache<AppConfig>>(services => new FileConfigCache<AppConfig>(
@@ -71,6 +72,8 @@ namespace SideGigPh.Maui
             // on the phone (diagnostics.json) and sent in the background while signed in; the Me page's switch turns it off.
             builder.Services.AddSingleton(new DeviceStamp(
                 $"{AppInfo.VersionString} ({AppInfo.BuildString})",
+                BuildInfo("CodeVersion") ?? "unknown",
+                BuildInfo("AppChannel") ?? AppChannels.Dev,
                 $"{DeviceInfo.Platform} {DeviceInfo.VersionString}".ToLowerInvariant(),
                 $"{DeviceInfo.Manufacturer} {DeviceInfo.Model}"));
             builder.Services.AddSingleton<IErrorLogStore, FileErrorLogStore>();
@@ -91,5 +94,11 @@ namespace SideGigPh.Maui
 
             return builder.Build();
         }
+
+        /// <summary>A value the csproj stamped into the app (its <c>StampCodeVersion</c> target): the git commit, the channel.</summary>
+        private static string? BuildInfo(string key) =>
+            typeof(MauiProgram).Assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false)
+                .OfType<System.Reflection.AssemblyMetadataAttribute>()
+                .FirstOrDefault(a => a.Key == key)?.Value;
     }
 }

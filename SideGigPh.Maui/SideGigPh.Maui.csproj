@@ -31,6 +31,11 @@
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
+        <!-- Release channel, sent with error reports: dev (Debug builds), beta (Release builds, the default), prod
+             (store builds: dotnet publish ... -p:AppChannel=prod). Read at run time by MauiProgram.BuildInfo. -->
+        <AppChannel Condition="'$(AppChannel)' == '' And '$(Configuration)' == 'Release'">beta</AppChannel>
+        <AppChannel Condition="'$(AppChannel)' == ''">dev</AppChannel>
+
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">24.0</SupportedOSPlatformVersion>
     </PropertyGroup>
@@ -104,5 +109,28 @@
     <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
         <BundleResource Include="Platforms\iOS\GoogleService-Info.plist" Condition="Exists('Platforms\iOS\GoogleService-Info.plist')" />
     </ItemGroup>
+
+    <!-- Stamps the code version (git commit, "-dirty" with uncommitted changes; "unknown" without git) and the channel
+         into the assembly as [AssemblyMetadata], so error reports say exactly which code a phone runs. -->
+    <Target Name="StampCodeVersion" BeforeTargets="GetAssemblyAttributes">
+        <Exec Command="git describe --always --dirty --abbrev=7" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true"
+              StandardOutputImportance="low" StandardErrorImportance="low" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true">
+            <Output TaskParameter="ConsoleOutput" PropertyName="CodeVersion" />
+            <Output TaskParameter="ExitCode" PropertyName="CodeVersionExitCode" />
+        </Exec>
+        <PropertyGroup>
+            <CodeVersion Condition="'$(CodeVersionExitCode)' != '0' Or '$(CodeVersion)' == ''">unknown</CodeVersion>
+        </PropertyGroup>
+        <ItemGroup>
+            <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+                <_Parameter1>CodeVersion</_Parameter1>
+                <_Parameter2>$(CodeVersion)</_Parameter2>
+            </AssemblyAttribute>
+            <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+                <_Parameter1>AppChannel</_Parameter1>
+                <_Parameter2>$(AppChannel)</_Parameter2>
+            </AssemblyAttribute>
+        </ItemGroup>
+    </Target>
 
 </Project>

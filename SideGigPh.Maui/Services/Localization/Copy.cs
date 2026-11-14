@@ -12,6 +12,15 @@ public static class Copy
     /// <summary>The Seeker line under the logo; {0} = a rotating honorific, plural in English (<see cref="Honorifics"/>).</summary>
     public static readonly LocalizedText SeekerTagline = new("Find {0} nearby", "May {0} para diyan");
 
+    /// <summary>The Skilled Worker lines that take turns on the busy splash (<see cref="RoleSplashLines"/>).</summary>
+    public static readonly IReadOnlyList<LocalizedText> ProTaglines =
+    [
+        new("Get jobs near you", "May trabaho malapit sa'yo"),
+        new("Customers come to you", "Ikaw ang hahanapin ng customer"),
+        new("No commission, ever", "Walang commission, sa'yo lahat"),
+        new("Earn more for your family", "Umextra para sa pamilya"),
+    ];
+
     // --- Role fork --------------------------------------------------------
     public static readonly LocalizedText RoleTitle = new("Find a Job or Hire a Skilled Worker", "Find a Job or Hire a Skilled Worker");
     public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");

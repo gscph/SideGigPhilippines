@@ -38,7 +38,7 @@ changing that area.**
   never the WebView's `localStorage`, no SQLite until local data needs querying), `IChatRepository`, `IUserRepository`,
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
-  `IErrorLogStore` (error reports), `IAppAccount` (= `LocalAccount`: language + Start over).
+  `IErrorLogStore` (error reports), `IAppAccount` (= `LocalAccount`: language + Start over), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
 - **API adapters** (`Services/Api/`, the only app code that talks HTTP): `ApiClient` (one `HttpClient`, the Firebase
   ID token on every request, asks for gzip) and one `Api*Repository` per port, registered by `AddSideGigPhApi`
   after `AddMobileAppTheme`; `ApiMapping` converts contracts ↔ `Models/` (models never get contract types). Failed
@@ -73,7 +73,8 @@ changing that area.**
 - **Error reports** (`Services/Diagnostics/`): logged errors (`ErrorLogLoggerProvider`), crashes and loading screens
   stuck past `BusyIndicator.StuckAfter` go into `ErrorLog` (`diagnostics.json`), **scrubbed when recorded and again on
   the server** (`ErrorReportRules.Scrub`: no tokens, numbers, emails, uids, query strings), and `ErrorReportSender`
-  sends them in the background while signed in (`POST error-reports` → `ErrorReports`, install id never the uid,
+  sends them in the background while signed in (`POST error-reports` → `ErrorReports`, with app and code version,
+  channel `dev`/`beta`/`prod` (csproj `AppChannel`; store builds pass `-p:AppChannel=prod`), OS and phone; install id never the uid,
   deleted after 90 days). On by default, disclosed in the privacy policy, off with the Me page's `ErrorReportsSwitch`.
   Never log message text, names or numbers on purpose; the scrubber is the safety net, not the plan.
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
@@ -152,7 +153,7 @@ Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` 
 - **Reusable, composable components** — build small, single-responsibility Razor components and compose them; never create one giant `.razor` page that does everything. Extract repeated or self-contained UI into its own component with `[Parameter]`-driven inputs and `EventCallback` outputs
 - **Component folder structure** — group components by feature under `Components/<Feature>/`, and always use code-behind: each component is a `<Name>.razor` markup file paired with a `<Name>.razor.cs` partial class for its logic. Shared shell/layout components live under `Components/Layout/`
 - **Skeleton vs app vs feature components** (load the `mobile-app-theme` skill to decide):
-  - **Skeleton** (`MobileAppTheme/Components/Shared/`): generic UI any product would use unchanged, with no domain words (`InterviewStep`, `ChoiceTiles`, `PersonAvatar`, `BusyOverlay` + `Busy.RunAsync`, `SheetPage`, `MenuRow`, `HomeSection`, `FilterMenu`, `LoadMoreOnScroll`, `MePage`…). The skeleton never references SideGigPh.
+  - **Skeleton** (`MobileAppTheme/Components/Shared/`): generic UI any product would use unchanged, with no domain words (`InterviewStep`, `ChoiceTiles`, `PersonAvatar`, `SplashScreen`, `BusyOverlay` + `Busy.RunAsync` (the brand splash with lines from the `ISplashLines` port; Tarbaho's `RoleSplashLines` picks them by role), `SheetPage`, `MenuRow`, `HomeSection`, `FilterMenu`, `LoadMoreOnScroll`, `MePage`…). The skeleton never references SideGigPh.
   - **App-generic** (`SideGigPh.Maui/Components/Shared/`): used by two or more SideGigPh features but tied to its domain (`ProCard`, `TradeBadge`, `ListingFacts`, `ReviewRow`, `PhotoStrip`…).
   - **Feature** components stay in their feature folder.
   - The full inventory: [`docs/architecture.md`](docs/architecture.md#component-inventory) and [`MobileAppTheme/README.md`](MobileAppTheme/README.md).
@@ -175,7 +176,7 @@ Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` 
 
 - GitHub Actions workflow at `.github/workflows/build.yml` (manual run)
 - `.github/workflows/tests.yml` runs `SideGigPh.Tests` on `ubuntu-latest` with a SQL Server 2022 service container (`SIDEGIGPH_TEST_SQL`), on pushes and pull requests to `main` that touch code the tests see (not CSS, images, `.razor` markup or docs), by hand, and as a required first job of `deploy-api.yml` (no deploy unless every test passes). It fails if any test was skipped and writes a coverage summary to the run page.
-- `.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` to the Function App `SideGigPhApi` (Flex Consumption, Linux, Southeast Asia) when run by hand (Actions → Run workflow). It signs in with OIDC as the user-assigned managed identity `sidegigph-github-deploy` (repo secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, made by `azure/cloudshell-github-deploy.sh`; trusts `main` only), so there is no publish profile; the app's own system-assigned identity is what reaches Azure SQL (setup: [`azure/README.md`](azure/README.md) → Automatic deploy from GitHub)
+- `.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` to the Function App `SideGigPhApi` (Flex Consumption, Linux, Southeast Asia) on its own when a push to `main` changes `SideGigPh.Api/`, `SideGigPh.AzureSQL/` (not `Sql/`), `SideGigPh.Contracts/` or the workflow, and by hand (Actions → Run workflow); run a new schema script on the database before pushing the API that needs it. It signs in with OIDC as the user-assigned managed identity `sidegigph-github-deploy` (repo secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, made by `azure/cloudshell-github-deploy.sh`; trusts `main` only), so there is no publish profile; the app's own system-assigned identity is what reaches Azure SQL (setup: [`azure/README.md`](azure/README.md) → Automatic deploy from GitHub)
 - Android builds on `ubuntu-latest`, iOS builds on `macos-latest`
 - Both install .NET 10 + platform-specific MAUI workload
 - Working directory for builds: `SideGigPh.Maui/`

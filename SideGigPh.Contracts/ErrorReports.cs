@@ -26,9 +26,29 @@ public sealed record ErrorReportDto(
 /// The reports one phone sends at once, with what it runs. <paramref name="InstallId"/> is random per app install,
 /// never the account, so a report can't be tied to a person.
 /// </summary>
+/// <param name="AppVersion">The store version and build, e.g. <c>1.0 (12)</c>.</param>
+/// <param name="CodeVersion">The git commit the app was built from, e.g. <c>48466c9</c>.</param>
+/// <param name="Channel">One of <see cref="AppChannels"/>.</param>
 /// <param name="Platform">The OS and its version, e.g. <c>android 14</c>.</param>
 /// <param name="Device">The maker and model, e.g. <c>samsung SM-A155F</c>.</param>
-public sealed record ErrorReportBatch(string InstallId, string AppVersion, string Platform, string? Device, List<ErrorReportDto> Reports);
+public sealed record ErrorReportBatch(
+    string InstallId,
+    string AppVersion,
+    string CodeVersion,
+    string Channel,
+    string Platform,
+    string? Device,
+    List<ErrorReportDto> Reports);
+
+/// <summary>Which build a phone runs: a developer's (<c>dev</c>), a tester's (<c>beta</c>) or the store's (<c>prod</c>).</summary>
+public static class AppChannels
+{
+    public const string Dev = "dev";
+    public const string Beta = "beta";
+    public const string Prod = "prod";
+
+    public static bool IsKnown(string? channel) => channel is Dev or Beta or Prod;
+}
 
 /// <summary>The kinds of problem an <see cref="ErrorReportDto"/> describes.</summary>
 public static class ErrorKinds
@@ -61,6 +81,7 @@ public static partial class ErrorReportRules
     public const int MaxTrail = 2000;
     public const int MaxDevice = 80;
     public const int MaxVersion = 30;
+    public const int MaxCodeVersion = 40;
 
     /// <summary>
     /// The text with what could point at a person replaced: sign-in tokens, email addresses, phone numbers, Firebase

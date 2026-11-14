@@ -170,6 +170,8 @@ public sealed class ErrorReportRow
     public long Id { get; set; }
     public required string InstallId { get; set; }
     public required string AppVersion { get; set; }
+    public required string CodeVersion { get; set; }
+    public required string Channel { get; set; }
     public required string Platform { get; set; }
     public string? Device { get; set; }
     public required string Kind { get; set; }

@@ -1,13 +1,23 @@
 name: Deploy API (Azure Functions)
 
-# Builds SideGigPh.Api and deploys it to the Function App SideGigPhApi. Run it by hand (Actions → Run workflow).
-# Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy": no password or
+# Builds SideGigPh.Api and deploys it to the Function App SideGigPhApi. Runs on its own when a push to main
+# changes the server's code (the API, its stores, the shared contracts, or this file), and by hand (Actions → Run
+# workflow). Changes to the SQL scripts don't deploy: run a new schema script on the database before pushing the
+# API that needs it. Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy": no password or
 # publish profile anywhere. Needs three repo secrets, printed by azure/cloudshell-github-deploy.sh:
 # AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (see azure/README.md → "Automatic deploy from GitHub").
 # The identity trusts runs from the main branch only.
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'SideGigPh.Api/**'
+      - 'SideGigPh.AzureSQL/**'
+      - '!SideGigPh.AzureSQL/Sql/**'
+      - 'SideGigPh.Contracts/**'
+      - '.github/workflows/deploy-api.yml'
 
 concurrency:
   group: deploy-api

@@ -1,0 +1,14 @@
+<MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="5" Class="@Class" role="status" aria-live="polite">
+    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+        <BrandMark />
+        @if (!string.IsNullOrEmpty(Line))
+        {
+            <MudText Typo="Typo.body1" Align="Align.Center">@Line</MudText>
+        }
+        @if (!string.IsNullOrEmpty(SubLine))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@SubLine</MudText>
+        }
+    </MudStack>
+    <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+</MudStack>

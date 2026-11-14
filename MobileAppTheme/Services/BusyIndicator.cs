@@ -2,7 +2,7 @@ namespace MobileAppTheme.Services;
 
 /// <summary>
 /// Says when the app is waiting on something the user started (a save, an upload, a sign-in), so the
-/// <c>BusyOverlay</c> in <c>MainLayout</c> covers the screen with a spinner and a rotating word instead of
+/// <c>BusyOverlay</c> in <c>MainLayout</c> covers the screen with the brand splash and a changing line instead of
 /// looking frozen. Pages wrap the slow call: <c>await Busy.RunAsync(() =&gt; DoItAsync())</c>.
 /// Calls can overlap; the overlay stays up until the last one ends. When it stays up longer than
 /// <see cref="StuckAfter"/> it raises <see cref="Stuck"/> (once per wait, even if the wait never ends), and

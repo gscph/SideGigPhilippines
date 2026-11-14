@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -18,11 +17,7 @@ public partial class LaunchRouter : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     /// <summary>A different honorific each launch ("Find Ates nearby" / "May Ate para diyan").</summary>
-    private readonly string _honorific = Honorifics.Random();
-
-    private string SeekerLine(AppLanguage language) => language == AppLanguage.Taglish
-        ? string.Format(Copy.SeekerTagline.Taglish, _honorific)
-        : string.Format(Copy.SeekerTagline.English, Honorifics.Plural(_honorific));
+    private readonly LocalizedText _line = RoleSplashLines.SeekerLine(Honorifics.Random());
 
     protected override async Task OnInitializedAsync()
     {

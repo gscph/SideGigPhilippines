@@ -19,7 +19,7 @@ public class ErrorLogTests
 
     private ErrorLog NewLog() => new(_store, _clock);
 
-    private static DeviceStamp Phone => new("1.0 (1)", "android 14", "samsung SM-A155F");
+    private static DeviceStamp Phone => new("1.0 (1)", "48466c9", "beta", "android 14", "samsung SM-A155F");
 
     [Fact]
     public async Task Record_KeepsTheScreenAndTrail_Scrubbed()

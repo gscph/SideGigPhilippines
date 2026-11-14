@@ -33,10 +33,12 @@ public sealed record ErrorReport(
     DateTimeOffset LastAt);
 
 /// <summary>What the phone runs, sent with every batch: never the person.</summary>
-/// <param name="AppVersion">e.g. <c>1.0 (12)</c>.</param>
-/// <param name="Platform">e.g. <c>android 14</c>.</param>
-/// <param name="Device">e.g. <c>samsung SM-A155F</c>.</param>
-public sealed record DeviceStamp(string AppVersion, string Platform, string? Device);
+/// <param name="AppVersion">The store version and build, e.g. <c>1.0 (12)</c>.</param>
+/// <param name="CodeVersion">The git commit the app was built from, e.g. <c>48466c9</c> (<c>-dirty</c> with uncommitted changes).</param>
+/// <param name="Channel"><c>dev</c>, <c>beta</c> or <c>prod</c> (the csproj's <c>AppChannel</c>).</param>
+/// <param name="Platform">The OS and its version, e.g. <c>android 14</c>.</param>
+/// <param name="Device">The maker and model, e.g. <c>samsung SM-A155F</c>.</param>
+public sealed record DeviceStamp(string AppVersion, string CodeVersion, string Channel, string Platform, string? Device);
 
 /// <summary>The error log kept on the phone (<c>diagnostics.json</c>): the switch, the install id and the waiting reports.</summary>
 public sealed class DiagnosticsState

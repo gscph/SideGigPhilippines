@@ -5,9 +5,10 @@
    - dbo.ErrorReports: the problems the app had on people's phones (errors, crashes, screens stuck loading), sent in
      the background by the app (POST error-reports, ErrorReportStore) so we can fix what we can't reproduce. Keyed by
      a random install id, never the account: no uid, name, number or chat text (the app and the server both scrub
-     them, ErrorReportRules.Scrub). Kept 90 days (ErrorReportStore.KeepFor), then deleted.
+     them, ErrorReportRules.Scrub). Each row says which build sent it (app version, git commit, channel dev/beta/prod)
+     and where it ran (OS version, phone model). Kept 90 days (ErrorReportStore.KeepFor), then deleted.
    - IX_ErrorReports_ReceivedAt: the 90-day clean-up and "what came in lately".
-   - IX_ErrorReports_Source: "how often does this error happen, on which versions".
+   - IX_ErrorReports_Source: "how often does this error happen, in which channel (dev/beta/prod) and code version".
 
    How: run AFTER every earlier schema script and BEFORE deploying the API that uses it. Use the portal
    Query editor and run the WHOLE file. Safe to run again: every step checks first and skips what
@@ -34,7 +35,9 @@ BEGIN
     (
         Id          bigint            IDENTITY(1, 1) NOT NULL CONSTRAINT PK_ErrorReports PRIMARY KEY,
         InstallId   varchar(36)       NOT NULL,  -- random per app install, not the account
-        AppVersion  varchar(30)       NOT NULL,
+        AppVersion  varchar(30)       NOT NULL,  -- store version and build, e.g. "1.0 (12)"
+        CodeVersion varchar(40)       NOT NULL,  -- git commit the app was built from, e.g. "48466c9" ("-dirty": local changes)
+        Channel     varchar(10)       NOT NULL CONSTRAINT CK_ErrorReports_Channel CHECK (Channel IN ('dev', 'beta', 'prod')),
         Platform    varchar(30)       NOT NULL,  -- e.g. "android 14"
         Device      nvarchar(80)      NULL,      -- e.g. "samsung SM-A155F"
         Kind        varchar(12)       NOT NULL CONSTRAINT CK_ErrorReports_Kind CHECK (Kind IN ('error', 'crash', 'slow')),
@@ -50,7 +53,7 @@ BEGIN
     );
 
     CREATE INDEX IX_ErrorReports_ReceivedAt ON dbo.ErrorReports (ReceivedAt);
-    CREATE INDEX IX_ErrorReports_Source ON dbo.ErrorReports (Source, AppVersion);
+    CREATE INDEX IX_ErrorReports_Source ON dbo.ErrorReports (Source, Channel, CodeVersion);
 END;
 
 IF NOT EXISTS (SELECT 1 FROM dbo.SchemaChanges WHERE Script = '010-schema-error-reports')

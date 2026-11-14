@@ -18,6 +18,7 @@ public static class ServiceCollectionExtensions
     /// Auth defaults: <see cref="NoIdentityProvider"/> (no sign-in until the app adds a provider such
     /// as <c>AddFirebaseAuth</c>), <see cref="HomeAuthLanding"/> and <see cref="E164PhoneNumberFormat"/>;
     /// push: <see cref="NoPushNotifications"/> (until the app adds a provider such as <c>AddFirebasePush</c>).
+    /// Busy splash lines: <see cref="BusySplashLines"/> (until the app registers its own <see cref="ISplashLines"/>).
     /// The app still registers <see cref="IAppAccount"/> (needed by <c>MePage</c>) and its own ports.
     /// </summary>
     public static IServiceCollection AddMobileAppTheme(this IServiceCollection services, AppBrand brand)
@@ -26,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(brand);
         services.AddSingleton<AppText>();
         services.AddSingleton<BusyIndicator>();
+        services.TryAddSingleton<ISplashLines, BusySplashLines>();
         services.TryAddSingleton<AppVisibility>();
         services.TryAddSingleton(TimeProvider.System);
 

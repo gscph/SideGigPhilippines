@@ -78,7 +78,7 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
 
 ## Automatic deploy from GitHub
 
-`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` except `Sql/`, `SideGigPh.Contracts/`, or the workflow file), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Run a new schema script on the database **before** pushing the API that needs it. It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
 
 There are **two identities**, each with one job:
 - the Function App's **system-assigned identity**: the running API uses it to reach Azure SQL (`Authentication=Active Directory Managed Identity`);

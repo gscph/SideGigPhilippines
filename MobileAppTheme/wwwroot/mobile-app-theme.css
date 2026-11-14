@@ -41,6 +41,11 @@ h1:focus {
     font-size: 4rem !important;
 }
 
+/* BusyOverlay: the splash covers the page on a solid surface (MudOverlay only offers a see-through veil). */
+.busy-splash {
+    background-color: var(--mud-palette-surface);
+}
+
 /* ==========================================================================
    Clean, minimal look (Airbnb style). MudBlazor's Material defaults (shadowed
    buttons, underlined filled inputs, floating outline labels) are toned down here.

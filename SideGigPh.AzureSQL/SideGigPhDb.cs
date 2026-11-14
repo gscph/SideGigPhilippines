@@ -220,6 +220,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             report.Property(r => r.Id).UseIdentityColumn();
             report.Property(r => r.InstallId).HasMaxLength(36);
             report.Property(r => r.AppVersion).HasMaxLength(30);
+            report.Property(r => r.CodeVersion).HasMaxLength(40);
+            report.Property(r => r.Channel).HasMaxLength(10);
             report.Property(r => r.Platform).HasMaxLength(30);
             report.Property(r => r.Device).HasMaxLength(80).IsUnicode();
             report.Property(r => r.Kind).HasMaxLength(12);
@@ -229,7 +231,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             report.Property(r => r.Route).HasMaxLength(200);
             report.Property(r => r.Trail).HasMaxLength(2000).IsUnicode();
             report.HasIndex(r => r.ReceivedAt).HasDatabaseName("IX_ErrorReports_ReceivedAt");
-            report.HasIndex(r => new { r.Source, r.AppVersion }).HasDatabaseName("IX_ErrorReports_Source");
+            report.HasIndex(r => new { r.Source, r.Channel, r.CodeVersion }).HasDatabaseName("IX_ErrorReports_Source");
         });
     }
 }

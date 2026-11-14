@@ -103,13 +103,16 @@ public class WireContractTests
     public void ErrorReportFieldNamesAndKinds_NeverChange()
     {
         var report = new ErrorReportDto(ErrorKinds.Slow, "Loading", "Stuck", "stack", "/start/pro/done", "trail", 2, At, At);
-        FieldNames(new ErrorReportBatch("id", "1.0", "android 14", "samsung", [report]), ApiJson.Default.ErrorReportBatch)
-            .Should().Equal("installId", "appVersion", "platform", "device", "reports");
+        FieldNames(new ErrorReportBatch("id", "1.0", "48466c9", AppChannels.Prod, "android 14", "samsung", [report]), ApiJson.Default.ErrorReportBatch)
+            .Should().Equal("installId", "appVersion", "codeVersion", "channel", "platform", "device", "reports");
         FieldNames(report, ApiJson.Default.ErrorReportDto)
             .Should().Equal("kind", "source", "message", "detail", "route", "trail", "count", "firstAt", "lastAt");
         ErrorKinds.Error.Should().Be("error");
         ErrorKinds.Crash.Should().Be("crash");
         ErrorKinds.Slow.Should().Be("slow");
+        AppChannels.Dev.Should().Be("dev");
+        AppChannels.Beta.Should().Be("beta");
+        AppChannels.Prod.Should().Be("prod");
     }
 
     // Phones already installed read these keys from a notification and created these Android channels at launch.
