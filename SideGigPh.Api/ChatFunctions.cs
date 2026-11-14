@@ -10,7 +10,8 @@ namespace SideGigPh.Api;
 public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier, UserStore users, CallerLimits limits)
 {
     /// <summary>
-    /// <c>GET chats?side=seeker</c> or <c>?side=professional</c>: the caller's Inbox on that side, newest first. A
+    /// <c>GET chats?side=seeker&amp;take=30&amp;before={chatId}</c> (or <c>side=professional</c>): one page of the caller's
+    /// Inbox on that side, newest first; without <c>take</c>, all of it (app versions before Inbox paging). A
     /// Skilled Worker reading theirs is active on the app (<see cref="UserStore.TouchAsync"/>, ranked in search).
     /// </summary>
     [Function("GetInbox")]
@@ -28,13 +29,28 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             return ApiResults.BadRequest("side-required");
         }
 
+        if (Take(request) is not { } take)
+        {
+            return ApiResults.BadRequest(ApiErrors.Invalid("take"));
+        }
+
         if (!asSeeker)
         {
             await users.TouchAsync(uid, cancellationToken);
         }
 
-        return new OkObjectResult(await chats.InboxAsync(uid, asSeeker, cancellationToken));
+        string? before = request.Query["before"];
+        return new OkObjectResult(await chats.InboxAsync(uid, asSeeker, take.Count, string.IsNullOrEmpty(before) ? null : before, cancellationToken));
     }
+
+    /// <summary>A page size from the query: <see cref="Count"/> is null when <c>take</c> was left out (old apps: everything).</summary>
+    private readonly record struct PageSize(int? Count);
+
+    /// <summary>The <c>take</c> query value, or null when it's there but isn't a positive whole number (a bad request).</summary>
+    private static PageSize? Take(HttpRequest request) =>
+        !request.Query.ContainsKey("take") ? new PageSize(null)
+        : int.TryParse(request.Query["take"], out var count) && count >= 1 ? new PageSize(count)
+        : null;
 
     [Function("GetChat")]
     public async Task<IActionResult> Get(
@@ -65,19 +81,13 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             return new UnauthorizedResult();
         }
 
-        int? take = null;
-        if (request.Query.ContainsKey("take"))
+        if (Take(request) is not { } take)
         {
-            if (!int.TryParse(request.Query["take"], out var count) || count < 1)
-            {
-                return ApiResults.BadRequest(ApiErrors.Invalid("take"));
-            }
-
-            take = count;
+            return ApiResults.BadRequest(ApiErrors.Invalid("take"));
         }
 
         string? before = request.Query["before"];
-        return await chats.MessagesAsync(chatId, uid, take, string.IsNullOrEmpty(before) ? null : before, cancellationToken) is { } messages
+        return await chats.MessagesAsync(chatId, uid, take.Count, string.IsNullOrEmpty(before) ? null : before, cancellationToken) is { } messages
             ? new OkObjectResult(messages)
             : new NotFoundResult();
     }

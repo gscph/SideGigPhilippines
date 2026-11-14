@@ -17,8 +17,9 @@ public sealed class ApiChatRepository(ApiClient api, AppVisibility visibility, I
 
     private readonly AppVisibility _visibility = visibility;
 
-    public Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side) => api.ReadAsync<IReadOnlyList<Chat>>(async () =>
-        (await api.GetAsync($"chats?side={side.ToWire()}", ApiJson.Default.ListChatDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+    public Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side, string? beforeChatId = null) => api.ReadAsync<IReadOnlyList<Chat>>(async () =>
+        (await api.GetAsync($"chats?side={side.ToWire()}&take={Paging.Inbox}"
+            + (beforeChatId is null ? string.Empty : $"&before={ApiClient.Escape(beforeChatId)}"), ApiJson.Default.ListChatDto) ?? []).Select(dto => dto.ToModel()).ToList(),
         [], $"the {side} Inbox of {personId}");
 
     public Task<Chat?> GetAsync(string chatId) => api.ReadAsync(async () =>

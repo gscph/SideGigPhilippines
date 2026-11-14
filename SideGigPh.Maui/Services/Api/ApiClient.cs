@@ -120,12 +120,33 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
 
     public static string Escape(string value) => Uri.EscapeDataString(value);
 
-    // The platform's default handler in the app (new HttpClient()); a test handler only when one is given.
+    // The platform's default handler in the app, asking for gzip answers (the API compresses JSON); a test handler only
+    // when one is given.
     private static HttpClient CreateHttp(ApiOptions options)
     {
-        var http = options.Handler is null ? new HttpClient() : new HttpClient(options.Handler, disposeHandler: false);
+        var http = options.Handler is null ? new HttpClient(GzipHandler()) : new HttpClient(options.Handler, disposeHandler: false);
         http.BaseAddress = new Uri(options.ApiUrl);
         http.Timeout = TimeSpan.FromSeconds(60);
         return http;
+    }
+
+    /// <summary>
+    /// The platform's handler (Android's and iOS's native HTTP stacks behind <see cref="HttpClientHandler"/>) sending
+    /// <c>Accept-Encoding: gzip</c> and unzipping answers. A platform that can't is left as it is: the API then
+    /// answers uncompressed.
+    /// </summary>
+    internal static HttpClientHandler GzipHandler()
+    {
+        var handler = new HttpClientHandler();
+        try
+        {
+            handler.AutomaticDecompression = DecompressionMethods.GZip;
+        }
+        catch (PlatformNotSupportedException)
+        {
+            // iOS's NSUrlSession unzips by itself.
+        }
+
+        return handler;
     }
 }

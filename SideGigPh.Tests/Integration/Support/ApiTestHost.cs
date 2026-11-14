@@ -137,7 +137,8 @@ public sealed class ApiTestHost : IAsyncLifetime
             : p.ParameterType == typeof(CancellationToken) ? context.RequestAborted
             : (object?)context.GetRouteValue(p.Name!)?.ToString()).ToArray();
 
-        var result = await (Task<IActionResult>)method.Invoke(function, arguments)!;
+        // Like Program.cs's GzipMiddleware: a JSON answer is gzipped for a caller that accepts it.
+        var result = (IActionResult)GzipMiddleware.Wrap(context.Request, await (Task<IActionResult>)method.Invoke(function, arguments)!)!;
         await result.ExecuteResultAsync(new ActionContext(context, context.GetRouteData(), new ActionDescriptor()));
     }
 

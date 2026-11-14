@@ -61,7 +61,7 @@ All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql
 
 | Table | Key | What | Notes |
 |---|---|---|---|
-| `Users` | `Uid` | The person: name, verified phone, email, `language` (`english`/`taglish`), `role` (`seeker`/`professional`), private `IncomeGoalId`, `ProfilePhotoId` (the account's one profile photo, unique: `UX_Users_ProfilePhoto`), `LastActiveAt` (a worker last read their Inbox, stamped at most hourly; search ranking) | Only that person reads or writes it (`users/me`). The interview answers stay on the phone (`IOnboardingStore`). |
+| `Users` | `Uid` | The person: name, verified phone, email, `language` (`english`/`taglish`), `role` (`seeker`/`professional`), private `IncomeGoalId`, `ProfilePhotoId` (the account's one profile photo, unique: `UX_Users_ProfilePhoto`; the phone is indexed by `IX_Users_PhoneNumber`, `009-schema-users-phone-index.sql`, for the publish check of anti-fraud rule 1), `LastActiveAt` (a worker last read their Inbox, stamped at most hourly; search ranking) | Only that person reads or writes it (`users/me`). The interview answers stay on the phone (`IOnboardingStore`). |
 | `Professionals` | `Id` = uid | The published listing: name, `MobileNumber`, one `CategoryId`, one `AreaId`, `ExperienceId`, `RateTierId`, `ProfilePhotoId`, `PublishedAt` (first went live), `UpdatedAt` | **`UQ_Professionals_MobileNumber`** (anti-fraud rule 1); the number is the token's verified `phone_number`. `IX_Professionals_Category_Area` serves search. The row exists only while published. |
 | `ProfessionalServices` | (`ProfessionalId`, `ServiceId`) | The jobs they do | Cascade delete with the listing |
 | `ProfessionalCities` | (`ProfessionalId`, `CityId`) | Towns they go to, inside the area | Cascade delete |

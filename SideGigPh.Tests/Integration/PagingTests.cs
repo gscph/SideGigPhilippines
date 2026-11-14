@@ -48,6 +48,37 @@ public class PagingTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task Inbox_ComesAPageAtATime_NewestFirst_UntilEveryChatIsShown()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Inday");
+        await worker.Pro.PublishAsync();
+        var customers = Enumerable.Range(0, Paging.Inbox + 2).Select(i => $"inbox-customer-{i}-{Guid.NewGuid():N}").ToList();
+        foreach (var customer in customers)
+        {
+            using var sent = await api.Client(api.Tokens.For(customer)).PostAsJsonAsync(
+                $"chats/{worker.Uid}_{customer}/messages",
+                new SendMessageRequest($"m-{customer}", worker.Uid, customer, Wire.Text, "Hi po", "W", "C", null, null, null, null),
+                ApiJson.Default.SendMessageRequest);
+            sent.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
+
+        await worker.Pro.RefreshActivityAsync();
+
+        worker.Pro.Chats.Should().HaveCount(Paging.Inbox);
+        worker.Pro.Chats[0].SeekerId.Should().Be(customers[^1], "the newest chat is on top");
+        worker.Pro.HasMoreChats.Should().BeTrue();
+
+        await worker.Pro.MoreChatsAsync();
+
+        worker.Pro.Chats.Select(c => c.SeekerId).Should().Equal(Enumerable.Reverse(customers), "nobody lost, repeated or out of order");
+        worker.Pro.HasMoreChats.Should().BeFalse();
+
+        // An app from before Inbox paging still gets every chat.
+        var everything = await api.Client(api.Tokens.For(worker.Uid)).GetFromJsonAsync("chats?side=professional", ApiJson.Default.ListChatDto);
+        everything!.Should().HaveCount(customers.Count);
+    }
+
+    [IntegrationFact]
     public async Task Chat_OpensOnTheNewestMessages_AndScrollingUpLoadsTheOlderOnes()
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Gardo");

@@ -26,12 +26,40 @@ public static class PhotoImage
     // HEIC/HEIF "brands" in the file header (bytes 8-11, after "ftyp").
     private static readonly string[] HeicBrands = ["heic", "heix", "hevc", "hevx", "heim", "heis", "mif1", "msf1"];
 
+    /// <summary>
+    /// The biggest photo accepted, in pixels: a 48 MP phone camera (8064 x 6048) fits with room to spare. Decoding
+    /// needs about 8 bytes a pixel, so this keeps one upload under ~0.5 GB of memory.
+    /// </summary>
+    public const ulong MaxPixels = 64_000_000;
+
+    /// <summary>The longest side accepted (a panorama), checked with <see cref="MaxPixels"/>.</summary>
+    public const uint MaxSideAccepted = 16_384;
+
     static PhotoImage()
     {
-        // Refuse "decompression bombs": a tiny file that claims to be a gigantic image.
-        ResourceLimits.Width = 20_000;
-        ResourceLimits.Height = 20_000;
+        // A backstop for "decompression bombs" (a tiny file that claims to be a gigantic image) in anything that
+        // decodes without IsTooBig first. It's JPEG's largest side, above MaxSideAccepted, so that IsTooBig can still
+        // read an oversized header and answer "too large" instead of the decoder calling the file broken.
+        ResourceLimits.Width = 65_535;
+        ResourceLimits.Height = 65_535;
     }
+
+    /// <summary>
+    /// True when the image says it is bigger than <see cref="MaxPixels"/> or <see cref="MaxSideAccepted"/>, read from
+    /// its header without decoding the pixels. Throws <see cref="MagickException"/> when the header is broken.
+    /// </summary>
+    public static bool IsTooBig(byte[] bytes, PhotoKind kind)
+    {
+        var info = new MagickImageInfo(bytes, new MagickReadSettings { Format = FormatOf(kind) });
+        return info.Width > MaxSideAccepted || info.Height > MaxSideAccepted || (ulong)info.Width * info.Height > MaxPixels;
+    }
+
+    private static MagickFormat FormatOf(PhotoKind kind) => kind switch
+    {
+        PhotoKind.Png => MagickFormat.Png,
+        PhotoKind.Heic => MagickFormat.Heic,
+        _ => MagickFormat.Jpeg,
+    };
 
     /// <summary>What the bytes are, from their first bytes (not the Content-Type, which a client can fake), or null.</summary>
     public static PhotoKind? Detect(byte[] bytes)
@@ -58,15 +86,7 @@ public static class PhotoImage
     /// <summary>The JPEG to store. Throws <see cref="MagickException"/> when the file is broken.</summary>
     public static byte[] ToStoredJpeg(byte[] bytes, PhotoKind kind)
     {
-        using var image = new MagickImage(bytes, new MagickReadSettings
-        {
-            Format = kind switch
-            {
-                PhotoKind.Png => MagickFormat.Png,
-                PhotoKind.Heic => MagickFormat.Heic,
-                _ => MagickFormat.Jpeg,
-            },
-        });
+        using var image = new MagickImage(bytes, new MagickReadSettings { Format = FormatOf(kind) });
 
         // iPhones store "rotate when showing" instead of rotated pixels; bake it in before the tag is stripped.
         image.AutoOrient();

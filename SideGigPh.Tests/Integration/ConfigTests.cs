@@ -69,6 +69,45 @@ public class ConfigTests(ApiTestHost api)
         again.Headers.ETag.Should().Be(etag);
     }
 
+    // JSON answers go out gzipped to a phone that accepts it (much less prepaid data); an empty 304 stays empty,
+    // and a caller that doesn't ask (an old app) gets plain JSON.
+    [IntegrationFact]
+    public async Task CallerAcceptingGzip_GetsTheSameJsonCompressed()
+    {
+        var client = api.Client();
+        using var plain = await client.GetAsync("config");
+        var plainBytes = await plain.Content.ReadAsByteArrayAsync();
+
+        using var request = new HttpRequestMessage(HttpMethod.Get, "config");
+        request.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+        using var zipped = await client.SendAsync(request);
+        var zippedBytes = await zipped.Content.ReadAsByteArrayAsync();
+        await using var unzip = new System.IO.Compression.GZipStream(new MemoryStream(zippedBytes), System.IO.Compression.CompressionMode.Decompress);
+        using var unzipped = new MemoryStream();
+        await unzip.CopyToAsync(unzipped);
+
+        plain.Content.Headers.ContentEncoding.Should().BeEmpty();
+        zipped.Content.Headers.ContentEncoding.Should().Equal("gzip");
+        unzipped.ToArray().Should().Equal(plainBytes);
+        zippedBytes.Length.Should().BeLessThan(plainBytes.Length / 3, "the config is repetitive JSON");
+
+        using var notModified = new HttpRequestMessage(HttpMethod.Get, "config");
+        notModified.Headers.AcceptEncoding.Add(new StringWithQualityHeaderValue("gzip"));
+        notModified.Headers.IfNoneMatch.Add(plain.Headers.ETag!);
+        using var again = await client.SendAsync(notModified);
+        again.StatusCode.Should().Be(HttpStatusCode.NotModified);
+        again.Content.Headers.ContentEncoding.Should().BeEmpty();
+        (await again.Content.ReadAsByteArrayAsync()).Should().BeEmpty();
+    }
+
+    [Fact]
+    public void AppHttpHandler_AsksForGzip()
+    {
+        using var handler = SideGigPh.Maui.Services.Api.ApiClient.GzipHandler();
+
+        handler.AutomaticDecompression.Should().HaveFlag(DecompressionMethods.GZip);
+    }
+
     [IntegrationFact]
     public async Task OtherVersion_GetsTheWholeConfig()
     {

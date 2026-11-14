@@ -45,6 +45,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             user.Property(u => u.IncomeGoalId).HasMaxLength(40);
             user.Property(u => u.ProfilePhotoId).HasMaxLength(64).IsFixedLength();
             user.HasIndex(u => u.ProfilePhotoId).IsUnique().HasDatabaseName(Constraints.UserProfilePhoto).HasFilter("[ProfilePhotoId] IS NOT NULL");
+            // 009-schema-users-phone-index: publishing checks no other account uses the number as a Job Seeker.
+            user.HasIndex(u => u.PhoneNumber).HasDatabaseName("IX_Users_PhoneNumber").IncludeProperties(u => u.Role).HasFilter("[PhoneNumber] IS NOT NULL");
         });
 
         model.Entity<ProfessionalRow>(pro =>

@@ -8,8 +8,11 @@ namespace SideGigPh.Maui.Services;
 /// </summary>
 public interface IChatRepository
 {
-    /// <summary>The person's chats on that side, most recent message first.</summary>
-    Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side);
+    /// <summary>
+    /// One page (<see cref="SideGigPh.Contracts.Paging.Inbox"/>) of the person's chats on that side, most recent message
+    /// first: the newest, or the ones after chat <paramref name="beforeChatId"/> (<see cref="InboxPages"/>).
+    /// </summary>
+    Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side, string? beforeChatId = null);
 
     /// <summary>One chat, or null if it doesn't exist (yet).</summary>
     Task<Chat?> GetAsync(string chatId);

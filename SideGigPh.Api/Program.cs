@@ -11,6 +11,9 @@ builder.ConfigureFunctionsWebApplication();
 
 // Exceptions come back as JSON, not the host's empty 500; with the stack trace unless ShowErrorDetails is "false".
 builder.UseMiddleware<ErrorDetailsMiddleware>();
+
+// JSON answers go out gzipped to callers that accept it (the app does); the Function App doesn't compress by itself.
+builder.UseMiddleware<GzipMiddleware>();
 ApiResults.ShowDetails = !string.Equals(builder.Configuration[ApiResults.ShowDetailsSetting], "false", StringComparison.OrdinalIgnoreCase);
 
 // Settings come from the Function App's "Environment variables" in Azure, or local.settings.json.

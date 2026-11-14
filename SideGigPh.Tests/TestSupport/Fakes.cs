@@ -167,10 +167,14 @@ public sealed class FakeChats : IChatRepository
 
     public (string ChatId, string? LastMessageId)? Watching { get; private set; }
 
-    public Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side)
+    /// <summary>Like the server: one page of <see cref="Inbox"/> (kept in the order given), after <paramref name="beforeChatId"/>.</summary>
+    public Task<IReadOnlyList<Chat>> GetInboxAsync(string personId, ChatSide side, string? beforeChatId = null)
     {
         InboxReads++;
-        return Task.FromResult<IReadOnlyList<Chat>>(Inbox);
+        var start = beforeChatId is null ? 0 : Inbox.FindIndex(c => c.Id == beforeChatId) + 1;
+        return Task.FromResult<IReadOnlyList<Chat>>(start == 0 && beforeChatId is not null
+            ? []
+            : Inbox.Skip(start).Take(SideGigPh.Contracts.Paging.Inbox).ToList());
     }
 
     public Task<Chat?> GetAsync(string chatId) => Task.FromResult(Inbox.FirstOrDefault(c => c.Id == chatId));

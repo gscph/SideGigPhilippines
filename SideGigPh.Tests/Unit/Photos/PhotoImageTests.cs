@@ -34,6 +34,44 @@ public class PhotoImageTests
         PhotoImage.Detect([]).Should().BeNull();
     }
 
+    // A "decompression bomb": a small file whose header claims a gigantic picture. It's refused from the header,
+    // before any pixels are decoded, while a real 48 MP phone photo's size passes.
+    [Fact]
+    public void IsTooBig_ReadsTheSizeFromTheHeader()
+    {
+        PhotoImage.IsTooBig(PngClaiming(30_000, 30_000), PhotoKind.Png).Should().BeTrue();
+        PhotoImage.IsTooBig(PngClaiming(12_000, 8_000), PhotoKind.Png).Should().BeTrue("96 MP is over the pixel limit");
+        PhotoImage.IsTooBig(PngClaiming(20_000, 100), PhotoKind.Png).Should().BeTrue("one side is over the limit");
+        PhotoImage.IsTooBig(PngClaiming(8_064, 6_048), PhotoKind.Png).Should().BeFalse("a 48 MP camera photo fits");
+        PhotoImage.IsTooBig(Image(300, 200, MagickFormat.Jpeg), PhotoKind.Jpeg).Should().BeFalse();
+    }
+
+    /// <summary>A real 1x1 PNG whose header (IHDR) is rewritten to claim <paramref name="width"/> x <paramref name="height"/>.</summary>
+    private static byte[] PngClaiming(uint width, uint height)
+    {
+        var png = Image(1, 1, MagickFormat.Png);
+        // Signature (8) + IHDR length (4) + "IHDR" (4), then width and height (big-endian), then the chunk's CRC.
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(png.AsSpan(16), width);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(png.AsSpan(20), height);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt32BigEndian(png.AsSpan(29), Crc32(png.AsSpan(12, 17)));
+        return png;
+    }
+
+    private static uint Crc32(ReadOnlySpan<byte> bytes)
+    {
+        var crc = 0xFFFFFFFFu;
+        foreach (var b in bytes)
+        {
+            crc ^= b;
+            for (var bit = 0; bit < 8; bit++)
+            {
+                crc = (crc & 1) != 0 ? (crc >> 1) ^ 0xEDB88320u : crc >> 1;
+            }
+        }
+
+        return ~crc;
+    }
+
     [Fact]
     public void ToStoredJpeg_BigPhoto_ShrinksToAtMost1280_KeepingItsShape()
     {

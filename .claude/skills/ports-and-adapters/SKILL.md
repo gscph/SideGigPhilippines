@@ -32,7 +32,7 @@ Device adapters (files, photo picker, dialer) are another kind of adapter. A gen
 5. Add a function with the auth check first.
 6. Add the port method, model, adapter method and mapping. Register a new adapter in `AddSideGigPhApi`.
 7. Add the state and actions to the workspace.
-8. Update `CLAUDE.md` (Key Ports, and the schema notes if a table changed) and `docs/data-model.md`.
+8. Update `docs/architecture.md` (Key Ports), `CLAUDE.md` (its Architecture map line, and the schema notes if a table changed) and `docs/data-model.md`.
 9. Run the new SQL against the database (portal Query editor) **before** deploying the API that needs it.
 
 ## Ids

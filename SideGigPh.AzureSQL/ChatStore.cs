@@ -36,11 +36,40 @@ public sealed class ChatStore(SideGigPhDb db)
 
     public static string IdFor(string professionalId, string seekerId) => $"{professionalId}_{seekerId}";
 
-    /// <summary>The person's chats on one side, most recent message first.</summary>
-    public async Task<IReadOnlyList<ChatDto>> InboxAsync(string uid, bool asSeeker, CancellationToken cancellationToken)
+    /// <summary>The most Inbox chats one page may ask for.</summary>
+    public const int MaxInboxPage = 100;
+
+    /// <summary>
+    /// The person's chats on one side, most recent message first. With <paramref name="take"/>, one page: the
+    /// <paramref name="take"/> (at most <see cref="MaxInboxPage"/>) that come after chat <paramref name="beforeChatId"/>
+    /// in that order, or the newest without it (an unknown chat gives an empty page). Without <paramref name="take"/>,
+    /// every chat (app versions before Inbox paging).
+    /// </summary>
+    public async Task<IReadOnlyList<ChatDto>> InboxAsync(
+        string uid, bool asSeeker, int? take, string? beforeChatId, CancellationToken cancellationToken)
     {
         var chats = db.Chats.AsNoTracking().Where(c => asSeeker ? c.SeekerId == uid : c.ProfessionalId == uid);
-        var rows = await chats.OrderByDescending(c => c.LastMessageAt).ToListAsync(cancellationToken);
+        if (take is null)
+        {
+            return (await chats.OrderByDescending(c => c.LastMessageAt).ThenByDescending(c => c.Id).ToListAsync(cancellationToken))
+                .Select(ToDto).ToList();
+        }
+
+        if (beforeChatId is not null)
+        {
+            var before = await chats.Where(c => c.Id == beforeChatId).Select(c => (DateTimeOffset?)c.LastMessageAt).FirstOrDefaultAsync(cancellationToken);
+            if (before is not { } at)
+            {
+                return [];
+            }
+
+            chats = chats.Where(c => c.LastMessageAt < at || (c.LastMessageAt == at && string.Compare(c.Id, beforeChatId) < 0));
+        }
+
+        var rows = await chats
+            .OrderByDescending(c => c.LastMessageAt).ThenByDescending(c => c.Id)
+            .Take(Math.Clamp(take.Value, 1, MaxInboxPage))
+            .ToListAsync(cancellationToken);
         return rows.Select(ToDto).ToList();
     }
 

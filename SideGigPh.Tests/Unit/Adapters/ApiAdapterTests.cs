@@ -257,7 +257,7 @@ public class ApiAdapterTests
     public async Task Chats_InboxChatAndMessages_AreRead()
     {
         var server = new StubServer();
-        server.Answer("GET chats?side=seeker", HttpStatusCode.OK, Json(new List<ChatDto> { ChatDto() }, ApiJson.Default.ListChatDto));
+        server.Answer("GET chats?side=seeker&take=30", HttpStatusCode.OK, Json(new List<ChatDto> { ChatDto() }, ApiJson.Default.ListChatDto));
         server.Answer("GET chats/pro-1_seeker-1", HttpStatusCode.OK, Json(ChatDto(), ApiJson.Default.ChatDto));
         server.Answer("GET chats/pro-1_seeker-1/messages?take=20", HttpStatusCode.OK,
             Json(new List<MessageDto> { ChatDto().LastMessage, ChatDto().LastMessage with { Id = "m2", Kind = Wire.Call, Text = null } }, ApiJson.Default.ListMessageDto));

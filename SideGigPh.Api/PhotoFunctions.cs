@@ -57,9 +57,15 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             return new BadRequestObjectResult(new { error = "unsupported-format" });
         }
 
-        // iPhone HEIC and PNG become JPEG; the id is the hash of what is stored.
+        // iPhone HEIC and PNG become JPEG; the id is the hash of what is stored. A photo bigger than any phone camera
+        // takes is refused from its header, before its pixels are decoded.
         try
         {
+            if (PhotoImage.IsTooBig(bytes, kind))
+            {
+                return new ObjectResult(new { error = "too-large" }) { StatusCode = StatusCodes.Status413PayloadTooLarge };
+            }
+
             bytes = PhotoImage.ToStoredJpeg(bytes, kind);
         }
         catch (MagickException)

@@ -47,8 +47,14 @@ public sealed class SeekerWorkspace(
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
     public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
 
-    /// <summary>One chat per pro the Seeker contacted, most recent message first.</summary>
+    /// <summary>One chat per pro the Seeker contacted, loaded so far (<see cref="InboxPages"/>), most recent message first.</summary>
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
+
+    /// <summary>The server may have older chats than <see cref="Threads"/>: the Inbox loads them when scrolled to the end.</summary>
+    public bool HasMoreThreads { get; private set; }
+
+    // The oldest chat read from the server: where the next page starts (its thread may be gone with the pro's listing).
+    private string? _oldestChatId;
 
     /// <summary>Chats where the pro wrote last and the Seeker hasn't opened it since: the Inbox badge.</summary>
     public int UnreadCount => UnreadChatIds.Count;
@@ -310,6 +316,8 @@ public sealed class SeekerWorkspace(
         _refreshedAt = DateTimeOffset.MinValue;
         MyId = LocalSeekerId;
         Threads = [];
+        HasMoreThreads = false;
+        _oldestChatId = null;
         MyReviews = [];
     }
 
@@ -322,14 +330,47 @@ public sealed class SeekerWorkspace(
     {
         var inbox = chats.GetInboxAsync(MyId, ChatSide.Seeker);
         var written = reviews.GetBySeekerAsync(MyId);
-        var chatList = await inbox;
-        var pros = await Task.WhenAll(chatList.Select(chat => profiles.GetByIdAsync(chat.ProfessionalId)));
+        var firstPage = await inbox;
+        var page = await ThreadsOfAsync(firstPage);
+        var full = InboxPages.IsFull(firstPage.Count);
+        var merged = InboxPages.WithFirstPage(page, full, Threads, thread => thread.Chat);
+        if (merged.Count == page.Count)
+        {
+            // Nothing older kept: the fresh page is the whole list so far.
+            HasMoreThreads = full;
+            _oldestChatId = firstPage.Count == 0 ? null : firstPage[^1].Id;
+        }
 
-        // A pro who took their listing down drops out of the Inbox.
-        Threads = chatList.Zip(pros, (chat, pro) => pro is null ? null : new InboxThread(pro, chat)).OfType<InboxThread>().ToList();
+        Threads = merged;
         MyReviews = await written;
         _refreshedAt = DateTimeOffset.UtcNow;
         Changed?.Invoke();
+    }
+
+    /// <summary>The next page of older chats under <see cref="Threads"/> (the Inbox scrolled to its end).</summary>
+    public async Task MoreThreadsAsync()
+    {
+        if (!HasMoreThreads || _oldestChatId is null)
+        {
+            return;
+        }
+
+        var older = await chats.GetInboxAsync(MyId, ChatSide.Seeker, _oldestChatId);
+        Threads = InboxPages.WithOlder(Threads, await ThreadsOfAsync(older), thread => thread.Chat);
+        HasMoreThreads = InboxPages.IsFull(older.Count);
+        if (older.Count > 0)
+        {
+            _oldestChatId = older[^1].Id;
+        }
+
+        Changed?.Invoke();
+    }
+
+    /// <summary>Each chat with its pro's listing (from the cache when it has them). A pro who took their listing down drops out.</summary>
+    private async Task<IReadOnlyList<InboxThread>> ThreadsOfAsync(IReadOnlyList<Chat> chatList)
+    {
+        var pros = await Task.WhenAll(chatList.Select(chat => profiles.GetByIdAsync(chat.ProfessionalId)));
+        return chatList.Zip(pros, (chat, pro) => pro is null ? null : new InboxThread(pro, chat)).OfType<InboxThread>().ToList();
     }
 
     private async Task<bool> LoadAsync()

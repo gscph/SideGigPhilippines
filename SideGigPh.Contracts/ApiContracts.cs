@@ -332,6 +332,9 @@ public static class Paging
 
     /// <summary>Search results per page: 4 at first, 4 more each time the Seeker scrolls to the end.</summary>
     public const int Search = 4;
+
+    /// <summary>Inbox chats per page: the newest 30, and 30 older each time the person scrolls to the end.</summary>
+    public const int Inbox = 30;
 }
 
 /// <summary>One worker in ranked search results, with why they ranked where they did.</summary>

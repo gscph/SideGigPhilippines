@@ -54,8 +54,11 @@ public sealed class ProWorkspace(
             .OfType<WorkPhoto>()
             .ToList();
 
-    /// <summary>Chats with customers, most recent message first.</summary>
+    /// <summary>Chats with customers loaded so far (<see cref="InboxPages"/>), most recent message first.</summary>
     public IReadOnlyList<Chat> Chats { get; private set; } = [];
+
+    /// <summary>The server may have older chats than <see cref="Chats"/>: the Inbox loads them when scrolled to the end.</summary>
+    public bool HasMoreChats { get; private set; }
 
     public IReadOnlyList<Review> Reviews { get; private set; } = [];
 
@@ -97,9 +100,28 @@ public sealed class ProWorkspace(
     {
         var inbox = chats.GetInboxAsync(MyId, ChatSide.Professional);
         var about = reviews.GetForProfessionalAsync(MyId);
-        Chats = await inbox;
+        var firstPage = await inbox;
+        var full = InboxPages.IsFull(firstPage.Count);
+        var merged = InboxPages.WithFirstPage(firstPage, full, Chats, chat => chat);
+        // Older pages kept below the fresh one keep their own "more" state.
+        HasMoreChats = full && (merged.Count == firstPage.Count || HasMoreChats);
+        Chats = merged;
         Reviews = await about;
         _refreshedAt = DateTimeOffset.UtcNow;
+        Changed?.Invoke();
+    }
+
+    /// <summary>The next page of older chats under <see cref="Chats"/> (the Inbox scrolled to its end).</summary>
+    public async Task MoreChatsAsync()
+    {
+        if (!HasMoreChats || Chats.Count == 0)
+        {
+            return;
+        }
+
+        var page = await chats.GetInboxAsync(MyId, ChatSide.Professional, Chats[^1].Id);
+        Chats = InboxPages.WithOlder(Chats, page, chat => chat);
+        HasMoreChats = InboxPages.IsFull(page.Count);
         Changed?.Invoke();
     }
 
@@ -354,6 +376,7 @@ public sealed class ProWorkspace(
         MyId = ListingMapper.OwnListingId;
         _photoUrls.Clear();
         Chats = [];
+        HasMoreChats = false;
         Reviews = [];
     }
 
