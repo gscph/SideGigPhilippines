@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
@@ -62,14 +63,20 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
             "S6 Joined 1 Year Ago", "S6 Joined 3 Months Ago", "S6 Joined 3 Days Ago");
 
     [IntegrationFact]
-    public async Task S7_InBudgetFirst_ThenOneTierOver_ThenQuote_ThenFarOver()
+    public async Task S7_InBudgetFirst_ALittleOverBeforeQuote_FarOverLast_OldTiersStillRead()
     {
+        // Roof leak repair: ₱1,000 lowest, ₱2,000 average, ₱3,500 above average. Old tiers: ₱750 and ₱5,000.
         (await InTown("roofing", "roofing-leak")).Should().Equal(
-            "S7 500 to 1000", "S7 Under 500", "S7 1000 to 2000", "S7 Depends on the Job", "S7 2000 to 5000", "S7 5000 and Up");
-        (await InTown("roofing", "roofing-leak", budget: "under-500")).Should().Equal(
-            "S7 Under 500", "S7 500 to 1000", "S7 Depends on the Job", "S7 1000 to 2000", "S7 2000 to 5000", "S7 5000 and Up");
+            "S7 Average Price", "S7 Lowest Price", "S7 Old App, Cheap Tier",   // ₱1,000–₱2,000 (Tipid): all fit (A–Z)
+            "S7 Depends on the Job", "S7 Above Average", "S7 Old App, Top Tier");
+        (await InTown("roofing", "roofing-leak", budget: "2000-3500")).Should().Equal(
+            "S7 Above Average", "S7 Average Price", "S7 Lowest Price", "S7 Old App, Cheap Tier",
+            "S7 Old App, Top Tier", "S7 Depends on the Job");                    // ₱5,000 is 43% over: still beats no price
+        (await InTown("roofing", "roofing-leak", budget: "1000-1500")).Should().Equal(
+            "S7 Lowest Price", "S7 Old App, Cheap Tier", "S7 Average Price",
+            "S7 Depends on the Job", "S7 Above Average", "S7 Old App, Top Tier"); // the last two are far over: no points (A–Z)
         (await InTown("roofing", "roofing-leak", budget: "unsure")).Should().Equal(
-            "S7 1000 to 2000", "S7 2000 to 5000", "S7 500 to 1000", "S7 5000 and Up", "S7 Depends on the Job", "S7 Under 500");
+            "S7 Above Average", "S7 Average Price", "S7 Depends on the Job", "S7 Lowest Price", "S7 Old App, Cheap Tier", "S7 Old App, Top Tier");
     }
 
     [IntegrationFact]
@@ -82,19 +89,19 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     {
         var all = await Search("aircon", "aircon-cleaning");
         Names(all, inTown: true).Should().Equal(
-            "S9 Mang Jun Aircon",          // ≈91: great at everything
-            "S9 Kuya Ben Cool",            // ≈80: cheap, good reviews, replies most chats
-            "S9 Mahal Aircon (₱5,000+)",   // ≈75: far over budget (0 of 20) but 20 great reviews, fast, 10+ years
-            "S9 Tulog Aircon (inactive)",  // ≈69: 30 good reviews and 10+ years outweigh 45 days away and 10 ignored chats
-            "S9 Quote Aircon",             // ≈66
-            "S9 Bagong Aircon Tech",       // ≈63: new, fits budget, neutral priors
-            "S9 RJ Aircon (2 reviews)");   // ≈62: one tier over budget, little experience
+            "S9 Mang Jun Aircon",            // ≈96: great at everything
+            "S9 Mahal Aircon (top price)",   // ≈85: ₱1,500 is 50% over the ₱1,000 top (10 of 20) but 20 great reviews, fast, 10+ years
+            "S9 Kuya Ben Cool",              // ≈81: lowest price, good reviews, replies most chats
+            "S9 Tulog Aircon (inactive)",    // ≈69: 30 good reviews and 10+ years outweigh 45 days away and 10 ignored chats
+            "S9 Quote Aircon",               // ≈66
+            "S9 Bagong Aircon Tech",         // ≈63: new, fits budget, neutral priors
+            "S9 RJ Aircon (2 reviews)");     // ≈62: above-average price, little experience
         Names(all, inTown: false).Should().Equal("S9 Antipolo Aircon Pro", "S9 Angono Aircon");
 
         var firstPage = await Search("aircon", "aircon-cleaning", take: Paging.Search);
         firstPage.Hits.Should().HaveCount(4);
         (firstPage.InTownCount, firstPage.OtherTownsCount).Should().Be((7, 2));
-        (await InTown("aircon", "aircon-install")).Should().Equal("S9 Install Lang", "S9 Mahal Aircon (₱5,000+)");
+        (await InTown("aircon", "aircon-install")).Should().Equal("S9 Install Lang", "S9 Mahal Aircon (top price)");
     }
 
     [Theory]
@@ -118,14 +125,28 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
         (intent.CategoryId, intent.ServiceId).Should().Be((category, service));
     }
 
-    private Task<List<string>> InTown(string category, string? service, string? budget = "500-1000") =>
+    /// <summary>The budget a Seeker gets first for a job (the plan's default): "Tipid", its lowest to average price, e.g. <c>755-1000</c>.</summary>
+    private const string Tipid = "tipid";
+
+    private Task<List<string>> InTown(string category, string? service, string? budget = Tipid) =>
         Search(category, service, budget: budget).ContinueWith(t => Names(t.Result, inTown: true));
 
-    private async Task<SearchPageDto> Search(string category, string? service, string city = "taytay", string? budget = "500-1000", int take = ProfessionalStore.MaxSearchPage)
+    private async Task<SearchPageDto> Search(string category, string? service, string city = "taytay", string? budget = Tipid, int take = ProfessionalStore.MaxSearchPage)
     {
         using var scope = seeded.Services.CreateScope();
+        if (budget == Tipid)
+        {
+            budget = service is null ? null : await TipidOf(scope.ServiceProvider.GetRequiredService<SideGigPhDb>(), service);
+        }
+
         return await scope.ServiceProvider.GetRequiredService<ProfessionalStore>()
             .SearchPageAsync(category, "rizal", new RankRequest(service, city, budget), 0, take, new HashSet<string>(), CancellationToken.None);
+    }
+
+    private static async Task<string> TipidOf(SideGigPhDb db, string serviceId)
+    {
+        var job = await db.Services.AsNoTracking().SingleAsync(s => s.Id == serviceId);
+        return BudgetRange.Format(job.PriceMin!.Value, job.PriceAverage!.Value);
     }
 
     private static List<string> Names(SearchPageDto page, bool inTown) =>

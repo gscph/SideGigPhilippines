@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
 using Azure.Storage.Blobs.Models;
+using Microsoft.EntityFrameworkCore;
 using SideGigPh.Api;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
@@ -155,9 +156,12 @@ public class ServerRefusalTests(ApiTestHost api)
     // --- Publishing at the same moment ------------------------------------------
 
     [IntegrationFact]
-    public async Task ManyAccountsPublishingTheSameNumberAtOnce_OnlyOneWins()
+    public async Task ManyAccountsPublishingTheSameNumberAtOnce_EndWithOneListing()
     {
-        // Anti-fraud rule 1 under a race: the database's unique number is the last line of defence.
+        // Anti-fraud rule 1 under a race. The account holding the verified number takes it over from a stale one, so a
+        // racer may take down a listing another racer just published (both then answered Published), or lose to the
+        // unique index (PhoneTaken). Whatever the order, nothing crashes and one listing has the number at the end.
+        // (Real accounts can't race like this: the sign-in provider gives a number to one account at a time.)
         var number = TestPhone.UniqueNumber();
         var attempts = Enumerable.Range(0, 6).Select(async i =>
         {
@@ -168,8 +172,11 @@ public class ServerRefusalTests(ApiTestHost api)
 
         var outcomes = await Task.WhenAll(attempts);
 
-        outcomes.Count(o => o == PublishOutcome.Published).Should().Be(1);
-        outcomes.Count(o => o == PublishOutcome.PhoneTaken).Should().Be(5);
+        outcomes.Should().OnlyContain(o => o == PublishOutcome.Published || o == PublishOutcome.PhoneTaken);
+        outcomes.Should().Contain(PublishOutcome.Published);
+        using var check = api.Server.Services.CreateScope();
+        var db = check.ServiceProvider.GetRequiredService<SideGigPhDb>();
+        (await db.Professionals.CountAsync(p => p.MobileNumber == number)).Should().Be(1, "one number, one listing");
     }
 
     [IntegrationFact]

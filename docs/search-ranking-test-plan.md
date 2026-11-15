@@ -10,7 +10,8 @@ deploy that isn't current, or a real bug. It isn't a typo in this page.
 ## Setup (once)
 
 1. In the Azure portal → SQL database → **Query editor**, run these if they haven't been run yet:
-   `005-schema-ranking-signals.sql`, then `006-seed-search-ranking.sql` (the whole file each time).
+   the schema scripts through `008-schema-service-prices.sql` and `004-config.sql` (the jobs' price guides), then
+   `006-seed-search-ranking.sql` (the whole file each time). The seed stops with a message if the price guides are missing.
    The seed prints `Search ranking seed added: 45 workers, … reviews, … chats.`
 2. Deploy the API with the new ranking (Actions → deploy-api).
 3. Wait **one minute** (or restart the Function App). The API keeps a trade's workers 30 s and the app keeps a
@@ -21,7 +22,8 @@ deploy that isn't current, or a real bug. It isn't a typo in this page.
 job. Tapping a trade icon instead searches the **whole trade** (no job filter). For scenarios S3–S8 that gives the
 same order, because every sample worker in those trades lists the same single job.
 **Town and budget** are the two chips under the search box. Unless a test says otherwise, use
-**Town: Taytay** and **Budget: ₱500–1,000**.
+**Town: Taytay** and the **first budget choice** ("Tipid": the job's lowest to average price, e.g. ₱755–₱1,000 for
+aircon cleaning, ₱1,000–₱2,000 for a roof leak).
 
 | Scenario | Type this | Trade → job |
 |---|---|---|
@@ -37,7 +39,8 @@ same order, because every sample worker in those trades lists the same single jo
 
 Every sample worker's name starts with its scenario ("S4 …"), so you can always tell which test a card belongs
 to. In each scenario the workers are identical except for the one thing being tested (the ordinary worker: Taytay,
-₱500–1,000, 1–3 years, no reviews, no chats, joined 90 days ago, active yesterday).
+rate **Average price** (the job's average from its price guide), 1–3 years, no reviews, no chats, joined 90 days ago,
+active yesterday).
 
 ## Scenarios with the sample workers
 
@@ -76,35 +79,41 @@ Expect: **S5 Active Today** → **1 Week Ago** → **1 Month Ago** → **3 Month
 Expect: **S6 Joined 1 Year Ago** → **3 Months Ago** → **3 Days Ago**. All three were active today. Tenure is a small part (6 of 100 points), so it only decides ties like this one.
 
 ### S7 Budget (Roofing)
+Roof leak repair costs ₱1,000 (lowest), ₱2,000 (average) or ₱3,500 (above average). Four workers use the rates the
+app offers now; the two "Old App" workers still carry a price tier from app versions before price guides
+(₱500–1,000 reads as ₱750, ₱5,000 and up as ₱5,000).
+
 | Budget chip | Expect |
 |---|---|
-| ₱500–1,000 | **S7 500 to 1000**, **S7 Under 500** (both have the green "Fits your budget" chip) → **S7 1000 to 2000** → **S7 Depends on the Job** → **S7 2000 to 5000**, **S7 5000 and Up** |
-| Under ₱500 | **S7 Under 500** (badge) → **S7 500 to 1000** → **S7 Depends on the Job** → **S7 1000 to 2000**, **S7 2000 to 5000**, **S7 5000 and Up** |
+| ₱1,000–₱2,000 (first choice) | **S7 Average Price**, **S7 Lowest Price**, **S7 Old App, Cheap Tier** (all fit: green "Fits your budget" chip, A–Z) → **S7 Depends on the Job** → **S7 Above Average** → **S7 Old App, Top Tier** |
+| ₱2,000–₱3,500 (second choice) | **S7 Above Average**, **S7 Average Price**, **S7 Lowest Price**, **S7 Old App, Cheap Tier** (all fit) → **S7 Old App, Top Tier** → **S7 Depends on the Job** |
+| Typed ₱1,000–₱1,500 (the "custom" tile) | **S7 Lowest Price**, **S7 Old App, Cheap Tier** → **S7 Average Price** → **S7 Depends on the Job** → **S7 Above Average**, **S7 Old App, Top Tier** |
 | Not sure | All six A–Z: price doesn't change the order, and no "Fits your budget" chips |
 
-Proves: in budget first. One price tier over budget is still ahead of "Depends on the job", and two or more tiers over earns no budget points.
+Proves: in budget first. A price a little over the top of the budget keeps some points and stays ahead of "Depends
+on the job"; double the budget or more earns none. Listings from old app versions are priced and ranked too.
 
 ### S8 Experience (Solar)
 Expect: **S8 10+ Years** (purple award icon) → **3 to 10** → **1 to 3** → **Under 1 Year**.
 
 ### S9 Everything together, with paging (Aircon)
-`linis aircon`, Taytay, ₱500–1,000. "Goes to Taytay (7)", then "Other towns nearby (2)":
+`linis aircon`, Taytay, ₱755–₱1,000 (first choice). "Goes to Taytay (7)", then "Other towns nearby (2)":
 
 | # | Worker | Why it's here |
 |---|---|---|
 | 1 | S9 Mang Jun Aircon | Strong on everything |
-| 2 | S9 Kuya Ben Cool | Cheap, good reviews, answers most chats (also goes to Antipolo) |
-| 3 | S9 Mahal Aircon (₱5,000+) | Far over budget, but 20 great reviews, fast replies, 10+ years |
+| 2 | S9 Mahal Aircon (top price) | Above-average price (₱1,500, half over budget), but 20 great reviews, fast replies, 10+ years |
+| 3 | S9 Kuya Ben Cool | Lowest price, good reviews, answers most chats (also goes to Antipolo) |
 | 4 | S9 Tulog Aircon (inactive) | 30 good reviews and 10+ years outweigh 45 days away and 10 of 12 chats ignored |
 | 5 | S9 Quote Aircon | "Depends on the job" |
 | 6 | S9 Bagong Aircon Tech | New: fits budget, neutral starting points |
-| 7 | S9 RJ Aircon (2 reviews) | One tier over budget, little experience |
+| 7 | S9 RJ Aircon (2 reviews) | Above-average price, little experience |
 | nearby | S9 Antipolo Aircon Pro, S9 Angono Aircon | Other towns |
 
 - **Paging:** the first screen loads 4. Scroll to the end and the next 4 load, then the last one. Nobody shows twice
   and the group titles count all 7 + 2 from the start.
 - `pakabit aircon` (installation): **S9 Install Lang**, then **S9 Mahal Aircon**. *Install Lang* never shows for cleaning.
-- **Look at rows 3 and 4.** This is where the weights are judged. Reviews and experience currently outweigh price
+- **Look at rows 2 and 4.** This is where the weights are judged. Reviews and experience currently outweigh price
   and responsiveness. If an expensive or unresponsive worker this high feels wrong, the weights need tuning
   (see the end of this page).
 
@@ -116,7 +125,7 @@ the S3 order.
 ## Scenarios with real accounts (two phones)
 
 Use a second account as a **Skilled Worker** (Phone B) next to your Seeker (Phone A). Publish B as a **Welder**
-offering **Gate**, in **Taytay**, ₱500–1,000, 1–3 years, so it lines up against S4.
+offering **Gate**, in **Taytay**, rate **Average price**, 1–3 years, so it lines up against S4.
 
 | # | Do | Expect | Proves |
 |---|---|---|---|
@@ -126,7 +135,7 @@ offering **Gate**, in **Taytay**, ₱500–1,000, 1–3 years, so it lines up ag
 | L4 | On A, tap **Call** on B's profile (no text) and don't reply on B | No change, even after a day | Call-only chats don't count |
 | L5 | 24 h after A's first message, rate B 5★ from A | B rises a little (one review moves the stars only slightly; see S3) | Reviews feed ranking |
 | L6 | Leave B unopened for a week | B slowly drops below the "active yesterday" workers. Opening B's Inbox brings it back within a minute | Activity counts (stamped when the worker opens their Inbox) |
-| L7 | On B, change the rate to ₱2,000–5,000 and republish | B loses the "Fits your budget" chip and sinks | Budget fit |
+| L7 | On B, change the rate to **Above average** and republish | B loses the "Fits your budget" chip and sinks | Budget fit |
 | L8 | On B, remove Gate from its jobs (keep Repair) and republish | B disappears from `pagawa gate` and shows for `pa-weld sira` | Job filter on real listings |
 
 ## Things that look like bugs but aren't
@@ -139,12 +148,12 @@ offering **Gate**, in **Taytay**, ₱500–1,000, 1–3 years, so it lines up ag
 ## Cleanup
 
 Set `@RemoveOnly = 1` at the top of `006-seed-search-ranking.sql` and run it. That removes every `seed-s2-` row,
-including chats real Seekers started with sample workers. Real users and listings aren't touched.
+including chats real Seekers started with sample workers and blocks or reports made about them. Real users and listings aren't touched.
 
 ## Tuning notes (what S9 shows)
 
-With today's weights, a worker with many good reviews and 10+ years stays near the top even when they're far over
-budget (*Mahal*: 0 of 20 budget points) or have stopped answering (*Tulog*: 4.5 of 20 responsiveness points,
+With today's weights, a worker with many good reviews and 10+ years stays near the top even when they charge
+above average (*Mahal*: 10 of 20 budget points, 2nd) or have stopped answering (*Tulog*: 4.5 of 20 responsiveness points,
 0.2 of 14 activity points). Things to decide after testing:
 
 - Raise budget fit or responsiveness, or lower review weight.

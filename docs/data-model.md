@@ -83,7 +83,7 @@ All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql
 
 **Sample data** (`002-seed.sql`): 31 Skilled Workers across all trades and areas, 8 Seekers and their reviews. Every id starts `seed-` and the numbers use the unassigned `+63 900` prefix. There are no chats and no photos. It's safe to re-run, and its `DELETE` block removes the samples before go-live.
 
-**Search ranking test data** (`006-seed-search-ranking.sql`): 45 sample workers tagged `seed-s2-`, with reviews, chats (answered, ignored, call-only, fresh) and activity/tenure dates relative to now, one trade per ranking signal. How to use it: [search-ranking-test-plan.md](search-ranking-test-plan.md). Set `@RemoveOnly = 1` to remove it.
+**Search ranking test data** (`006-seed-search-ranking.sql`): 45 sample workers tagged `seed-s2-`, with reviews, chats (answered, ignored, call-only, fresh) and activity/tenure dates relative to now, one trade per ranking signal; rates are price levels of each job's guide (two S7 workers keep an old price tier), so it needs `008-schema-service-prices.sql` and `004-config.sql` first. How to use it: [search-ranking-test-plan.md](search-ranking-test-plan.md). Set `@RemoveOnly = 1` to remove it.
 
 ## 5. Photos (Azure Blob Storage, through `SideGigPh.Api`)
 
