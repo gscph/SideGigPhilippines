@@ -13,7 +13,7 @@ namespace SideGigPh.Api;
 /// their own (<c>professionals/me</c>, id = their uid).
 /// </summary>
 public sealed class ProfessionalFunctions(
-    FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, ILogger<ProfessionalFunctions> logger)
+    FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, CallerLimits limits, ILogger<ProfessionalFunctions> logger)
 {
     /// <summary>
     /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;skip=0&amp;take=4</c>:
@@ -116,6 +116,11 @@ public sealed class ProfessionalFunctions(
             return ApiResults.Forbidden(ApiErrors.PhoneRequired);
         }
 
+        if (!limits.TryTake(Limited.Listing, caller.Uid))
+        {
+            return ApiResults.TooMany();
+        }
+
         if (await ApiResults.ReadAsync<PublishListingRequest>(request, cancellationToken) is not { } listing)
         {
             return ApiResults.BadRequest(ApiErrors.BadBody, "The body was empty (null).");
@@ -124,7 +129,8 @@ public sealed class ProfessionalFunctions(
         if (ProfessionalStore.InvalidField(listing, caller.PhoneNumber) is { } field)
         {
             var sent = JsonSerializer.Serialize(listing, ApiJson.Default.PublishListingRequest);
-            logger.LogWarning("Publish by {Uid}: invalid {Field} in {Listing}.", caller.Uid, field, sent);
+            // Only the field: the listing holds the references' names and numbers, which never go into the logs.
+            logger.LogWarning("Publish by {Uid}: invalid {Field}.", caller.Uid, field);
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
                 $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
                 + $"at least {ProfessionalStore.MinWorkPhotos} workPhotoIds and {ProfessionalStore.MinReferences}-{ProfessionalStore.MaxReferences} "
@@ -149,6 +155,11 @@ public sealed class ProfessionalFunctions(
         if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
         {
             return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.Listing, uid))
+        {
+            return ApiResults.TooMany();
         }
 
         await professionals.RemoveAsync(uid, cancellationToken);

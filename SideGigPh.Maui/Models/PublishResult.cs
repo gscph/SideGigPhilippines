@@ -25,4 +25,10 @@ public enum PublishResult
     /// account linked its phone. Caught before sending, or answered by the server as <c>invalid-references</c>.
     /// </summary>
     BadReference,
+
+    /// <summary>Anti-fraud rule 2: one of the photos belongs to another account (the server's <c>photo-in-use</c>).</summary>
+    PhotoInUse,
+
+    /// <summary>Too many publishes in a short time (the server's <c>too-many-requests</c>).</summary>
+    TooManyTries,
 }

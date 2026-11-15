@@ -31,6 +31,12 @@ public enum Limited
 
     /// <summary>A vote added or taken back on the feedback board.</summary>
     FeedbackVote,
+
+    /// <summary>A listing published, changed or taken down (each one clears the shared search cache).</summary>
+    Listing,
+
+    /// <summary>The caller's own profile saved.</summary>
+    Profile,
 }
 
 /// <summary>
@@ -53,6 +59,8 @@ public sealed class CallerLimits : IDisposable
         [Limited.Report] = (10, TimeSpan.FromHours(1)),
         [Limited.Feedback] = (10, TimeSpan.FromHours(1)),
         [Limited.FeedbackVote] = (120, TimeSpan.FromHours(1)),
+        [Limited.Listing] = (20, TimeSpan.FromHours(1)),
+        [Limited.Profile] = (60, TimeSpan.FromHours(1)),
     };
 
     private readonly PartitionedRateLimiter<(Limited Kind, string Uid)> _limiter =

@@ -24,7 +24,7 @@ public class ApiWiringTests(ApiTestHost api)
             "GET chats", "GET chats/{chatId}", "GET chats/{chatId}/messages", "POST chats/{chatId}/messages",
             "POST chats/{chatId}/read", "DELETE chats/mine",
             "POST photos", "DELETE photos/{id}",
-            "GET config", "POST other-jobs", "POST error-reports", "GET warmup",
+            "GET config", "POST other-jobs", "POST error-reports", "GET error-reports", "GET warmup",
             "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}",
             "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",
             "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report");
@@ -33,7 +33,8 @@ public class ApiWiringTests(ApiTestHost api)
     /// Public: the reference data (the trades and jobs, read before the account is ready) and the legal pages (the app
     /// stores need them open to anyone). Nothing else is public.
     /// </summary>
-    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}"];
+    // GET error-reports is public only while building, on the owner's request: remove or key it before launch.
+    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}", "GET error-reports"];
 
     [IntegrationFact]
     public async Task EveryRoute_WithoutAToken_Is401()
@@ -139,6 +140,26 @@ public class ApiWiringTests(ApiTestHost api)
         (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.BadBody);
     }
 
+    // A signed-in caller must not make the server buffer and parse a huge body (with or without a Content-Length).
+    [IntegrationFact]
+    public async Task HugeJsonBody_IsBadBody()
+    {
+        var client = api.Client(api.Tokens.For("uid"));
+        var huge = "{\"displayName\":\"" + new string('a', 300 * 1024) + "\"}";
+
+        using var sized = await client.PutAsync("users/me", new StringContent(huge, Encoding.UTF8, "application/json"));
+        using var chunked = await client.PutAsync("users/me", new StreamContent(new UnknownLengthStream(Encoding.UTF8.GetBytes(huge)))
+        {
+            Headers = { ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json") },
+        });
+
+        foreach (var response in new[] { sized, chunked })
+        {
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.BadBody);
+        }
+    }
+
     [IntegrationFact]
     public async Task MissingQueryValues_AreClearErrors()
     {
@@ -153,5 +174,11 @@ public class ApiWiringTests(ApiTestHost api)
         reviews.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         inbox.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         read.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    /// <summary>A body whose length HttpClient can't know, so it goes without a Content-Length.</summary>
+    private sealed class UnknownLengthStream(byte[] bytes) : MemoryStream(bytes)
+    {
+        public override bool CanSeek => false;
     }
 }

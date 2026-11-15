@@ -92,6 +92,16 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
             {
                 return PublishResult.PhoneUsedBySeeker;
             }
+
+            if (error == ApiErrors.PhotoInUse)
+            {
+                return PublishResult.PhotoInUse;
+            }
+        }
+
+        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+        {
+            return PublishResult.TooManyTries;
         }
 
         if (response.StatusCode == HttpStatusCode.BadRequest

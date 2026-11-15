@@ -26,7 +26,7 @@ public partial class PublishPage : ComponentBase
     private bool _loaded;
     private bool _pledged;
     private bool _busy;
-    private LocalizedText? _phoneProblem;
+    private LocalizedText? _problem;
     private bool _badReference;
     private bool _failed;
 
@@ -94,10 +94,12 @@ public partial class PublishPage : ComponentBase
                 return;
             }
 
-            _phoneProblem = result switch
+            _problem = result switch
             {
                 PublishResult.PhoneTaken => Copy.PublishPhoneTaken,
                 PublishResult.PhoneUsedBySeeker => Copy.PublishPhoneUsedBySeeker,
+                PublishResult.PhotoInUse => Copy.PublishPhotoInUse,
+                PublishResult.TooManyTries => Copy.PublishTooManyTries,
                 _ => null,
             };
             _badReference = result == PublishResult.BadReference;
@@ -105,14 +107,17 @@ public partial class PublishPage : ComponentBase
         catch (Exception ex)
         {
             Logger.LogError(ex, "Publishing the listing failed.");
-            _failed = true;
+
+            // The server answered and refused (its code is in the log above, so in the error report): not the internet.
+            _problem = ex is HttpRequestException { StatusCode: not null } ? Copy.PublishRefused : null;
+            _failed = _problem is null;
         }
         finally
         {
             _busy = false;
         }
 
-        if (_phoneProblem is null && !_badReference && !_failed)
+        if (_problem is null && !_badReference && !_failed)
         {
             Analytics.Track(AppEvents.ListingPublished);
             Nav.NavigateTo(ProRoutes.Home, replace: true);

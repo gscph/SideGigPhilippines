@@ -64,7 +64,8 @@ changing that area.**
   answering with contracts or an outcome enum. Errors are `{ "error", "detail" }` (`ApiErrors` codes); `detail`
   carries the stack trace while `ApiResults.ShowDetails` is on (Function App setting `ShowErrorDetails` = `false`
   turns it off: do that before launch). Repeatable writes are limited per account (`CallerLimits` → `429
-  too-many-requests`); JSON answers are gzipped for callers that accept it (`GzipMiddleware`). Multi-row writes use
+  too-many-requests`; publish/remove a listing and profile saves too, since each listing change clears the shared
+  search cache); every JSON body is capped at `ApiResults.MaxJsonBytes` (256 KB, `400 bad-body`); JSON answers are gzipped for callers that accept it (`GzipMiddleware`). Multi-row writes use
   `db.InTransactionAsync`; a caller's own data sits under `…/me` / `…/mine`. Settings: `PhotoStorage`,
   `SqlDatabase`, `FirebaseProjectId`, optional `FirebaseServiceAccount`, `ShowErrorDetails`. **Cold starts:** the
   app's `ServerWarmup` calls signed-in `GET warmup` (`WarmupStore`: `SELECT 1`, at most once a minute per instance)

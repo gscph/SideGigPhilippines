@@ -29,11 +29,42 @@ internal static class ApiResults
         new BadRequestObjectResult(new ApiError(error, ShowDetails ? detail : null));
 
     /// <summary>
-    /// The JSON body, or null when it's empty (<c>null</c>). A body that doesn't parse throws
+    /// The largest JSON body any function reads (a listing, a message, a batch of error reports are a few KB). Without
+    /// it a signed-in caller could make the server buffer and parse tens of MB per request.
+    /// </summary>
+    public const int MaxJsonBytes = 256 * 1024;
+
+    /// <summary>
+    /// The JSON body, or null when it's empty (<c>null</c>). A body that doesn't parse, or is over
+    /// <see cref="MaxJsonBytes"/> (by its <c>Content-Length</c>, or as read when it has none), throws
     /// <see cref="BadBodyException"/>, which <see cref="ErrorDetailsMiddleware"/> answers as <c>400 bad-body</c>.
     /// </summary>
     public static async Task<T?> ReadAsync<T>(HttpRequest request, CancellationToken cancellationToken) where T : class
     {
+        if (request.ContentLength > MaxJsonBytes)
+        {
+            throw new BadBodyException($"The body is {request.ContentLength} bytes, over {MaxJsonBytes}.", null);
+        }
+
+        if (request.ContentLength is null)
+        {
+            // No length given (chunked): read at most one byte past the limit, then parse what was read.
+            var buffered = new MemoryStream();
+            var chunk = new byte[16 * 1024];
+            int read;
+            while ((read = await request.Body.ReadAsync(chunk, cancellationToken)) > 0)
+            {
+                buffered.Write(chunk, 0, read);
+                if (buffered.Length > MaxJsonBytes)
+                {
+                    throw new BadBodyException($"The body is over {MaxJsonBytes} bytes.", null);
+                }
+            }
+
+            buffered.Position = 0;
+            request.Body = buffered;
+        }
+
         try
         {
             return await request.ReadFromJsonAsync<T>(cancellationToken);
@@ -47,4 +78,4 @@ internal static class ApiResults
 }
 
 /// <summary>The request body is missing or isn't the expected JSON.</summary>
-internal sealed class BadBodyException(string message, Exception inner) : Exception(message, inner);
+internal sealed class BadBodyException(string message, Exception? inner) : Exception(message, inner);

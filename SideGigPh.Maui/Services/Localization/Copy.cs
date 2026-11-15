@@ -334,7 +334,14 @@ public static class Copy
         "One of your references has your own number. Change it to someone you worked for.",
         "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");
     public static readonly LocalizedText PublishFixReferences = new("Fix references", "Ayusin ang reference");
-    public static readonly LocalizedText PublishFailed =new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText PublishFailed = new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText PublishRefused = new(
+        "Your listing didn't publish. It's on our side: we got a report and will fix it. Please try again later.",
+        "Hindi na-publish ang listing mo. Problema ito sa amin: na-report na at aayusin namin. Subukan ulit mamaya.");
+    public static readonly LocalizedText PublishPhotoInUse = new(
+        "One of your photos is already used by another account. Change your photos and try again.",
+        "Gamit na ng ibang account ang isa sa mga photo mo. Palitan ang photos mo at subukan ulit.");
+    public static readonly LocalizedText PublishTooManyTries = new("Too many tries. Wait a few minutes, then try again.", "Sobrang daming try. Maghintay ng ilang minuto bago ulitin.");
 
     // --- Report and block (Components/Safety) --------------------------------
     public static readonly LocalizedText ReportButton = new("Report or block", "I-report o i-block");

@@ -41,6 +41,23 @@ public class AbuseTests(ApiTestHost api)
         someoneElse.StatusCode.Should().Be(HttpStatusCode.NoContent, "the limit is per account");
     }
 
+    // Each listing change clears the shared search cache, so a loop would push every search onto the database.
+    [IntegrationFact]
+    public async Task ListingChanges_PastTheLimit_AreRefusedWith429()
+    {
+        var client = api.Client(api.Tokens.For(NewUid("churner")));
+
+        for (var i = 0; i < CallerLimits.Rules[Limited.Listing].Permits; i++)
+        {
+            using var ok = await client.DeleteAsync("professionals/me");
+            ok.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+
+        using var refused = await client.DeleteAsync("professionals/me");
+
+        refused.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+    }
+
     [IntegrationFact]
     public async Task ChatMessages_PastTheLimit_AreRefusedWith429()
     {

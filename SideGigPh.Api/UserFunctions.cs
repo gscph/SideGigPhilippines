@@ -9,7 +9,7 @@ namespace SideGigPh.Api;
 
 /// <summary>The signed-in person's own profile: <c>users/me</c>. Nobody else can read it.</summary>
 public sealed class UserFunctions(
-    FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices, BlobContainerClient photos, IAccountDeleter accounts)
+    FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices, BlobContainerClient photos, IAccountDeleter accounts, CallerLimits limits)
 {
     [Function("GetMe")]
     public async Task<IActionResult> Get(
@@ -36,6 +36,11 @@ public sealed class UserFunctions(
         if (await auth.GetCallerAsync(request, cancellationToken) is not { } caller)
         {
             return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.Profile, caller.Uid))
+        {
+            return ApiResults.TooMany();
         }
 
         if (await ApiResults.ReadAsync<UserDto>(request, cancellationToken) is not { } profile)
