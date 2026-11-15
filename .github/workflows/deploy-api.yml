@@ -2,26 +2,29 @@ name: Deploy API (Azure Functions)
 
 # Brings the live Azure SQL database up to date, then builds SideGigPh.Api and deploys it to the Function App
 # SideGigPhApi. Runs on its own when a push to main changes the server's code or its SQL scripts (the API, its stores
-# and Sql/, the migration tool, the shared contracts, the legal pages it serves, or this file), and by hand
-# (Actions → Run workflow, where "Also run 004-config.sql" can be ticked).
+# and Sql/, the migration tool, the shared contracts, the legal pages it serves, or this file), and by hand.
 #
-#   tests → db-check (which scripts the database hasn't had: a dry run, no approval)
-#         → db-migrate (only when something is pending; WAITS FOR APPROVAL in the "live-database" environment,
-#           then runs those scripts in number order, and 004-config only when ticked on a manual run)
-#         → deploy
+#   tests → db-check (which scripts the live database hasn't had: a dry run, changes nothing)
+#         → nothing pending: deploy
+#         → scripts pending on a push: "sql-approval" stops the run (red) and names them; the API does NOT deploy
+#         → you approve by running it by hand (Actions → Deploy API → Run workflow) with "Apply the pending SQL
+#           scripts" ticked: db-migrate runs them in number order, then deploy
+#   004-config.sql (trades, jobs, answer lists) runs only when "Also run 004-config.sql" is ticked on a manual run.
 #
-# So an API never goes live before the tables it needs, and nothing touches the live database without a person
-# approving it. Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy": no password
-# or publish profile anywhere. Needs (azure/README.md → "Database migrations from GitHub"):
+# So an API never goes live before the tables it needs, and nothing changes the live database unless you start it.
+# Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy" (trusted for runs from main):
+# no password or publish profile anywhere. Needs (azure/README.md → "Database migrations from GitHub"):
 #   repo secrets   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (azure/cloudshell-github-deploy.sh)
 #   repo variables SQL_SERVER, SQL_DATABASE, SQL_RESOURCE_GROUP (optional: default sidegigph / SideGigPh / sidegigph)
 #   the identity as a database user (db_ddladmin, db_datareader, db_datawriter) and SQL Server Contributor on the server
-#   a GitHub environment "live-database" with you as required reviewer, and the identity trusting it (a second
-#   federated credential, subject …:environment:live-database). The identity also trusts runs from main.
 
 on:
   workflow_dispatch:
     inputs:
+      apply_sql:
+        description: 'Apply the pending SQL scripts to the live database (your approval)'
+        type: boolean
+        default: false
       run_config:
         description: 'Also run 004-config.sql (the trades, jobs and answer lists) on the live database'
         type: boolean
@@ -59,6 +62,8 @@ env:
   SQL_RESOURCE_GROUP: ${{ vars.SQL_RESOURCE_GROUP || 'sidegigph' }}
   FIREWALL_RULE: github-deploy-${{ github.run_id }}-${{ github.run_attempt }}
   RUN_CONFIG: ${{ github.event_name == 'workflow_dispatch' && inputs.run_config }}
+  # Your approval: a manual run with "Apply the pending SQL scripts" (or "Also run 004-config.sql") ticked.
+  SQL_APPROVED: ${{ github.event_name == 'workflow_dispatch' && (inputs.apply_sql || inputs.run_config) }}
 
 jobs:
   # Nothing is deployed unless every test passes (tests.yml: unit + integration on a real SQL Server).
@@ -134,13 +139,22 @@ jobs:
         if: always()
         run: az sql server firewall-rule delete -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-check" --output none || true
 
-  # Runs what db-check listed, after a reviewer approves it in the "live-database" environment.
+  # Scripts are pending but nobody approved them: stop here, red, and say what to do. The API doesn't deploy.
+  sql-approval:
+    needs: db-check
+    if: needs.db-check.outputs.pending == 'true' && !(github.event_name == 'workflow_dispatch' && (inputs.apply_sql || inputs.run_config))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Waiting for your approval
+        run: |
+          echo "::error::The live database needs: ${{ needs.db-check.outputs.scripts }}. The API was NOT deployed. To approve: Actions → Deploy API (Azure Functions) → Run workflow (main) → tick 'Apply the pending SQL scripts'."
+          exit 1
+
+  # Runs what db-check listed, because you started this run by hand with the approval ticked.
   db-migrate:
     needs: db-check
-    if: needs.db-check.outputs.pending == 'true'
+    if: needs.db-check.outputs.pending == 'true' && github.event_name == 'workflow_dispatch' && (inputs.apply_sql || inputs.run_config)
     runs-on: ubuntu-latest
-    environment:
-      name: live-database
     steps:
       - uses: actions/checkout@v4
 
@@ -183,8 +197,8 @@ jobs:
 
   deploy:
     needs: [db-check, db-migrate]
-    # After the database is up to date: db-migrate succeeded, or there was nothing to run (skipped).
-    if: always() && needs.db-check.result == 'success' && (needs.db-migrate.result == 'success' || needs.db-migrate.result == 'skipped')
+    # Only once the database is up to date: nothing was pending, or db-migrate ran it (an approved manual run).
+    if: always() && needs.db-check.result == 'success' && (needs.db-check.outputs.pending == 'false' || needs.db-migrate.result == 'success')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

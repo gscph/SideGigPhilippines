@@ -79,20 +79,6 @@ else
 fi
 echo "Trusted: $SUBJECT"
 
-# The deploy's db-migrate job runs in the GitHub environment "live-database" (it waits for your approval there),
-# and a job in an environment signs in with that environment in its subject instead of the branch.
-ENV_SUBJECT="${GITHUB_SUBJECT%%:ref:*}:environment:live-database"
-if az identity federated-credential show -g "$APP_GROUP" --identity-name "$DEPLOY_IDENTITY" -n github-live-database -o none 2>/dev/null; then
-  az identity federated-credential update -g "$APP_GROUP" --identity-name "$DEPLOY_IDENTITY" -n github-live-database \
-    --issuer "https://token.actions.githubusercontent.com" --subject "$ENV_SUBJECT" \
-    --audiences "api://AzureADTokenExchange" -o none || fail "couldn't update the live-database trust."
-else
-  az identity federated-credential create -g "$APP_GROUP" --identity-name "$DEPLOY_IDENTITY" -n github-live-database \
-    --issuer "https://token.actions.githubusercontent.com" --subject "$ENV_SUBJECT" \
-    --audiences "api://AzureADTokenExchange" -o none || fail "couldn't add the live-database trust."
-fi
-echo "Trusted: $ENV_SUBJECT"
-
 step "Allow it to deploy to $FUNCTION_APP only"
 for attempt in 1 2 3 4 5 6; do
   if az role assignment create --assignee-object-id "$DEPLOY_PRINCIPAL" --assignee-principal-type ServicePrincipal \

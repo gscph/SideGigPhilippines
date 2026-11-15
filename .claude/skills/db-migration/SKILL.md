@@ -48,10 +48,10 @@ testers write rows to it. So:
    time to prove the guards.
 6. Update `docs/data-model.md` (the table's columns) and `CLAUDE.md` if the change matters to the architecture.
 7. **Deploy order:** add the script's name to `SchemaScripts.Required` (`SchemaCheckTests` fails otherwise). The
-   push to `main` runs `deploy-api.yml`: `db-check` lists the pending scripts, `db-migrate` runs them **after the
-   owner approves** in the GitHub environment `live-database` (tool `SideGigPh.Migrate`), and only then the API
-   deploys. Tell the user in your report that a push with a new script waits for their approval (Actions → the run
-   → Review deployments). `004-config.sql` runs only on a manual run with *Also run 004-config.sql* ticked.
+   push to `main` runs `deploy-api.yml`: `db-check` lists the pending scripts and the run stops (red, API not
+   deployed) until the owner approves with a manual run: Actions → Deploy API → Run workflow → tick *Apply the
+   pending SQL scripts*; `db-migrate` (tool `SideGigPh.Migrate`) runs them, then the API deploys. Tell the user in
+   your report that a push with a new script needs that manual run. `004-config.sql` runs only on a manual run with *Also run 004-config.sql* ticked.
 
 ## Data scripts are different
 
