@@ -7,11 +7,8 @@ public enum PublishOutcome
 {
     Published,
 
-    /// <summary>Anti-fraud rule 1: another listing has this number.</summary>
+    /// <summary>Anti-fraud rule 1: another listing took this number at the same moment (a race; see <see cref="ProfessionalStore.PublishAsync"/>).</summary>
     PhoneTaken,
-
-    /// <summary>Anti-fraud rule 1: another account uses this number as a Job Seeker, so it can't list a Skilled Worker too.</summary>
-    PhoneUsedBySeeker,
 
     /// <summary>Anti-fraud rule 2: another listing has one of these photos.</summary>
     PhotoInUse,
@@ -145,8 +142,8 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     /// <summary>
     /// Makes <paramref name="uid"/>'s listing live, or replaces it. The number is the account's verified number
-    /// (from the sign-in token), so one phone gets one listing and can't also be another account's Job Seeker number
-    /// (anti-fraud rule 1); a photo can be on one listing only (rule 2).
+    /// (from the sign-in token), so one phone gets one listing and one account (anti-fraud rule 1; a stale account
+    /// still showing the number loses it); a photo can be on one listing only (rule 2).
     /// </summary>
     public async Task<PublishOutcome> PublishAsync(string uid, string mobileNumber, PublishListingRequest request, CancellationToken cancellationToken)
     {
@@ -160,17 +157,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         var workPhotos = request.WorkPhotoIds.Distinct().Take(MaxWorkPhotos).ToList();
         var references = request.References!;
 
-        if (await db.Professionals.AnyAsync(p => p.MobileNumber == mobileNumber && p.Id != uid, cancellationToken))
-        {
-            return PublishOutcome.PhoneTaken;
-        }
-
-        // Users.PhoneNumber is always the token's verified number (UserFunctions.Save), so a profile can't fake it.
-        if (await db.Users.AnyAsync(u => u.PhoneNumber == mobileNumber && u.Uid != uid && u.Role == Wire.Seeker, cancellationToken))
-        {
-            return PublishOutcome.PhoneUsedBySeeker;
-        }
-
         if (await db.UsedByAnotherAsync(uid, [request.ProfilePhotoId!, .. workPhotos], cancellationToken))
         {
             return PublishOutcome.PhotoInUse;
@@ -180,6 +166,15 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         {
             var outcome = await db.InTransactionAsync(async ct =>
             {
+                // Anti-fraud rule 1, one number = one account, decided by who holds the number NOW: it is the token's
+                // SMS-verified number, and the sign-in provider gives a number to one account at a time. So another
+                // account still showing it is stale (an old account of the same person, an account deleted without
+                // its rows, a recycled SIM): its listing would ring this person, and refusing left them stuck. That
+                // listing comes down and that profile loses the number; the number stays on one account.
+                await db.Professionals.Where(p => p.MobileNumber == mobileNumber && p.Id != uid).ExecuteDeleteAsync(ct);
+                await db.Users.Where(u => u.PhoneNumber == mobileNumber && u.Uid != uid)
+                    .ExecuteUpdateAsync(s => s.SetProperty(u => u.PhoneNumber, (string?)null), ct);
+
                 var now = DateTimeOffset.UtcNow;
                 var row = await db.Professionals.FirstOrDefaultAsync(p => p.Id == uid, ct);
                 if (row is null)

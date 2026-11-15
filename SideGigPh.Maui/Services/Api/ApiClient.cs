@@ -34,7 +34,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        return await _http.SendAsync(request, cancellationToken);
+        return await SendOrThrowAsync(request, cancellationToken);
     }
 
     /// <summary>The JSON answer to a GET, or null for 404. Throws for any other failure.</summary>
@@ -64,7 +64,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
             request.Headers.IfNoneMatch.Add(tag);
         }
 
-        using var response = await _http.SendAsync(request, cancellationToken);
+        using var response = await SendOrThrowAsync(request, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotModified)
         {
             return (null, response.Headers.ETag?.ToString() ?? knownVersion);
@@ -72,6 +72,23 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
 
         await ThrowIfFailedAsync(response, $"read {path}");
         return (await response.Content.ReadFromJsonAsync(type, cancellationToken), response.Headers.ETag?.ToString());
+    }
+
+    /// <summary>
+    /// Sends the request. A connection that drops or times out is an <see cref="HttpRequestException"/> with no status
+    /// code on every platform: Android's handler throws <see cref="WebException"/> / <see cref="IOException"/>
+    /// ("Socket closed", "Canceled") instead, which reads didn't catch, so a flaky 4G signal broke whole screens.
+    /// </summary>
+    private async Task<HttpResponseMessage> SendOrThrowAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _http.SendAsync(request, cancellationToken);
+        }
+        catch (Exception ex) when (ex is WebException or IOException && !cancellationToken.IsCancellationRequested)
+        {
+            throw new HttpRequestException($"API: couldn't reach {request.Method} {request.RequestUri?.OriginalString.Split('?')[0]}: {ex.Message}", ex);
+        }
     }
 
     /// <summary>

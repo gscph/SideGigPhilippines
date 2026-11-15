@@ -141,7 +141,6 @@ public sealed class ProfessionalFunctions(
         {
             PublishOutcome.Published => new OkObjectResult(await professionals.GetAsync(caller.Uid, cancellationToken)),
             PublishOutcome.PhoneTaken => ApiResults.Conflict(ApiErrors.PhoneTaken),
-            PublishOutcome.PhoneUsedBySeeker => ApiResults.Conflict(ApiErrors.PhoneUsedBySeeker),
             PublishOutcome.PhotoInUse => ApiResults.Conflict(ApiErrors.PhotoInUse),
             _ => ApiResults.BadRequest(),
         };

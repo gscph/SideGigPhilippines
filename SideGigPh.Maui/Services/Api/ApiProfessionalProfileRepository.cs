@@ -88,11 +88,6 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
                 return PublishResult.PhoneTaken;
             }
 
-            if (error == ApiErrors.PhoneUsedBySeeker)
-            {
-                return PublishResult.PhoneUsedBySeeker;
-            }
-
             if (error == ApiErrors.PhotoInUse)
             {
                 return PublishResult.PhotoInUse;

@@ -27,6 +27,46 @@ public class PublishListingTests
     }
 
     [Fact]
+    public async Task Publish_AnswerLostButListingLive_CountsAsPublished()
+    {
+        // The phone's 4G dropped while the server was answering: the listing is live anyway.
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        app.Profiles.PublishThrows = new HttpRequestException("Socket closed");
+        app.Profiles.LandsAnyway = true;
+
+        var result = await app.Pro.PublishAsync();
+
+        result.Should().Be(PublishResult.Published);
+        app.Pro.IsPublished.Should().BeTrue();
+        app.Profiles.Forgotten.Should().Contain(TestData.WorkerUid, "the check must ask the server, not a kept copy");
+    }
+
+    [Fact]
+    public async Task Publish_AnswerLostAndNotLive_StillFails()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        app.Profiles.PublishThrows = new HttpRequestException("Socket closed");
+
+        var publish = () => app.Pro.PublishAsync();
+
+        await publish.Should().ThrowAsync<HttpRequestException>();
+        app.Pro.IsPublished.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Publish_ServerError_FailsWithoutCheckingAgain()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        app.Profiles.PublishThrows = new HttpRequestException("500", null, System.Net.HttpStatusCode.InternalServerError);
+        app.Profiles.LandsAnyway = true;
+
+        var publish = () => app.Pro.PublishAsync();
+
+        await publish.Should().ThrowAsync<HttpRequestException>("the server answered: it refused, nothing was lost");
+        app.Pro.IsPublished.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task Publish_SendsAccountNameNumberPhotosAndReferences()
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
@@ -113,7 +153,6 @@ public class PublishListingTests
 
     [Theory]
     [InlineData(PublishResult.PhoneTaken)]
-    [InlineData(PublishResult.PhoneUsedBySeeker)]
     [InlineData(PublishResult.BadReference)]
     public async Task Publish_ServerRefuses_PassesReasonOnAndStaysUnpublished(PublishResult serverAnswer)
     {

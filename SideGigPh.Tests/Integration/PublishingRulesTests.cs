@@ -38,20 +38,27 @@ public class PublishingRulesTests(ApiTestHost api)
         var second = await TestPhone.WorkerReadyToPublishAsync(api, "Oscar");
         second.Identity.User = new AuthUser { Uid = second.Uid, DisplayName = "Oscar", PhoneNumber = first.PhoneNumber };
 
-        (await second.Pro.PublishAsync()).Should().Be(PublishResult.PhoneTaken);
+        // The sign-in provider gives a number to one account at a time, so the first account no longer holds it:
+        // its listing (which would ring Oscar) comes down and Oscar's goes up. Still one listing per number.
+        (await second.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+        (await second.Get<IProfessionalProfileRepository>().GetByIdAsync(first.Uid)).Should().BeNull();
+        (await second.Get<IProfessionalProfileRepository>().GetByIdAsync(second.Uid))!.MobileNumber.Should().Be(first.PhoneNumber);
     }
 
     [IntegrationFact]
-    public async Task NumberOfAnotherAccountsSeekerProfile_IsPhoneUsedBySeeker()
+    public async Task NumberOnAStaleSeekerAccount_MovesToTheAccountHoldingItNow()
     {
-        // Anti-fraud rule 1 across sides: a Job Seeker's verified number can't also list a Skilled Worker.
+        // Seen live: a person's old customer account kept their number and the new worker account was refused with
+        // no way out. The account whose token carries the verified number now holds it; the old one loses it.
         var seeker = new TestPhone(api, "Sally", state: TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()));
         await seeker.Account.SaveProfileAsync();
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Sam");
         worker.Identity.User = new AuthUser { Uid = worker.Uid, DisplayName = "Sam", PhoneNumber = seeker.PhoneNumber };
 
-        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.PhoneUsedBySeeker);
-        worker.Pro.IsPublished.Should().BeFalse();
+        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+        worker.Pro.IsPublished.Should().BeTrue();
+        using var old = await api.Client(api.Tokens.For(seeker.Uid)).GetAsync("users/me");
+        (await old.Content.ReadFromJsonAsync(ApiJson.Default.UserDto))!.PhoneNumber.Should().BeNull("one number, one account");
     }
 
     [IntegrationFact]

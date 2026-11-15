@@ -348,7 +348,7 @@ public sealed class ProWorkspace(
             return PublishResult.BadReference;
         }
 
-        var result = await profiles.PublishAsync(Listing, Draft.References);
+        var result = await PublishOrCheckAsync();
         if (result == PublishResult.Published)
         {
             Draft.PublishedAt ??= DateTimeOffset.Now;
@@ -356,6 +356,26 @@ public sealed class ProWorkspace(
         }
 
         return result;
+    }
+
+    // A first publish whose answer was lost on the way back (a 4G drop, a timeout) may have gone live anyway: ask once
+    // before saying it failed, so the worker isn't told to try again for a listing customers can already see.
+    private async Task<PublishResult> PublishOrCheckAsync()
+    {
+        try
+        {
+            return await profiles.PublishAsync(Listing, Draft.References);
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode is null && !IsPublished)
+        {
+            profiles.Forget(Listing.Id);
+            if (await profiles.GetByIdAsync(Listing.Id) is null)
+            {
+                throw;
+            }
+
+            return PublishResult.Published;
+        }
     }
 
     /// <summary>

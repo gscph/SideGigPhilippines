@@ -35,7 +35,7 @@ public static class ApiErrors
     /// <summary>409 on publish: anti-fraud rule 1, the number already has a listing.</summary>
     public const string PhoneTaken = "phone-taken";
 
-    /// <summary>409 on publish: anti-fraud rule 1, another account uses the number as a Job Seeker.</summary>
+    /// <summary>Retired: no longer sent (the account holding the verified number now wins). Kept so the name is never reused.</summary>
     public const string PhoneUsedBySeeker = "phone-used-by-seeker";
 
     /// <summary>409 on upload or publish: anti-fraud rule 2, another account has that photo.</summary>

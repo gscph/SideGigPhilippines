@@ -142,7 +142,7 @@ changing that area.**
 ### Anti-Fraud Rules
 
 These are hard business rules — never bypass them:
-1. **1 Phone = 1 GCash = 1 Registration** — unique constraint, no duplicates. A listing's number must also not be another account's Job Seeker number (`ProfessionalStore.PublishAsync` → `409 phone-used-by-seeker`, `PublishResult.PhoneUsedBySeeker`); `Users.PhoneNumber` is always the token's verified number (`UserFunctions.Save` ignores the body's), so a profile can't claim someone else's
+1. **1 Phone = 1 GCash = 1 Registration** — unique constraint, no duplicates. The account whose token carries the SMS-verified number holds it: the sign-in provider gives a number to one account at a time, so on publish another account still showing it is stale and loses it (its listing comes down, its profile's number is cleared; `ProfessionalStore.PublishAsync`), never a refusal that leaves the person stuck (`409 phone-used-by-seeker` is retired); `Users.PhoneNumber` is always the token's verified number (`UserFunctions.Save` ignores the body's), so a profile can't claim someone else's
 2. **Duplicate image detection** — SHA-256 or perceptual hash on portfolio uploads, reject duplicates. The upload refuses another account's bytes (`409 photo-in-use`); each table's unique index covers only itself, so `PhotoUse.UsedByAnotherAsync` also checks across `Users`, `Professionals` and `ProfessionalWorkPhotos` (publish → `PhotoInUse`; a profile save leaves the photo off)
 
 ## Target Solution Structure

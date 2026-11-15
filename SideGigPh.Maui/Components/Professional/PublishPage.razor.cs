@@ -97,7 +97,6 @@ public partial class PublishPage : ComponentBase
             _problem = result switch
             {
                 PublishResult.PhoneTaken => Copy.PublishPhoneTaken,
-                PublishResult.PhoneUsedBySeeker => Copy.PublishPhoneUsedBySeeker,
                 PublishResult.PhotoInUse => Copy.PublishPhotoInUse,
                 PublishResult.TooManyTries => Copy.PublishTooManyTries,
                 _ => null,

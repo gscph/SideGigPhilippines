@@ -60,9 +60,25 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
     public Task<ProfessionalListing?> GetByIdAsync(string professionalId) =>
         Task.FromResult(ById.GetValueOrDefault(professionalId));
 
+    /// <summary>Thrown by the next publishes (e.g. a lost connection), after <see cref="LandsAnyway"/> is applied.</summary>
+    public Exception? PublishThrows { get; set; }
+
+    /// <summary>With <see cref="PublishThrows"/>: the server stored the listing, only its answer was lost.</summary>
+    public bool LandsAnyway { get; set; }
+
     public Task<PublishResult> PublishAsync(ProfessionalListing listing, IReadOnlyList<WorkReference> references)
     {
         Published.Add((listing, references.ToList()));
+        if (PublishThrows is not null)
+        {
+            if (LandsAnyway)
+            {
+                ById[listing.Id] = listing;
+            }
+
+            throw PublishThrows;
+        }
+
         return Task.FromResult(NextResult);
     }
 

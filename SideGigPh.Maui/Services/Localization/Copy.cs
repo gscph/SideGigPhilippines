@@ -327,9 +327,6 @@ public static class Copy
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
-    public static readonly LocalizedText PublishPhoneUsedBySeeker = new(
-        "This number is already used by a customer account. One number, one account.",
-        "Gamit na ang number na ito ng isang customer account. Isang number, isang account lang.");
     public static readonly LocalizedText PublishBadReference = new(
         "One of your references has your own number. Change it to someone you worked for.",
         "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");
