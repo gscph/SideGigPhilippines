@@ -72,12 +72,22 @@ public partial class BusyOverlay : ComponentBase, IDisposable
         {
             // Done waiting: Hide() already took the overlay down.
         }
+        finally
+        {
+            // Only this method disposes its source: Hide() disposing it while this was still waiting for the lines made
+            // the next cts.Token throw ObjectDisposedException, which crashed the app (seen during the worker setup).
+            if (ReferenceEquals(_cts, cts))
+            {
+                _cts = null; // ended some other way: the next busy spell starts afresh, and Hide() never cancels a disposed source
+            }
+
+            cts.Dispose();
+        }
     }
 
     private void Hide()
     {
         _cts?.Cancel();
-        _cts?.Dispose();
         _cts = null;
         if (_visible)
         {
@@ -90,6 +100,5 @@ public partial class BusyOverlay : ComponentBase, IDisposable
     {
         Busy.Changed -= OnBusyChanged;
         _cts?.Cancel();
-        _cts?.Dispose();
     }
 }
