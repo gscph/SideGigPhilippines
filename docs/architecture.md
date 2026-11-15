@@ -23,7 +23,9 @@ says "Tarbaho" in `Copy.cs`.
   (`Honorifics.For`: Manong for roofing, carpentry, welder, masonry; Ate for errands; Kuya for everyday repairs and any
   new trade). Copy takes the word as `{0}`; English lines that want the plural ("Find Kuyas nearby", the empty search
   "No Kuyas…") pass `englishPlural: true` to `AppText.FormatHonorific`. Ate and Manang always stay in the rotation.
-- Spell "maghanap" as one word. The logo is still the hard-hat worker; a crew illustration logo, a small nav mark,
+- Spell "maghanap" as one word. The logo is a crew of three workers in hard hats with a hammer and a wrench behind them (a team that fixes homes, not one
+  person), one single-color path in a 24-unit box (`AppTheme.Logo`), also used by the launcher icon, both splashes and
+  the Android notification icon (`ic_notification.xml`). A small nav mark,
   the wordmark font and the final palette are still to come.
 
 ## Photos
