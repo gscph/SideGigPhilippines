@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -13,6 +14,7 @@ public partial class LaunchRouter : ComponentBase
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private AppConfigService Config { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
+    [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -24,6 +26,8 @@ public partial class LaunchRouter : ComponentBase
         // The config first (once per launch, while the splash shows): the saved answers are checked against it as they load (OnboardingCleanup).
         await Config.LoadAsync();
         var state = await Store.LoadAsync();
+        // Usage analytics and A/B variants (both off unless the build turned them on); neither holds up the launch.
+        Analytics.Start(state);
         if (state.Language is not { } language)
         {
             // The sign-in screen needs their language, so this comes first.

@@ -12,6 +12,15 @@
    the + button are placed from it. */
 :root {
     --app-bottom-nav-height: 5.625rem;
+    /* Card and tile borders: a step darker than the divider lines, like Airbnb's boxes against its lighter
+       rules. Falls back to the divider color on WebViews without color-mix. */
+    --app-box-border: var(--mud-palette-lines-default);
+}
+
+@supports (color: color-mix(in srgb, red, blue)) {
+    :root {
+        --app-box-border: color-mix(in srgb, var(--mud-palette-lines-default), var(--mud-palette-lines-inputs) 25%);
+    }
 }
 
 /* FocusOnNavigate focuses each page's h1; don't draw a ring around the title. */
@@ -170,7 +179,7 @@ h1:focus {
     text-align: start;
     justify-content: flex-start !important;
     padding: 16px 20px !important;
-    border: 1px solid var(--mud-palette-lines-default) !important;
+    border: 1px solid var(--app-box-border) !important;
     border-radius: 12px !important;
     background-color: var(--mud-palette-surface);
     transition: box-shadow 120ms, background-color 120ms, transform 80ms;
@@ -212,11 +221,27 @@ h1:focus {
     border-radius: 12px !important;
 }
 
-/* InterviewStep picture: a big emoji in a soft circle above the question. */
+/* InterviewStep picture: an image in a soft circle above the question. */
 .app-illustration {
-    width: 6rem !important;
-    height: 6rem !important;
-    font-size: 3rem !important;
+    width: 5.4rem !important;
+    height: 5.4rem !important;
+}
+
+.app-illustration-image {
+    width: 3.2rem;
+    height: 3.2rem;
+}
+
+/* InterviewStep question: a tenth smaller than a page title (h4). */
+.app-question {
+    font-size: calc(var(--mud-typography-h4-size) * 0.9) !important;
+}
+
+/* EmptyState picture: an icon in a soft brand-tinted circle (Airbnb's pink bell, in the brand color). */
+.app-empty-icon {
+    width: 4.5rem;
+    height: 4.5rem;
+    background-color: rgba(var(--mud-palette-primary-rgb), 0.08);
 }
 
 /* Big profile photo (MudAvatar's largest size is too small). */
@@ -270,6 +295,97 @@ h1:focus {
     border-color: var(--mud-palette-text-primary);
 }
 
+/* The home search box (Airbnb's "Start your search"): a tall white pill floating on a soft shadow, with a
+   hairline instead of a gray outline. Pair with app-pill-input. */
+.app-search-pill .mud-input.mud-input-outlined {
+    border-radius: 999px;
+    background-color: var(--mud-palette-surface);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.10), 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+
+.app-search-pill .mud-input-outlined-border {
+    border-color: var(--mud-palette-lines-default);
+}
+
+.app-search-pill .mud-input > input.mud-input-root {
+    padding-top: 16px;
+    padding-bottom: 16px;
+    font-weight: 500;
+}
+
+.app-search-pill .mud-input-adornment-start {
+    margin-left: 6px;
+}
+
+/* An outlined filter pill with a soft gray border that turns ink on press (Airbnb's "Free parking" chips). */
+.app-chip-outline.mud-chip-outlined {
+    border-color: var(--mud-palette-lines-inputs) !important;
+    background-color: var(--mud-palette-surface);
+    height: 36px;
+    padding: 0 14px;
+}
+
+    .app-chip-outline.mud-chip-outlined:active {
+        border-color: var(--mud-palette-text-primary) !important;
+    }
+
+/* A list card: 16px corners, a hairline border, no shadow (Airbnb's booking cards). */
+.app-card {
+    border-radius: 16px !important;
+    border-color: var(--app-box-border) !important;
+}
+
+/* MudSwitch, Airbnb style: a 52x32 pill track (gray off, brand color on) with a white thumb inside it,
+   instead of Material's thin track and colored thumb. */
+.mud-switch-span.mud-switch-span-medium {
+    position: relative;
+    width: 52px;
+    height: 32px;
+    padding: 0;
+    margin: 4px 0;
+    flex-shrink: 0;
+}
+
+.mud-switch-span-medium .mud-switch-track {
+    position: absolute;
+    inset: 0;
+    width: 52px;
+    height: 32px;
+    border-radius: 16px;
+    opacity: 1 !important;
+    transition: background-color 150ms;
+}
+
+.mud-switch-span-medium .mud-switch-base:not(.mud-checked) + .mud-switch-track {
+    background-color: var(--mud-palette-lines-inputs) !important;
+}
+
+.mud-switch-span-medium .mud-switch-base {
+    top: 2px;
+    left: 2px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    transform: none;
+    z-index: 1;
+}
+
+.mud-switch-span-medium .mud-switch-base.mud-checked {
+    transform: translateX(20px);
+}
+
+.mud-switch-span-medium .mud-switch-base,
+.mud-switch-span-medium .mud-switch-base:hover {
+    background-color: transparent !important;
+}
+
+.mud-switch-span-medium .mud-switch-thumb-medium {
+    width: 28px;
+    height: 28px;
+    background-color: var(--mud-palette-surface) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
 /* ==========================================================================
    App shell (Components/Layout/AppShell)
    ========================================================================== */
@@ -296,6 +412,16 @@ h1:focus {
     padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* Tab labels: small and regular, the active one a touch bolder (Airbnb's Explore / Wishlists row). */
+.app-nav-label {
+    font-size: 0.6875rem !important;
+    margin-top: 2px;
+}
+
+.app-nav-label-active {
+    font-weight: 600 !important;
+}
+
 /* The tab row inside it, tabs centered in the bar's height. */
 .app-bottom-nav-row {
     min-height: var(--app-bottom-nav-height);
@@ -320,6 +446,7 @@ h1:focus {
     right: 16px;
     bottom: calc(var(--app-bottom-nav-height) + 1.25rem + env(safe-area-inset-bottom, 0px));
     z-index: var(--mud-zindex-appbar);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
 }
 
 /* ==========================================================================

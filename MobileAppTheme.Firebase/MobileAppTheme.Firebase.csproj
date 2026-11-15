@@ -31,6 +31,24 @@
         <PackageReference Include="Plugin.Firebase.CloudMessaging" Version="3.1.2" PrivateAssets="none" />
     </ItemGroup>
 
+    <!-- Optional parts, each behind a build flag (../Directory.Build.props, off by default). Off: the package isn't
+         referenced and AddFirebaseAnalytics / AddFirebaseExperiments leave the skeleton's do-nothing adapter in place,
+         so the app builds and runs with nothing set up in the Firebase console. -->
+    <PropertyGroup Condition="'$(FirebaseAnalytics)' == 'true'">
+        <DefineConstants>$(DefineConstants);FIREBASE_ANALYTICS</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(FirebaseExperiments)' == 'true'">
+        <DefineConstants>$(DefineConstants);FIREBASE_EXPERIMENTS</DefineConstants>
+    </PropertyGroup>
+    <ItemGroup Condition="'$(FirebaseAnalytics)' == 'true'">
+        <!-- Google Analytics for Firebase behind IAnalytics (FirebaseAnalytics.cs). -->
+        <PackageReference Include="Plugin.Firebase.Analytics" Version="3.1.1" PrivateAssets="none" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(FirebaseExperiments)' == 'true'">
+        <!-- Firebase Remote Config (the values A/B Testing hands out) behind IExperiments (FirebaseExperiments.cs). -->
+        <PackageReference Include="Plugin.Firebase.RemoteConfig" Version="3.1.1" PrivateAssets="none" />
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\MobileAppTheme\MobileAppTheme.csproj" />
     </ItemGroup>

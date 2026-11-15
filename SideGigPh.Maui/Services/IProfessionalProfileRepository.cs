@@ -30,4 +30,7 @@ public interface IProfessionalProfileRepository
 
     /// <summary>Takes the listing out of search, e.g. when the pro starts over. Frees its mobile number.</summary>
     Task RemoveAsync(string professionalId);
+
+    /// <summary>Drops what is kept about this listing and every kept search, so the next reads ask the server (after a block).</summary>
+    void Forget(string professionalId);
 }

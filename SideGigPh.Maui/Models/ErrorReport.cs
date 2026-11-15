@@ -33,7 +33,7 @@ public sealed record ErrorReport(
     DateTimeOffset LastAt);
 
 /// <summary>What the phone runs, sent with every batch: never the person.</summary>
-/// <param name="AppVersion">The store version and build, e.g. <c>1.0 (12)</c>.</param>
+/// <param name="AppVersion">The version label and the store build number, e.g. <c>0.1.0-rc.12 (12)</c>.</param>
 /// <param name="CodeVersion">The git commit the app was built from, e.g. <c>48466c9</c> (<c>-dirty</c> with uncommitted changes).</param>
 /// <param name="Channel"><c>dev</c>, <c>beta</c> or <c>prod</c> (the csproj's <c>AppChannel</c>).</param>
 /// <param name="Platform">The OS and its version, e.g. <c>android 14</c>.</param>

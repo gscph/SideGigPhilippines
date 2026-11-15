@@ -115,6 +115,31 @@ public class WireContractTests
         AppChannels.Prod.Should().Be("prod");
     }
 
+    // The feedback board: an installed app reads these fields and shows a status by these words.
+    [Fact]
+    public void FeedbackFieldNamesAndStatuses_NeverChange()
+    {
+        var post = new FeedbackPostDto(7, "Pay with GCash", "details", 3, FeedbackStatuses.Open, true, false, At);
+        FieldNames(post, ApiJson.Default.FeedbackPostDto)
+            .Should().Equal("id", "title", "details", "votes", "status", "votedByMe", "mine", "createdAt");
+        FieldNames(new FeedbackPageDto([post], true), ApiJson.Default.FeedbackPageDto).Should().Equal("posts", "hasMore");
+        FieldNames(new NewFeedbackRequest("Pay with GCash", "details", Wire.Seeker), ApiJson.Default.NewFeedbackRequest).Should().Equal("title", "details", "side");
+        FieldNames(new FeedbackVoteDto(7, 3, true), ApiJson.Default.FeedbackVoteDto).Should().Equal("id", "votes", "votedByMe");
+        FeedbackStatuses.Open.Should().Be("open");
+        FeedbackStatuses.Planned.Should().Be("planned");
+        FeedbackStatuses.Done.Should().Be("done");
+        FeedbackStatuses.Declined.Should().Be("declined");
+        FeedbackStatuses.Hidden.Should().Be("hidden");
+    }
+
+    // Installed apps send the first header and read the second; the server's logs and the error reports rely on both.
+    [Fact]
+    public void VersionHeaders_NeverChange()
+    {
+        ApiHeaders.AppVersion.Should().Be("X-App-Version");
+        ApiHeaders.ApiVersion.Should().Be("X-Api-Version");
+    }
+
     // Phones already installed read these keys from a notification and created these Android channels at launch.
     [Fact]
     public void NotificationKeysAndChannels_NeverChange()

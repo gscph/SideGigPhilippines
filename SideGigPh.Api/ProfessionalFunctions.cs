@@ -12,7 +12,8 @@ namespace SideGigPh.Api;
 /// Skilled Worker listings. Any signed-in user can search and read them; only the worker publishes or removes
 /// their own (<c>professionals/me</c>, id = their uid).
 /// </summary>
-public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, ProfessionalStore professionals, ILogger<ProfessionalFunctions> logger)
+public sealed class ProfessionalFunctions(
+    FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, ILogger<ProfessionalFunctions> logger)
 {
     /// <summary>
     /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;skip=0&amp;take=4</c>:
@@ -24,7 +25,7 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "search/professionals")] HttpRequest request,
         CancellationToken cancellationToken)
     {
-        if (await auth.GetUidAsync(request, cancellationToken) is null)
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
         {
             return new UnauthorizedResult();
         }
@@ -47,7 +48,8 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
         }
 
         var rank = new RankRequest(Optional(query["serviceId"]), Optional(query["cityId"]), Optional(query["budgetId"]));
-        return new OkObjectResult(await professionals.SearchPageAsync(categoryId, Optional(query["areaId"]), rank, skip, take, cancellationToken));
+        var hidden = await safety.HiddenForAsync(uid, cancellationToken);
+        return new OkObjectResult(await professionals.SearchPageAsync(categoryId, Optional(query["areaId"]), rank, skip, take, hidden, cancellationToken));
     }
 
     private static string? Optional(string? value) => string.IsNullOrEmpty(value) ? null : value;
@@ -62,7 +64,7 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "professionals")] HttpRequest request,
         CancellationToken cancellationToken)
     {
-        if (await auth.GetUidAsync(request, cancellationToken) is null)
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
         {
             return new UnauthorizedResult();
         }
@@ -74,7 +76,8 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
             return ApiResults.BadRequest("categoryId-required");
         }
 
-        return new OkObjectResult(await professionals.SearchAsync(categoryId, string.IsNullOrEmpty(areaId) ? null : areaId, cancellationToken));
+        var hidden = await safety.HiddenForAsync(uid, cancellationToken);
+        return new OkObjectResult(await professionals.SearchAsync(categoryId, string.IsNullOrEmpty(areaId) ? null : areaId, hidden, cancellationToken));
     }
 
     [Function("GetProfessional")]
@@ -83,9 +86,15 @@ public sealed class ProfessionalFunctions(FirebaseTokenValidator auth, Professio
         string id,
         CancellationToken cancellationToken)
     {
-        if (await auth.GetUidAsync(request, cancellationToken) is null)
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
         {
             return new UnauthorizedResult();
+        }
+
+        // Someone either of them blocked has no profile for the caller.
+        if (id != uid && (await safety.HiddenForAsync(uid, cancellationToken)).Contains(id))
+        {
+            return new NotFoundResult();
         }
 
         return await professionals.GetAsync(id, cancellationToken) is { } listing ? new OkObjectResult(listing) : new NotFoundResult();

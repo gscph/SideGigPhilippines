@@ -8,6 +8,7 @@
                       Label="@T.Get(Copy.ReferenceNumber)" Placeholder="@PhoneFormat.Placeholder" Class="app-field"
                       InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="off" />
     </MudStack>
+    <MudCheckBox T="bool" @bind-Value="_agreed" Disabled="Busy" Color="Color.Primary" Label="@T.Get(Copy.ReferenceConsent)" />
     @if (Problem is not null)
     {
         <MudAlert Severity="Severity.Error" Dense="true" role="alert">@Problem</MudAlert>

@@ -23,6 +23,10 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<OtherJobNoteRow> OtherJobNotes => Set<OtherJobNoteRow>();
     public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
     public DbSet<ErrorReportRow> ErrorReports => Set<ErrorReportRow>();
+    public DbSet<ReportRow> Reports => Set<ReportRow>();
+    public DbSet<BlockRow> Blocks => Set<BlockRow>();
+    public DbSet<FeedbackPostRow> FeedbackPosts => Set<FeedbackPostRow>();
+    public DbSet<FeedbackVoteRow> FeedbackVotes => Set<FeedbackVoteRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
@@ -232,6 +236,53 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             report.Property(r => r.Trail).HasMaxLength(2000).IsUnicode();
             report.HasIndex(r => r.ReceivedAt).HasDatabaseName("IX_ErrorReports_ReceivedAt");
             report.HasIndex(r => new { r.Source, r.Channel, r.CodeVersion }).HasDatabaseName("IX_ErrorReports_Source");
+        });
+
+        model.Entity<ReportRow>(report =>
+        {
+            report.ToTable("Reports");
+            report.HasKey(r => r.Id).HasName("PK_Reports");
+            report.Property(r => r.Id).UseIdentityColumn();
+            report.Property(r => r.ReporterUid).HasMaxLength(128);
+            report.Property(r => r.TargetUid).HasMaxLength(128);
+            report.Property(r => r.Kind).HasMaxLength(10);
+            report.Property(r => r.SubjectId).HasMaxLength(260);
+            report.Property(r => r.Reason).HasMaxLength(20);
+            report.Property(r => r.Note).HasMaxLength(500).IsUnicode();
+            report.Property(r => r.Status).HasMaxLength(10);
+            report.HasIndex(r => new { r.Status, r.CreatedAt }).HasDatabaseName("IX_Reports_Status");
+        });
+
+        model.Entity<BlockRow>(block =>
+        {
+            block.ToTable("Blocks");
+            block.HasKey(b => new { b.BlockerUid, b.BlockedUid }).HasName("PK_Blocks");
+            block.Property(b => b.BlockerUid).HasMaxLength(128);
+            block.Property(b => b.BlockedUid).HasMaxLength(128);
+            block.HasIndex(b => b.BlockedUid).HasDatabaseName("IX_Blocks_Blocked");
+        });
+
+        model.Entity<FeedbackPostRow>(post =>
+        {
+            post.ToTable("FeedbackPosts");
+            post.HasKey(p => p.Id).HasName("PK_FeedbackPosts");
+            post.Property(p => p.Id).UseIdentityColumn();
+            post.Property(p => p.AuthorUid).HasMaxLength(128);
+            post.Property(p => p.Side).HasMaxLength(20);
+            post.Property(p => p.Title).HasMaxLength(100).IsUnicode();
+            post.Property(p => p.Details).HasMaxLength(600).IsUnicode();
+            post.Property(p => p.Status).HasMaxLength(10);
+            post.HasIndex(p => new { p.Status, p.Votes, p.CreatedAt }).IsDescending(false, true, true).HasDatabaseName("IX_FeedbackPosts_Top");
+            post.HasIndex(p => p.AuthorUid).HasFilter("[AuthorUid] IS NOT NULL").HasDatabaseName("IX_FeedbackPosts_Author");
+        });
+
+        model.Entity<FeedbackVoteRow>(vote =>
+        {
+            vote.ToTable("FeedbackVotes");
+            vote.HasKey(v => new { v.PostId, v.VoterUid }).HasName("PK_FeedbackVotes");
+            vote.Property(v => v.VoterUid).HasMaxLength(128);
+            vote.HasOne<FeedbackPostRow>().WithMany().HasForeignKey(v => v.PostId).HasConstraintName("FK_FeedbackVotes_Post").OnDelete(DeleteBehavior.Cascade);
+            vote.HasIndex(v => v.VoterUid).HasDatabaseName("IX_FeedbackVotes_Voter");
         });
     }
 }

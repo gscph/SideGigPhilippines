@@ -26,7 +26,7 @@ public sealed record ErrorReportDto(
 /// The reports one phone sends at once, with what it runs. <paramref name="InstallId"/> is random per app install,
 /// never the account, so a report can't be tied to a person.
 /// </summary>
-/// <param name="AppVersion">The store version and build, e.g. <c>1.0 (12)</c>.</param>
+/// <param name="AppVersion">The version label and the store build number, e.g. <c>0.1.0-rc.12 (12)</c>.</param>
 /// <param name="CodeVersion">The git commit the app was built from, e.g. <c>48466c9</c>.</param>
 /// <param name="Channel">One of <see cref="AppChannels"/>.</param>
 /// <param name="Platform">The OS and its version, e.g. <c>android 14</c>.</param>

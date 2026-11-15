@@ -1,6 +1,10 @@
 <MudAppBar Color="Color.Default" Elevation="0" Fixed="false" Class="sticky app-top-bar border-b border-solid mud-border-lines-default">
     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="flex-1">
-        <MudIcon Icon="@Brand.LogoIcon" Color="Color.Primary" Class="app-top-bar-logo" aria-hidden="true" />        
+        <MudIcon Icon="@Brand.LogoIcon" Color="Color.Primary" Class="app-top-bar-logo" aria-hidden="true" />
+        @if (!string.IsNullOrEmpty(Brand.Version))
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@Brand.Version</MudText>
+        }
     </MudStack>
 
     <MudLink Href="@ProfileHref" Underline="Underline.None" aria-label="@T.Get(CommonCopy.NavProfile)">

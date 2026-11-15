@@ -70,7 +70,7 @@ public static class Pricing
 
         if (current != ReferenceData.Unsure && BudgetLabel(current) is { } label && choices.All(choice => choice.Id != current))
         {
-            choices.Add(new CatalogOption(current!, label, "✏️"));
+            choices.Add(new CatalogOption(current!, label, AppImages.Custom));
         }
 
         choices.Add(ReferenceData.UnsureOption);

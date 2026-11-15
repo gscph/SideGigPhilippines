@@ -178,8 +178,10 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 ('price-tiers',  '1000-2000',  N'₱1,000 – ₱2,000',         N'₱1,000 – ₱2,000',         NULL,  1500, 3, 1),
 ('price-tiers',  '2000-5000',  N'₱2,000 – ₱5,000',         N'₱2,000 – ₱5,000',         NULL,  3500, 4, 1),
 ('price-tiers',  '5000-up',    N'₱5,000 and up',           N'₱5,000 pataas',           NULL,  5000, 5, 1),
--- The NCR daily minimum wage (Wage Order NCR-28, from 26 Sept 2026): no job's lowest price goes under it.
-('minimum-wage', 'ncr',        N'NCR minimum wage (a day)', N'Minimum wage sa NCR (kada araw)', NULL, 755, 1, 1),
+-- The suggested minimum price per job, set from the NCR daily minimum wage (Wage Order NCR-28, from 26 Sept 2026): no job's
+-- lowest price goes under it. Shown to users only as a SUGGESTED price, never as a wage: workers are independent and set
+-- their own prices (docs/legal/README.md L2). The id stays 'minimum-wage' / 'ncr' (ids are stable).
+('minimum-wage', 'ncr',        N'Suggested minimum price (per job)', N'Suggested na pinakamababang presyo (kada trabaho)', NULL, 755, 1, 1),
 ('experience',   'under-1',    N'Less than 1 year',        N'Wala pang 1 taon',        N'🌱',    0, 1, 1),
 ('experience',   '1-3',        N'1–3 years',               N'1–3 taon',                N'🧰',    0, 2, 1),
 ('experience',   '3-10',       N'3–10 years',              N'3–10 taon',               N'🛠️',    0, 3, 1),

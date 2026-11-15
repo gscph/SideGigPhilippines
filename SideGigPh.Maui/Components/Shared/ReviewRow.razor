@@ -12,7 +12,12 @@
     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
         <MudRating SelectedValue="Review.Rating" ReadOnly="true" Size="Size.Small" Color="Color.Warning"
                    aria-label="@($"{Review.Rating}/5")" />
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Ago(Review.At)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="flex-1">@T.Ago(Review.At)</MudText>
+        @if (ReportHref is not null)
+        {
+            <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Size="Size.Small" Color="Color.Secondary" Href="@ReportHref"
+                           aria-label="@T.Get(Copy.ReportButton)" />
+        }
     </MudStack>
     @if (!string.IsNullOrWhiteSpace(Review.Comment))
     {

@@ -9,7 +9,7 @@
 
     @if (Workspace.Chats.Count == 0)
     {
-        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.ProInboxEmpty)</MudText>
+        <EmptyState Icon="@Icons.Material.Outlined.ChatBubbleOutline" Text="@T.Get(Copy.ProInboxEmpty)" />
     }
 
     <MudStack Spacing="0">

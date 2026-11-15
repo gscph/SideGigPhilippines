@@ -1,0 +1,31 @@
+@page "/report/{Side}/{SubjectName}/{PersonId}"
+
+@if (_done is null)
+{
+    <InterviewStep Title="@T.Get(Copy.ReportTitle)" Illustration="@AppImages.Report" Why="@T.Get(Copy.ReportWhy)" Note="@T.Get(Copy.ReportEmergency)"
+                   OnBack="GoBack" OnNext="SendAsync" NextLabel="@T.Get(Copy.ReportSend)" CanContinue="@(_reason is not null && !_busy)">
+        <ChoiceTiles Items="Reasons" SelectedIds="@(_reason is null ? [] : [_reason])" OnPick="id => _reason = id" />
+        <MudTextField T="string" @bind-Value="_note" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" Lines="3"
+                      MaxLength="500" Label="@T.Get(Copy.ReportNote)" />
+        <MudCheckBox T="bool" @bind-Value="_alsoBlock" Color="Color.Primary" Label="@T.Get(Copy.ReportAlsoBlock)" />
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
+        }
+        <MudButton Variant="Variant.Text" Color="Color.Error" Class="app-link-button align-self-center" Disabled="_busy"
+                   StartIcon="@Icons.Material.Rounded.Block" OnClick="BlockAsync">
+            @T.Get(Copy.ReportJustBlock)
+        </MudButton>
+    </InterviewStep>
+}
+else
+{
+    <InterviewStep Title="@T.Get(_done == Outcome.Reported ? Copy.ReportThanksTitle : Copy.BlockedTitle)" Illustration="@AppImages.Done"
+                   Why="@T.Get(_done == Outcome.Reported ? Copy.ReportThanksWhy : Copy.BlockedWhy)"
+                   OnNext="Finish" NextLabel="@T.Get(Copy.ReportDone)">
+        @if (_done == Outcome.Reported && _alsoBlock)
+        {
+            <MudText Typo="Typo.body1" Align="Align.Center">@T.Get(Copy.BlockedWhy)</MudText>
+        }
+    </InterviewStep>
+}

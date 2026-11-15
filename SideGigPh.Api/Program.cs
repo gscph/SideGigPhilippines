@@ -33,15 +33,17 @@ builder.Services.AddSingleton<CallerLimits>();
 // Users, listings, reviews and chats in Azure SQL. Listing photos are stored as ids and shown from the public container.
 builder.Services.AddSideGigPhSql(sqlDatabase, new PhotoLinks($"{photos.Uri.ToString().TrimEnd('/')}/"));
 
-// New-message notifications through Firebase Cloud Messaging. Without the service account (a PC), messages still
-// send and nobody is notified.
+// New-message notifications through Firebase Cloud Messaging, and deleting sign-in accounts (Delete account). Without the
+// service account (a PC), messages still send and nobody is notified, and the app deletes its own sign-in account.
 if (builder.Configuration["FirebaseServiceAccount"] is { Length: > 0 } serviceAccount)
 {
     builder.Services.AddSingleton<IPushSender>(new FcmPushSender(serviceAccount, firebaseProjectId));
+    builder.Services.AddSingleton<IAccountDeleter>(new FirebaseAccountDeleter(serviceAccount, firebaseProjectId));
 }
 else
 {
     builder.Services.AddSingleton<IPushSender, NoPushSender>();
+    builder.Services.AddSingleton<IAccountDeleter, NoAccountDeleter>();
 }
 
 builder.Services.AddScoped<ChatNotifier>();

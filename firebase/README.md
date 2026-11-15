@@ -34,3 +34,31 @@ The API sends a notification when someone gets a chat message ([`docs/data-model
 3. **iOS (before the first iPhone release):** in the Apple developer account make an **APNs auth key** (.p8) and upload it under Project settings → **Cloud Messaging → Apple app configuration**; turn on the **Push Notifications** capability for the app id; add `Platforms/iOS/Entitlements.plist` with `aps-environment` (`development`, `production` for the store) and point the csproj's `CodesignEntitlements` at it. Not in the repo yet, because a build signed without a push-enabled profile fails.
 4. **To test on a phone:** sign in, publish a listing (the app asks to allow notifications), close the app, then message that worker from another account. Logs: `adb logcat -s SideGigPh` on the phone, and the Function App's log for `Couldn't notify`.
 
+## Analytics and A/B Testing (optional, off by default)
+
+The app is ready for both, behind build flags that are **off**: until you do the steps below, the APK builds and runs
+with neither, and nothing is collected ([`docs/architecture.md`](../docs/architecture.md#analytics-and-ab-tests)).
+
+**Google Analytics**
+
+1. Firebase console → Project settings → **Integrations → Google Analytics → Enable** (pick or create an Analytics
+   account). Then download `google-services.json` again and replace `SideGigPh.Maui/Platforms/Android/google-services.json`
+   (and the `GOOGLE_SERVICES_JSON_BASE64` secret for CI); for iOS the same with `GoogleService-Info.plist`.
+2. Add analytics to the privacy policy (`docs/legal/privacy-policy.md`) and to the Play Console **Data safety** form
+   (App activity → App interactions, not linked to identity) before testers get a build with it.
+3. Turn the flag on: `FirebaseAnalytics` = `true` in `Directory.Build.props` (every build), or only in CI with the
+   repo variable `FIREBASE_ANALYTICS` = `true` (GitHub → Settings → Secrets and variables → Actions → Variables).
+4. Check it: on a phone with a debug build run `adb shell setprop debug.firebase.analytics.app com.sidegigph.app`,
+   open the app, and watch Firebase console → Analytics → **DebugView**. You should see `screen_view` with
+   `screen_name` like `/seeker/search`, and the user properties `role`, `language`, `build_label`, `build_channel`.
+
+**A/B Testing** (needs Analytics on)
+
+1. Turn the flag on: `FirebaseExperiments` = `true` (same two places; CI variable `FIREBASE_EXPERIMENTS`).
+2. Firebase console → **Remote Config** → add a parameter (a short snake_case key, e.g. `publish_button`) with a
+   default value, then **A/B Testing → Create experiment → Remote Config**: target `com.sidegigph.app`, pick the
+   parameter and its variants, and a goal event (e.g. `listing_published`).
+3. In the app read it where it matters: `Analytics.Variant("publish_button", fallback)` or
+   `Analytics.IsEnabled("new_search", false)` (`Services/Analytics/AppAnalytics`). The fallback is what everyone
+   sees while the flag is off, the phone is offline, or the console has no value.
+4. A `dev` build asks for new values on every launch; `beta` and `prod` at most every 12 hours.

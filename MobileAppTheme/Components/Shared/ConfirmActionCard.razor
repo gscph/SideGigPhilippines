@@ -1,16 +1,20 @@
 <MudStack HtmlTag="section" Spacing="3" Class="pt-6 border-t border-solid mud-border-lines-default">
-    <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(CommonCopy.StartOver)</MudText>
+    <MudText Typo="Typo.subtitle1" HtmlTag="h2">@Title</MudText>
     @if (_asking)
     {
         <MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">
             <MudStack Spacing="1">
-                <MudText Typo="Typo.subtitle1" Color="Color.Error">@T.Get(CommonCopy.StartOverAsk)</MudText>
-                <MudText Typo="Typo.body2" Color="Color.Secondary">@(Warning ?? T.Get(CommonCopy.StartOverWarning))</MudText>
+                <MudText Typo="Typo.subtitle1" Color="Color.Error">@Ask</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@Warning</MudText>
             </MudStack>
         </MudPaper>
+        @if (!string.IsNullOrEmpty(Error))
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@Error</MudAlert>
+        }
         <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Large" FullWidth="true"
                    Disabled="Busy" OnClick="() => OnConfirm.InvokeAsync()">
-            @T.Get(CommonCopy.StartOverYes)
+            @ConfirmText
         </MudButton>
         <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button align-self-center" Disabled="Busy" OnClick="() => _asking = false">
             @T.Get(CommonCopy.Cancel)
@@ -18,10 +22,10 @@
     }
     else
     {
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.StartOverWhy)</MudText>
-        <MudButton Variant="Variant.Filled" Color="Color.Error" Size="Size.Large" FullWidth="true" StartIcon="@Icons.Material.Rounded.RestartAlt"
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@Why</MudText>
+        <MudButton Variant="@(Outlined ? Variant.Outlined : Variant.Filled)" Color="Color.Error" Size="Size.Large" FullWidth="true" StartIcon="@Icon"
                    OnClick="() => _asking = true">
-            @T.Get(CommonCopy.StartOver)
+            @Title
         </MudButton>
     }
 </MudStack>

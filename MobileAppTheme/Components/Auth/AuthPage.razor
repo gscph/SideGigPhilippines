@@ -22,7 +22,7 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
     }
 
-    @if (HasPhone && HasGoogle && _sentTo is null)
+    @if (HasPhone && (HasGoogle || HasApple) && _sentTo is null)
     {
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
             <MudDivider Class="flex-1" />
@@ -31,8 +31,18 @@
         </MudStack>
     }
 
+    @if (HasApple && _sentTo is null)
+    {
+        <AppleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
+    }
+
     @if (HasGoogle && _sentTo is null)
     {
         <GoogleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
+    }
+
+    @if (_sentTo is null)
+    {
+        <LegalConsent />
     }
 </SheetPage>

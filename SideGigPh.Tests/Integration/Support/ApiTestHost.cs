@@ -35,6 +35,9 @@ public sealed class ApiTestHost : IAsyncLifetime
     /// <summary>Every notification the API sent (Firebase Cloud Messaging stand-in).</summary>
     public RecordingPushSender Pushes { get; } = new();
 
+    /// <summary>Every sign-in account the API deleted (Firebase Admin stand-in).</summary>
+    public RecordingAccountDeleter Accounts { get; } = new();
+
     public TestServer Server => _host!.GetTestServer();
 
     public string ConnectionString => _database!.ConnectionString;
@@ -65,6 +68,7 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddSingleton<CallerLimits>();
                     services.AddSideGigPhSql(_database.ConnectionString, new PhotoLinks($"{InMemoryBlobContainer.ContainerUri}/"));
                     services.AddSingleton<IPushSender>(Pushes);
+                    services.AddSingleton<IAccountDeleter>(Accounts);
                     services.AddScoped<ChatNotifier>();
                 })
                 .Configure(app =>

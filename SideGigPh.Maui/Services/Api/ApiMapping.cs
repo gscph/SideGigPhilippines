@@ -7,6 +7,50 @@ namespace SideGigPh.Maui.Services.Api;
 /// <summary>Between the app's models and the API's contracts. Only <c>Services/Api/</c> uses the contracts.</summary>
 internal static partial class ApiMapping
 {
+    public static ReportRequest ToDto(this UserReport report) => new(
+        report.PersonId,
+        report.Subject switch
+        {
+            ReportSubject.Listing => ReportKinds.Listing,
+            ReportSubject.Review => ReportKinds.Review,
+            ReportSubject.Chat => ReportKinds.Chat,
+            _ => ReportKinds.User,
+        },
+        report.Reason switch
+        {
+            ReportReason.Scam => ReportReasons.Scam,
+            ReportReason.Harassment => ReportReasons.Harassment,
+            ReportReason.Fake => ReportReasons.Fake,
+            ReportReason.Inappropriate => ReportReasons.Inappropriate,
+            ReportReason.Employment => ReportReasons.Employment,
+            _ => ReportReasons.Other,
+        },
+        report.ChatId,
+        report.Note,
+        report.AlsoBlock);
+
+    public static FeedbackPost ToModel(this FeedbackPostDto dto) => new(
+        dto.Id,
+        dto.Title,
+        dto.Details,
+        dto.Votes,
+        dto.Status switch
+        {
+            FeedbackStatuses.Planned => FeedbackStatus.Planned,
+            FeedbackStatuses.Done => FeedbackStatus.Done,
+            _ => FeedbackStatus.Open,
+        },
+        dto.VotedByMe,
+        dto.Mine,
+        dto.CreatedAt);
+
+    public static FeedbackPage ToModel(this FeedbackPageDto dto) => new([.. dto.Posts.Select(post => post.ToModel())], dto.HasMore);
+
+    public static NewFeedbackRequest ToFeedbackRequest(string title, string? details, UserRole? role) => new(
+        title,
+        details,
+        role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null });
+
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,
         dto.DisplayName,
@@ -126,11 +170,13 @@ internal static partial class ApiMapping
 
     public static string ToWire(this ChatSide side) => side == ChatSide.Seeker ? Wire.Seeker : Wire.Professional;
 
+    // The pictures are the app's own, picked by id (AppImages); the server's Icon (an emoji, for app versions before
+    // the pictures) only says whether an answer has one.
     public static AppConfig ToModel(this ConfigDto dto) => new(
-        dto.Catalog.Select(c => new CatalogOption(c.Id, new(c.English, c.Taglish), c.Icon, Hint(c.HintEnglish, c.HintTaglish))).ToList(),
+        dto.Catalog.Select(c => new CatalogOption(c.Id, new(c.English, c.Taglish), AppImages.For(c.Id), Hint(c.HintEnglish, c.HintTaglish))).ToList(),
         dto.Catalog.ToDictionary(
             c => c.Id,
-            c => (IReadOnlyList<CatalogOption>)c.Services.Select(s => new CatalogOption(s.Id, new(s.English, s.Taglish), s.Icon)).ToList()),
+            c => (IReadOnlyList<CatalogOption>)c.Services.Select(s => new CatalogOption(s.Id, new(s.English, s.Taglish), AppImages.For(s.Id))).ToList()),
         Options(dto.Towns),
         Options(dto.PriceTiers),
         Options(dto.Experience),
@@ -142,7 +188,7 @@ internal static partial class ApiMapping
         dto.MinimumWage);
 
     private static IReadOnlyList<CatalogOption> Options(List<OptionDto>? options) =>
-        (options ?? []).Select(o => new CatalogOption(o.Id, new(o.English, o.Taglish), o.Icon, Amount: o.Amount)).ToList();
+        (options ?? []).Select(o => new CatalogOption(o.Id, new(o.English, o.Taglish), o.Icon is null ? null : AppImages.For(o.Id), Amount: o.Amount)).ToList();
 
     public static OtherJobRequest ToRequest(this OtherJobNote note) =>
         new(note.CategoryId, note.Side == UserRole.Seeker ? Wire.Seeker : Wire.Professional, note.Text);

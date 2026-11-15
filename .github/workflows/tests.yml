@@ -18,9 +18,12 @@ on:
       - 'SideGigPh.Api/**'
       - 'SideGigPh.AzureSQL/**'
       - 'SideGigPh.Contracts/**'
+      - 'docs/legal/*.md'
       - 'SideGigPh.Tests/**'
       - 'MobileAppTheme/**/*.cs'
       - 'MobileAppTheme/*.csproj'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
       - '.github/workflows/tests.yml'
   pull_request:
     branches: [main]
@@ -33,9 +36,12 @@ on:
       - 'SideGigPh.Api/**'
       - 'SideGigPh.AzureSQL/**'
       - 'SideGigPh.Contracts/**'
+      - 'docs/legal/*.md'
       - 'SideGigPh.Tests/**'
       - 'MobileAppTheme/**/*.cs'
       - 'MobileAppTheme/*.csproj'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
       - '.github/workflows/tests.yml'
   workflow_dispatch:
   workflow_call:

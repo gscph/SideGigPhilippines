@@ -1,0 +1,45 @@
+<MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start" Class="py-4 border-b border-solid mud-border-lines-default">
+    <MudButton Variant="@(Post.VotedByMe ? Variant.Filled : Variant.Outlined)" Color="@(Post.VotedByMe ? Color.Primary : Color.Dark)"
+               Class="app-vote-button" OnClick="@(() => OnVote.InvokeAsync(Post))"
+               aria-pressed="@(Post.VotedByMe ? "true" : "false")"
+               aria-label="@($"{T.Get(Post.VotedByMe ? Copy.FeedbackUnvote : Copy.FeedbackVote)}: {VotesLabel}")">
+        <MudStack Spacing="0" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Rounded.ArrowDropUp" aria-hidden="true" />
+            <MudText Typo="Typo.subtitle2">@Post.Votes</MudText>
+        </MudStack>
+    </MudButton>
+
+    <MudStack Spacing="1" Class="flex-1 app-min-w-0">
+        <MudText Typo="Typo.subtitle1">@Post.Title</MudText>
+        @if (!string.IsNullOrWhiteSpace(Post.Details))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Post.Details</MudText>
+        }
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+            @if (Post.Status == FeedbackStatus.Planned)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Text" Icon="@Icons.Material.Rounded.Build" Class="ma-0">@T.Get(Copy.FeedbackPlanned)</MudChip>
+            }
+            else if (Post.Status == FeedbackStatus.Done)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Text" Icon="@Icons.Material.Rounded.Check" Class="ma-0">@T.Get(Copy.FeedbackDone)</MudChip>
+            }
+            @if (Post.Mine)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.FeedbackMine)</MudText>
+            }
+            @if (Post.CanRemove)
+            {
+                <MudButton Variant="Variant.Text" Size="Size.Small" Class="app-link-button" OnClick="@(() => OnRemove.InvokeAsync(Post))">
+                    @T.Get(Copy.FeedbackRemove)
+                </MudButton>
+            }
+            <MudSpacer />
+            @if (!Post.Mine)
+            {
+                <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Size="Size.Small" Color="Color.Secondary"
+                               OnClick="@(() => OnReport.InvokeAsync(Post))" aria-label="@T.Get(Copy.FeedbackReport)" />
+            }
+        </MudStack>
+    </MudStack>
+</MudStack>

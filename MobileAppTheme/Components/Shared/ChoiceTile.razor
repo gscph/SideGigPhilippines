@@ -11,7 +11,7 @@
         </MudStack>
         @if (!string.IsNullOrEmpty(Item.Icon))
         {
-            <MudText Typo="Typo.h5" HtmlTag="span" aria-hidden="true">@Item.Icon</MudText>
+            <MudImage Src="@Item.Icon" Alt="" Width="32" Height="32" Class="flex-shrink-0" aria-hidden="true" />
         }
         @if (ShowCheck)
         {

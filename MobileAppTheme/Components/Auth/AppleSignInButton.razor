@@ -1,0 +1,4 @@
+<MudButton Variant="Variant.Filled" Color="Color.Dark" Size="Size.Large" FullWidth="true" Class="app-social-button"
+           StartIcon="@AppleLogo" Disabled="_busy" OnClick="SignInAsync">
+    @T.Get(_busy ? CommonCopy.AuthConnecting : CommonCopy.AuthApple)
+</MudButton>

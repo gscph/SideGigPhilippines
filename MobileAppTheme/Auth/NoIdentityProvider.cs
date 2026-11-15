@@ -19,6 +19,8 @@ public sealed class NoIdentityProvider : IIdentityProvider
 
     public Task<AuthResult> SignInWithGoogleAsync() => NotAvailable();
 
+    public Task<AuthResult> SignInWithAppleAsync() => NotAvailable();
+
     public Task<AuthResult> SetDisplayNameAsync(string displayName) => NotAvailable();
 
     public Task<AuthUser?> GetCurrentUserAsync() => Task.FromResult<AuthUser?>(null);
@@ -26,6 +28,8 @@ public sealed class NoIdentityProvider : IIdentityProvider
     public Task<string?> GetIdTokenAsync() => Task.FromResult<string?>(null);
 
     public Task SignOutAsync() => Task.CompletedTask;
+
+    public Task DeleteAccountAsync() => Task.CompletedTask;
 
     private static Task<AuthResult> NotAvailable() => Task.FromResult(AuthResult.Fail(AuthError.NotAvailable));
 }

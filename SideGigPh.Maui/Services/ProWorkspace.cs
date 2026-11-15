@@ -15,7 +15,8 @@ public sealed class ProWorkspace(
     IChatRepository chats,
     IReviewRepository reviews,
     IProfessionalProfileRepository profiles,
-    IIdentityProvider identity)
+    IIdentityProvider identity,
+    ISafetyRepository safety)
 {
     /// <summary>Most work photos a listing can have.</summary>
     public const int MaxWorkPhotos = 6;
@@ -390,6 +391,29 @@ public sealed class ProWorkspace(
 
         _publishPrompted = true;
         return true;
+    }
+
+    /// <summary>Reports a customer from their chat. With <see cref="UserReport.AlsoBlock"/> the chat leaves the Inbox at once.</summary>
+    public async Task ReportAsync(UserReport report)
+    {
+        await safety.ReportAsync(report);
+        if (report.AlsoBlock)
+        {
+            Hide(report.PersonId);
+        }
+    }
+
+    /// <summary>Blocks a customer: their chat leaves the Inbox, they can't write and won't find this listing.</summary>
+    public async Task BlockAsync(string personId)
+    {
+        await safety.BlockAsync(personId);
+        Hide(personId);
+    }
+
+    private void Hide(string personId)
+    {
+        Chats = [.. Chats.Where(c => c.SeekerId != personId)];
+        Changed?.Invoke();
     }
 
     /// <summary>Drops what's held in memory after Start over, so the next load reads fresh.</summary>

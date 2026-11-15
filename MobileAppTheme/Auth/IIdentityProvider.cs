@@ -32,6 +32,9 @@ public interface IIdentityProvider
     /// <summary>Interactive Google sign-in.</summary>
     Task<AuthResult> SignInWithGoogleAsync();
 
+    /// <summary>Interactive Sign in with Apple (only where <see cref="Methods"/> has <see cref="AuthMethods.Apple"/>).</summary>
+    Task<AuthResult> SignInWithAppleAsync();
+
     /// <summary>Saves the signed-in user's full name (asked once after a phone sign-in).</summary>
     Task<AuthResult> SetDisplayNameAsync(string displayName);
 
@@ -46,4 +49,10 @@ public interface IIdentityProvider
     Task<string?> GetIdTokenAsync();
 
     Task SignOutAsync();
+
+    /// <summary>
+    /// Delete account, the provider's part: deletes the signed-in account at the provider when it still exists (the
+    /// app's server may have deleted it already), then signs out. Never throws; a failure is logged.
+    /// </summary>
+    Task DeleteAccountAsync();
 }

@@ -18,4 +18,11 @@ public interface IUserRepository
     Task SaveDeviceAsync(string token, string platform);
 
     Task DeleteAsync(string uid);
+
+    /// <summary>
+    /// Delete account on the server: everything the person has there, their photos and, when the server can, their
+    /// sign-in account. True when the sign-in account is gone too; false when the app must delete it itself. Throws
+    /// when it didn't go through.
+    /// </summary>
+    Task<bool> DeleteAccountAsync();
 }

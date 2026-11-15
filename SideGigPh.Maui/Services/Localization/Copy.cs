@@ -22,11 +22,13 @@ public static class Copy
     ];
 
     // --- Role fork --------------------------------------------------------
-    public static readonly LocalizedText RoleTitle = new("Find a Job or Hire a Skilled Worker", "Find a Job or Hire a Skilled Worker");
+    // Service words, never job/hire/employment words: Tarbaho is a directory of independent workers, not an employer
+    // or recruiter (Labor Code Art. 13(b); docs/legal/README.md L1).
+    public static readonly LocalizedText RoleTitle = new("Find a Skilled Worker or Offer Your Services", "Maghanap ng Skilled Worker o Mag-alok ng Serbisyo");
     public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, plumbing, repairs, errands, mechanic", "Aircon, tubero, repair, PasaBuy, mekaniko");
-    public static readonly LocalizedText RoleProfessional = new("I want to earn money", "Gusto kong kumita sa trabaho");
-    public static readonly LocalizedText RoleProfessionalHint = new("Find work near you", "Umextra para sa Pamilya");
+    public static readonly LocalizedText RoleProfessional = new("I offer my skills", "May skills akong maiaalok");
+    public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Magkaroon ng customer malapit sa'yo");
 
     // --- Seeker interview -------------------------------------------------
     public static readonly LocalizedText SeekerCategoryTitle = new("What do you need done?", "Ano'ng ipapagawa mo?");
@@ -57,7 +59,8 @@ public static class Copy
     public static readonly LocalizedText BudgetAndUp = new("{0} and up", "{0} pataas");
     public static readonly LocalizedText BudgetFromLabel = new("From (₱)", "Mula (₱)");
     public static readonly LocalizedText BudgetToLabel = new("Up to (₱)", "Hanggang (₱)");
-    public static readonly LocalizedText BudgetFromHelp = new("At least {0}, the minimum wage", "Hindi bababa sa {0}, ang minimum wage");
+    // A suggested price, never "minimum wage": workers are independent and set their own prices (docs/legal/README.md L2).
+    public static readonly LocalizedText BudgetFromHelp = new("At least {0}, the suggested minimum price", "Hindi bababa sa {0}, ang suggested na pinakamababang presyo");
     public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat pareho o mas mataas sa unang halaga");
 
     // "Others" after the trades: kinds of work we don't offer yet (sent for analytics).
@@ -114,7 +117,8 @@ public static class Copy
     public static readonly LocalizedText StatPerJob = new("per job", "per job");
     public static readonly LocalizedText StatAskPrice = new("Ask", "Itanong");
     public static readonly LocalizedText StatPriceDepends = new("price depends on the job", "depende sa trabaho");
-    public static readonly LocalizedText ProProfileTrust = new("Why you can trust them", "Bakit sila maaasahan");
+    // What we checked, never a promise about the worker (docs/legal/README.md L3).
+    public static readonly LocalizedText ProProfileTrust = new("What we checked", "Ano ang na-check namin");
     public static readonly LocalizedText TrustPhone = new("Phone number verified", "Verified ang phone number");
     public static readonly LocalizedText TrustPhoneNote = new("Checked with an SMS code.", "Na-check gamit ang SMS code.");
     public static readonly LocalizedText TrustOneReference = new("1 reference", "May 1 reference");
@@ -197,7 +201,7 @@ public static class Copy
     public static readonly LocalizedText RatePerJob = new("{0} per job", "{0} per job");
     public static readonly LocalizedText RateQuote = new("Price depends on the job", "Depende sa trabaho ang presyo");
     public static readonly LocalizedText ExperienceFact = new("Exp: {0}", "Exp: {0}");
-    public static readonly LocalizedText ServesFact = new("Location : {0}", "Location : {0}");
+    public static readonly LocalizedText ServesFact = new("Location: {0}", "Location: {0}");
 
     // --- Professional interview -------------------------------------------
     public static readonly LocalizedText ProSkillsTitle = new("What work do you do?", "Ano'ng trabaho mo?");
@@ -213,8 +217,8 @@ public static class Copy
         "Each job has its own price. Customers see your price for the job they need, and you can still agree on the final price.",
         "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
     public static readonly LocalizedText ProRateNote = new(
-        "The minimum is never below the NCR minimum wage ({0} a day).",
-        "Hindi bababa sa minimum wage sa NCR ({0} kada araw) ang pinakamababa.");
+        "Our suggested minimum price is {0} per job. You set your own price.",
+        "Ang suggested na pinakamababang presyo ay {0} kada trabaho. Ikaw ang magpapasya ng presyo mo.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 
@@ -262,6 +266,9 @@ public static class Copy
     public static readonly LocalizedText ReferenceName = new("Their name", "Pangalan niya");
     public static readonly LocalizedText ReferenceNumber = new("Their mobile number", "Mobile number niya");
     public static readonly LocalizedText ReferenceAdd = new("Add reference", "I-add ang reference");
+    public static readonly LocalizedText ReferenceConsent = new(
+        "They agreed to be my reference and to be contacted by Tarbaho.",
+        "Pumayag siyang maging reference ko at na tawagan siya ng Tarbaho.");
     public static readonly LocalizedText ReferenceRemove = new("Remove reference", "Tanggalin ang reference");
     public static readonly LocalizedText ReferenceNoName = new("Type their name.", "I-type ang pangalan niya.");
     public static readonly LocalizedText ReferenceBadNumber = new("That's not a mobile number. Try 0917 123 4567.", "Hindi mobile number 'yan. Halimbawa: 0917 123 4567.");
@@ -328,4 +335,81 @@ public static class Copy
         "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");
     public static readonly LocalizedText PublishFixReferences = new("Fix references", "Ayusin ang reference");
     public static readonly LocalizedText PublishFailed =new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
+
+    // --- Report and block (Components/Safety) --------------------------------
+    public static readonly LocalizedText ReportButton = new("Report or block", "I-report o i-block");
+    public static readonly LocalizedText ReportTitle = new("What's wrong?", "Ano ang problema?");
+    public static readonly LocalizedText ReportWhy = new(
+        "Only Tarbaho sees your report. We look into every report within 5 business days.",
+        "Tarbaho lang ang makakakita ng report mo. Titingnan namin ang bawat report sa loob ng 5 business days.");
+    public static readonly LocalizedText ReportEmergency = new("In an emergency, call 911.", "Kung emergency, tumawag sa 911.");
+    public static readonly LocalizedText ReportScam = new("Scam or asking for money", "Scam o nanghihingi ng pera");
+    public static readonly LocalizedText ReportHarassment = new("Rude, threatening or sexual", "Bastos, nananakot o malaswa");
+    public static readonly LocalizedText ReportFake = new("Fake profile, photos or review", "Pekeng profile, photos o review");
+    public static readonly LocalizedText ReportInappropriate = new("Offensive photo or words", "Nakakasakit na photo o salita");
+    public static readonly LocalizedText ReportEmployment = new("Offering a job or hiring workers", "Nag-aalok ng trabaho o naghahanap ng empleyado");
+    public static readonly LocalizedText ReportOther = new("Something else", "Iba pa");
+    public static readonly LocalizedText ReportNote = new("Tell us more (optional)", "Ikuwento pa (optional)");
+    public static readonly LocalizedText ReportAlsoBlock = new(
+        "Also block them: you won't see each other or chat again",
+        "I-block din: hindi na kayo magkikita o makakapag-chat sa app");
+    public static readonly LocalizedText ReportSend = new("Send report", "I-send ang report");
+    public static readonly LocalizedText ReportJustBlock = new("Just block, don't report", "I-block lang, huwag i-report");
+    public static readonly LocalizedText ReportFailed = new("Didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText ReportThanksTitle = new("Thanks for telling us", "Salamat sa pagsabi");
+    public static readonly LocalizedText ReportThanksWhy = new(
+        "We'll look into it within 5 business days.",
+        "Titingnan namin ito sa loob ng 5 business days.");
+    public static readonly LocalizedText BlockedTitle = new("Blocked", "Na-block na");
+    public static readonly LocalizedText BlockedWhy = new(
+        "You won't see each other in the app, and they can't message you.",
+        "Hindi na kayo magkikita sa app, at hindi ka na nila mame-message.");
+    public static readonly LocalizedText ReportDone = new("Done", "Tapos na");
+
+    // --- Feedback board (Components/Feedback) ---------------------------------
+    public static readonly LocalizedText FeedbackMenu = new("Suggest a feature", "Mag-suggest ng feature");
+    public static readonly LocalizedText FeedbackMenuHint = new("Vote on what we add next", "Bumoto kung ano ang susunod naming idadagdag");
+    public static readonly LocalizedText FeedbackTitle = new("Ideas for Tarbaho", "Mga idea para sa Tarbaho");
+    public static readonly LocalizedText FeedbackWhy = new(
+        "Vote for what you want most. We work on the top ones first.",
+        "I-vote ang pinakagusto mo. Uunahin namin ang may pinakamaraming boto.");
+    public static readonly LocalizedText FeedbackEmpty = new("No ideas yet. Be the first to suggest one.", "Wala pang idea. Ikaw na ang mauna.");
+    public static readonly LocalizedText FeedbackSuggest = new("Suggest a feature", "Mag-suggest ng feature");
+    public static readonly LocalizedText FeedbackVote = new("Vote for this", "I-vote ito");
+    public static readonly LocalizedText FeedbackUnvote = new("Take back your vote", "Bawiin ang boto mo");
+    public static readonly LocalizedText FeedbackVotesOne = new("1 vote", "1 boto");
+    /// <summary>{0} = how many people voted.</summary>
+    public static readonly LocalizedText FeedbackVotes = new("{0} votes", "{0} boto");
+    public static readonly LocalizedText FeedbackPlanned = new("Planned", "Gagawin na");
+    public static readonly LocalizedText FeedbackDone = new("Done", "Tapos na");
+    public static readonly LocalizedText FeedbackMine = new("Your idea", "Idea mo");
+    public static readonly LocalizedText FeedbackRemove = new("Remove", "Alisin");
+    public static readonly LocalizedText FeedbackReport = new("Report this", "I-report ito");
+    public static readonly LocalizedText FeedbackReported = new("Reported. Thank you.", "Na-report na. Salamat.");
+    public static readonly LocalizedText FeedbackFailed = new(
+        "That didn't go through. Check your internet and try again.",
+        "Hindi natuloy. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText SuggestTitle = new("What should we add?", "Ano ang gusto mong idagdag namin?");
+    public static readonly LocalizedText SuggestWhy = new(
+        "One idea at a time. Everyone can see it, so no names or numbers.",
+        "Isang idea lang muna. Makikita ito ng lahat, kaya walang pangalan o number.");
+    public static readonly LocalizedText SuggestLabel = new("Your idea", "Idea mo");
+    public static readonly LocalizedText SuggestPlaceholder = new("e.g. Pay with GCash", "hal. Bayad gamit ang GCash");
+    public static readonly LocalizedText SuggestDetails = new("More details (optional)", "Dagdag na detalye (optional)");
+    public static readonly LocalizedText SuggestSimilarTitle = new("Is it one of these?", "Isa ba ito sa mga ito?");
+    public static readonly LocalizedText SuggestSimilarWhy = new(
+        "Someone may have asked already. Add your vote so it moves up.",
+        "Baka may nag-suggest na. I-vote mo na lang para umangat.");
+    /// <summary>{0} = what the person typed.</summary>
+    public static readonly LocalizedText SuggestYours = new("Your idea: {0}", "Idea mo: {0}");
+    public static readonly LocalizedText SuggestSame = new("Yes, same idea: add my vote", "Oo, pareho: i-vote ko");
+    public static readonly LocalizedText SuggestSameVoted = new("Yes, same idea", "Oo, pareho");
+    public static readonly LocalizedText SuggestDifferent = new("No, mine is different: post it", "Hindi, iba ang sa akin: i-post");
+    public static readonly LocalizedText SuggestPostedTitle = new("Posted. Thank you!", "Na-post na. Salamat!");
+    public static readonly LocalizedText SuggestPostedWhy = new(
+        "Others can now vote for it. We work on the most voted ideas first.",
+        "Pwede na itong i-vote ng iba. Uunahin namin ang may pinakamaraming boto.");
+    public static readonly LocalizedText SuggestVotedTitle = new("Your vote is in", "Nabilang na ang boto mo");
+    public static readonly LocalizedText SuggestVotedWhy = new("That idea just moved up. Thank you!", "Umangat ang idea na iyon. Salamat!");
+    public static readonly LocalizedText SuggestDone = new("Back to ideas", "Balik sa mga idea");
 }

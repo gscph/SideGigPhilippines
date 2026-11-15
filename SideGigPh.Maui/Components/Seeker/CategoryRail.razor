@@ -5,7 +5,7 @@
                    OnClick="() => OnPick.InvokeAsync(item.Id)">
             <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="mud-width-full">
                 <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="category-icon mud-background-gray rounded-lg">
-                    <MudText Typo="Typo.h4" HtmlTag="span" aria-hidden="true">@item.Icon</MudText>
+                    <MudImage Src="@item.Icon" Alt="" Width="36" Height="36" aria-hidden="true" />
                 </MudStack>
                 <MudText Typo="Typo.caption" Color="Color.Dark" Align="Align.Center" Class="two-lines">@item.Label</MudText>
             </MudStack>

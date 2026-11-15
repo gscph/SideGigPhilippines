@@ -11,12 +11,15 @@ namespace SideGigPh.Maui.Services.Api;
 /// <param name="ApiUrl">The Azure Functions API, e.g. <c>https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/</c>.</param>
 /// <param name="PhotoBaseUrl">The public blob container, e.g. <c>https://sidegigphbfb9.blob.core.windows.net/photos/</c>.</param>
 /// <param name="Handler">Leave null in the app. Tests pass one to talk to an in-process API instead of the network.</param>
-public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl, HttpMessageHandler? Handler = null);
+/// <param name="ClientVersion">This app build (<c>BuildInfo.ClientHeader</c>), sent on every call as <c>X-App-Version</c>.</param>
+public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl, HttpMessageHandler? Handler = null, string? ClientVersion = null);
 
 /// <summary>
 /// The one HTTP connection to SideGigPh.Api. Every request carries the signed-in user's ID token
 /// (<see cref="IIdentityProvider.GetIdTokenAsync"/>), which the API checks; JSON uses the shared
-/// <c>SideGigPh.Contracts.ApiJson</c> types.
+/// <c>SideGigPh.Contracts.ApiJson</c> types. Every request also names the app build (<c>X-App-Version</c>) and a
+/// failed one is logged with the API build that answered (<c>X-Api-Version</c>), so an error report says which
+/// versions met.
 /// </summary>
 public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger)
 {
@@ -113,10 +116,17 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         }
 
         var body = await response.Content.ReadAsStringAsync();
-        logger.LogError("API: couldn't {What}: {Status} {Reason}\n{Body}", what, (int)response.StatusCode, response.ReasonPhrase, body);
+        var apiVersion = ApiVersionOf(response);
+        logger.LogError("API {ApiVersion}: couldn't {What}: {Status} {Reason}\n{Body}", apiVersion, what, (int)response.StatusCode, response.ReasonPhrase, body);
         throw new HttpRequestException(
-            $"API: couldn't {what}: {(int)response.StatusCode} {response.ReasonPhrase}. {body}", null, response.StatusCode);
+            $"API {apiVersion}: couldn't {what}: {(int)response.StatusCode} {response.ReasonPhrase}. {body}", null, response.StatusCode);
     }
+
+    /// <summary>The API build that answered (<c>X-Api-Version</c>), or "unknown" (an older API, or an answer from Azure's front door).</summary>
+    public static string ApiVersionOf(HttpResponseMessage response) =>
+        response.Headers.TryGetValues(SideGigPh.Contracts.ApiHeaders.ApiVersion, out var values) && values.FirstOrDefault() is { Length: > 0 } version
+            ? version
+            : Diagnostics.BuildInfo.Unknown;
 
     public static string Escape(string value) => Uri.EscapeDataString(value);
 
@@ -127,6 +137,11 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         var http = options.Handler is null ? new HttpClient(GzipHandler()) : new HttpClient(options.Handler, disposeHandler: false);
         http.BaseAddress = new Uri(options.ApiUrl);
         http.Timeout = TimeSpan.FromSeconds(60);
+        if (!string.IsNullOrWhiteSpace(options.ClientVersion))
+        {
+            http.DefaultRequestHeaders.TryAddWithoutValidation(SideGigPh.Contracts.ApiHeaders.AppVersion, options.ClientVersion);
+        }
+
         return http;
     }
 

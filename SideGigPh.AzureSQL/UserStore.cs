@@ -4,7 +4,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.AzureSQL;
 
 /// <summary>The signed-in person's profile (<c>Users</c>). Only that person reads or writes it.</summary>
-public sealed class UserStore(SideGigPhDb db)
+public sealed class UserStore(SideGigPhDb db, ListingCache listings)
 {
     public async Task<UserDto?> GetAsync(string uid, CancellationToken cancellationToken) =>
         await db.Users.AsNoTracking().Where(u => u.Uid == uid).Select(u => ToDto(u)).FirstOrDefaultAsync(cancellationToken);
@@ -69,6 +69,38 @@ public sealed class UserStore(SideGigPhDb db)
         // Their "Others" notes stay for analytics, without saying who wrote them.
         await db.OtherJobNotes.Where(n => n.Uid == uid).ExecuteUpdateAsync(set => set.SetProperty(n => n.Uid, (string?)null), cancellationToken);
         await db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Delete account: everything the person has in the database, in one transaction. Their listing (with its
+    /// services, towns, work photos and references), every chat they are in (for both people), the reviews they wrote
+    /// AND the reviews about them, their blocks both ways, their phones and profile. Reports they made lose their name;
+    /// reports about them stay for the operator. "Others" notes stay without their uid, and so do the features they
+    /// suggested on the feedback board (shown without a name anyway); their votes there are removed. Answers with the photo ids
+    /// the person used, so the caller can delete the stored photos too.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> DeleteAccountAsync(string uid, CancellationToken cancellationToken)
+    {
+        var photoIds = await db.InTransactionAsync<IReadOnlyList<string>>(async ct =>
+        {
+            var photos = await db.ProfessionalWorkPhotos.Where(w => w.ProfessionalId == uid).Select(w => w.PhotoId).ToListAsync(ct);
+            photos.AddRange(await db.Professionals.Where(p => p.Id == uid && p.ProfilePhotoId != null).Select(p => p.ProfilePhotoId!).ToListAsync(ct));
+            photos.AddRange(await db.Users.Where(u => u.Uid == uid && u.ProfilePhotoId != null).Select(u => u.ProfilePhotoId!).ToListAsync(ct));
+
+            await db.Professionals.Where(p => p.Id == uid).ExecuteDeleteAsync(ct);
+            await db.Chats.Where(c => c.SeekerId == uid || c.ProfessionalId == uid).ExecuteDeleteAsync(ct);
+            await db.Reviews.Where(r => r.SeekerId == uid || r.ProfessionalId == uid).ExecuteDeleteAsync(ct);
+            await db.Blocks.Where(b => b.BlockerUid == uid || b.BlockedUid == uid).ExecuteDeleteAsync(ct);
+            await db.Reports.Where(r => r.ReporterUid == uid).ExecuteUpdateAsync(set => set.SetProperty(r => r.ReporterUid, (string?)null), ct);
+            await db.PushDevices.Where(d => d.Uid == uid).ExecuteDeleteAsync(ct);
+            await db.OtherJobNotes.Where(n => n.Uid == uid).ExecuteUpdateAsync(set => set.SetProperty(n => n.Uid, (string?)null), ct);
+            await FeedbackStore.ForgetAsync(db, uid, ct);
+            await db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(ct);
+            return photos.Distinct().ToList();
+        }, cancellationToken);
+
+        listings.Clear(); // search results carry the listing and the stars
+        return photoIds;
     }
 
     private static UserDto ToDto(UserRow u) =>

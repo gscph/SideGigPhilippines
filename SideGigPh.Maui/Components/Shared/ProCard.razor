@@ -1,6 +1,6 @@
 @if (Dense)
 {
-    <MudCard Outlined="true" Elevation="1" Class="@Class">
+    <MudCard Outlined="true" Elevation="0" Class="@CardClass">
         <MudCardContent Class="pa-3">
             <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
                 <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Size="Size.Large" />
@@ -22,7 +22,7 @@
 }
 else
 {
-    <MudCard Outlined="true" Elevation="1" Class="@Class">
+    <MudCard Outlined="true" Elevation="0" Class="@CardClass">
         <MudCardHeader Class="pb-0">
             <CardHeaderAvatar>
                 <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Size="Size.Large" />

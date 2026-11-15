@@ -22,6 +22,15 @@ public enum Limited
 
     /// <summary>A review written or changed.</summary>
     Review,
+
+    /// <summary>A report about another user (each one waits for the operator).</summary>
+    Report,
+
+    /// <summary>A suggestion posted on the feedback board (everyone sees it).</summary>
+    Feedback,
+
+    /// <summary>A vote added or taken back on the feedback board.</summary>
+    FeedbackVote,
 }
 
 /// <summary>
@@ -41,6 +50,9 @@ public sealed class CallerLimits : IDisposable
         [Limited.OtherJobNote] = (20, TimeSpan.FromHours(1)),
         [Limited.PhotoUpload] = (10, TimeSpan.FromMinutes(15)),
         [Limited.Review] = (30, TimeSpan.FromHours(1)),
+        [Limited.Report] = (10, TimeSpan.FromHours(1)),
+        [Limited.Feedback] = (10, TimeSpan.FromHours(1)),
+        [Limited.FeedbackVote] = (120, TimeSpan.FromHours(1)),
     };
 
     private readonly PartitionedRateLimiter<(Limited Kind, string Uid)> _limiter =

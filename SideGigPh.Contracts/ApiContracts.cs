@@ -17,6 +17,19 @@ public static class Wire
 }
 
 /// <summary>The error codes the API answers with, as <c>{ "error": "…" }</c>.</summary>
+/// <summary>
+/// The headers that say which builds are talking: the app names its build on every call, the API names its own on
+/// every answer. Error reports and the server's error logs carry both.
+/// </summary>
+public static class ApiHeaders
+{
+    /// <summary>On every request: the app build, e.g. <c>0.1.0-rc.12 (beta; 48466c9)</c>.</summary>
+    public const string AppVersion = "X-App-Version";
+
+    /// <summary>On every answer: the API build, e.g. <c>0.1.0-rc.57+48466c9</c>.</summary>
+    public const string ApiVersion = "X-Api-Version";
+}
+
 public static class ApiErrors
 {
     /// <summary>409 on publish: anti-fraud rule 1, the number already has a listing.</summary>
@@ -45,6 +58,9 @@ public static class ApiErrors
 
     /// <summary>429 on a chat message, new chat, "Others" note, photo upload or review: this account sent too many too fast.</summary>
     public const string TooManyRequests = "too-many-requests";
+
+    /// <summary>403 on a chat message: one of the two blocked the other.</summary>
+    public const string Blocked = "blocked";
 
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
@@ -335,6 +351,9 @@ public static class Paging
 
     /// <summary>Inbox chats per page: the newest 30, and 30 older each time the person scrolls to the end.</summary>
     public const int Inbox = 30;
+
+    /// <summary>Feedback board suggestions per page: the 20 most voted, and 20 more each time the person scrolls to the end.</summary>
+    public const int Feedback = 20;
 }
 
 /// <summary>One worker in ranked search results, with why they ranked where they did.</summary>
@@ -347,3 +366,35 @@ public sealed record SearchHitDto(ListingDto Listing, bool OffersService, bool S
 /// <paramref name="ServiceFallback"/>: always false now (the job is a hard filter); kept for app versions that read it.
 /// </summary>
 public sealed record SearchPageDto(List<SearchHitDto> Hits, int InTownCount, int OtherTownsCount, bool ServiceFallback);
+
+/// <summary>What a report is about (<see cref="ReportRequest.Kind"/>).</summary>
+public static class ReportKinds
+{
+    public const string Listing = "listing";
+    public const string Review = "review";
+    public const string Chat = "chat";
+    public const string User = "user";
+
+    public static readonly IReadOnlyList<string> All = [Listing, Review, Chat, User];
+}
+
+/// <summary>Why someone reports (<see cref="ReportRequest.Reason"/>); the app shows one tile per reason.</summary>
+public static class ReportReasons
+{
+    public const string Scam = "scam";
+    public const string Harassment = "harassment";
+    public const string Fake = "fake";
+    public const string Inappropriate = "inappropriate";
+    public const string Employment = "employment";
+    public const string Other = "other";
+
+    public static readonly IReadOnlyList<string> All = [Scam, Harassment, Fake, Inappropriate, Employment, Other];
+}
+
+/// <summary>
+/// <c>POST reports</c>: the caller reports <paramref name="TargetUid"/> (the worker of a listing, a review's writer, the
+/// other person in a chat). <paramref name="SubjectId"/> is the chat id for a chat report. With
+/// <paramref name="AlsoBlock"/> the caller also blocks them, so they disappear for the caller at once.
+/// </summary>
+public sealed record ReportRequest(string TargetUid, string Kind, string Reason, string? SubjectId, string? Note, bool AlsoBlock);
+

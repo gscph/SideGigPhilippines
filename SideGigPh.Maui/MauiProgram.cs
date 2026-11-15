@@ -2,6 +2,7 @@
 using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme; // MAUI has an AppTheme enum too
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Diagnostics;
 using SideGigPh.Maui.Services.Local;
@@ -18,18 +19,14 @@ namespace SideGigPh.Maui
         private const string GoogleWebClientId = "742654871295-4slv8fpgpbrllq8aoe3vbiphv3e64q3f.apps.googleusercontent.com";
 
         // SideGigPh.Api (Azure Functions) and the public blob container its photos are readable from. Not secrets.
-        private const string ApiUrl = "https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/";
+        internal const string ApiUrl = "https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/";
         private const string PhotoBaseUrl = "https://sidegigphbfb9.blob.core.windows.net/photos/";
 
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
             builder
-                .UseMauiApp<App>()
-                .ConfigureFonts(fonts =>
-                {
-                    fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+                .UseMauiApp<App>();
 
             builder.Services.AddMauiBlazorWebView();
 
@@ -50,12 +47,22 @@ namespace SideGigPh.Maui
             builder.AddFirebasePush(
                 new PushChannel(PushData.CustomersChannel, Copy.PushChannelCustomers.English, Alert: true),
                 new PushChannel(PushData.RepliesChannel, Copy.PushChannelReplies.English, Alert: false));
+            // Optional, each behind a build flag that is off by default (Directory.Build.props): usage analytics (Google
+            // Analytics for Firebase) and A/B tests (Firebase Remote Config + A/B Testing). With a flag off the call
+            // does nothing and the skeleton's do-nothing adapter stays, so the app builds with nothing set up in Firebase.
+            builder.AddFirebaseAnalytics();
+            builder.AddFirebaseExperiments(BuildInfo.Current.Channel == AppChannels.Dev ? TimeSpan.Zero : null);
+            builder.Services.AddSingleton(BuildInfo.Current);
+            builder.Services.AddSingleton<AppAnalytics>();
+            builder.Services.AddSingleton<FeedbackBoard>();
             builder.Services.AddSingleton<ChatAlerts>();
             builder.Services.AddSingleton<IAuthLanding, SideGigPhAuthLanding>();
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
             // Users, listings, reviews, chats and the trades and jobs (Azure SQL) and photos (Blob Storage), all through SideGigPh.Api.
             // Replaces the skeleton's on-device FilePhotoStore.
-            builder.Services.AddSideGigPhApi(new ApiOptions(ApiUrl, PhotoBaseUrl));
+            // Every call names this build (X-App-Version), so the server's error logs say which app version called.
+            var build = BuildInfo.Current;
+            builder.Services.AddSideGigPhApi(new ApiOptions(ApiUrl, PhotoBaseUrl, ClientVersion: build.ClientHeader));
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
             builder.Services.AddSingleton<ISplashLines, RoleSplashLines>();
             // The app config (trades and jobs, towns, prices…): loaded once while the splash shows (LaunchRouter), kept
@@ -75,9 +82,9 @@ namespace SideGigPh.Maui
             // Error reports (Services/Diagnostics): errors, crashes and stuck loading screens, scrubbed of personal data, kept
             // on the phone (diagnostics.json) and sent in the background while signed in; the Me page's switch turns it off.
             builder.Services.AddSingleton(new DeviceStamp(
-                $"{AppInfo.VersionString} ({AppInfo.BuildString})",
-                BuildInfo("CodeVersion") ?? "unknown",
-                BuildInfo("AppChannel") ?? AppChannels.Dev,
+                build.WithStoreBuild(AppInfo.BuildString),
+                build.CodeVersion,
+                build.Channel,
                 $"{DeviceInfo.Platform} {DeviceInfo.VersionString}".ToLowerInvariant(),
                 $"{DeviceInfo.Manufacturer} {DeviceInfo.Model}"));
             builder.Services.AddSingleton<IErrorLogStore, FileErrorLogStore>();
@@ -98,11 +105,5 @@ namespace SideGigPh.Maui
 
             return builder.Build();
         }
-
-        /// <summary>A value the csproj stamped into the app (its <c>StampCodeVersion</c> target): the git commit, the channel.</summary>
-        private static string? BuildInfo(string key) =>
-            typeof(MauiProgram).Assembly.GetCustomAttributes(typeof(System.Reflection.AssemblyMetadataAttribute), false)
-                .OfType<System.Reflection.AssemblyMetadataAttribute>()
-                .FirstOrDefault(a => a.Key == key)?.Value;
     }
 }

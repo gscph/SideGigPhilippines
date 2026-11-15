@@ -10,7 +10,12 @@
     }
     else
     {
-        <ChatHeader BackHref="@ProRoutes.Inbox" Name="@T.SeekerName(_chat)" Detail="@T.WhatAndWhere(_chat)" />
+        <ChatHeader BackHref="@ProRoutes.Inbox" Name="@T.SeekerName(_chat)" Detail="@T.WhatAndWhere(_chat)">
+            <Actions>
+                <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"
+                               Href="@ProRoutes.Report(_chat.SeekerId, ReportSubject.Chat, ProRoutes.Chat(_chat.Id), _chat.Id)" />
+            </Actions>
+        </ChatHeader>
 
         @if (!string.IsNullOrEmpty(T.WhenAndBudget(_chat)))
         {

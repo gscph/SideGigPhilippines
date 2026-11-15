@@ -1,0 +1,32 @@
+<Project>
+
+  <!-- Stamps what was built into the assembly as [AssemblyMetadata], for projects that set StampBuildInfo=true (the
+       app and the API): AppVersion (Directory.Build.props' AppVersionLabel, e.g. 0.1.0-rc.12), CodeVersion (the git
+       commit, "-dirty" with uncommitted changes; "unknown" without git) and, when the project has one, AppChannel.
+       Error reports and the API's error logs carry them, so a problem names the exact build. -->
+  <Target Name="StampBuildInfo" BeforeTargets="GetAssemblyAttributes" Condition="'$(StampBuildInfo)' == 'true'">
+    <Exec Command="git describe --always --dirty --abbrev=7" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true"
+          StandardOutputImportance="low" StandardErrorImportance="low" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true">
+      <Output TaskParameter="ConsoleOutput" PropertyName="CodeVersion" />
+      <Output TaskParameter="ExitCode" PropertyName="CodeVersionExitCode" />
+    </Exec>
+    <PropertyGroup>
+      <CodeVersion Condition="'$(CodeVersionExitCode)' != '0' Or '$(CodeVersion)' == ''">unknown</CodeVersion>
+    </PropertyGroup>
+    <ItemGroup>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>AppVersion</_Parameter1>
+        <_Parameter2>$(AppVersionLabel)</_Parameter2>
+      </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+        <_Parameter1>CodeVersion</_Parameter1>
+        <_Parameter2>$(CodeVersion)</_Parameter2>
+      </AssemblyAttribute>
+      <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute" Condition="'$(AppChannel)' != ''">
+        <_Parameter1>AppChannel</_Parameter1>
+        <_Parameter2>$(AppChannel)</_Parameter2>
+      </AssemblyAttribute>
+    </ItemGroup>
+  </Target>
+
+</Project>

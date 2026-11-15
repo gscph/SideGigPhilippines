@@ -17,6 +17,9 @@ public partial class ReviewRow : ComponentBase
 
     [Parameter] public string? PhotoUrl { get; set; }
 
+    /// <summary>Where the small flag goes to report the review (another person's review only); no flag when null.</summary>
+    [Parameter] public string? ReportHref { get; set; }
+
     private string DisplayName => Name ?? Review.ReviewerName;
 
     private string? ServiceLabel => ReferenceData.FindService(Review.ServiceId) is { } service

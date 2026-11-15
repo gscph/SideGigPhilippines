@@ -105,4 +105,40 @@ public sealed class LocalAccount(
         pro.Forget();
         seeker.Forget();
     }
+
+    /// <summary>
+    /// Delete account: the server deletes everything the person has there (listing, photos, references, chats, the
+    /// reviews they wrote and the ones about them) and, when it can, their sign-in account; then the sign-in provider's
+    /// part (deletes the account if it's still there, signs out) and this phone's answers. Throws when the server
+    /// didn't confirm, before anything on the phone is touched, so the person can try again.
+    /// </summary>
+    public async Task DeleteAccountAsync()
+    {
+        if (await identity.GetCurrentUserAsync() is null)
+        {
+            await StartOverAsync(); // no sign-in provider: the phone is the account
+            return;
+        }
+
+        var state = await store.LoadAsync();
+        var draft = state.Professional;
+        foreach (var photoId in draft.WorkPhotoIds.Append(draft.ProfilePhotoId).Append(state.Seeker.ProfilePhotoId).OfType<string>().Distinct())
+        {
+            try
+            {
+                // Photos uploaded but not on the listing yet; the server deletes the ones it knows.
+                await photos.DeleteAsync(photoId);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Deleting photo {PhotoId} with the account failed.", photoId);
+            }
+        }
+
+        await users.DeleteAccountAsync();
+        await identity.DeleteAccountAsync();
+        await store.ClearAsync();
+        pro.Forget();
+        seeker.Forget();
+    }
 }

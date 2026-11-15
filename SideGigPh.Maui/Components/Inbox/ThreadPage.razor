@@ -11,6 +11,8 @@
                            StartIcon="@Icons.Material.Rounded.Phone" Disabled="_busy" OnClick="CallAsync">
                     @T.Get(Copy.Call)
                 </MudButton>
+                <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"
+                               Href="@SeekerRoutes.Report(_pro.Id, ReportSubject.Chat, SeekerRoutes.Thread(_pro.Id), Workspace.ChatIdWith(_pro.Id))" />
             </Actions>
         </ChatHeader>
     }

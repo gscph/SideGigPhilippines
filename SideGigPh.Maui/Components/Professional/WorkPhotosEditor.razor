@@ -15,7 +15,7 @@
 
     @if (Workspace.WorkPhotos.Count == 0)
     {
-        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.PhotosEmpty)</MudText>
+        <EmptyState Icon="@Icons.Material.Outlined.PhotoLibrary" Text="@T.Get(Copy.PhotosEmpty)" />
     }
     else
     {

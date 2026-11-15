@@ -38,9 +38,6 @@ public static class CommonCopy
     public static readonly LocalizedText AccountLanguage = new("Language", "Language");
     public static readonly LocalizedText LanguageEnglish = new("English", "English");
     public static readonly LocalizedText LanguageTaglish = new("Taglish", "Taglish");
-    public static readonly LocalizedText AccountOnPhone = new(
-        "No sign-in yet: everything you add is saved on this phone.",
-        "Wala pang sign-in: naka-save sa phone na ito lahat ng nilagay mo.");
     public static readonly LocalizedText StartOver = new("Start over", "Magsimula ulit");
     public static readonly LocalizedText StartOverWhy = new(
         "Delete everything on this phone and answer the first questions again.",
@@ -50,6 +47,26 @@ public static class CommonCopy
         "Everything you added on this phone will be deleted. You can't undo this.",
         "Mabubura lahat ng nilagay mo sa phone na ito. Hindi na ito maibabalik.");
     public static readonly LocalizedText StartOverYes = new("Yes, delete and start over", "Oo, burahin at magsimula ulit");
+    public static readonly LocalizedText DeleteAccount = new("Delete account", "I-delete ang account");
+    public static readonly LocalizedText DeleteAccountWhy = new(
+        "Delete your account and everything in it for good. You will be signed out.",
+        "Burahin nang tuluyan ang account mo at lahat ng laman nito. Masa-sign out ka.");
+    public static readonly LocalizedText DeleteAccountAsk = new("Delete your account for good?", "I-delete nang tuluyan ang account mo?");
+    public static readonly LocalizedText DeleteAccountWarning = new(
+        "Your profile, photos, chats and reviews will be deleted. You can't undo this.",
+        "Mabubura ang profile, photos, chats at reviews mo. Hindi na ito maibabalik.");
+    public static readonly LocalizedText DeleteAccountYes = new("Yes, delete my account", "Oo, i-delete ang account ko");
+    public static readonly LocalizedText DeleteAccountFailed = new(
+        "Couldn't delete your account. Check your internet and try again.",
+        "Hindi na-delete ang account mo. I-check ang internet mo at subukan ulit.");
+
+    // --- Legal pages (AppBrand.Legal) --------------------------------------
+    public static readonly LocalizedText LegalTitle = new("Privacy and terms", "Privacy at terms");
+    public static readonly LocalizedText LegalPrivacy = new("Privacy Policy", "Privacy Policy");
+    public static readonly LocalizedText LegalTerms = new("Terms of Service", "Terms of Service");
+    public static readonly LocalizedText LegalData = new("Your data and deleting your account", "Ang data mo at pag-delete ng account");
+    public static readonly LocalizedText LegalAgree = new("By continuing, you agree to our", "Kapag nagtuloy ka, sang-ayon ka sa aming");
+    public static readonly LocalizedText LegalAnd = new("and", "at");
 
     // --- Sign-in (Components/Auth) ----------------------------------------
     public static readonly LocalizedText AuthTitle = new("Log in or sign up", "Mag-log in o mag-sign up");
@@ -66,6 +83,7 @@ public static class CommonCopy
     public static readonly LocalizedText AuthNoCode = new("Didn't get a code?", "Walang dumating na code?");
     public static readonly LocalizedText AuthOr = new("or", "o");
     public static readonly LocalizedText AuthGoogle = new("Continue with Google", "Tuloy gamit ang Google");
+    public static readonly LocalizedText AuthApple = new("Continue with Apple", "Tuloy gamit ang Apple");
     public static readonly LocalizedText AuthConnecting = new("Connecting…", "Kumokonekta…");
     public static readonly LocalizedText AuthPhoneLabel = new("Phone number", "Phone number");
     public static readonly LocalizedText AuthSending = new("Sending…", "Sine-send…");

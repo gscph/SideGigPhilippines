@@ -66,7 +66,7 @@ public partial class SeekerInterview : ComponentBase
     private IReadOnlyList<CatalogOption> BudgetChoices =>
     [
         .. Pricing.BudgetChoices(Answers.ServiceId, Answers.CategoryId, Answers.BudgetId).Where(choice => choice.Id != ReferenceData.Unsure),
-        new(Pricing.CustomBudget, Copy.BudgetCustom, "✏️", Copy.BudgetCustomHint),
+        new(Pricing.CustomBudget, Copy.BudgetCustom, AppImages.Custom, Copy.BudgetCustomHint),
         ReferenceData.UnsureOption,
     ];
 

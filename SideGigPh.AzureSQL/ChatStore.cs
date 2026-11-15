@@ -13,6 +13,9 @@ public enum SendOutcome
     /// <summary>The Skilled Worker's listing is gone, so a new chat can't start.</summary>
     NoListing,
 
+    /// <summary>One of the two blocked the other (<see cref="SafetyStore"/>).</summary>
+    Blocked,
+
     /// <summary>The Seeker has started too many chats lately (the caller's <c>canStartChat</c> said no).</summary>
     TooManyChats,
 
@@ -48,7 +51,12 @@ public sealed class ChatStore(SideGigPhDb db)
     public async Task<IReadOnlyList<ChatDto>> InboxAsync(
         string uid, bool asSeeker, int? take, string? beforeChatId, CancellationToken cancellationToken)
     {
-        var chats = db.Chats.AsNoTracking().Where(c => asSeeker ? c.SeekerId == uid : c.ProfessionalId == uid);
+        // A chat with someone either of them blocked leaves both Inboxes.
+        var chats = asSeeker
+            ? db.Chats.AsNoTracking().Where(c => c.SeekerId == uid
+                && !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == c.ProfessionalId) || (b.BlockerUid == c.ProfessionalId && b.BlockedUid == uid)))
+            : db.Chats.AsNoTracking().Where(c => c.ProfessionalId == uid
+                && !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == c.SeekerId) || (b.BlockerUid == c.SeekerId && b.BlockedUid == uid)));
         if (take is null)
         {
             return (await chats.OrderByDescending(c => c.LastMessageAt).ThenByDescending(c => c.Id).ToListAsync(cancellationToken))
@@ -146,6 +154,12 @@ public sealed class ChatStore(SideGigPhDb db)
         if (uid != request.SeekerId && uid != request.ProfessionalId)
         {
             return new SendResult(SendOutcome.Forbidden);
+        }
+
+        if (await db.Blocks.AnyAsync(b => (b.BlockerUid == request.SeekerId && b.BlockedUid == request.ProfessionalId)
+            || (b.BlockerUid == request.ProfessionalId && b.BlockedUid == request.SeekerId), cancellationToken))
+        {
+            return new SendResult(SendOutcome.Blocked);
         }
 
         return await db.InTransactionAsync(async ct =>

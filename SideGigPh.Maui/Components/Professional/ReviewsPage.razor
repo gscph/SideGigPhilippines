@@ -6,7 +6,7 @@
 
     @if (Workspace.Reviews.Count == 0)
     {
-        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.ReviewsEmpty)</MudText>
+        <EmptyState Icon="@Icons.Material.Outlined.StarOutline" Text="@T.Get(Copy.ReviewsEmpty)" />
     }
     else
     {
@@ -15,7 +15,7 @@
         <MudStack Spacing="0">
             @foreach (var review in Workspace.Reviews)
             {
-                <ReviewRow Review="review" />
+                <ReviewRow Review="review" ReportHref="@ProRoutes.Report(review.SeekerId, ReportSubject.Review, ProRoutes.Reviews)" />
                 <MudDivider />
             }
         </MudStack>

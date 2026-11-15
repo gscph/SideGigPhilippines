@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -37,4 +38,8 @@ public partial class PublicProfilePage : ComponentBase
         });
         _loading = false;
     }
+
+    /// <summary>Report another person's review; none on the Seeker's own.</summary>
+    private string? ReviewReportHref(Review review) =>
+        review.SeekerId == Workspace.MyId ? null : SeekerRoutes.Report(review.SeekerId, ReportSubject.Review, SeekerRoutes.Pro(Id));
 }

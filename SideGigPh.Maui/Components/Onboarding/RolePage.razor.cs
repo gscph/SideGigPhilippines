@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Components.Shared;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Onboarding;
@@ -14,6 +15,7 @@ public partial class RolePage : ComponentBase
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
+    [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -21,8 +23,8 @@ public partial class RolePage : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Options =>
     [
-        new(nameof(UserRole.Professional), T.Get(Copy.RoleProfessional), "🧰", T.Get(Copy.RoleProfessionalHint)),
-        new(nameof(UserRole.Seeker), T.Get(Copy.RoleSeeker), "🏠", T.Get(Copy.RoleSeekerHint)),       
+        new(nameof(UserRole.Professional), T.Get(Copy.RoleProfessional), AppImages.Worker, T.Get(Copy.RoleProfessionalHint)),
+        new(nameof(UserRole.Seeker), T.Get(Copy.RoleSeeker), AppImages.Home, T.Get(Copy.RoleSeekerHint)),
     ];
 
     private IReadOnlyCollection<string> Selected =>
@@ -49,6 +51,7 @@ public partial class RolePage : ComponentBase
 
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync();
+        Analytics.SetAudience(role, state.Language);
         Nav.NavigateTo(path);
     }
 

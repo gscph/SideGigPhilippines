@@ -13,9 +13,11 @@
             <MudStack Spacing="3" AlignItems="AlignItems.Center">
                 @if (!string.IsNullOrEmpty(Illustration))
                 {
-                    <MudAvatar Class="app-illustration mud-background-gray" aria-hidden="true">@Illustration</MudAvatar>
+                    <MudAvatar Class="app-illustration mud-background-gray" aria-hidden="true">
+                        <MudImage Src="@Illustration" Alt="" Class="app-illustration-image" />
+                    </MudAvatar>
                 }
-                <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">@Title</MudText>
+                <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center" Class="app-question">@Title</MudText>
                 @if (!string.IsNullOrEmpty(Why))
                 {
                     <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@Why</MudText>

@@ -40,6 +40,11 @@ public sealed class TestPhone
         services.AddSingleton<AppText>();
         services.AddSideGigPhApi(new ApiOptions(new Uri(api.Server.BaseAddress, "api/").ToString(), $"{InMemoryBlobContainer.ContainerUri}/", api.Server.CreateHandler()));
         services.AddSingleton<ProfessionalSearch>();
+        services.AddSingleton<IAnalytics, NoAnalytics>();
+        services.AddSingleton<IExperiments, NoExperiments>();
+        services.AddSingleton(SideGigPh.Maui.Services.Diagnostics.BuildInfo.Current);
+        services.AddSingleton<SideGigPh.Maui.Services.Analytics.AppAnalytics>();
+        services.AddSingleton<FeedbackBoard>();
         services.AddSingleton<ProWorkspace>();
         services.AddSingleton<SeekerWorkspace>();
         services.AddSingleton(provider => new LocalAccount(

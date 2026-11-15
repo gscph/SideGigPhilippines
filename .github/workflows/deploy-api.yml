@@ -1,7 +1,7 @@
 name: Deploy API (Azure Functions)
 
 # Builds SideGigPh.Api and deploys it to the Function App SideGigPhApi. Runs on its own when a push to main
-# changes the server's code (the API, its stores, the shared contracts, or this file), and by hand (Actions → Run
+# changes the server's code (the API, its stores, the shared contracts, the legal pages it serves, or this file), and by hand (Actions → Run
 # workflow). Changes to the SQL scripts don't deploy: run a new schema script on the database before pushing the
 # API that needs it. Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy": no password or
 # publish profile anywhere. Needs three repo secrets, printed by azure/cloudshell-github-deploy.sh:
@@ -17,6 +17,11 @@ on:
       - 'SideGigPh.AzureSQL/**'
       - '!SideGigPh.AzureSQL/Sql/**'
       - 'SideGigPh.Contracts/**'
+      - 'docs/legal/privacy-policy.md'
+      - 'docs/legal/terms-of-service.md'
+      - 'docs/legal/data-handling.md'
+      - 'Directory.Build.props'
+      - 'Directory.Build.targets'
       - '.github/workflows/deploy-api.yml'
 
 concurrency:
@@ -65,7 +70,8 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Publish
-        run: dotnet publish ${{ env.PROJECT }} -c Release -o ${{ github.workspace }}/output/api
+        # The API's version: Directory.Build.props plus this run's number (0.1.0-rc.57), sent on every answer as X-Api-Version.
+        run: dotnet publish ${{ env.PROJECT }} -c Release -p:BuildNumber=${{ github.run_number }} -o ${{ github.workspace }}/output/api
 
       - name: Sign in to Azure (OIDC, managed identity)
         uses: azure/login@v2

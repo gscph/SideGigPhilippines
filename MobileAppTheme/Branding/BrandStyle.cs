@@ -42,4 +42,9 @@ public sealed record BrandStyle
     public string LinesInputs { get; init; } = "#b0b0b0";
 
     public string CornerRadius { get; init; } = "8px";
+
+    /// <summary>The font stack, first choice first. The default is the phone's own font; an app that ships a web
+    /// font in its wwwroot (with an <c>@font-face</c> in its app.css) puts that font's name first.</summary>
+    public string[] FontFamily { get; init; } =
+        ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"];
 }

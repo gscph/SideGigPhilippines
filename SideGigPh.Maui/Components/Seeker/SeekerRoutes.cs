@@ -1,3 +1,5 @@
+using SideGigPh.Maui.Models;
+
 namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>The Seeker side's pages, so links and tabs never drift from the <c>@page</c> routes.</summary>
@@ -11,6 +13,9 @@ public static class SeekerRoutes
     public const string Reviews = Me + "/reviews";
     public const string Me = "/me";
 
+    /// <summary>The feedback board (suggest features, vote), opened from the Me page.</summary>
+    public static readonly string Feedback = Components.Feedback.FeedbackRoutes.Board(Components.Feedback.FeedbackRoutes.SeekerSide);
+
     /// <summary>A pro's public profile.</summary>
     public static string Pro(string professionalId) => $"/pro/{Uri.EscapeDataString(professionalId)}";
 
@@ -18,4 +23,8 @@ public static class SeekerRoutes
     public static string Thread(string professionalId) => $"/inbox/{Uri.EscapeDataString(professionalId)}";
 
     public static string Rate(string professionalId) => $"{Reviews}/rate/{Uri.EscapeDataString(professionalId)}";
+
+    /// <summary>Report or block a person (a worker, or a review's writer); Back and Done return to <paramref name="back"/>.</summary>
+    public static string Report(string personId, ReportSubject subject, string back, string? chatId = null) =>
+        Safety.ReportRoutes.Report(Safety.ReportRoutes.SeekerSide, personId, subject, back, chatId);
 }

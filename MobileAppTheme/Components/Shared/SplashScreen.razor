@@ -11,4 +11,8 @@
         }
     </MudStack>
     <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+    @if (!string.IsNullOrEmpty(Brand.Version))
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center">@Brand.Version</MudText>
+    }
 </MudStack>

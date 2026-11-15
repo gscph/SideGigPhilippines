@@ -9,7 +9,7 @@
             break;
 
         case SeekerStep.Category:
-            <InterviewStep Illustration="🧰" Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack"
+            <InterviewStep Illustration="@AppImages.HomeRepair" Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack"
                            OnNext="OtherTradeNext" CanContinue="@HasOtherTradeText">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.TradeChoices, T)"
                              SelectedIds="Selected(_pickedOtherTrade ? ReferenceData.OtherTradeId : Answers.CategoryId)" OnPick="PickCategoryAsync" />
@@ -22,7 +22,7 @@
             break;
 
         case SeekerStep.Service:
-            <InterviewStep Illustration="🔧" Title="@T.Get(Copy.SeekerServiceTitle)" Why="@T.Get(Copy.SeekerServiceWhy)"
+            <InterviewStep Illustration="@AppImages.Job" Title="@T.Get(Copy.SeekerServiceTitle)" Why="@T.Get(Copy.SeekerServiceWhy)"
                            Progress="Progress" OnBack="GoBack" OnNext="OtherJobNext">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesOf(Answers.CategoryId), T)"
                              SelectedIds="Selected(Answers.ServiceId)" OnPick="PickServiceAsync" />
@@ -34,14 +34,14 @@
             break;
 
         case SeekerStep.City:
-            <InterviewStep Illustration="📍" Title="@T.Get(Copy.SeekerCityTitle)" Why="@T.Get(Copy.SeekerCityWhy)" Note="@T.Get(Copy.CitiesNote)"
+            <InterviewStep Illustration="@AppImages.Town" Title="@T.Get(Copy.SeekerCityTitle)" Why="@T.Get(Copy.SeekerCityWhy)" Note="@T.Get(Copy.CitiesNote)"
                            Progress="Progress" OnBack="GoBack">
                 <TownPicker SelectedIds="Selected(Answers.CityId)" OnPick="PickCityAsync" />
             </InterviewStep>
             break;
 
         case SeekerStep.When:
-            <InterviewStep Illustration="🗓️" Title="@T.Get(Copy.SeekerWhenTitle)" Why="@T.Get(Copy.SeekerWhenWhy)"
+            <InterviewStep Illustration="@AppImages.When" Title="@T.Get(Copy.SeekerWhenTitle)" Why="@T.Get(Copy.SeekerWhenWhy)"
                            Progress="Progress" OnBack="GoBack">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Urgencies, T)"
                              SelectedIds="Selected(Answers.UrgencyId)" OnPick="PickWhenAsync" />
@@ -49,7 +49,7 @@
             break;
 
         case SeekerStep.Budget:
-            <InterviewStep Illustration="💰" Title="@T.Get(Copy.SeekerBudgetTitle)" Why="@BudgetWhy" Note="@T.Get(Copy.SeekerBudgetWhy)"
+            <InterviewStep Illustration="@AppImages.Budget" Title="@T.Get(Copy.SeekerBudgetTitle)" Why="@BudgetWhy" Note="@T.Get(Copy.SeekerBudgetWhy)"
                            Progress="Progress" OnBack="GoBack" OnNext="CustomBudgetNext" CanContinue="@Pricing.IsValidBudget(_customMin, _customMax)">
                 <ChoiceTiles Items="ChoiceItem.From(BudgetChoices, T)"
                              SelectedIds="Selected(_customBudget ? Pricing.CustomBudget : Answers.BudgetId)" OnPick="PickBudgetAsync" />

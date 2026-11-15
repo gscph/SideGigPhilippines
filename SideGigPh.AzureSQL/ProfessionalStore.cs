@@ -46,18 +46,26 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// One trade's listings with their stars, in one area when given, unranked. <c>GET professionals</c> for app
     /// versions before paging; <see cref="SearchPageAsync"/> ranks.
     /// </summary>
-    public async Task<IReadOnlyList<ListingDto>> SearchAsync(string categoryId, string? areaId, CancellationToken cancellationToken) =>
-        [.. (await CandidatesAsync(categoryId, areaId, cancellationToken)).Select(c => c.Listing)];
+    /// <param name="hidden">People hidden from the caller (blocks, <see cref="SafetyStore.HiddenForAsync"/>), left out after the shared cache.</param>
+    public async Task<IReadOnlyList<ListingDto>> SearchAsync(
+        string categoryId, string? areaId, IReadOnlySet<string> hidden, CancellationToken cancellationToken) =>
+        [.. (await CandidatesAsync(categoryId, areaId, cancellationToken)).Where(c => !hidden.Contains(c.Listing.Id)).Select(c => c.Listing)];
 
     /// <summary>
     /// One page of a trade's workers ranked for this Seeker (<see cref="SearchRanker"/>), <paramref name="take"/> at
     /// most <see cref="MaxSearchPage"/>. The listings come from the 30 s <see cref="ListingCache"/>, so the next pages
     /// rank the same list again without reading the database.
     /// </summary>
+    /// <param name="hidden">People hidden from the caller (blocks, <see cref="SafetyStore.HiddenForAsync"/>), left out after the shared cache.</param>
     public async Task<SearchPageDto> SearchPageAsync(
-        string categoryId, string? areaId, RankRequest request, int skip, int take, CancellationToken cancellationToken)
+        string categoryId, string? areaId, RankRequest request, int skip, int take, IReadOnlySet<string> hidden, CancellationToken cancellationToken)
     {
-        var candidates = await CandidatesAsync(categoryId, areaId, cancellationToken);
+        IReadOnlyList<RankCandidate> candidates = await CandidatesAsync(categoryId, areaId, cancellationToken);
+        if (hidden.Count > 0)
+        {
+            candidates = [.. candidates.Where(c => !hidden.Contains(c.Listing.Id))];
+        }
+
         var scales = RankScales.From((await config.GetAsync(cancellationToken)).Config);
         return SearchRanker.Rank(candidates, request, scales, DateTimeOffset.UtcNow)
             .Page(Math.Max(0, skip), Math.Clamp(take, 1, MaxSearchPage));

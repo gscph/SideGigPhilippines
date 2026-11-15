@@ -128,6 +128,7 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
             SendOutcome.Sent => new OkObjectResult(result.Chat),
             SendOutcome.Forbidden => new StatusCodeResult(StatusCodes.Status403Forbidden),
             SendOutcome.NoListing => new NotFoundResult(),
+            SendOutcome.Blocked => ApiResults.Forbidden(ApiErrors.Blocked),
             SendOutcome.TooManyChats => ApiResults.TooMany(),
             _ => ApiResults.BadRequest(),
         };

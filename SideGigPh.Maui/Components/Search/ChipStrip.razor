@@ -5,7 +5,7 @@
         <MudChip T="string" Color="@(selected ? Color.Primary : Color.Dark)" Variant="@(selected ? Variant.Filled : Variant.Outlined)"
                  Class="ma-0 flex-shrink-0" aria-pressed="@(selected ? "true" : "false")"
                  OnClick="() => OnPick.InvokeAsync(item.Id)">
-            @(item.Icon is null ? item.Label : $"{item.Icon} {item.Label}")
+            @item.Label
         </MudChip>
     }
 </MudStack>

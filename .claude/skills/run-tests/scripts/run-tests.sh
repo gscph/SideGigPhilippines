@@ -21,7 +21,7 @@ coverage=0
 rest=()
 
 # Paths the tests compile or read. A change anywhere else (CSS, images, .razor markup, docs) can't change a result.
-test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|\.github/workflows/)'
+test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$|\.github/workflows/)'
 
 for arg in "$@"; do
   case "$arg" in
@@ -49,6 +49,8 @@ for project in "${projects[@]}"; do
   tar -C "$repo" --exclude=bin --exclude=obj --exclude='*.user' --exclude=local.settings.json -cf - "$project" | tar -C "$copy" -xf -
 done
 cp "$repo"/Directory.*.props "$repo"/Directory.*.targets "$repo"/global.json "$copy"/ 2>/dev/null || true
+# The API embeds the public legal pages (LegalFunctions).
+rm -rf "$copy/docs/legal" && mkdir -p "$copy/docs" && cp -r "$repo/docs/legal" "$copy/docs/"
 
 cd "$copy"
 args=(test SideGigPh.Tests/SideGigPh.Tests.csproj --nologo -v q "${filter[@]}" "${rest[@]}")

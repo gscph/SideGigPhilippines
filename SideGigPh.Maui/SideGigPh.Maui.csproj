@@ -27,12 +27,18 @@
         <!-- App Identifier -->
         <ApplicationId>com.sidegigph.app</ApplicationId>
 
-        <!-- Versions -->
-        <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
-        <ApplicationVersion>1</ApplicationVersion>
+        <!-- Versions: set once in ../Directory.Build.props (AppVersionNumber, AppVersionStage) plus CI's BuildNumber.
+             Android shows the whole label (0.1.0-rc.12) in Settings > Apps; iOS only allows numbers there (0.1.0).
+             The store build number (Android versionCode, iOS CFBundleVersion) is the CI run number, 1 on a PC. -->
+        <ApplicationDisplayVersion>$(AppVersionNumber)</ApplicationDisplayVersion>
+        <ApplicationDisplayVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">$(AppVersionLabel)</ApplicationDisplayVersion>
+        <ApplicationVersion>$(BuildNumber)</ApplicationVersion>
+        <ApplicationVersion Condition="'$(BuildNumber)' == '0'">1</ApplicationVersion>
+        <!-- The version label, git commit and channel go into the assembly (Directory.Build.targets), read by Services/Diagnostics/BuildInfo. -->
+        <StampBuildInfo>true</StampBuildInfo>
 
         <!-- Release channel, sent with error reports: dev (Debug builds), beta (Release builds, the default), prod
-             (store builds: dotnet publish ... -p:AppChannel=prod). Read at run time by MauiProgram.BuildInfo. -->
+             (store builds: dotnet publish ... -p:AppChannel=prod). Read at run time by BuildInfo. -->
         <AppChannel Condition="'$(AppChannel)' == '' And '$(Configuration)' == 'Release'">beta</AppChannel>
         <!-- A component tag Razor can't find (a missing @using) renders nothing at all: fail the build instead of a warning. -->
         <WarningsAsErrors>$(WarningsAsErrors);RZ10012</WarningsAsErrors>
@@ -48,13 +54,6 @@
 
         <!-- Splash Screen -->
         <MauiSplashScreen Include="Resources\Splash\splash.svg" Color="#FFFFFF" BaseSize="160,160" />
-
-        <!-- Images -->
-        <MauiImage Include="Resources\Images\*" />
-        <MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
-
-        <!-- Custom Fonts -->
-        <MauiFont Include="Resources\Fonts\*" />
 
         <!-- Raw Assets (also remove the "Resources\Raw" prefix) -->
         <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
@@ -112,27 +111,9 @@
         <BundleResource Include="Platforms\iOS\GoogleService-Info.plist" Condition="Exists('Platforms\iOS\GoogleService-Info.plist')" />
     </ItemGroup>
 
-    <!-- Stamps the code version (git commit, "-dirty" with uncommitted changes; "unknown" without git) and the channel
-         into the assembly as [AssemblyMetadata], so error reports say exactly which code a phone runs. -->
-    <Target Name="StampCodeVersion" BeforeTargets="GetAssemblyAttributes">
-        <Exec Command="git describe --always --dirty --abbrev=7" WorkingDirectory="$(MSBuildProjectDirectory)" ConsoleToMSBuild="true"
-              StandardOutputImportance="low" StandardErrorImportance="low" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true" ContinueOnError="true">
-            <Output TaskParameter="ConsoleOutput" PropertyName="CodeVersion" />
-            <Output TaskParameter="ExitCode" PropertyName="CodeVersionExitCode" />
-        </Exec>
-        <PropertyGroup>
-            <CodeVersion Condition="'$(CodeVersionExitCode)' != '0' Or '$(CodeVersion)' == ''">unknown</CodeVersion>
-        </PropertyGroup>
-        <ItemGroup>
-            <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-                <_Parameter1>CodeVersion</_Parameter1>
-                <_Parameter2>$(CodeVersion)</_Parameter2>
-            </AssemblyAttribute>
-            <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
-                <_Parameter1>AppChannel</_Parameter1>
-                <_Parameter2>$(AppChannel)</_Parameter2>
-            </AssemblyAttribute>
-        </ItemGroup>
-    </Target>
+    <!-- iOS capabilities (Sign in with Apple). -->
+    <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+        <CodesignEntitlements>Platforms\iOS\Entitlements.plist</CodesignEntitlements>
+    </PropertyGroup>
 
 </Project>

@@ -36,7 +36,7 @@ public class AppConfigTests
 
     private static AppConfig OneTrade(string id = "car_mechanic") => ReferenceData.BuiltInConfig with
     {
-        Categories = [new CatalogOption(id, new("Car Mechanic", "Mekaniko"), "🚗")],
+        Categories = [new CatalogOption(id, new("Car Mechanic", "Mekaniko"), AppImages.For(id))],
         ServicesByCategory = new Dictionary<string, IReadOnlyList<CatalogOption>>
         {
             [id] = [new("mechanic-engine", new("Engine", "Makina")), new("mechanic-other", new("Others", "Wala sa nabanggit"))],
@@ -332,7 +332,7 @@ public class AppConfigTests
                     [new ServiceDto("plumbing-clog", "Clogged sink", "Barado", "🪠", new PriceGuideDto(755, 1000, 1800)), new ServiceDto("plumbing-other", "Others", "Wala sa nabanggit", "➕")]),
                 new CategoryDto("welder", "Welder", "Welder", null, null, null, [new ServiceDto("welder-other", "Others", "Wala sa nabanggit", null)]),
             ],
-            [new OptionDto("taytay", "Taytay", "Taytay", "📍", 0)],
+            [new OptionDto("taytay", "Taytay", "Taytay", null, 0)],
             [new OptionDto("under-500", "Under ₱500", "Below ₱500", null, 400), new OptionDto("500-1000", "₱500–1,000", "₱500–1,000", null, 750)],
             [new OptionDto(ReferenceData.TopExperienceId, "10+ years", "10+ taon", null, 0)],
             [new OptionDto(ReferenceData.UrgencyToday, "Today", "Ngayon", null, 0)],
@@ -346,7 +346,9 @@ public class AppConfigTests
         config.Categories[0].Hint.Should().Be(new LocalizedText("Clogs", "Clogs"), "a missing translation falls back to the other language");
         config.Categories[1].Hint.Should().BeNull();
         config.ServicesByCategory["plumbing"].Select(s => s.Id).Should().Equal("plumbing-clog", "plumbing-other");
-        config.Cities.Should().Equal(new CatalogOption("taytay", new("Taytay", "Taytay"), "📍"));
+        config.Cities.Should().Equal(new CatalogOption("taytay", new("Taytay", "Taytay")));
+        config.Categories[0].Icon.Should().Be(AppImages.For("plumbing"), "pictures are the app's own, by id, not the server's emoji");
+        config.ServicesByCategory["plumbing"].Select(s => s.Icon).Should().Equal(AppImages.For("plumbing-clog"), AppImages.More);
         config.PriceTiers.Select(p => (p.Id, p.Amount)).Should().Equal(("under-500", 400), ("500-1000", 750));
         config.IncomeGoals.Single().Amount.Should().Be(10000);
         config.Prices.Should().BeEquivalentTo(new Dictionary<string, PriceGuide> { ["plumbing-clog"] = new(755, 1000, 1800) },

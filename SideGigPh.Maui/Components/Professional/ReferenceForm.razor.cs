@@ -9,6 +9,8 @@ public sealed record ReferenceInput(string? Name, string? Number);
 /// <summary>
 /// Name and mobile number fields with an Add button. Reports what was typed; the page decides whether it's valid
 /// and passes back a <see cref="Problem"/> to show. Give it a new <c>@key</c> to clear it after a successful add.
+/// Add stays off until the worker confirms the person agreed to be their reference and to be contacted (another
+/// person's name and number: Data Privacy Act; Privacy Policy §3.4).
 /// </summary>
 public partial class ReferenceForm : ComponentBase
 {
@@ -24,8 +26,9 @@ public partial class ReferenceForm : ComponentBase
 
     private string? _name;
     private string? _number;
+    private bool _agreed;
 
-    private bool CanAdd => !string.IsNullOrWhiteSpace(_name) && !string.IsNullOrWhiteSpace(_number);
+    private bool CanAdd => _agreed && !string.IsNullOrWhiteSpace(_name) && !string.IsNullOrWhiteSpace(_number);
 
     private Task AddAsync() => OnAdd.InvokeAsync(new ReferenceInput(_name, _number));
 }

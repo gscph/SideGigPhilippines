@@ -9,7 +9,7 @@
             break;
 
         case ProStep.Skills:
-            <InterviewStep Illustration="🛠️" Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
+            <InterviewStep Illustration="@AppImages.Trade" Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="OtherTradeNext" CanContinue="@(!string.IsNullOrWhiteSpace(_otherTradeText))">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.TradeChoices, T)"
                              SelectedIds="Selected(_pickedOtherTrade ? ReferenceData.OtherTradeId : Draft.CategoryId)" OnPick="PickSkillAsync" />
@@ -22,7 +22,7 @@
             break;
 
         case ProStep.Services:
-            <InterviewStep Illustration="✅" Title="@T.Get(Copy.ProServicesTitle)" Why="@T.Get(Copy.ProServicesWhy)" Progress="Progress"
+            <InterviewStep Illustration="@AppImages.Jobs" Title="@T.Get(Copy.ProServicesTitle)" Why="@T.Get(Copy.ProServicesWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.ServiceIds.Count > 0)">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesOf(Draft.CategoryId), T)" Multiple="true"
                              SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
@@ -34,7 +34,7 @@
             break;
 
         case ProStep.Towns:
-            <InterviewStep Illustration="📍" Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)" Note="@T.Get(Copy.CitiesNote)"
+            <InterviewStep Illustration="@AppImages.Town" Title="@T.Get(Copy.ProAreasTitle)" Why="@T.Get(Copy.ProAreasWhy)" Note="@T.Get(Copy.CitiesNote)"
                            Progress="Progress" OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.CityIds.Count > 0)">
                 <TownPicker Multiple="true" SelectedIds="Draft.CityIds"
                             OnPick="ToggleCity" OnPickAll="ToggleAllTowns" />
@@ -42,7 +42,7 @@
             break;
 
         case ProStep.Experience:
-            <InterviewStep Illustration="🏅" Title="@T.Get(Copy.ProExperienceTitle)" Why="@T.Get(Copy.ProExperienceWhy)"
+            <InterviewStep Illustration="@AppImages.Experience" Title="@T.Get(Copy.ProExperienceTitle)" Why="@T.Get(Copy.ProExperienceWhy)"
                            Progress="Progress" OnBack="GoBack">
                 <ChoiceTiles Items="ChoiceItem.From(ReferenceData.Experience, T)"
                              SelectedIds="Selected(Draft.ExperienceId)" OnPick="PickExperienceAsync" />
@@ -50,7 +50,7 @@
             break;
 
         case ProStep.Rate:
-            <InterviewStep Illustration="💵" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
+            <InterviewStep Illustration="@AppImages.Price" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
                            Note="@T.Format(Copy.ProRateNote, Money.Peso(ReferenceData.MinimumWage))" Progress="Progress" OnBack="GoBack">
                 <ChoiceTiles Items="ChoiceItem.From(Pricing.RateChoices(Draft.ServiceIds), T)"
                              SelectedIds="Selected(Draft.RateTierId)" OnPick="PickRateAsync" />
@@ -58,7 +58,7 @@
             break;
 
         case ProStep.Preview:
-            <InterviewStep Illustration="👀" Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
+            <InterviewStep Illustration="@AppImages.Preview" Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="FinishAsync" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
                 <ListingPreview Listing="Draft.ToListing()" />
             </InterviewStep>

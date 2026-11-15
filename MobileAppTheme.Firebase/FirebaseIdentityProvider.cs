@@ -8,7 +8,7 @@ namespace MobileAppTheme.Firebase;
 
 /// <summary>
 /// Firebase Authentication behind the skeleton's <see cref="IIdentityProvider"/>, via the native
-/// SDK (Plugin.Firebase 3.1.x): phone SMS code, Google, adding a verified phone to a Google
+/// SDK (Plugin.Firebase 3.1.x): phone SMS code, Google, Sign in with Apple (iOS only), adding a verified phone to a Google
 /// account (same uid) and saving the user's name. Registered by
 /// <see cref="FirebaseAuthSetup.AddFirebaseAuth"/>.
 ///
@@ -37,7 +37,14 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 
     private static IFirebaseAuth Auth => CrossFirebaseAuth.Current;
 
-    public AuthMethods Methods => AuthMethods.Phone | AuthMethods.Google;
+    /// <summary>
+    /// Phone and Google everywhere; Apple on iOS only (App Store 4.8 asks for it next to Google; Android doesn't need
+    /// it). Apple also needs the Sign in with Apple capability on the App ID, the
+    /// <c>com.apple.developer.applesignin</c> entitlement and the Apple provider turned on in Firebase.
+    /// </summary>
+    public AuthMethods Methods => OperatingSystem.IsIOS()
+        ? AuthMethods.Phone | AuthMethods.Google | AuthMethods.Apple
+        : AuthMethods.Phone | AuthMethods.Google;
 
     public async Task<PhoneVerification> SignUpWithPhoneAsync(string phoneNumber)
     {
@@ -123,6 +130,40 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         {
             FirebaseAuthSetup.GoogleSignInPending = false;
         }
+    }
+
+    public async Task<AuthResult> SignInWithAppleAsync()
+    {
+        try
+        {
+            // Apple shares the name only the first time; with none, the sign-in sheet asks for it (NamePage).
+            var user = await Auth.SignInWithAppleAsync();
+            return AuthResult.Ok(Map(user));
+        }
+        catch (Exception ex)
+        {
+            var error = FirebaseAuthErrors.FromApple(ex);
+            logger.LogError(ex, "Sign in with Apple failed: {Error}.", error);
+            return AuthResult.Fail(error, ex.Message);
+        }
+    }
+
+    public async Task DeleteAccountAsync()
+    {
+        try
+        {
+            // Usually the server already deleted it (Firebase Admin); then this fails with "user not found", which is fine.
+            if (Auth.CurrentUser is { } user)
+            {
+                await user.DeleteAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Firebase could not delete the account on the phone (the server may have already).");
+        }
+
+        await SignOutQuietlyAsync();
     }
 
     public Task<AuthUser?> GetCurrentUserAsync()

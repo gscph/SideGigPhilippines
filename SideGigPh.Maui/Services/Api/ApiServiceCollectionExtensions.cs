@@ -24,6 +24,8 @@ public static class ApiServiceCollectionExtensions
         services.AddSingleton<IConfigSource<AppConfig>>(provider => provider.GetRequiredService<ApiConfigRepository>());
         services.AddSingleton<IOtherJobNoteRepository>(provider => provider.GetRequiredService<ApiConfigRepository>());
         services.AddSingleton<IErrorReportRepository, ApiErrorReportRepository>();
+        services.AddSingleton<ISafetyRepository, ApiSafetyRepository>();
+        services.AddSingleton<IFeedbackRepository, ApiFeedbackRepository>();
         return services;
     }
 }

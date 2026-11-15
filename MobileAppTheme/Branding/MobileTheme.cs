@@ -53,7 +53,7 @@ public static class MobileTheme
         {
             Default = new DefaultTypography
             {
-                FontFamily = ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+                FontFamily = style.FontFamily,
             },
             H2 = new H2Typography { FontSize = "3.5rem", FontWeight = "700", LineHeight = "1.1", LetterSpacing = "-0.03em" },
             H3 = new H3Typography { FontSize = "2.5rem", FontWeight = "700", LineHeight = "1.15", LetterSpacing = "-0.02em" },

@@ -34,4 +34,7 @@ public partial class ProCard : ComponentBase
 
     /// <summary>Extra CSS classes on the card, e.g. to outline the pro's own listing.</summary>
     [Parameter] public string? Class { get; set; }
+
+    /// <summary>The Airbnb-style card (rounded, hairline border, no shadow) plus any extra class.</summary>
+    private string CardClass => string.IsNullOrEmpty(Class) ? "app-card" : $"app-card {Class}";
 }

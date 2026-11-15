@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SideGigPh.Maui.Components.Onboarding;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Professional;
@@ -16,6 +17,7 @@ public partial class PublishPage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
+    [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -107,6 +109,7 @@ public partial class PublishPage : ComponentBase
 
         if (_phoneProblem is null && !_badReference && !_failed)
         {
+            Analytics.Track(AppEvents.ListingPublished);
             Nav.NavigateTo(ProRoutes.Home, replace: true);
         }
     }

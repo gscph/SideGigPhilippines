@@ -1,0 +1,38 @@
+<Project>
+
+  <!-- The one place the product's version lives (the app and the API share it). To release a new version, change
+       AppVersionNumber / AppVersionStage here and commit; CI adds the build number.
+
+         AppVersionNumber  major.minor.patch (SemVer), e.g. 0.1.0
+         AppVersionStage   the pre-release stage: rc (release candidate, alpha/beta testing), or empty for a final release
+         BuildNumber       the CI run number (-p:BuildNumber=…); 0 on a developer's PC
+         AppVersionLabel   what people and error reports see: 0.1.0-rc.12 (CI), 0.1.0-rc (a PC), 0.1.0 (final)
+
+       Directory.Build.targets stamps the label and the git commit into the app and the API (StampBuildInfo). -->
+  <PropertyGroup>
+    <AppVersionNumber>0.1.0</AppVersionNumber>
+    <AppVersionStage>rc</AppVersionStage>
+    <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
+
+    <AppVersionLabel>$(AppVersionNumber)</AppVersionLabel>
+    <AppVersionLabel Condition="'$(AppVersionStage)' != ''">$(AppVersionLabel)-$(AppVersionStage)</AppVersionLabel>
+    <AppVersionLabel Condition="'$(AppVersionStage)' != '' And '$(BuildNumber)' != '0'">$(AppVersionLabel).$(BuildNumber)</AppVersionLabel>
+
+    <Version>$(AppVersionNumber)</Version>
+    <InformationalVersion>$(AppVersionLabel)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+
+  <!-- Build-time feature flags for the optional Firebase parts (MobileAppTheme.Firebase). Off: the package isn't
+       referenced and the app keeps the skeleton's do-nothing adapter, so the APK builds with nothing set up in the
+       Firebase console. Turn one on here, or for one build with -p:FirebaseAnalytics=true (CI: the repo variables
+       FIREBASE_ANALYTICS / FIREBASE_EXPERIMENTS).
+
+         FirebaseAnalytics    Google Analytics for Firebase behind IAnalytics
+         FirebaseExperiments  Firebase Remote Config + A/B Testing behind IExperiments (A/B Testing needs Analytics on) -->
+  <PropertyGroup>
+    <FirebaseAnalytics Condition="'$(FirebaseAnalytics)' == ''">false</FirebaseAnalytics>
+    <FirebaseExperiments Condition="'$(FirebaseExperiments)' == ''">false</FirebaseExperiments>
+  </PropertyGroup>
+
+</Project>

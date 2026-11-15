@@ -1,0 +1,49 @@
+@page "/feedback/{Side}"
+
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack Spacing="0" Class="full-screen">
+        <SheetHeader OnBack="GoBack" Divider="false" />
+
+        <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.FeedbackTitle)</MudText>
+                <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(Copy.FeedbackWhy)</MudText>
+            </MudStack>
+
+            @if (_notice is not null)
+            {
+                <MudAlert Severity="@(_noticeIsError ? Severity.Error : Severity.Success)" Variant="Variant.Text" Dense="true" role="status">@T.Get(_notice)</MudAlert>
+            }
+
+            @if (!Board.IsLoaded)
+            {
+                <MudStack Spacing="3">
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+                </MudStack>
+            }
+            else if (Board.Posts.Count == 0)
+            {
+                <EmptyState Icon="@Icons.Material.Outlined.Lightbulb" Text="@T.Get(Copy.FeedbackEmpty)" />
+            }
+            else
+            {
+                <MudStack Spacing="0">
+                    @foreach (var post in Board.Posts)
+                    {
+                        <FeedbackRow @key="post.Id" Post="post" OnVote="VoteAsync" OnRemove="RemoveAsync" OnReport="ReportAsync" />
+                    }
+                </MudStack>
+                <LoadMoreOnScroll HasMore="Board.HasMore" OnLoadMore="Board.LoadMoreAsync" />
+            }
+        </MudStack>
+
+        <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Rounded.Add" Href="@FeedbackRoutes.Suggest(Side)">
+                @T.Get(Copy.FeedbackSuggest)
+            </MudButton>
+        </MudPaper>
+    </MudStack>
+</MudContainer>

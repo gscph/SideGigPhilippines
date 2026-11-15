@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -7,7 +8,8 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>The signed-in person's own profile: <c>users/me</c>. Nobody else can read it.</summary>
-public sealed class UserFunctions(FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices)
+public sealed class UserFunctions(
+    FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices, BlobContainerClient photos, IAccountDeleter accounts)
 {
     [Function("GetMe")]
     public async Task<IActionResult> Get(
@@ -75,5 +77,26 @@ public sealed class UserFunctions(FirebaseTokenValidator auth, UserStore users, 
 
         await users.DeleteAsync(uid, cancellationToken);
         return new NoContentResult();
+    }
+
+    /// <summary>
+    /// <c>DELETE users/me/account</c>: Delete account (App Store 5.1.1(v), Google Play). Everything the caller has in the
+    /// database (<see cref="UserStore.DeleteAccountAsync"/>), the photos they uploaded, then their sign-in account.
+    /// Answers <c>204</c> when the sign-in account is gone too, or <c>202</c> when this server can't delete it (no
+    /// service account) and the app must.
+    /// </summary>
+    [Function("DeleteMyAccount")]
+    public async Task<IActionResult> DeleteAccount(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "users/me/account")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        var photoIds = await users.DeleteAccountAsync(uid, cancellationToken);
+        await PhotoFunctions.DeleteOwnedAsync(photos, uid, photoIds, cancellationToken);
+        return await accounts.DeleteAsync(uid, cancellationToken) ? new NoContentResult() : new AcceptedResult();
     }
 }

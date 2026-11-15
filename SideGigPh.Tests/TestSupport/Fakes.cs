@@ -71,6 +71,11 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
         Removed.Add(professionalId);
         return Task.CompletedTask;
     }
+
+    /// <summary>Listings whose kept answers were dropped (after a block).</summary>
+    public List<string> Forgotten { get; } = [];
+
+    public void Forget(string professionalId) => Forgotten.Add(professionalId);
 }
 
 /// <summary>The signed-in account. Change <see cref="User"/> to simulate e.g. linking a phone later.</summary>
@@ -95,6 +100,18 @@ public sealed class FakeIdentity(AuthUser? user) : IIdentityProvider
     public Task<AuthResult> LinkPhoneAsync(string verificationId, string userEnteredCode) => throw new NotSupportedException();
 
     public Task<AuthResult> SignInWithGoogleAsync() => throw new NotSupportedException();
+
+    public Task<AuthResult> SignInWithAppleAsync() => throw new NotSupportedException();
+
+    /// <summary>True once Delete account reached the sign-in provider (it then signs out).</summary>
+    public bool AccountDeleted { get; private set; }
+
+    public Task DeleteAccountAsync()
+    {
+        AccountDeleted = true;
+        User = null;
+        return Task.CompletedTask;
+    }
 
     public Task<AuthResult> SetDisplayNameAsync(string displayName) => throw new NotSupportedException();
 
@@ -308,6 +325,162 @@ public sealed class FakeUsers : IUserRepository
         Profiles.Remove(uid);
         return Task.CompletedTask;
     }
+
+    /// <summary>How many times Delete account reached the server.</summary>
+    public int AccountsDeleted { get; private set; }
+
+    /// <summary>When set, Delete account fails like an offline phone.</summary>
+    public bool FailAccountDelete { get; set; }
+
+    public Task<bool> DeleteAccountAsync()
+    {
+        if (FailAccountDelete)
+        {
+            throw new HttpRequestException("offline");
+        }
+
+        AccountsDeleted++;
+        return Task.FromResult(true);
+    }
+}
+
+/// <summary>Reports and blocks sent to the server. Set <see cref="Fail"/> to simulate being offline.</summary>
+public sealed class FakeSafety : ISafetyRepository
+{
+    public List<UserReport> Reports { get; } = [];
+
+    public List<string> Blocked { get; } = [];
+
+    public bool Fail { get; set; }
+
+    public Task ReportAsync(UserReport report)
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+
+        Reports.Add(report);
+        if (report.AlsoBlock)
+        {
+            Blocked.Add(report.PersonId);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    public Task BlockAsync(string personId)
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+
+        Blocked.Add(personId);
+        return Task.CompletedTask;
+    }
+}
+
+/// <summary>
+/// The feedback board on a server: <see cref="Posts"/> in the board's order, served a page at a time. Set
+/// <see cref="Fail"/> to make every write fail like a phone with no signal.
+/// </summary>
+public sealed class FakeFeedback : IFeedbackRepository
+{
+    public List<FeedbackPost> Posts { get; } = [];
+
+    public List<(string Title, string? Details, UserRole? Role)> Added { get; } = [];
+
+    public List<long> Reported { get; } = [];
+
+    public bool Fail { get; set; }
+
+    public Task<FeedbackPage> GetPageAsync(int skip) =>
+        Task.FromResult(new FeedbackPage([.. Posts.Skip(skip).Take(SideGigPh.Contracts.Paging.Feedback)], Posts.Count > skip + SideGigPh.Contracts.Paging.Feedback));
+
+    public Task<IReadOnlyList<FeedbackPost>> FindSimilarAsync(string text) =>
+        Task.FromResult<IReadOnlyList<FeedbackPost>>([.. Posts.Where(p => p.Title.Contains(text, StringComparison.OrdinalIgnoreCase))]);
+
+    public Task<FeedbackPost> AddAsync(string title, string? details, UserRole? role)
+    {
+        ThrowIfOffline();
+        Added.Add((title, details, role));
+        var post = new FeedbackPost(Posts.Count + 1000, title, details, 1, FeedbackStatus.Open, VotedByMe: true, Mine: true, DateTimeOffset.UnixEpoch);
+        Posts.Add(post);
+        return Task.FromResult(post);
+    }
+
+    public Task<int> VoteAsync(long postId, bool on)
+    {
+        ThrowIfOffline();
+        var index = Posts.FindIndex(p => p.Id == postId);
+        Posts[index] = Posts[index] with { VotedByMe = on, Votes = Posts[index].Votes + (on ? 1 : -1) };
+        return Task.FromResult(Posts[index].Votes);
+    }
+
+    public Task RemoveAsync(long postId)
+    {
+        ThrowIfOffline();
+        Posts.RemoveAll(p => p.Id == postId);
+        return Task.CompletedTask;
+    }
+
+    public Task ReportAsync(long postId)
+    {
+        ThrowIfOffline();
+        Reported.Add(postId);
+        return Task.CompletedTask;
+    }
+
+    private void ThrowIfOffline()
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+    }
+}
+
+/// <summary>An analytics provider that keeps what it was told, so a test can check exactly what would be sent.</summary>
+public sealed class FakeAnalytics : IAnalytics
+{
+    public List<string> Screens { get; } = [];
+
+    public List<string> Events { get; } = [];
+
+    public Dictionary<string, string?> Properties { get; } = [];
+
+    public bool Enabled { get; private set; } = true;
+
+    public bool IsOn => true;
+
+    public void Screen(string name) => Screens.Add(name);
+
+    public void Event(string name, IReadOnlyDictionary<string, string>? details = null) => Events.Add(name);
+
+    public void SetProperty(string name, string? value) => Properties[name] = value;
+
+    public void SetEnabled(bool enabled) => Enabled = enabled;
+}
+
+/// <summary>An A/B test provider answering from <see cref="Values"/> (what the console would hand this install).</summary>
+public sealed class FakeExperiments : IExperiments
+{
+    public Dictionary<string, string> Values { get; } = [];
+
+    public int Refreshes { get; private set; }
+
+    public bool IsOn => true;
+
+    public Task RefreshAsync()
+    {
+        Refreshes++;
+        return Task.CompletedTask;
+    }
+
+    public string Variant(string key, string fallback) => Values.GetValueOrDefault(key, fallback);
+
+    public bool IsEnabled(string key, bool fallback) => Values.TryGetValue(key, out var value) && bool.TryParse(value, out var enabled) ? enabled : fallback;
 }
 
 /// <summary>The phone's dialer: <see cref="Opens"/> says whether it opened.</summary>

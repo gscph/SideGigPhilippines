@@ -22,6 +22,13 @@ public sealed class ApiUserRepository(ApiClient api) : IUserRepository
         await api.EnsureWrittenAsync(response, "register this phone for notifications");
     }
 
+    public async Task<bool> DeleteAccountAsync()
+    {
+        using var response = await api.SendAsync(HttpMethod.Delete, "users/me/account");
+        await api.EnsureWrittenAsync(response, "delete the account");
+        return response.StatusCode != System.Net.HttpStatusCode.Accepted;
+    }
+
     public async Task DeleteAsync(string uid)
     {
         using var response = await api.SendAsync(HttpMethod.Delete, "users/me");

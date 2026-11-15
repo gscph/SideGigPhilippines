@@ -21,6 +21,7 @@ public sealed class SeekerWorkspace(
     IIdentityProvider identity,
     IPhotoPicker picker,
     IPhotoStore photos,
+    ISafetyRepository safety,
     AppText text)
 {
     /// <summary>The Seeker's id when nobody is signed in (no sign-in provider registered). With an account it is their uid: <see cref="MyId"/>.</summary>
@@ -305,6 +306,33 @@ public sealed class SeekerWorkspace(
         }
 
         return new PhotoAddResult(1, 0);
+    }
+
+    /// <summary>
+    /// Reports a worker (their listing or a chat) or a review's writer. With <see cref="UserReport.AlsoBlock"/> they
+    /// leave search, their profile and the Inbox at once.
+    /// </summary>
+    public async Task ReportAsync(UserReport report)
+    {
+        await safety.ReportAsync(report);
+        if (report.AlsoBlock)
+        {
+            Hide(report.PersonId);
+        }
+    }
+
+    /// <summary>Blocks a person: they leave search, their profile and the Inbox at once, and can't write.</summary>
+    public async Task BlockAsync(string personId)
+    {
+        await safety.BlockAsync(personId);
+        Hide(personId);
+    }
+
+    private void Hide(string personId)
+    {
+        profiles.Forget(personId);
+        Threads = [.. Threads.Where(t => t.Pro.Id != personId)];
+        Changed?.Invoke();
     }
 
     /// <summary>Drops what's held in memory after Start over, so the next load reads fresh.</summary>

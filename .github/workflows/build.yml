@@ -1,10 +1,25 @@
 name: Build Android & iOS
 
+# The version comes from Directory.Build.props (AppVersionNumber + AppVersionStage) plus this run's number:
+# run 12 of 0.1.0-rc builds "0.1.0-rc.12" (Android versionCode 12). To release a new version, change
+# Directory.Build.props and commit; the build number keeps counting up, as the stores require.
+
 on:
   workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Release channel stamped into the app (error reports): beta for testers, prod for the store'
+        type: choice
+        options: [beta, prod]
+        default: beta
 
 env:
   PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
+  BUILD_NUMBER: ${{ github.run_number }}
+  # Optional Firebase parts, off unless the repo variable says "true" (Settings > Secrets and variables > Actions >
+  # Variables). See Directory.Build.props and firebase/README.md.
+  FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
+  FIREBASE_EXPERIMENTS: ${{ vars.FIREBASE_EXPERIMENTS == 'true' && 'true' || 'false' }}
 
 jobs:
   build-android:
@@ -19,6 +34,16 @@ jobs:
 
       - name: Install MAUI workloads
         run: dotnet workload restore ${{ env.PROJECT }}
+
+      # The label people and error reports see (0.1.0-rc.12), read from Directory.Build.props through a plain project.
+      - name: Read the version
+        id: version
+        run: |
+          label="$(dotnet msbuild SideGigPh.Contracts/SideGigPh.Contracts.csproj -getProperty:AppVersionLabel -p:BuildNumber=$BUILD_NUMBER)"
+          if [ -z "$label" ]; then echo "::error::No AppVersionLabel (Directory.Build.props)"; exit 1; fi
+          echo "label=$label" >> "$GITHUB_OUTPUT"
+          echo "### Tarbaho $label (${{ inputs.channel }}, build $BUILD_NUMBER, commit ${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
+          echo "Analytics: $FIREBASE_ANALYTICS, experiments: $FIREBASE_EXPERIMENTS" >> "$GITHUB_STEP_SUMMARY"
 
       # google-services.json is git-ignored; without it Firebase sign-in can't start.
       - name: Write google-services.json
@@ -48,12 +73,16 @@ jobs:
           SIDEGIGPH_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           SIDEGIGPH_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           SIDEGIGPH_KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
-        run: dotnet publish ${{ env.PROJECT }} -f net10.0-android -c Release /p:AndroidPackageFormat=apk -o ${{ github.workspace }}/output/android
+        run: >-
+          dotnet publish ${{ env.PROJECT }} -f net10.0-android -c Release /p:AndroidPackageFormat=apk
+          -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppChannel=${{ inputs.channel }}
+          -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
+          -o ${{ github.workspace }}/output/android
 
       - name: Upload Android APK
         uses: actions/upload-artifact@v4
         with:
-          name: android-apk
+          name: tarbaho-${{ steps.version.outputs.label }}-${{ inputs.channel }}-android
           path: output/android/**/*.apk
 
   # build-ios:

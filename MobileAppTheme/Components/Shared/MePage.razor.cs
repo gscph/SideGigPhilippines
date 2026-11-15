@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MobileAppTheme.Branding;
 using MobileAppTheme.Localization;
 using MobileAppTheme.Services;
 
@@ -6,9 +7,10 @@ namespace MobileAppTheme.Components.Shared;
 
 /// <summary>
 /// The Me page frame every side of the app shares: the page title, the side's own sections
-/// (<see cref="ChildContent"/>), then what every user has: the app language, a note that it's all
-/// on this phone, and Start over, which deletes everything (<see cref="IAppAccount.StartOverAsync"/>)
-/// and sends them back to <c>/</c>.
+/// (<see cref="ChildContent"/>), then what every user has: the app language, the legal pages
+/// (<see cref="AppBrand.Legal"/>), Start over, which deletes what they made and starts the app again
+/// (<see cref="IAppAccount.StartOverAsync"/>), and Delete account (<see cref="IAppAccount.DeleteAccountAsync"/>).
+/// Both send them back to <c>/</c>.
 /// </summary>
 public partial class MePage : ComponentBase
 {
@@ -16,6 +18,7 @@ public partial class MePage : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private AppBrand Brand { get; set; } = default!;
 
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
 
@@ -26,6 +29,7 @@ public partial class MePage : ComponentBase
     [Parameter] public string? StartOverWarning { get; set; }
 
     private bool _busy;
+    private string? _deleteError;
 
     private async Task StartOverAsync()
     {
@@ -33,6 +37,28 @@ public partial class MePage : ComponentBase
         try
         {
             await Busy.RunAsync(Account.StartOverAsync);
+        }
+        finally
+        {
+            _busy = false;
+        }
+
+        Nav.NavigateTo("/", replace: true);
+    }
+
+    private async Task DeleteAccountAsync()
+    {
+        _busy = true;
+        _deleteError = null;
+        try
+        {
+            await Busy.RunAsync(Account.DeleteAccountAsync);
+        }
+        catch (Exception)
+        {
+            // The account adapter logged it; the person can try again.
+            _deleteError = T.Get(CommonCopy.DeleteAccountFailed);
+            return;
         }
         finally
         {

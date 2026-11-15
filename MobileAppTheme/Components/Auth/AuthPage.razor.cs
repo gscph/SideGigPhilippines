@@ -8,7 +8,8 @@ namespace MobileAppTheme.Components.Auth;
 /// <summary>
 /// The sign-in sheet (<c>/verify</c>, Airbnb's "Log in or sign up"): a welcome line with the brand,
 /// then the methods the registered <see cref="IIdentityProvider"/> offers, phone code first (it also
-/// verifies the number), "or", Google below. After the code is sent the sheet becomes "Confirm your
+/// verifies the number), "or", Apple (iOS) and Google below, then the agreement to the terms and privacy policy
+/// (<see cref="LegalConsent"/>). After the code is sent the sheet becomes "Confirm your
 /// number" with a back arrow to the number. After sign-in, or if the user is already signed in, it asks for their name if the account
 /// has none (<see cref="NamePage"/>), else goes where the app's <see cref="IAuthLanding"/> says. With no provider
 /// registered it explains that sign-in isn't available.
@@ -35,6 +36,8 @@ public partial class AuthPage : ComponentBase
     private bool HasPhone => Identity.Methods.HasFlag(AuthMethods.Phone);
 
     private bool HasGoogle => Identity.Methods.HasFlag(AuthMethods.Google);
+
+    private bool HasApple => Identity.Methods.HasFlag(AuthMethods.Apple);
 
     protected override async Task OnInitializedAsync()
     {

@@ -112,6 +112,58 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task DeleteAccount_DeletesOnTheServer_ThenTheSignInAccount_ThenThePhone()
+    {
+        var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());
+        await app.Pro.EnsureLoadedAsync();
+
+        await app.Account.DeleteAccountAsync();
+
+        app.Users.AccountsDeleted.Should().Be(1);
+        app.Identity.AccountDeleted.Should().BeTrue("the provider's account goes and the phone signs out");
+        app.Photos.Deleted.Should().Contain([TestData.PhotoId(1), TestData.PhotoId(2), TestData.PhotoId(3)]);
+        app.Store.Cleared.Should().BeTrue();
+        app.Pro.MyId.Should().Be(ListingMapper.OwnListingId, "the workspace forgot the account");
+    }
+
+    [Fact]
+    public async Task DeleteAccount_Offline_Throws_AndKeepsEverythingOnThePhone()
+    {
+        var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());
+        await app.Pro.EnsureLoadedAsync();
+        app.Users.FailAccountDelete = true;
+
+        var delete = () => app.Account.DeleteAccountAsync();
+
+        await delete.Should().ThrowAsync<HttpRequestException>("the Me page says it didn't go through");
+        app.Identity.AccountDeleted.Should().BeFalse("still signed in, so they can try again");
+        app.Store.Cleared.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Block_HidesTheWorkerFromTheSeekersInbox_AndDropsKeptSearches()
+    {
+        var app = await FakeApp.SeekerAsync();
+        var pro = TestData.Listing("Juan");
+
+        await app.Seeker.BlockAsync(pro.Id);
+
+        app.Safety.Blocked.Should().Equal(pro.Id);
+        app.Profiles.Forgotten.Should().Equal(pro.Id);
+    }
+
+    [Fact]
+    public async Task ReportWithoutBlock_SendsTheReport_AndHidesNobody()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+
+        await app.Pro.ReportAsync(new UserReport("customer-1", ReportSubject.Chat, ReportReason.Harassment, "chat-1", null, AlsoBlock: false));
+
+        app.Safety.Reports.Should().ContainSingle().Which.Reason.Should().Be(ReportReason.Harassment);
+        app.Safety.Blocked.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task StartOver_NotSignedIn_CleansUpBothLocalIds()
     {
         var app = new FakeApp(TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()), user: null);

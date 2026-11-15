@@ -18,16 +18,22 @@ public class ApiWiringTests(ApiTestHost api)
     [Fact]
     public void EveryRouteTheAppCalls_IsServed() =>
         ApiTestHost.Routes.Should().BeEquivalentTo(
-            "GET users/me", "PUT users/me", "DELETE users/me", "PUT users/me/devices",
+            "GET users/me", "PUT users/me", "DELETE users/me", "PUT users/me/devices", "DELETE users/me/account",
             "GET professionals", "GET search/professionals", "GET professionals/{id}", "PUT professionals/me", "DELETE professionals/me",
             "GET reviews", "PUT reviews", "DELETE reviews/mine",
             "GET chats", "GET chats/{chatId}", "GET chats/{chatId}/messages", "POST chats/{chatId}/messages",
             "POST chats/{chatId}/read", "DELETE chats/mine",
             "POST photos", "DELETE photos/{id}",
-            "GET config", "POST other-jobs", "POST error-reports");
+            "GET config", "POST other-jobs", "POST error-reports",
+            "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}",
+            "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",
+            "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report");
 
-    /// <summary>Public reference data: the trades and jobs, read before the account is ready. Nothing else is public.</summary>
-    private static readonly string[] PublicRoutes = ["GET config"];
+    /// <summary>
+    /// Public: the reference data (the trades and jobs, read before the account is ready) and the legal pages (the app
+    /// stores need them open to anyone). Nothing else is public.
+    /// </summary>
+    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}"];
 
     [IntegrationFact]
     public async Task EveryRoute_WithoutAToken_Is401()
@@ -36,7 +42,7 @@ public class ApiWiringTests(ApiTestHost api)
         foreach (var route in ApiTestHost.Routes.Except(PublicRoutes))
         {
             var parts = route.Split(' ');
-            var path = parts[1].Replace("{id}", "x").Replace("{chatId}", "x");
+            var path = parts[1].Replace("{id}", "x").Replace("{chatId}", "x").Replace("{blockedUid}", "x");
             using var request = new HttpRequestMessage(new HttpMethod(parts[0]), path) { Content = new StringContent("{}", Encoding.UTF8, "application/json") };
 
             using var response = await anonymous.SendAsync(request);
@@ -51,6 +57,31 @@ public class ApiWiringTests(ApiTestHost api)
         using var response = await api.Client().GetAsync("config");
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    // The store listings, the sign-in screen and the Me page link to these; they must open for anyone.
+    [IntegrationFact]
+    public async Task LegalPages_AreWebPagesForAnyone()
+    {
+        foreach (var (page, mustSay) in new[] { ("privacy", "Privacy Policy"), ("terms", "Terms of Service"), ("data", "Delete your account") })
+        {
+            using var response = await api.Client().GetAsync($"legal/{page}");
+
+            response.StatusCode.Should().Be(HttpStatusCode.OK, page);
+            response.Content.Headers.ContentType!.MediaType.Should().Be("text/html", page);
+            var html = await response.Content.ReadAsStringAsync();
+            html.Should().Contain(mustSay, page).And.Contain("Joseph F. Cadiao", page)
+                .And.NotContain("[", $"every placeholder on {page} is filled")
+                .And.NotContain(".md\"", $"links on {page} point at the pages' web addresses");
+        }
+    }
+
+    [IntegrationFact]
+    public async Task UnknownLegalPage_Is404()
+    {
+        using var response = await api.Client().GetAsync("legal/nope");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [IntegrationFact]

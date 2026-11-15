@@ -136,6 +136,19 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
         return new NoContentResult();
     }
 
+    /// <summary>Deletes the stored photos among <paramref name="ids"/> that <paramref name="uid"/> uploaded (Delete account).</summary>
+    internal static async Task DeleteOwnedAsync(BlobContainerClient photos, string uid, IEnumerable<string> ids, CancellationToken cancellationToken)
+    {
+        foreach (var id in ids.Where(id => PhotoId().IsMatch(id)))
+        {
+            var blob = photos.GetBlobClient($"{id}.jpg");
+            if (await OwnerOfAsync(blob, cancellationToken) == uid)
+            {
+                await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            }
+        }
+    }
+
     /// <summary>The uid that uploaded the photo, or null when there's no such photo.</summary>
     private static async Task<string?> OwnerOfAsync(BlobClient blob, CancellationToken cancellationToken)
     {

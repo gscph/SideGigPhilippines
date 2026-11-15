@@ -29,6 +29,8 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<ConfigStore>();
         services.AddScoped<OtherJobNoteStore>();
         services.AddScoped<ErrorReportStore>();
+        services.AddScoped<SafetyStore>();
+        services.AddScoped<FeedbackStore>();
         return services;
     }
 }

@@ -8,6 +8,18 @@
    ========================================================================== */
 
 /* ==========================================================================
+   Brand font: DM Sans (variable weight, Latin), bundled so it works offline. AppTheme.Style.FontFamily
+   names it first. License: fonts/DM-Sans-OFL.txt.
+   ========================================================================== */
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 100 1000;
+    font-display: swap;
+    src: url("fonts/dm-sans.woff2") format("woff2");
+}
+
+/* ==========================================================================
    Pre-Blazor splash (index.html only). The theme variables don't exist yet when
    this first paints, so each var has a fallback that MUST match AppTheme.
    ========================================================================== */
@@ -20,7 +32,7 @@
     justify-content: center;
     gap: 1.25rem;
     background-color: var(--mud-palette-background, #ffffff);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
 .app-loading__logo {
@@ -65,6 +77,7 @@
     width: 100%;
     min-width: 0;
     aspect-ratio: 1;
+    border-radius: 12px !important;
 }
 
 /* Work photos two across, scrolling sideways past two (PhotoStrip: public profile, Photos page). */
@@ -136,6 +149,12 @@
 .app-banner .mud-alert-message {
     flex: 1;
     min-width: 0;
+}
+
+/* The feedback board's vote button: a narrow column (arrow over the count) instead of MudButton's wide default. */
+.app-vote-button {
+    min-width: 52px !important;
+    padding: 4px 8px !important;
 }
 
 /* Lets equal flex-1 boxes (the profile's stat tiles) shrink below their text width so long values wrap. */

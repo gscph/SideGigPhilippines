@@ -1,0 +1,9 @@
+@if (Brand.Legal is { } legal)
+{
+    <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-2">
+        @T.Get(CommonCopy.LegalAgree)
+        <MudLink Href="@legal.TermsUrl" Typo="Typo.caption" Color="Color.Dark" Underline="Underline.Always">@T.Get(CommonCopy.LegalTerms)</MudLink>
+        @T.Get(CommonCopy.LegalAnd)
+        <MudLink Href="@legal.PrivacyUrl" Typo="Typo.caption" Color="Color.Dark" Underline="Underline.Always">@T.Get(CommonCopy.LegalPrivacy)</MudLink>.
+    </MudText>
+}

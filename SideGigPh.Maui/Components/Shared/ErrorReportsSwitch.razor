@@ -1,7 +1,8 @@
-<MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
-    <MudIcon Icon="@Icons.Material.Rounded.BugReport" Color="Color.Secondary" Size="Size.Small" aria-hidden="true" Class="mt-2" />
-    <MudStack Spacing="0" Class="flex-1">
-        <MudSwitch T="bool" Value="_on" ValueChanged="SetAsync" Color="Color.Primary" Label="@T.Get(Copy.ErrorReportsLabel)" />
+<MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center">
+    <MudIcon Icon="@Icons.Material.Rounded.BugReport" Color="Color.Dark" aria-hidden="true" />
+    <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+        <MudText Typo="Typo.body1">@T.Get(Copy.ErrorReportsLabel)</MudText>
         <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ErrorReportsHelp)</MudText>
     </MudStack>
+    <MudSwitch T="bool" Value="_on" ValueChanged="SetAsync" Color="Color.Primary" AriaLabel="@T.Get(Copy.ErrorReportsLabel)" Class="ma-0" />
 </MudStack>

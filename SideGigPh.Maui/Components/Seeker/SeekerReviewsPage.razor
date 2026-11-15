@@ -6,7 +6,7 @@
 
     @if (Workspace.ToRate.Count == 0 && Workspace.MyReviews.Count == 0)
     {
-        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.Get(Copy.SeekerReviewsEmpty)</MudText>
+        <EmptyState Icon="@Icons.Material.Outlined.StarOutline" Text="@T.Get(Copy.SeekerReviewsEmpty)" />
     }
 
     @if (Workspace.ToRate.Count > 0)

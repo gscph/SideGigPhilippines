@@ -48,19 +48,19 @@ public static class ReferenceData
 
     // The answers that live with the code: "no budget", "no set price", and the three rates a worker can charge
     // (a point of each job's price guide, PriceLevels in SideGigPh.Contracts, shared with the server's ranking).
-    public static readonly CatalogOption UnsureOption = new(Unsure, new("Not sure yet", "Di ko pa alam"), "🤔");
-    public static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the job", "Depende sa trabaho"), "💬");
+    public static readonly CatalogOption UnsureOption = new(Unsure, new("Not sure yet", "Di ko pa alam"), AppImages.Unsure);
+    public static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the job", "Depende sa trabaho"), AppImages.Quote);
 
     /// <summary>The rates a Skilled Worker can pick, cheapest first: each job's lowest, average or above-average price.</summary>
     public static IReadOnlyList<CatalogOption> RateLevels { get; } =
     [
-        new(PriceLevels.Minimum, new("Minimum price", "Pinakamababang presyo"), "🪙"),
-        new(PriceLevels.Average, new("Average price", "Karaniwang presyo"), "💵"),
-        new(PriceLevels.AboveAverage, new("Above average", "Mas mataas sa karaniwan"), "💎"),
+        new(PriceLevels.Minimum, new("Minimum price", "Pinakamababang presyo"), AppImages.For(PriceLevels.Minimum)),
+        new(PriceLevels.Average, new("Average price", "Karaniwang presyo"), AppImages.For(PriceLevels.Average)),
+        new(PriceLevels.AboveAverage, new("Above average", "Mas mataas sa karaniwan"), AppImages.For(PriceLevels.AboveAverage)),
     ];
 
     private static readonly CatalogOption OtherTradeOption = new(
-        OtherTradeId, OtherJob, "➕", new("Something else? Type it", "Iba pa? I-type mo"));
+        OtherTradeId, OtherJob, AppImages.More, new("Something else? Type it", "Iba pa? I-type mo"));
 
     // --- The config in use ------------------------------------------------------
 
@@ -114,8 +114,9 @@ public static class ReferenceData
     /// <summary>
     /// A config the app can run on: every list has answers, every trade has jobs and every job a price guide (lowest at
     /// or above the minimum wage, then average, then above average), no trade takes the "Others" tile's id, and the ids
-    /// the code depends on (<see cref="TopExperienceId"/>, the urgencies) are there. Anything else (e.g. a copy saved
-    /// before price guides) is never used or saved.
+    /// the code depends on (<see cref="TopExperienceId"/>, the urgencies) are there, and every picture is one of the
+    /// app's (<see cref="AppImages"/>). Anything else (e.g. a copy saved before price guides, or with emoji for
+    /// pictures) is never used or saved.
     /// </summary>
     public static bool CanUse(AppConfig config) =>
         config.Prices is not null  // a copy saved before price guides reads back with none
@@ -126,7 +127,9 @@ public static class ReferenceData
         && config.MinimumWage > 0
         && config.Cities.Count > 0 && config.PriceTiers.Count > 0 && config.IncomeGoals.Count > 0
         && Find(config.Experience, TopExperienceId) is not null
-        && new[] { UrgencyToday, UrgencyThisWeek, UrgencyCanvassing }.All(id => Find(config.Urgencies, id) is not null);
+        && new[] { UrgencyToday, UrgencyThisWeek, UrgencyCanvassing }.All(id => Find(config.Urgencies, id) is not null)
+        && config.Categories.Concat(config.ServicesByCategory.Values.SelectMany(services => services))
+            .Concat(config.Experience).Concat(config.Urgencies).All(option => AppImages.IsImage(option.Icon));
 
     private static bool IsSound(PriceGuide price, int minimumWage) =>
         price.Min >= minimumWage && price.Min <= price.Average && price.Average <= price.High;
@@ -148,111 +151,111 @@ public static class ReferenceData
     // 004-config.sql (an integration test compares them).
     public static AppConfig BuiltInConfig { get; } = new(
     [
-        new("aircon", new("Aircon Technician", "Aircon Technician"), "❄️", new("Cleaning, repair, installation", "Linis, repair, pakabit")),
-        new("plumbing", new("Plumber", "Tubero"), "🚰", new("Clogs, leaks, faucets, CR", "Barado, tagas, gripo, CR")),
-        new("electrical", new("Electrician", "Electrician"), "⚡", new("Power, breaker, outlets, lights", "Kuryente, breaker, saksakan, ilaw")),
-        new("roofing", new("Roofing & Gutter", "Roofing & Gutter"), "🏠", new("Roof leaks, gutters, waterproofing", "Tulo sa bubong, yero, alulod, waterproofing")),
-        new("carpentry", new("Carpentry", "Karpintero"), "🔨", new("Furniture, doors, cabinets", "Custom furniture, pinto, cabinet")),
-        new("welder", new("Welder", "Welder"), "🔥", new("Gates, grills, railings", "Gate, grills, rehas, pa-weld")),
-        new("masonry_tiling", new("Masonry", "Mason"), "🧱", new("Tiles, cement work, walls", "Tiles, semento, palitada, pader")),
-        new("car_mechanic", new("Car Mechanic", "Mekaniko"), "🚗", new("Suspension, engine, electronics", "Suspension, makina, electronics")),
-        new("errand_runner", new("Errands & Delivery", "Errand Runner / PasaBuy"), "🛵", new("Grocery, bills payment, documents", "Pa-grocery, pabayad ng bills, hatid-papeles")),
-        new("solar_cleaning", new("Solar Panel Technician", "Solar Panel Technician"), "☀️", new("Panel cleaning and check-up", "Linis at check-up ng solar panel")),
+        new("aircon", new("Aircon Technician", "Aircon Technician"), AppImages.For("aircon"), new("Cleaning, repair, installation", "Linis, repair, pakabit")),
+        new("plumbing", new("Plumber", "Tubero"), AppImages.For("plumbing"), new("Clogs, leaks, faucets, CR", "Barado, tagas, gripo, CR")),
+        new("electrical", new("Electrician", "Electrician"), AppImages.For("electrical"), new("Power, breaker, outlets, lights", "Kuryente, breaker, saksakan, ilaw")),
+        new("roofing", new("Roofing & Gutter", "Roofing & Gutter"), AppImages.For("roofing"), new("Roof leaks, gutters, waterproofing", "Tulo sa bubong, yero, alulod, waterproofing")),
+        new("carpentry", new("Carpentry", "Karpintero"), AppImages.For("carpentry"), new("Furniture, doors, cabinets", "Custom furniture, pinto, cabinet")),
+        new("welder", new("Welder", "Welder"), AppImages.For("welder"), new("Gates, grills, railings", "Gate, grills, rehas, pa-weld")),
+        new("masonry_tiling", new("Masonry", "Mason"), AppImages.For("masonry_tiling"), new("Tiles, cement work, walls", "Tiles, semento, palitada, pader")),
+        new("car_mechanic", new("Car Mechanic", "Mekaniko"), AppImages.For("car_mechanic"), new("Suspension, engine, electronics", "Suspension, makina, electronics")),
+        new("errand_runner", new("Errands & Delivery", "Errand Runner / PasaBuy"), AppImages.For("errand_runner"), new("Grocery, bills payment, documents", "Pa-grocery, pabayad ng bills, hatid-papeles")),
+        new("solar_cleaning", new("Solar Panel Technician", "Solar Panel Technician"), AppImages.For("solar_cleaning"), new("Panel cleaning and check-up", "Linis at check-up ng solar panel")),
     ],
     new Dictionary<string, IReadOnlyList<CatalogOption>>
     {
         ["aircon"] =
         [
-            new("aircon-cleaning", new("Aircon cleaning", "Pa-linis ng aircon"), "🧽"),
-            new("aircon-repair", new("Aircon not cooling / repair", "Hindi lumalamig / pa-repair ng aircon"), "🌡️"),
-            new("aircon-leak", new("Aircon leaking water", "Tumutulo ang aircon"), "💧"),
-            new("aircon-freon", new("Freon recharge", "Pa-freon ng aircon"), "🧪"),
-            new("aircon-install", new("Aircon installation (window / split-type)", "Pakabit ng aircon (window / split-type)"), "🔧"),
-            new("aircon-relocate", new("Aircon removal or transfer", "Pabaklas o palipat ng aircon"), "🚚"),
-            new("aircon-pms", new("Aircon PMS / check-up", "PMS / check-up ng aircon"), "📋"),
-            new("aircon-other", OtherJob, "➕"),
+            new("aircon-cleaning", new("Aircon cleaning", "Pa-linis ng aircon"), AppImages.For("aircon-cleaning")),
+            new("aircon-repair", new("Aircon not cooling / repair", "Hindi lumalamig / pa-repair ng aircon"), AppImages.For("aircon-repair")),
+            new("aircon-leak", new("Aircon leaking water", "Tumutulo ang aircon"), AppImages.For("aircon-leak")),
+            new("aircon-freon", new("Freon recharge", "Pa-freon ng aircon"), AppImages.For("aircon-freon")),
+            new("aircon-install", new("Aircon installation (window / split-type)", "Pakabit ng aircon (window / split-type)"), AppImages.For("aircon-install")),
+            new("aircon-relocate", new("Aircon removal or transfer", "Pabaklas o palipat ng aircon"), AppImages.For("aircon-relocate")),
+            new("aircon-pms", new("Aircon PMS / check-up", "PMS / check-up ng aircon"), AppImages.For("aircon-pms")),
+            new("aircon-other", OtherJob, AppImages.For("aircon-other")),
         ],
         ["plumbing"] =
         [
-            new("plumbing-clog", new("Clogged sink, drain or CR", "Barado ang lababo, drain o CR"), "🪠"),
-            new("plumbing-leak", new("Leaking pipe or faucet", "May tagas ang tubo o gripo"), "💧"),
-            new("plumbing-toilet", new("Toilet / CR repair", "Sirang inidoro / CR"), "🚽"),
-            new("plumbing-replace", new("Replace faucet or pipe", "Palit ng gripo o tubo"), "🔧"),
-            new("plumbing-install", new("Install sink, toilet or shower", "Pakabit ng lababo, inidoro o shower"), "🚿"),
-            new("plumbing-water-heater", new("Water heater install or repair", "Pakabit o repair ng water heater"), "♨️"),
-            new("plumbing-pump", new("Water pump, tank or poso", "Water pump, tangke o poso"), "🛢️"),
-            new("plumbing-septic", new("Septic tank siphoning", "Pa-siphon ng poso negro"), "🚛"),
-            new("plumbing-other", OtherJob, "➕"),
+            new("plumbing-clog", new("Clogged sink, drain or CR", "Barado ang lababo, drain o CR"), AppImages.For("plumbing-clog")),
+            new("plumbing-leak", new("Leaking pipe or faucet", "May tagas ang tubo o gripo"), AppImages.For("plumbing-leak")),
+            new("plumbing-toilet", new("Toilet / CR repair", "Sirang inidoro / CR"), AppImages.For("plumbing-toilet")),
+            new("plumbing-replace", new("Replace faucet or pipe", "Palit ng gripo o tubo"), AppImages.For("plumbing-replace")),
+            new("plumbing-install", new("Install sink, toilet or shower", "Pakabit ng lababo, inidoro o shower"), AppImages.For("plumbing-install")),
+            new("plumbing-water-heater", new("Water heater install or repair", "Pakabit o repair ng water heater"), AppImages.For("plumbing-water-heater")),
+            new("plumbing-pump", new("Water pump, tank or poso", "Water pump, tangke o poso"), AppImages.For("plumbing-pump")),
+            new("plumbing-septic", new("Septic tank siphoning", "Pa-siphon ng poso negro"), AppImages.For("plumbing-septic")),
+            new("plumbing-other", OtherJob, AppImages.For("plumbing-other")),
         ],
         ["electrical"] =
         [
-            new("electrical-no-power", new("No power / breaker keeps tripping", "Walang kuryente / nagta-trip ang breaker"), "🔌"),
-            new("electrical-outlet", new("Outlet or switch repair", "Sirang outlet o switch"), "🔧"),
-            new("electrical-lights", new("Lights or ceiling fan", "Pakabit ng ilaw o ceiling fan"), "💡"),
-            new("electrical-wiring", new("Wiring or rewiring", "Wiring o rewiring"), "🧵"),
-            new("electrical-breaker-panel", new("Breaker or panel box", "Palit ng breaker o panel box"), "🗃️"),
-            new("electrical-meter", new("Meralco meter / new line", "Pakabit ng metro / bagong linya (Meralco)"), "📟"),
-            new("electrical-cctv", new("CCTV installation", "Pakabit ng CCTV"), "📹"),
-            new("electrical-other", OtherJob, "➕"),
+            new("electrical-no-power", new("No power / breaker keeps tripping", "Walang kuryente / nagta-trip ang breaker"), AppImages.For("electrical-no-power")),
+            new("electrical-outlet", new("Outlet or switch repair", "Sirang outlet o switch"), AppImages.For("electrical-outlet")),
+            new("electrical-lights", new("Lights or ceiling fan", "Pakabit ng ilaw o ceiling fan"), AppImages.For("electrical-lights")),
+            new("electrical-wiring", new("Wiring or rewiring", "Wiring o rewiring"), AppImages.For("electrical-wiring")),
+            new("electrical-breaker-panel", new("Breaker or panel box", "Palit ng breaker o panel box"), AppImages.For("electrical-breaker-panel")),
+            new("electrical-meter", new("Meralco meter / new line", "Pakabit ng metro / bagong linya (Meralco)"), AppImages.For("electrical-meter")),
+            new("electrical-cctv", new("CCTV installation", "Pakabit ng CCTV"), AppImages.For("electrical-cctv")),
+            new("electrical-other", OtherJob, AppImages.For("electrical-other")),
         ],
         ["roofing"] =
         [
-            new("roofing-leak", new("Roof leak repair", "Tulo sa bubong"), "🌧️"),
-            new("roofing-gutter", new("Gutter cleaning or repair", "Linis o repair ng alulod"), "🍂"),
-            new("roofing-sheet", new("Roof sheet replacement", "Palit ng yero"), "🔩"),
-            new("roofing-waterproofing", new("Waterproofing (roof deck, walls)", "Waterproofing ng roof deck o pader"), "🛡️"),
-            new("roofing-paint", new("Roof painting", "Pintura ng bubong"), "🎨"),
-            new("roofing-other", OtherJob, "➕"),
+            new("roofing-leak", new("Roof leak repair", "Tulo sa bubong"), AppImages.For("roofing-leak")),
+            new("roofing-gutter", new("Gutter cleaning or repair", "Linis o repair ng alulod"), AppImages.For("roofing-gutter")),
+            new("roofing-sheet", new("Roof sheet replacement", "Palit ng yero"), AppImages.For("roofing-sheet")),
+            new("roofing-waterproofing", new("Waterproofing (roof deck, walls)", "Waterproofing ng roof deck o pader"), AppImages.For("roofing-waterproofing")),
+            new("roofing-paint", new("Roof painting", "Pintura ng bubong"), AppImages.For("roofing-paint")),
+            new("roofing-other", OtherJob, AppImages.For("roofing-other")),
         ],
         ["carpentry"] =
         [
-            new("carpentry-furniture", new("Furniture repair", "Repair ng furniture"), "🪑"),
-            new("carpentry-door-window", new("Door or window repair", "Repair ng pinto o bintana"), "🚪"),
-            new("carpentry-cabinet", new("Custom cabinets or shelves", "Pagawa ng cabinet o estante"), "🗄️"),
-            new("carpentry-ceiling-roof", new("Ceiling repair", "Repair ng kisame"), "🏠"),
-            new("carpentry-partition", new("Partition or drywall", "Partition o drywall"), "🧱"),
-            new("carpentry-other", OtherJob, "➕"),
+            new("carpentry-furniture", new("Furniture repair", "Repair ng furniture"), AppImages.For("carpentry-furniture")),
+            new("carpentry-door-window", new("Door or window repair", "Repair ng pinto o bintana"), AppImages.For("carpentry-door-window")),
+            new("carpentry-cabinet", new("Custom cabinets or shelves", "Pagawa ng cabinet o estante"), AppImages.For("carpentry-cabinet")),
+            new("carpentry-ceiling-roof", new("Ceiling repair", "Repair ng kisame"), AppImages.For("carpentry-ceiling-roof")),
+            new("carpentry-partition", new("Partition or drywall", "Partition o drywall"), AppImages.For("carpentry-partition")),
+            new("carpentry-other", OtherJob, AppImages.For("carpentry-other")),
         ],
         ["welder"] =
         [
-            new("welder-repair", new("Welding repair", "Pa-weld ng sira"), "🔥"),
-            new("welder-gate", new("Gate (new or repair)", "Pagawa o repair ng gate"), "🚧"),
-            new("welder-grills", new("Window grills", "Grills sa bintana"), "🪟"),
-            new("welder-railings", new("Stair or balcony railings", "Rehas sa hagdan o balcony"), "🪜"),
-            new("welder-frame", new("Steel frame or trusses", "Bakal na frame o trusses"), "🏗️"),
-            new("welder-other", OtherJob, "➕"),
+            new("welder-repair", new("Welding repair", "Pa-weld ng sira"), AppImages.For("welder-repair")),
+            new("welder-gate", new("Gate (new or repair)", "Pagawa o repair ng gate"), AppImages.For("welder-gate")),
+            new("welder-grills", new("Window grills", "Grills sa bintana"), AppImages.For("welder-grills")),
+            new("welder-railings", new("Stair or balcony railings", "Rehas sa hagdan o balcony"), AppImages.For("welder-railings")),
+            new("welder-frame", new("Steel frame or trusses", "Bakal na frame o trusses"), AppImages.For("welder-frame")),
+            new("welder-other", OtherJob, AppImages.For("welder-other")),
         ],
         ["masonry_tiling"] =
         [
-            new("masonry-tiles", new("Tile installation or replacement", "Pakabit o palit ng tiles"), "🔲"),
-            new("masonry-cement", new("Cement work / plastering", "Semento / palitada"), "🪣"),
-            new("masonry-crack", new("Crack repair (wall or floor)", "Ayos ng bitak sa pader o sahig"), "🔨"),
-            new("masonry-wall", new("Wall or fence (hollow blocks)", "Pader o bakod (hollow blocks)"), "🧱"),
-            new("masonry-cr-renovation", new("CR / bathroom renovation", "Renovate ng CR / banyo"), "🚿"),
-            new("masonry-other", OtherJob, "➕"),
+            new("masonry-tiles", new("Tile installation or replacement", "Pakabit o palit ng tiles"), AppImages.For("masonry-tiles")),
+            new("masonry-cement", new("Cement work / plastering", "Semento / palitada"), AppImages.For("masonry-cement")),
+            new("masonry-crack", new("Crack repair (wall or floor)", "Ayos ng bitak sa pader o sahig"), AppImages.For("masonry-crack")),
+            new("masonry-wall", new("Wall or fence (hollow blocks)", "Pader o bakod (hollow blocks)"), AppImages.For("masonry-wall")),
+            new("masonry-cr-renovation", new("CR / bathroom renovation", "Renovate ng CR / banyo"), AppImages.For("masonry-cr-renovation")),
+            new("masonry-other", OtherJob, AppImages.For("masonry-other")),
         ],
         ["car_mechanic"] =
         [
-            new("mechanic-suspension", new("Suspension", "Suspension"), "🛞"),
-            new("mechanic-engine", new("Engine", "Makina"), "⚙️"),
-            new("mechanic-electronics", new("Electronics", "Electronics"), "🔋"),
-            new("mechanic-other", OtherJob, "➕"),
+            new("mechanic-suspension", new("Suspension", "Suspension"), AppImages.For("mechanic-suspension")),
+            new("mechanic-engine", new("Engine", "Makina"), AppImages.For("mechanic-engine")),
+            new("mechanic-electronics", new("Electronics", "Electronics"), AppImages.For("mechanic-electronics")),
+            new("mechanic-other", OtherJob, AppImages.For("mechanic-other")),
         ],
         ["errand_runner"] =
         [
-            new("errand-grocery", new("Grocery or market run", "Pa-grocery o pa-palengke"), "🛒"),
-            new("errand-bills", new("Bills payment", "Pabayad ng bills"), "🧾"),
-            new("errand-pasabuy", new("PasaBuy (buy and deliver)", "PasaBuy"), "🛍️"),
-            new("errand-documents", new("Document pickup or delivery", "Pakuha o pahatid ng papeles"), "📄"),
-            new("errand-parcel", new("Parcel pickup or drop-off", "Pa-pickup o pa-drop off ng parcel"), "📦"),
-            new("errand-other", OtherJob, "➕"),
+            new("errand-grocery", new("Grocery or market run", "Pa-grocery o pa-palengke"), AppImages.For("errand-grocery")),
+            new("errand-bills", new("Bills payment", "Pabayad ng bills"), AppImages.For("errand-bills")),
+            new("errand-pasabuy", new("PasaBuy (buy and deliver)", "PasaBuy"), AppImages.For("errand-pasabuy")),
+            new("errand-documents", new("Document pickup or delivery", "Pakuha o pahatid ng papeles"), AppImages.For("errand-documents")),
+            new("errand-parcel", new("Parcel pickup or drop-off", "Pa-pickup o pa-drop off ng parcel"), AppImages.For("errand-parcel")),
+            new("errand-other", OtherJob, AppImages.For("errand-other")),
         ],
         ["solar_cleaning"] =
         [
-            new("solar-cleaning", new("Solar panel cleaning", "Pa-linis ng solar panel"), "🧽"),
-            new("solar-checkup", new("Solar check-up / maintenance", "Check-up o maintenance ng solar"), "📋"),
-            new("solar-inverter", new("Inverter or battery check", "Check ng inverter o battery"), "🔋"),
-            new("solar-other", OtherJob, "➕"),
+            new("solar-cleaning", new("Solar panel cleaning", "Pa-linis ng solar panel"), AppImages.For("solar-cleaning")),
+            new("solar-checkup", new("Solar check-up / maintenance", "Check-up o maintenance ng solar"), AppImages.For("solar-checkup")),
+            new("solar-inverter", new("Inverter or battery check", "Check ng inverter o battery"), AppImages.For("solar-inverter")),
+            new("solar-other", OtherJob, AppImages.For("solar-other")),
         ],
     },
     Cities:
@@ -271,16 +274,16 @@ public static class ReferenceData
     ],
     Experience:
     [
-        new("under-1", new("Less than 1 year", "Wala pang 1 taon"), "🌱"),
-        new("1-3", new("1–3 years", "1–3 taon"), "🧰"),
-        new("3-10", new("3–10 years", "3–10 taon"), "🛠️"),
-        new(TopExperienceId, new("10+ years", "Mahigit 10 taon"), "🏆"),
+        new("under-1", new("Less than 1 year", "Wala pang 1 taon"), AppImages.For("under-1")),
+        new("1-3", new("1–3 years", "1–3 taon"), AppImages.For("1-3")),
+        new("3-10", new("3–10 years", "3–10 taon"), AppImages.For("3-10")),
+        new(TopExperienceId, new("10+ years", "Mahigit 10 taon"), AppImages.For(TopExperienceId)),
     ],
     Urgencies:
     [
-        new(UrgencyToday, new("Today, it's urgent", "Ngayon na, urgent"), "⚡"),
-        new(UrgencyThisWeek, new("This week", "Ngayong linggo"), "📅"),
-        new(UrgencyCanvassing, new("Just comparing prices", "Nagca-canvass lang"), "🔍"),
+        new(UrgencyToday, new("Today, it's urgent", "Ngayon na, urgent"), AppImages.For(UrgencyToday)),
+        new(UrgencyThisWeek, new("This week", "Ngayong linggo"), AppImages.For(UrgencyThisWeek)),
+        new(UrgencyCanvassing, new("Just comparing prices", "Nagca-canvass lang"), AppImages.For(UrgencyCanvassing)),
     ],
     IncomeGoals:
     [

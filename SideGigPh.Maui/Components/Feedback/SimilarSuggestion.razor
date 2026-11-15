@@ -1,0 +1,16 @@
+<MudPaper Outlined="true" Class="pa-4">
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.subtitle1">@Post.Title</MudText>
+        @if (!string.IsNullOrWhiteSpace(Post.Details))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Post.Details</MudText>
+        }
+        <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Rounded.ArrowDropUp" Color="Color.Primary" Size="Size.Small" aria-hidden="true" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@VotesLabel</MudText>
+        </MudStack>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" FullWidth="true" Disabled="Disabled" OnClick="@(() => OnSame.InvokeAsync(Post))">
+            @T.Get(Post.VotedByMe ? Copy.SuggestSameVoted : Copy.SuggestSame)
+        </MudButton>
+    </MudStack>
+</MudPaper>

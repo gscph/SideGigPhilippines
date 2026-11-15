@@ -1,0 +1,41 @@
+@page "/feedback/{Side}/new"
+
+@if (_step == Step.Write)
+{
+    <InterviewStep Title="@T.Get(Copy.SuggestTitle)" Illustration="@AppImages.Idea" Why="@T.Get(Copy.SuggestWhy)"
+                   OnBack="GoBack" OnNext="CheckAsync" CanContinue="@(CanSend && !_busy)">
+        <MudStack Spacing="3">
+            <MudTextField T="string" @bind-Value="_title" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field"
+                          MaxLength="@FeedbackBoard.MaxTitle" Label="@T.Get(Copy.SuggestLabel)" Placeholder="@T.Get(Copy.SuggestPlaceholder)" />
+            <MudTextField T="string" @bind-Value="_details" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" Lines="3"
+                          MaxLength="@FeedbackBoard.MaxDetails" Label="@T.Get(Copy.SuggestDetails)" />
+        </MudStack>
+        @if (_failed)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.FeedbackFailed)</MudAlert>
+        }
+    </InterviewStep>
+}
+else if (_step == Step.Similar)
+{
+    <InterviewStep Title="@T.Get(Copy.SuggestSimilarTitle)" Illustration="@AppImages.Unsure" Why="@T.Get(Copy.SuggestSimilarWhy)"
+                   OnBack="@(() => _step = Step.Write)" OnNext="PostAsync" NextLabel="@T.Get(Copy.SuggestDifferent)" CanContinue="@(!_busy)">
+        <MudText Typo="Typo.body1" Align="Align.Center">@T.Format(Copy.SuggestYours, _title?.Trim() ?? string.Empty)</MudText>
+        <MudStack Spacing="3">
+            @foreach (var post in _similar)
+            {
+                <SimilarSuggestion @key="post.Id" Post="post" Disabled="_busy" OnSame="SameAsync" />
+            }
+        </MudStack>
+        @if (_failed)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.FeedbackFailed)</MudAlert>
+        }
+    </InterviewStep>
+}
+else
+{
+    <InterviewStep Title="@T.Get(_step == Step.Posted ? Copy.SuggestPostedTitle : Copy.SuggestVotedTitle)" Illustration="@AppImages.Done"
+                   Why="@T.Get(_step == Step.Posted ? Copy.SuggestPostedWhy : Copy.SuggestVotedWhy)"
+                   OnNext="Finish" NextLabel="@T.Get(Copy.SuggestDone)" />
+}

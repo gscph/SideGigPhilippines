@@ -111,8 +111,8 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         await api.EnsureWrittenAsync(response, "remove the listing");
     }
 
-    /// <summary>The worker's own listing changed: the next read of it, and every search, asks the server.</summary>
-    private void Forget(string professionalId)
+    /// <summary>The listing changed or was blocked: the next read of it, and every search, asks the server.</summary>
+    public void Forget(string professionalId)
     {
         _listings.Remove(professionalId);
         _searches.Clear();

@@ -125,7 +125,7 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     {
         using var scope = seeded.Services.CreateScope();
         return await scope.ServiceProvider.GetRequiredService<ProfessionalStore>()
-            .SearchPageAsync(category, "rizal", new RankRequest(service, city, budget), 0, take, CancellationToken.None);
+            .SearchPageAsync(category, "rizal", new RankRequest(service, city, budget), 0, take, new HashSet<string>(), CancellationToken.None);
     }
 
     private static List<string> Names(SearchPageDto page, bool inTown) =>

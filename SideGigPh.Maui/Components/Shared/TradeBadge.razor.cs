@@ -5,7 +5,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Shared;
 
 /// <summary>
-/// The Skilled Worker's trade as a brand-colored badge ("❄️ Aircon Technician", "🚰 Tubero"), on the pro card and
+/// The Skilled Worker's trade as a brand-colored badge ("Aircon Technician", "Tubero"), on the pro card and
 /// the public profile. Shows nothing for a trade we no longer offer.
 /// </summary>
 public partial class TradeBadge : ComponentBase
@@ -23,6 +23,5 @@ public partial class TradeBadge : ComponentBase
 
     private IReadOnlyList<CatalogOption> Trades => Listing.TradeOptions();
 
-    private string Text(CatalogOption trade) =>
-        string.IsNullOrEmpty(trade.Icon) ? T.Get(trade.Label) : $"{trade.Icon} {T.Get(trade.Label)}";
+    private string Text(CatalogOption trade) => T.Get(trade.Label);
 }

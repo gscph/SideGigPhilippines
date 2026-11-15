@@ -3,10 +3,8 @@ using MobileAppTheme.Localization;
 namespace MobileAppTheme.Services;
 
 /// <summary>
-/// The person using this phone, as the shared <c>MePage</c> sees them: their app language and
-/// Start over. The app implements it (it knows what to save and what to delete) and registers it.
-/// Until there is sign-in, the "account" is what's saved on the phone; with auth, Start over
-/// becomes sign out / delete account.
+/// The person using this phone, as the shared <c>MePage</c> sees them: their app language, Start over
+/// and Delete account. The app implements it (it knows what to save and what to delete) and registers it.
 /// </summary>
 public interface IAppAccount
 {
@@ -20,4 +18,10 @@ public interface IAppAccount
 
     /// <summary>Deletes everything the person made on this phone, so <c>/</c> starts the app fresh.</summary>
     Task StartOverAsync();
+
+    /// <summary>
+    /// Deletes the person's account and everything in it, on the server and at the sign-in provider, then signs them
+    /// out (App Store 5.1.1(v), Google Play). Throws when the server didn't confirm it, so the page can say so.
+    /// </summary>
+    Task DeleteAccountAsync();
 }

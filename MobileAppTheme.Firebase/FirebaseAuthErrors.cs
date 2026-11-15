@@ -43,6 +43,13 @@ public static partial class FirebaseAuthErrors
     }
 
     /// <summary>The error for a failed SMS-code sign-in, or adding a number to the account.</summary>
+    /// <summary>Sign in with Apple: the person closing Apple's sheet is a cancel, not an error to show.</summary>
+    public static AuthError FromApple(Exception ex) =>
+        ex is TaskCanceledException or OperationCanceledException
+        || ex.Message.Contains("cancel", StringComparison.OrdinalIgnoreCase) ? AuthError.Cancelled
+        : ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) ? AuthError.Network
+        : AuthError.Unknown;
+
     public static AuthError FromPhone(Exception ex) => ex switch
     {
         // Linking a number another account has: "This credential is already associated with a

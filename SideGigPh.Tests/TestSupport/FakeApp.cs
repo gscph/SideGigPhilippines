@@ -17,8 +17,8 @@ public sealed class FakeApp
         Store = new FakeOnboardingStore(state);
         Identity = new FakeIdentity(user);
         Text.Use(language);
-        Pro = new ProWorkspace(Store, Photos, Picker, Chats, Reviews, Profiles, Identity);
-        Seeker = new SeekerWorkspace(Store, new ProfessionalSearch(Profiles), Profiles, Chats, Reviews, Phone, Identity, Picker, Photos, Text);
+        Pro = new ProWorkspace(Store, Photos, Picker, Chats, Reviews, Profiles, Identity, Safety);
+        Seeker = new SeekerWorkspace(Store, new ProfessionalSearch(Profiles), Profiles, Chats, Reviews, Phone, Identity, Picker, Photos, Safety, Text);
         Account = new LocalAccount(Store, Identity, Users, Photos, Profiles, Chats, Reviews, Pro, Seeker, Text, NullLogger<LocalAccount>.Instance);
     }
 
@@ -41,6 +41,8 @@ public sealed class FakeApp
     public FakeUsers Users { get; } = new();
 
     public FakeContactLauncher Phone { get; } = new();
+
+    public FakeSafety Safety { get; } = new();
 
     public ProWorkspace Pro { get; }
 

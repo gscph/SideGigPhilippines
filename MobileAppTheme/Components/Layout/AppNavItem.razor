@@ -2,10 +2,10 @@
          aria-current="@(Active ? "page" : null)">
     <MudStack AlignItems="AlignItems.Center" Spacing="0">
         <MudBadge Content="Tab.Badge" Max="9" Visible="@(Tab.Badge > 0)" Color="Color.Error" Overlap="true">
-            <MudStack AlignItems="AlignItems.Center" Class="@PillClass">
+            <MudStack AlignItems="AlignItems.Center" Class="px-5 py-1">
                 <MudIcon Icon="@Tab.Icon" aria-hidden="true" />
             </MudStack>
         </MudBadge>
-        <MudText Typo="Typo.caption">@Tab.Label</MudText>
+        <MudText Typo="Typo.caption" Class="@(Active ? "app-nav-label app-nav-label-active" : "app-nav-label")">@Tab.Label</MudText>
     </MudStack>
 </MudLink>

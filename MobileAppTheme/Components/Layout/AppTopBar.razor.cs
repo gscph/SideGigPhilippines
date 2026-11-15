@@ -4,7 +4,7 @@ using MobileAppTheme.Localization;
 
 namespace MobileAppTheme.Components.Layout;
 
-/// <summary>Brand bar across the top of <see cref="AppShell"/>; the user's avatar on the right opens their page.</summary>
+/// <summary>Brand bar across the top of <see cref="AppShell"/>: the logo with the build's version beside it (muted); the user's avatar on the right opens their page.</summary>
 public partial class AppTopBar : ComponentBase
 {
     [Inject] private AppBrand Brand { get; set; } = default!;

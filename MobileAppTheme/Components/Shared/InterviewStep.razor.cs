@@ -7,7 +7,7 @@ namespace MobileAppTheme.Components.Shared;
 /// The shell of one interview question, Airbnb style: a back arrow with a thin ink progress bar
 /// beside it, the question as a big bold title, a short muted "why we ask" line, the answer UI
 /// (child content) and an optional sticky ink Next button. Everything is centered: an optional
-/// picture, the title and the why line, and a short step sits in the middle of the screen.
+/// picture, the title (a tenth smaller than a page title) and the why line, and a short step sits in the middle of the screen.
 /// </summary>
 public partial class InterviewStep : ComponentBase
 {
@@ -15,7 +15,7 @@ public partial class InterviewStep : ComponentBase
 
     [Parameter, EditorRequired] public string Title { get; set; } = string.Empty;
 
-    /// <summary>A picture for the question (an emoji), shown big in a soft circle above the title.</summary>
+    /// <summary>A picture for the question (the path of an image shipped with the app), shown in a soft circle above the title.</summary>
     [Parameter] public string? Illustration { get; set; }
 
     /// <summary>Why we ask, in one short line. Builds trust and sets up the payoff.</summary>

@@ -40,7 +40,7 @@ Some enums (`Severity`, `MaxWidth`, `InputType`) have no XML docs, so `enum` pri
 | Progress bar | `MudProgressLinear Value="0..100" Rounded="true" Size` |
 | Placeholder bars | `MudSkeleton Width="55%" Animation="Animation.False"` |
 | Divider with a label | Row `MudStack`: `MudDivider Class="flex-1"` / `MudText Typo.caption` / `MudDivider Class="flex-1"` (no built-in) |
-| Icons | Material icons for UI chrome (`Icons.Material.Filled.*`); emoji only when they come from data (`ReferenceData` choice icons) |
+| Icons | Material icons for UI chrome (`Icons.Material.Filled.*`); never emoji: pictures on tiles and questions are the app's SVG images (`AppImages`, `wwwroot/images/icons/`) drawn with `MudImage` |
 | Logo | `BrandMark` (shared component), never an inline `<svg>` |
 
 Useful built-in utility classes (verified): `pa-*`/`px-*`/`py-*`/`ma-0`, `flex-1`, `flex-grow-1`, `flex-shrink-0`, `flex-nowrap`, `overflow-x-auto` (sideways-scrolling chip/tile rows), `overflow-hidden`, `align-self-start`/`-center`/`-end`, `justify-start`, `mud-width-full`, `mud-height-full`, `rounded-pill`, `rounded-lg`, `rounded-circle`, `rounded-t-xl`, `border-2`, `border-t`, `border-solid`, `mud-border-primary`, `mud-border-lines-default`, `mud-background-gray`, `mud-primary-hover` (primary tint background), `mud-theme-primary` (primary background + contrast text), `mud-elevation-2`, `object-cover`, `relative`, `absolute`, `sticky`.

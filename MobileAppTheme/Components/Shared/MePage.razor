@@ -5,10 +5,21 @@
 
     <LanguagePicker Value="Account.Language" ValueChanged="Account.SetLanguageAsync" />
 
-    <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start">
-        <MudIcon Icon="@Icons.Material.Rounded.PhoneAndroid" Color="Color.Secondary" Size="Size.Small" aria-hidden="true" />
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AccountOnPhone)</MudText>
-    </MudStack>
+    @if (Brand.Legal is { } legal)
+    {
+        <MudStack HtmlTag="section" Spacing="0">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(CommonCopy.LegalTitle)</MudText>
+            <MenuRow Href="@legal.PrivacyUrl" Icon="@Icons.Material.Rounded.PrivacyTip" Text="@T.Get(CommonCopy.LegalPrivacy)" />
+            <MenuRow Href="@legal.TermsUrl" Icon="@Icons.Material.Rounded.Gavel" Text="@T.Get(CommonCopy.LegalTerms)" />
+            <MenuRow Href="@legal.DataUrl" Icon="@Icons.Material.Rounded.Shield" Text="@T.Get(CommonCopy.LegalData)" />
+        </MudStack>
+    }
 
-    <StartOverCard Busy="_busy" Warning="@StartOverWarning" OnConfirm="StartOverAsync" />
+    <ConfirmActionCard Title="@T.Get(CommonCopy.StartOver)" Why="@T.Get(CommonCopy.StartOverWhy)" Ask="@T.Get(CommonCopy.StartOverAsk)"
+                       Warning="@(StartOverWarning ?? T.Get(CommonCopy.StartOverWarning))" ConfirmText="@T.Get(CommonCopy.StartOverYes)"
+                       Icon="@Icons.Material.Rounded.RestartAlt" Busy="_busy" OnConfirm="StartOverAsync" />
+
+    <ConfirmActionCard Title="@T.Get(CommonCopy.DeleteAccount)" Why="@T.Get(CommonCopy.DeleteAccountWhy)" Ask="@T.Get(CommonCopy.DeleteAccountAsk)"
+                       Warning="@T.Get(CommonCopy.DeleteAccountWarning)" ConfirmText="@T.Get(CommonCopy.DeleteAccountYes)"
+                       Icon="@Icons.Material.Rounded.DeleteForever" Outlined="true" Busy="_busy" Error="@_deleteError" OnConfirm="DeleteAccountAsync" />
 </MudStack>

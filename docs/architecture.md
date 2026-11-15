@@ -10,6 +10,10 @@ language and sign-in screens, `BrandMark` on the splash), `ApplicationTitle` in 
 label), the window title in `App.xaml.cs` and the pre-Blazor splash in `wwwroot/index.html`; copy that names the app
 says "Tarbaho" in `Copy.cs`.
 
+- **Font:** DM Sans, a round geometric sans close to Airbnb's Cereal, set by `AppTheme.Style.FontFamily` (the
+  skeleton's `BrandStyle.FontFamily`, default the phone's own font). The variable-weight Latin file (37 KB) ships
+  in `wwwroot/fonts/dm-sans.woff2` with `DM-Sans-OFL.txt`, loaded by an `@font-face` in `app.css`, so the first
+  launch offline already has it; characters it lacks (₱) fall back to the phone's font.
 - **Taglines:** Pros "Find work near you" / "Umextra para sa Pamilya" (`Copy.RoleProfessionalHint`); Seekers
   "Find ___ nearby" / "May ___ para diyan" (`Copy.SeekerTagline`); before the role is known, `AppTheme.Brand.Tagline`
   says both.
@@ -70,6 +74,85 @@ says "Tarbaho" in `Copy.cs`.
 **`IProfessionalProfileRepository`** (`Api/ApiProfessionalProfileRepository`): `SearchAsync(query, skip)` (`GET search/professionals?categoryId=…&areaId=…&serviceId=…&cityId=…&budgetId=…&skip=…&take=4`: one page of results **ranked on the server**, a `SearchPageDto` with both groups' totals; the old unranked `GET professionals?categoryId=…&areaId=…` stays for app versions before paging), `GetByIdAsync` serves the public profile and Inbox, `PublishAsync(listing, references)` (`PUT professionals/me`; references go only in the request, never back in a `ListingDto`) returns `PublishResult.PhoneTaken` for a number that already has a listing (anti-fraud rule 1: the listing number is the token's verified `phone_number`, unique in `Professionals`; no verified phone = `403 phone-required`), `RemoveAsync` takes the caller's listing out of search (Start over).
 
 **App config** (data every page needs that may be hours stale: the trades and jobs with their price guides, towns, the minimum wage, the old price tiers, experience, urgency, income goals; one `AppConfig` model, one `ConfigDto`): loaded **once per launch, behind the splash** (`LaunchRouter` awaits `AppConfigService.LoadAsync()` before anything else), then held in memory by `ReferenceData` (`UseConfig`, guarded by `CanUse`: no empty list, every trade has jobs, the ids the code names exist). Pages never fetch it. The rules are the skeleton's generic **`RemoteConfig<T>`** (`MobileAppTheme/Services/RemoteConfig.cs`): the phone's copy (`config.json`, skeleton `FileConfigCache<T>` over `JsonFile<T>`, a `Stamped<T>` with `SavedAt` and the server's `Version`) is used with **no network call for 12 h** (`RemoteConfigRules.FreshFor`); after that the app asks `GET config` with `If-None-Match: <saved ETag>` (`ApiClient.GetIfChangedAsync`, no token) and the server answers **`304` with no body** when nothing changed (the copy counts as checked again) or `200` with the new config (saved); offline or slower than 8 s (`FetchTimeout`) it uses the stale copy, and with none it runs on `BuiltInConfig`. A server config that isn't usable is never used or saved. Server side `ConfigStore` keeps the config and its ETag (SHA-256 of the JSON) **12 h per instance** (`ConfigFor`; restart the Function App to apply a `004-config.sql` edit sooner, so an edit can take up to ~24 h to reach every phone) and `ConfigFunctions` sets `ETag` and `Cache-Control: public, max-age=43200`. **Why a JSON file and not SQLite:** it's one small document always read whole at launch; `JsonFile<T>` writes atomically (temp file, then move) and a corrupt file reads as missing, so the worst case is the built-in copy. Add SQLite only when local data needs querying. Ports: `IConfigSource<AppConfig>` and **`IOtherJobNoteRepository`** (both `Api/ApiConfigRepository`: `GET config`, `POST other-jobs`); **`OtherJobNotes`** (`Services/`, singleton) sends the typed "Others" text trimmed and cut to `MaxText` (= the server's `OtherJobNoteStore.MaxNote`), failures only logged. New stale-OK data goes into this same config (a `ConfigOptions` list or a new `ConfigDto` field), not a new endpoint.
+
+## Versioning
+
+- **One source:** `Directory.Build.props` at the repo root. `AppVersionNumber` is SemVer `major.minor.patch` (now
+  `0.1.0`), `AppVersionStage` the pre-release stage (`rc` while testers have it; empty for a final release), and
+  `BuildNumber` comes from CI (`-p:BuildNumber=${{ github.run_number }}`; `0` on a PC). Together they make
+  `AppVersionLabel`: `0.1.0-rc.12` from CI, `0.1.0-rc` on a PC, `0.1.0` for a final release. To ship a new version,
+  change the two properties there and commit; nothing else holds a version.
+- **Where it goes:** the app's csproj maps it to the store fields (Android `versionName` = the whole label and
+  `versionCode` = the build number; iOS `CFBundleShortVersionString` = the three numbers, since Apple allows nothing
+  else, and `CFBundleVersion` = the build number). `Directory.Build.targets` (`StampBuildInfo`, on for the app and the
+  API) writes the label, the git commit (`git describe`, `-dirty` with local changes) and the app's channel into the
+  assembly as `[AssemblyMetadata]`.
+- **App:** `Services/Diagnostics/BuildInfo` (`BuildInfo.Current`) reads the stamp. `AppTheme.Brand` passes
+  `BuildInfo.Current.Label` (`v0.1.0-rc.12`) as `AppBrand.Version`, which the skeleton shows as a muted caption under
+  the spinner of `SplashScreen` (the launch splash and the busy splash) and beside the logo in `AppTopBar`. The
+  pre-Blazor splash in `wwwroot/index.html` is static HTML and shows no version; it is on screen for a moment only.
+- **Error reports** carry `AppVersion` = `0.1.0-rc.12 (12)` (label + store build), `CodeVersion` and `Channel`
+  (`DeviceStamp`, unchanged columns).
+- **API errors name both builds.** `ApiClient` sends `X-App-Version: 0.1.0-rc.12 (beta; 48466c9)` on every call
+  (`ApiOptions.ClientVersion`, header names in `Contracts.ApiHeaders`). The server's `ErrorDetailsMiddleware` puts
+  `X-Api-Version` (`ApiVersion.Current`, e.g. `0.1.0-rc.57+48466c9`) on every answer, logs every crash with the
+  caller's app version, and logs a warning for every refusal a function answers (400, 403, 409, 429, 5xx; not the
+  everyday 401 and 404). On the phone a failed call is logged as `API 0.1.0-rc.57+48466c9: couldn't … : 500 …`, and
+  that log line becomes an error report, so one row in `ErrorReports` says which app build met which API build.
+- **The app and the API count builds separately** (each workflow's own run number), because they ship separately.
+- **A PC build over a CI build:** Android refuses to install a lower `versionCode` over a higher one, so a tester's
+  phone with a CI build needs that build uninstalled before a Visual Studio build goes on it.
+
+## Analytics and A/B tests
+
+- **Ports (skeleton, `MobileAppTheme/Services/`):** `IAnalytics` (`Screen`, `Event`, `SetProperty`, `SetEnabled`,
+  `IsOn`) and `IExperiments` (`RefreshAsync`, `Variant(key, fallback)`, `IsEnabled(key, fallback)`, `IsOn`). The
+  defaults `NoAnalytics` / `NoExperiments` record nothing and answer every fallback, so the app behaves exactly as
+  written.
+- **Firebase adapters (`MobileAppTheme.Firebase/`), each a build-time feature flag, off by default:**
+  `FirebaseUsageAnalytics` (Google Analytics for Firebase, `Plugin.Firebase.Analytics`) and
+  `FirebaseRemoteExperiments` (Remote Config, the values Firebase A/B Testing hands out,
+  `Plugin.Firebase.RemoteConfig`). The flags are MSBuild properties in `Directory.Build.props`
+  (`FirebaseAnalytics`, `FirebaseExperiments`): `true` references the package and defines `FIREBASE_ANALYTICS` /
+  `FIREBASE_EXPERIMENTS`; otherwise the adapter isn't compiled and the package isn't referenced. `MauiProgram` always
+  calls `builder.AddFirebaseAnalytics()` and `builder.AddFirebaseExperiments(...)`; with the flag off they do nothing.
+  Turn one on in `Directory.Build.props`, for one build with `-p:FirebaseAnalytics=true`, or in CI with the repo
+  variables `FIREBASE_ANALYTICS` / `FIREBASE_EXPERIMENTS` = `true`. Firebase A/B Testing needs both on. Console
+  steps: [`firebase/README.md`](../firebase/README.md).
+- **App (`Services/Analytics/AppAnalytics`, singleton):** `Start(state)` at launch (`LaunchRouter`) sets the traits
+  in `AppProperties` (`role`, `language`, `build_label`, `build_channel`) and refreshes the variants in the
+  background; `Screen(route)` is called by `Components/Shared/ScreenTrail` on every navigation with ids taken out
+  (`ScreenName`: uids, chat ids and photo hashes become `[id]`, and so does any segment over 24 characters);
+  `Track(AppEvents.X)` counts `listing_published`, `feedback_posted`, `feedback_voted`; `Variant` / `IsEnabled` read
+  an experiment. **Never send a name, number, message, search words or anything typed.** A new event is a constant in
+  `AppEvents` plus one `Track` call.
+- **Before turning analytics on for testers:** add it to the privacy policy (`docs/legal/privacy-policy.md`) and the
+  stores' data forms; the Me page has no analytics switch yet (`IAnalytics.SetEnabled` is there for one).
+
+## Feedback board
+
+- **What:** both sides open it from the Me page (`SeekerRoutes.Feedback` / `ProRoutes.Feedback` →
+  `/feedback/{side}`, `Components/Feedback/FeedbackPage`, full screen): suggestions with a vote button, **most voted
+  first** (open and planned ones, then finished ones), in pages of `Paging.Feedback` (20). The board shows no names.
+- **Suggesting (`SuggestPage`, `/feedback/{side}/new`):** write a title (6–100 characters) and optional details →
+  the app asks `GET feedback/similar?q=…` → when look-alikes exist, **"Is it one of these?"** lists them
+  (`SimilarSuggestion`): "Yes, same idea" adds the person's vote to that one and posts nothing; "No, mine is
+  different" posts it. With no look-alike it posts at once. The writer's own vote is the first.
+- **Look-alikes (`SideGigPh.AzureSQL/FeedbackMatch`):** titles are compared by the words that carry meaning (small
+  English and Tagalog words and wish-list words like "add", "sana", "po" dropped, plural "s" ignored); two are
+  similar when at least half of the shorter one's words are in the other (`MinScore`). The server compares against
+  the 500 most voted (`FeedbackStore.MaxCompared`). No AI: the person confirms the match.
+- **Rules (server, `FeedbackStore`):** one vote per person (`PK_FeedbackVotes`; voting twice changes nothing);
+  `Votes` is recounted from the vote rows on every change; the same title from the same person again answers with
+  the first; the writer may delete their own only while nobody else voted; a report adds a row to `Reports`
+  (`SubjectId` `feedback:{id}`); `declined` and `hidden` leave the board. Limits: 10 suggestions and 120 votes an
+  hour per account. **Delete account** removes the person's votes (counts follow) and clears `AuthorUid` on their
+  suggestions, which stay.
+- **App (`Services/FeedbackBoard`, singleton, port `IFeedbackRepository`, adapter `ApiFeedbackRepository`):** holds
+  the loaded pages; a vote shows at once and is put back if it didn't reach the server; a new suggestion goes on top
+  of the list; the order otherwise stays put while on screen and is re-sorted on the next load.
+- **Operator:** `UPDATE dbo.FeedbackPosts SET Status = 'planned' WHERE Id = …` (or `done`, `declined`, `hidden`);
+  top of the board: `SELECT Id, Votes, Status, Side, Title FROM dbo.FeedbackPosts ORDER BY Votes DESC`.
 
 ## App shell (shared by both sides, after the interview)
 
@@ -132,8 +215,12 @@ Nothing outside the adapter project and `MauiProgram` knows the provider is Fire
 
 Never call a provider SDK from a page, workspace or service. If the UI needs something the contract lacks (e.g. email sign-in), add it to `IIdentityProvider` / `AuthMethods` / `AuthError` in the skeleton first, then implement it in every adapter.
 
+## Pictures
+
+**Pictures are the app's own images, never emoji**: one small SVG per trade, job, answer and interview question in `SideGigPh.Maui/wwwroot/images/icons/` (shipped in the app, so they show offline and look the same on every phone), all in one look: a 48-unit box, 2.5 ink outlines with round ends, the light brand tint `#E9DFF3` and one brand-purple detail (the colors are written in the files and must match `AppTheme`). `Services/AppImages` names them: `AppImages.For(id)` picks a trade's, job's or answer's picture by its stable id ("Others" and an id without a picture get the plus, `AppImages.More`), and the question pictures are its fields (`AppImages.Trade`, `Town`, `Price`…). `CatalogOption.Icon` / `ChoiceItem.Icon` / `InterviewStep.Illustration` hold the image path; the skeleton's `ChoiceTile` and `InterviewStep` and the app's `CategoryRail` draw it with `MudImage`. The `Icon` emoji in `004-config.sql` stays for app versions before the pictures and is not shown (`ApiMapping.ToModel`); a saved config that still has emoji is refused by `ReferenceData.CanUse`. A new trade or job needs a new SVG in the same look plus a line in `AppImages` (`AppImagesTests` checks every id has a picture and every picture is a file).
+
 ## Component inventory
 
-- **Skeleton** (`MobileAppTheme/Components/Shared/`): generic UI any product would use unchanged, with no domain words: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`, `ChoiceItem`), `PersonAvatar` (photo, initials on ink or a person icon), `SplashScreen` (logo + name + a line, optional second line, small spinner: the launch splash and the busy splash), `BusyOverlay` (in the skeleton `MainLayout`: the `SplashScreen` on a solid surface with a line that changes every 1.8 s, from the `ISplashLines` port (skeleton default `BusySplashLines` = `CommonCopy.Busy*`; Tarbaho's `RoleSplashLines`: Seekers see "Find {honorific}s nearby" with the honorifics taking turns, Skilled Workers `Copy.ProTaglines`, no role yet = the Seeker lines), while the `BusyIndicator` singleton is busy; **the one loading screen for anything that fills the whole screen**: pages wrap slow actions and full-page loads in `await Busy.RunAsync(...)`: the end of both interviews, a chat or profile opening, publish, photo uploads, review, Start over (inline spinners stay only for part of a page: search results under the box, load-more, a button); it raises `Stuck` past `StuckAfter`, 20 s, for error reports), `SheetHeader` (✕/← + centered title + hairline) and `SheetPage` (full-screen sheet with that header: sign-in, name, add phone), `MenuRow` (settings-list row with chevron), `ProfileCard` (raised card: big photo, name, status), `HomeSection` (collapsible home section), `FilterMenu` (a chip with a dropdown that scrolls and shows `ChoiceItem.Group` headings: Search filters and the home town picker), `BrandMark` (logo + name from `AppBrand`), `LanguagePicker`, `LoadMoreOnScroll` (at a long list's growing end: spinner + `OnLoadMore` near that end or when the list is too short to scroll, via MudBlazor's scroll listener and scroll manager; `Edge` `Bottom` for results, `Top` for a chat: opens at the end and keeps the reader's place when older items go above), `StartOverCard` (confirm-twice Start over, optional `Warning`) and `MePage` (the Me page frame: title, the side's own sections, then `LanguagePicker`, the on-this-phone note and `StartOverCard`; SideGigPh passes its own `StartOverWarning`). The skeleton never references SideGigPh.
-  - **App-generic** (`SideGigPh.Maui/Components/Shared/`): used by two or more SideGigPh features but tied to its domain: `TradeBadge` (the worker's trade as a purple `Variant.Text` chip, emoji + label, "❄️ Aircon Technician", on `ProCard` and the public profile's `ProfileHero`; shows nothing for a retired trade), `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview; results pass `Dense`: photo, name, trade + budget badge, one row of facts, so 3–4 fit on screen), `ListingFacts` and `ServiceChips` (the dense card; the public profile uses its own `ProfileStats` and `JobList`; all their text comes from `Services/Localization/ListingText`), `ReviewRow` + `RatingSummary`, `PhotoAddNotice` (why photos weren't added or the camera was refused, on both Me pages, the work-photo pages and the setup), `PhotoStrip` (work photos two across, scrolling sideways past two: the public profile, before Reviews, and the work-photo page).
+- **Skeleton** (`MobileAppTheme/Components/Shared/`): generic UI any product would use unchanged, with no domain words: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`, `ChoiceItem`), `PersonAvatar` (photo, initials on ink or a person icon), `SplashScreen` (logo + name + a line, optional second line, small spinner: the launch splash and the busy splash), `BusyOverlay` (in the skeleton `MainLayout`: the `SplashScreen` on a solid surface with a line that changes every 1.8 s, from the `ISplashLines` port (skeleton default `BusySplashLines` = `CommonCopy.Busy*`; Tarbaho's `RoleSplashLines`: Seekers see "Find {honorific}s nearby" with the honorifics taking turns, Skilled Workers `Copy.ProTaglines`, no role yet = the Seeker lines), while the `BusyIndicator` singleton is busy; **the one loading screen for anything that fills the whole screen**: pages wrap slow actions and full-page loads in `await Busy.RunAsync(...)`: the end of both interviews, a chat or profile opening, publish, photo uploads, review, Start over (inline spinners stay only for part of a page: search results under the box, load-more, a button); it raises `Stuck` past `StuckAfter`, 20 s, for error reports), `SheetHeader` (✕/← + centered title + hairline) and `SheetPage` (full-screen sheet with that header: sign-in, name, add phone), `MenuRow` (settings-list row with chevron), `ProfileCard` (raised card: big photo, name, status), `HomeSection` (collapsible home section), `EmptyState` (an empty list, Airbnb style: outlined icon in a soft brand-tinted circle above a gray line; Inbox, Reviews, Photos), `FilterMenu` (a chip with a dropdown that scrolls and shows `ChoiceItem.Group` headings: Search filters and the home town picker), `BrandMark` (logo + name from `AppBrand`), `LanguagePicker`, `LoadMoreOnScroll` (at a long list's growing end: spinner + `OnLoadMore` near that end or when the list is too short to scroll, via MudBlazor's scroll listener and scroll manager; `Edge` `Bottom` for results, `Top` for a chat: opens at the end and keeps the reader's place when older items go above), `ConfirmActionCard` (a destructive action confirmed twice: Start over, Delete account) and `MePage` (the Me page frame: title, the side's own sections, then `LanguagePicker`, the legal links from `AppBrand.Legal`, Start over and Delete account; SideGigPh passes its own `StartOverWarning`); in `Components/Auth/`, `LegalConsent` (the sign-in agreement line) and `AppleSignInButton` (iOS). The skeleton never references SideGigPh.
+  - **App-generic** (`SideGigPh.Maui/Components/Shared/`): used by two or more SideGigPh features but tied to its domain: `TradeBadge` (the worker's trade as a purple `Variant.Text` chip, label only, "Aircon Technician", on `ProCard` and the public profile's `ProfileHero`; shows nothing for a retired trade), `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview; results pass `Dense`: photo, name, trade + budget badge, one row of facts, so 3–4 fit on screen), `ListingFacts` and `ServiceChips` (the dense card; the public profile uses its own `ProfileStats` and `JobList`; all their text comes from `Services/Localization/ListingText`), `ReviewRow` + `RatingSummary`, `PhotoAddNotice` (why photos weren't added or the camera was refused, on both Me pages, the work-photo pages and the setup), `PhotoStrip` (work photos two across, scrolling sideways past two: the public profile, before Reviews, and the work-photo page).
   - **Feature** components stay in their feature folder.

@@ -28,6 +28,8 @@ for project in MobileAppTheme MobileAppTheme.Firebase SideGigPh.Contracts SideGi
   mkdir -p "$copy/$project"
   (cd "$repo" && tar --exclude=bin --exclude=obj -cf - "$project") | tar -xf - -C "$copy"
 done
+# The API embeds the public legal pages (LegalFunctions).
+rm -rf "$copy/docs/legal" && mkdir -p "$copy/docs" && cp -r "$repo/docs/legal" "$copy/docs/"
 cp "$repo"/*.slnx "$copy/" 2>/dev/null
 cp "$repo"/Directory.* "$copy/" 2>/dev/null
 

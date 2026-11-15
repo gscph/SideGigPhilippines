@@ -198,3 +198,49 @@ public sealed class ConfigOptionRow
     public int SortOrder { get; set; }
     public bool IsActive { get; set; }
 }
+
+/// <summary>A user reporting another user's listing, review, chat or account (<c>Reports</c>); the operator answers within 5 business days.</summary>
+public sealed class ReportRow
+{
+    public long Id { get; set; }
+    public string? ReporterUid { get; set; }
+    public required string TargetUid { get; set; }
+    public required string Kind { get; set; }
+    public string? SubjectId { get; set; }
+    public required string Reason { get; set; }
+    public string? Note { get; set; }
+    public string Status { get; set; } = "open";
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? ResolvedAt { get; set; }
+}
+
+/// <summary>A feature someone suggested on the feedback board (<c>FeedbackPosts</c>), shown without the writer's name.</summary>
+public sealed class FeedbackPostRow
+{
+    public long Id { get; set; }
+    public string? AuthorUid { get; set; }
+    public string? Side { get; set; }
+    public required string Title { get; set; }
+    public string? Details { get; set; }
+
+    /// <summary>How many <see cref="FeedbackVoteRow"/>s it has, kept here so the board sorts without counting.</summary>
+    public int Votes { get; set; }
+    public string Status { get; set; } = "open";
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>One person's vote for a suggestion (<c>FeedbackVotes</c>): at most one each.</summary>
+public sealed class FeedbackVoteRow
+{
+    public long PostId { get; set; }
+    public required string VoterUid { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>One user blocked another (<c>Blocks</c>); either direction hides the two from each other.</summary>
+public sealed class BlockRow
+{
+    public required string BlockerUid { get; set; }
+    public required string BlockedUid { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+}
