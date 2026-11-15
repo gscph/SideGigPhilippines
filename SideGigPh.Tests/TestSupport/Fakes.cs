@@ -131,7 +131,11 @@ public sealed class FakeIdentity(AuthUser? user) : IIdentityProvider
 
     public Task<AuthResult> SetDisplayNameAsync(string displayName) => throw new NotSupportedException();
 
-    public Task SignOutAsync() => Task.CompletedTask;
+    public Task SignOutAsync()
+    {
+        User = null;
+        return Task.CompletedTask;
+    }
 }
 
 /// <summary>

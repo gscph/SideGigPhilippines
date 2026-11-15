@@ -23,6 +23,13 @@ public class AuthRoutesTests
     }
 
     [Fact]
+    public void EditName_OpensTheNamePageInEditModeAndComesBack()
+    {
+        AuthRoutes.EditName("/professional/me").Should().Be("/verify/name?edit=true&then=%2Fprofessional%2Fme");
+        AuthRoutes.EditName("https://example.com").Should().Be("/verify/name?edit=true", "only paths inside the app");
+    }
+
+    [Fact]
     public void AddPhone_BackOutsideTheApp_IsDropped()
     {
         AuthRoutes.AddPhone(null, "https://example.com").Should().Be("/verify/phone");

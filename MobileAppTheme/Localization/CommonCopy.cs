@@ -99,11 +99,15 @@ public static class CommonCopy
     public static readonly LocalizedText AuthCodeLabel = new("6-digit code", "6-digit code");
     public static readonly LocalizedText AuthVerifying = new("Verifying…", "Vine-verify…");
     public static readonly LocalizedText AuthOtherNumber = new("Use a different number", "Ibang number na lang");
+    public static readonly LocalizedText AuthSignInWithNumber = new("Sign in with this number", "Mag-sign in gamit ang number na 'to");
+    public static readonly LocalizedText AuthSignOutFailed = new("Couldn't sign out. Check your signal and try again.", "Hindi maka-sign out. I-check ang signal at subukan ulit.");
     public static readonly LocalizedText AuthErrorNetwork = new("No connection. Check your internet and try again.", "Walang connection. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText AuthErrorInvalidCode = new("Wrong or expired code. Check the SMS and try again.", "Mali o expired ang code. I-check ang SMS at subukan ulit.");
     public static readonly LocalizedText AuthErrorInvalidPhone = new("Check the mobile number.", "I-check ang mobile number.");
     public static readonly LocalizedText AuthErrorPhoneInUse = new("Another account already uses this number. Sign in with your number instead.", "May ibang account na gumagamit ng number na 'to. Mag-sign in na lang gamit ang number mo.");
     public static readonly LocalizedText AuthNameTitle = new("Finish signing up", "Tapusin ang sign up");
+    public static readonly LocalizedText AuthNameEditTitle = new("Change your name", "Palitan ang pangalan mo");
+    public static readonly LocalizedText AuthSave = new("Save", "I-save");
     public static readonly LocalizedText AuthNameWhy = new("Use your real name. It's the name people you talk to will see.", "Gamitin ang totoong pangalan mo. Ito ang makikita ng mga kausap mo.");
     public static readonly LocalizedText AuthFirstName = new("First name", "Pangalan");
     public static readonly LocalizedText AuthLastName = new("Last name", "Apelyido");

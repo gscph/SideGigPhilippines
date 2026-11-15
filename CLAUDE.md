@@ -39,7 +39,7 @@ changing that area.**
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
   `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board),
-  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, Start over, Delete account), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
+  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers (the add-phone page's "Sign in with this number" when a Google account's number belongs to another account), Start over, Delete account), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
 - **API adapters** (`Services/Api/`, the only app code that talks HTTP): `ApiClient` (one `HttpClient`, the Firebase
   ID token on every request, asks for gzip) and one `Api*Repository` per port, registered by `AddSideGigPhApi`
   after `AddMobileAppTheme`; `ApiMapping` converts contracts ↔ `Models/` (models never get contract types). Failed

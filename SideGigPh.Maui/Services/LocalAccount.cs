@@ -80,6 +80,14 @@ public sealed class LocalAccount(
     /// Deletes everything this person made (answers, profile, listing, photos, chats, reviews)
     /// so <c>/</c> starts the onboarding again from the language screen. They stay signed in.
     /// </summary>
+    public async Task SignOutAsync()
+    {
+        await identity.SignOutAsync();
+        // Both sides loaded this account's id, listing, chats and reviews: the next account loads its own.
+        pro.Forget();
+        seeker.Forget();
+    }
+
     public async Task StartOverAsync()
     {
         var state = await store.LoadAsync();

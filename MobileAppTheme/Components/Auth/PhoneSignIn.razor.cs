@@ -107,6 +107,11 @@ public partial class PhoneSignIn : ComponentBase
                 : await Identity.VerifyPhoneOtpAsync(_verificationId, code);
             await OnAuthenticated.InvokeAsync(result);
         }
+        catch (Exception ex)
+        {
+            // Adapters answer failures as results; this is the backstop so the button always comes back.
+            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Unknown, ex.Message));
+        }
         finally
         {
             _busy = false;

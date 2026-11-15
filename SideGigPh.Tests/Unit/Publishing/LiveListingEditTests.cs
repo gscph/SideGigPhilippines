@@ -1,4 +1,6 @@
+using MobileAppTheme.Auth;
 using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services;
 using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.Publishing;
@@ -22,6 +24,31 @@ public class LiveListingEditTests
         result.Should().Be(PublishResult.Published);
         app.Profiles.Published.Should().ContainSingle().Which.Listing.CityIds.Should().Equal("angono");
         app.Store.State.Professional.ListingOutOfDate.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task EditListing_LeftAfterANewTrade_IsShownAsUnfinished_WithTheJobsQuestionNext()
+    {
+        // A new trade clears the jobs; leaving Edit listing there used to keep the old listing live with no word to
+        // the worker, and every later photo change silently stayed off it too.
+        var app = await FakeApp.ProAsync(Live());
+        app.Pro.Draft.PickTrade("plumbing");
+
+        (await app.Pro.ListingEditedAsync()).Should().BeNull("an unfinished listing isn't sent");
+
+        app.Pro.HasUnfinishedEdit.Should().BeTrue();
+        app.Pro.UnfinishedEditPath.Should().Be(OnboardingSteps.PathOf(ProStep.Services));
+        app.Profiles.Published.Should().BeEmpty("customers keep the old listing until the edit is finished");
+    }
+
+    [Fact]
+    public async Task UnfinishedEdit_IsNotShown_ForACompleteListing_OrBeforePublishing()
+    {
+        (await FakeApp.ProAsync(Live())).Pro.HasUnfinishedEdit.Should().BeFalse();
+
+        var draft = TestData.ReadyDraft();
+        draft.ServiceIds.Clear();
+        (await FakeApp.ProAsync(draft)).Pro.HasUnfinishedEdit.Should().BeFalse("the setup handles a listing not live yet");
     }
 
     [Fact]
@@ -74,6 +101,42 @@ public class LiveListingEditTests
         await app.Pro.RefreshActivityAsync();
 
         app.Profiles.Published.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task NameChanged_OnALiveListing_RepublishesWithTheNewName()
+    {
+        // Me → Change name: a name typed wrong at sign-up reaches customers once fixed.
+        var app = await FakeApp.ProAsync(Live());
+        await app.Pro.EnsureDraftLoadedAsync();
+        app.Identity.User = new AuthUser { Uid = TestData.WorkerUid, DisplayName = "Juan P. Dela Cruz", PhoneNumber = TestData.WorkerNumber };
+
+        await app.Pro.RefreshAccountAsync();
+        await WaitForAsync(() => app.Profiles.Published.Count == 1);
+
+        app.Profiles.Published.Single().Listing.DisplayName.Should().Be("Juan P. Dela Cruz");
+    }
+
+    [Fact]
+    public async Task NameChanged_BeforePublishing_SendsNothing()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        await app.Pro.EnsureDraftLoadedAsync();
+        app.Identity.User = new AuthUser { Uid = TestData.WorkerUid, DisplayName = "Juan P. Dela Cruz", PhoneNumber = TestData.WorkerNumber };
+
+        await app.Pro.RefreshAccountAsync();
+
+        app.Pro.Draft.DisplayName.Should().Be("Juan P. Dela Cruz", "the setup's Publish sends it");
+        app.Profiles.Published.Should().BeEmpty();
+    }
+
+    // The re-publish after a name change isn't awaited by the page change; with fakes it finishes almost at once.
+    private static async Task WaitForAsync(Func<bool> done)
+    {
+        for (var i = 0; i < 50 && !done(); i++)
+        {
+            await Task.Delay(10);
+        }
     }
 
     private static ProfessionalDraft Live()

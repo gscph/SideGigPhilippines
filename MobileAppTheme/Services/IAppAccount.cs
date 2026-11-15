@@ -16,6 +16,12 @@ public interface IAppAccount
     /// <summary>Switches <see cref="AppText"/> to the language, saves it, then raises <see cref="Changed"/>.</summary>
     Task SetLanguageAsync(AppLanguage language);
 
+    /// <summary>
+    /// Signs out but keeps this phone's answers, so the next sign-in carries on where the person was (e.g. their
+    /// number already belongs to another account, which they then sign in to). Forgets what was loaded for this account.
+    /// </summary>
+    Task SignOutAsync();
+
     /// <summary>Deletes everything the person made on this phone, so <c>/</c> starts the app fresh.</summary>
     Task StartOverAsync();
 

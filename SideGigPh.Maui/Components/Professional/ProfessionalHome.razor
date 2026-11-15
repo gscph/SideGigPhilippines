@@ -5,6 +5,16 @@
 
     <PhotoAddNotice Result="_photoResult" />
 
+    @if (Workspace.HasUnfinishedEdit)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Dense="true" role="alert">
+            <MudStack Spacing="2" AlignItems="AlignItems.Start">
+                <MudText Typo="Typo.body2">@T.Get(Copy.ListingEditUnfinished)</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@Workspace.UnfinishedEditPath">@T.Get(Copy.ListingEditFinish)</MudButton>
+            </MudStack>
+        </MudAlert>
+    }
+
     @if (!Workspace.IsPublished || !Workspace.Draft.HasProof)
     {
         <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"

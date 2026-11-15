@@ -35,6 +35,12 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     /// </summary>
     public static readonly TimeSpan TokenLimit = TimeSpan.FromSeconds(15);
 
+    /// <summary>
+    /// The longest checking a typed SMS code (or linking the number) may take. A connection that drops at that moment
+    /// used to leave the button spinning for good, with "use another number" disabled: now it says "check your signal".
+    /// </summary>
+    public static readonly TimeSpan VerifyCodeLimit = TimeSpan.FromSeconds(30);
+
     private static IFirebaseAuth Auth => CrossFirebaseAuth.Current;
 
     /// <summary>
@@ -65,7 +71,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     {
         try
         {
-            var user = await Auth.SignInWithPhoneNumberVerificationCodeAsync(userEnteredCode);
+            var user = await Auth.SignInWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
             return AuthResult.Ok(Map(user));
         }
         catch (Exception ex)
@@ -79,7 +85,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     {
         try
         {
-            var user = await Auth.LinkWithPhoneNumberVerificationCodeAsync(userEnteredCode);
+            var user = await Auth.LinkWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
 
             // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
             // and a backend may read the claim from the token.

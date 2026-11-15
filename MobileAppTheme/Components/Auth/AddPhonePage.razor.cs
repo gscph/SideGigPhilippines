@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MobileAppTheme.Auth;
 using MobileAppTheme.Localization;
+using MobileAppTheme.Services;
 
 namespace MobileAppTheme.Components.Auth;
 
@@ -14,6 +15,7 @@ public partial class AddPhonePage : ComponentBase
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private IAppAccount Account { get; set; } = default!;
 
     [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
 
@@ -22,6 +24,8 @@ public partial class AddPhonePage : ComponentBase
     private string? _error;
     private PhoneSignIn? _phone;
     private string? _sentTo;
+    private bool _phoneInUse;
+    private bool _busy;
 
     private string Destination => AuthRoutes.SafeReturn(Then) ?? "/";
 
@@ -47,12 +51,41 @@ public partial class AddPhonePage : ComponentBase
         }
 
         _error = T.Describe(result.Error);
+        _phoneInUse = result.Error == AuthError.PhoneInUse;
+    }
+
+    /// <summary>
+    /// The number belongs to another account (often the person's own earlier phone sign-in): sign out of this one and
+    /// sign in with the number. Without this the only offer was a message, and nothing in the app signs out.
+    /// </summary>
+    private async Task SignInWithNumberAsync()
+    {
+        if (_busy)
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await Account.SignOutAsync();
+            Nav.NavigateTo(AuthRoutes.SignIn, replace: true);
+        }
+        catch (Exception)
+        {
+            _error = T.Get(CommonCopy.AuthSignOutFailed);
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
     private void SentToChanged(string? number)
     {
         _sentTo = number;
         _error = null;
+        _phoneInUse = false;
     }
 
     // From the code step, back to the number; from the number, out (to `back`, else home).

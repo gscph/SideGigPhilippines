@@ -14,6 +14,10 @@ public static class AuthRoutes
 
     public static string Name(string? then) => WithReturn(NamePath, then);
 
+    /// <summary>The name page in edit mode: shows the account's current name to change, then returns to <paramref name="then"/>.</summary>
+    public static string EditName(string then) =>
+        SafeReturn(then) is { } safe ? $"{NamePath}?edit=true&then={Uri.EscapeDataString(safe)}" : $"{NamePath}?edit=true";
+
     /// <param name="back">
     /// Where Back goes, for a page that would send them straight here again (the app's home resumes it).
     /// </param>

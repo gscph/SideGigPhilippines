@@ -1,6 +1,6 @@
 @page "/verify/name"
 
-<SheetPage Title="@T.Get(CommonCopy.AuthNameTitle)">
+<SheetPage Title="@T.Get(Edit ? CommonCopy.AuthNameEditTitle : CommonCopy.AuthNameTitle)" OnBack="@BackHandler">
     <MudStack Spacing="2">
         <MudStack Spacing="0" Class="app-field-group">
             <MudTextField T="string" @bind-Value="_firstName" Immediate="true" Variant="Variant.Filled" Underline="false" MaxLength="40"
@@ -18,6 +18,6 @@
 
     <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                Disabled="!CanSave" OnClick="SaveAsync">
-        @T.Get(CommonCopy.AuthContinue)
+        @T.Get(Edit ? CommonCopy.AuthSave : CommonCopy.AuthContinue)
     </MudButton>
 </SheetPage>

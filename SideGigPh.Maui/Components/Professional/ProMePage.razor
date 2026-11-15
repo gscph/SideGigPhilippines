@@ -10,6 +10,10 @@
             @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
         </MudButton>
         <PhotoAddNotice Result="_photoResult" />
+        <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.Badge"
+                   Href="@AuthRoutes.EditName(ProRoutes.Me)">
+            @T.Get(Copy.ProfileNameChange)
+        </MudButton>
     </ProfileCard>
 
     @if (!Workspace.IsPublished)

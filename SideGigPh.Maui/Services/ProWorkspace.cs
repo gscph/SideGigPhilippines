@@ -438,12 +438,29 @@ public sealed class ProWorkspace(
     /// <summary>Not live yet and every setup step is done: interview answers, proof and a verified number.</summary>
     public bool IsReadyToPublish => !IsPublished && Draft.IsListingComplete && Draft.HasProof && HasVerifiedPhone;
 
+    /// <summary>
+    /// Live, but an Edit listing was left half way (a new trade picked, its jobs not yet): nothing reaches customers
+    /// until it's finished (<see cref="SyncListingAsync"/> waits for a complete listing), so Pro home says so.
+    /// </summary>
+    public bool HasUnfinishedEdit => IsPublished && !Draft.IsListingComplete;
+
+    /// <summary>Where an unfinished edit picks up: the first question it left unanswered.</summary>
+    public string UnfinishedEditPath => OnboardingSteps.PathOf(Draft.FirstUnanswered());
+
     /// <summary>Re-reads the account's name and number: one may have been linked on the add-phone page since loading.</summary>
     public async Task RefreshAccountAsync()
     {
         var hadPhone = HasVerifiedPhone;
+        var hadName = Draft.DisplayName;
         Draft.TakeAccount(await identity.GetCurrentUserAsync());
-        if (hadPhone != HasVerifiedPhone)
+        if (hadName != Draft.DisplayName)
+        {
+            // Changed on the name page (Me → Change name): customers see the new name. Not awaited, so a page change
+            // never waits on the network; a failure stays marked and is retried (SyncListingAsync).
+            _ = ListingEditedAsync();
+        }
+
+        if (hadPhone != HasVerifiedPhone || hadName != Draft.DisplayName)
         {
             Changed?.Invoke();
         }

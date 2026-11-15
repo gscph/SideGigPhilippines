@@ -57,6 +57,7 @@ public static partial class FirebaseAuthErrors
         _ when ex.Message.Contains("already associated", StringComparison.OrdinalIgnoreCase)
             || ex.Message.Contains("already in use", StringComparison.OrdinalIgnoreCase) => AuthError.PhoneInUse,
         FirebaseAuthException { Reason: FIRAuthError.InvalidCredential } => AuthError.InvalidCode,
+        TimeoutException => AuthError.Network, // our own limit (VerifyCodeLimit): no answer, most likely no signal
         _ when ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) => AuthError.Network,
         _ when ex.Message.Contains("too many", StringComparison.OrdinalIgnoreCase) => AuthError.TooManyAttempts,
         _ => AuthError.Unknown,

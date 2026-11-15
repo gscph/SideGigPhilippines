@@ -320,6 +320,7 @@ public static class Copy
     public static readonly LocalizedText ProfilePhotoAdd = new("Add your photo", "Maglagay ng photo mo");
     public static readonly LocalizedText ProfilePhotoChange = new("Change photo", "Palitan ang photo");
     public static readonly LocalizedText ProfileEdit = new("Edit listing", "Edit listing");
+    public static readonly LocalizedText ProfileNameChange = new("Change name", "Palitan ang pangalan");
     // Me page: the error reports switch (Services/Diagnostics).
     public static readonly LocalizedText ErrorReportsLabel = new("Send error reports", "Magpadala ng error reports");
     public static readonly LocalizedText ErrorReportsHelp = new(
@@ -336,6 +337,10 @@ public static class Copy
     public static readonly LocalizedText PublishBadReference = new(
         "One of your references has your own number. Change it to someone you worked for.",
         "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");
+    public static readonly LocalizedText ListingEditUnfinished = new(
+        "Your listing edit isn't finished, so customers still see your old listing.",
+        "Hindi pa tapos ang pag-edit ng listing mo, kaya luma pa rin ang nakikita ng customers.");
+    public static readonly LocalizedText ListingEditFinish = new("Finish editing", "Tapusin ang pag-edit");
     public static readonly LocalizedText PublishFixReferences = new("Fix references", "Ayusin ang reference");
     public static readonly LocalizedText PublishFailed = new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText PublishRefused = new(

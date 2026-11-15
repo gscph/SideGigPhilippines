@@ -12,4 +12,11 @@
     {
         <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
     }
+
+    @if (_phoneInUse)
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Large" FullWidth="true" Disabled="_busy" OnClick="SignInWithNumberAsync">
+            @T.Get(CommonCopy.AuthSignInWithNumber)
+        </MudButton>
+    }
 </SheetPage>

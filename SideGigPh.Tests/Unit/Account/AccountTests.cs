@@ -184,6 +184,24 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task SignOut_KeepsTheAnswers_AndTheNextAccountLoadsItsOwnId()
+    {
+        // A Google account whose number already belongs to the person's phone sign-in: they sign out and sign in with
+        // the number. Nothing they answered is lost, and nothing loaded for the old account carries over.
+        var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());
+        await app.Pro.EnsureLoadedAsync();
+
+        await app.Account.SignOutAsync();
+        app.Identity.User = new AuthUser { Uid = "phone-account", DisplayName = "Juan", PhoneNumber = TestData.WorkerNumber };
+        await app.Pro.EnsureLoadedAsync();
+
+        app.Pro.MyId.Should().Be("phone-account");
+        app.Store.State.Professional.CategoryId.Should().NotBeNull("the answers stay on the phone");
+        app.Users.Deleted.Should().BeEmpty("signing out deletes nothing");
+        app.Profiles.Removed.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task StartOver_NotSignedIn_CleansUpBothLocalIds()
     {
         var app = new FakeApp(TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()), user: null);
