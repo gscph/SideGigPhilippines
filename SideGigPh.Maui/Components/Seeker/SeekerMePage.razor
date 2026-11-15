@@ -19,6 +19,18 @@
     </MudStack>
 
     <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
+        <MudText Typo="Typo.overline" Color="Color.Secondary" Class="pt-3">@T.Get(Copy.PreferencesTitle)</MudText>
+        <MenuRow Href="@OnboardingSteps.PathOf(SeekerStep.Category)" Icon="@Icons.Material.Rounded.Handyman"
+                 Text="@T.Get(Copy.PreferenceNeed)" SecondaryText="@NeedLabel" />
+        <MenuRow Href="@OnboardingSteps.PathOf(SeekerStep.City)" Icon="@Icons.Material.Rounded.Place"
+                 Text="@T.Get(Copy.FilterTown)" SecondaryText="@TownLabel" />
+        <MenuRow Href="@OnboardingSteps.PathOf(SeekerStep.When)" Icon="@Icons.Material.Rounded.Schedule"
+                 Text="@T.Get(Copy.PreferenceWhen)" SecondaryText="@WhenLabel" />
+        <MenuRow Href="@OnboardingSteps.PathOf(SeekerStep.Budget)" Icon="@Icons.Material.Rounded.Payments"
+                 Text="@T.Get(Copy.FilterBudget)" SecondaryText="@BudgetLabel" />
+    </MudStack>
+
+    <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
         <MenuRow Href="@SeekerRoutes.Reviews" Icon="@Icons.Material.Rounded.StarOutline"
                  Text="@T.Get(Copy.YourReviews)" SecondaryText="@ReviewsLabel" Badge="@Workspace.ToRate.Count" />
         <MenuRow Href="@SeekerRoutes.Feedback" Icon="@Icons.Material.Rounded.Lightbulb"

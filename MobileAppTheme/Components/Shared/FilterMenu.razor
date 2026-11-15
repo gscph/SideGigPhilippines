@@ -1,6 +1,7 @@
 <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" AriaLabel="@Label" MaxHeight="MaxListHeight">
     <ActivatorContent>
-        <MudChip T="string" Color="Color.Dark" Variant="Variant.Outlined" Icon="@Icon" Class="ma-0 app-chip-outline">
+        <MudChip T="string" Color="Color.Dark" Variant="Variant.Outlined" Icon="@Icon" Class="ma-0 app-chip-outline"
+                 OnClick="@(args => context.ToggleAsync(args))">
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0">
                 <MudText Typo="Typo.body2" HtmlTag="span">@SelectedLabel</MudText>
                 <MudIcon Icon="@Icons.Material.Filled.ArrowDropDown" Size="Size.Small" aria-hidden="true" />

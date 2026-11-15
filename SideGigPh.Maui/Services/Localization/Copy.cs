@@ -94,6 +94,12 @@ public static class Copy
     public static readonly LocalizedText SearchAllJobs = new("All {0} jobs", "Lahat ng {0}");
     public static readonly LocalizedText FilterTown = new("Town", "Bayan");
     public static readonly LocalizedText FilterBudget = new("Budget", "Budget");
+
+    // --- Seeker Me: their search answers, each one tap from its question ---
+    public static readonly LocalizedText PreferencesTitle = new("Your preferences", "Mga pinili mo");
+    public static readonly LocalizedText PreferenceNeed = new("What you need", "Kailangan mo");
+    public static readonly LocalizedText PreferenceWhen = new("When", "Kailan");
+    public static readonly LocalizedText PreferenceNotSet = new("Not set", "Wala pa");
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng serbisyo");
 
     // --- Search results ---------------------------------------------------

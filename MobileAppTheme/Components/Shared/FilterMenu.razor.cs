@@ -4,6 +4,8 @@ namespace MobileAppTheme.Components.Shared;
 /// <summary>
 /// A filter or picker shown as a chip with its current value ("📍 Downtown ▾"); tapping it lists the
 /// choices. Long lists scroll, and items with a <see cref="ChoiceItem.Group"/> get a heading per group.
+/// MudBlazor 9 leaves a custom activator to open the menu itself (<c>context.ToggleAsync</c>): without it the chip
+/// showed but tapping it did nothing.
 /// </summary>
 public partial class FilterMenu : ComponentBase
 {

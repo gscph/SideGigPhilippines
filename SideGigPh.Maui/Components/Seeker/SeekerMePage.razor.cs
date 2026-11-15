@@ -8,7 +8,8 @@ namespace SideGigPh.Maui.Components.Seeker;
 /// <summary>
 /// The Seeker's Me tab (also the avatar in the top bar): their one profile photo (add or change; a new one
 /// replaces the old), their name (shown on their reviews), a link to their reviews (and pros still to rate),
-/// then the shared <see cref="Shared.MePage"/> parts (language, Start over).
+/// their preferences (what they need, town, when, budget: each row opens that one question, which comes back to the
+/// results), then the shared <see cref="Shared.MePage"/> parts (language, Start over).
 /// </summary>
 public partial class SeekerMePage : ComponentBase
 {
@@ -29,7 +30,28 @@ public partial class SeekerMePage : ComponentBase
         ? T.Format(Copy.ToRateCount, Workspace.ToRate.Count)
         : Workspace.MyReviews.Count == 1 ? T.Get(Copy.ReviewsCountOne) : T.Format(Copy.ReviewsCount, Workspace.MyReviews.Count);
 
+    private SeekerAnswers Answers => Workspace.Answers;
+
+    /// <summary>"Aircon Technician · Linis ng aircon", or the trade alone while no job is picked.</summary>
+    private string NeedLabel =>
+        string.Join(" · ", new[]
+        {
+            ReferenceData.Find(ReferenceData.Categories, Answers.CategoryId),
+            ReferenceData.Find(ReferenceData.ServicesOf(Answers.CategoryId), Answers.ServiceId),
+        }.OfType<CatalogOption>().Select(option => T.Get(option.Label))) is { Length: > 0 } label ? label : NotSet;
+
+    private string TownLabel => LabelOf(ReferenceData.Cities, Answers.CityId);
+
+    private string WhenLabel => LabelOf(ReferenceData.Urgencies, Answers.UrgencyId);
+
+    private string BudgetLabel => LabelOf(Pricing.BudgetChoices(Answers.ServiceId, Answers.CategoryId, Answers.BudgetId), Answers.BudgetId);
+
+    private string NotSet => T.Get(Copy.PreferenceNotSet);
+
     protected override void OnInitialized() => _name = Workspace.Answers.ReviewerName;
+
+    private string LabelOf(IReadOnlyList<CatalogOption> options, string? id) =>
+        ReferenceData.Find(options, id) is { } option ? T.Get(option.Label) : NotSet;
 
     private async Task SaveNameAsync()
     {
