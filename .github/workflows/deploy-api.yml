@@ -159,7 +159,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: What will run
-        run: echo "::notice::Running on the live database: ${{ needs.db-check.outputs.scripts }}"
+        run: |
+          echo "::notice::Running on the live database: ${{ needs.db-check.outputs.scripts }}"
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
