@@ -121,10 +121,15 @@ jobs:
 
       - name: Open the database firewall to this run
         run: |
+          # Optional: needs "SQL Server Contributor" on the server. Without it the run still connects when the server
+          # allows Azure services (GitHub's runners are Azure machines, like the Function App).
           ip=$(curl -fsS https://api.ipify.org)
-          az sql server firewall-rule create -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-check" \
-            --start-ip-address "$ip" --end-ip-address "$ip" --output none
-          sleep 15   # a new rule takes a few seconds to apply
+          if az sql server firewall-rule create -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-check" \
+            --start-ip-address "$ip" --end-ip-address "$ip" --output none; then
+            sleep 15   # a new rule takes a few seconds to apply
+          else
+            echo "::warning::Could not open the SQL firewall to this run (no SQL Server Contributor on the server). Trying anyway, which works when the server allows Azure services."
+          fi
 
       - name: List the scripts the database hasn't had
         id: plan
@@ -179,10 +184,15 @@ jobs:
 
       - name: Open the database firewall to this run
         run: |
+          # Optional: needs "SQL Server Contributor" on the server. Without it the run still connects when the server
+          # allows Azure services (GitHub's runners are Azure machines, like the Function App).
           ip=$(curl -fsS https://api.ipify.org)
-          az sql server firewall-rule create -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-migrate" \
-            --start-ip-address "$ip" --end-ip-address "$ip" --output none
-          sleep 15
+          if az sql server firewall-rule create -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-migrate" \
+            --start-ip-address "$ip" --end-ip-address "$ip" --output none; then
+            sleep 15   # a new rule takes a few seconds to apply
+          else
+            echo "::warning::Could not open the SQL firewall to this run (no SQL Server Contributor on the server). Trying anyway, which works when the server allows Azure services."
+          fi
 
       - name: Run the scripts
         env:
