@@ -20,6 +20,7 @@ public partial class RolePage : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private OnboardingState? _state;
+    private bool _busy;
 
     private IReadOnlyList<ChoiceItem> Options =>
     [
@@ -34,7 +35,13 @@ public partial class RolePage : ComponentBase
 
     private async Task PickAsync(string id)
     {
-        var state = _state!;
+        if (_busy || _state is null)
+        {
+            return;
+        }
+
+        _busy = true;
+        var state = _state;
         var role = Enum.Parse<UserRole>(id);
         if (state.Role != role)
         {
@@ -50,7 +57,9 @@ public partial class RolePage : ComponentBase
         }
 
         await Store.SaveAsync(state);
-        await Account.SaveProfileAsync();
+        // The server's copy is a backup (it logs its own failure and the interview's last step saves it again), so
+        // the tap never waits on it: a cold server or weak 4G used to leave this screen frozen for up to a minute.
+        _ = Account.SaveProfileAsync();
         Analytics.SetAudience(role, state.Language);
         Nav.NavigateTo(path);
     }
