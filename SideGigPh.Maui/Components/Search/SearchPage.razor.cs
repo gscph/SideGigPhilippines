@@ -74,8 +74,8 @@ public partial class SearchPage : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
-        // Searching needs a verified phone (a Google sign-in adds one here first).
-        if (await Gate.RedirectAsync(SeekerRoutes.Search, requirePhone: true) is { } step)
+        // Seekers never have to add a phone number: a Google sign-in searches as it is.
+        if (await Gate.RedirectAsync(SeekerRoutes.Search) is { } step)
         {
             Nav.NavigateTo(step, replace: true);
             return;

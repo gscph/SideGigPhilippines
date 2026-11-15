@@ -42,7 +42,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 
 | Data | Who gives it | Why we need it |
 |---|---|---|
-| **Mobile number** (verified by SMS code) | Everyone | Sign-in; anti-fraud rule "one number, one account"; Skilled Workers' number is shown so Customers can call or text |
+| **Mobile number** (verified by SMS code) | Skilled Workers (needed to publish), and Customers who choose to sign in with their number | Sign-in; anti-fraud rule "one number, one account"; Skilled Workers' number is shown so Customers can call or text |
 | **Full name** | Everyone | Shown on your listing, chats and reviews (reviews show a short form, e.g. "Maricel D.") |
 | **Email address and Google profile name** | Only if you sign in with Google | Sign-in |
 | **Language** (English / Taglish) and **role** (Customer / Skilled Worker) | Everyone | To show the App in your language and the right screens |

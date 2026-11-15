@@ -14,7 +14,7 @@
 | 4 | **Onboarding is an interview.** One question per screen, big icon tiles, mostly one tap. | Short, easy questions build momentum, but only if the answers visibly come back (§3.2). |
 | 5 | **Money is the hook on both sides.** The Seeker gives a budget for the job. The Professional gives a rate per job (the earnings-goal question was removed). | It's the real pain on both sides: households fear overpaying, pros want income. Both answers sit on **one shared price scale**, so they meet in the middle as "Pasok sa budget mo" (§2.3). |
 | 6 | **Answers are saved on the phone, with no account.** They go through `IOnboardingStore`, backed by one JSON file in app-private storage. | It's free, works offline and survives restarts. It can move to the server later behind the same port (§6). |
-| 7 | **Phone number + SMS code is the main sign-in; Google is below it.** A phone sign-in verifies the number and asks the name once. A Google sign-in brings the name, but must add a verified number before searching (Seeker) or publishing (Skilled Worker). | The listing number must be a number the worker proved they own, and nobody types their name or number twice. |
+| 7 | **Phone number + SMS code is the main sign-in; Google is below it.** A phone sign-in verifies the number and asks the name once. A Google sign-in brings the name, but must add a verified number before publishing (Skilled Worker only; a Seeker is never asked for a number and may sign in with Google alone). | The listing number must be a number the worker proved they own, and nobody types their name or number twice. |
 
 ## 2. The flows
 
@@ -48,11 +48,11 @@ flowchart TD
       P5 --> PV[Preview: how customers see you]
     end
 
-    LI -.->|Google with no number: add phone| R[Results, budget fits first]
+    LI --> R[Results, budget fits first]
     PV --> PH[Pro home]
     PH -.->|Publish; Google with no number: add phone| LIVE[Listing live]
 ```
-Dotted arrows: a Google account with no verified number adds one (`/verify/phone`, SMS code) before it continues.
+Dotted arrow: a Skilled Worker's Google account with no verified number adds one (`/verify/phone`, SMS code) before publishing. Seekers go straight to the results.
 
 ### 2.0 Language (screen 1)
 The title and subtitle are shown in both languages: **"Choose your language / Pumili ng wika"**. There are two tiles: **English** ("I'll read in English") and **Taglish** ("Tagalog na may halong English").
@@ -87,7 +87,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 |------|----------|-------|--------------|----------------------|
 | P1 | What work do you do? / Ano'ng trabaho mo? | Multi-select categories | "Pick all that apply." | Trade line |
 | P2 | Which jobs do you take? | Multi-select, grouped by trade | "Customers search for these exact jobs." | Job chips |
-| P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles with checkboxes, "Select all"; sets the area) | "Customers in these towns see you first." | 📍 Goes to … |
+| P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles, "Select all"; sets the area) | "Customers in these towns see you first." | 📍 Goes to … |
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
 | P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |
 | Preview | This is how customers will see you | Their card inside a mock search list | "Your listing, built from your answers." | "Ayos na 'to!" |
@@ -112,7 +112,7 @@ Both sides use **one price scale:** below ₱500 · ₱500–1,000 · ₱1,000�
 - **Where:** right after the language question, before the role fork. `LaunchRouter` asks the skeleton `SignInGate`, which returns the missing step: `/verify` (sign in), `/verify/name` (name, once, after a phone sign-in), or `/verify/phone` (add a verified number, for pages that need one).
 - **Methods:** phone number + SMS code first (it verifies the number), "Continue with Google" below.
 - **Name and number are never asked in the interview.** The listing takes both from the account (`ListingMapper.TakeAccount`): the name from Google or the name screen, the number the account verified.
-- **Pages that need a verified number:** Search results (`/seeker/search`) and Publish (`/professional/publish`). A Google account adds one there and comes back; the number is linked to the same account (`IIdentityProvider.LinkPhoneAsync`). If another account already has it, they are told to sign in with that number instead.
+- **Pages that need a verified number:** only Publish (`/professional/publish`). Seekers are never asked for one (owner decision): Search results need only a sign-in. A Google account adds one there and comes back; the number is linked to the same account (`IIdentityProvider.LinkPhoneAsync`). If another account already has it, they are told to sign in with that number instead.
 - **Anti-fraud rule 1:** Firebase Auth allows one account per number, the API takes the listing number from the token's verified number, and Azure SQL has a unique key on it.
 
 ## 3. What each reference contributes
@@ -207,7 +207,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/professional/publish` | `Professional/PublishPage` | Card + pledge, then publish (one number, one listing). |
 | `/verify` | `Auth/AuthPage` (skeleton) | Sign in: phone + SMS code, Google below. Shown by `LaunchRouter` to anyone not signed in. |
 | `/verify/name` | `Auth/NamePage` (skeleton) | First + last name, once, after a phone sign-in. |
-| `/verify/phone` | `Auth/AddPhonePage` (skeleton) | Adds a verified number to a Google account, before Search results or Publish. |
+| `/verify/phone` | `Auth/AddPhonePage` (skeleton) | Adds a verified number to a Google account, before Publish (never asked of Seekers). |
 
 ### Components
 - **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), the brand splash at the end (`Busy.RunAsync`), `ProCard`, `MePage` (+ `LanguagePicker`, `ConfirmActionCard`).

@@ -13,10 +13,5 @@
         {
             <MudImage Src="@Item.Icon" Alt="" Width="32" Height="32" Class="flex-shrink-0" aria-hidden="true" />
         }
-        @if (ShowCheck)
-        {
-            <MudIcon Icon="@(Selected ? Icons.Material.Rounded.CheckBox : Icons.Material.Rounded.CheckBoxOutlineBlank)"
-                     Color="@(Selected ? Color.Primary : Color.Secondary)" aria-hidden="true" />
-        }
     </MudStack>
 </MudButton>

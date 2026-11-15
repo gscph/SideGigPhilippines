@@ -4,7 +4,7 @@
         @foreach (var item in Items)
         {
             <MudItem xs="12">
-                <ChoiceTile Item="item" Selected="SelectedIds.Contains(item.Id)" ShowCheck="Multiple" OnPick="OnPick" />
+                <ChoiceTile Item="item" Selected="SelectedIds.Contains(item.Id)" OnPick="OnPick" />
             </MudItem>
         }
     </MudGrid>
@@ -14,7 +14,7 @@ else
     <MudStack Spacing="3" role="group">
         @foreach (var item in Items)
         {
-            <ChoiceTile Item="item" Selected="SelectedIds.Contains(item.Id)" ShowCheck="Multiple" OnPick="OnPick" />
+            <ChoiceTile Item="item" Selected="SelectedIds.Contains(item.Id)" OnPick="OnPick" />
         }
     </MudStack>
 }
