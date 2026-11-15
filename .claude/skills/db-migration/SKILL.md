@@ -47,10 +47,11 @@ testers write rows to it. So:
    every `NNN-schema-*.sql` in order, then 004-config), and `SchemaScriptTests` runs every schema script a second
    time to prove the guards.
 6. Update `docs/data-model.md` (the table's columns) and `CLAUDE.md` if the change matters to the architecture.
-7. **Deploy order:** run the new script on the live database (portal → SQL database → Query editor, sign in as
-   the admin; the API's own identity only reads and writes data, so it can't change the schema), **then** deploy the
-   API that reads the new columns. An API deployed first fails on the missing column. Tell the user this in your
-   report: you can't run it on Azure for them.
+7. **Deploy order:** add the script's name to `SchemaScripts.Required` (`SchemaCheckTests` fails otherwise). The
+   push to `main` runs `deploy-api.yml`: `db-check` lists the pending scripts, `db-migrate` runs them **after the
+   owner approves** in the GitHub environment `live-database` (tool `SideGigPh.Migrate`), and only then the API
+   deploys. Tell the user in your report that a push with a new script waits for their approval (Actions → the run
+   → Review deployments). `004-config.sql` runs only on a manual run with *Also run 004-config.sql* ticked.
 
 ## Data scripts are different
 

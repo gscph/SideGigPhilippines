@@ -53,7 +53,8 @@ public sealed class LocalAccount(
         {
             var state = await store.LoadAsync();
             var now = DateTimeOffset.Now;
-            var saved = await users.GetAsync(user.Uid);
+
+            // One call, no read first: the server keeps the first CreatedAt itself (UserStore.SaveAsync).
             await users.SaveAsync(new UserProfile(
                 user.Uid,
                 user.DisplayName,
@@ -61,7 +62,7 @@ public sealed class LocalAccount(
                 user.Email,
                 state.Language ?? text.Language,
                 state.Role,
-                saved?.CreatedAt ?? now,
+                now,
                 now,
                 state.Role == UserRole.Professional ? state.Professional.ProfilePhotoId : state.Seeker.ProfilePhotoId));
         }

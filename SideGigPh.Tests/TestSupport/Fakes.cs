@@ -315,7 +315,8 @@ public sealed class FakeUsers : IUserRepository
             throw new HttpRequestException("offline");
         }
 
-        Profiles[profile.Uid] = profile;
+        // Like the server (UserStore.SaveAsync): the first save's time stays, whatever the app sends.
+        Profiles[profile.Uid] = Profiles.TryGetValue(profile.Uid, out var saved) ? profile with { CreatedAt = saved.CreatedAt } : profile;
         return Task.CompletedTask;
     }
 

@@ -78,7 +78,7 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
 
 ## Automatic deploy from GitHub
 
-`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` except `Sql/`, `SideGigPh.Contracts/`, or the workflow file), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Run a new schema script on the database **before** pushing the API that needs it. It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code or its SQL scripts (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` including `Sql/`, `SideGigPh.Migrate/`, `SideGigPh.Contracts/`, or the workflow file), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Before the API deploys, the database gets the schema scripts it is missing, after you approve them (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
 
 There are **two identities**, each with one job:
 - the Function App's **system-assigned identity**: the running API uses it to reach Azure SQL (`Authentication=Active Directory Managed Identity`);
@@ -96,3 +96,32 @@ Set it up once:
 - **403 / AuthorizationFailed on deploy:** the role is missing or still spreading (wait a few minutes). Paste the script again.
 - **Deploy uploads, then fails reading the package:** a Flex Consumption app can read its deployment container with its own identity (portal → Function App → **Deployment settings** → *Storage authentication*). That identity then needs *Storage Blob Data Contributor* on `sidegigphbfb9`; the script adds it when it sees that setting.
 - The workflow only replaces the code. App settings such as `PhotoStorage` and `SqlDatabase` stay as they are in Azure, and it never touches the database: run SQL changes yourself first.
+
+## Database migrations from GitHub
+
+`deploy-api.yml` runs `tests` → `db-check` → `db-migrate` → `deploy`:
+
+- **db-check** (no approval): a dry run of `SideGigPh.Migrate`, which lists the `NNN-schema-*.sql` scripts the live database hasn't recorded in `dbo.SchemaChanges`. Nothing pending: `db-migrate` is skipped and the API deploys.
+- **db-migrate** (only when something is pending): **waits for your approval** in the GitHub environment `live-database` (the run shows *Review deployments*; the scripts it will run are listed in `db-check`'s log), then runs them in number order. It stops at the first failure, and then the API doesn't deploy.
+- **`004-config.sql`** (the trades, jobs and answer lists) never runs on its own: start the workflow by hand and tick *Also run 004-config.sql*; it still waits for approval. Sample data (`002`, `003`, `006`) and `001-schema.sql` never run.
+- Each job opens the SQL firewall to its own runner's IP only while it runs, and removes the rule afterwards.
+
+One-time setup:
+
+1. **Database user for the deploy identity** (Query editor, as the Entra admin):
+   ```sql
+   CREATE USER [sidegigph-github-deploy] FROM EXTERNAL PROVIDER;
+   ALTER ROLE db_ddladmin   ADD MEMBER [sidegigph-github-deploy];
+   ALTER ROLE db_datareader ADD MEMBER [sidegigph-github-deploy];
+   ALTER ROLE db_datawriter ADD MEMBER [sidegigph-github-deploy];
+   ```
+2. **SQL Server Contributor** for `sidegigph-github-deploy` on the SQL server (portal → the SQL server → Access control (IAM) → Add role assignment), so it can add and remove its firewall rule.
+3. **The approval environment, before anything else trusts it:** GitHub → Settings → Environments → New environment `live-database` → *Required reviewers*: you → Save. (Without a reviewer the job would run unapproved, so do this first.)
+4. **Trust that environment:** paste `cloudshell-github-deploy.sh` again (it adds the federated credential `github-live-database`, subject `…:environment:live-database`). Until then `db-migrate` can't sign in, so it fails safely and nothing runs.
+5. Optional repo variables (Settings → Secrets and variables → Actions → Variables): `SQL_SERVER` (default `sidegigph`), `SQL_DATABASE` (default `SideGigPh`), `SQL_RESOURCE_GROUP` (default `sidegigph`).
+
+By hand, from a PC signed in with `az login`:
+
+```bash
+SQL_CONNECTION="Server=tcp:sidegigph.database.windows.net,1433;Database=SideGigPh;Authentication=Active Directory Default;Encrypt=True;" dotnet run --project SideGigPh.Migrate -- --sql SideGigPh.AzureSQL/Sql --dry-run
+```

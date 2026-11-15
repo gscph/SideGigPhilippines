@@ -15,13 +15,13 @@ set -euo pipefail
 scripts="$(cd "$(dirname "$0")" && pwd)"
 repo="$(cd "$scripts/../../../.." && pwd)"
 copy="${TEST_COPY:-${TEMP:-${TMPDIR:-/tmp}}/sidegigph-tests}"
-projects=(MobileAppTheme SideGigPh.Contracts SideGigPh.AzureSQL SideGigPh.Api SideGigPh.Maui SideGigPh.Tests)
+projects=(MobileAppTheme SideGigPh.Contracts SideGigPh.AzureSQL SideGigPh.Api SideGigPh.Migrate SideGigPh.Maui SideGigPh.Tests)
 filter=()
 coverage=0
 rest=()
 
 # Paths the tests compile or read. A change anywhere else (CSS, images, .razor markup, docs) can't change a result.
-test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$|\.github/workflows/)'
+test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Migrate/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$|\.github/workflows/)'
 
 for arg in "$@"; do
   case "$arg" in
