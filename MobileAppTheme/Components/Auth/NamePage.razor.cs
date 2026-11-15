@@ -41,6 +41,11 @@ public partial class NamePage : ComponentBase
 
     private async Task SaveAsync()
     {
+        if (!CanSave)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         try
         {

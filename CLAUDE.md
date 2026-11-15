@@ -66,7 +66,10 @@ changing that area.**
   turns it off: do that before launch). Repeatable writes are limited per account (`CallerLimits` → `429
   too-many-requests`); JSON answers are gzipped for callers that accept it (`GzipMiddleware`). Multi-row writes use
   `db.InTransactionAsync`; a caller's own data sits under `…/me` / `…/mine`. Settings: `PhotoStorage`,
-  `SqlDatabase`, `FirebaseProjectId`, optional `FirebaseServiceAccount`, `ShowErrorDetails`.
+  `SqlDatabase`, `FirebaseProjectId`, optional `FirebaseServiceAccount`, `ShowErrorDetails`. **Cold starts:** the
+  app's `ServerWarmup` calls signed-in `GET warmup` (`WarmupStore`: `SELECT 1`, at most once a minute per instance)
+  when it opens and when it comes back after `IdleAfter` (5 min), so the Function App and the auto-pausing database
+  wake behind the splash instead of on the first search.
 - **Chats:** only the Seeker starts a chat (id `{proId}_{seekerId}`); the server stamps times and takes the worker's
   name from their listing; reviews only 24 h after the chat started (`ReviewRules`, both sides).
   **Notifications:** a customer writing to a worker rings, a worker's reply only badges the icon; permission is asked
@@ -77,7 +80,11 @@ changing that area.**
   sends them in the background while signed in (`POST error-reports` → `ErrorReports`, with app and code version,
   channel `dev`/`beta`/`prod` (csproj `AppChannel`; store builds pass `-p:AppChannel=prod`), OS and phone; install id never the uid,
   deleted after 90 days). On by default, disclosed in the privacy policy, off with the Me page's `ErrorReportsSwitch`.
-  Never log message text, names or numbers on purpose; the scrubber is the safety net, not the plan.
+  Never log message text, names or numbers on purpose; the scrubber is the safety net, not the plan. A page that
+  throws (render or tap handler) is caught by the skeleton's `AppErrorBoundary` in `MainLayout`: logged (so
+  reported; BlazorWebView alone only writes it to the WebView console) and replaced by a "back to the start" screen.
+  A sign-in whose account is gone (deleted, disabled) is signed out by the Firebase adapter (`IsDeadSession`), never
+  left calling the API without a token.
 - **Version** (one place: `Directory.Build.props`): `AppVersionNumber` (SemVer, now `0.1.0`) + `AppVersionStage`
   (`rc`, empty for a final release) + CI's `BuildNumber` (the run number) make the label `0.1.0-rc.12` (`0.1.0-rc` on
   a PC). `Directory.Build.targets` stamps it with the git commit into the app and the API (`StampBuildInfo`); the app
@@ -194,6 +201,10 @@ Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` 
   - **Feature** components stay in their feature folder.
   - The full inventory: [`docs/architecture.md`](docs/architecture.md#component-inventory) and [`MobileAppTheme/README.md`](MobileAppTheme/README.md).
 - **MudBlazor only, no raw HTML** — markup is built from MudBlazor components; don't write `<div>`, `<span>`, `<p>`, `<button>`, `<input>` etc. in `.razor` files. Use `MudStack` for layout and spacing (`Row`, `Spacing`, `AlignItems`, `Justify`, `Wrap`), `MudText` for all text (`Typo` for size, `HtmlTag="h1"` for headings — `FocusOnNavigate` focuses the page's `h1`), `MudContainer` for page width, and MudBlazor's own spacing/flex utility classes (`pa-4`, `flex-1`, `mud-width-full`…). Reach for the out-of-the-box component first (`MudButton`, `MudTextField`, `MudChip`, `MudAlert`, `MudCard`, `MudSkeleton`, `MudProgressLinear`…). Only when MudBlazor has no parameter or utility for something, add a small, named helper class in the "MudBlazor gaps" section of `MobileAppTheme/wwwroot/mobile-app-theme.css` (generic) or `SideGigPh.Maui/wwwroot/app.css` (SideGigPh-only). Scoped `.razor.css` files don't reach inside MudBlazor components, so don't add them. The only raw HTML is `wwwroot/index.html` (the pre-Blazor splash).
+- **One tap, one call** — a handler that calls the API, the sign-in provider or the camera starts with
+  `if (_busy) return;` before setting `_busy = true` (a quick double-tap reaches it twice before the button re-renders
+  as disabled), and catches its failure into a message: an exception escaping a tap handler breaks the screen. The
+  server's `CallerLimits` is the backstop, not the plan.
 - **Bilingual copy (English / Taglish)**: never hard-code user-facing text in a component.
   - UI strings are `LocalizedText(English, Taglish)` pairs in `Services/Localization/Copy.cs`. Strings every app shares (Back, Next, Cancel, Start over, Language, "3 hr ago", Not Found) are in the skeleton's `CommonCopy`; use those instead of duplicating them. Answer lists (jobs, towns, prices…) are in `Services/ReferenceData.cs`.
   - Components inject `AppText T` (skeleton) and render `@T.Get(...)` / `@T.Format(...)`.

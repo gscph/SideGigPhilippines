@@ -34,6 +34,11 @@ public partial class ReferencesEditor : ComponentBase
     /// <summary>Adds the reference; on success the form starts empty again (new <see cref="_formVersion"/>).</summary>
     private async Task AddAsync(ReferenceInput input)
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _problem = null;
         try

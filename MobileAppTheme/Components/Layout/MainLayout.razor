@@ -3,6 +3,20 @@
 <MudThemeProvider Theme="Brand.Theme" />
 <MudPopoverProvider />
 
-@Body
+<AppErrorBoundary @ref="_boundary">
+    <ChildContent>
+        @Body
+    </ChildContent>
+    <ErrorContent>
+        <MudContainer MaxWidth="MaxWidth.Small" Class="full-screen">
+            <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="4" Class="flex-1 px-4">
+                <EmptyState Icon="@Icons.Material.Rounded.ErrorOutline" Text="@T.Get(CommonCopy.ScreenBroke)" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="StartAgain">
+                    @T.Get(CommonCopy.ScreenBrokeHome)
+                </MudButton>
+            </MudStack>
+        </MudContainer>
+    </ErrorContent>
+</AppErrorBoundary>
 
 <BusyOverlay />

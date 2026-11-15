@@ -194,10 +194,11 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             logger.LogError("Firebase gave no ID token within {Seconds} s.", TokenLimit.TotalSeconds);
             return null;
         }
-        catch (FirebaseAuthException ex) when (ex.Reason is FIRAuthError.UserTokenExpired or FIRAuthError.UserNotFound or FIRAuthError.UserDisabled)
+        catch (Exception ex) when (IsDeadSession(ex))
         {
             // The account was deleted or disabled, or its session revoked: nothing will work until they sign in again.
-            logger.LogWarning(ex, "Firebase session is no longer valid ({Reason}); signing out.", ex.Reason);
+            // Staying "signed in" would send every call without a token (401) and every error report too.
+            logger.LogWarning(ex, "Firebase session is no longer valid; signing out.");
             await SignOutQuietlyAsync();
             return null;
         }
@@ -209,6 +210,26 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     }
 
     public Task SignOutAsync() => Auth.SignOutAsync();
+
+    /// <summary>
+    /// True when the account behind the cached session is gone (deleted, disabled) or its session was revoked. The
+    /// plugin reports that as <see cref="FirebaseAuthException"/> on iOS, but on Android the native SDK's
+    /// <c>FirebaseAuthInvalidUserException</c> (deleted / disabled) comes through unwrapped, so its type name is
+    /// checked down the inner exceptions too.
+    /// </summary>
+    internal static bool IsDeadSession(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is FirebaseAuthException { Reason: FIRAuthError.UserTokenExpired or FIRAuthError.UserNotFound or FIRAuthError.UserDisabled }
+                || e.GetType().Name is "FirebaseAuthInvalidUserException")
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private async Task SignOutQuietlyAsync()
     {

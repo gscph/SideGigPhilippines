@@ -17,7 +17,7 @@
 
     <ConfirmActionCard Title="@T.Get(CommonCopy.StartOver)" Why="@T.Get(CommonCopy.StartOverWhy)" Ask="@T.Get(CommonCopy.StartOverAsk)"
                        Warning="@(StartOverWarning ?? T.Get(CommonCopy.StartOverWarning))" ConfirmText="@T.Get(CommonCopy.StartOverYes)"
-                       Icon="@Icons.Material.Rounded.RestartAlt" Busy="_busy" OnConfirm="StartOverAsync" />
+                       Icon="@Icons.Material.Rounded.RestartAlt" Busy="_busy" Error="@_startOverError" OnConfirm="StartOverAsync" />
 
     <ConfirmActionCard Title="@T.Get(CommonCopy.DeleteAccount)" Why="@T.Get(CommonCopy.DeleteAccountWhy)" Ask="@T.Get(CommonCopy.DeleteAccountAsk)"
                        Warning="@T.Get(CommonCopy.DeleteAccountWarning)" ConfirmText="@T.Get(CommonCopy.DeleteAccountYes)"

@@ -22,6 +22,10 @@ public partial class AppleSignInButton : ComponentBase
 
     private async Task SignInAsync()
     {
+        if (_busy)
+        {
+            return;
+        }
         _busy = true;
         try
         {

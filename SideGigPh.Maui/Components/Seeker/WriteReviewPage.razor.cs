@@ -51,6 +51,11 @@ public partial class WriteReviewPage : ComponentBase
 
     private async Task SubmitAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         try
         {

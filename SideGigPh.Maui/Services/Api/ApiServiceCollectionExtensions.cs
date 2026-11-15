@@ -26,6 +26,9 @@ public static class ApiServiceCollectionExtensions
         services.AddSingleton<IErrorReportRepository, ApiErrorReportRepository>();
         services.AddSingleton<ISafetyRepository, ApiSafetyRepository>();
         services.AddSingleton<IFeedbackRepository, ApiFeedbackRepository>();
+        services.AddSingleton<IServerWarmup, ApiServerWarmup>();
+        services.TryAddSingleton(TimeProvider.System);
+        services.AddSingleton<ServerWarmup>();
         return services;
     }
 }

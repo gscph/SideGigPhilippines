@@ -33,6 +33,11 @@ public partial class ProMePage : ComponentBase
 
     private async Task ChangePhotoAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         try
         {

@@ -58,6 +58,11 @@ public partial class ThreadPage : ComponentBase, IDisposable
 
     private async Task SendAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _error = null;
         try
@@ -81,6 +86,11 @@ public partial class ThreadPage : ComponentBase, IDisposable
 
     private async Task CallAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _error = null;
         try

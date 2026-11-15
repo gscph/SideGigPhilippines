@@ -30,13 +30,26 @@ public partial class MePage : ComponentBase
 
     private bool _busy;
     private string? _deleteError;
+    private string? _startOverError;
 
     private async Task StartOverAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the buttons re-rendered as disabled
+        }
+
         _busy = true;
+        _startOverError = null;
         try
         {
             await Busy.RunAsync(Account.StartOverAsync);
+        }
+        catch (Exception)
+        {
+            // The adapters logged it (and it goes into the error report); the person can try again.
+            _startOverError = T.Get(CommonCopy.StartOverFailed);
+            return;
         }
         finally
         {
@@ -48,6 +61,11 @@ public partial class MePage : ComponentBase
 
     private async Task DeleteAccountAsync()
     {
+        if (_busy)
+        {
+            return;
+        }
+
         _busy = true;
         _deleteError = null;
         try

@@ -27,6 +27,11 @@ public partial class WorkPhotosEditor : ComponentBase
     // The phone's photo picker shows over the page; the splash covers only the upload.
     private async Task AddAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         try
         {

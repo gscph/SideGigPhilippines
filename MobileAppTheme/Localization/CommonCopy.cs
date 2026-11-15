@@ -59,6 +59,15 @@ public static class CommonCopy
     public static readonly LocalizedText DeleteAccountFailed = new(
         "Couldn't delete your account. Check your internet and try again.",
         "Hindi na-delete ang account mo. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText StartOverFailed = new(
+        "Couldn't delete everything. Check your internet and try again.",
+        "Hindi nabura lahat. I-check ang internet mo at subukan ulit.");
+
+    // --- A screen that broke (MainLayout's error boundary) -----------------
+    public static readonly LocalizedText ScreenBroke = new(
+        "Something went wrong on this screen. We got a report and will fix it.",
+        "May nagka-problema sa screen na 'to. Na-report na namin at aayusin.");
+    public static readonly LocalizedText ScreenBrokeHome = new("Back to the start", "Bumalik sa simula");
 
     // --- Legal pages (AppBrand.Legal) --------------------------------------
     public static readonly LocalizedText LegalTitle = new("Privacy and terms", "Privacy at terms");

@@ -43,6 +43,7 @@ says "Tarbaho" in `Copy.cs`.
 - `LinkPhoneAsync(string verificationId, string userEnteredCode)` (adds a verified number to the signed-in account, same uid; `AuthError.PhoneInUse` if another account has it)
 - `SignInWithGoogleAsync()`, `SetDisplayNameAsync(string)`
 - `GetCurrentUserAsync()`, `GetIdTokenAsync()` (the ID token for our own API as a Bearer header), `SignOutAsync()`
+- **A dead session is signed out:** when the token refresh says the account is gone (deleted in the console or by Delete account elsewhere, disabled, revoked), `GetIdTokenAsync` signs out (`FirebaseIdentityProvider.IsDeadSession`; on Android the native `FirebaseAuthInvalidUserException` arrives unwrapped, so the type name is checked down the inner exceptions). Before this, such a phone stayed "signed in", every call went out without a token (401), screens showed empty and its error reports could not be sent either.
 - **Nothing waits on the provider forever:** the Firebase adapter gives sending the SMS code `SendCodeLimit` (90 s, then a `TimeoutException` that `PhoneSignIn` shows as `AuthError.Network`) and the ID token `TokenLimit` (15 s, then logged as an error and the call goes out without one), because every API call waits for the token. The end of either interview waits for its saves at most `OnboardingFinish.WaitLimit` (15 s, `Services/OnboardingFinish`), and not when they failed, then opens the app anyway (the answers are on the phone and home loads its own data); both cases are logged, so they reach the error reports. The setup and Publish load only what is on the phone (`ProWorkspace.EnsureDraftLoadedAsync`, no network call), so they show at once on a slow connection; Pro home's `EnsureLoadedAsync` adds the chats and reviews. A session Firebase says is dead (`UserTokenExpired`, `UserNotFound`, `UserDisabled` while getting the token) is signed out, so the next screen asks to sign in instead of every call failing.
 
 > **Naming:** user-facing text (`Copy`, `ReferenceData`, brand tagline) always says **"Skilled Worker"** / "skilled worker" (Taglish too), never "pro", "Professional" or "tradesman". Code keeps **"Professional"** (`ProWorkspace`, `ProfessionalListing`, `/professional` routes, `Professionals` table) for the side-gig service provider (aircon tech, plumber — and also non-trade pros like web developers or video editors), never "tradesman".
@@ -153,6 +154,12 @@ says "Tarbaho" in `Copy.cs`.
   of the list; the order otherwise stays put while on screen and is re-sorted on the next load.
 - **Operator:** `UPDATE dbo.FeedbackPosts SET Status = 'planned' WHERE Id = …` (or `done`, `declined`, `hidden`);
   top of the board: `SELECT Id, Votes, Status, Side, Title FROM dbo.FeedbackPosts ORDER BY Votes DESC`.
+
+## Cold starts and double taps
+
+- **Warm-up:** the Function App (Flex Consumption) and the serverless database both go cold when nobody uses them; the first search then waited ~15 s on 4G. `Services/ServerWarmup` (rule, tested) calls the `IServerWarmup` port (`Api/ApiServerWarmup` → `GET warmup`, signed-in, `204`) from `App` when the window opens and on `Resumed`, at most once per `ServerWarmup.IdleAfter` (5 min). The function checks the token (which also loads Google's signing keys) and `WarmupStore.WakeAsync` runs `SELECT 1`, skipped when that instance already did within `WarmupStore.AwakeFor` (1 min). Signed-in only, so nobody outside can keep the database awake and billed. A failed warm-up is only a trail line.
+- **One tap, one call:** every tap handler that calls the API, the sign-in provider (SMS costs money) or the camera returns early while `_busy`; `Disabled="_busy"` alone is not enough, since a second tap can arrive before the re-render. Handlers catch failures into a message (`MePage` Start over shows `CommonCopy.StartOverFailed`).
+- **A screen that throws:** `MainLayout` wraps the page in `AppErrorBoundary` (skeleton), which logs the exception through `ILogger` (so `ErrorLogLoggerProvider` makes it an error report) and shows `CommonCopy.ScreenBroke` with a button back to `/`; any navigation clears it.
 
 ## App shell (shared by both sides, after the interview)
 

@@ -31,6 +31,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<ErrorReportStore>();
         services.AddScoped<SafetyStore>();
         services.AddScoped<FeedbackStore>();
+        services.AddScoped<WarmupStore>();
         return services;
     }
 }

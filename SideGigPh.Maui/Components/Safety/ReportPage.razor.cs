@@ -86,6 +86,11 @@ public partial class ReportPage : ComponentBase
 
     private async Task RunAsync(Func<Task> send, Outcome outcome)
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _error = null;
         try

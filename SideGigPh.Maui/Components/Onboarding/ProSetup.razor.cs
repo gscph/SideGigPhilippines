@@ -96,6 +96,11 @@ public partial class ProSetup : ComponentBase
     // The camera and its permission prompt show over the step (its reason stays visible); the splash covers the upload.
     private async Task TakeSelfieAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         PhotoPick pick;
         try

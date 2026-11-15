@@ -71,6 +71,11 @@ public partial class PublishPage : ComponentBase
 
     private async Task PublishAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _badReference = false;
         _failed = false;

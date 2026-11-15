@@ -16,6 +16,10 @@ public partial class GoogleSignInButton : ComponentBase
 
     private async Task SignInAsync()
     {
+        if (_busy)
+        {
+            return;
+        }
         _busy = true;
         try
         {

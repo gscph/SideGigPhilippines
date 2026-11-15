@@ -84,6 +84,11 @@ public partial class SuggestPage : ComponentBase
 
     private async Task RunAsync(Func<Task> work)
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _failed = false;
         try

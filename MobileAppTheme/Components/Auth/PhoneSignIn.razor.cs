@@ -52,6 +52,10 @@ public partial class PhoneSignIn : ComponentBase
 
     private async Task SendCodeAsync()
     {
+        if (_busy)
+        {
+            return;
+        }
         if (!PhoneFormat.TryNormalize(_phoneNumber, out var e164))
         {
             await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.InvalidPhoneNumber));
@@ -85,6 +89,10 @@ public partial class PhoneSignIn : ComponentBase
 
     private async Task VerifyAsync()
     {
+        if (_busy)
+        {
+            return;
+        }
         if (_verificationId is null)
         {
             return;
