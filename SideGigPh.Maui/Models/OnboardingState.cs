@@ -98,6 +98,13 @@ public sealed class ProfessionalDraft
     public DateTimeOffset? PublishedAt { get; set; }
 
     /// <summary>
+    /// The live listing is behind this phone's copy: an edit (Edit listing, photos, references) didn't reach the
+    /// server yet (weak signal, cold server, refused). Cleared when a re-publish goes through; until then the Pro
+    /// screens try again (<c>ProWorkspace.SyncListingAsync</c>), so an edit is never silently lost.
+    /// </summary>
+    public bool ListingOutOfDate { get; set; }
+
+    /// <summary>
     /// Has every answer the listing shows: trade, at least one job, area, at least one town, experience and rate.
     /// Only then can it be published (the API refuses a listing without trade, area, jobs and towns).
     /// </summary>

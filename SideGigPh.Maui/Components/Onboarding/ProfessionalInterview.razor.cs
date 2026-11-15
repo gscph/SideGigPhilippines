@@ -168,6 +168,7 @@ public partial class ProfessionalInterview : ComponentBase
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync(); // Their side.
         await Workspace.EnsureDraftLoadedAsync(); // The setup comes next; Pro home loads chats and reviews itself.
+        await Workspace.ListingEditedAsync(); // Edit listing on a live listing: customers see the new answers.
     }
 
     private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, finished: _state!.CompletedAt is not null));

@@ -116,6 +116,7 @@ public sealed class ProWorkspace(
     /// <summary>Re-reads chats and reviews side by side: they change without the pro doing anything.</summary>
     public async Task RefreshActivityAsync()
     {
+        var sync = Draft.ListingOutOfDate ? SyncListingAsync() : Task.FromResult<PublishResult?>(null);
         var inbox = chats.GetInboxAsync(MyId, ChatSide.Professional);
         var about = reviews.GetForProfessionalAsync(MyId);
         var firstPage = await inbox;
@@ -125,6 +126,7 @@ public sealed class ProWorkspace(
         HasMoreChats = full && (merged.Count == firstPage.Count || HasMoreChats);
         Chats = merged;
         Reviews = await about;
+        await sync;
         _refreshedAt = DateTimeOffset.UtcNow;
         Changed?.Invoke();
     }
@@ -352,6 +354,7 @@ public sealed class ProWorkspace(
         if (result == PublishResult.Published)
         {
             Draft.PublishedAt ??= DateTimeOffset.Now;
+            Draft.ListingOutOfDate = false;
             await SaveAsync();
         }
 
@@ -376,6 +379,54 @@ public sealed class ProWorkspace(
 
             return PublishResult.Published;
         }
+    }
+
+    /// <summary>
+    /// The live listing was edited on the phone (Done on Edit listing): mark it out of date and re-publish it. Answers
+    /// what the server said, or null when it wasn't sent or didn't get through (then it is retried later).
+    /// </summary>
+    public async Task<PublishResult?> ListingEditedAsync()
+    {
+        if (!IsPublished)
+        {
+            return null;
+        }
+
+        Draft.ListingOutOfDate = true;
+        await store.SaveAsync(_state!);
+        return await SyncListingAsync();
+    }
+
+    /// <summary>
+    /// Re-publishes a live listing marked <see cref="ProfessionalDraft.ListingOutOfDate"/>, never throwing: a failure
+    /// keeps the mark, and the next refresh of the Pro screens tries again. Not while an edit has left something
+    /// missing (the old version stays live). Null when nothing was sent or nobody answered.
+    /// </summary>
+    public async Task<PublishResult?> SyncListingAsync()
+    {
+        if (!IsPublished || !Draft.ListingOutOfDate || !Draft.IsListingComplete || !Draft.HasProof)
+        {
+            return null;
+        }
+
+        PublishResult result;
+        try
+        {
+            result = await profiles.PublishAsync(Listing, Draft.References);
+        }
+        catch (Exception)
+        {
+            return null; // logged by the adapter; still marked, so retried
+        }
+
+        if (result == PublishResult.Published)
+        {
+            Draft.ListingOutOfDate = false;
+            await store.SaveAsync(_state!);
+            Changed?.Invoke();
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -501,13 +552,15 @@ public sealed class ProWorkspace(
 
     private async Task SaveAsync(bool listingChanged = false)
     {
-        await store.SaveAsync(_state!);
-        if (listingChanged && IsPublished && Draft.IsListingComplete && Draft.HasProof)
+        if (listingChanged && IsPublished)
         {
-            // Keep the live listing in step with new photos and references (not while an edit has left something missing).
-            await profiles.PublishAsync(Listing, Draft.References);
+            Draft.ListingOutOfDate = true;
         }
 
+        await store.SaveAsync(_state!);
+        // Keep the live listing in step with new photos and references; a failure is retried, never thrown at a
+        // page after the change was already saved on the phone.
+        await SyncListingAsync();
         Changed?.Invoke();
     }
 
