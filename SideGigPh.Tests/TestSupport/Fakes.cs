@@ -324,8 +324,16 @@ public sealed class FakeUsers : IUserRepository
         return Task.CompletedTask;
     }
 
-    public Task SaveAsync(UserProfile profile)
+    /// <summary>When set, profile saves wait for it: a slow or cold server.</summary>
+    public TaskCompletionSource? HoldSaves { get; set; }
+
+    public async Task SaveAsync(UserProfile profile)
     {
+        if (HoldSaves is not null)
+        {
+            await HoldSaves.Task;
+        }
+
         if (FailSaves)
         {
             throw new HttpRequestException("offline");
@@ -333,7 +341,6 @@ public sealed class FakeUsers : IUserRepository
 
         // Like the server (UserStore.SaveAsync): the first save's time stays, whatever the app sends.
         Profiles[profile.Uid] = Profiles.TryGetValue(profile.Uid, out var saved) ? profile with { CreatedAt = saved.CreatedAt } : profile;
-        return Task.CompletedTask;
     }
 
     public Task DeleteAsync(string uid)

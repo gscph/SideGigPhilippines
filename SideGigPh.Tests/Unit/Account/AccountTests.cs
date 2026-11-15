@@ -27,6 +27,26 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task SetLanguage_OnASlowServer_SwitchesTheScreenWithoutWaiting()
+    {
+        // Seen as "tapping Taglish does nothing" for up to a minute on a cold server or weak 4G.
+        var app = new FakeApp(TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()), TestData.SeekerUser());
+        app.Users.HoldSaves = new TaskCompletionSource();
+        var changed = 0;
+        app.Account.Changed += () => changed++;
+
+        var switching = app.Account.SetLanguageAsync(AppLanguage.Taglish);
+
+        switching.IsCompleted.Should().BeTrue("the server's answer isn't waited for");
+        changed.Should().Be(1);
+        app.Store.State.Language.Should().Be(AppLanguage.Taglish);
+
+        app.Users.HoldSaves.SetResult();
+        await switching;
+        app.Users.Profiles[TestData.SeekerUid].Language.Should().Be(AppLanguage.Taglish, "the backup still goes through");
+    }
+
+    [Fact]
     public async Task SaveProfile_Worker_SavesAccountDetailsAndListingPhoto()
     {
         var draft = TestData.ReadyDraft();

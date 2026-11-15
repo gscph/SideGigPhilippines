@@ -33,8 +33,10 @@ public sealed class LocalAccount(
         var state = await store.LoadAsync();
         state.Language = language;
         await store.SaveAsync(state);
-        await SaveProfileAsync();
         Changed?.Invoke();
+        // The server's copy is a backup (logged on failure, saved again with the next change): the screen switches
+        // language at once instead of after a cold server or weak 4G answers.
+        _ = SaveProfileAsync();
     }
 
     /// <summary>

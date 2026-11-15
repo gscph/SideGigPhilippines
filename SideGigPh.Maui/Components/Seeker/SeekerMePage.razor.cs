@@ -39,6 +39,11 @@ public partial class SeekerMePage : ComponentBase
 
     private async Task ChangePhotoAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled (opened the photo picker twice)
+        }
+
         _busy = true;
         try
         {

@@ -73,6 +73,7 @@ public class NotificationTests(ApiTestHost api)
     {
         var (worker, seeker) = await WorkerAndSeekerAsync("Toto", "Ella");
         await worker.Account.SetLanguageAsync(AppLanguage.Taglish);
+        await worker.Account.SaveProfileAsync(); // the switch saves the server's copy in the background: wait for it here
         await worker.Get<ChatAlerts>().RegisterAsync();
 
         await seeker.Seeker.CallAsync((await seeker.Seeker.GetProAsync(worker.Uid))!);
