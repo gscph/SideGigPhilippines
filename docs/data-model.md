@@ -85,7 +85,7 @@ All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql
 
 | Table | Keys | What | Rules |
 | --- | --- | --- | --- |
-| `ErrorReports` | `PartitionKey` = channel (`dev`/`beta`/`prod`), `RowKey` = newest-first ticks of `LastAt` + random | The same fields as the old SQL table (`InstallId`, `AppVersion`, `CodeVersion`, `Platform`, `Device`, `Kind`, `Source`, `Message`, `Detail`, `Route`, `Trail`, `Count`, `FirstAt`, `LastAt`, `ReceivedAt`) | **Diagnostics only, no personal data**: no uid; texts scrubbed on the phone and again on the server. Deleted after 90 days (`ErrorReportTable.KeepFor`, checked at most once a day per server instance). Read with `GET error-reports?take=50&channel=beta` or the portal's Storage browser. |
+| `ErrorReports` | `PartitionKey` = channel (`dev`/`beta`/`prod`), `RowKey` = newest-first ticks of `ReceivedAt` + random (each batch saved in one transaction) | The same fields as the old SQL table (`InstallId`, `AppVersion`, `CodeVersion`, `Platform`, `Device`, `Kind`, `Source`, `Message`, `Detail`, `Route`, `Trail`, `Count`, `FirstAt`, `LastAt`, `ReceivedAt`) | **Diagnostics only, no personal data**: no uid; texts scrubbed on the phone and again on the server. Deleted after 90 days (`ErrorReportTable.KeepFor`, checked at most once a day per server instance). Read with `GET error-reports?take=50&channel=beta` or the portal's Storage browser. |
 | `OtherJobNotes` | `PartitionKey` = `CategoryId` (a trade, or `other`), `RowKey` = newest-first ticks + random | `Side`, `Text` ≤ 100, `CreatedAt` | **Analytics only**, never shown, **no uid** (the uid only counts the caller's limit), so deleting an account has nothing to clear. |
 
 

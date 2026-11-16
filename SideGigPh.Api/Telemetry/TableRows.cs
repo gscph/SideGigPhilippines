@@ -12,6 +12,9 @@ public interface ITableRows
 {
     Task AddAsync(TableEntity row, CancellationToken cancellationToken);
 
+    /// <summary>Adds rows of one partition all together or not at all (at most 100, Table Storage's limit).</summary>
+    Task AddAllAsync(IReadOnlyList<TableEntity> rows, CancellationToken cancellationToken);
+
     /// <summary>Up to <paramref name="take"/> rows of a partition in row-key order, starting after <paramref name="afterRowKey"/>.</summary>
     Task<IReadOnlyList<TableEntity>> ReadAsync(string partition, string? afterRowKey, int take, CancellationToken cancellationToken);
 
@@ -27,6 +30,12 @@ public sealed class AzureTableRows(TableClient table) : ITableRows
     {
         await EnsureAsync(cancellationToken);
         await table.AddEntityAsync(row, cancellationToken);
+    }
+
+    public async Task AddAllAsync(IReadOnlyList<TableEntity> rows, CancellationToken cancellationToken)
+    {
+        await EnsureAsync(cancellationToken);
+        await table.SubmitTransactionAsync(rows.Select(row => new TableTransactionAction(TableTransactionActionType.Add, row)), cancellationToken);
     }
 
     public async Task<IReadOnlyList<TableEntity>> ReadAsync(string partition, string? afterRowKey, int take, CancellationToken cancellationToken)

@@ -123,6 +123,18 @@ public class ErrorReportTests(ApiTestHost api)
         prod.Should().NotContain(r => r.Message == "read me");
     }
 
+    [IntegrationFact]
+    public async Task TheServersOwnReport_ShowsInTheReadAsProd()
+    {
+        var message = $"The database is missing schema scripts: test-{Guid.NewGuid():N}.";
+        var table = new ErrorReportTable(new TelemetryTables(api.ErrorReports, api.OtherJobNotes), TimeProvider.System);
+
+        (await table.ReportServerAsync("SideGigPh.AzureSQL.WarmupStore", message, default)).Should().BeTrue();
+
+        var prod = await api.Client(api.Tokens.For($"ops-{Guid.NewGuid():N}")).GetFromJsonAsync<List<ErrorReportView>>("error-reports?take=200&channel=prod");
+        prod.Should().ContainSingle(r => r.Message == message && r.Platform == "server" && r.Kind == ErrorKinds.Error);
+    }
+
     private List<TableEntity> Rows(string installId) => [.. api.ErrorReports.All.Where(r => r.GetString("InstallId") == installId)];
 
     // Far enough ahead that this store's once-a-day clean-up is due whatever the others did.

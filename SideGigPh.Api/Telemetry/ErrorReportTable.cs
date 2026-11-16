@@ -7,8 +7,8 @@ namespace SideGigPh.Api.Telemetry;
 /// The problems the app had on people's phones (Table Storage <c>ErrorReports</c>), for us to fix. Diagnostics only:
 /// keyed by a random install id, never the account, every text scrubbed again here (<see cref="ErrorReportRules.Scrub"/>)
 /// and cut to its limit, and at most once a day per server instance the rows older than <see cref="KeepFor"/> are
-/// deleted. One partition per channel, rows newest first (by when the error last happened). Here and not in SQL so a
-/// phone's reports never wake the database.
+/// deleted. One partition per channel, rows newest first by when the server received them (a phone's clock can be
+/// wrong), each batch saved all together. Here and not in SQL so a phone's reports never wake the database.
 /// </summary>
 public sealed class ErrorReportTable(TelemetryTables tables, TimeProvider clock)
 {
@@ -49,10 +49,11 @@ public sealed class ErrorReportTable(TelemetryTables tables, TimeProvider clock)
 
         var now = clock.GetUtcNow();
         var device = ErrorReportRules.Clean(batch.Device, ErrorReportRules.MaxDevice);
+        var rows = new List<TableEntity>(reports.Count);
         foreach (var report in reports)
         {
             var lastAt = report.LastAt > now ? now : report.LastAt;
-            await Rows.AddAsync(new TableEntity(batch.Channel, NewestFirst.Key(lastAt))
+            rows.Add(new TableEntity(batch.Channel, NewestFirst.Key(now))
             {
                 ["InstallId"] = installId.ToString(),
                 ["AppVersion"] = appVersion,
@@ -69,9 +70,11 @@ public sealed class ErrorReportTable(TelemetryTables tables, TimeProvider clock)
                 ["FirstAt"] = report.FirstAt > lastAt ? lastAt : report.FirstAt,
                 ["LastAt"] = lastAt,
                 ["ReceivedAt"] = now,
-            }, cancellationToken);
+            });
         }
 
+        // All or nothing: a failure half-way would leave part of a batch the phone then sends again.
+        await Rows.AddAllAsync(rows, cancellationToken);
         await CleanIfDueAsync(now, cancellationToken);
         return true;
     }
@@ -121,7 +124,8 @@ public sealed class ErrorReportTable(TelemetryTables tables, TimeProvider clock)
         return [.. views.OrderByDescending(v => v.LastAt).Take(take)];
     }
 
-    // Deletes rows that last happened before KeepFor, a batch per channel, at most once per CleanEvery per instance.
+    // Deletes rows received before KeepFor, a batch per channel, at most once per CleanEvery per instance. Never fails the
+    // save it rides on: the reports are already kept, and a 500 would make the phone send them again.
     private async Task CleanIfDueAsync(DateTimeOffset now, CancellationToken cancellationToken)
     {
         var last = Interlocked.Read(ref _lastCleanTicks);
@@ -130,13 +134,20 @@ public sealed class ErrorReportTable(TelemetryTables tables, TimeProvider clock)
             return;
         }
 
-        var oldest = NewestFirst.Ticks(now - KeepFor);
-        foreach (var partition in Channels)
+        try
         {
-            foreach (var row in await Rows.ReadAsync(partition, oldest, CleanBatch, cancellationToken))
+            var oldest = NewestFirst.Ticks(now - KeepFor);
+            foreach (var partition in Channels)
             {
-                await Rows.DeleteAsync(row.PartitionKey, row.RowKey, cancellationToken);
+                foreach (var row in await Rows.ReadAsync(partition, oldest, CleanBatch, cancellationToken))
+                {
+                    await Rows.DeleteAsync(row.PartitionKey, row.RowKey, cancellationToken);
+                }
             }
+        }
+        catch (Exception)
+        {
+            Interlocked.Exchange(ref _lastCleanTicks, last); // try again on the next save
         }
     }
 

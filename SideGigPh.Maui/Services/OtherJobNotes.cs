@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Services;
 /// </summary>
 public sealed class OtherJobNotes(IOtherJobNoteRepository repository, ILogger<OtherJobNotes> logger)
 {
-    /// <summary>Longest text sent (the server's <c>OtherJobNoteStore.MaxNote</c>).</summary>
+    /// <summary>Longest text sent (the server's <c>OtherJobNoteTable.MaxNote</c>).</summary>
     public const int MaxText = 100;
 
     public async Task NoteAsync(string? categoryId, UserRole side, string? text)

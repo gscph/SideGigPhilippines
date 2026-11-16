@@ -19,6 +19,21 @@ public sealed class InMemoryTableRows : ITableRows
             ? Task.CompletedTask
             : throw new InvalidOperationException($"Row {row.PartitionKey}/{row.RowKey} exists.");
 
+    public Task AddAllAsync(IReadOnlyList<TableEntity> rows, CancellationToken cancellationToken)
+    {
+        if (rows.Select(r => r.PartitionKey).Distinct().Count() > 1 || rows.Any(r => _rows.ContainsKey((r.PartitionKey, r.RowKey))))
+        {
+            throw new InvalidOperationException("A transaction needs one partition and new keys.");
+        }
+
+        foreach (var row in rows)
+        {
+            _rows[(row.PartitionKey, row.RowKey)] = row;
+        }
+
+        return Task.CompletedTask;
+    }
+
     public Task<IReadOnlyList<TableEntity>> ReadAsync(string partition, string? afterRowKey, int take, CancellationToken cancellationToken) =>
         Task.FromResult<IReadOnlyList<TableEntity>>([.. _rows.Values
             .Where(r => r.PartitionKey == partition && (afterRowKey is null || string.CompareOrdinal(r.RowKey, afterRowKey) > 0))
