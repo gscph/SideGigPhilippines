@@ -74,7 +74,10 @@ changing that area.**
 - **Chats:** only the Seeker starts a chat (id `{proId}_{seekerId}`); the server stamps times and takes the worker's
   name from their listing; reviews only 24 h after the chat started (`ReviewRules`, both sides).
   **Notifications:** a customer writing to a worker rings, a worker's reply only badges the icon; permission is asked
-  only with a reason, never at first launch (`ChatAlerts`).
+  only with a reason, never at first launch (`ChatAlerts`; a household is asked right after its first post). A new
+  job post rings the workers its Requests feed would show it to (`JobAlerts`, `JobPostStore.WorkersToAlertAsync`, at
+  most `MaxWorkers` 30: a service they offer first, then nearest; a retry doesn't ring again), and an offer rings the
+  household; channels `requests` / `offers`, a tap opens the feed or `/posts/{id}/offers` (`ChatAlerts.PathFor`).
 - **Error reports** (`Services/Diagnostics/`): logged errors (`ErrorLogLoggerProvider`), crashes and loading screens
   stuck past `BusyIndicator.StuckAfter` go into `ErrorLog` (`diagnostics.json`), **scrubbed when recorded and again on
   the server** (`ErrorReportRules.Scrub`: no tokens, numbers, emails, uids, query strings), and `ErrorReportSender`
