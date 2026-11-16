@@ -370,6 +370,9 @@ public static class Paging
 
     /// <summary>Feedback board suggestions per page: the 20 most voted, and 20 more each time the person scrolls to the end.</summary>
     public const int Feedback = 20;
+
+    /// <summary>Job posts per page of a worker's feed: the 10 most relevant, and 10 more each time they scroll to the end.</summary>
+    public const int JobPosts = 10;
 }
 
 /// <summary>One worker in ranked search results, with why they ranked where they did.</summary>

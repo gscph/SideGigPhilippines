@@ -248,6 +248,38 @@ public sealed class FeedbackVoteRow
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>
+/// The work a household needs done (<c>JobPosts</c>, <c>015-schema-job-posts.sql</c>). The point is private: workers
+/// get the town and a rounded distance. The database keeps the same point as the geography column <c>Location</c>,
+/// read only in SQL.
+/// </summary>
+public sealed class JobPostRow
+{
+    public long Id { get; set; }
+    public required string SeekerUid { get; set; }
+    public required string CategoryId { get; set; }
+    public required string ServiceId { get; set; }
+    public required string Description { get; set; }
+    public int BudgetPesos { get; set; }
+    public required string CityId { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+    public string Status { get; set; } = "open";
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? ClosedAt { get; set; }
+    public List<JobPostPhotoRow> Photos { get; set; } = [];
+}
+
+/// <summary>A photo of the problem on a job post (<c>JobPostPhotos</c>).</summary>
+public sealed class JobPostPhotoRow
+{
+    public long PostId { get; set; }
+    public required string PhotoId { get; set; }
+
+    /// <summary>0 = first added.</summary>
+    public short Position { get; set; }
+}
+
 /// <summary>One user blocked another (<c>Blocks</c>); either direction hides the two from each other.</summary>
 public sealed class BlockRow
 {

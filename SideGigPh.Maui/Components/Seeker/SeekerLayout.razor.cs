@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
 /// The Seeker's pages inside the shared <see cref="AppShell"/>: tabs Home (search results sit
-/// under it), Inbox and Me (also the avatar; their reviews sit under it, and the badge counts
+/// under it), Post (what they need done, shown to workers nearby), Inbox and Me (also the avatar; their reviews sit under it, and the badge counts
 /// pros they contacted but haven't rated).
 /// Loads <see cref="SeekerWorkspace"/> first and sends anyone who hasn't finished the Seeker
 /// interview back to <c>/</c>.
@@ -27,6 +27,7 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     private IReadOnlyList<AppTab> Tabs =>
     [
         new(SeekerRoutes.Home, Icons.Material.Filled.Home, T.Get(Copy.NavHome), MatchPrefix: true),
+        new(SeekerRoutes.Posts, Icons.Material.Filled.AddCircleOutline, T.Get(Copy.NavPosts), MatchPrefix: true),
         new(SeekerRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), Workspace.UnreadCount, MatchPrefix: true),
         new(SeekerRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe), Workspace.ToRate.Count, MatchPrefix: true),
     ];

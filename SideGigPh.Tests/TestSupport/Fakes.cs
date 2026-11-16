@@ -689,3 +689,63 @@ public sealed class FakeErrorReportRepository : IErrorReportRepository
         return Task.FromResult(Answer);
     }
 }
+
+/// <summary>Job posts kept in memory: what the household posted, and a feed a test seeds for the worker.</summary>
+public sealed class FakeJobPosts : IJobPostRepository
+{
+    private readonly List<JobPost> _mine = [];
+    private readonly List<JobPost> _feed = [];
+
+    public List<JobPostDraft> Added { get; } = [];
+
+    public List<long> Reported { get; } = [];
+
+    /// <summary>Every write throws, as with no connection.</summary>
+    public bool Fail { get; set; }
+
+    public bool HasListing { get; set; } = true;
+
+    /// <summary>Puts posts in the worker's feed, in this order.</summary>
+    public void Seed(params JobPost[] posts) => _feed.AddRange(posts);
+
+    public Task<JobPost> AddAsync(JobPostDraft draft)
+    {
+        ThrowIfOffline();
+        Added.Add(draft);
+        var post = new JobPost(_mine.Count + 1000, draft.CategoryId!, draft.ServiceId!, draft.Description!.Trim(), draft.BudgetPesos!.Value, draft.CityId!,
+            [.. draft.Photos.Select(photo => photo.Url)], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null, DateTimeOffset.UnixEpoch);
+        _mine.Insert(0, post);
+        return Task.FromResult(post);
+    }
+
+    public Task<IReadOnlyList<JobPost>> GetMineAsync() => Task.FromResult<IReadOnlyList<JobPost>>([.. _mine]);
+
+    public Task CloseAsync(long postId)
+    {
+        ThrowIfOffline();
+        var index = _mine.FindIndex(p => p.Id == postId);
+        _mine[index] = _mine[index] with { IsOpen = false };
+        return Task.CompletedTask;
+    }
+
+    public Task<JobPostFeed> GetFeedAsync(int skip) => Task.FromResult(new JobPostFeed(
+        HasListing ? [.. _feed.Skip(skip).Take(SideGigPh.Contracts.Paging.JobPosts)] : [],
+        HasListing && _feed.Count > skip + SideGigPh.Contracts.Paging.JobPosts,
+        HasListing));
+
+    public Task ReportAsync(long postId)
+    {
+        ThrowIfOffline();
+        Reported.Add(postId);
+        _feed.RemoveAll(p => p.Id == postId);
+        return Task.CompletedTask;
+    }
+
+    private void ThrowIfOffline()
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+    }
+}

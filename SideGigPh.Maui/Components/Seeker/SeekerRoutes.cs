@@ -9,6 +9,9 @@ public static class SeekerRoutes
     /// <summary>Results, opened from the home search box or a trade icon; under <see cref="Home"/> so Home stays lit.</summary>
     public const string Search = Home + "/search";
     public const string Inbox = "/inbox";
+
+    /// <summary>The Seeker's own job posts (the Post tab).</summary>
+    public const string Posts = JobPosts.JobPostRoutes.Mine;
     /// <summary>The Seeker's reviews, opened from the Me page; under <see cref="Me"/> so Me stays lit.</summary>
     public const string Reviews = Me + "/reviews";
     public const string Me = "/me";

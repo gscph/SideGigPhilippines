@@ -157,6 +157,37 @@ says "Tarbaho" in `Copy.cs`.
 - **Operator:** `UPDATE dbo.FeedbackPosts SET Status = 'planned' WHERE Id = …` (or `done`, `declined`, `hidden`);
   top of the board: `SELECT Id, Votes, Status, Side, Title FROM dbo.FeedbackPosts ORDER BY Votes DESC`.
 
+## Job posts
+
+- **What:** a household says once what it needs done and what it is ready to pay, and the workers of that trade
+  nearby see it. Tarbaho stays a directory: the budget is the household's own number, nothing is paid in the app.
+- **Seeker side:** the **Post** tab (`SeekerRoutes.Posts` = `JobPostRoutes.Mine`, `Components/JobPosts/MyPostsPage`,
+  inside `SeekerLayout`) lists their posts, newest first, each saying whether workers can still see it, with
+  "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen): kind of work,
+  the exact service, town (all three start from their last search), the problem in their words (10–600 letters),
+  their budget in pesos and up to 3 photos, uploaded as they are picked (`JobBoard.AddPhotosAsync`).
+- **Pro side:** the **Requests** tab (`ProRoutes.Requests` = `JobPostRoutes.Feed`, `ProPostsPage`, inside
+  `ProLayout`) is the feed, a page of `Paging.JobPosts` (10) at a time with `LoadMoreOnScroll`. Until the listing is
+  published it says to publish first: the server matches posts to the published listing (trade, services, base
+  point, `RadiusKm`), not to the draft on the phone.
+- **Relevance (`JobPostStore.FeedAsync`, one SQL query):** open posts whose trade is the worker's, within the
+  worker's own `RadiusKm` of their base point (`Professionals.Location.STDistance(JobPosts.Location)`, metres, both
+  on spatial indexes; when either point is unknown, posts in a town the worker goes to). Never the worker's own
+  posts, nor those of someone blocked either way. Order: **a service the worker offers first, then nearest, then
+  newest.**
+- **Privacy:** a post's point is the phone's when the app sends one (it doesn't yet: there is no location
+  permission step), else the centre of its town (`GeoRules.CentreOf`). The point never leaves the server: a worker
+  gets the town and `distanceKm`, whole kilometres and never under 1 (`JobPostStore.DistanceKm`), so a place can't
+  be worked out from it.
+- **Abuse:** posts are limited to 10 an hour per account (`Limited.JobPost`); the same post sent twice is one post;
+  the flag on a card sends it to the operator's `Reports` queue (`job-post:{id}`) and takes it off that worker's
+  feed; the operator hides it with `UPDATE dbo.JobPosts SET Status = 'hidden' WHERE Id = …`. Delete account removes
+  a household's posts and their photos.
+- **App (`Services/JobBoard`, singleton, port `IJobPostRepository`, adapter `ApiJobPostRepository`):** both lists
+  and their actions; a failed call never throws into a page. `JobPostCard` draws a post for both sides.
+- **Not built yet:** a worker answering a post (accept the budget or offer another price) and the household picking
+  one; a notification for a new post; the phone's own location on a post.
+
 ## Badges (worker verification)
 
 Three badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the

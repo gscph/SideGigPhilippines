@@ -115,6 +115,21 @@ public class WireContractTests
         AppChannels.Prod.Should().Be("prod");
     }
 
+    // Job posts: an installed app reads these fields, and tells an open post from a closed one by these words.
+    [Fact]
+    public void JobPostFieldNamesAndStatuses_NeverChange()
+    {
+        var post = new JobPostDto(7, "plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", JobPostStatuses.Open, [], true, false, 2, At);
+        FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
+            "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt");
+        FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
+        FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1), ApiJson.Default.NewJobPostRequest)
+            .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude");
+        JobPostStatuses.Open.Should().Be("open");
+        JobPostStatuses.Closed.Should().Be("closed");
+        JobPostStatuses.Hidden.Should().Be("hidden");
+    }
+
     // The feedback board: an installed app reads these fields and shows a status by these words.
     [Fact]
     public void FeedbackFieldNamesAndStatuses_NeverChange()

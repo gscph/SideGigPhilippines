@@ -95,6 +95,7 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
             await db.PushDevices.Where(d => d.Uid == uid).ExecuteDeleteAsync(ct);
             await db.OtherJobNotes.Where(n => n.Uid == uid).ExecuteUpdateAsync(set => set.SetProperty(n => n.Uid, (string?)null), ct);
             await FeedbackStore.ForgetAsync(db, uid, ct);
+            photos.AddRange(await JobPostStore.ForgetAsync(db, uid, ct));
             await db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(ct);
             return photos.Distinct().ToList();
         }, cancellationToken);
