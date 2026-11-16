@@ -18,10 +18,11 @@ public sealed class RoleSplashLines(IOnboardingStore store) : ISplashLines
 
     public static IReadOnlyList<LocalizedText> For(UserRole? role) => role == UserRole.Professional ? ProLines : SeekerLines;
 
-    /// <summary>The Seeker tagline once per honorific (plural in English, as on the launch splash).</summary>
-    public static IReadOnlyList<LocalizedText> SeekerLines { get; } = Honorifics.All
-        .Select(SeekerLine)
-        .ToList();
+    /// <summary>
+    /// The Seeker tagline once per honorific (plural in English, as on the launch splash), with the trust line
+    /// (<see cref="Copy.TrustTagline"/>) second, so even a short wait shows it.
+    /// </summary>
+    public static IReadOnlyList<LocalizedText> SeekerLines { get; } = [.. Honorifics.All.Select(SeekerLine).Take(1), Copy.TrustTagline, .. Honorifics.All.Select(SeekerLine).Skip(1)];
 
     public static IReadOnlyList<LocalizedText> ProLines { get; } = Copy.ProTaglines;
 
