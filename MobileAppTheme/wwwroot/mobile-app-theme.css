@@ -33,6 +33,11 @@ h1:focus {
    utility class for. Keep this list short.
    ========================================================================== */
 
+/* ConnectionBanner: the "you're offline" strip above every screen (in the flow, so it pushes the page down). */
+.app-offline-banner {
+    border-radius: 0 !important;
+}
+
 /* Full-screen pages (splash, language, loader, interview step). */
 .full-screen {
     min-height: 100vh;

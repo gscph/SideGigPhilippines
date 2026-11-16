@@ -111,9 +111,22 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
     }
 
     /// <summary>Keeps one problem (scrubbed), or counts it up when the same one is already waiting.</summary>
-    public void Record(ErrorKind kind, string source, string message, Exception? exception = null)
+    public void Record(ErrorKind kind, string source, string message, Exception? exception = null) =>
+        RecordText(kind, source, message, exception?.ToString());
+
+    /// <summary>Like <see cref="Record"/>, with the detail already written out (a Java stack trace, say).</summary>
+    public void RecordText(ErrorKind kind, string source, string message, string? detail) =>
+        Add(kind, source, message, detail, clock.GetUtcNow(), withScreen: true);
+
+    /// <summary>
+    /// A problem that ended the previous run, learnt at this launch (<see cref="PastExits"/>): dated when it happened,
+    /// with no screen or trail, since those belong to this run.
+    /// </summary>
+    public void RecordFromLastRun(ErrorKind kind, string source, string message, string? detail, DateTimeOffset at) =>
+        Add(kind, source, message, detail, at, withScreen: false);
+
+    private void Add(ErrorKind kind, string source, string message, string? detail, DateTimeOffset at, bool withScreen)
     {
-        var now = clock.GetUtcNow();
         lock (_gate)
         {
             if (!_state.SendReports)
@@ -125,12 +138,12 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
                 kind,
                 ErrorReportRules.Clean(source, ErrorReportRules.MaxSource) ?? "—",
                 ErrorReportRules.Clean(message, ErrorReportRules.MaxMessage) ?? "—",
-                ErrorReportRules.Clean(exception?.ToString(), ErrorReportRules.MaxDetail),
-                Route,
-                ErrorReportRules.Clean(string.Join('\n', _trail), ErrorReportRules.MaxTrail),
+                ErrorReportRules.Clean(detail, ErrorReportRules.MaxDetail),
+                withScreen ? Route : null,
+                withScreen ? ErrorReportRules.Clean(string.Join('\n', _trail), ErrorReportRules.MaxTrail) : null,
                 1,
-                now,
-                now);
+                at,
+                at);
             Merge(report);
         }
 

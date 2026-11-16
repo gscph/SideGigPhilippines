@@ -3,6 +3,8 @@
 <MudThemeProvider Theme="Brand.Theme" />
 <MudPopoverProvider />
 
+<ConnectionBanner />
+
 <AppErrorBoundary @ref="_boundary">
     <ChildContent>
         @Body
@@ -10,10 +12,20 @@
     <ErrorContent>
         <MudContainer MaxWidth="MaxWidth.Small" Class="full-screen">
             <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="4" Class="flex-1 px-4">
-                <EmptyState Icon="@Icons.Material.Rounded.ErrorOutline" Text="@T.Get(CommonCopy.ScreenBroke)" />
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="StartAgain">
-                    @T.Get(CommonCopy.ScreenBrokeHome)
-                </MudButton>
+                @if (_boundary?.LostConnection == true)
+                {
+                    <EmptyState Icon="@Icons.Material.Rounded.WifiOff" Text="@T.Get(CommonCopy.NoConnection)" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="TryAgain">
+                        @T.Get(CommonCopy.TryAgain)
+                    </MudButton>
+                }
+                else
+                {
+                    <EmptyState Icon="@Icons.Material.Rounded.ErrorOutline" Text="@T.Get(CommonCopy.ScreenBroke)" />
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="StartAgain">
+                        @T.Get(CommonCopy.ScreenBrokeHome)
+                    </MudButton>
+                }
             </MudStack>
         </MudContainer>
     </ErrorContent>

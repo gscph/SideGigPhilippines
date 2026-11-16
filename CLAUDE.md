@@ -84,6 +84,14 @@ changing that area.**
   Never log message text, names or numbers on purpose; the scrubber is the safety net, not the plan. A page that
   throws (render or tap handler) is caught by the skeleton's `AppErrorBoundary` in `MainLayout`: logged (so
   reported; BlazorWebView alone only writes it to the WebView console) and replaced by a "back to the start" screen.
+  On Android, `Platforms/Android/AndroidCrashCapture` (from `MainApplication.OnCreate`) also records Java exceptions
+  nothing caught (`Crash.Java`) and, at each launch, how earlier runs ended (`ApplicationExitInfo`: crash, native
+  crash, ANR with the main thread's stack, memory kill while on screen; `Services/Diagnostics/PastExits`, source
+  `Crash.LastRun`, each exit once), so crashes .NET never sees still reach `ErrorReports`; a lost connection that
+  escapes to the top (skeleton `NetworkErrors.IsNetwork`) is reported (`Crash.Network`) and the app keeps running.
+  **A lost connection is never "something broke":** `AppErrorBoundary` shows "No internet" + Try again (rebuilds the
+  page) for it, and the skeleton `ConnectionBanner` (`INetworkStatus`) shows "you're offline" over every screen.
+  Read the reports without a database login at public `GET error-reports?take=50` (remove before launch).
   A sign-in whose account is gone (deleted, disabled) is signed out by the Firebase adapter (`IsDeadSession`), never
   left calling the API without a token.
 - **Version** (one place: `Directory.Build.props`): `AppVersionNumber` (SemVer, now `0.1.0`) + `AppVersionStage`
