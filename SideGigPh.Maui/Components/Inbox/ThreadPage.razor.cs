@@ -20,10 +20,14 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private ILogger<ThreadPage> Logger { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
+    [Inject] private JobBoard Board { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
     private ProfessionalListing? _pro;
+
+    /// <summary>The pro's number, only once the Seeker picked their offer on a post (numbers stay private until then).</summary>
+    private string? _number;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
     private string? _message;
@@ -46,12 +50,15 @@ public partial class ThreadPage : ComponentBase, IDisposable
     private async Task LoadAsync()
     {
         _pro = Workspace.ThreadWith(Id)?.Pro ?? await Workspace.GetProAsync(Id);
+        _number = null;
         if (_pro is not null)
         {
             var read = Workspace.MarkReadAsync(Id);
+            var number = Board.ContactNumberAsync(Id);
             _history = await Workspace.GetMessagesAsync(Id);
             _message = _history.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
             _watch = Workspace.WatchChat(Id, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
+            _number = await number;
             await read;
         }
     }
@@ -95,7 +102,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
         _error = null;
         try
         {
-            if (await Workspace.CallAsync(_pro!) is { } call)
+            if (await Workspace.CallAsync(_pro!, _number!) is { } call)
             {
                 Show(call);
             }

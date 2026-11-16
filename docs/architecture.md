@@ -202,9 +202,19 @@ says "Tarbaho" in `Copy.cs`.
   `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
   your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
   worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
+- **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
+  `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
+  app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the
+  publish answer put it back (`GetAsync(withNumber)`). Before a pick the two talk only in the app's chat, which stays
+  as the record. `GET contacts/{otherUid}` (`JobPostStore.ContactNumberAsync`) answers `ContactDto(phoneNumber)` once
+  a `picked` offer links the caller and the other person (either side), else null; also null with a block either way
+  or no number (a worker's is their listing's, a household's the account's, which a Google sign-in may lack). Both
+  chat pages ask for it on open (`JobBoard.ContactNumberAsync`): the Seeker's `ThreadPage` shows **Call** (still
+  logged in the chat, `SeekerWorkspace.CallAsync(pro, number)`) and "you can call each other now", or "numbers stay
+  private until you pick their offer"; the worker's `ProChatPage` shows **Call** (not logged) and "they picked your
+  offer".
 - **Not built yet:** a notification for a new post or a new offer; a worker's list of their own offers and how they
-  ended (a worker who wasn't picked just sees the post leave their feed); hiding phone numbers until a pick; the
-  phone's own location on a post.
+  ended (a worker who wasn't picked just sees the post leave their feed); the phone's own location on a post.
 
 ## Badges (worker verification)
 

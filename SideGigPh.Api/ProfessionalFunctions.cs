@@ -97,7 +97,7 @@ public sealed class ProfessionalFunctions(
             return new NotFoundResult();
         }
 
-        return await professionals.GetAsync(id, cancellationToken) is { } listing ? new OkObjectResult(listing) : new NotFoundResult();
+        return await professionals.GetAsync(id, cancellationToken, withNumber: id == uid) is { } listing ? new OkObjectResult(listing) : new NotFoundResult();
     }
 
     /// <summary>Publishes the caller's listing, or replaces it. Needs a verified phone number on the account.</summary>
@@ -139,7 +139,7 @@ public sealed class ProfessionalFunctions(
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch
         {
-            PublishOutcome.Published => new OkObjectResult(await professionals.GetAsync(caller.Uid, cancellationToken)),
+            PublishOutcome.Published => new OkObjectResult(await professionals.GetAsync(caller.Uid, cancellationToken, withNumber: true)),
             PublishOutcome.PhoneTaken => ApiResults.Conflict(ApiErrors.PhoneTaken),
             PublishOutcome.PhotoInUse => ApiResults.Conflict(ApiErrors.PhotoInUse),
             _ => ApiResults.BadRequest(),

@@ -94,7 +94,7 @@ public class InboxTests
     {
         var app = await FakeApp.SeekerAsync();
 
-        var logged = await app.Seeker.CallAsync(Ana());
+        var logged = await app.Seeker.CallAsync(Ana(), TestData.WorkerNumber);
 
         app.Phone.Called.Should().Equal(TestData.WorkerNumber);
         logged!.Kind.Should().Be(ChatMessageKind.Call);
@@ -107,7 +107,7 @@ public class InboxTests
         var app = await FakeApp.SeekerAsync();
         app.Phone.Opens = false;
 
-        (await app.Seeker.CallAsync(Ana())).Should().BeNull();
+        (await app.Seeker.CallAsync(Ana(), TestData.WorkerNumber)).Should().BeNull();
         app.Chats.Sent.Should().BeEmpty();
     }
 

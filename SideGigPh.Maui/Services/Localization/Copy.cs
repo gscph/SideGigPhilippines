@@ -145,8 +145,20 @@ public static class Copy
     public static readonly LocalizedText YouCalled = new("You called", "Tumawag ka");
     public static readonly LocalizedText CalledYou = new("Called you", "Tumawag sa'yo");
     public static readonly LocalizedText ThreadHowItWorks = new(
-        "{0} gets your message here in the app and replies here. You can also call.",
-        "Makikita ni {0} ang message mo dito sa app, at dito rin siya sasagot. Puwede ka ring tumawag.");
+        "{0} gets your message here in the app and replies here.",
+        "Makikita ni {0} ang message mo dito sa app, at dito rin siya sasagot.");
+
+    public static readonly LocalizedText NumberAfterPick = new(
+        "Numbers stay private until you pick their offer on one of your posts. Then you can call.",
+        "Private muna ang mga number hanggang piliin mo ang offer nila sa post mo. Saka kayo puwedeng magtawagan.");
+
+    public static readonly LocalizedText NumberShared = new(
+        "You picked their offer, so you can call each other now.",
+        "Pinili mo ang offer nila, kaya puwede na kayong magtawagan.");
+
+    public static readonly LocalizedText CustomerNumberShared = new(
+        "They picked your offer, so you can call each other now.",
+        "Pinili nila ang offer mo, kaya puwede na kayong magtawagan.");
     public static readonly LocalizedText ThreadStart = new(
         "We wrote a message for you. Change it if you like, then tap Send.",
         "May nakahanda nang message. Puwede mo itong baguhin, tapos i-tap ang I-send.");

@@ -13,6 +13,8 @@
   isang account).
 - **Sino ang nakakakita:** ang listing ng Skilled Worker (pangalan, photo, trabaho, bayan, presyo, review) ay
   **public sa lahat ng user**. Ang chat ay kayong dalawa lang. Ang mga reference ay **hindi** ipinapakita kaninuman.
+  **Private ang mobile number** ng worker at ng customer hanggang piliin ng customer ang offer ng worker sa post
+  niya; saka lang nila makikita ang number ng isa't isa.
 - **Kung gusto mo ng badge** (ID, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
   photo, tao sa Tarbaho lang ang titingin, at **buburahin pagkatapos i-check**. Ang ID ay binabasa ng AI (pangalan,
   ID number, expiry) para tulungan ang nagche-check. Hindi ito ipinapakita sa customer.
@@ -45,7 +47,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 
 | Data | Who gives it | Why we need it |
 |---|---|---|
-| **Mobile number** (verified by SMS code) | Skilled Workers (needed to publish), and Customers who choose to sign in with their number | Sign-in; anti-fraud rule "one number, one account"; Skilled Workers' number is shown so Customers can call or text |
+| **Mobile number** (verified by SMS code) | Skilled Workers (needed to publish), and Customers who choose to sign in with their number | Sign-in; anti-fraud rule "one number, one account". Kept private until a Customer picks a Skilled Worker's offer on a post; then the two of them can see each other's number to call |
 | **Full name** | Everyone | Shown on your listing, chats and reviews (reviews show a short form, e.g. "Maricel D.") |
 | **Email address and Google profile name** | Only if you sign in with Google | Sign-in |
 | **Language** (English / Taglish) and **role** (Customer / Skilled Worker) | Everyone | To show the App in your language and the right screens |
@@ -138,7 +140,7 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | What | Who can see it |
 |---|---|
 | A Skilled Worker's **published listing**: name, photo, work photos, trade, jobs, towns, experience, prices, reviews, star rating, number of references, "phone number verified" | **Every signed-in user** of the App |
-| A Skilled Worker's **mobile number** | Customers who open the listing (to call or text). It is **public to all users** once you publish |
+| A Skilled Worker's or Customer's **mobile number** | **Nobody**, until a Customer picks a Skilled Worker's offer on one of their posts. Then only those two see each other's number (a Customer who signed in with Google may have none). Before that, you talk only in the App's chat. A block hides it again |
 | **Photos** you upload | Stored at a web address that is hard to guess. Anyone who has that address can open the photo, even outside the App |
 | **Chat messages** | The two people in the chat. Our authorised staff may read a chat **only** when one of you reports it, to answer a legal order, or to stop fraud or abuse |
 | **Reviews** | Every signed-in user; the reviewer's name is shortened |
