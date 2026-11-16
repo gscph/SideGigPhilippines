@@ -31,6 +31,17 @@ public sealed class ProfessionalRow
     public DateTimeOffset PublishedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 
+    /// <summary>
+    /// The worker's base point (<c>013-schema-geo.sql</c>), private: never sent to another person. Null = not known
+    /// (matched by town only). The database keeps the same point as the geography column <c>Location</c>, which
+    /// distance queries read (<see cref="ProfessionalStore.WorkersInRangeAsync"/>).
+    /// </summary>
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+
+    /// <summary>How far the worker travels from that point, <see cref="GeoRules.MinRadiusKm"/> to <see cref="GeoRules.MaxRadiusKm"/>.</summary>
+    public short RadiusKm { get; set; } = GeoRules.DefaultRadiusKm;
+
     public List<ProfessionalServiceRow> Services { get; set; } = [];
     public List<ProfessionalCityRow> Cities { get; set; } = [];
     public List<WorkPhotoRow> WorkPhotos { get; set; } = [];
@@ -243,4 +254,44 @@ public sealed class BlockRow
     public required string BlockerUid { get; set; }
     public required string BlockedUid { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
+}
+
+/// <summary>
+/// A proof a worker sent for a badge (<c>WorkerVerifications</c>, <c>014-schema-verification.sql</c>): a government ID,
+/// a TESDA certificate or proof of work on a named developer's project. A person decides; the file and what was read
+/// from it are deleted then, and only the result stays.
+/// </summary>
+public sealed class WorkerVerificationRow
+{
+    public long Id { get; set; }
+    public required string Uid { get; set; }
+    public required string Kind { get; set; }
+
+    /// <summary>The developer's id for a developer badge, else empty.</summary>
+    public string BadgeId { get; set; } = string.Empty;
+    public string? ProjectName { get; set; }
+    public string Status { get; set; } = "pending";
+
+    /// <summary>The file's name in the private container; null once deleted.</summary>
+    public string? DocumentBlob { get; set; }
+    public string ScanStatus { get; set; } = "none";
+    public string? ScannedType { get; set; }
+    public string? ScannedName { get; set; }
+    public string? ScannedNumber { get; set; }
+    public DateOnly? ScannedExpiry { get; set; }
+    public DateTimeOffset ConsentAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? DecidedAt { get; set; }
+    public string? DecidedBy { get; set; }
+    public string? RejectReason { get; set; }
+}
+
+/// <summary>One action on a verification request (<c>VerificationAudit</c>): the log of who looked at or decided what.</summary>
+public sealed class VerificationAuditRow
+{
+    public long Id { get; set; }
+    public long VerificationId { get; set; }
+    public required string ActorUid { get; set; }
+    public required string Action { get; set; }
+    public DateTimeOffset At { get; set; }
 }

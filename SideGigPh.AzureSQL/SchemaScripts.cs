@@ -16,5 +16,7 @@ public static class SchemaScripts
         "010-schema-error-reports",
         "011-schema-safety",
         "012-schema-feedback",
+        "013-schema-geo",
+        "014-schema-verification",
     ];
 }

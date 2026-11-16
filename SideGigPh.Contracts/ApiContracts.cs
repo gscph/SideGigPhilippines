@@ -62,6 +62,15 @@ public static class ApiErrors
     /// <summary>403 on a chat message: one of the two blocked the other.</summary>
     public const string Blocked = "blocked";
 
+    /// <summary>400 on a verification upload: the consent box wasn't ticked (<c>consent=true</c>).</summary>
+    public const string ConsentRequired = "consent-required";
+
+    /// <summary>409 on a verification upload: this badge is already waiting for the operator, or already approved.</summary>
+    public const string AlreadySent = "already-sent";
+
+    /// <summary>403 on an <c>admin/…</c> route: the caller isn't an operator.</summary>
+    public const string NotAdmin = "not-admin";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }
@@ -106,12 +115,16 @@ public sealed record ListingDto(
     PhotoDto? ProfilePhoto,
     IReadOnlyList<PhotoDto> WorkPhotos,
     ReviewSummaryDto? Reviews = null,
-    int ReferenceCount = 0);
+    int ReferenceCount = 0,
+    IReadOnlyList<BadgeDto>? Badges = null);
 
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
 /// number, both taken from the sign-in token, never from here. Work photos are newest first. Publishing needs a
 /// profile photo, at least 2 work photos and at least 1 reference; references are private (never in <see cref="ListingDto"/>).
+/// <paramref name="Latitude"/> / <paramref name="Longitude"/> are the worker's base point and <paramref name="RadiusKm"/>
+/// how far they travel (1–50): all optional and private (never in <see cref="ListingDto"/>). Left out, the server keeps
+/// what it has, or starts from the middle of the listing's towns and 10 km.
 /// </summary>
 public sealed record PublishListingRequest(
     string DisplayName,
@@ -123,7 +136,10 @@ public sealed record PublishListingRequest(
     string? RateTierId,
     string? ProfilePhotoId,
     IReadOnlyList<string> WorkPhotoIds,
-    IReadOnlyList<ReferenceDto>? References = null);
+    IReadOnlyList<ReferenceDto>? References = null,
+    double? Latitude = null,
+    double? Longitude = null,
+    int? RadiusKm = null);
 
 /// <summary>Someone who can vouch for a Skilled Worker: a name and an E.164 Philippine mobile number.</summary>
 public sealed record ReferenceDto(string Name, string MobileNumber);

@@ -32,6 +32,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<SafetyStore>();
         services.AddScoped<FeedbackStore>();
         services.AddScoped<WarmupStore>();
+        services.AddScoped<VerificationStore>();
         return services;
     }
 }

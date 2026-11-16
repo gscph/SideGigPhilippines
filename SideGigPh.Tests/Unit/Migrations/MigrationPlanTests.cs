@@ -3,7 +3,7 @@ using SideGigPh.Migrate;
 namespace SideGigPh.Tests.Unit.Migrations;
 
 /// <summary>
-/// What the deploy runs on the live database (after the owner approves): the schema scripts it hasn't recorded, in
+/// What the deploy runs on the live database: the schema scripts it hasn't recorded, in
 /// number order, and the config only when asked. Never the first release (already there) and never sample data.
 /// </summary>
 public class MigrationPlanTests

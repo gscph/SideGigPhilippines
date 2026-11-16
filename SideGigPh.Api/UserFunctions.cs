@@ -9,7 +9,8 @@ namespace SideGigPh.Api;
 
 /// <summary>The signed-in person's own profile: <c>users/me</c>. Nobody else can read it.</summary>
 public sealed class UserFunctions(
-    FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices, BlobContainerClient photos, IAccountDeleter accounts, CallerLimits limits)
+    FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices, BlobContainerClient photos, IAccountDeleter accounts, CallerLimits limits,
+    VerificationStore verifications, IPrivateFiles privateFiles)
 {
     [Function("GetMe")]
     public async Task<IActionResult> Get(
@@ -86,7 +87,8 @@ public sealed class UserFunctions(
 
     /// <summary>
     /// <c>DELETE users/me/account</c>: Delete account (App Store 5.1.1(v), Google Play). Everything the caller has in the
-    /// database (<see cref="UserStore.DeleteAccountAsync"/>), the photos they uploaded, then their sign-in account.
+    /// database (<see cref="UserStore.DeleteAccountAsync"/>), the photos they uploaded, their verification requests
+    /// and files, then their sign-in account.
     /// Answers <c>204</c> when the sign-in account is gone too, or <c>202</c> when this server can't delete it (no
     /// service account) and the app must.
     /// </summary>
@@ -102,6 +104,13 @@ public sealed class UserFunctions(
 
         var photoIds = await users.DeleteAccountAsync(uid, cancellationToken);
         await PhotoFunctions.DeleteOwnedAsync(photos, uid, photoIds, cancellationToken);
+
+        // Their verification requests and badges, and any proof still waiting for the operator.
+        foreach (var file in await verifications.ForgetAsync(uid, cancellationToken))
+        {
+            await privateFiles.DeleteAsync(file, cancellationToken);
+        }
+
         return await accounts.DeleteAsync(uid, cancellationToken) ? new NoContentResult() : new AcceptedResult();
     }
 }

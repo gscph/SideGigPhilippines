@@ -208,6 +208,18 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 row.ProfilePhotoId = request.ProfilePhotoId;
                 row.UpdatedAt = now;
 
+                // The worker's own point when the phone sent one; else what the listing has; else the middle of its towns.
+                if ((GeoRules.Point(request.Latitude, request.Longitude) ?? (row.Latitude is null ? GeoRules.CentreOf(cities) : null)) is { } point)
+                {
+                    row.Latitude = point.Latitude;
+                    row.Longitude = point.Longitude;
+                }
+
+                if (request.RadiusKm is { } radiusKm)
+                {
+                    row.RadiusKm = (short)radiusKm;
+                }
+
                 db.ProfessionalServices.AddRange(services.Select(id => new ProfessionalServiceRow { ProfessionalId = uid, ServiceId = id }));
                 db.ProfessionalCities.AddRange(cities.Select(id => new ProfessionalCityRow { ProfessionalId = uid, CityId = id }));
                 db.ProfessionalWorkPhotos.AddRange(workPhotos.Select((id, i) =>
@@ -250,7 +262,26 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         : request.References is not { Count: >= MinReferences and <= MaxReferences }
           || !request.References.All(r => StoreText.Limit(r?.Name, 60) is not null && StoreText.IsMobileNumber(r!.MobileNumber) && r.MobileNumber != ownNumber)
           || request.References.Select(r => r.MobileNumber).Distinct().Count() != request.References.Count ? "references"
+        : (request.Latitude is not null || request.Longitude is not null) && GeoRules.Point(request.Latitude, request.Longitude) is null ? "latitude"
+        : request.RadiusKm is not null && !GeoRules.IsRadius(request.RadiusKm) ? "radiusKm"
         : null;
+
+    /// <summary>
+    /// The workers of one trade who travel as far as <paramref name="point"/>: the distance from their base point is
+    /// within their own <c>RadiusKm</c> (<c>Location.STDistance</c>, metres, on the spatial index). With
+    /// <paramref name="serviceId"/>, only those offering that job. A worker with no point isn't matched by distance.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> WorkersInRangeAsync(string categoryId, string? serviceId, GeoPoint point, CancellationToken cancellationToken) =>
+        !StoreText.IsCode(categoryId) || (serviceId is not null && !StoreText.IsCode(serviceId))
+            ? []
+            : await db.Database.SqlQuery<string>($"""
+                SELECT p.Id AS Value
+                  FROM dbo.Professionals AS p
+                 WHERE p.CategoryId = {categoryId}
+                   AND p.Location IS NOT NULL
+                   AND p.Location.STDistance(geography::Point({point.Latitude}, {point.Longitude}, 4326)) <= p.RadiusKm * 1000.0
+                   AND ({serviceId} IS NULL OR EXISTS (SELECT 1 FROM dbo.ProfessionalServices AS s WHERE s.ProfessionalId = p.Id AND s.ServiceId = {serviceId}))
+                """).ToListAsync(cancellationToken);
 
     /// <summary>Takes the listing out of search (its services, towns and photos go with it). Its reviews stay.</summary>
     public async Task RemoveAsync(string uid, CancellationToken cancellationToken)
@@ -287,10 +318,19 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .GroupBy(r => r.ProfessionalId)
                 .Select(g => new { g.Key, Count = g.Count() })
                 .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken);
-        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id))).ToList();
+        var badges = ids.Count == 0
+            ? []
+            : (await db.WorkerVerifications.AsNoTracking()
+                .Where(v => ids.Contains(v.Uid) && v.Status == VerificationStatuses.Approved)
+                .OrderBy(v => v.DecidedAt)
+                .Select(v => new { v.Uid, v.Kind, v.BadgeId, v.ProjectName })
+                .ToListAsync(cancellationToken))
+                .GroupBy(v => v.Uid)
+                .ToDictionary(g => g.Key, g => (IReadOnlyList<BadgeDto>)[.. g.Select(v => new BadgeDto(v.Kind, v.BadgeId, v.ProjectName))]);
+        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id), badges.GetValueOrDefault(p.Id) ?? [])).ToList();
     }
 
-    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount) => new(
+    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount, IReadOnlyList<BadgeDto> badges) => new(
         p.Id,
         p.DisplayName,
         p.MobileNumber,
@@ -303,5 +343,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         p.ProfilePhotoId is { } photoId ? new PhotoDto(photoId, photoLinks.For(photoId)) : null,
         p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList(),
         reviews,
-        referenceCount);
+        referenceCount,
+        badges);
 }

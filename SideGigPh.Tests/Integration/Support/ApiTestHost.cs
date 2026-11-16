@@ -38,6 +38,15 @@ public sealed class ApiTestHost : IAsyncLifetime
     /// <summary>Every sign-in account the API deleted (Firebase Admin stand-in).</summary>
     public RecordingAccountDeleter Accounts { get; } = new();
 
+    /// <summary>The private "verification" container (ID photos and proofs), in memory.</summary>
+    public InMemoryPrivateFiles PrivateFiles { get; } = new();
+
+    /// <summary>Azure AI Document Intelligence stand-in: answers <see cref="FakeIdReader.Next"/> and counts its reads.</summary>
+    public FakeIdReader IdReader { get; } = new();
+
+    /// <summary>The one operator account (the Function App setting <c>AdminUids</c>).</summary>
+    public const string AdminUid = "test-operator";
+
     public TestServer Server => _host!.GetTestServer();
 
     public string ConnectionString => _database!.ConnectionString;
@@ -70,6 +79,9 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddSingleton<IPushSender>(Pushes);
                     services.AddSingleton<IAccountDeleter>(Accounts);
                     services.AddScoped<ChatNotifier>();
+                    services.AddSingleton<IPrivateFiles>(PrivateFiles);
+                    services.AddSingleton<IIdDocumentReader>(IdReader);
+                    services.AddSingleton(new AdminList(AdminUid));
                 })
                 .Configure(app =>
                 {

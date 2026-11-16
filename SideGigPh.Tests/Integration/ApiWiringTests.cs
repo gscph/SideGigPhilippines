@@ -27,7 +27,9 @@ public class ApiWiringTests(ApiTestHost api)
             "GET config", "POST other-jobs", "POST error-reports", "GET error-reports", "GET warmup",
             "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}",
             "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",
-            "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report");
+            "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report",
+            "POST verifications/{kind}", "GET verifications/mine",
+            "GET admin/verifications", "GET admin/verifications/{id}/document", "POST admin/verifications/{id}/decision");
 
     /// <summary>
     /// Public: the reference data (the trades and jobs, read before the account is ready) and the legal pages (the app
@@ -43,7 +45,7 @@ public class ApiWiringTests(ApiTestHost api)
         foreach (var route in ApiTestHost.Routes.Except(PublicRoutes))
         {
             var parts = route.Split(' ');
-            var path = parts[1].Replace("{id}", "x").Replace("{chatId}", "x").Replace("{blockedUid}", "x");
+            var path = parts[1].Replace("{id}", "x").Replace("{chatId}", "x").Replace("{blockedUid}", "x").Replace("{kind}", "id");
             using var request = new HttpRequestMessage(new HttpMethod(parts[0]), path) { Content = new StringContent("{}", Encoding.UTF8, "application/json") };
 
             using var response = await anonymous.SendAsync(request);

@@ -37,6 +37,9 @@ public enum Limited
 
     /// <summary>The caller's own profile saved.</summary>
     Profile,
+
+    /// <summary>A proof sent for a badge (each ID is a paid AI read and waits for the operator).</summary>
+    Verification,
 }
 
 /// <summary>
@@ -61,6 +64,7 @@ public sealed class CallerLimits : IDisposable
         [Limited.FeedbackVote] = (120, TimeSpan.FromHours(1)),
         [Limited.Listing] = (20, TimeSpan.FromHours(1)),
         [Limited.Profile] = (60, TimeSpan.FromHours(1)),
+        [Limited.Verification] = (6, TimeSpan.FromHours(1)),
     };
 
     private readonly PartitionedRateLimiter<(Limited Kind, string Uid)> _limiter =
