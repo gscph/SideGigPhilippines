@@ -59,6 +59,44 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     /// </summary>
     public Task<string?> ContactNumberAsync(string otherUid) => posts.GetContactNumberAsync(otherUid);
 
+    /// <summary>The picked jobs between this person and <paramref name="otherUid"/>, newest first (for the chat's job card).</summary>
+    public Task<IReadOnlyList<PickedJob>> PickedJobsAsync(string otherUid) => posts.GetPickedJobsAsync(otherUid);
+
+    /// <summary>This person marks the picked job done: the job as it is now, or null when it didn't send.</summary>
+    public async Task<PickedJob?> MarkDoneAsync(PickedJob job)
+    {
+        try
+        {
+            return await posts.MarkDoneAsync(job.PostId);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// A worker rates the household of a completed job (1–5 stars, an optional comment). False when it didn't send or
+    /// isn't allowed yet.
+    /// </summary>
+    public async Task<bool> RateHouseholdAsync(string seekerUid, int rating, string? comment)
+    {
+        if (rating is < 1 or > 5)
+        {
+            return false;
+        }
+
+        try
+        {
+            await posts.RateHouseholdAsync(seekerUid, rating, string.IsNullOrWhiteSpace(comment) ? null : comment.Trim());
+            return true;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return false;
+        }
+    }
+
     /// <summary>Reads the household's own posts again.</summary>
     public async Task LoadMineAsync()
     {

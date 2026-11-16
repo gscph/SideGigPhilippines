@@ -294,6 +294,26 @@ public sealed class JobOfferRow
     public string Status { get; set; } = "sent";
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
+
+    /// <summary>When the household marked the picked job done (<c>017-schema-job-done.sql</c>).</summary>
+    public DateTimeOffset? HouseholdDoneAt { get; set; }
+
+    /// <summary>When the worker marked the picked job done. Both set: a completed job.</summary>
+    public DateTimeOffset? WorkerDoneAt { get; set; }
+}
+
+/// <summary>
+/// A worker's stars for a household (<c>HouseholdReviews</c>, <c>017-schema-job-done.sql</c>): one per worker per
+/// household, only after a completed job between them.
+/// </summary>
+public sealed class HouseholdReviewRow
+{
+    public required string ProUid { get; set; }
+    public required string SeekerUid { get; set; }
+    public byte Rating { get; set; }
+    public string? Comment { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }
 
 /// <summary>One user blocked another (<c>Blocks</c>); either direction hides the two from each other.</summary>

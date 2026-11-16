@@ -27,7 +27,8 @@ public sealed record JobPost(
     DateTimeOffset CreatedAt,
     int OfferCount = 0,
     int? MyOfferPesos = null,
-    string? PickedProId = null);
+    string? PickedProId = null,
+    ReviewSummary? HouseholdStars = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.

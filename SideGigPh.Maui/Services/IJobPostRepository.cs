@@ -46,4 +46,16 @@ public interface IJobPostRepository
     /// that, when they have none, or when it can't be read.
     /// </summary>
     Task<string?> GetContactNumberAsync(string otherUid);
+
+    /// <summary>The picked jobs between this person and <paramref name="otherUid"/>, newest first. Empty when none or it can't be read.</summary>
+    Task<IReadOnlyList<PickedJob>> GetPickedJobsAsync(string otherUid);
+
+    /// <summary>This person marks a picked job done; answers with it. Throws when it didn't send (status 404: not theirs).</summary>
+    Task<PickedJob> MarkDoneAsync(long postId);
+
+    /// <summary>
+    /// A worker rates a household after a completed job between them; writing again replaces it. Throws when it didn't
+    /// send (status 403: no completed job yet).
+    /// </summary>
+    Task RateHouseholdAsync(string seekerUid, int rating, string? comment);
 }

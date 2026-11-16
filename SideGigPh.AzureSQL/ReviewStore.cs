@@ -19,23 +19,45 @@ public enum ReviewOutcome
 /// <summary>Seekers' reviews of the Skilled Workers they chatted with: one per pair, writing again replaces it.</summary>
 public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
 {
-    public async Task<IReadOnlyList<ReviewDto>> ForProfessionalAsync(string professionalId, CancellationToken cancellationToken) =>
-        await db.Reviews.AsNoTracking()
+    /// <summary>The reviews of a worker, newest first; one whose writer picked them for a completed job is a "Verified job".</summary>
+    public async Task<IReadOnlyList<ReviewDto>> ForProfessionalAsync(string professionalId, CancellationToken cancellationToken)
+    {
+        var rows = await db.Reviews.AsNoTracking()
             .Where(r => r.ProfessionalId == professionalId)
             .OrderByDescending(r => r.CreatedAt)
-            .Select(r => ToDto(r))
             .ToListAsync(cancellationToken);
+        var verified = (await CompletedJobs().Where(job => job.ProUid == professionalId).Select(job => job.SeekerUid).ToListAsync(cancellationToken)).ToHashSet();
+        return [.. rows.Select(r => ToDto(r, verified.Contains(r.SeekerId)))];
+    }
 
-    public async Task<IReadOnlyList<ReviewDto>> BySeekerAsync(string seekerId, CancellationToken cancellationToken) =>
-        await db.Reviews.AsNoTracking()
+    public async Task<IReadOnlyList<ReviewDto>> BySeekerAsync(string seekerId, CancellationToken cancellationToken)
+    {
+        var rows = await db.Reviews.AsNoTracking()
             .Where(r => r.SeekerId == seekerId)
             .OrderByDescending(r => r.CreatedAt)
-            .Select(r => ToDto(r))
             .ToListAsync(cancellationToken);
+        var verified = (await CompletedJobs().Where(job => job.SeekerUid == seekerId).Select(job => job.ProUid).ToListAsync(cancellationToken)).ToHashSet();
+        return [.. rows.Select(r => ToDto(r, verified.Contains(r.ProfessionalId)))];
+    }
+
+    /// <summary>The completed jobs (picked, both marked done) with the household that posted each.</summary>
+    private IQueryable<CompletedJob> CompletedJobs() =>
+        from o in db.JobOffers.AsNoTracking()
+        join p in db.JobPosts.AsNoTracking() on o.PostId equals p.Id
+        where o.Status == JobOfferStatuses.Picked && o.HouseholdDoneAt != null && o.WorkerDoneAt != null
+        select new CompletedJob { SeekerUid = p.SeekerUid, ProUid = o.ProUid };
+
+    /// <summary>One completed job's two sides (settable properties, so EF can filter on them).</summary>
+    private sealed class CompletedJob
+    {
+        public required string SeekerUid { get; init; }
+        public required string ProUid { get; init; }
+    }
 
     /// <summary>
     /// The caller's review of a Skilled Worker they chatted with, at least <see cref="ReviewRules.WaitAfterChatStarts"/>
-    /// after the chat started (an earlier review can always be changed). The first write's time is kept.
+    /// after the chat started, or at once after a completed job with them (picked, both marked done: it then shows
+    /// "Verified job"). An earlier review can always be changed. The first write's time is kept.
     /// </summary>
     public async Task<ReviewOutcome> SaveAsync(string seekerUid, SaveReviewRequest request, CancellationToken cancellationToken)
     {
@@ -49,7 +71,9 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
             .Where(c => c.ProfessionalId == request.ProfessionalId && c.SeekerId == seekerUid)
             .Select(c => (DateTimeOffset?)c.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken);
-        if (chatStartedAt is not { } startedAt)
+        // A completed job (picked, both marked done) is proof enough: no chat or wait needed.
+        var completed = await PickedJobStore.Completed(db, seekerUid, request.ProfessionalId).AnyAsync(cancellationToken);
+        if (chatStartedAt is null && !completed)
         {
             return ReviewOutcome.NoChat;
         }
@@ -58,7 +82,7 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
         var row = await db.Reviews.FirstOrDefaultAsync(r => r.ProfessionalId == request.ProfessionalId && r.SeekerId == seekerUid, cancellationToken);
         if (row is null)
         {
-            if (!ReviewRules.CanRate(startedAt, now))
+            if (!completed && !ReviewRules.CanRate(chatStartedAt!.Value, now))
             {
                 return ReviewOutcome.TooSoon;
             }
@@ -87,6 +111,6 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
         listings.Clear();
     }
 
-    private static ReviewDto ToDto(ReviewRow r) =>
-        new(r.ProfessionalId, r.SeekerId, r.ReviewerName, r.Rating, r.Comment, r.ServiceId, r.CreatedAt, r.UpdatedAt);
+    private static ReviewDto ToDto(ReviewRow r, bool verifiedJob) =>
+        new(r.ProfessionalId, r.SeekerId, r.ReviewerName, r.Rating, r.Comment, r.ServiceId, r.CreatedAt, r.UpdatedAt, verifiedJob);
 }

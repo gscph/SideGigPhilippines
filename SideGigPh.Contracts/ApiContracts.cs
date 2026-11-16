@@ -68,6 +68,9 @@ public static class ApiErrors
     /// <summary>409 on a verification upload: this badge is already waiting for the operator, or already approved.</summary>
     public const string AlreadySent = "already-sent";
 
+    /// <summary>403 on <c>PUT household-reviews</c>: no completed job (picked, both marked done) between the two.</summary>
+    public const string NoCompletedJob = "no-completed-job";
+
     /// <summary>403 on an <c>admin/…</c> route: the caller isn't an operator.</summary>
     public const string NotAdmin = "not-admin";
 
@@ -116,7 +119,8 @@ public sealed record ListingDto(
     IReadOnlyList<PhotoDto> WorkPhotos,
     ReviewSummaryDto? Reviews = null,
     int ReferenceCount = 0,
-    IReadOnlyList<BadgeDto>? Badges = null);
+    IReadOnlyList<BadgeDto>? Badges = null,
+    int CompletedJobs = 0);
 
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
@@ -152,7 +156,8 @@ public sealed record ReviewDto(
     string? Comment,
     string? ServiceId,
     DateTimeOffset CreatedAt,
-    DateTimeOffset UpdatedAt);
+    DateTimeOffset UpdatedAt,
+    bool VerifiedJob = false);
 
 /// <summary><c>PUT reviews</c>: the caller's review of a Skilled Worker, replacing their earlier one.</summary>
 /// <summary>When a Seeker may rate a Skilled Worker. The app hides the Rate buttons until then, and the server refuses earlier reviews.</summary>
