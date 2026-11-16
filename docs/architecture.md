@@ -212,8 +212,13 @@ says "Tarbaho" in `Copy.cs`.
   no-completed-job` before), and workers see the household's stars on its posts in the feed (`JobPostDto.HouseholdReviews`).
   Reviews after a chat without a pick still work as before, without the label. Done is each side's own word: no money
   passes through the app. App: `JobBoard.PickedJobsAsync` / `MarkDoneAsync` / `RateHouseholdAsync`, models
-  `PickedJob`, `Review.VerifiedJob`, `ProfessionalListing.CompletedJobs`, `JobPost.HouseholdStars`. **The screens are
-  not built yet** (a job card with Mark done on both chat pages, the label, the count, the stars).
+  `PickedJob`, `Review.VerifiedJob`, `ProfessionalListing.CompletedJobs`, `JobPost.HouseholdStars`. Screens: both chat
+  pages (`ThreadPage`, `ProChatPage`) show the newest picked job as `Components/JobPosts/PickedJobCard` (title, service
+  and price, where each side stands, **Mark done** until this person did; then the household's Leave a review link, or
+  the worker's stars and note for the household right on the card). A completed job seen on the Seeker's chat page
+  tells `SeekerWorkspace.CompletedJobWith`, so `CanRate` opens the review page at once. `ReviewRow` shows a green
+  "Verified service" chip (`Review.VerifiedJob`; copy says service, never job), `ListingFacts` a "Done through Tarbaho:
+  N" fact, and a worker's `JobPostCard` the household's stars.
 - **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
   `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
   app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the

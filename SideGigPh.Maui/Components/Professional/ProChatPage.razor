@@ -29,6 +29,11 @@
             <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="px-6">@T.Get(Copy.CustomerNumberShared)</MudText>
         }
 
+        @if (_job is not null)
+        {
+            <PickedJobCard Job="_job" OtherName="@T.SeekerName(_chat)" OtherUid="@_chat.SeekerId" OnChanged="@(job => _job = job)" />
+        }
+
         @if (!string.IsNullOrEmpty(T.WhenAndBudget(_chat)))
         {
             <MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">

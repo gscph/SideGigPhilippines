@@ -12,6 +12,11 @@
     <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
         <MudRating SelectedValue="Review.Rating" ReadOnly="true" Size="Size.Small" Color="Color.Warning"
                    aria-label="@($"{Review.Rating}/5")" />
+        @if (Review.VerifiedJob)
+        {
+            <MudChip T="string" Color="Color.Success" Variant="Variant.Text" Size="Size.Small" Icon="@Icons.Material.Rounded.Verified"
+                     Class="ma-0">@T.Get(Copy.VerifiedService)</MudChip>
+        }
         <MudText Typo="Typo.body2" Color="Color.Secondary" Class="flex-1">@T.Ago(Review.At)</MudText>
         @if (ReportHref is not null)
         {
