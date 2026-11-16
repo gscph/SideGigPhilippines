@@ -60,7 +60,7 @@ changing that area.**
   `ReferenceData` (`UseConfig`, guarded by `CanUse`); pages never fetch it. New stale-OK data goes into this config,
   not a new endpoint.
 - **Server:** one function class per area, token check first (`FirebaseTokenValidator`; the only public routes are
-  `GET config` and the legal pages `GET legal/{page}`, `ApiWiringTests.PublicRoutes`), then a store in `SideGigPh.AzureSQL` holding the data rules and
+  `GET config`, the legal pages `GET legal/{page}` and, until launch, the error-report reader `GET error-reports`, `ApiWiringTests.PublicRoutes`), then a store in `SideGigPh.AzureSQL` holding the data rules and
   answering with contracts or an outcome enum. Errors are `{ "error", "detail" }` (`ApiErrors` codes); `detail`
   carries the stack trace while `ApiResults.ShowDetails` is on (Function App setting `ShowErrorDetails` = `false`
   turns it off: do that before launch). Repeatable writes are limited per account (`CallerLimits` → `429
@@ -88,9 +88,9 @@ changing that area.**
   nothing caught (`Crash.Java`) and, at each launch, how earlier runs ended (`ApplicationExitInfo`: crash, native
   crash, ANR with the main thread's stack, memory kill while on screen; `Services/Diagnostics/PastExits`, source
   `Crash.LastRun`, each exit once), so crashes .NET never sees still reach `ErrorReports`; a lost connection that
-  escapes to the top (skeleton `NetworkErrors.IsNetwork`) is reported (`Crash.Network`) and the app keeps running.
+  escapes to the top (skeleton `NetworkErrors.IsNetwork`: only a request that got no answer, never a file error such as a full phone) is reported (`Crash.Network`) and the app keeps running.
   **A lost connection is never "something broke":** `AppErrorBoundary` shows "No internet" + Try again (rebuilds the
-  page) for it, and the skeleton `ConnectionBanner` (`INetworkStatus`) shows "you're offline" over every screen.
+  page) for it, and the skeleton `ConnectionBanner` (`INetworkStatus`) shows a gray "you're offline" strip above the page after 3 s offline (not on a 1-second signal drop).
   Read the reports without a database login at public `GET error-reports?take=50` (remove before launch).
   A sign-in whose account is gone (deleted, disabled) is signed out by the Firebase adapter (`IsDeadSession`), never
   left calling the API without a token.
