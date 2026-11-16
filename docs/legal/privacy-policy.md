@@ -55,6 +55,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **References**: name and mobile number of 1–3 people who can vouch for you | Skilled Workers | Trust check. **Never shown to Customers** (they see only how many references you have). We may contact a reference to confirm, or when a Customer reports a problem. See §3.4 |
 | **Badge proofs** (optional): a photo of a **government ID**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
 | **Job request details**: job, town, how urgent, budget | Customers | To find matching Skilled Workers and to start a chat |
+| **Posts of what you need done** (optional): the kind of work, your description of the problem, your budget, your town and up to 3 photos | Customers who post | To show your post to Skilled Workers of that trade near you. Do not put your address, phone number or anyone's face in the description or photos |
 | **Chat messages** and a note that you tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
 | **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing |
 | **"Others" text**: the job or trade you typed when it was not on our list | Anyone who types it | To learn which jobs and trades to add. Never shown to other users |
@@ -141,6 +142,7 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | **Chat messages** | The two people in the chat. Our authorised staff may read a chat **only** when one of you reports it, to answer a legal order, or to stop fraud or abuse |
 | **Reviews** | Every signed-in user; the reviewer's name is shortened |
 | **Feature suggestions** (the text and how many votes it has) | Every signed-in user, **without your name**. Who wrote it and who voted: only us |
+| **Posts of what you need done** (the work, your description, budget, town and photos) | **Skilled Workers of that trade who are signed in and travel to your area**, with your **town and a rounded distance** (whole kilometres). Never your name, number, address or exact location |
 | **Badges** on a listing ("ID Verified", "TESDA Certified", the company and building of a past project) | **Every signed-in user**, as part of the listing |
 | **Badge proofs** (the photo of your ID, certificate or proof of work, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
 | **References**, income goal, "Others" text, error reports, email | **Only us** |
@@ -175,6 +177,7 @@ or defend legal claims.
 | Badge proofs (the photo, and what was read from an ID) | **Deleted when the check is done** (normally within 2 days), or when you delete your account if that is sooner |
 | Badges (the result of a check) and the log of who opened or decided a proof | Badges: until you delete your account. The log keeps no document, only who did what and when |
 | "Others" text | Kept, but **unlinked from you** when you delete your account |
+| Posts of what you need done, and their photos | You delete your account. A post you take down stops showing to Skilled Workers right away and stays in your own list |
 | Feature suggestions and votes | Suggestions are kept, but **unlinked from you** when you delete your account; your votes are deleted. You can remove your own suggestion while nobody else has voted for it |
 | Error reports | 90 days |
 | Reports about a user | Until resolved. If the reporter deletes their account, their name is removed from the report |

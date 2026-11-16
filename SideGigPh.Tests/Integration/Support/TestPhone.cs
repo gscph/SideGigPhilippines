@@ -45,6 +45,7 @@ public sealed class TestPhone
         services.AddSingleton(SideGigPh.Maui.Services.Diagnostics.BuildInfo.Current);
         services.AddSingleton<SideGigPh.Maui.Services.Analytics.AppAnalytics>();
         services.AddSingleton<FeedbackBoard>();
+        services.AddSingleton<JobBoard>();
         services.AddSingleton<ProWorkspace>();
         services.AddSingleton<ProBadges>();
         services.AddSingleton<SeekerWorkspace>();

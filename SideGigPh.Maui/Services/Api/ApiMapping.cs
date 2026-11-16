@@ -51,6 +51,30 @@ internal static partial class ApiMapping
         details,
         role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null });
 
+    public static JobPost ToModel(this JobPostDto dto) => new(
+        dto.Id,
+        dto.CategoryId,
+        dto.ServiceId,
+        dto.Description,
+        dto.BudgetPesos,
+        dto.CityId,
+        [.. dto.Photos.Select(photo => photo.Url)],
+        IsOpen: dto.Status == JobPostStatuses.Open,
+        dto.Mine,
+        dto.OffersService,
+        dto.DistanceKm,
+        dto.CreatedAt);
+
+    public static JobPostFeed ToModel(this JobPostFeedDto dto) => new([.. dto.Posts.Select(post => post.ToModel())], dto.HasMore, dto.HasListing);
+
+    public static NewJobPostRequest ToRequest(this JobPostDraft draft) => new(
+        draft.CategoryId ?? string.Empty,
+        draft.ServiceId ?? string.Empty,
+        draft.Description?.Trim() ?? string.Empty,
+        draft.BudgetPesos ?? 0,
+        draft.CityId ?? string.Empty,
+        [.. draft.Photos.Select(photo => photo.Id)]);
+
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,
         dto.DisplayName,

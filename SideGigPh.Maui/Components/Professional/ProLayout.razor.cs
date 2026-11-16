@@ -7,7 +7,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// The Professional's pages inside the shared <see cref="AppShell"/>: tabs Home, Inbox (with an
+/// The Professional's pages inside the shared <see cref="AppShell"/>: tabs Home, Requests (what customers nearby posted for their trade), Inbox (with an
 /// unread badge), Reviews and Me (profile, work photos, language, Start over); the avatar opens
 /// Me too, with a green dot once published; until then a <see cref="NotLiveBanner"/> sits under the top bar. Loads <see cref="ProWorkspace"/> first and sends anyone who hasn't finished the
 /// Professional interview back to <c>/</c>. When the setup checklist gets finished it opens the Publish page once.
@@ -33,6 +33,7 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     private IReadOnlyList<AppTab> Tabs =>
     [
         new(ProRoutes.Home, Icons.Material.Filled.Home, T.Get(Copy.NavHome)),
+        new(ProRoutes.Requests, Icons.Material.Filled.Campaign, T.Get(Copy.NavRequests)),
         new(ProRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), Workspace.UnreadCount, MatchPrefix: true),
         new(ProRoutes.Reviews, Icons.Material.Filled.StarOutline, T.Get(Copy.NavReviews)),
         new(ProRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe), MatchPrefix: true),

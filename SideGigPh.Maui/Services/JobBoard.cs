@@ -1,0 +1,205 @@
+using SideGigPh.Contracts;
+using SideGigPh.Maui.Models;
+
+namespace SideGigPh.Maui.Services;
+
+/// <summary>
+/// Job posts as the pages use them. The household's side: their own posts, posting a new one (with photos of the
+/// problem uploaded as they are picked) and taking one down. The worker's side: the feed of open posts of their
+/// trade within the distance they travel, most relevant first (a service they offer, then nearest, then newest),
+/// loaded a page at a time, and reporting a fake one. Raises <see cref="Changed"/> after each change.
+/// </summary>
+public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
+{
+    public const int MinDescription = JobPostRules.MinDescription;
+    public const int MaxDescription = JobPostRules.MaxDescription;
+    public const int MaxPhotos = JobPostRules.MaxPhotos;
+
+    private List<JobPost> _mine = [];
+    private List<JobPost> _feed = [];
+
+    /// <summary>Raised after a list changes.</summary>
+    public event Action? Changed;
+
+    /// <summary>The household's own posts, newest first, closed ones too.</summary>
+    public IReadOnlyList<JobPost> Mine => _mine;
+
+    /// <summary>The worker's feed loaded so far, most relevant first.</summary>
+    public IReadOnlyList<JobPost> Feed => _feed;
+
+    /// <summary>More posts follow the loaded part of the feed.</summary>
+    public bool HasMore { get; private set; }
+
+    /// <summary>False while the worker has no published listing: the feed stays empty until they publish.</summary>
+    public bool HasListing { get; private set; } = true;
+
+    /// <summary>The first field of <paramref name="draft"/> still missing or not valid, or null when it can be posted.</summary>
+    public static JobPostField? FirstMissing(JobPostDraft draft) =>
+        draft.CategoryId is null ? JobPostField.Trade
+        : draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId) ? JobPostField.Service
+        : !JobPostRules.IsDescription(draft.Description) ? JobPostField.Description
+        : !JobPostRules.IsBudget(draft.BudgetPesos) ? JobPostField.Budget
+        : draft.CityId is null ? JobPostField.Town
+        : null;
+
+    public static bool CanPost(JobPostDraft draft) => FirstMissing(draft) is null;
+
+    /// <summary>How many more photos fit on <paramref name="draft"/>.</summary>
+    public static int PhotoRoom(JobPostDraft draft) => Math.Max(0, MaxPhotos - draft.Photos.Count);
+
+    /// <summary>Reads the household's own posts again.</summary>
+    public async Task LoadMineAsync()
+    {
+        _mine = [.. await posts.GetMineAsync()];
+        Changed?.Invoke();
+    }
+
+    /// <summary>
+    /// Uploads the photos the page picked and adds them to <paramref name="draft"/> (at most <see cref="PhotoRoom"/>,
+    /// skipping one already added). Photos that uploaded before a failure stay.
+    /// </summary>
+    public async Task<PhotoAddResult> AddPhotosAsync(JobPostDraft draft, PhotoPick pick)
+    {
+        if (pick.Status != PhotoPickStatus.Picked)
+        {
+            return PhotoAddResult.From(pick.Status);
+        }
+
+        int added = 0, duplicates = 0;
+        var problem = PhotoProblem.None;
+        foreach (var bytes in pick.Photos.Take(PhotoRoom(draft)))
+        {
+            try
+            {
+                var id = await photos.SaveAsync(bytes);
+                if (draft.Photos.Any(photo => photo.Id == id))
+                {
+                    duplicates++;
+                    continue;
+                }
+
+                draft.Photos.Add(new WorkPhoto(id, (await photos.GetUrlAsync(id))!));
+                added++;
+            }
+            catch (PhotoStoreException ex)
+            {
+                problem = PhotoAddResult.From(ex).Problem;
+                break;
+            }
+        }
+
+        return new PhotoAddResult(added, duplicates, problem);
+    }
+
+    /// <summary>Takes a photo off <paramref name="draft"/> and deletes the stored copy (it was only ever on this draft).</summary>
+    public async Task RemovePhotoAsync(JobPostDraft draft, string photoId)
+    {
+        if (draft.Photos.RemoveAll(photo => photo.Id == photoId) > 0)
+        {
+            try
+            {
+                await photos.DeleteAsync(photoId);
+            }
+            catch (PhotoStoreException)
+            {
+                // The stored copy stays, unused: nothing shows it.
+            }
+        }
+    }
+
+    /// <summary>Posts <paramref name="draft"/> and puts it at the top of the household's list. Never throws.</summary>
+    public async Task<JobPostResult> PostAsync(JobPostDraft draft)
+    {
+        if (!CanPost(draft))
+        {
+            return JobPostResult.Incomplete;
+        }
+
+        try
+        {
+            var post = await posts.AddAsync(draft);
+            _mine.RemoveAll(p => p.Id == post.Id);
+            _mine.Insert(0, post);
+            Changed?.Invoke();
+            return JobPostResult.Posted;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return JobPostResult.Failed;
+        }
+    }
+
+    /// <summary>Takes the household's own post down: it stays in their list as closed. False when it didn't go through.</summary>
+    public async Task<bool> CloseAsync(JobPost post)
+    {
+        try
+        {
+            await posts.CloseAsync(post.Id);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return false;
+        }
+
+        var index = _mine.FindIndex(p => p.Id == post.Id);
+        if (index >= 0)
+        {
+            _mine[index] = post with { IsOpen = false };
+        }
+
+        Changed?.Invoke();
+        return true;
+    }
+
+    /// <summary>Reads the worker's feed from the top: the first page replaces whatever was loaded.</summary>
+    public async Task LoadFeedAsync()
+    {
+        var page = await posts.GetFeedAsync(0);
+        _feed = [.. page.Posts];
+        HasMore = page.HasMore;
+        HasListing = page.HasListing;
+        Changed?.Invoke();
+    }
+
+    /// <summary>Adds the next page under the loaded ones (a post already shown isn't repeated).</summary>
+    public async Task LoadMoreFeedAsync()
+    {
+        if (!HasMore)
+        {
+            return;
+        }
+
+        var page = await posts.GetFeedAsync(_feed.Count);
+        var shown = _feed.Select(p => p.Id).ToHashSet();
+        _feed.AddRange(page.Posts.Where(p => !shown.Contains(p.Id)));
+        HasMore = page.HasMore && page.Posts.Count > 0;
+        Changed?.Invoke();
+    }
+
+    /// <summary>Reports a fake or prank post to the operator and takes it off this worker's feed. False when the report didn't send.</summary>
+    public async Task<bool> ReportAsync(JobPost post)
+    {
+        try
+        {
+            await posts.ReportAsync(post.Id);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return false;
+        }
+
+        _feed.RemoveAll(p => p.Id == post.Id);
+        Changed?.Invoke();
+        return true;
+    }
+}
+
+/// <summary>The fields of the post form, in the order they are asked.</summary>
+public enum JobPostField
+{
+    Trade,
+    Service,
+    Description,
+    Budget,
+    Town,
+}

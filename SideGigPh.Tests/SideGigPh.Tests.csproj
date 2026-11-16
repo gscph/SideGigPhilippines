@@ -54,6 +54,7 @@
     <Compile Include="..\SideGigPh.Maui\Components\Seeker\SeekerRoutes.cs" Link="App\Components\SeekerRoutes.cs" />
     <Compile Include="..\SideGigPh.Maui\Components\Safety\ReportRoutes.cs" Link="App\Components\ReportRoutes.cs" />
     <Compile Include="..\SideGigPh.Maui\Components\Feedback\FeedbackRoutes.cs" Link="App\Components\FeedbackRoutes.cs" />
+    <Compile Include="..\SideGigPh.Maui\Components\JobPosts\JobPostRoutes.cs" Link="App\Components\JobPostRoutes.cs" />
   </ItemGroup>
 
   <!-- The integration tests build their database from the real scripts: 001-schema, every later NNN-schema-* change, then 004-config; the search-ranking seed for its scenario tests. -->

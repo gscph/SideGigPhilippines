@@ -1,0 +1,78 @@
+namespace SideGigPh.Contracts;
+
+/// <summary>
+/// One job post: the work a household needs done, as the caller sees it. The household's exact point is never
+/// sent: a worker gets the town and <paramref name="DistanceKm"/>, rounded to a whole kilometre.
+/// </summary>
+/// <param name="Status">One of <see cref="JobPostStatuses"/>.</param>
+/// <param name="Photos">Photos of the problem, in the order the household added them.</param>
+/// <param name="Mine">The caller posted it.</param>
+/// <param name="OffersService">The caller is a worker whose listing has this exact service (else: same trade only).</param>
+/// <param name="DistanceKm">For a worker: how far it is from their base point, in whole kilometres; null when unknown or for the household itself.</param>
+public sealed record JobPostDto(
+    long Id,
+    string CategoryId,
+    string ServiceId,
+    string Description,
+    int BudgetPesos,
+    string CityId,
+    string Status,
+    List<PhotoDto> Photos,
+    bool Mine,
+    bool OffersService,
+    int? DistanceKm,
+    DateTimeOffset CreatedAt);
+
+/// <summary>
+/// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the
+/// phone's point when it has one; without them the post sits at the centre of <paramref name="CityId"/>.
+/// </summary>
+public sealed record NewJobPostRequest(
+    string CategoryId,
+    string ServiceId,
+    string Description,
+    int BudgetPesos,
+    string CityId,
+    List<string>? PhotoIds = null,
+    double? Latitude = null,
+    double? Longitude = null);
+
+/// <summary>
+/// <c>GET job-posts/feed</c>: one page of the open posts a worker can take: their own trade, within the distance they
+/// travel, posts for a service they offer first, then nearest, then newest. <paramref name="HasListing"/> is false
+/// while the worker has no published listing (the feed is empty then: the server doesn't know their trade yet).
+/// </summary>
+public sealed record JobPostFeedDto(List<JobPostDto> Posts, bool HasMore, bool HasListing);
+
+/// <summary>Where a job post stands.</summary>
+public static class JobPostStatuses
+{
+    /// <summary>Workers of that trade nearby can see it.</summary>
+    public const string Open = "open";
+
+    /// <summary>The household took it down (found someone, or no longer needs it).</summary>
+    public const string Closed = "closed";
+
+    /// <summary>The operator hid it after a report. Nobody but the operator sees it.</summary>
+    public const string Hidden = "hidden";
+}
+
+/// <summary>The limits both sides keep for a job post (the columns of <c>JobPosts</c>).</summary>
+public static class JobPostRules
+{
+    /// <summary>The shortest description that says something ("Tulo ang gripo").</summary>
+    public const int MinDescription = 10;
+    public const int MaxDescription = 600;
+
+    public const int MinBudgetPesos = 50;
+    public const int MaxBudgetPesos = 1_000_000;
+
+    /// <summary>The most photos of the problem one post carries.</summary>
+    public const int MaxPhotos = 3;
+
+    /// <summary>True when <paramref name="description"/>, trimmed, says enough and fits.</summary>
+    public static bool IsDescription(string? description) =>
+        description?.Trim() is { Length: >= MinDescription and <= MaxDescription };
+
+    public static bool IsBudget(int? pesos) => pesos is >= MinBudgetPesos and <= MaxBudgetPesos;
+}
