@@ -326,6 +326,35 @@ public static class Copy
     public static readonly LocalizedText StatusPublished = new("Published", "Naka-publish na");
     public static readonly LocalizedText StatusNotPublished = new("Not published yet", "Hindi pa naka-publish");
     public static readonly LocalizedText StatRating = new("{0} ★ ({1})", "{0} ★ ({1})");
+
+    // --- Operator: badge review (only accounts in the server's AdminUids) ---
+    public static readonly LocalizedText AdminBadgesMenu = new("Check badge requests", "I-check ang mga badge request");
+    public static readonly LocalizedText AdminBadgesMenuHint = new("For Tarbaho staff", "Para sa Tarbaho staff");
+    public static readonly LocalizedText AdminBadgesTitle = new("Badge requests", "Mga badge request");
+    public static readonly LocalizedText AdminBadgesWhy = new(
+        "Oldest first. Compare the profile photo with the ID by eye. The AI reading only helps: you decide.",
+        "Pinakaluma muna. Ikumpara ang profile photo sa ID gamit ang mata. Tulong lang ang basa ng AI: ikaw ang magdedesisyon.");
+    public static readonly LocalizedText AdminNothingWaiting = new("No badge requests waiting.", "Walang naghihintay na badge request.");
+    public static readonly LocalizedText AdminNotOperator = new("This page is only for Tarbaho staff.", "Para lang sa Tarbaho staff ang page na ito.");
+    public static readonly LocalizedText AdminScanTitle = new("What the AI read", "Ang nabasa ng AI");
+    public static readonly LocalizedText AdminScanType = new("Type", "Uri");
+    public static readonly LocalizedText AdminScanName = new("Name", "Pangalan");
+    public static readonly LocalizedText AdminScanNumber = new("Number", "Numero");
+    public static readonly LocalizedText AdminScanExpiry = new("Expires", "Expiry");
+    public static readonly LocalizedText AdminScanNone = new("Not read by the AI.", "Hindi binasa ng AI.");
+    public static readonly LocalizedText AdminScanUnreadable = new("The AI couldn't read this ID.", "Hindi nabasa ng AI ang ID na ito.");
+    public static readonly LocalizedText AdminScanFailed = new("The AI reader didn't answer.", "Hindi sumagot ang AI reader.");
+    public static readonly LocalizedText AdminCompareHint = new(
+        "Check the name matches the listing and the face matches the profile photo.",
+        "I-check kung tugma ang pangalan sa listing at ang mukha sa profile photo.");
+    public static readonly LocalizedText AdminShowProof = new("Show the proof photo", "Ipakita ang proof photo");
+    public static readonly LocalizedText AdminProofAlt = new("The proof photo the worker sent", "Ang proof photo na pinadala ng worker");
+    public static readonly LocalizedText AdminNoProof = new("The proof photo is gone.", "Wala na ang proof photo.");
+    public static readonly LocalizedText AdminProofFailed = new("The photo didn't load. Try again.", "Hindi nag-load ang photo. Subukan ulit.");
+    public static readonly LocalizedText AdminRejectReason = new("Reason, if you reject (the worker sees it)", "Dahilan kung ire-reject (makikita ng worker)");
+    public static readonly LocalizedText AdminApprove = new("Approve", "I-approve");
+    public static readonly LocalizedText AdminReject = new("Reject", "I-reject");
+    public static readonly LocalizedText AdminDecideFailed = new("Didn't send. Try again.", "Hindi na-send. Subukan ulit.");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.
