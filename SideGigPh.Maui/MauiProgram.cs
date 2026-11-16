@@ -42,11 +42,14 @@ namespace SideGigPh.Maui
             // Sign-in provider. To switch, replace this line (and the project reference) with another
             // IIdentityProvider adapter; nothing else in the app knows which provider it is.
             builder.AddFirebaseAuth(GoogleWebClientId);
-            // New-message notifications (Firebase Cloud Messaging). The server picks the channel: customers writing to a
-            // worker ring; workers answering a Seeker are silent (only the dot on the app icon).
+            // Notifications (Firebase Cloud Messaging). The server picks the channel: customers writing to a worker ring;
+            // workers answering a Seeker are silent (only the dot on the app icon); a new post near a worker and a new
+            // offer on a household's post ring.
             builder.AddFirebasePush(
                 new PushChannel(PushData.CustomersChannel, Copy.PushChannelCustomers.English, Alert: true),
-                new PushChannel(PushData.RepliesChannel, Copy.PushChannelReplies.English, Alert: false));
+                new PushChannel(PushData.RepliesChannel, Copy.PushChannelReplies.English, Alert: false),
+                new PushChannel(PushData.RequestsChannel, Copy.PushChannelRequests.English, Alert: true),
+                new PushChannel(PushData.OffersChannel, Copy.PushChannelOffers.English, Alert: true));
             // Optional, each behind a build flag that is off by default (Directory.Build.props): usage analytics (Google
             // Analytics for Firebase) and A/B tests (Firebase Remote Config + A/B Testing). With a flag off the call
             // does nothing and the skeleton's do-nothing adapter stays, so the app builds with nothing set up in Firebase.

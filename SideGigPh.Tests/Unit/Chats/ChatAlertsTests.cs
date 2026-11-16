@@ -185,6 +185,15 @@ public class ChatAlertsTests
             [PushData.Side] = side, [PushData.ChatId] = chatId, [PushData.ProfessionalId] = proId,
         }).Should().Be(expected);
 
+    [Theory]
+    [InlineData(Wire.Professional, "42", "/professional/requests")]
+    [InlineData(Wire.Seeker, "42", "/posts/42/offers")]
+    [InlineData(Wire.Seeker, "not-a-number", null)]
+    [InlineData("someone", "42", null)]
+    public void PathFor_AJobPost_OpensTheFeedOrTheOffers(string side, string postId, string? expected) =>
+        ChatAlerts.PathFor(new Dictionary<string, string> { [PushData.Side] = side, [PushData.PostId] = postId })
+            .Should().Be(expected);
+
     [Fact]
     public async Task Workspaces_ListTheUnreadChats_ForTheBadge()
     {

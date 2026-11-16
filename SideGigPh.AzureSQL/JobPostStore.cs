@@ -6,7 +6,11 @@ namespace SideGigPh.AzureSQL;
 /// <summary>What became of a new job post (<see cref="JobPostStore.AddAsync"/>).</summary>
 /// <param name="Post">The saved post, or null when <paramref name="InvalidField"/> names what was wrong.</param>
 /// <param name="InvalidField">The first field that's missing or not valid (its JSON name).</param>
-public sealed record JobPostOutcome(JobPostDto? Post, string? InvalidField);
+/// <param name="IsNew">The post was just made (false for a retry answered with the post already there), so workers are told.</param>
+public sealed record JobPostOutcome(JobPostDto? Post, string? InvalidField, bool IsNew = false);
+
+/// <summary>What the household's notification about an offer says (<see cref="JobPostStore.OfferAlertAsync"/>).</summary>
+public sealed record OfferAlert(string SeekerUid, string WorkerName, int PricePesos);
 
 /// <summary>What became of a worker's offer (<see cref="JobPostStore.SendOfferAsync"/>).</summary>
 public enum OfferOutcome
@@ -78,7 +82,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         };
         db.JobPosts.Add(row);
         await db.SaveChangesAsync(cancellationToken);
-        return new JobPostOutcome(ToDto(row, uid), null);
+        return new JobPostOutcome(ToDto(row, uid), null, IsNew: true);
     }
 
     /// <summary>The caller's own posts, newest first (closed ones too; one the operator hid is left out).</summary>
@@ -315,6 +319,42 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         return await db.Professionals.Where(p => p.Id == otherUid).Select(p => p.MobileNumber).FirstOrDefaultAsync(cancellationToken)
             ?? await db.Users.Where(u => u.Uid == otherUid).Select(u => u.PhoneNumber).FirstOrDefaultAsync(cancellationToken);
     }
+
+    /// <summary>
+    /// The workers to tell about a new post: the same match as their Requests feed (<see cref="FeedAsync"/>): the
+    /// post's trade, within the worker's own <c>RadiusKm</c> of the post (a town match when a point is unknown), never
+    /// the household itself or someone either of them blocked. The best <paramref name="max"/>: a service they offer
+    /// first, then nearest.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> WorkersToAlertAsync(long postId, int max, CancellationToken cancellationToken) =>
+        await db.Database.SqlQuery<string>($"""
+            SELECT TOP ({max}) p.Id AS Value
+              FROM dbo.JobPosts AS j
+              JOIN dbo.Professionals AS p ON p.CategoryId = j.CategoryId
+             WHERE j.Id = {postId}
+               AND j.Status = 'open'
+               AND p.Id <> j.SeekerUid
+               AND NOT EXISTS (SELECT 1 FROM dbo.Blocks AS b
+                                WHERE (b.BlockerUid = p.Id AND b.BlockedUid = j.SeekerUid) OR (b.BlockerUid = j.SeekerUid AND b.BlockedUid = p.Id))
+               AND ((p.Location IS NOT NULL AND j.Location IS NOT NULL AND p.Location.STDistance(j.Location) <= p.RadiusKm * 1000.0)
+                    OR ((p.Location IS NULL OR j.Location IS NULL)
+                        AND EXISTS (SELECT 1 FROM dbo.ProfessionalCities AS c WHERE c.ProfessionalId = p.Id AND c.CityId = j.CityId)))
+             ORDER BY CASE WHEN EXISTS (SELECT 1 FROM dbo.ProfessionalServices AS s WHERE s.ProfessionalId = p.Id AND s.ServiceId = j.ServiceId)
+                           THEN 0 ELSE 1 END,
+                      CASE WHEN p.Location IS NOT NULL AND j.Location IS NOT NULL THEN p.Location.STDistance(j.Location) ELSE 1000000000 END,
+                      p.Id
+            """).ToListAsync(cancellationToken);
+
+    /// <summary>
+    /// Who to tell about <paramref name="workerUid"/>'s waiting offer on a post, and what it says (their listing's
+    /// name and the price). Null when that offer isn't waiting.
+    /// </summary>
+    public Task<OfferAlert?> OfferAlertAsync(long postId, string workerUid, CancellationToken cancellationToken) =>
+        (from o in db.JobOffers.AsNoTracking()
+         join p in db.JobPosts on o.PostId equals p.Id
+         join w in db.Professionals on o.ProUid equals w.Id
+         where o.PostId == postId && o.ProUid == workerUid && o.Status == JobOfferStatuses.Sent
+         select new OfferAlert(p.SeekerUid, w.DisplayName, o.PricePesos)).FirstOrDefaultAsync(cancellationToken);
 
     /// <summary>
     /// The caller reports a post (fake, a prank, abuse). It joins the operator's report queue (<c>Reports</c>, about

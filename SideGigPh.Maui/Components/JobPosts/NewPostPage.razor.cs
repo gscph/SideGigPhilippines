@@ -18,6 +18,7 @@ public partial class NewPostPage : ComponentBase
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     private readonly JobPostDraft _draft = new();
     private PhotoAddResult? _photoResult;
@@ -85,6 +86,8 @@ public partial class NewPostPage : ComponentBase
         {
             if (await Busy.RunAsync(() => Board.PostAsync(_draft)) == JobPostResult.Posted)
             {
+                // Now there are offers to wait for: allow notifications (asked once; the system remembers).
+                _ = Alerts.AskAsync();
                 Nav.NavigateTo(JobPostRoutes.Mine, replace: true);
                 return;
             }
