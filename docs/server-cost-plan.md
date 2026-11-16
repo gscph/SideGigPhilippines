@@ -8,7 +8,7 @@ without making the app feel slower. Status of each item is tracked in the table 
 | Piece | How it bills | Why it costs us |
 |---|---|---|
 | **Azure SQL (serverless)** | per second while the database is awake (min ~0.5 vCore), then it pauses after the auto-pause delay | **The big one.** Any request that touches SQL wakes it, and it stays billed until the delay runs out. Today the app wakes it on purpose (`GET warmup` on every app open), every phone sends error reports every 10 min (`POST error-reports` → SQL), an open chat polls every 5 s, and the Seeker/Pro home refreshes every 15 s. A handful of users spread over the day can keep it awake ~24 h. Always-on 0.5 vCore is roughly **US$150–200 a month**; the free offer covers only ~55 awake hours a month. |
-| **Functions (Flex Consumption)** | per execution + GB-seconds, after a monthly free grant | Cheap if the instance memory is small (512 MB stretches the grant 4× vs 2 GB) and the request count is low. Every poll and refresh counts. |
+| **Functions (Flex Consumption)** | per execution + GB-seconds, after a monthly free grant | Cheap if the request count is low and instances are capped (2 GB instances, at most 2; the free grant is counted in GB-seconds). Every poll and refresh counts. |
 | **Blob Storage (photos)** | storage + reads + egress | Pennies. Photos are already content-addressed with a 1-year immutable cache header. Full 1280 px photos on result cards waste egress. |
 | **Application Insights** | per GB ingested | Can grow quietly with logs; needs a daily cap. |
 | **Firebase Auth (phone SMS)** | per SMS sent (Blaze plan); Google sign-in and FCM are free | SMS is the only real Firebase cost: phone is the first sign-in option for everyone, Resend has no cooldown, and without App Check bots can request codes (**SMS pumping fraud**). |
@@ -72,9 +72,9 @@ feature (`perf(chat): push instead of polling`). Items are ordered so the cheap,
 
 | # | Branch | What | Why it saves |
 |---|---|---|---|
-| 0 | *(portal / script, you run it)* | `azure/cloudshell-cost-guardrails.sh`: SQL serverless max 1 vCore, auto-pause delay at the minimum (or move to the SQL free offer); Function App instance memory 512 MB, max instances 2, no always-ready; Insights daily cap + sampling; Azure budget (alerts at US$5/10/20); Firebase: budget alert, App Check (Play Integrity) on Auth, SMS regions = PH | Caps the worst case on day one; no code |
+| 0 | *(portal / script, you run it)* | `azure/cloudshell-cost-guardrails.sh`: SQL serverless max 1 vCore, auto-pause delay at the minimum (or move to the SQL free offer); Function App instance memory 2 GB, max instances 2, no always-ready; Insights daily cap + sampling; Azure budget (alerts at US$5/10/20); Firebase: budget alert, App Check (Play Integrity) on Auth, SMS regions = PH | Caps the worst case on day one; no code |
 | 1 | `fix/crash-capture-offline` | The crash capture and offline work already done (uncommitted now) + this plan | — |
-| 1b | `auth/sms-once` | Sign-in with Google (Apple on iOS) only; workers verify their number once, right after choosing the worker role, recorded server-side so it is never asked again; Seekers never; Resend after 360 s, max 3 codes a day per phone; tests for the rules | One SMS per worker, ever; none for Seekers |
+| 1b | `auth/sms-once` | Sign-in with Google (Apple on iOS) first, the SMS code behind a link for phone-only accounts; workers verify their number once, right after choosing the worker role (the number stays on the sign-in account, so it is never asked again); Seekers never; Resend after 360 s, max 3 codes a day per phone; tests for the rules | One SMS per worker, ever; none for Seekers |
 | 2 | `perf/error-reports-table-storage` | Error reports and "Others" notes → Azure Table Storage; send on launch / going to background, not every 10 min; the read endpoint reads Table Storage | Every phone stops waking SQL every 10 min |
 | 3 | `perf/app-refresh-windows` | Home/Inbox refresh on open, pull and push instead of every 15 s; `ETag`/`304` on profile, inbox and me reads; longer listing freshness | Fewer requests per session |
 | 4 | `perf/chat-push-not-poll` | Silent FCM data push on new message; the open chat and Inbox refresh on it; poll fallback 60 s | Removes most chat traffic |
@@ -100,9 +100,9 @@ answers them first. When every item is done, the loop stops itself.
 
 | # | State | PR |
 |---|---|---|
-| 0 | not started | — |
-| 1 | PR open | `fix/crash-capture-offline` |
-| 1b | not started | — |
+| 0 | PR open (#2) | `chore/cost-guardrails` |
+| 1 | merged (#1), review fixes PR #3 | `fix/crash-capture-offline`, `fix/offline-review` |
+| 1b | PR open | `auth/sms-once` |
 | 2 | not started | — |
 | 3 | not started | — |
 | 4 | not started | — |

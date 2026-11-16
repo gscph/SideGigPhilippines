@@ -8,8 +8,10 @@ namespace MobileAppTheme.Components.Auth;
 /// Phone sign-in in two steps: the number (read with the app's <see cref="IPhoneNumberFormat"/>),
 /// then the SMS code. Reports the <see cref="AuthResult"/> to the parent, failures included.
 /// With <see cref="LinkToCurrentUser"/> the same two steps add the number to the signed-in account.
+/// Codes are rationed by <see cref="SmsSendLimit"/> (a new code after 6 minutes, 3 a day): the buttons count down the
+/// wait, and when today's codes are used up the person is told to try tomorrow or continue with Google.
 /// </summary>
-public partial class PhoneSignIn : ComponentBase
+public partial class PhoneSignIn : ComponentBase, IDisposable
 {
     private enum Step
     {
@@ -20,6 +22,7 @@ public partial class PhoneSignIn : ComponentBase
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
     [Inject] private IPhoneNumberFormat PhoneFormat { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private SmsSendLimit Limit { get; set; } = default!;
 
     [Parameter] public EventCallback<AuthResult> OnAuthenticated { get; set; }
 
@@ -38,6 +41,19 @@ public partial class PhoneSignIn : ComponentBase
     private string? _verificationId;
     private string? _sentTo;
     private bool _busy;
+    private Timer? _ticker;
+
+    // Zero: a code may be sent now; null: today's codes are used up; else how long to wait.
+    private TimeSpan? WaitLeft => Limit.WaitLeft();
+
+    private bool CanSend => WaitLeft == TimeSpan.Zero;
+
+    // The countdown, e.g. "5:12".
+    private string WaitText => WaitLeft is { } left ? $"{(int)left.TotalMinutes}:{left.Seconds:00}" : string.Empty;
+
+    // Re-draw once a second while a wait is counting down, so the buttons unlock on their own.
+    protected override void OnInitialized() =>
+        _ticker = new Timer(_ => { if (WaitLeft != TimeSpan.Zero) { _ = InvokeAsync(StateHasChanged); } }, null, 1000, 1000);
 
     /// <summary>Back to the number step (the page's back arrow, or "Use a different number").</summary>
     public async Task UseOtherNumberAsync()
@@ -50,9 +66,16 @@ public partial class PhoneSignIn : ComponentBase
         StateHasChanged();
     }
 
+    // "Send a new code" on the code step: the same number again, once the wait is over.
+    private Task ResendAsync()
+    {
+        _phoneNumber = _sentTo ?? _phoneNumber;
+        return SendCodeAsync();
+    }
+
     private async Task SendCodeAsync()
     {
-        if (_busy)
+        if (_busy || !CanSend)
         {
             return;
         }
@@ -66,6 +89,7 @@ public partial class PhoneSignIn : ComponentBase
         try
         {
             var verification = await Identity.SignUpWithPhoneAsync(e164);
+            Limit.Record();
             _verificationId = verification.VerificationId;
             _sentTo = e164;
             _step = Step.EnterCode;
@@ -117,4 +141,6 @@ public partial class PhoneSignIn : ComponentBase
             _busy = false;
         }
     }
+
+    public void Dispose() => _ticker?.Dispose();
 }

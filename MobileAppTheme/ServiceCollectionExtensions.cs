@@ -32,6 +32,8 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<AppVisibility>();
         services.TryAddSingleton<INetworkStatus, DeviceNetworkStatus>();
         services.TryAddSingleton(TimeProvider.System);
+        services.TryAddSingleton<ISmsSendHistory, PreferencesSmsSendHistory>();
+        services.TryAddSingleton<SmsSendLimit>();
 
         services.TryAddSingleton<IContactLauncher, DeviceContactLauncher>();
         services.TryAddSingleton<DevicePhotoPicker>();

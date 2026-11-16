@@ -106,6 +106,13 @@ public static class CommonCopy
     public static readonly LocalizedText AuthCodeLabel = new("6-digit code", "6-digit code");
     public static readonly LocalizedText AuthVerifying = new("Verifying…", "Vine-verify…");
     public static readonly LocalizedText AuthOtherNumber = new("Use a different number", "Ibang number na lang");
+    public static readonly LocalizedText AuthResend = new("Send a new code", "Magpadala ulit ng code");
+    public static readonly LocalizedText AuthResendIn = new("Send a new code in {0}", "Magpadala ulit ng code sa {0}");
+    public static readonly LocalizedText AuthWaitForCode = new("You can ask for a new code in {0}.", "Puwede ka ulit humingi ng code sa {0}.");
+    public static readonly LocalizedText AuthTooManyCodes = new(
+        "You've asked for 3 codes today. Try again tomorrow, or continue with Google.",
+        "3 code na ang nahingi mo ngayong araw. Subukan ulit bukas, o tumuloy gamit ang Google.");
+    public static readonly LocalizedText AuthUsePhone = new("Use my phone number instead", "Gamitin na lang ang phone number ko");
     public static readonly LocalizedText AuthSignInWithNumber = new("Sign in with this number", "Mag-sign in gamit ang number na 'to");
     public static readonly LocalizedText AuthSignOutFailed = new("Couldn't sign out. Check your signal and try again.", "Hindi maka-sign out. I-check ang signal at subukan ulit.");
     public static readonly LocalizedText AuthErrorNetwork = new("No connection. Check your internet and try again.", "Walang connection. I-check ang internet mo at subukan ulit.");

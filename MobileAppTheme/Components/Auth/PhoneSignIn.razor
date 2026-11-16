@@ -12,8 +12,16 @@
                           InputType="InputType.Telephone" InputMode="InputMode.tel" autocomplete="tel" />
         </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthPhoneHint)</MudText>
+        @if (WaitLeft is null)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Get(CommonCopy.AuthTooManyCodes)</MudText>
+        }
+        else if (!CanSend)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Format(CommonCopy.AuthWaitForCode, WaitText)</MudText>
+        }
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                   Disabled="@(_busy || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
+                   Disabled="@(_busy || !CanSend || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
             @if (_busy)
             {
                 <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Inherit" aria-label="@T.Get(CommonCopy.AuthSending)" />
@@ -43,6 +51,16 @@
         </MudButton>
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Wrap="Wrap.Wrap">
             <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthNoCode)</MudText>
+            @if (WaitLeft is null)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Get(CommonCopy.AuthTooManyCodes)</MudText>
+            }
+            else
+            {
+                <MudButton Variant="Variant.Text" Class="app-link-button" Disabled="@(_busy || !CanSend)" OnClick="ResendAsync">
+                    @(CanSend ? T.Get(CommonCopy.AuthResend) : T.Format(CommonCopy.AuthResendIn, WaitText))
+                </MudButton>
+            }
             <MudButton Variant="Variant.Text" Class="app-link-button" Disabled="_busy" OnClick="UseOtherNumberAsync">
                 @T.Get(CommonCopy.AuthOtherNumber)
             </MudButton>
