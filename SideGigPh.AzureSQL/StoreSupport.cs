@@ -27,8 +27,6 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<ChatStore>();
         services.AddScoped<PushDeviceStore>();
         services.AddScoped<ConfigStore>();
-        services.AddScoped<OtherJobNoteStore>();
-        services.AddScoped<ErrorReportStore>();
         services.AddScoped<SafetyStore>();
         services.AddScoped<FeedbackStore>();
         services.AddScoped<WarmupStore>();

@@ -297,7 +297,7 @@ public class AppConfigTests
         note.CategoryId.Should().Be("aircon");
         note.Side.Should().Be(UserRole.Seeker);
         note.Text.Should().StartWith("pa-check ng ").And.HaveLength(OtherJobNotes.MaxText);
-        OtherJobNotes.MaxText.Should().Be(AzureSQL.OtherJobNoteStore.MaxNote);
+        OtherJobNotes.MaxText.Should().Be(Api.Telemetry.OtherJobNoteTable.MaxNote);
     }
 
     [Theory]

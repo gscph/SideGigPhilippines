@@ -7,11 +7,13 @@ namespace SideGigPh.Maui
     {
         private readonly AppVisibility _visibility;
         private readonly ServerWarmup _warmup;
+        private readonly ErrorReporting _errorReporting;
 
         public App(AppVisibility visibility, ErrorReporting errorReporting, ServerWarmup warmup)
         {
             _visibility = visibility;
             _warmup = warmup;
+            _errorReporting = errorReporting;
             InitializeComponent();
 
             // Crashes, stuck loading screens and logged errors go into the error log, sent in the background.
@@ -22,8 +24,12 @@ namespace SideGigPh.Maui
         {
             var window = new Window(new MainPage()) { Title = "Tarbaho" };
 
-            // Background work (an open chat's poll) pauses while the app is hidden.
-            window.Stopped += (_, _) => _visibility.Set(false);
+            // Background work (an open chat's poll) pauses while the app is hidden; waiting error reports go out then.
+            window.Stopped += (_, _) =>
+            {
+                _visibility.Set(false);
+                _errorReporting.SendInBackground();
+            };
             window.Resumed += (_, _) =>
             {
                 _visibility.Set(true);

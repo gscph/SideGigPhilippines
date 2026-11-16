@@ -144,21 +144,19 @@ public class ConfigTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task OthersNote_IsKept_AndForgetsWhoWroteItWhenTheAccountIsDeleted()
+    public async Task OthersNote_IsKept_WithoutWhoWroteIt()
     {
         var phone = new TestPhone(api, "Noel");
         var notes = new OtherJobNotes(phone.Get<IOtherJobNoteRepository>(), NullLogger<OtherJobNotes>.Instance);
+        var text = $"Stainless na rehas {Guid.NewGuid():N}"[..40];
 
-        await notes.NoteAsync("welder", UserRole.Professional, "Stainless na rehas");
+        await notes.NoteAsync("welder", UserRole.Professional, text);
 
-        (await Scalar($"SELECT COUNT(*) FROM dbo.OtherJobNotes WHERE Uid = '{phone.Uid}' AND CategoryId = 'welder' AND Side = 'professional' AND Text = N'Stainless na rehas'"))
-            .Should().Be(1);
-
-        await phone.Get<IUserRepository>().DeleteAsync(phone.Uid);
-
-        (await Scalar($"SELECT COUNT(*) FROM dbo.OtherJobNotes WHERE Uid = '{phone.Uid}'")).Should().Be(0);
-        (await Scalar("SELECT COUNT(*) FROM dbo.OtherJobNotes WHERE Uid IS NULL AND Text = N'Stainless na rehas'")).Should().BeGreaterThan(0,
-            "the note stays for analytics");
+        var note = api.OtherJobNotes.All.Should().ContainSingle(n => n.GetString("Text") == text).Subject;
+        note.PartitionKey.Should().Be("welder");
+        note.GetString("Side").Should().Be("professional");
+        note.Keys.Should().NotContain(k => k.Contains("Uid", StringComparison.OrdinalIgnoreCase),
+            "a note is analytics only, so deleting the account has nothing to clear");
     }
 
     [IntegrationFact]

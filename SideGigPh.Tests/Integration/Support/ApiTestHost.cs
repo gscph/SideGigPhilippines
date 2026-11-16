@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
+using SideGigPh.Api.Telemetry;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -20,7 +21,8 @@ namespace SideGigPh.Tests.Integration.Support;
 /// SideGigPh.Api running in memory: every <c>[Function]</c> with an <c>[HttpTrigger]</c> is served at its declared
 /// route and methods (read from the attributes, so a renamed route breaks the tests just like it would break the app),
 /// with the real stores on a real SQL Server database (<see cref="TestDatabase"/>), the real token check (with
-/// <see cref="TestTokens"/>' key) and photos in <see cref="InMemoryBlobContainer"/>. One host is shared by all
+/// <see cref="TestTokens"/>' key), photos in <see cref="InMemoryBlobContainer"/> and the telemetry tables in
+/// <see cref="InMemoryTableRows"/>. One host is shared by all
 /// integration tests; each test uses its own people (uids and phone numbers), so tests don't see each other's data.
 /// </summary>
 public sealed class ApiTestHost : IAsyncLifetime
@@ -37,6 +39,12 @@ public sealed class ApiTestHost : IAsyncLifetime
 
     /// <summary>Every sign-in account the API deleted (Firebase Admin stand-in).</summary>
     public RecordingAccountDeleter Accounts { get; } = new();
+
+    /// <summary>The error reports in Table Storage.</summary>
+    public InMemoryTableRows ErrorReports { get; } = new();
+
+    /// <summary>The "Others" notes in Table Storage.</summary>
+    public InMemoryTableRows OtherJobNotes { get; } = new();
 
     public TestServer Server => _host!.GetTestServer();
 
@@ -66,6 +74,10 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddSingleton<BlobContainerClient>(Blobs);
                     services.AddSingleton(new FirebaseTokenValidator(TestTokens.ProjectId, Tokens.SigningKeys));
                     services.AddSingleton<CallerLimits>();
+                    services.AddSingleton(TimeProvider.System);
+                    services.AddSingleton(new TelemetryTables(ErrorReports, OtherJobNotes));
+                    services.AddSingleton<ErrorReportTable>();
+                    services.AddSingleton<OtherJobNoteTable>();
                     services.AddSideGigPhSql(_database.ConnectionString, new PhotoLinks($"{InMemoryBlobContainer.ContainerUri}/"));
                     services.AddSingleton<IPushSender>(Pushes);
                     services.AddSingleton<IAccountDeleter>(Accounts);

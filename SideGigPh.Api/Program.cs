@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SideGigPh.Api;
+using SideGigPh.Api.Telemetry;
 using SideGigPh.AzureSQL;
 
 var builder = FunctionsApplication.CreateBuilder(args);
@@ -29,6 +30,12 @@ var photos = new BlobServiceClient(photoStorage).GetBlobContainerClient(PhotoFun
 builder.Services.AddSingleton(photos);
 builder.Services.AddSingleton(new FirebaseTokenValidator(firebaseProjectId));
 builder.Services.AddSingleton<CallerLimits>();
+builder.Services.AddSingleton(TimeProvider.System);
+
+// Error reports and "Others" notes in Table Storage (same account as the photos), so they never wake the database.
+builder.Services.AddSingleton(TelemetryTables.In(photoStorage));
+builder.Services.AddSingleton<ErrorReportTable>();
+builder.Services.AddSingleton<OtherJobNoteTable>();
 
 // Users, listings, reviews and chats in Azure SQL. Listing photos are stored as ids and shown from the public container.
 builder.Services.AddSideGigPhSql(sqlDatabase, new PhotoLinks($"{photos.Uri.ToString().TrimEnd('/')}/"));

@@ -1,6 +1,7 @@
-using Microsoft.Data.SqlClient;
+using System.Net.Http.Json;
+using Azure.Data.Tables;
 using SideGigPh.Api;
-using SideGigPh.AzureSQL;
+using SideGigPh.Api.Telemetry;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -9,7 +10,7 @@ using SideGigPh.Tests.Integration.Support;
 namespace SideGigPh.Tests.Integration;
 
 /// <summary>
-/// Error reports from the app reach <c>ErrorReports</c> through the real API: scrubbed again on the server (an older
+/// Error reports from the app reach the <c>ErrorReports</c> table (Table Storage, never the database) through the real API: scrubbed again on the server (an older
 /// app's slip is still caught), tied to the install and never the account, bad batches refused (the app then drops
 /// them), each account limited, and nothing kept past 90 days.
 /// </summary>
@@ -36,11 +37,15 @@ public class ErrorReportTests(ApiTestHost api)
             [Report($"Couldn't save {phone.PhoneNumber} for {FirebaseUid}"), Report("Stuck", ErrorKind.Slow)]);
 
         kept.Should().BeTrue();
-        (await Scalar($"SELECT COUNT(*) FROM dbo.ErrorReports WHERE InstallId = '{installId}'")).Should().Be(2);
-        (await Scalar($"SELECT COUNT(*) FROM dbo.ErrorReports WHERE InstallId = '{installId}' AND Kind = 'slow' AND Count = 3 AND Route = '/start/pro/done' AND Platform = 'android 14' AND CodeVersion = '48466c9-dirty' AND Channel = 'beta' AND Device = N'samsung SM-A155F'"))
-            .Should().Be(1);
-        (await Scalar($"SELECT COUNT(*) FROM dbo.ErrorReports WHERE InstallId = '{installId}' AND (Message LIKE '%{FirebaseUid}%' OR Message LIKE '%{phone.PhoneNumber![1..]}%')"))
-            .Should().Be(0, "the server scrubs what an app let through");
+        var rows = Rows(installId);
+        var digits = phone.PhoneNumber![1..];
+        rows.Should().HaveCount(2);
+        rows.Should().ContainSingle(r => r.GetString("Kind") == "slow" && r.GetInt32("Count") == 3 && r.GetString("Route") == "/start/pro/done"
+            && r.GetString("Platform") == "android 14" && r.GetString("CodeVersion") == "48466c9-dirty" && r.PartitionKey == "beta"
+            && r.GetString("Device") == "samsung SM-A155F");
+        rows.Should().NotContain(r => r.GetString("Message")!.Contains(FirebaseUid) || r.GetString("Message")!.Contains(digits),
+            "the server scrubs what an app let through");
+        rows.Should().NotContain(r => r.Keys.Any(k => k.Contains("Uid", StringComparison.OrdinalIgnoreCase)), "reports are never tied to the account");
     }
 
     [IntegrationFact]
@@ -88,31 +93,43 @@ public class ErrorReportTests(ApiTestHost api)
     [IntegrationFact]
     public async Task ReportsOlderThan90Days_AreDeleted()
     {
-        var oldInstall = Guid.NewGuid().ToString();
-        await Execute($"""
-            INSERT dbo.ErrorReports (InstallId, AppVersion, CodeVersion, Channel, Platform, Kind, Source, Message, Count, FirstAt, LastAt, ReceivedAt)
-            VALUES ('{oldInstall}', '0.9', 'abc1234', 'beta', 'android 13', 'error', 's', N'old', 1, '2020-01-01', '2020-01-01',
-                    DATEADD(day, -{(int)ErrorReportStore.KeepFor.TotalDays + 1}, SYSDATETIMEOFFSET()))
-            """);
+        var old = DateTimeOffset.UtcNow - ErrorReportTable.KeepFor - TimeSpan.FromDays(1);
+        var oldKey = NewestFirst.Key(old);
+        await api.ErrorReports.AddAsync(new TableEntity(AppChannels.Beta, oldKey) { ["Message"] = "old", ["LastAt"] = old }, default);
+        var tables = new TelemetryTables(api.ErrorReports, api.OtherJobNotes);
 
-        await new TestPhone(api, "Cleaner").Get<IErrorReportRepository>().SendAsync(Guid.NewGuid().ToString(), Phone, [Report("new")]);
+        // A fresh store, as on a new server instance whose daily clean-up is due.
+        await new ErrorReportTable(tables, new LaterClock()).SaveAsync(
+            new ErrorReportBatch(Guid.NewGuid().ToString(), "1.0", "abc1234", AppChannels.Beta, "android 14", null,
+                [new ErrorReportDto(ErrorKinds.Error, "s", "new", null, null, null, 1, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow)]),
+            default);
 
-        (await Scalar($"SELECT COUNT(*) FROM dbo.ErrorReports WHERE InstallId = '{oldInstall}'")).Should().Be(0);
+        api.ErrorReports.All.Should().NotContain(r => r.RowKey == oldKey);
     }
 
-    private async Task<int> Scalar(string sql)
+    [IntegrationFact]
+    public async Task Reading_ShowsTheNewestFirst_AndFiltersByChannel()
     {
-        await using var connection = new SqlConnection(api.ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new SqlCommand(sql, connection);
-        return (int)(await command.ExecuteScalarAsync())!;
+        var installId = Guid.NewGuid().ToString();
+        var reports = new TestPhone(api, "Reader").Get<IErrorReportRepository>();
+        await reports.SendAsync(installId, Phone, [Report("read me")]);
+        var client = api.Client(api.Tokens.For($"reader-{Guid.NewGuid():N}"));
+
+        var beta = await client.GetFromJsonAsync<List<ErrorReportView>>("error-reports?take=200&channel=beta");
+        var prod = await client.GetFromJsonAsync<List<ErrorReportView>>("error-reports?take=200&channel=prod");
+
+        beta.Should().Contain(r => r.Message == "read me");
+        beta!.Select(r => r.LastAt).Should().BeInDescendingOrder();
+        prod.Should().NotContain(r => r.Message == "read me");
     }
 
-    private async Task Execute(string sql)
+    private List<TableEntity> Rows(string installId) => [.. api.ErrorReports.All.Where(r => r.GetString("InstallId") == installId)];
+
+    // Far enough ahead that this store's once-a-day clean-up is due whatever the others did.
+    private sealed class LaterClock : TimeProvider
     {
-        await using var connection = new SqlConnection(api.ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new SqlCommand(sql, connection);
-        await command.ExecuteNonQueryAsync();
+        private readonly DateTimeOffset _now = DateTimeOffset.UtcNow + TimeSpan.FromDays(2);
+
+        public override DateTimeOffset GetUtcNow() => _now;
     }
 }

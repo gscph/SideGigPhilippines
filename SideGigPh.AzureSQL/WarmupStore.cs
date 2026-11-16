@@ -16,14 +16,12 @@ public sealed class WarmupStore(SideGigPhDb db)
 
     private static long _lastWakeTicks;
     private static volatile bool _schemaOk;
-    private static volatile bool _schemaReported;
 
     /// <summary>
     /// Runs <c>SELECT 1</c>, unless this instance already did within <see cref="AwakeFor"/>. Answers the required
-    /// schema scripts the database is missing (empty when all are there or it already checked); the first time it finds
-    /// some, it also saves an error report about it, so <c>GET error-reports</c> shows it.
+    /// schema scripts the database is missing (empty when all are there or it already checked); the function reports them.
     /// </summary>
-    public async Task<IReadOnlyList<string>> WakeAsync(string serverVersion, CancellationToken cancellationToken)
+    public async Task<IReadOnlyList<string>> WakeAsync(CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow.UtcTicks;
         var last = Interlocked.Read(ref _lastWakeTicks);
@@ -39,15 +37,7 @@ public sealed class WarmupStore(SideGigPhDb db)
         }
 
         var missing = await MissingScriptsAsync(cancellationToken);
-        if (missing.Count == 0)
-        {
-            _schemaOk = true;
-        }
-        else if (!_schemaReported)
-        {
-            _schemaReported = await ReportAsync(missing, serverVersion, cancellationToken);
-        }
-
+        _schemaOk = missing.Count == 0;
         return missing;
     }
 
@@ -65,34 +55,5 @@ public sealed class WarmupStore(SideGigPhDb db)
         }
 
         return [.. SchemaScripts.Required.Except(applied, StringComparer.OrdinalIgnoreCase)];
-    }
-
-    private async Task<bool> ReportAsync(IReadOnlyList<string> missing, string serverVersion, CancellationToken cancellationToken)
-    {
-        var now = DateTimeOffset.UtcNow;
-        db.ErrorReports.Add(new ErrorReportRow
-        {
-            InstallId = Guid.Empty.ToString(),
-            AppVersion = "server",
-            CodeVersion = serverVersion.Length > 40 ? serverVersion[..40] : serverVersion,
-            Channel = "prod",
-            Platform = "server",
-            Kind = "error",
-            Source = "SideGigPh.AzureSQL.WarmupStore",
-            Message = $"The database is missing schema scripts: {string.Join(", ", missing)}. Run them (Sql/), or every call reading their tables fails.",
-            Count = 1,
-            FirstAt = now,
-            LastAt = now,
-            ReceivedAt = now,
-        });
-        try
-        {
-            await db.SaveChangesAsync(cancellationToken);
-            return true;
-        }
-        catch (DbUpdateException)
-        {
-            return false; // 010 (ErrorReports) itself is missing; the function's log still says it
-        }
     }
 }

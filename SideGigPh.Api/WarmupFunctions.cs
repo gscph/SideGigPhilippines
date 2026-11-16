@@ -2,13 +2,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using SideGigPh.Api.Telemetry;
 using SideGigPh.AzureSQL;
 
 namespace SideGigPh.Api;
 
 /// <summary>Wakes a cold Function App and a paused database before the person's first real call.</summary>
-public sealed class WarmupFunctions(FirebaseTokenValidator auth, WarmupStore warmup, ILogger<WarmupFunctions> logger)
+public sealed class WarmupFunctions(FirebaseTokenValidator auth, WarmupStore warmup, ErrorReportTable reports, ILogger<WarmupFunctions> logger)
 {
+    private static volatile bool _schemaReported;
+
     /// <summary>
     /// <c>GET warmup</c>: the app calls it when it opens and when it comes back after a while (<c>ServerWarmup</c>).
     /// Checking the token also loads Google's signing keys. Signed-in only, so nobody can keep the database awake
@@ -25,9 +28,16 @@ public sealed class WarmupFunctions(FirebaseTokenValidator auth, WarmupStore war
             return new UnauthorizedResult();
         }
 
-        if (await warmup.WakeAsync(ApiVersion.Current, cancellationToken) is { Count: > 0 } missing)
+        if (await warmup.WakeAsync(cancellationToken) is { Count: > 0 } missing)
         {
             logger.LogError("The database is missing schema scripts: {Missing}.", string.Join(", ", missing));
+            if (!_schemaReported)
+            {
+                // Once per instance, so GET error-reports shows it too.
+                _schemaReported = await reports.ReportServerAsync(typeof(WarmupStore).FullName!,
+                    $"The database is missing schema scripts: {string.Join(", ", missing)}. Run them (Sql/), or every call reading their tables fails.",
+                    cancellationToken);
+            }
         }
 
         return new NoContentResult();

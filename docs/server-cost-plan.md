@@ -103,7 +103,7 @@ answers them first. When every item is done, the loop stops itself.
 | 0 | not started | — |
 | 1 | PR open | `fix/crash-capture-offline` |
 | 1b | not started | — |
-| 2 | not started | — |
+| 2 | PR open | `perf/error-reports-table-storage` |
 | 3 | not started | — |
 | 4 | not started | — |
 | 5 | not started | — |

@@ -19,6 +19,8 @@
   <!-- SideGigPh.Tests checks the data rules in StoreText (internal) directly. -->
   <ItemGroup>
     <InternalsVisibleTo Include="SideGigPh.Tests" />
+    <!-- The API's Table Storage stores (Telemetry/) check text and ids with the same StoreText rules. -->
+    <InternalsVisibleTo Include="SideGigPh.Api" />
   </ItemGroup>
 
 </Project>

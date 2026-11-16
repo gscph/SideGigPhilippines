@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using SideGigPh.AzureSQL;
+using SideGigPh.Api.Telemetry;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
 /// <summary>The problems the app had on people's phones, sent in the background (diagnostics, no personal data).</summary>
-public sealed class ErrorReportFunctions(FirebaseTokenValidator auth, ErrorReportStore reports, CallerLimits limits)
+public sealed class ErrorReportFunctions(FirebaseTokenValidator auth, ErrorReportTable reports, CallerLimits limits)
 {
     /// <summary>The largest batch read: 20 full reports fit in well under it.</summary>
     public const int MaxBodyBytes = 256 * 1024;
@@ -45,7 +45,7 @@ public sealed class ErrorReportFunctions(FirebaseTokenValidator auth, ErrorRepor
 
     /// <summary>
     /// <c>GET error-reports?take=50&amp;channel=dev</c>: the newest reports, for reading them while building (the
-    /// <c>ErrorReports</c> table without a database login). <b>Public for now</b>, on the owner's request: the reports are
+    /// <c>ErrorReports</c> table in Table Storage, without a portal login). <b>Public for now</b>, on the owner's request: the reports are
     /// scrubbed (no tokens, numbers, emails, uids, query strings) and carry no install id, but they do show stack traces.
     /// Put it behind a key or remove it before launch (<c>ApiWiringTests.PublicRoutes</c> lists it).
     /// </summary>

@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Telemetry;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
 /// <summary>The app's config (answer lists that may be stale), and the "Others" notes people type (analytics).</summary>
-public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteStore notes, CallerLimits limits)
+public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteTable notes, CallerLimits limits)
 {
     /// <summary>
     /// <c>GET config</c>: the trades and jobs, towns, price tiers, experience, urgency and income goals. Public reference
@@ -52,7 +53,7 @@ public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore con
             return ApiResults.BadRequest();
         }
 
-        return await notes.SaveAsync(uid, note, cancellationToken)
+        return await notes.SaveAsync(note, cancellationToken)
             ? new NoContentResult()
             : ApiResults.BadRequest();
     }
