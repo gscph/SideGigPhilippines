@@ -109,9 +109,14 @@ public static class CommonCopy
     public static readonly LocalizedText AuthResend = new("Send a new code", "Magpadala ulit ng code");
     public static readonly LocalizedText AuthResendIn = new("Send a new code in {0}", "Magpadala ulit ng code sa {0}");
     public static readonly LocalizedText AuthWaitForCode = new("You can ask for a new code in {0}.", "Puwede ka ulit humingi ng code sa {0}.");
+    /// <summary>{0} = the most codes a day (<c>SmsSendLimit.PerDay</c>).</summary>
     public static readonly LocalizedText AuthTooManyCodes = new(
-        "You've asked for 3 codes today. Try again tomorrow, or continue with Google.",
-        "3 code na ang nahingi mo ngayong araw. Subukan ulit bukas, o tumuloy gamit ang Google.");
+        "You've asked for {0} codes today. Try again tomorrow, or continue with Google.",
+        "{0} code na ang nahingi mo ngayong araw. Subukan ulit bukas, o tumuloy gamit ang Google.");
+    /// <summary>The same when already signed in (adding a number), where Google is no way out. {0} = the most codes a day.</summary>
+    public static readonly LocalizedText AuthTooManyCodesTomorrow = new(
+        "You've asked for {0} codes today. Try again tomorrow.",
+        "{0} code na ang nahingi mo ngayong araw. Subukan ulit bukas.");
     public static readonly LocalizedText AuthUsePhone = new("Use my phone number instead", "Gamitin na lang ang phone number ko");
     public static readonly LocalizedText AuthSignInWithNumber = new("Sign in with this number", "Mag-sign in gamit ang number na 'to");
     public static readonly LocalizedText AuthSignOutFailed = new("Couldn't sign out. Check your signal and try again.", "Hindi maka-sign out. I-check ang signal at subukan ulit.");

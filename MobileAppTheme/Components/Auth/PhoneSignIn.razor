@@ -14,7 +14,7 @@
         <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthPhoneHint)</MudText>
         @if (WaitLeft is null)
         {
-            <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Get(CommonCopy.AuthTooManyCodes)</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@TooManyCodes</MudText>
         }
         else if (!CanSend)
         {
@@ -53,7 +53,7 @@
             <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthNoCode)</MudText>
             @if (WaitLeft is null)
             {
-                <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Get(CommonCopy.AuthTooManyCodes)</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@TooManyCodes</MudText>
             }
             else
             {

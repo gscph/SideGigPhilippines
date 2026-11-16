@@ -8,8 +8,9 @@ namespace MobileAppTheme.Components.Auth;
 /// Phone sign-in in two steps: the number (read with the app's <see cref="IPhoneNumberFormat"/>),
 /// then the SMS code. Reports the <see cref="AuthResult"/> to the parent, failures included.
 /// With <see cref="LinkToCurrentUser"/> the same two steps add the number to the signed-in account.
-/// Codes are rationed by <see cref="SmsSendLimit"/> (a new code after 6 minutes, 3 a day): the buttons count down the
-/// wait, and when today's codes are used up the person is told to try tomorrow or continue with Google.
+/// Codes are rationed by <see cref="SmsSendLimit"/> (another code to the same number after 6 minutes, 3 a day): the
+/// buttons count down the wait, and when today's codes are used up the person is told to try tomorrow (or, signing in,
+/// to continue with Google).
 /// </summary>
 public partial class PhoneSignIn : ComponentBase, IDisposable
 {
@@ -42,18 +43,38 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
     private string? _sentTo;
     private bool _busy;
     private Timer? _ticker;
+    private bool _counting;
+
+    // The number a code would go to now: the typed one on the number step, the one it went to on the code step.
+    private string? Target => _step == Step.EnterCode
+        ? _sentTo
+        : PhoneFormat.TryNormalize(_phoneNumber, out var e164) ? e164 : null;
 
     // Zero: a code may be sent now; null: today's codes are used up; else how long to wait.
-    private TimeSpan? WaitLeft => Limit.WaitLeft();
+    private TimeSpan? WaitLeft => Limit.WaitLeft(Target);
+
+    private string TooManyCodes => T.Format(
+        LinkToCurrentUser ? CommonCopy.AuthTooManyCodesTomorrow : CommonCopy.AuthTooManyCodes, SmsSendLimit.PerDay);
 
     private bool CanSend => WaitLeft == TimeSpan.Zero;
 
     // The countdown, e.g. "5:12".
     private string WaitText => WaitLeft is { } left ? $"{(int)left.TotalMinutes}:{left.Seconds:00}" : string.Empty;
 
-    // Re-draw once a second while a wait is counting down, so the buttons unlock on their own.
+    // Re-draw once a second while a wait is counting down, and once more when it ends, so the buttons unlock on their own.
     protected override void OnInitialized() =>
-        _ticker = new Timer(_ => { if (WaitLeft != TimeSpan.Zero) { _ = InvokeAsync(StateHasChanged); } }, null, 1000, 1000);
+        _ticker = new Timer(_ => _ = InvokeAsync(Tick), null, 1000, 1000);
+
+    private void Tick()
+    {
+        var counting = WaitLeft is { } left && left > TimeSpan.Zero;
+        if (counting || _counting)
+        {
+            StateHasChanged();
+        }
+
+        _counting = counting;
+    }
 
     /// <summary>Back to the number step (the page's back arrow, or "Use a different number").</summary>
     public async Task UseOtherNumberAsync()
@@ -75,7 +96,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
 
     private async Task SendCodeAsync()
     {
-        if (_busy || !CanSend)
+        if (_busy)
         {
             return;
         }
@@ -84,12 +105,16 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
             await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.InvalidPhoneNumber));
             return;
         }
+        if (Limit.WaitLeft(e164) != TimeSpan.Zero)
+        {
+            return;
+        }
 
         _busy = true;
         try
         {
             var verification = await Identity.SignUpWithPhoneAsync(e164);
-            Limit.Record();
+            Limit.Record(e164);
             _verificationId = verification.VerificationId;
             _sentTo = e164;
             _step = Step.EnterCode;

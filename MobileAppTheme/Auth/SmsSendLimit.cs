@@ -10,12 +10,18 @@ public interface ISmsSendHistory
 
 /// <summary>
 /// How often this phone may ask for an SMS sign-in code. Each SMS costs money and a person should need one in their
-/// lifetime, so: a new code only <see cref="Wait"/> after the last one, and at most <see cref="PerDay"/> in any 24 hours.
-/// Both "Send a new code" and "Use a different number" count, so neither is a way around it. The sign-in provider has
-/// its own limits too; this keeps us well inside them and stops a stuck person from spending a code a minute.
+/// lifetime, so: another code to the same number only <see cref="Wait"/> after the last one, and at most
+/// <see cref="PerDay"/> in any 24 hours, whatever the number. A typo fixed with "Use a different number" may get its code
+/// at once (it still counts toward the day). The last number is kept only while the app runs; after a restart the wait
+/// applies to any number. The sign-in provider has its own limits too; this keeps us well inside them and stops a stuck
+/// person from spending a code a minute. It lives on the phone, so a reinstall resets it: the provider's limits and App
+/// Check are what guard the bill.
 /// </summary>
 public sealed class SmsSendLimit(ISmsSendHistory history, TimeProvider clock)
 {
+    // The number the last code went to in this run of the app (E.164), null when unknown.
+    private string? _lastNumber;
+
     /// <summary>The wait between two codes.</summary>
     public static readonly TimeSpan Wait = TimeSpan.FromSeconds(360);
 
@@ -24,8 +30,11 @@ public sealed class SmsSendLimit(ISmsSendHistory history, TimeProvider clock)
 
     private static readonly TimeSpan Day = TimeSpan.FromHours(24);
 
-    /// <summary>How long until another code may be sent: zero when it may now, null when today's codes are used up.</summary>
-    public TimeSpan? WaitLeft()
+    /// <summary>
+    /// How long until another code may be sent to <paramref name="number"/> (E.164; null or not yet valid: any number):
+    /// zero when it may now, null when today's codes are used up.
+    /// </summary>
+    public TimeSpan? WaitLeft(string? number = null)
     {
         var now = clock.GetUtcNow();
         var recent = Recent(now);
@@ -34,7 +43,7 @@ public sealed class SmsSendLimit(ISmsSendHistory history, TimeProvider clock)
             return null;
         }
 
-        if (recent.Count == 0)
+        if (recent.Count == 0 || (number is not null && _lastNumber is not null && number != _lastNumber))
         {
             return TimeSpan.Zero;
         }
@@ -43,9 +52,10 @@ public sealed class SmsSendLimit(ISmsSendHistory history, TimeProvider clock)
         return left > TimeSpan.Zero ? left : TimeSpan.Zero;
     }
 
-    /// <summary>A code was just sent.</summary>
-    public void Record()
+    /// <summary>A code was just sent to <paramref name="number"/> (E.164).</summary>
+    public void Record(string number)
     {
+        _lastNumber = number;
         var now = clock.GetUtcNow();
         history.Save([.. Recent(now), now]);
     }

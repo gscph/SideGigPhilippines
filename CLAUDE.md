@@ -127,8 +127,8 @@ changing that area.**
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of
   the score; [`docs/search-ranking.md`](docs/search-ranking.md)).
 - **Onboarding** ([`docs/onboarding.md`](docs/onboarding.md)): `/` = `LaunchRouter` → language → sign in (Google
-  first, Apple on iOS, the SMS code behind "Use my phone number instead"; each SMS costs money, so a code waits
-  `SmsSendLimit.Wait` (360 s) after the last and at most 3 a day per phone) → role (a worker confirms their number
+  first, Apple on iOS, the SMS code behind "Use my phone number instead"; each SMS costs money, so another code to the
+  same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone) → role (a worker confirms their number
   right here, once in their life: the number stays on the sign-in account, so later Google sign-ins never ask again;
   Seekers are never asked for a number) →
   the interview, one URL per step, rules in `Services/OnboardingSteps` (tested). Money is the hook: prices are per job

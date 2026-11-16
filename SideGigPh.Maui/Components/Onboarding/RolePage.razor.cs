@@ -11,7 +11,9 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// <summary>
 /// The fork: are you looking for someone to do a job, or looking for work?
 /// Tile ids are the <see cref="UserRole"/> names. A worker confirms their mobile number first (the one SMS of their
-/// lifetime; customers reach them on it), then starts the interview; a customer is never asked.
+/// lifetime; customers reach them on it), then starts the interview; a customer is never asked. When this phone has
+/// used up today's SMS codes the worker goes straight to the interview instead of a dead end, and Publish asks for the
+/// number later.
 /// </summary>
 public partial class RolePage : ComponentBase
 {
@@ -20,6 +22,7 @@ public partial class RolePage : ComponentBase
     [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
+    [Inject] private SmsSendLimit SmsLimit { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private OnboardingState? _state;
@@ -64,7 +67,7 @@ public partial class RolePage : ComponentBase
         // the tap never waits on it: a cold server or weak 4G used to leave this screen frozen for up to a minute.
         _ = Account.SaveProfileAsync();
         Analytics.SetAudience(role, state.Language);
-        Nav.NavigateTo(role == UserRole.Professional
+        Nav.NavigateTo(role == UserRole.Professional && SmsLimit.WaitLeft() is not null
             ? await Gate.RedirectAsync(path, requirePhone: true, backPath: "/start/role") ?? path
             : path);
     }
