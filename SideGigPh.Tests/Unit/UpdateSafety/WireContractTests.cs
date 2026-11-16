@@ -178,6 +178,9 @@ public class WireContractTests
         PushData.Side.Should().Be("side");
         PushData.CustomersChannel.Should().Be("customers");
         PushData.RepliesChannel.Should().Be("replies");
+        PushData.PostId.Should().Be("postId");
+        PushData.RequestsChannel.Should().Be("requests");
+        PushData.OffersChannel.Should().Be("offers");
     }
 
     [Fact]

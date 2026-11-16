@@ -73,7 +73,7 @@ Interview answers you have not finished are kept **only on your phone**.
 
 | Data | Why |
 |---|---|
-| **Push notification token** and phone platform (Android / iOS) | To notify you of new messages |
+| **Push notification token** and phone platform (Android / iOS) | To notify you of new messages, new posts near a Skilled Worker, and new offers on a Customer's post |
 | **Last active time** (at most once an hour, Skilled Workers) | Search ranking ("replies fast", "active recently") |
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
 | **Usage analytics** (see §3.3) | **Not active yet** |
@@ -160,7 +160,7 @@ terms:
 |---|---|---|---|
 | **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
 | **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
-| **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message) | Their own locations |
+| **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message; for a post, its budget and first line; for an offer, the Skilled Worker's name and price) | Their own locations |
 
 Some of these providers store data **outside the Philippines**. We remain responsible for your data under the DPA
 wherever it is processed, and we choose providers that use encryption and recognised security certifications.
