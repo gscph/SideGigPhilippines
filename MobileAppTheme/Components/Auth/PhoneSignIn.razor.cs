@@ -45,6 +45,9 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
     private Timer? _ticker;
     private bool _counting;
 
+    // The last send timed out: an SMS may still arrive, but there is no code box to type it in.
+    private bool _timedOut;
+
     // The number a code would go to now: the typed one on the number step, the one it went to on the code step.
     private string? Target => _step == Step.EnterCode
         ? _sentTo
@@ -119,6 +122,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
         {
             var verification = await Identity.SignUpWithPhoneAsync(e164);
             Limit.Record(e164);
+            _timedOut = false;
             _verificationId = verification.VerificationId;
             _sentTo = e164;
             _step = Step.EnterCode;
@@ -129,6 +133,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
             // The provider never answered (no signal, or its app check stalled): say so instead of spinning. The SMS may
             // still have gone out, so it counts: an instant retry would pay for a second one.
             Limit.Record(e164);
+            _timedOut = true;
             await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Network, ex.Message));
         }
         catch (Exception ex)

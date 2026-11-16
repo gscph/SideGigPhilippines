@@ -117,6 +117,9 @@ public static class CommonCopy
     public static readonly LocalizedText AuthTooManyCodesTomorrow = new(
         "You've asked for {0} codes today. Try again tomorrow.",
         "{0} code na ang nahingi mo ngayong araw. Subukan ulit bukas.");
+    public static readonly LocalizedText AuthCodeMaybeLate = new(
+        "If a code arrives later, it won't work here. Ask for a new one when the timer ends.",
+        "Kung may dumating na code mamaya, hindi na 'yon gagana dito. Humingi ng bago pag tapos na ang timer.");
     public static readonly LocalizedText AuthLater = new("Do this later", "Mamaya na lang");
     public static readonly LocalizedText AuthUsePhone = new("Use my phone number instead", "Gamitin na lang ang phone number ko");
     public static readonly LocalizedText AuthSignInWithNumber = new("Sign in with this number", "Mag-sign in gamit ang number na 'to");

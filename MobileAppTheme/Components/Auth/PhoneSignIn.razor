@@ -19,6 +19,10 @@
         else if (!CanSend && Target is not null)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Format(CommonCopy.AuthWaitForCode, WaitText)</MudText>
+            @if (_timedOut)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthCodeMaybeLate)</MudText>
+            }
         }
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                    Disabled="@(_busy || !CanSend || string.IsNullOrWhiteSpace(_phoneNumber))" OnClick="SendCodeAsync">
