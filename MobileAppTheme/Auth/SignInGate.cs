@@ -12,7 +12,9 @@ public sealed class SignInGate(IIdentityProvider identity)
     /// <param name="requirePhone">The page needs a verified phone number (e.g. contacting people).</param>
     /// <param name="backPath">Where the add-number step's Back goes (<see cref="AuthRoutes.AddPhone"/>).</param>
     /// <param name="canSkipPhone">The add-number step offers "Do this later" (a later page asks again).</param>
-    public async Task<string?> RedirectAsync(string returnPath, bool requirePhone = false, string? backPath = null, bool canSkipPhone = false)
+    /// <param name="laterPath">Where the add-number step's "Do this later" goes when the page itself needs the number.</param>
+    public async Task<string?> RedirectAsync(
+        string returnPath, bool requirePhone = false, string? backPath = null, bool canSkipPhone = false, string? laterPath = null)
     {
         if (identity.Methods == AuthMethods.None)
         {
@@ -30,6 +32,6 @@ public sealed class SignInGate(IIdentityProvider identity)
             return AuthRoutes.Name(returnPath);
         }
 
-        return requirePhone && !user.HasVerifiedPhone ? AuthRoutes.AddPhone(returnPath, backPath, canSkipPhone) : null;
+        return requirePhone && !user.HasVerifiedPhone ? AuthRoutes.AddPhone(returnPath, backPath, canSkipPhone, laterPath) : null;
     }
 }

@@ -40,7 +40,7 @@ server or emulator running.
 ## App installs but won't start: "No assemblies found … Fast Deployment"
 The VS debug output (Logcat) shows, right after `am start`:
 ```
-F/monodroid: No assemblies found in '/data/user/0/com.sidegigph.app/files/.__override__/x86_64' or '<unavailable>'. Assuming this is part of Fast Deployment. Exiting...
+F/monodroid: No assemblies found in '/data/user/0/com.tarbaho.app/files/.__override__/x86_64' or '<unavailable>'. Assuming this is part of Fast Deployment. Exiting...
 F/monodroid: ALL entries in APK named `lib/x86_64/` MUST be STORED. ...
 F/libc    : Fatal signal 6 (SIGABRT) ...
 ```
@@ -56,7 +56,7 @@ bash .claude/skills/maui-build-troubleshooting/scripts/fix-fast-deploy.sh       
 bash .claude/skills/maui-build-troubleshooting/scripts/fix-fast-deploy.sh --check   # diagnose only
 ```
 It finds `adb.exe`, checks there is exactly one device, lists `files/.__override__/<abi>` via
-`run-as`, and uninstalls `com.sidegigph.app` only when the DLLs are missing. It never builds,
+`run-as`, and uninstalls `com.tarbaho.app` only when the DLLs are missing. It never builds,
 installs, starts the emulator, or kills the adb server. Then tell the user:
 1. In VS: **Build → Rebuild**, then debug. VS reinstalls and pushes the DLLs fresh.
 2. The uninstall wiped the app's saved data (`onboarding.json`, photos), so the app restarts at

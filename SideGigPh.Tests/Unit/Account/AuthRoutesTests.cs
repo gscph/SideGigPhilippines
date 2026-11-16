@@ -17,6 +17,14 @@ public class AuthRoutesTests
     }
 
     [Fact]
+    public void AddPhone_WithLater_LetsAPageThatNeedsTheNumberBeLeftForNow()
+    {
+        AuthRoutes.AddPhone("/professional/publish", "/start/pro/setup/3", later: "/professional")
+            .Should().Be("/verify/phone?then=%2Fprofessional%2Fpublish&back=%2Fstart%2Fpro%2Fsetup%2F3&later=%2Fprofessional");
+        AuthRoutes.AddPhone(null, later: "https://example.com").Should().Be("/verify/phone", "only a path inside the app");
+    }
+
+    [Fact]
     public void AddPhone_WithoutBack_IsUnchanged()
     {
         AuthRoutes.AddPhone("/search").Should().Be("/verify/phone?then=%2Fsearch");

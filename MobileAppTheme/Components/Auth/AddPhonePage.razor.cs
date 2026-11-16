@@ -9,7 +9,8 @@ namespace MobileAppTheme.Components.Auth;
 /// <c>/verify/phone</c>: adds a verified mobile number to an account that has none (a Google
 /// sign-in), by SMS code, keeping the same account. <see cref="SignInGate"/> sends people here
 /// from pages that need a number; afterwards they go back to <c>then</c>. With <c>skip=true</c> (an early ask that a later
-/// page repeats) "Do this later" goes on to <c>then</c> without a number, so an SMS that never arrives is no dead end.
+/// page repeats) "Do this later" goes on to <c>then</c> without a number, so an SMS that never arrives is no dead end; a
+/// page that needs the number passes <c>later</c> instead (e.g. home), so someone out of codes for today can still leave.
 /// </summary>
 public partial class AddPhonePage : ComponentBase
 {
@@ -23,6 +24,8 @@ public partial class AddPhonePage : ComponentBase
     [SupplyParameterFromQuery(Name = "back")] public string? Back { get; set; }
 
     [SupplyParameterFromQuery(Name = "skip")] public bool Skip { get; set; }
+
+    [SupplyParameterFromQuery(Name = "later")] public string? Later { get; set; }
 
     private string? _error;
     private PhoneSignIn? _phone;
@@ -84,7 +87,10 @@ public partial class AddPhonePage : ComponentBase
         }
     }
 
-    private void Later() => Nav.NavigateTo(Destination, replace: true);
+    /// <summary>Where "Do this later" goes: <c>later</c>, else <c>then</c> when skipping is allowed; null hides it.</summary>
+    private string? LaterDestination => AuthRoutes.SafeReturn(Later) ?? (Skip ? Destination : null);
+
+    private void DoLater() => Nav.NavigateTo(LaterDestination ?? Destination, replace: true);
 
     private void SentToChanged(string? number)
     {

@@ -13,9 +13,9 @@
         <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
     }
 
-    @if (Skip)
+    @if (LaterDestination is not null)
     {
-        <MudButton Variant="Variant.Text" Class="app-link-button" Disabled="_busy" OnClick="Later">@T.Get(CommonCopy.AuthLater)</MudButton>
+        <MudButton Variant="Variant.Text" Class="app-link-button" Disabled="_busy" OnClick="DoLater">@T.Get(CommonCopy.AuthLater)</MudButton>
     }
 
     @if (_phoneInUse)

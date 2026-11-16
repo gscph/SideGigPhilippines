@@ -10,7 +10,7 @@ Firebase is SideGigPh's **sign-in provider** (phone SMS code + Google), behind t
 
 1. Put the project on the **Blaze** plan (SMS sign-in needs it).
 2. **Authentication → Sign-in method:** turn on **Phone** and **Google**.
-3. **Project settings → Your apps → Android:** add the shared dev key's SHA-1 and SHA-256 (see [`docs/android-signing.md`](../docs/android-signing.md)), then download `google-services.json` into `SideGigPh.Maui/Platforms/Android/` (git-ignored). iOS: `GoogleService-Info.plist` into `Platforms/iOS/`.
+3. **Project settings → Your apps → Android** (package `com.tarbaho.app`, App ID `1:742654871295:android:dabafefa22ac5c58b26eca`): add the shared dev key's SHA-1 and SHA-256 (see [`docs/android-signing.md`](../docs/android-signing.md)), then download `google-services.json` into `SideGigPh.Maui/Platforms/Android/` (git-ignored). iOS: `GoogleService-Info.plist` into `Platforms/iOS/`.
 4. Paste `cloudshell-auth.sh` into Cloud Shell.
 5. The API needs the project id: the Function App setting `FirebaseProjectId` (`sidegigphilippines`).
 
@@ -48,7 +48,7 @@ with neither, and nothing is collected ([`docs/architecture.md`](../docs/archite
    (App activity → App interactions, not linked to identity) before testers get a build with it.
 3. Turn the flag on: `FirebaseAnalytics` = `true` in `Directory.Build.props` (every build), or only in CI with the
    repo variable `FIREBASE_ANALYTICS` = `true` (GitHub → Settings → Secrets and variables → Actions → Variables).
-4. Check it: on a phone with a debug build run `adb shell setprop debug.firebase.analytics.app com.sidegigph.app`,
+4. Check it: on a phone with a debug build run `adb shell setprop debug.firebase.analytics.app com.tarbaho.app`,
    open the app, and watch Firebase console → Analytics → **DebugView**. You should see `screen_view` with
    `screen_name` like `/seeker/search`, and the user properties `role`, `language`, `build_label`, `build_channel`.
 
@@ -56,7 +56,7 @@ with neither, and nothing is collected ([`docs/architecture.md`](../docs/archite
 
 1. Turn the flag on: `FirebaseExperiments` = `true` (same two places; CI variable `FIREBASE_EXPERIMENTS`).
 2. Firebase console → **Remote Config** → add a parameter (a short snake_case key, e.g. `publish_button`) with a
-   default value, then **A/B Testing → Create experiment → Remote Config**: target `com.sidegigph.app`, pick the
+   default value, then **A/B Testing → Create experiment → Remote Config**: target `com.tarbaho.app`, pick the
    parameter and its variants, and a goal event (e.g. `listing_published`).
 3. In the app read it where it matters: `Analytics.Variant("publish_button", fallback)` or
    `Analytics.IsEnabled("new_search", false)` (`Services/Analytics/AppAnalytics`). The fallback is what everyone

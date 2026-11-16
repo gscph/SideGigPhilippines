@@ -94,6 +94,6 @@ once more.
 Config changes are consumed at **build** time (values are baked into resources), so they never cause a
 *deploy* failure by themselves. A deploy that fails or runs old behavior is a stale **installed app**
 or build cache. The recipe (user runs it, or does the equivalent in VS):
-`adb uninstall com.sidegigph.app` (clears signature/version clashes) → **Build → Clean** →
+`adb uninstall com.tarbaho.app` (clears signature/version clashes) → **Build → Clean** →
 rebuild → deploy. A signature mismatch specifically shows as `INSTALL_FAILED_UPDATE_INCOMPATIBLE` and is
 fixed by the uninstall.

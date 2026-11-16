@@ -25,7 +25,7 @@
         <ApplicationTitle>Tarbaho</ApplicationTitle>
 
         <!-- App Identifier -->
-        <ApplicationId>com.sidegigph.app</ApplicationId>
+        <ApplicationId>com.tarbaho.app</ApplicationId>
 
         <!-- Versions: set once in ../Directory.Build.props (AppVersionNumber, AppVersionStage) plus CI's BuildNumber.
              Android shows the whole label (0.1.0-rc.12) in Settings > Apps; iOS only allows numbers there (0.1.0).
