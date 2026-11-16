@@ -287,7 +287,7 @@ public class SearchRankerTests
         var score = Score(Candidate(Dto("Pricey Pia", rate: "5000-up")));
 
         score.BudgetFit.Should().Be(0, "far over the Seeker's budget");
-        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience);
+        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience + score.Trust);
     }
 
     [Fact]

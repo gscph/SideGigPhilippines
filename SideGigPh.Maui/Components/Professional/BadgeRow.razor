@@ -1,0 +1,28 @@
+<MudLink Href="@Href" Underline="Underline.None" Color="Color.Inherit" Class="mud-width-full" role="listitem">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4" Class="py-4 border-b border-solid mud-border-lines-default">
+        <MudIcon Icon="@Icon" Color="@(State == BadgeState.Approved ? Color.Primary : Color.Dark)" aria-hidden="true" />
+        <MudStack Spacing="1" Class="flex-1 app-min-w-0">
+            <MudText Typo="Typo.body1">@Title</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Note</MudText>
+            @if (State == BadgeState.Approved)
+            {
+                <MudChip T="string" Color="Color.Success" Variant="Variant.Text" Size="Size.Small"
+                         Icon="@Icons.Material.Rounded.CheckCircle" Class="ma-0 align-self-start">@T.Get(Copy.BadgeStateApproved)</MudChip>
+            }
+            else if (State == BadgeState.Pending)
+            {
+                <MudChip T="string" Color="Color.Dark" Variant="Variant.Text" Size="Size.Small"
+                         Icon="@Icons.Material.Rounded.Schedule" Class="ma-0 align-self-start">@T.Get(Copy.BadgeStatePending)</MudChip>
+            }
+            else if (State == BadgeState.Rejected)
+            {
+                <MudChip T="string" Color="Color.Error" Variant="Variant.Text" Size="Size.Small"
+                         Icon="@Icons.Material.Rounded.ErrorOutline" Class="ma-0 align-self-start">@T.Get(Copy.BadgeStateRejected)</MudChip>
+            }
+        </MudStack>
+        @if (Href is not null)
+        {
+            <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Color="Color.Dark" aria-hidden="true" />
+        }
+    </MudStack>
+</MudLink>

@@ -17,6 +17,12 @@ public static class ProRoutes
     /// <summary>The pro's private references, opened from the Me page and the setup checklist; under <see cref="Me"/>.</summary>
     public const string References = Me + "/references";
 
+    /// <summary>The pro's badges (ID, TESDA, past projects), opened from the Me page; under <see cref="Me"/>.</summary>
+    public const string Badges = Me + "/badges";
+
+    /// <summary>Sending the proof for one kind of badge; under <see cref="Badges"/>.</summary>
+    public static string BadgeProof(BadgeKind kind) => $"{Badges}/{kind.ToString().ToLowerInvariant()}";
+
     /// <summary>The feedback board (suggest features, vote), opened from the Me page.</summary>
     public static readonly string Feedback = Components.Feedback.FeedbackRoutes.Board(Components.Feedback.FeedbackRoutes.ProSide);
 

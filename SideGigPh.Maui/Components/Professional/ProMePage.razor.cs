@@ -14,6 +14,7 @@ namespace SideGigPh.Maui.Components.Professional;
 public partial class ProMePage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
+    [Inject] private ProBadges Badges { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
@@ -27,9 +28,13 @@ public partial class ProMePage : ComponentBase
 
     private string ReferencesCountLabel => T.Format(Copy.ReferencesCount, Workspace.Draft.References.Count, ProfessionalDraft.MaxReferences);
 
+    private string BadgesCountLabel => T.Format(Copy.BadgesCount, Badges.ApprovedKinds, BadgeCatalog.Kinds);
+
     private string? JoinedLabel => Workspace.JoinedAt is { } joined
         ? T.Format(Copy.ProfileSince, joined.ToString("MMM yyyy", CultureInfo.InvariantCulture))
         : null;
+
+    protected override async Task OnInitializedAsync() => await Badges.LoadAsync();
 
     private async Task ChangePhotoAsync()
     {

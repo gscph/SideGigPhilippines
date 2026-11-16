@@ -34,7 +34,7 @@ public class WireContractTests
     public void ListingDto_FieldNamesNeverChange() =>
         FieldNames(Listing(), ApiJson.Default.ListingDto).Should().Equal(
             "id", "displayName", "mobileNumber", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId",
-            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount");
+            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount", "badges");
 
     [Fact]
     public void PublishListingRequest_FieldNamesNeverChange() =>
@@ -43,7 +43,7 @@ public class WireContractTests
                 [new ReferenceDto("Nena", "+639181111111")]),
             ApiJson.Default.PublishListingRequest).Should().Equal(
             "displayName", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId", "rateTierId", "profilePhotoId",
-            "workPhotoIds", "references");
+            "workPhotoIds", "references", "latitude", "longitude", "radiusKm");
 
     [Fact]
     public void ChatDto_FieldNamesNeverChange() =>
@@ -169,6 +169,11 @@ public class WireContractTests
         ApiErrors.Exception.Should().Be("exception");
         ApiErrors.TooManyRequests.Should().Be("too-many-requests");
         ApiErrors.Invalid("references").Should().Be("invalid-references");
+        ApiErrors.ConsentRequired.Should().Be("consent-required");
+        ApiErrors.AlreadySent.Should().Be("already-sent");
+        ApiErrors.NotAdmin.Should().Be("not-admin");
+        VerificationKinds.All.Should().Equal("id", "tesda", "developer");
+        DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 
         Wire.English.Should().Be("english");
         Wire.Taglish.Should().Be("taglish");
@@ -206,6 +211,7 @@ public class WireContractTests
 
         listing.Reviews.Should().BeNull();
         listing.ReferenceCount.Should().Be(0);
+        listing.Badges.Should().BeNull();
     }
 
     // The phone app is trimmed: a contract without a [JsonSerializable] line in ApiJson fails only on a real phone.

@@ -3,6 +3,7 @@ using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
 using SideGigPh.AzureSQL;
 
@@ -47,5 +48,20 @@ else
 }
 
 builder.Services.AddScoped<ChatNotifier>();
+
+// Worker verification: proofs go to a private container; an ID is read by Azure AI Document Intelligence when it's set
+// up (azure/cloudshell-document-intelligence.sh), else the operator checks by eye only. Operators are named in AdminUids.
+builder.Services.AddSingleton<IPrivateFiles>(new BlobPrivateFiles(new BlobServiceClient(photoStorage).GetBlobContainerClient(BlobPrivateFiles.Container)));
+builder.Services.AddSingleton(new AdminList(builder.Configuration[AdminList.Setting]));
+if (builder.Configuration[DocumentIntelligenceIdReader.EndpointSetting] is { Length: > 0 } readerEndpoint
+    && builder.Configuration[DocumentIntelligenceIdReader.KeySetting] is { Length: > 0 } readerKey)
+{
+    builder.Services.AddSingleton<IIdDocumentReader>(services => new DocumentIntelligenceIdReader(
+        new HttpClient(), readerEndpoint, readerKey, services.GetRequiredService<ILogger<DocumentIntelligenceIdReader>>()));
+}
+else
+{
+    builder.Services.AddSingleton<IIdDocumentReader, NoIdDocumentReader>();
+}
 
 builder.Build().Run();

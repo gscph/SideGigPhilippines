@@ -1,0 +1,67 @@
+@page "/professional/me/badges/{Kind}"
+@layout ProLayout
+
+<MudStack Spacing="4">
+    <MudStack Row="true">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@ProRoutes.Badges" aria-label="@T.Get(CommonCopy.Back)" />
+    </MudStack>
+
+    <MudStack Spacing="2" AlignItems="AlignItems.Start">
+        <MudIcon Icon="@BadgeIcons.Of(BadgeKind)" Color="Color.Primary" Size="Size.Large" aria-hidden="true" />
+        <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Title)</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(What)</MudText>
+    </MudStack>
+
+    @if (!Badges.CanSend(BadgeKind))
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.BadgeNothingToSend)</MudAlert>
+    }
+    else
+    {
+        @if (BadgeKind == BadgeKind.Project)
+        {
+            <MudStack Spacing="0" Class="app-field-group">
+                <MudSelect T="string" @bind-Value="_developerId" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                           Label="@T.Get(Copy.BadgeCompanyLabel)" Class="app-field">
+                    @foreach (var developer in BadgeCatalog.Developers)
+                    {
+                        <MudSelectItem T="string" Value="@developer.Id">@developer.Name</MudSelectItem>
+                    }
+                    <MudSelectItem T="string" Value="@BadgeCatalog.OtherCompany">@T.Get(Copy.BadgeCompanyOther)</MudSelectItem>
+                </MudSelect>
+                @if (_developerId == BadgeCatalog.OtherCompany)
+                {
+                    <MudTextField T="string" @bind-Value="_companyName" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                                  Label="@T.Get(Copy.BadgeCompanyName)" MaxLength="@BadgeCatalog.MaxCompanyName" Class="app-field" autocomplete="off" />
+                }
+                <MudTextField T="string" @bind-Value="_projectName" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                              Label="@T.Get(Copy.BadgeProjectName)" MaxLength="@BadgeCatalog.MaxProjectName" Class="app-field" autocomplete="off" />
+            </MudStack>
+        }
+
+        <MudPaper Outlined="true" Class="app-rounded pa-3">
+            <MudCheckBox T="bool" @bind-Value="_consent" Disabled="_busy" Color="Color.Primary"
+                         Label="@T.Get(BadgeKind == BadgeKind.Id ? Copy.BadgeConsentId : Copy.BadgeConsentDocument)" />
+        </MudPaper>
+
+        @if (_problem is not null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">
+                <MudStack Spacing="1" AlignItems="AlignItems.Start">
+                    <MudText Typo="Typo.body2">@T.Get(_problem)</MudText>
+                    @if (_result == BadgeSubmitResult.PhotoDenied)
+                    {
+                        <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="Picker.OpenAppSettings">@T.Get(Copy.PhotosOpenSettings)</MudButton>
+                    }
+                </MudStack>
+            </MudAlert>
+        }
+
+        <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Rounded.PhotoLibrary" Disabled="@(_busy || !CanSend)" OnClick="SendAsync">
+                @T.Get(Copy.BadgeChoosePhoto)
+            </MudButton>
+        </MudPaper>
+    }
+</MudStack>

@@ -22,6 +22,8 @@ The storage account is also the Function App's own storage (its deployment packa
 **Only in the Function App's settings:**
 - `PhotoStorage` (storage): `cloudshell-setup.sh` puts it there.
 - `SqlDatabase` (Azure SQL): you add it (see Azure SQL below).
+- `DocumentIntelligenceEndpoint` / `DocumentIntelligenceKey` (the AI read of a worker's ID photo, free tier): paste [`cloudshell-document-intelligence.sh`](cloudshell-document-intelligence.sh) into Cloud Shell; it also makes the private `verification` container for ID photos and proofs. Optional: without them an ID still reaches the operator, just not read by AI.
+- `AdminUids` (the operators who approve verifications): you add it, the Firebase uids of the operator accounts, comma separated (Firebase console → Authentication → Users → User UID). Empty = nobody can open `admin/…` routes.
 - `FirebaseServiceAccount` (sends new-message notifications): you add it, see [`firebase/README.md`](../firebase/README.md) → Notifications. Optional on a PC (leave it empty in `local.settings.json`: messages still send, nobody is notified).
 
 To see or change them: Azure portal → Function App `SideGigPhApi` → Settings → **Environment variables**.
@@ -78,7 +80,7 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
 
 ## Automatic deploy from GitHub
 
-`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code or its SQL scripts (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` including `Sql/`, `SideGigPh.Migrate/`, `SideGigPh.Contracts/`, or the workflow file), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Before the API deploys, the database gets the schema scripts it is missing, once you approve them with a manual run (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code or its SQL scripts (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` including `Sql/`, `SideGigPh.Migrate/`, `SideGigPh.Contracts/`, or the workflow file), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Before the API deploys, the database gets the schema scripts it is missing, on its own (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
 
 There are **two identities**, each with one job:
 - the Function App's **system-assigned identity**: the running API uses it to reach Azure SQL (`Authentication=Active Directory Managed Identity`);
@@ -95,19 +97,16 @@ Set it up once:
 - **`AADSTS700213` / "no matching federated identity record":** Azure trusts one exact *subject*, and the run presented another. Compare it with the **subject claim** line in the run's log. GitHub writes it with the owner and repo ids (`repo:maryjuano@20237081/SideGigPhilippines@1449382288:ref:refs/heads/main`), not just the names. If the run wasn't from `main`, run it from `main`. Otherwise paste that line into `GITHUB_SUBJECT` in the script and paste the script again (the ids change only if the repo is renamed, moved or recreated).
 - **403 / AuthorizationFailed on deploy:** the role is missing or still spreading (wait a few minutes). Paste the script again.
 - **Deploy uploads, then fails reading the package:** a Flex Consumption app can read its deployment container with its own identity (portal → Function App → **Deployment settings** → *Storage authentication*). That identity then needs *Storage Blob Data Contributor* on `sidegigphbfb9`; the script adds it when it sees that setting.
-- The workflow only replaces the code. App settings such as `PhotoStorage` and `SqlDatabase` stay as they are in Azure, and it never touches the database: run SQL changes yourself first.
+- The workflow only replaces the code. App settings such as `PhotoStorage` and `SqlDatabase` stay as they are in Azure, and the only thing it changes in the database is running the new schema scripts (below).
 
 ## Database migrations from GitHub
 
 `deploy-api.yml` runs `tests` → `db-check` → (`db-migrate`) → `deploy`:
 
 - **db-check** (changes nothing): a dry run of `SideGigPh.Migrate`, which lists the `NNN-schema-*.sql` scripts the live database hasn't recorded in `dbo.SchemaChanges`. Nothing pending: the API deploys.
-- **Scripts pending on a push:** the job **sql-approval** fails (red) with the list, and the API is **not** deployed, so it never runs ahead of its tables.
-- **Your approval is a manual run:** GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (branch `main`) → tick **Apply the pending SQL scripts** → Run. **db-migrate** runs exactly what `db-check` listed, in number order, stopping at the first failure (then the API doesn't deploy), and the API deploys after it.
+- **Scripts pending (a new `NNN-schema-*.sql` reached `main`):** **db-migrate** runs exactly what `db-check` listed, straight on the live database, in number order, each script in its own transaction (all of it or none), stopping at the first failure (then the API doesn't deploy). The API deploys after it, so it never runs ahead of its tables. There is no approval step: **merging the script to `main` is the approval**, so read a PR's `Sql/` changes before merging it. `db-check` first refuses an edited `001-schema.sql`, an unguarded step and any `DROP TABLE` (`migration-check.sh`).
 - **`004-config.sql`** (the trades, jobs and answer lists) runs only when you tick **Also run 004-config.sql** on a manual run. Sample data (`002`, `003`, `006`) and `001-schema.sql` never run.
 - Each job opens the SQL firewall to its own runner's IP only while it runs, and removes the rule afterwards.
-
-(A GitHub environment with required reviewers would be the other way to approve, but it isn't available on a private repo on the free plan.)
 
 One-time setup:
 

@@ -197,7 +197,8 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
         containerReady = true;
     }
 
-    private static async Task<byte[]> ReadAtMostAsync(Stream body, int limit, CancellationToken cancellationToken)
+    /// <summary>The body, up to <paramref name="limit"/> bytes: a caller can't make the server buffer more.</summary>
+    internal static async Task<byte[]> ReadAtMostAsync(Stream body, int limit, CancellationToken cancellationToken)
     {
         using var buffer = new MemoryStream();
         var chunk = new byte[81920];

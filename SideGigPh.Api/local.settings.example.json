@@ -6,6 +6,9 @@
     "PhotoStorage": "UseDevelopmentStorage=true",
     "SqlDatabase": "Server=(localdb)\\MSSQLLocalDB;Database=SideGigPh;Trusted_Connection=True;TrustServerCertificate=True",
     "FirebaseProjectId": "sidegigphilippines",
-    "FirebaseServiceAccount": ""
+    "FirebaseServiceAccount": "",
+    "DocumentIntelligenceEndpoint": "",
+    "DocumentIntelligenceKey": "",
+    "AdminUids": ""
   }
 }

@@ -1,0 +1,16 @@
+@page "/professional/me/badges"
+@layout ProLayout
+
+<MudStack Spacing="3">
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.BadgesTitle)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.BadgesWhy)</MudText>
+    </MudStack>
+
+    <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default" role="list">
+        @foreach (var row in Rows)
+        {
+            <BadgeRow Icon="@row.Icon" Title="@row.Title" Note="@row.Note" State="row.State" Href="@row.Href" />
+        }
+    </MudStack>
+</MudStack>

@@ -14,6 +14,7 @@
                                      Icon="@Icons.Material.Filled.Check" Class="ma-0">@Highlight</MudChip>
                         }
                     </MudStack>
+                    <BadgeChips Listing="Listing" />
                     <ListingFacts Listing="Listing" Reviews="Reviews" ServiceId="@ServiceId" Dense="true" />
                 </MudStack>
             </MudStack>
@@ -51,6 +52,7 @@ else
                     </MudStack>
                 }
 
+                <BadgeChips Listing="Listing" Max="6" />
                 <ServiceChips Listing="Listing" />
                 <ListingFacts Listing="Listing" Reviews="Reviews" ServiceId="@ServiceId" />
             </MudStack>

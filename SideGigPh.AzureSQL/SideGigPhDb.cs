@@ -27,6 +27,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<BlockRow> Blocks => Set<BlockRow>();
     public DbSet<FeedbackPostRow> FeedbackPosts => Set<FeedbackPostRow>();
     public DbSet<FeedbackVoteRow> FeedbackVotes => Set<FeedbackVoteRow>();
+    public DbSet<WorkerVerificationRow> WorkerVerifications => Set<WorkerVerificationRow>();
+    public DbSet<VerificationAuditRow> VerificationAudit => Set<VerificationAuditRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
@@ -70,6 +72,9 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             pro.HasIndex(p => new { p.CategoryId, p.AreaId }).HasDatabaseName("IX_Professionals_Category_Area");
             pro.HasIndex(p => p.ProfilePhotoId).IsUnique().HasFilter("[ProfilePhotoId] IS NOT NULL")
                 .HasDatabaseName(Constraints.ProfessionalProfilePhoto);
+
+            // 013-schema-geo: the geography column Location is computed from these by the database and read only in SQL.
+            pro.Property(p => p.RadiusKm).HasDefaultValue(GeoRules.DefaultRadiusKm);
 
             pro.HasMany(p => p.Services).WithOne().HasForeignKey(s => s.ProfessionalId).OnDelete(DeleteBehavior.Cascade);
             pro.HasMany(p => p.Cities).WithOne().HasForeignKey(c => c.ProfessionalId).OnDelete(DeleteBehavior.Cascade);
@@ -284,6 +289,40 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             vote.HasOne<FeedbackPostRow>().WithMany().HasForeignKey(v => v.PostId).HasConstraintName("FK_FeedbackVotes_Post").OnDelete(DeleteBehavior.Cascade);
             vote.HasIndex(v => v.VoterUid).HasDatabaseName("IX_FeedbackVotes_Voter");
         });
+
+        model.Entity<WorkerVerificationRow>(verification =>
+        {
+            verification.ToTable("WorkerVerifications");
+            verification.HasKey(v => v.Id).HasName("PK_WorkerVerifications");
+            verification.Property(v => v.Id).UseIdentityColumn();
+            verification.Property(v => v.Uid).HasMaxLength(128);
+            verification.Property(v => v.Kind).HasMaxLength(12);
+            verification.Property(v => v.BadgeId).HasMaxLength(40);
+            verification.Property(v => v.CompanyName).HasMaxLength(60).IsUnicode();
+            verification.Property(v => v.ProjectName).HasMaxLength(100).IsUnicode();
+            verification.Property(v => v.Status).HasMaxLength(10);
+            verification.Property(v => v.DocumentBlob).HasMaxLength(200);
+            verification.Property(v => v.ScanStatus).HasMaxLength(12);
+            verification.Property(v => v.ScannedType).HasMaxLength(60);
+            verification.Property(v => v.ScannedName).HasMaxLength(120).IsUnicode();
+            verification.Property(v => v.ScannedNumber).HasMaxLength(60).IsUnicode();
+            verification.Property(v => v.DecidedBy).HasMaxLength(128);
+            verification.Property(v => v.RejectReason).HasMaxLength(200).IsUnicode();
+            verification.HasIndex(v => new { v.Uid, v.Kind, v.BadgeId, v.CompanyName }).IsUnique().HasFilter("[Status] = 'pending'")
+                .HasDatabaseName(Constraints.VerificationPending);
+            verification.HasIndex(v => new { v.Uid, v.Status }).HasDatabaseName("IX_WorkerVerifications_Uid");
+            verification.HasIndex(v => new { v.Status, v.CreatedAt }).HasDatabaseName("IX_WorkerVerifications_Status");
+        });
+
+        model.Entity<VerificationAuditRow>(audit =>
+        {
+            audit.ToTable("VerificationAudit");
+            audit.HasKey(a => a.Id).HasName("PK_VerificationAudit");
+            audit.Property(a => a.Id).UseIdentityColumn();
+            audit.Property(a => a.ActorUid).HasMaxLength(128);
+            audit.Property(a => a.Action).HasMaxLength(12);
+            audit.HasIndex(a => new { a.VerificationId, a.At }).HasDatabaseName("IX_VerificationAudit_Verification");
+        });
     }
 }
 
@@ -295,4 +334,5 @@ internal static class Constraints
     public const string UserProfilePhoto = "UX_Users_ProfilePhoto";
     public const string WorkPhotoKey = "PK_ProfessionalWorkPhotos";
     public const string PushDeviceKey = "PK_PushDevices";
+    public const string VerificationPending = "UX_WorkerVerifications_Pending";
 }

@@ -7,6 +7,7 @@ namespace SideGigPh.Maui.Components.Shared;
 /// <summary>
 /// A Professional's listing card. The same card is used in Seeker results and in the
 /// Professional's own preview, so what they build is exactly what customers will see.
+/// Approved badges (<see cref="BadgeChips"/>) sit right under the name: they are part of why a worker ranks where they do.
 /// </summary>
 public partial class ProCard : ComponentBase
 {

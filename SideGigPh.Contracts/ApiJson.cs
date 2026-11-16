@@ -42,4 +42,11 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(FeedbackPageDto))]
 [JsonSerializable(typeof(NewFeedbackRequest))]
 [JsonSerializable(typeof(FeedbackVoteDto))]
+[JsonSerializable(typeof(BadgeDto))]
+[JsonSerializable(typeof(List<BadgeDto>))]
+[JsonSerializable(typeof(VerificationDto))]
+[JsonSerializable(typeof(List<VerificationDto>))]
+[JsonSerializable(typeof(AdminVerificationDto))]
+[JsonSerializable(typeof(List<AdminVerificationDto>))]
+[JsonSerializable(typeof(VerificationDecisionRequest))]
 public sealed partial class ApiJson : JsonSerializerContext;
