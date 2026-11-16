@@ -49,6 +49,9 @@ if [ -z "$SQL_GROUP" ]; then
 else
   read -r SKU FREE PAUSE <<<"$(az sql db show -g "$SQL_GROUP" -s "$SQL_SERVER" -n "$DATABASE" \
     --query "[currentServiceObjectiveName, to_string(useFreeLimit), to_string(autoPauseDelay)]" -o tsv | tr '\n' ' ')"
+  if [ -z "${SKU:-}" ]; then
+    note "Database $DATABASE not found on $SQL_SERVER: skipped."
+  else
   note "Now: $SKU, free offer: $FREE, pauses after: $PAUSE min"
   if [ "$FREE" = "true" ]; then
     note "On the free offer (100,000 vCore-seconds a month, then it pauses): left as it is."
@@ -62,6 +65,7 @@ else
       && note "Set: serverless, $SQL_MIN_VCORES–$SQL_MAX_VCORES vCore, pauses after $SQL_PAUSE_AFTER_MINUTES min idle." \
       || note "!! Couldn't change it (see the error above). Portal: SQL database > Compute + storage."
     az sql db update -g "$SQL_GROUP" -s "$SQL_SERVER" -n "$DATABASE" --backup-storage-redundancy Local -o none       && note "Backups: kept in one region."       || note "Backups: left as they are (Azure refused the change; harmless)."
+  fi
   fi
 fi
 
