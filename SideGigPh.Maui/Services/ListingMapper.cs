@@ -40,5 +40,7 @@ public static class ListingMapper
         MobileNumber = draft.MobileNumber ?? string.Empty,
         PhotoUrl = photoUrl,
         WorkPhotoUrls = workPhotoUrls ?? [],
+        BasePoint = draft.BasePoint,
+        RadiusKm = draft.RadiusKm,
     };
 }

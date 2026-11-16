@@ -87,7 +87,9 @@ internal static partial class ApiMapping
         draft.Description?.Trim() ?? string.Empty,
         draft.BudgetPesos ?? 0,
         draft.CityId ?? string.Empty,
-        [.. draft.Photos.Select(photo => photo.Id)]);
+        [.. draft.Photos.Select(photo => photo.Id)],
+        draft.Point?.Latitude,
+        draft.Point?.Longitude);
 
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,
@@ -216,7 +218,10 @@ internal static partial class ApiMapping
         listing.RateTierId,
         PhotoId(listing.PhotoUrl),
         listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
-        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList());
+        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList(),
+        listing.BasePoint?.Latitude,
+        listing.BasePoint?.Longitude,
+        listing.RadiusKm);
 
     public static Review ToModel(this ReviewDto dto) => new(
         Chat.IdFor(dto.ProfessionalId, dto.SeekerId),

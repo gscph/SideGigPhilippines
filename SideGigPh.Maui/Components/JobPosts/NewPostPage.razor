@@ -34,6 +34,9 @@
                 </MudSelect>
             </MudStack>
 
+            <LocationButton IsSet="@(_draft.Point is not null)" Disabled="_busy" Why="@T.Get(Copy.PostLocationWhy)"
+                            OnFound="@(point => _draft.Point = point)" />
+
             <MudTextField T="string" @bind-Value="_draft.Description" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                           Class="app-field" Lines="4" MaxLength="@JobBoard.MaxDescription"
                           Label="@T.Get(Copy.PostDescription)" Placeholder="@T.Get(Copy.PostDescriptionHint)" />

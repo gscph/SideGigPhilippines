@@ -37,4 +37,13 @@ public sealed class ProfessionalListing
 
     /// <summary>The badges a person at Tarbaho approved (ID, TESDA, past projects), oldest first. Search ranks by them.</summary>
     public IReadOnlyList<Badge> Badges { get; init; } = [];
+
+    /// <summary>
+    /// The worker's own base point, from their phone (only on their own listing, never sent to others; null = the
+    /// server keeps what it has, or the middle of their towns).
+    /// </summary>
+    public GeoPoint? BasePoint { get; init; }
+
+    /// <summary>How far they travel, in km (only on their own listing; null = the server keeps what it has).</summary>
+    public int? RadiusKm { get; init; }
 }

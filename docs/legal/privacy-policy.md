@@ -7,7 +7,8 @@
 ## Sa madaling salita (In short)
 
 - **Ano ang kinukuha namin:** pangalan mo, mobile number, email (kung Google ang gamit mo), mga sagot mo sa app,
-  mga photo na ina-upload mo, ang mga chat at review mo. **Hindi namin kinukuha** ang eksaktong location mo, ang
+  mga photo na ina-upload mo, ang mga chat at review mo. Ang eksaktong location mo, **kapag pinindot mo lang** ang
+  "Gamitin ang location ko" (hindi ito nakikita ng iba: bayan at ilang km lang). **Hindi namin kinukuha** ang
   contacts mo, o ang GCash/bank mo.
 - **Bakit:** para mahanap ng customer ang Skilled Worker, para makapag-usap kayo, at para iwas-scam (isang number,
   isang account).
@@ -58,6 +59,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Badge proofs** (optional): a photo of a **government ID**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
 | **Job request details**: job, town, how urgent, budget | Customers | To find matching Skilled Workers and to start a chat |
 | **Posts of what you need done** (optional): the kind of work, your description of the problem, your budget, your town and up to 3 photos | Customers who post | To show your post to Skilled Workers of that trade near you. Do not put your address, phone number or anyone's face in the description or photos |
+| **Precise location** (optional, only when you tap **Use my location**): a Skilled Worker's base point, or the place of a Customer's post. Without it we use the middle of your town | Skilled Workers, Customers who post | To match posts with Skilled Workers who travel that far. **Never shown to anyone**: others see only your town and a distance in whole kilometres. Read once, when you tap; never in the background. Deleted with your listing, your post or your account |
 | **Offers on a post** (optional): your price and a short note, and which offer the customer picked | Skilled Workers who answer a post, and the customer who picks | To show your offer to the customer who posted, and to open a chat with the worker they pick |
 | **Chat messages** and a note that you tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
 | **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing |
@@ -78,8 +80,9 @@ Interview answers you have not finished are kept **only on your phone**.
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
 | **Usage analytics** (see §3.3) | **Not active yet** |
 
-We do **not** collect your precise or approximate GPS location, your contacts, your call log, your SMS, or your
-advertising ID. You tell us your town; we never detect it.
+We read your phone's location **only when you tap Use my location** (see the table above), only while the App is
+open, never in the background; you can say no and the App still works with your town. We do **not** collect your
+contacts, your call log, your SMS, or your advertising ID.
 
 ### 3.3 Analytics (Google Analytics for Firebase) — not yet active
 

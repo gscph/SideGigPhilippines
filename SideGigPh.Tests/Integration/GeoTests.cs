@@ -6,6 +6,8 @@ using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 using SideGigPh.Tests.Integration.Support;
 
+using GeoPoint = SideGigPh.AzureSQL.GeoPoint;
+
 namespace SideGigPh.Tests.Integration;
 
 /// <summary>

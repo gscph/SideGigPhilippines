@@ -1,0 +1,41 @@
+<MudStack Spacing="2">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudIcon Icon="@(IsSet ? Icons.Material.Rounded.CheckCircle : Icons.Material.Rounded.LocationOn)"
+                 Color="@(IsSet ? Color.Success : Color.Secondary)" Size="Size.Small" aria-hidden="true" />
+        <MudText Typo="Typo.body2" Color="@(IsSet ? Color.Default : Color.Secondary)" Class="flex-1">
+            @T.Get(IsSet ? Copy.LocationSet : Copy.LocationTownCentre)
+        </MudText>
+    </MudStack>
+
+    <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Disabled="@(_busy || Disabled)"
+               StartIcon="@Icons.Material.Rounded.MyLocation" OnClick="FindAsync">
+        @if (_busy)
+        {
+            <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
+        }
+        else
+        {
+            @T.Get(Copy.UseMyLocation)
+        }
+    </MudButton>
+
+    @if (Why is not null)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@Why</MudText>
+    }
+
+    @if (Problem is { } problem)
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Text" Dense="true" role="alert">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.body2">@T.Get(problem)</MudText>
+                @if (_problem == LocationOutcome.Denied)
+                {
+                    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button" OnClick="Location.OpenAppSettings">
+                        @T.Get(Copy.LocationOpenSettings)
+                    </MudButton>
+                }
+            </MudStack>
+        </MudAlert>
+    }
+</MudStack>

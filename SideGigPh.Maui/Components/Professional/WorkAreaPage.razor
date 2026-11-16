@@ -1,0 +1,35 @@
+@page "/professional/me/area"
+@layout ProLayout
+
+<MudStack Spacing="5">
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.h5" HtmlTag="h1">@T.Get(Copy.WorkAreaTitle)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.WorkAreaWhy)</MudText>
+    </MudStack>
+
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.WorkAreaBase)</MudText>
+        <LocationButton IsSet="@(_point is not null || Workspace.Draft.BasePoint is not null)" Disabled="_busy"
+                        Why="@T.Get(Copy.WorkAreaBaseWhy)" OnFound="@(point => _point = point)" />
+    </MudStack>
+
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.WorkAreaRadius)</MudText>
+        <MudChipSet T="int" @bind-SelectedValue="_radiusKm" SelectionMode="SelectionMode.SingleSelection" CheckMark="false"
+                    Variant="Variant.Outlined" Color="Color.Dark" SelectedColor="Color.Primary" Disabled="_busy">
+            @foreach (var km in WorkArea.RadiusChoices)
+            {
+                <MudChip T="int" Value="km" Text="@T.Format(Copy.RadiusKm, km)" />
+            }
+        </MudChipSet>
+    </MudStack>
+
+    @if (_failed)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.WorkAreaFailed)</MudAlert>
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Disabled="_busy" OnClick="SaveAsync">
+        @T.Get(Copy.WorkAreaSave)
+    </MudButton>
+</MudStack>

@@ -16,6 +16,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <!-- The Skilled Worker's selfie in the setup after the interview (asked there, with the reason on screen). -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- "Use my location" (a worker's base, a post's place): only while the app is open, never in the background. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
+    <uses-feature android:name="android.hardware.location.gps" android:required="false" />
+    <uses-feature android:name="android.hardware.location.network" android:required="false" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
     <!-- Android 11+ package visibility: lets MAUI PhoneDialer / Sms find the dialer and SMS apps
          (Seeker results "Call" / "Text"). Without these both report "not supported". -->

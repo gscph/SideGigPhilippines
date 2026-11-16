@@ -45,6 +45,8 @@
     </dict>
     <key>NSCameraUsageDescription</key>
     <string>Take a photo of you for your listing, so customers see who is coming.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>When you tap Use my location: show your post to workers nearby, or show you requests near where you work. Others see only your town and how many km away.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Choose photos of you and your work to show customers on your listing.</string>
     <key>XSAppIconAssets</key>

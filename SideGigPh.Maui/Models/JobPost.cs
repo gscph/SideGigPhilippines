@@ -49,6 +49,12 @@ public sealed class JobPostDraft
 
     public string? CityId { get; set; }
 
+    /// <summary>
+    /// Where the work is, from the phone when the household taps "Use my location" (private: workers see the town and
+    /// whole kilometres). Null: the post sits at the centre of <see cref="CityId"/>.
+    /// </summary>
+    public GeoPoint? Point { get; set; }
+
     /// <summary>Photos of the problem already uploaded, in the order added.</summary>
     public List<WorkPhoto> Photos { get; } = [];
 }
