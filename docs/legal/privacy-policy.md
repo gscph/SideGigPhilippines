@@ -60,7 +60,9 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Posts of what you need done** (optional): the kind of work, your description of the problem, your budget, your town and up to 3 photos | Customers who post | To show your post to Skilled Workers of that trade near you. Do not put your address, phone number or anyone's face in the description or photos |
 | **Offers on a post** (optional): your price and a short note, and which offer the customer picked | Skilled Workers who answer a post, and the customer who picks | To show your offer to the customer who posted, and to open a chat with the worker they pick |
 | **Chat messages** and a note that you tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
-| **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing |
+| **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing. Marked "Verified job" when the Customer picked that Skilled Worker's offer on a post and both marked the work done |
+| **Ratings of Customers** (star rating, optional comment) | Skilled Workers, only after a job both of you marked done | Other Skilled Workers see the Customer's average stars on the Customer's posts (never the comment or who wrote it) |
+| **Done marks** on a picked post | Customers and Skilled Workers | To show completed jobs on the Skilled Worker's listing and to mark reviews as verified |
 | **"Others" text**: the job or trade you typed when it was not on our list | Anyone who types it | To learn which jobs and trades to add. Never shown to other users |
 | **Feature suggestions and votes**: what you write on the "Suggest a feature" board, and which suggestions you vote for | Anyone who uses the board | To learn what to build next. Other users see the suggestion and its number of votes, **never your name or who voted** |
 | **Income goal** (e.g. ₱10,000 a month) | Skilled Workers, optional | To personalise tips in the App. Private |

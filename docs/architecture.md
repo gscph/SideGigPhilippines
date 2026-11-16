@@ -203,6 +203,17 @@ says "Tarbaho" in `Copy.cs`.
   `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
   your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
   worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
+- **Verified two-way reviews** (brief item 12, `PickedJobStore`, `PickedJobFunctions`, `017-schema-job-done.sql`):
+  a picked offer is the job record. Each side marks it done (`POST picked-jobs/{postId}/done`, `JobOffers.HouseholdDoneAt`
+  / `WorkerDoneAt`), in any order; both marks make a **completed job** (`PickedJobStore.Completed`). Then the
+  household's review of that worker (still `PUT reviews`, one per pair) needs no chat and no 24 h wait and comes back
+  with `ReviewDto.VerifiedJob` (computed when read, so an older review becomes verified too); `ListingDto.CompletedJobs`
+  counts them; the worker can rate the household (`PUT household-reviews`, table `HouseholdReviews`, `403
+  no-completed-job` before), and workers see the household's stars on its posts in the feed (`JobPostDto.HouseholdReviews`).
+  Reviews after a chat without a pick still work as before, without the label. Done is each side's own word: no money
+  passes through the app. App: `JobBoard.PickedJobsAsync` / `MarkDoneAsync` / `RateHouseholdAsync`, models
+  `PickedJob`, `Review.VerifiedJob`, `ProfessionalListing.CompletedJobs`, `JobPost.HouseholdStars`. **The screens are
+  not built yet** (a job card with Mark done on both chat pages, the label, the count, the stars).
 - **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
   `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
   app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the

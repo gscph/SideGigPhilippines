@@ -72,7 +72,10 @@ changing that area.**
   when it opens and when it comes back after `IdleAfter` (5 min), so the Function App and the auto-pausing database
   wake behind the splash instead of on the first search.
 - **Chats:** only the Seeker starts a chat (id `{proId}_{seekerId}`); the server stamps times and takes the worker's
-  name from their listing; reviews only 24 h after the chat started (`ReviewRules`, both sides).
+  name from their listing; reviews only 24 h after the chat started (`ReviewRules`, both sides), or at once after a
+  **completed job**: a picked offer both sides marked done (`PickedJobStore`, `017-schema-job-done.sql`,
+  `picked-jobs/…`), which shows "Verified job" on the review, counts on the listing (`CompletedJobs`) and lets the
+  worker rate the household (`HouseholdReviews`; workers see its stars on its posts).
   **Notifications:** a customer writing to a worker rings, a worker's reply only badges the icon; permission is asked
   only with a reason, never at first launch (`ChatAlerts`).
 - **Error reports** (`Services/Diagnostics/`): logged errors (`ErrorLogLoggerProvider`), crashes and loading screens
