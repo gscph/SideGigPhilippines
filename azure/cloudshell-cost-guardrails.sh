@@ -16,7 +16,7 @@
 #      need about 0.5 GB, so 512 MB machines could crash.
 #   3. Log Analytics: a daily cap of 0.1 GB of logs, only for workspaces in SideGigPh's resource
 #      groups (other projects on the account are listed and left alone).
-#   4. Prints the two things only the portal can do: budget alerts (Azure and Firebase), and
+#   4. Prints the three things only the portals can do: budget alerts (Azure, Firebase) and
 #      Firebase App Check (see the end of the output).
 #
 # Undo: run it again with other numbers below.
@@ -99,7 +99,7 @@ else
   done <<<"$WORKSPACES"
 fi
 
-step "Two things to do in the portals (2 minutes)"
+step "Three things to do in the portals (3 minutes)"
 note "1. Azure budget: https://portal.azure.com/#view/Microsoft_Azure_CostManagement/Menu/~/budgets"
 note "   + Add > Monthly, US\$20, alerts at 25%, 50% and 100% to your email."
 note "2. Firebase budget: https://console.cloud.google.com/billing/budgets (project sidegigphilippines)"
