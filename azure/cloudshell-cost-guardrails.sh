@@ -105,7 +105,8 @@ note "   + Add > Monthly, US\$20, alerts at 25%, 50% and 100% to your email."
 note "2. Firebase budget: https://console.cloud.google.com/billing/budgets (project sidegigphilippines)"
 note "   Create budget > US\$5 a month, alerts at 50% and 100%."
 note "3. Firebase App Check: Firebase console > App Check > Android app > Play Integrity > Register,"
-note "   then Authentication > Settings > turn on App Check enforcement (after a build with App Check is out)."
+note "   then Authentication > Settings > turn on App Check enforcement only once most people use a build with App Check"
+note "   (App Check page: verified requests close to 100%). Phones on an older build cannot sign in after that."
 note "   Philippine-only SMS codes: paste firebase/cloudshell-auth.sh in Google Cloud Shell."
 
 echo
