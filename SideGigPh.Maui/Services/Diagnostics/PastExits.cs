@@ -90,6 +90,8 @@ public static class PastExits
             return null;
         }
 
+        trace = trace.Replace("\r\n", "\n", StringComparison.Ordinal); // either line ending ends a thread's block
+        start = trace.IndexOf("\"main\"", StringComparison.Ordinal);
         var end = trace.IndexOf("\n\n", start, StringComparison.Ordinal);
         return (end < 0 ? trace[start..] : trace[start..end]).Trim();
     }
