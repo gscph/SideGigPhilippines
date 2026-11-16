@@ -1,0 +1,14 @@
+@if (Shown.Count > 0)
+{
+    <MudStack Row="true" Wrap="Wrap.Wrap" Spacing="1" AlignItems="AlignItems.Center" Class="@Class" role="list">
+        @foreach (var badge in Shown)
+        {
+            <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small"
+                     Icon="@BadgeIcons.Of(badge.Kind)" Class="ma-0" role="listitem">@T.Badge(badge)</MudChip>
+        }
+        @if (More > 0)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" role="listitem">@T.Format(Copy.BadgeMore, More)</MudText>
+        }
+    </MudStack>
+}

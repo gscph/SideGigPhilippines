@@ -3,15 +3,16 @@
 
    What it adds and why (a worker sends proof, a person checks it, the badge shows on the listing):
    - dbo.WorkerVerifications: one request per proof a worker sent (POST verifications/{kind}, VerificationStore).
-       Kind         id (a government ID), tesda (a National Certificate) or developer (worked on a named developer's
-                    project: BadgeId says which, ProjectName the building when given).
+       Kind         id (a government ID), tesda (a TESDA National Certificate or training certificate) or developer
+                    (a past project with a developer or any other company: BadgeId names a well-known developer or
+                    is 'other' with the company typed in CompanyName; ProjectName is the building when given).
        Status       pending until the operator decides, then approved (the badge) or rejected.
        DocumentBlob the proof's name in the PRIVATE "verification" blob container. Cleared when the operator decides:
                     the file is deleted then and only the result is kept (Data Privacy Act: keep the least).
        Scan…        what Azure AI Document Intelligence read from an ID (name, number, expiry), to help the operator.
                     Cleared with the file. Never shown to anyone but the operator.
        ConsentAt    when the worker ticked the consent box for this upload (required).
-   - UX_WorkerVerifications_Pending: one open request per worker per badge.
+   - UX_WorkerVerifications_Pending: one open request per worker per badge (per company for a project badge).
    - IX_WorkerVerifications_Uid: a worker's own requests, and the approved badges on listings.
    - IX_WorkerVerifications_Status: the operator's queue, oldest first.
    - dbo.VerificationAudit: who did what to a request and when (submitted, scanned, viewed, approved, rejected,
@@ -43,7 +44,8 @@ BEGIN
         Id             bigint            IDENTITY(1, 1) NOT NULL CONSTRAINT PK_WorkerVerifications PRIMARY KEY,
         Uid            varchar(128)      NOT NULL,
         Kind           varchar(12)       NOT NULL CONSTRAINT CK_WorkerVerifications_Kind CHECK (Kind IN ('id', 'tesda', 'developer')),
-        BadgeId        varchar(40)       NOT NULL CONSTRAINT DF_WorkerVerifications_BadgeId DEFAULT (''),  -- developer: ayala-land, megaworld…; else ''
+        BadgeId        varchar(40)       NOT NULL CONSTRAINT DF_WorkerVerifications_BadgeId DEFAULT (''),  -- developer: ayala-land, megaworld… or other; else ''
+        CompanyName    nvarchar(60)      NOT NULL CONSTRAINT DF_WorkerVerifications_CompanyName DEFAULT (''),  -- developer + other: the company the worker typed
         ProjectName    nvarchar(100)     NULL,      -- developer: the building or condo, when given
         Status         varchar(10)       NOT NULL CONSTRAINT DF_WorkerVerifications_Status DEFAULT ('pending')
                                          CONSTRAINT CK_WorkerVerifications_Status CHECK (Status IN ('pending', 'approved', 'rejected')),
@@ -61,8 +63,8 @@ BEGIN
         RejectReason   nvarchar(200)     NULL
     );
 
-    CREATE UNIQUE INDEX UX_WorkerVerifications_Pending ON dbo.WorkerVerifications (Uid, Kind, BadgeId) WHERE Status = 'pending';
-    CREATE INDEX IX_WorkerVerifications_Uid ON dbo.WorkerVerifications (Uid, Status) INCLUDE (Kind, BadgeId, ProjectName);
+    CREATE UNIQUE INDEX UX_WorkerVerifications_Pending ON dbo.WorkerVerifications (Uid, Kind, BadgeId, CompanyName) WHERE Status = 'pending';
+    CREATE INDEX IX_WorkerVerifications_Uid ON dbo.WorkerVerifications (Uid, Status) INCLUDE (Kind, BadgeId, CompanyName, ProjectName);
     CREATE INDEX IX_WorkerVerifications_Status ON dbo.WorkerVerifications (Status, CreatedAt);
 END;
 

@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
+using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Tests.Integration.Support;
+using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Integration;
 
@@ -66,6 +68,35 @@ public class VerificationTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task FromTheApp_ASentProofIsBeingChecked_ThenTheBadgeShowsAndMovesTheWorkerUp()
+    {
+        // Carpenters only in this test. Same listing for both, and "Zaldy" sorts after "Abner": only his badge can put him first.
+        var plain = await TestPhone.WorkerReadyToPublishAsync(api, "Abner", trade: "carpentry", jobs: ["carpentry-furniture"]);
+        await plain.Pro.PublishAsync();
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Zaldy", trade: "carpentry", jobs: ["carpentry-furniture"]);
+        await worker.Pro.PublishAsync();
+        var photo = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
+
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"), consent: true, photo)).Should().Be(BadgeSubmitResult.Sent);
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"), consent: true, photo)).Should().Be(BadgeSubmitResult.AlreadySent);
+        worker.Badges.StateOf(BadgeKind.Project).Should().Be(BadgeState.Pending);
+
+        var request = worker.Badges.Of(BadgeKind.Project).Single();
+        using var decided = await Operator.PostAsJsonAsync($"admin/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
+        decided.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        await worker.Badges.LoadAsync();
+        worker.Badges.ApprovedKinds.Should().Be(1);
+
+        var answers = TestData.AirconCleaningInTaytay();
+        answers.CategoryId = "carpentry";
+        answers.ServiceId = "carpentry-furniture";
+        var results = await (await TestPhone.SeekerAsync(api, "Bina", answers)).Seeker.SearchAsync();
+
+        results.InTown.Select(h => h.Pro.Id).Should().Equal(worker.Uid, plain.Uid);
+        results.InTown[0].Pro.Badges.Should().Equal(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"));
+    }
+
+    [IntegrationFact]
     public async Task WithoutConsent_NothingIsStoredOrRead()
     {
         var uid = $"noconsent-{Guid.NewGuid():N}";
@@ -119,6 +150,16 @@ public class VerificationTests(ApiTestHost api)
         (request.BadgeId, request.ProjectName).Should().Be((DeveloperBadges.AyalaLand, "Park Terraces"));
         using var other = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Dmci}", Photo());
         other.StatusCode.Should().Be(HttpStatusCode.OK, "each developer is its own badge");
+
+        // Any other company, typed by the worker: the name is required, and each company is its own badge.
+        using var nameless = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}", Photo());
+        nameless.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        using var local = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}&companyName=JM%20Builders", Photo());
+        (await local.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!.CompanyName.Should().Be("JM Builders");
+        using var sameCompany = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}&companyName=JM%20Builders", Photo());
+        sameCompany.StatusCode.Should().Be(HttpStatusCode.Conflict);
+        using var anotherCompany = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}&companyName=Rizal%20Homes", Photo());
+        anotherCompany.StatusCode.Should().Be(HttpStatusCode.OK);
         api.IdReader.Reads.Should().Be(reads, "only a government ID is read by AI");
     }
 

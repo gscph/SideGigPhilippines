@@ -323,10 +323,10 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             : (await db.WorkerVerifications.AsNoTracking()
                 .Where(v => ids.Contains(v.Uid) && v.Status == VerificationStatuses.Approved)
                 .OrderBy(v => v.DecidedAt)
-                .Select(v => new { v.Uid, v.Kind, v.BadgeId, v.ProjectName })
+                .Select(v => new { v.Uid, v.Kind, v.BadgeId, v.ProjectName, v.CompanyName })
                 .ToListAsync(cancellationToken))
                 .GroupBy(v => v.Uid)
-                .ToDictionary(g => g.Key, g => (IReadOnlyList<BadgeDto>)[.. g.Select(v => new BadgeDto(v.Kind, v.BadgeId, v.ProjectName))]);
+                .ToDictionary(g => g.Key, g => (IReadOnlyList<BadgeDto>)[.. g.Select(v => new BadgeDto(v.Kind, v.BadgeId, v.ProjectName, v.CompanyName.Length == 0 ? null : v.CompanyName))]);
         return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id), badges.GetValueOrDefault(p.Id) ?? [])).ToList();
     }
 

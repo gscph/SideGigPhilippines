@@ -88,6 +88,62 @@ internal static partial class ApiMapping
         WorkPhotoUrls = dto.WorkPhotos.Select(photo => photo.Url).ToList(),
         Reviews = dto.Reviews is { } reviews ? new ReviewSummary(reviews.Average, reviews.Count) : null,
         ReferenceCount = dto.ReferenceCount,
+        Badges = [.. (dto.Badges ?? []).Select(ToModel).OfType<Badge>()],
+    };
+
+    /// <summary>A badge on a listing, or null for a kind this app version doesn't know yet.</summary>
+    public static Badge? ToModel(this BadgeDto dto) => KindOf(dto.Kind) is { } kind
+        ? new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName)
+        : null;
+
+    /// <summary>One of the worker's own requests, or null for a kind this app version doesn't know yet.</summary>
+    public static BadgeRequest? ToModel(this VerificationDto dto) => KindOf(dto.Kind) is { } kind
+        ? new BadgeRequest(
+            dto.Id,
+            new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName),
+            dto.Status switch
+            {
+                VerificationStatuses.Approved => BadgeState.Approved,
+                VerificationStatuses.Rejected => BadgeState.Rejected,
+                _ => BadgeState.Pending,
+            },
+            dto.RejectReason,
+            dto.CreatedAt)
+        : null;
+
+    /// <summary>
+    /// <c>verifications/{kind}?consent=true…</c> for sending a proof. <c>consent=true</c> because the port is only
+    /// called after the worker ticked the consent box (<see cref="ProBadges.SubmitAsync"/>).
+    /// </summary>
+    public static string ToSubmitPath(Badge badge)
+    {
+        var kind = badge.Kind switch
+        {
+            BadgeKind.Tesda => VerificationKinds.Tesda,
+            BadgeKind.Project => VerificationKinds.Developer,
+            _ => VerificationKinds.Id,
+        };
+        var path = $"verifications/{kind}?consent=true";
+        if (badge.Kind != BadgeKind.Project)
+        {
+            return path;
+        }
+
+        path += $"&badgeId={ApiClient.Escape(badge.DeveloperId ?? string.Empty)}";
+        if (!string.IsNullOrWhiteSpace(badge.CompanyName))
+        {
+            path += $"&companyName={ApiClient.Escape(badge.CompanyName)}";
+        }
+
+        return string.IsNullOrWhiteSpace(badge.ProjectName) ? path : path + $"&projectName={ApiClient.Escape(badge.ProjectName)}";
+    }
+
+    private static BadgeKind? KindOf(string kind) => kind switch
+    {
+        VerificationKinds.Id => BadgeKind.Id,
+        VerificationKinds.Tesda => BadgeKind.Tesda,
+        VerificationKinds.Developer => BadgeKind.Project,
+        _ => null,
     };
 
     /// <summary>

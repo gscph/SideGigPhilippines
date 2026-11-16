@@ -173,7 +173,7 @@ public class WireContractTests
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer");
-        DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci");
+        DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 
         Wire.English.Should().Be("english");
         Wire.Taglish.Should().Be("taglish");

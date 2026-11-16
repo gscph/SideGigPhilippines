@@ -298,6 +298,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             verification.Property(v => v.Uid).HasMaxLength(128);
             verification.Property(v => v.Kind).HasMaxLength(12);
             verification.Property(v => v.BadgeId).HasMaxLength(40);
+            verification.Property(v => v.CompanyName).HasMaxLength(60).IsUnicode();
             verification.Property(v => v.ProjectName).HasMaxLength(100).IsUnicode();
             verification.Property(v => v.Status).HasMaxLength(10);
             verification.Property(v => v.DocumentBlob).HasMaxLength(200);
@@ -307,7 +308,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             verification.Property(v => v.ScannedNumber).HasMaxLength(60).IsUnicode();
             verification.Property(v => v.DecidedBy).HasMaxLength(128);
             verification.Property(v => v.RejectReason).HasMaxLength(200).IsUnicode();
-            verification.HasIndex(v => new { v.Uid, v.Kind, v.BadgeId }).IsUnique().HasFilter("[Status] = 'pending'")
+            verification.HasIndex(v => new { v.Uid, v.Kind, v.BadgeId, v.CompanyName }).IsUnique().HasFilter("[Status] = 'pending'")
                 .HasDatabaseName(Constraints.VerificationPending);
             verification.HasIndex(v => new { v.Uid, v.Status }).HasDatabaseName("IX_WorkerVerifications_Uid");
             verification.HasIndex(v => new { v.Status, v.CreatedAt }).HasDatabaseName("IX_WorkerVerifications_Status");

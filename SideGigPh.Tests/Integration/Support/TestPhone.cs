@@ -46,6 +46,7 @@ public sealed class TestPhone
         services.AddSingleton<SideGigPh.Maui.Services.Analytics.AppAnalytics>();
         services.AddSingleton<FeedbackBoard>();
         services.AddSingleton<ProWorkspace>();
+        services.AddSingleton<ProBadges>();
         services.AddSingleton<SeekerWorkspace>();
         services.AddSingleton(provider => new LocalAccount(
             Store, Identity, provider.GetRequiredService<IUserRepository>(), provider.GetRequiredService<IPhotoStore>(),
@@ -71,6 +72,8 @@ public sealed class TestPhone
     public FakePush Push { get; } = new() { Allowed = true };
 
     public ProWorkspace Pro => _services.GetRequiredService<ProWorkspace>();
+
+    public ProBadges Badges => _services.GetRequiredService<ProBadges>();
 
     public SeekerWorkspace Seeker => _services.GetRequiredService<SeekerWorkspace>();
 

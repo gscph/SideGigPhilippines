@@ -118,8 +118,10 @@ changing that area.**
   **The point never leaves the server**: not in `ListingDto`, only a town or a rounded distance may be shown. Town
   lists and town-based search stay until search moves to radius.
 - **Worker verification** (`014-schema-verification.sql`, `VerificationFunctions`, `VerificationStore`, contracts in
-  `Verification.cs`): a worker sends a photo for a badge with `POST verifications/{kind}?consent=true` (`id`, `tesda`,
-  or `developer` + `badgeId` from `DeveloperBadges`); no consent, nothing stored. Proofs are sensitive personal
+  `Verification.cs`): **three badges**: a government ID, a TESDA certificate or training, and a past project with a
+  developer **or any other company**. A worker sends a photo with `POST verifications/{kind}?consent=true` (`id`,
+  `tesda`, or `developer` + `badgeId`: a well-known developer from `DeveloperBadges`, or `other` + `companyName`
+  typed by the worker; each company is its own badge); no consent, nothing stored. Proofs are sensitive personal
   information (RA 10173): they go to the **private** container `verification` (`IPrivateFiles`), never `photos`. An ID
   is read by Azure AI Document Intelligence (`IIdDocumentReader` → `DocumentIntelligenceIdReader`, prebuilt ID model,
   settings `DocumentIntelligenceEndpoint` / `DocumentIntelligenceKey`, free tier, `azure/cloudshell-document-intelligence.sh`;
@@ -128,6 +130,14 @@ changing that area.**
   (`admin/verifications…` routes, `403 not-admin` for anyone else); every look and decision goes into
   `VerificationAudit`; on the decision the file and everything read from it are deleted and only the result stays.
   An approved request is a `BadgeDto` in `ListingDto.Badges`. Nothing read from a document is ever sent to a phone or logged.
+  **Badges count in search** as a bonus on top of the 100 (`SearchRanker.TrustFeature`: ID 4, TESDA 3, past project 3;
+  a worker without badges scores as before). **In the app:** port `IVerificationRepository`
+  (`ApiVerificationRepository`), `Services/ProBadges` (the rules: nothing leaves the phone without the consent tick;
+  one request per badge), `BadgeCatalog` (developer ids = the server's, checked by a test), `BadgeText`; the pro's
+  pages `ProRoutes.Badges` (`BadgesPage`, a `BadgeRow` per badge with its state) and `ProRoutes.BadgeProof(kind)`
+  (`BadgeProofPage`: what to photograph, the company for a project, the unticked consent box, then the photo picker);
+  Seekers see `BadgeChips` (app-generic, brand-purple outlined chips) on every `ProCard` and a row per badge in the
+  profile's "What we checked". The privacy policy's §3.5 describes all of it: change them together.
 - **Feedback board** (`Components/Feedback/`, `Services/FeedbackBoard`, `FeedbackStore`, tables `FeedbackPosts` /
   `FeedbackVotes`): from the Me page, both sides suggest features and vote; the board is anonymous and sorted most
   voted first. Before posting, the app asks the server for look-alikes (`FeedbackMatch`, shared meaningful words) and

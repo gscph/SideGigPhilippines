@@ -34,4 +34,7 @@ public sealed class ProfessionalListing
     /// never the names or numbers.
     /// </summary>
     public int ReferenceCount { get; init; }
+
+    /// <summary>The badges a person at Tarbaho approved (ID, TESDA, past projects), oldest first. Search ranks by them.</summary>
+    public IReadOnlyList<Badge> Badges { get; init; } = [];
 }

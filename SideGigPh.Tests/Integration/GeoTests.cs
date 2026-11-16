@@ -69,7 +69,7 @@ public class GeoTests(ApiTestHost api)
     [IntegrationFact]
     public async Task ARepublishWithoutAPoint_KeepsTheWorkersOwnPointAndRadius()
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Keeps", trade: "roofing", jobs: ["roofing-leak"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Keeps", trade: "carpentry", jobs: ["carpentry-door-window"]);
         await worker.Pro.PublishAsync();
         (await PublishAsync(worker, InAntipolo.Latitude, InAntipolo.Longitude, 25)).StatusCode.Should().Be(HttpStatusCode.OK);
 

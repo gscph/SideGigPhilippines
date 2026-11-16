@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 14, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 16, 2026
 
 ---
 
@@ -13,6 +13,9 @@
   isang account).
 - **Sino ang nakakakita:** ang listing ng Skilled Worker (pangalan, photo, trabaho, bayan, presyo, review) ay
   **public sa lahat ng user**. Ang chat ay kayong dalawa lang. Ang mga reference ay **hindi** ipinapakita kaninuman.
+- **Kung gusto mo ng badge** (ID, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
+  photo, tao sa Tarbaho lang ang titingin, at **buburahin pagkatapos i-check**. Ang ID ay binabasa ng AI (pangalan,
+  ID number, expiry) para tulungan ang nagche-check. Hindi ito ipinapakita sa customer.
 - **Hindi namin binebenta ang data mo.** Walang ads.
 - **Pwede mong burahin lahat:** Me → Delete account. O mag-email sa jcadiao1102@gmail.com.
 
@@ -50,6 +53,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Listing details**: trade, jobs, towns you serve, years of experience, prices | Skilled Workers | Your public listing and search results |
 | **Work photos** (2–6) | Skilled Workers | Shown on your listing |
 | **References**: name and mobile number of 1–3 people who can vouch for you | Skilled Workers | Trust check. **Never shown to Customers** (they see only how many references you have). We may contact a reference to confirm, or when a Customer reports a problem. See §3.4 |
+| **Badge proofs** (optional): a photo of a **government ID**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
 | **Job request details**: job, town, how urgent, budget | Customers | To find matching Skilled Workers and to start a chat |
 | **Chat messages** and a note that you tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
 | **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing |
@@ -93,6 +97,22 @@ reference data only to verify the Skilled Worker or investigate a report, never 
 when the reference is removed or the account is deleted. A reference may ask us to delete their data at any time by
 writing to jcadiao1102@gmail.com.
 
+### 3.5 Badge proofs (government ID, certificates, proof of work)
+
+Sending a proof is **optional** and happens only with your **consent**: the screen explains what happens and you
+tick a box before your phone's photos open. Without the tick, nothing is sent.
+
+- **Government ID:** our provider's AI (Microsoft Azure AI Document Intelligence) reads the **name, ID number and
+  expiry date** from the photo, only to help the person at Tarbaho who checks it. The AI does not decide anything.
+  A person compares the ID with your profile photo and approves or declines. We do **not** take a selfie for
+  matching and do **not** use face recognition.
+- **TESDA certificate, proof of a past project:** checked by a person at Tarbaho only. No AI reads them.
+- The photo is kept in **private storage** (not at a web address), can be opened only by our authorised checkers,
+  and **every time one is opened it is logged**.
+- When the check is done (normally within 2 days), the **photo and everything read from it are deleted**. We keep
+  only the result: which badge you hold, the company and building you named, and when it was decided.
+- Customers never see the photo, your ID number or anything read from it. They see only the badge.
+
 ## 4. Why we use your data (lawful basis)
 
 Under Sections 12 and 13 of the DPA, we process your data because:
@@ -121,6 +141,8 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | **Chat messages** | The two people in the chat. Our authorised staff may read a chat **only** when one of you reports it, to answer a legal order, or to stop fraud or abuse |
 | **Reviews** | Every signed-in user; the reviewer's name is shortened |
 | **Feature suggestions** (the text and how many votes it has) | Every signed-in user, **without your name**. Who wrote it and who voted: only us |
+| **Badges** on a listing ("ID Verified", "TESDA Certified", the company and building of a past project) | **Every signed-in user**, as part of the listing |
+| **Badge proofs** (the photo of your ID, certificate or proof of work, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
 | **References**, income goal, "Others" text, error reports, email | **Only us** |
 
 ### Service providers (processors)
@@ -131,7 +153,7 @@ terms:
 | Provider | What they do | Data | Where |
 |---|---|---|---|
 | **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
-| **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
+| **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
 | **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message) | Their own locations |
 
 Some of these providers store data **outside the Philippines**. We remain responsible for your data under the DPA
@@ -150,6 +172,8 @@ or defend legal claims.
 | Account, profile, listing, photos, references, chats | You delete it or your account. A listing you unpublish leaves search right away |
 | Reviews you **wrote** | You delete your account |
 | Reviews **about** a Skilled Worker | Kept while the Skilled Worker's account exists, even if they unpublish or restart their listing, so reviews can't be wiped. Deleted when the account is deleted |
+| Badge proofs (the photo, and what was read from an ID) | **Deleted when the check is done** (normally within 2 days), or when you delete your account if that is sooner |
+| Badges (the result of a check) and the log of who opened or decided a proof | Badges: until you delete your account. The log keeps no document, only who did what and when |
 | "Others" text | Kept, but **unlinked from you** when you delete your account |
 | Feature suggestions and votes | Suggestions are kept, but **unlinked from you** when you delete your account; your votes are deleted. You can remove your own suggestion while nobody else has voted for it |
 | Error reports | 90 days |
@@ -165,6 +189,8 @@ or defend legal claims.
 - The App never connects to our database directly. Every request is checked against your sign-in token, and you
   can only read or change your own private data.
 - Uploaded photos are re-encoded and their hidden metadata (EXIF, including any GPS location) is removed.
+- Badge proofs (IDs, certificates, proof of work) are kept in private storage that has no public web address, are
+  opened only by authorised checkers with every look logged, and are deleted once checked.
 - Only authorised staff can access production data, and only when needed.
 - If a personal data breach happens that is likely to harm you, we will notify the NPC and affected users within
   **72 hours** of discovering it, as required by NPC rules.

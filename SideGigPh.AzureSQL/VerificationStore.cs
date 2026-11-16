@@ -11,7 +11,13 @@ public sealed record IdScan(string Status, string? DocumentType = null, string? 
 }
 
 /// <summary>What a worker sends for a badge, as the function read it from the request.</summary>
-public sealed record VerificationSubmission(string Kind, string? BadgeId, string? ProjectName, bool Consent);
+public sealed record VerificationSubmission(string Kind, string? BadgeId, string? ProjectName, bool Consent, string? CompanyName = null)
+{
+    /// <summary>The company typed for a project badge with "other" (trimmed), else empty.</summary>
+    public string Company => Kind == VerificationKinds.Developer && BadgeId == DeveloperBadges.Other
+        ? StoreText.Limit(CompanyName, DeveloperBadges.MaxCompanyName) ?? string.Empty
+        : string.Empty;
+}
 
 public enum SubmitOutcome
 {
@@ -50,7 +56,8 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     {
         if (!VerificationKinds.All.Contains(submission.Kind)
             || (submission.Kind == VerificationKinds.Developer) != DeveloperBadges.All.Contains(submission.BadgeId ?? string.Empty)
-            || (submission.Kind != VerificationKinds.Developer && !string.IsNullOrEmpty(submission.BadgeId)))
+            || (submission.Kind != VerificationKinds.Developer && !string.IsNullOrEmpty(submission.BadgeId))
+            || (submission.BadgeId == DeveloperBadges.Other && submission.Company.Length < DeveloperBadges.MinCompanyName))
         {
             return SubmitOutcome.Invalid;
         }
@@ -61,8 +68,10 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         }
 
         var badgeId = submission.BadgeId ?? string.Empty;
+        var company = submission.Company;
         return await db.WorkerVerifications.AnyAsync(
-            v => v.Uid == uid && v.Kind == submission.Kind && v.BadgeId == badgeId && v.Status != VerificationStatuses.Rejected, cancellationToken)
+            v => v.Uid == uid && v.Kind == submission.Kind && v.BadgeId == badgeId && v.CompanyName == company
+                && v.Status != VerificationStatuses.Rejected, cancellationToken)
             ? SubmitOutcome.AlreadySent
             : null;
     }
@@ -80,6 +89,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             Uid = uid,
             Kind = submission.Kind,
             BadgeId = submission.BadgeId ?? string.Empty,
+            CompanyName = submission.Company,
             ProjectName = submission.Kind == VerificationKinds.Developer ? StoreText.Limit(submission.ProjectName, MaxProjectName) : null,
             DocumentBlob = documentBlob,
             ScanStatus = scan.Status,
@@ -151,7 +161,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             return new AdminVerificationDto(
                 v.Id, v.Uid, listing?.DisplayName ?? person?.DisplayName, photoId is null ? null : photoLinks.For(photoId),
                 v.Kind, v.BadgeId, v.ProjectName, v.ScanStatus, v.ScannedType, v.ScannedName, v.ScannedNumber, v.ScannedExpiry,
-                v.DocumentBlob is not null, v.CreatedAt);
+                v.DocumentBlob is not null, v.CreatedAt, v.CompanyName.Length == 0 ? null : v.CompanyName);
         })];
     }
 
@@ -228,5 +238,5 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         new() { VerificationId = verificationId, ActorUid = actorUid, Action = action, At = at };
 
     private static VerificationDto ToDto(WorkerVerificationRow v) =>
-        new(v.Id, v.Kind, v.BadgeId, v.ProjectName, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason);
+        new(v.Id, v.Kind, v.BadgeId, v.ProjectName, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason, v.CompanyName.Length == 0 ? null : v.CompanyName);
 }

@@ -70,9 +70,10 @@ public sealed record RankCandidate(ListingDto Listing, WorkerSignals Signals);
 /// One worker's score, out of 100, and its parts (each already weighted), so a ranking can be explained:
 /// "ranked high on reviews and replies, low on price".
 /// </summary>
-public sealed record RankScore(double Reviews, double Responsiveness, double Activity, double BudgetFit, double Experience)
+/// <param name="Trust">Points for badges an operator approved (<see cref="SearchRanker.TrustFeature"/>), on top of the 100.</param>
+public sealed record RankScore(double Reviews, double Responsiveness, double Activity, double BudgetFit, double Experience, double Trust = 0)
 {
-    public double Total => Reviews + Responsiveness + Activity + BudgetFit + Experience;
+    public double Total => Reviews + Responsiveness + Activity + BudgetFit + Experience + Trust;
 }
 
 /// <summary>Ranked results: workers who go to the Seeker's town, then workers from other served towns.</summary>
@@ -101,6 +102,9 @@ public sealed record RankedResult(IReadOnlyList<SearchHitDto> InTown, IReadOnlyL
 /// <item>Score (0–100, within a group): reviews 30, responsiveness 20, activity and tenure 20, budget fit 20,
 /// experience 10. Every part is a 0–1 feature times a weight below. A new worker with no reviews or chats gets
 /// neutral priors, so they land mid-list instead of last and can earn their first customers.</item>
+/// <item>Badges (up to +10 on top): ID Verified 4, TESDA Certified 3, a past project with a developer or company 3.
+/// A bonus, not a share of the 100, so a worker without badges scores exactly as before and one with them moves up:
+/// proof a person checked is the one signal a new worker can earn on day one.</item>
 /// </list>
 /// </summary>
 public static class SearchRanker
@@ -114,6 +118,11 @@ public static class SearchRanker
     public const double TenureWeight = 6;
     public const double BudgetFitWeight = 20;
     public const double ExperienceWeight = 10;
+
+    // Badges: bonus points on top of the 100, one amount per kind of badge (several project badges count once).
+    public const double IdBadgeWeight = 4;
+    public const double TesdaBadgeWeight = 3;
+    public const double ProjectBadgeWeight = 3;
 
     // Reviews: stars are smoothed toward a prior (a Bayesian average) so 1 lucky 5-star can't beat 40 good reviews,
     // and the count itself earns points, on a log scale (the 5th review matters more than the 45th).
@@ -172,7 +181,17 @@ public static class SearchRanker
             Responsiveness: (ReplyRateWeight * ReplyRateFeature(signals)) + (ReplySpeedWeight * ReplySpeedFeature(signals)),
             Activity: (RecentActivityWeight * RecentFeature(signals, now)) + (TenureWeight * TenureFeature(signals, now)),
             BudgetFit: BudgetFitWeight * BudgetFeature(listing, request, scales),
-            Experience: ExperienceWeight * ExperienceFeature(listing, scales));
+            Experience: ExperienceWeight * ExperienceFeature(listing, scales),
+            Trust: TrustFeature(listing));
+    }
+
+    /// <summary>The bonus for the kinds of badge the worker holds (each kind once).</summary>
+    public static double TrustFeature(ListingDto pro)
+    {
+        var kinds = (pro.Badges ?? []).Select(b => b.Kind).ToHashSet();
+        return (kinds.Contains(VerificationKinds.Id) ? IdBadgeWeight : 0)
+            + (kinds.Contains(VerificationKinds.Tesda) ? TesdaBadgeWeight : 0)
+            + (kinds.Contains(VerificationKinds.Developer) ? ProjectBadgeWeight : 0);
     }
 
     /// <summary>Smoothed stars on 1–5, as 0–1.</summary>

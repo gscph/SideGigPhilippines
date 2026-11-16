@@ -18,8 +18,8 @@ public sealed class AdminList(string? setting)
 }
 
 /// <summary>
-/// Worker verification: a worker sends a photo of an ID, a TESDA certificate or proof of work on a developer's
-/// project, with their consent; an operator looks at it and decides; an approved one is a badge on the listing.
+/// Worker verification: a worker sends a photo of an ID, a TESDA certificate or proof of a past project with a
+/// developer or another company, with their consent; an operator looks at it and decides; an approved one is a badge on the listing.
 /// The photos are sensitive personal information: kept in a private container (<see cref="IPrivateFiles"/>), shown
 /// only to operators (each look is logged) and deleted as soon as the operator decides.
 /// </summary>
@@ -30,7 +30,7 @@ public sealed class VerificationFunctions(
     private const int MaxBytes = 10 * 1024 * 1024;
 
     /// <summary>
-    /// <c>POST verifications/{kind}?consent=true[&amp;badgeId=ayala-land][&amp;projectName=…]</c>, the body is the photo
+    /// <c>POST verifications/{kind}?consent=true[&amp;badgeId=ayala-land|other][&amp;companyName=…][&amp;projectName=…]</c>, the body is the photo
     /// (like <c>POST photos</c>). <c>kind</c> is one of <see cref="VerificationKinds"/>; <c>consent=true</c> says the
     /// worker ticked the consent box on the screen that explains the AI scan and how the photo is kept. An ID is read
     /// by AI before it's saved; nothing read comes back to the phone.
@@ -53,8 +53,10 @@ public sealed class VerificationFunctions(
 
         string? badgeId = request.Query["badgeId"];
         string? projectName = request.Query["projectName"];
+        string? companyName = request.Query["companyName"];
         var submission = new VerificationSubmission(
-            kind, string.IsNullOrEmpty(badgeId) ? null : badgeId, projectName, string.Equals(request.Query["consent"], "true", StringComparison.OrdinalIgnoreCase));
+            kind, string.IsNullOrEmpty(badgeId) ? null : badgeId, projectName,
+            string.Equals(request.Query["consent"], "true", StringComparison.OrdinalIgnoreCase), companyName);
         if (await verifications.RefusalAsync(uid, submission, cancellationToken) is { } refusal)
         {
             return Refused(refusal);

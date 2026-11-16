@@ -258,7 +258,7 @@ public sealed class BlockRow
 
 /// <summary>
 /// A proof a worker sent for a badge (<c>WorkerVerifications</c>, <c>014-schema-verification.sql</c>): a government ID,
-/// a TESDA certificate or proof of work on a named developer's project. A person decides; the file and what was read
+/// a TESDA certificate or proof of a past project with a developer or another company. A person decides; the file and what was read
 /// from it are deleted then, and only the result stays.
 /// </summary>
 public sealed class WorkerVerificationRow
@@ -267,8 +267,11 @@ public sealed class WorkerVerificationRow
     public required string Uid { get; set; }
     public required string Kind { get; set; }
 
-    /// <summary>The developer's id for a developer badge, else empty.</summary>
+    /// <summary>A project badge's developer id (<c>DeveloperBadges</c>, or "other"), else empty.</summary>
     public string BadgeId { get; set; } = string.Empty;
+
+    /// <summary>The company the worker typed for a project badge with "other", else empty.</summary>
+    public string CompanyName { get; set; } = string.Empty;
     public string? ProjectName { get; set; }
     public string Status { get; set; } = "pending";
 

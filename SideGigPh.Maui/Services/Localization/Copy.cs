@@ -283,6 +283,59 @@ public static class Copy
     public static readonly LocalizedText ReferencesFull = new("You've added {0}, the most you can.", "Naka-{0} ka na, 'yan na ang pinakamarami.");
     public static readonly LocalizedText ReferenceFailed = new("Couldn't save. Check your internet and try again.", "Hindi na-save. I-check ang internet mo at subukan ulit.");
 
+    // --- Badges (on cards and profiles; the pro's own under Me) ---------------
+    public static readonly LocalizedText BadgeId = new("ID Verified", "ID Verified");
+    public static readonly LocalizedText BadgeTesda = new("TESDA Certified", "TESDA Certified");
+    public static readonly LocalizedText BadgeProject = new("{0} project", "Project ng {0}");
+    public static readonly LocalizedText BadgeMore = new("+{0} more", "+{0} pa");
+    public static readonly LocalizedText BadgeIdNote = new("We checked a government ID against their photo.", "Na-check namin ang government ID at ang photo niya.");
+    public static readonly LocalizedText BadgeTesdaNote = new("We checked a TESDA certificate.", "Na-check namin ang TESDA certificate niya.");
+    public static readonly LocalizedText BadgeProjectNote = new("We checked proof that they worked there.", "Na-check namin ang patunay na nagtrabaho siya doon.");
+    public static readonly LocalizedText BadgeProjectAt = new("{0}. We checked proof that they worked there.", "{0}. Na-check namin ang patunay na nagtrabaho siya doon.");
+    public static readonly LocalizedText BadgesTitle = new("Badges", "Mga badge");
+    public static readonly LocalizedText BadgesWhy = new(
+        "Customers pick workers they can trust. Each badge shows on your listing and moves you up in search. It's free.",
+        "Pinipili ng customer ang mapagkakatiwalaan. Lalabas ang bawat badge sa listing mo at aangat ka sa search. Libre ito.");
+    public static readonly LocalizedText BadgesCount = new("{0} of {1}", "{0} sa {1}");
+    public static readonly LocalizedText BadgeIdTitle = new("Government ID", "Government ID");
+    public static readonly LocalizedText BadgeTesdaTitle = new("TESDA certificate or training", "TESDA certificate o training");
+    public static readonly LocalizedText BadgeProjectTitle = new("Past project with a company", "Dating project sa isang kumpanya");
+    public static readonly LocalizedText BadgeIdHint = new("Send a photo of 1 valid ID.", "Mag-send ng photo ng 1 valid ID.");
+    public static readonly LocalizedText BadgeTesdaHint = new("Send a photo of your NC or training certificate.", "Mag-send ng photo ng NC o training certificate mo.");
+    public static readonly LocalizedText BadgeProjectHint = new("Ayala Land, DMCI, or any company you worked for.", "Ayala Land, DMCI, o kahit anong kumpanyang pinagtrabahuhan mo.");
+    public static readonly LocalizedText BadgeStatePending = new("Being checked", "Chine-check pa");
+    public static readonly LocalizedText BadgeStateApproved = new("Approved", "Approved");
+    public static readonly LocalizedText BadgeStateRejected = new("Not approved", "Hindi na-approve");
+    public static readonly LocalizedText BadgePendingNote = new("We check within 2 days. You don't need to do anything.", "Iche-check namin sa loob ng 2 araw. Wala ka nang kailangang gawin.");
+    public static readonly LocalizedText BadgeRejectedNote = new("Why: {0}. You can send a clearer photo.", "Dahilan: {0}. Pwede kang mag-send ng mas malinaw na photo.");
+    public static readonly LocalizedText BadgeRejectedNoReason = new("You can send a clearer photo.", "Pwede kang mag-send ng mas malinaw na photo.");
+    public static readonly LocalizedText BadgeAddProject = new("Add another company", "Mag-add ng ibang kumpanya");
+    public static readonly LocalizedText BadgeIdWhat = new(
+        "Any valid government ID: National ID, driver's license, UMID, passport, voter's ID. The whole card, clear and not blurry.",
+        "Kahit anong valid government ID: National ID, driver's license, UMID, passport, voter's ID. Buong card, malinaw at hindi malabo.");
+    public static readonly LocalizedText BadgeTesdaWhat = new(
+        "Your TESDA National Certificate (NC I to NC IV) or a training certificate. The whole page, with your name and the certificate number.",
+        "Ang TESDA National Certificate mo (NC I hanggang NC IV) o training certificate. Buong page, kita ang pangalan mo at ang certificate number.");
+    public static readonly LocalizedText BadgeProjectWhat = new(
+        "Proof that you worked there: company or site ID, certificate of employment, payslip, or a photo of you at the site.",
+        "Patunay na nagtrabaho ka doon: company o site ID, certificate of employment, payslip, o photo mo sa site.");
+    public static readonly LocalizedText BadgeCompanyLabel = new("Which company?", "Anong kumpanya?");
+    public static readonly LocalizedText BadgeCompanyOther = new("Another company", "Ibang kumpanya");
+    public static readonly LocalizedText BadgeCompanyName = new("Company name", "Pangalan ng kumpanya");
+    public static readonly LocalizedText BadgeProjectName = new("Building or project (optional)", "Building o project (optional)");
+    public static readonly LocalizedText BadgeConsentId = new(
+        "I agree that Tarbaho reads this ID with AI (name, ID number, expiry) and that a person at Tarbaho checks it against my photo. The photo is kept private and deleted after checking.",
+        "Pumapayag akong basahin ng Tarbaho ang ID na ito gamit ang AI (pangalan, ID number, expiry) at i-check ito ng tao sa Tarbaho sa photo ko. Private ang photo at buburahin pagkatapos i-check.");
+    public static readonly LocalizedText BadgeConsentDocument = new(
+        "I agree that a person at Tarbaho checks this photo. It is kept private and deleted after checking.",
+        "Pumapayag akong i-check ng tao sa Tarbaho ang photo na ito. Private ito at buburahin pagkatapos i-check.");
+    public static readonly LocalizedText BadgeChoosePhoto = new("Choose photo and send", "Pumili ng photo at i-send");
+    public static readonly LocalizedText BadgeAlreadySent = new("You already sent this one.", "Na-send mo na ito.");
+    public static readonly LocalizedText BadgeNoCompany = new("Pick a company or type its name.", "Pumili ng kumpanya o i-type ang pangalan nito.");
+    public static readonly LocalizedText BadgePhotoDenied = new("Tarbaho can't open your photos. Allow it in Settings.", "Hindi mabuksan ng Tarbaho ang photos mo. I-allow sa Settings.");
+    public static readonly LocalizedText BadgeFailed = new("Didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText BadgeNothingToSend = new("This badge is already sent. Nothing more to do.", "Na-send na ang badge na ito. Wala ka nang kailangang gawin.");
+
     // --- Pro inbox --------------------------------------------------------
     public static readonly LocalizedText ProInboxWhy = new("Customers who messaged you about a job. Answer them here.", "Mga customer na nag-message tungkol sa trabaho. Dito mo sila sagutin.");
     public static readonly LocalizedText ProInboxEmpty = new("No messages yet. They show up here when a customer messages you.", "Wala pang message. Lalabas dito kapag may customer na nag-message sa'yo.");
