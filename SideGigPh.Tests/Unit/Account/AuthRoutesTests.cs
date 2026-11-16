@@ -20,6 +20,9 @@ public class AuthRoutesTests
     public void AddPhone_WithoutBack_IsUnchanged()
     {
         AuthRoutes.AddPhone("/search").Should().Be("/verify/phone?then=%2Fsearch");
+        AuthRoutes.AddPhone("/start/pro/1", "/start/role", canSkip: true)
+            .Should().Be("/verify/phone?then=%2Fstart%2Fpro%2F1&back=%2Fstart%2Frole&skip=true");
+        AuthRoutes.AddPhone(null, canSkip: true).Should().Be("/verify/phone", "skipping needs somewhere to go");
     }
 
     [Fact]

@@ -21,10 +21,19 @@ public static class AuthRoutes
     /// <param name="back">
     /// Where Back goes, for a page that would send them straight here again (the app's home resumes it).
     /// </param>
-    public static string AddPhone(string? then, string? back = null)
+    /// <param name="canSkip">
+    /// Show "Do this later", which goes on to <paramref name="then"/> without a number: for an early ask that a later
+    /// page asks again, so a code that never arrives is never a dead end.
+    /// </param>
+    public static string AddPhone(string? then, string? back = null, bool canSkip = false)
     {
         var path = WithReturn(PhonePath, then);
-        return SafeReturn(back) is { } safe ? $"{path}{(path.Contains('?') ? '&' : '?')}back={Uri.EscapeDataString(safe)}" : path;
+        if (SafeReturn(back) is { } safe)
+        {
+            path = $"{path}{(path.Contains('?') ? '&' : '?')}back={Uri.EscapeDataString(safe)}";
+        }
+
+        return canSkip && SafeReturn(then) is not null ? $"{path}&skip=true" : path;
     }
 
     /// <summary><paramref name="then"/> if it's a path inside the app, else null.</summary>

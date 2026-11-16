@@ -73,6 +73,7 @@ public class SmsSendLimitTests
 
         _history.Load().Should().ContainSingle();
         new SmsSendLimit(_history, _clock).WaitLeft().Should().Be(SmsSendLimit.Wait);
+        new SmsSendLimit(_history, _clock).WaitLeft("+639181234567").Should().Be(SmsSendLimit.Wait, "after a restart the last number is unknown");
     }
 
     private sealed class MemoryHistory : ISmsSendHistory

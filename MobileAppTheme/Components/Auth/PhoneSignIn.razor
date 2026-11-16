@@ -16,7 +16,7 @@
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@TooManyCodes</MudText>
         }
-        else if (!CanSend)
+        else if (!CanSend && Target is not null)
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Format(CommonCopy.AuthWaitForCode, WaitText)</MudText>
         }
