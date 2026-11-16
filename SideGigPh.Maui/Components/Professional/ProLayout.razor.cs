@@ -24,9 +24,10 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     private IDisposable? _alerts;
 
     /// <summary>Under the top bar until the listing is published: customers can't see the worker yet.</summary>
-    private static readonly RenderFragment NotLive = builder =>
+    private RenderFragment NotLive => builder =>
     {
         builder.OpenComponent<NotLiveBanner>(0);
+        builder.AddComponentParameter(1, nameof(NotLiveBanner.OnlyNumberLeft), Workspace.Draft.HasProof && !Workspace.HasVerifiedPhone);
         builder.CloseComponent();
     };
 

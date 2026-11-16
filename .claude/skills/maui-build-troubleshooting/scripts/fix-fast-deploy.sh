@@ -12,7 +12,7 @@
 # Pick a device with ANDROID_SERIAL=emulator-5554 when more than one is attached.
 set -u
 
-PACKAGE="com.sidegigph.app"
+PACKAGE="com.tarbaho.app"
 CHECK_ONLY=0
 FORCE=0
 for arg in "$@"; do

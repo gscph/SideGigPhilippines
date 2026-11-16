@@ -83,7 +83,7 @@ Without the keystore secrets, CI signs with the shared dev key, so its test APKs
 ## Checking which key signed an APK
 
 ```bash
-keytool -printcert -jarfile path\to\com.sidegigph.app-Signed.apk
+keytool -printcert -jarfile path\to\com.tarbaho.app-Signed.apk
 ```
 
 The SHA-1 must be one of the fingerprints registered in Firebase.

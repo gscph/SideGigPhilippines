@@ -20,7 +20,7 @@ public partial class ProfessionalHome : ComponentBase
     private PhotoAddResult? _photoResult;
 
     /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
-    private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Home);
+    private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Home, canSkip: true);
 
     protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 

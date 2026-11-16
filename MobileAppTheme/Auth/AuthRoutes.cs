@@ -25,16 +25,20 @@ public static class AuthRoutes
     /// Show "Do this later", which goes on to <paramref name="then"/> without a number: for an early ask that a later
     /// page asks again, so a code that never arrives is never a dead end.
     /// </param>
-    public static string AddPhone(string? then, string? back = null, bool canSkip = false)
+    /// <param name="later">
+    /// Show "Do this later", which goes here without a number: for a page that needs the number (<paramref name="then"/>
+    /// would only ask again), so someone whose code never comes, or who used up today's codes, can leave and come back.
+    /// </param>
+    public static string AddPhone(string? then, string? back = null, bool canSkip = false, string? later = null)
     {
         var path = WithReturn(PhonePath, then);
-        if (SafeReturn(back) is { } safe)
-        {
-            path = $"{path}{(path.Contains('?') ? '&' : '?')}back={Uri.EscapeDataString(safe)}";
-        }
-
-        return canSkip && SafeReturn(then) is not null ? $"{path}&skip=true" : path;
+        path = WithQuery(path, "back", back);
+        path = WithQuery(path, "later", later);
+        return canSkip && SafeReturn(then) is not null ? $"{path}{(path.Contains('?') ? '&' : '?')}skip=true" : path;
     }
+
+    private static string WithQuery(string path, string name, string? value) =>
+        SafeReturn(value) is { } safe ? $"{path}{(path.Contains('?') ? '&' : '?')}{name}={Uri.EscapeDataString(safe)}" : path;
 
     /// <summary><paramref name="then"/> if it's a path inside the app, else null.</summary>
     public static string? SafeReturn(string? then) =>

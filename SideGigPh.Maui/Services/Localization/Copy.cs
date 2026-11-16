@@ -248,6 +248,7 @@ public static class Copy
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.
     public static readonly LocalizedText NotLiveBanner = new("Not visible yet · Finish your listing", "Di ka pa nakikita · Tapusin ang listing");
+    public static readonly LocalizedText NotLiveBannerNumber = new("Not visible yet · Confirm your number to publish", "Di ka pa nakikita · I-confirm ang number para ma-publish");
     public static readonly LocalizedText SetupTitle =new("Get ready for customers", "Ihanda ang listing mo");
     public static readonly LocalizedText SetupPhoto = new("Add a photo of you", "Maglagay ng photo mo");
     public static readonly LocalizedText SetupPhotoWhy = new("Customers trust a face.", "Mas nagtitiwala ang customer kapag may mukha.");

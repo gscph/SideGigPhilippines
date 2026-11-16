@@ -59,8 +59,10 @@ public partial class PublishPage : ComponentBase
         }
 
         // The listing's number is the account's verified number (a Google sign-in adds one here first). Its Back goes
-        // to the setup's last step, since home would resume right back here.
-        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.References)) is { } step)
+        // to the setup's last step, since home would resume right back here; "Do this later" goes to Pro home, whose
+        // banner and checklist say the number is still needed to publish (no dead end when today's codes are used up).
+        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.References),
+                laterPath: ProRoutes.Home) is { } step)
         {
             Nav.NavigateTo(step, replace: true);
             return;
