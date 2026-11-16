@@ -1,6 +1,6 @@
-@if (!_online)
+@if (_showing)
 {
-    <MudAlert Severity="Severity.Warning" Dense="true" Icon="@Icons.Material.Rounded.WifiOff" Class="app-offline-banner">
+    <MudAlert Severity="Severity.Normal" Dense="true" Icon="@Icons.Material.Rounded.WifiOff" Class="app-offline-banner">
         @T.Get(CommonCopy.Offline)
     </MudAlert>
 }
