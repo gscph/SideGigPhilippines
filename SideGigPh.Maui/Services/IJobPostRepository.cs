@@ -25,4 +25,19 @@ public interface IJobPostRepository
 
     /// <summary>Reports a fake or prank post to the operator. Throws when it didn't send.</summary>
     Task ReportAsync(long postId);
+
+    /// <summary>
+    /// A worker takes the post's budget or names another price, with an optional note; sending again replaces their
+    /// earlier offer. Throws when it didn't send (status 404: the post is no longer open).
+    /// </summary>
+    Task SendOfferAsync(long postId, int pricePesos, string? note);
+
+    /// <summary>A worker takes back their offer. Throws when it didn't send (status 404: nothing waiting there).</summary>
+    Task WithdrawOfferAsync(long postId);
+
+    /// <summary>The offers on this person's own post, the picked one first, then the lowest price. Empty when it can't be read.</summary>
+    Task<IReadOnlyList<JobOffer>> GetOffersAsync(long postId);
+
+    /// <summary>The household picks an offer, which closes its post. Throws when it didn't send (status 404: no longer possible).</summary>
+    Task<JobOffer> PickOfferAsync(long postId, long offerId);
 }

@@ -9,7 +9,8 @@ namespace SideGigPh.Api;
 /// <summary>
 /// Job posts: a household posts the work it needs done and takes it down again; a worker reads the open posts of
 /// their trade within the distance they travel, most relevant first, and can report a fake one. The household's
-/// exact point never leaves the server.
+/// exact point never leaves the server. Offers (inDrive style): a worker takes the budget or names another price;
+/// the household reads the offers on its post and picks one, which closes the post.
 /// </summary>
 public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore posts, CallerLimits limits)
 {
@@ -106,6 +107,107 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
 
         return long.TryParse(id, out var postId) && await posts.ReportAsync(uid, postId, cancellationToken)
             ? new NoContentResult()
+            : new NotFoundResult();
+    }
+
+    /// <summary>
+    /// <c>POST job-posts/{id}/offers</c>: the caller, a worker, takes the budget or names another price
+    /// (<see cref="SendOfferRequest"/>); sending again replaces their earlier offer. <c>404</c> when the post isn't
+    /// open, is theirs or isn't their trade.
+    /// </summary>
+    [Function("SendJobOffer")]
+    public async Task<IActionResult> SendOffer(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "job-posts/{id}/offers")] HttpRequest request,
+        string id,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.JobOffer, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        if (!long.TryParse(id, out var postId))
+        {
+            return new NotFoundResult();
+        }
+
+        if (await ApiResults.ReadAsync<SendOfferRequest>(request, cancellationToken) is not { } offer)
+        {
+            return ApiResults.BadRequest();
+        }
+
+        return await posts.SendOfferAsync(uid, postId, offer, cancellationToken) switch
+        {
+            OfferOutcome.Sent => new NoContentResult(),
+            OfferOutcome.InvalidPrice => ApiResults.BadRequest(ApiErrors.Invalid("pricePesos")),
+            OfferOutcome.InvalidNote => ApiResults.BadRequest(ApiErrors.Invalid("note")),
+            _ => new NotFoundResult(),
+        };
+    }
+
+    /// <summary><c>DELETE job-posts/{id}/offers/mine</c>: the caller takes back their offer on a post still open.</summary>
+    [Function("WithdrawJobOffer")]
+    public async Task<IActionResult> WithdrawOffer(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "job-posts/{id}/offers/mine")] HttpRequest request,
+        string id,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.JobOffer, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        return long.TryParse(id, out var postId) && await posts.WithdrawOfferAsync(uid, postId, cancellationToken)
+            ? new NoContentResult()
+            : new NotFoundResult();
+    }
+
+    /// <summary><c>GET job-posts/{id}/offers</c>: the offers on the caller's own post, each with the worker's listing. <c>404</c> when it isn't theirs.</summary>
+    [Function("GetJobOffers")]
+    public async Task<IActionResult> Offers(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "job-posts/{id}/offers")] HttpRequest request,
+        string id,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        return long.TryParse(id, out var postId) && await posts.OffersAsync(uid, postId, cancellationToken) is { } offers
+            ? new OkObjectResult(offers)
+            : new NotFoundResult();
+    }
+
+    /// <summary>
+    /// <c>POST job-posts/{id}/offers/{offerId}/pick</c>: the caller picks an offer on their own open post, which
+    /// closes it. Answers with the picked offer; <c>404</c> when the post isn't theirs and open or the offer isn't waiting.
+    /// </summary>
+    [Function("PickJobOffer")]
+    public async Task<IActionResult> Pick(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "job-posts/{id}/offers/{offerId}/pick")] HttpRequest request,
+        string id,
+        string offerId,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        return long.TryParse(id, out var postId) && long.TryParse(offerId, out var pickedId)
+            && await posts.PickAsync(uid, postId, pickedId, cancellationToken) is { } picked
+            ? new OkObjectResult(picked)
             : new NotFoundResult();
     }
 }

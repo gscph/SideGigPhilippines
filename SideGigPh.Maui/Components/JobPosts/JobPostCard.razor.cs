@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -9,7 +10,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// One job post as a card: the service and trade, what is wrong, the budget (green, like all money), the town (for
 /// a worker also how far, in whole kilometres), its photos and how long ago it was posted. For its household
 /// (<see cref="ForWorker"/> false) it says whether workers can still see it and offers "Take down"; for a worker it
-/// marks a service they offer and has a flag to report a fake post.
+/// marks a service they offer and has a flag to report a fake post. Offers: the household gets "See N offers" on an
+/// open post and "Open chat" once they picked a worker; the worker answers under the card (<see cref="OfferBox"/>).
 /// </summary>
 public partial class JobPostCard : ComponentBase
 {
@@ -25,6 +27,25 @@ public partial class JobPostCard : ComponentBase
 
     /// <summary>A worker tapped the report flag.</summary>
     [Parameter] public EventCallback<JobPost> OnReport { get; set; }
+
+    /// <summary>For a worker: sends their offer (true when it went through). Without it the card has no offer buttons.</summary>
+    [Parameter] public Func<OfferDraft, Task<bool>>? SendOffer { get; set; }
+
+    /// <summary>A worker tapped "Take back" on their offer.</summary>
+    [Parameter] public EventCallback<JobPost> OnWithdrawOffer { get; set; }
+
+    /// <summary>The page is sending: the offer buttons wait.</summary>
+    [Parameter] public bool Busy { get; set; }
+
+    private LocalizedText Status =>
+        Post.PickedProId is not null ? Copy.PostPicked : Post.IsOpen ? Copy.PostShowing : Copy.PostTakenDown;
+
+    private string OffersLabel => Post.OfferCount switch
+    {
+        0 => T.Get(Copy.PostOffersNone),
+        1 => T.Get(Copy.PostOffersOne),
+        var n => T.Format(Copy.PostOffersMany, n),
+    };
 
     private string ServiceLabel =>
         ReferenceData.FindService(Post.ServiceId) is { } service ? T.Get(service.Label) : TradeLabel ?? Post.ServiceId;

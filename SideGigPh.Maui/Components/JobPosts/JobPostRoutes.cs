@@ -12,6 +12,9 @@ public static class JobPostRoutes
     /// <summary>The form to post what they need done; under <see cref="Mine"/>, full screen.</summary>
     public const string New = Mine + "/new";
 
+    /// <summary>The offers on one of the household's posts; under <see cref="Mine"/> so the Post tab stays lit.</summary>
+    public static string Offers(long postId) => $"{Mine}/{postId}/offers";
+
     /// <summary>What customers nearby posted for the worker's trade (the pro's Requests tab).</summary>
     public const string Feed = "/professional/requests";
 }

@@ -182,11 +182,29 @@ says "Tarbaho" in `Copy.cs`.
 - **Abuse:** posts are limited to 10 an hour per account (`Limited.JobPost`); the same post sent twice is one post;
   the flag on a card sends it to the operator's `Reports` queue (`job-post:{id}`) and takes it off that worker's
   feed; the operator hides it with `UPDATE dbo.JobPosts SET Status = 'hidden' WHERE Id = …`. Delete account removes
-  a household's posts and their photos.
+  a household's posts and their photos, and a worker's offers. Offers are limited to 60 writes an hour
+  (`Limited.JobOffer`).
 - **App (`Services/JobBoard`, singleton, port `IJobPostRepository`, adapter `ApiJobPostRepository`):** both lists
   and their actions; a failed call never throws into a page. `JobPostCard` draws a post for both sides.
-- **Not built yet:** a worker answering a post (accept the budget or offer another price) and the household picking
-  one; a notification for a new post; the phone's own location on a post.
+- **Offers (inDrive style, `016-schema-job-offers.sql`, table `JobOffers`):** under each card in the Requests feed
+  (`OfferBox`) a worker taps **"Take it for ₱budget"** (one tap) or **"Offer another price"** (their price, same
+  range as a budget, and an optional note up to 300 letters, `JobOfferRules`). Once sent the card shows "Your offer:
+  ₱…, waiting for the customer" with "Change price" and "Take back". One offer per worker per post (a new price
+  replaces the old one, `UX_JobOffers_PostPro`). The server takes offers only from a published listing of the post's
+  trade, on an open post that isn't the worker's own, and never between two people where one blocked the other
+  (`JobPostStore.OpenPostFor`). The feed carries the worker's own price (`myOfferPesos`).
+- **Picking:** the household's card says **"See N offers"** (`offerCount`), opening `OffersPage`
+  (`JobPostRoutes.Offers(id)` = `/posts/{id}/offers`, inside `SeekerLayout`). Each `OfferCard` is the worker's
+  `ProCard` as in search (photo, stars, badges; "Takes your budget" when the price is the budget), their price, how far
+  they are from the post (whole km) and their note, with "See profile" (Back returns to the offers:
+  `SeekerRoutes.Pro(id, back)`) and **"Pick"**, which asks once more. Order: the picked one first, then the lowest
+  price, then the earliest. Picking (`POST job-posts/{id}/offers/{offerId}/pick`, one transaction) marks the offer
+  `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
+  your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
+  worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
+- **Not built yet:** a notification for a new post or a new offer; a worker's list of their own offers and how they
+  ended (a worker who wasn't picked just sees the post leave their feed); hiding phone numbers until a pick; the
+  phone's own location on a post.
 
 ## Badges (worker verification)
 

@@ -9,6 +9,9 @@ namespace SideGigPh.Contracts;
 /// <param name="Mine">The caller posted it.</param>
 /// <param name="OffersService">The caller is a worker whose listing has this exact service (else: same trade only).</param>
 /// <param name="DistanceKm">For a worker: how far it is from their base point, in whole kilometres; null when unknown or for the household itself.</param>
+/// <param name="OfferCount">For the household: how many workers' offers wait on it (withdrawn ones not counted).</param>
+/// <param name="MyOfferPesos">For a worker: the price they offered on it, or null when they haven't (or took it back).</param>
+/// <param name="PickedProId">For the household: the worker whose offer they picked (the post is closed then), else null.</param>
 public sealed record JobPostDto(
     long Id,
     string CategoryId,
@@ -21,7 +24,10 @@ public sealed record JobPostDto(
     bool Mine,
     bool OffersService,
     int? DistanceKm,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    int OfferCount = 0,
+    int? MyOfferPesos = null,
+    string? PickedProId = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the
@@ -75,4 +81,53 @@ public static class JobPostRules
         description?.Trim() is { Length: >= MinDescription and <= MaxDescription };
 
     public static bool IsBudget(int? pesos) => pesos is >= MinBudgetPesos and <= MaxBudgetPesos;
+}
+
+/// <summary>
+/// One worker's offer on a household's post, as the household sees it (<c>GET job-posts/{id}/offers</c>): the
+/// worker's published listing (photo, stars, badges), their price and note, and how far they are from the post in
+/// whole kilometres.
+/// </summary>
+/// <param name="Status">One of <see cref="JobOfferStatuses"/>.</param>
+/// <param name="TakesBudget">The price is the household's own budget.</param>
+public sealed record JobOfferDto(
+    long Id,
+    long PostId,
+    ListingDto Pro,
+    int PricePesos,
+    string? Note,
+    string Status,
+    bool TakesBudget,
+    int? DistanceKm,
+    DateTimeOffset CreatedAt);
+
+/// <summary>
+/// <c>POST job-posts/{id}/offers</c>: a worker takes the post's budget (send it as <paramref name="PricePesos"/>) or
+/// names another price, with an optional short note. Sending again replaces their earlier offer.
+/// </summary>
+public sealed record SendOfferRequest(int PricePesos, string? Note = null);
+
+/// <summary>Where an offer stands.</summary>
+public static class JobOfferStatuses
+{
+    /// <summary>Waiting for the household.</summary>
+    public const string Sent = "sent";
+
+    /// <summary>The household picked it; the post is closed.</summary>
+    public const string Picked = "picked";
+
+    /// <summary>The worker took it back.</summary>
+    public const string Withdrawn = "withdrawn";
+}
+
+/// <summary>The limits both sides keep for an offer (the columns of <c>JobOffers</c>).</summary>
+public static class JobOfferRules
+{
+    public const int MaxNote = 300;
+
+    /// <summary>A price fits the same range as a budget.</summary>
+    public static bool IsPrice(int? pesos) => JobPostRules.IsBudget(pesos);
+
+    /// <summary>No note, or one that fits once trimmed.</summary>
+    public static bool IsNote(string? note) => note is null || note.Trim().Length <= MaxNote;
 }

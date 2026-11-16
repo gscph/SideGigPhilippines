@@ -135,6 +135,10 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         });
     }
 
+    /// <summary>The published listings among <paramref name="ids"/>, with their stars and badges (an id with no listing is left out).</summary>
+    public async Task<IReadOnlyList<ListingDto>> GetManyAsync(IReadOnlyCollection<string> ids, CancellationToken cancellationToken) =>
+        ids.Count == 0 ? [] : await WithReviewsAsync(await Listings().Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken), cancellationToken);
+
     public async Task<ListingDto?> GetAsync(string id, CancellationToken cancellationToken) =>
         await Listings().FirstOrDefaultAsync(p => p.Id == id, cancellationToken) is { } row
             ? (await WithReviewsAsync([row], cancellationToken))[0]

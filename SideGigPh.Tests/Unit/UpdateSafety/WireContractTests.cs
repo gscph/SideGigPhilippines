@@ -121,13 +121,27 @@ public class WireContractTests
     {
         var post = new JobPostDto(7, "plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", JobPostStatuses.Open, [], true, false, 2, At);
         FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
-            "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt");
+            "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt",
+            "offerCount", "myOfferPesos", "pickedProId");
         FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
         FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1), ApiJson.Default.NewJobPostRequest)
             .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude");
         JobPostStatuses.Open.Should().Be("open");
         JobPostStatuses.Closed.Should().Be("closed");
         JobPostStatuses.Hidden.Should().Be("hidden");
+    }
+
+    // Offers on job posts: an installed app reads these fields, and tells a picked offer by this word.
+    [Fact]
+    public void JobOfferFieldNamesAndStatuses_NeverChange()
+    {
+        var offer = new JobOfferDto(3, 7, SideGigPh.Tests.TestSupport.TestData.Dto("Mang Ben"), 650, "Bukas", JobOfferStatuses.Sent, false, 2, At);
+        FieldNames(offer, ApiJson.Default.JobOfferDto).Should().Equal(
+            "id", "postId", "pro", "pricePesos", "note", "status", "takesBudget", "distanceKm", "createdAt");
+        FieldNames(new SendOfferRequest(650, "Bukas"), ApiJson.Default.SendOfferRequest).Should().Equal("pricePesos", "note");
+        JobOfferStatuses.Sent.Should().Be("sent");
+        JobOfferStatuses.Picked.Should().Be("picked");
+        JobOfferStatuses.Withdrawn.Should().Be("withdrawn");
     }
 
     // The feedback board: an installed app reads these fields and shows a status by these words.

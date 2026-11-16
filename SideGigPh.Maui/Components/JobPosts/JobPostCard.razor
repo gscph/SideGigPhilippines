@@ -16,8 +16,8 @@
                         }
                         @if (!ForWorker)
                         {
-                            <MudChip T="string" Color="@(Post.IsOpen ? Color.Success : Color.Default)" Variant="Variant.Text" Size="Size.Small" Class="ma-0">
-                                @T.Get(Post.IsOpen ? Copy.PostShowing : Copy.PostTakenDown)
+                            <MudChip T="string" Color="@(Post.IsOpen || Post.PickedProId is not null ? Color.Success : Color.Default)" Variant="Variant.Text" Size="Size.Small" Class="ma-0">
+                                @T.Get(Status)
                             </MudChip>
                         }
                     </MudStack>
@@ -45,6 +45,25 @@
                         <PhotoTile Url="@url" CanRemove="false" @key="url" />
                     }
                 </PhotoStrip>
+            }
+
+            @if (ForWorker && SendOffer is not null)
+            {
+                <OfferBox Post="Post" Busy="Busy" Send="SendOffer" OnWithdraw="@(() => OnWithdrawOffer.InvokeAsync(Post))" />
+            }
+            else if (!ForWorker && Post.PickedProId is { } picked)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" StartIcon="@Icons.Material.Rounded.ChatBubbleOutline"
+                           Href="@SeekerRoutes.Thread(picked)">
+                    @T.Get(Copy.PostOpenChat)
+                </MudButton>
+            }
+            else if (!ForWorker && Post.IsOpen)
+            {
+                <MudButton Variant="@(Post.OfferCount > 0 ? Variant.Filled : Variant.Outlined)" Color="@(Post.OfferCount > 0 ? Color.Primary : Color.Dark)"
+                           FullWidth="true" Href="@JobPostRoutes.Offers(Post.Id)">
+                    @OffersLabel
+                </MudButton>
             }
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
