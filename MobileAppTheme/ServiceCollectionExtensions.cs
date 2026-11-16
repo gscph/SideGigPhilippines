@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<BusyIndicator>();
         services.TryAddSingleton<ISplashLines, BusySplashLines>();
         services.TryAddSingleton<AppVisibility>();
+        services.TryAddSingleton<INetworkStatus, DeviceNetworkStatus>();
         services.TryAddSingleton(TimeProvider.System);
 
         services.TryAddSingleton<IContactLauncher, DeviceContactLauncher>();

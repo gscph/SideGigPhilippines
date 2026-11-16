@@ -69,6 +69,13 @@ public static class CommonCopy
         "May nagka-problema sa screen na 'to. Na-report na namin at aayusin.");
     public static readonly LocalizedText ScreenBrokeHome = new("Back to the start", "Bumalik sa simula");
 
+    // --- No connection (the error boundary's network screen, ConnectionBanner) --
+    public static readonly LocalizedText NoConnection = new(
+        "No internet. Check your data or Wi-Fi, then try again.",
+        "Walang internet. I-check ang data o Wi-Fi mo, tapos subukan ulit.");
+    public static readonly LocalizedText TryAgain = new("Try again", "Subukan ulit");
+    public static readonly LocalizedText Offline = new("You're offline. Some things won't load.", "Offline ka. May mga hindi maglo-load.");
+
     // --- Legal pages (AppBrand.Legal) --------------------------------------
     public static readonly LocalizedText LegalTitle = new("Privacy and terms", "Privacy at terms");
     public static readonly LocalizedText LegalPrivacy = new("Privacy Policy", "Privacy Policy");
