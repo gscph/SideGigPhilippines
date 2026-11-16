@@ -365,13 +365,13 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             offer.HasOne<JobPostRow>().WithMany().HasForeignKey(o => o.PostId).HasConstraintName("FK_JobOffers_Post").OnDelete(DeleteBehavior.Cascade);
             offer.HasIndex(o => new { o.PostId, o.ProUid }).IsUnique().HasDatabaseName("UX_JobOffers_PostPro");
             offer.HasIndex(o => o.ProUid).HasDatabaseName("IX_JobOffers_Pro");
-            // 017-schema-job-done
+            // 018-schema-job-done
             offer.HasIndex(o => o.ProUid, "IX_JobOffers_Done").HasFilter("[HouseholdDoneAt] IS NOT NULL AND [WorkerDoneAt] IS NOT NULL");
         });
 
         model.Entity<HouseholdReviewRow>(review =>
         {
-            // 017-schema-job-done
+            // 018-schema-job-done
             review.ToTable("HouseholdReviews");
             review.HasKey(r => new { r.ProUid, r.SeekerUid }).HasName("PK_HouseholdReviews");
             review.Property(r => r.ProUid).HasMaxLength(128);

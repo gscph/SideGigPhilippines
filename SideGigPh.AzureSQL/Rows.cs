@@ -295,7 +295,7 @@ public sealed class JobOfferRow
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 
-    /// <summary>When the household marked the picked job done (<c>017-schema-job-done.sql</c>).</summary>
+    /// <summary>When the household marked the picked job done (<c>018-schema-job-done.sql</c>).</summary>
     public DateTimeOffset? HouseholdDoneAt { get; set; }
 
     /// <summary>When the worker marked the picked job done. Both set: a completed job.</summary>
@@ -303,7 +303,7 @@ public sealed class JobOfferRow
 }
 
 /// <summary>
-/// A worker's stars for a household (<c>HouseholdReviews</c>, <c>017-schema-job-done.sql</c>): one per worker per
+/// A worker's stars for a household (<c>HouseholdReviews</c>, <c>018-schema-job-done.sql</c>): one per worker per
 /// household, only after a completed job between them.
 /// </summary>
 public sealed class HouseholdReviewRow

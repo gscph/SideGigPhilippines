@@ -203,7 +203,7 @@ says "Tarbaho" in `Copy.cs`.
   `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
   your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
   worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
-- **Verified two-way reviews** (brief item 12, `PickedJobStore`, `PickedJobFunctions`, `017-schema-job-done.sql`):
+- **Verified two-way reviews** (brief item 12, `PickedJobStore`, `PickedJobFunctions`, `018-schema-job-done.sql`):
   a picked offer is the job record. Each side marks it done (`POST picked-jobs/{postId}/done`, `JobOffers.HouseholdDoneAt`
   / `WorkerDoneAt`), in any order; both marks make a **completed job** (`PickedJobStore.Completed`). Then the
   household's review of that worker (still `PUT reviews`, one per pair) needs no chat and no 24 h wait and comes back

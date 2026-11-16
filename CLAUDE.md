@@ -73,7 +73,7 @@ changing that area.**
   wake behind the splash instead of on the first search.
 - **Chats:** only the Seeker starts a chat (id `{proId}_{seekerId}`); the server stamps times and takes the worker's
   name from their listing; reviews only 24 h after the chat started (`ReviewRules`, both sides), or at once after a
-  **completed job**: a picked offer both sides marked done (`PickedJobStore`, `017-schema-job-done.sql`,
+  **completed job**: a picked offer both sides marked done (`PickedJobStore`, `018-schema-job-done.sql`,
   `picked-jobs/…`; both chat pages show it as `PickedJobCard` with **Mark done**), which shows "Verified service" on the
   review (`ReviewRow`), counts on the listing (`CompletedJobs`, `ListingFacts`) and lets the worker rate the household
   on the card (`HouseholdReviews`; workers see its stars on its posts).

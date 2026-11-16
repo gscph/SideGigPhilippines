@@ -1,5 +1,5 @@
 /* =====================================================================================
-   SideGigPh schema change 017: job done, and households' reviews (verified two-way reviews, brief item 12).
+   SideGigPh schema change 018: job done, and households' reviews (verified two-way reviews, brief item 12).
 
    What it adds and why:
    - dbo.JobOffers.HouseholdDoneAt / WorkerDoneAt: on a picked offer, when each side marked the work done
@@ -57,7 +57,7 @@ END;
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_HouseholdReviews_Seeker' AND object_id = OBJECT_ID(N'dbo.HouseholdReviews'))
     EXEC (N'CREATE INDEX IX_HouseholdReviews_Seeker ON dbo.HouseholdReviews (SeekerUid) INCLUDE (Rating);');
 
-IF NOT EXISTS (SELECT 1 FROM dbo.SchemaChanges WHERE Script = '017-schema-job-done')
-    INSERT dbo.SchemaChanges (Script) VALUES ('017-schema-job-done');
+IF NOT EXISTS (SELECT 1 FROM dbo.SchemaChanges WHERE Script = '018-schema-job-done')
+    INSERT dbo.SchemaChanges (Script) VALUES ('018-schema-job-done');
 
 COMMIT TRANSACTION;
