@@ -203,6 +203,12 @@ says "Tarbaho" in `Copy.cs`.
   `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
   your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
   worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
+- **A worker's own offers:** Requests → **My offers** (`JobPostRoutes.MyOffers`, `MyOffersPage`, one `MyOfferCard`
+  each; `GET offers/mine` → `JobPostStore.MyOffersAsync` → `MyOfferDto`, `JobBoard.MyOffersAsync`, read fresh on each
+  visit): newest change first, at most 50, each with the service, the worker's price against the budget, the town and
+  their note, and its state (`MyOfferStates`: `waiting` while the post is open, `picked` with the `chatId` the
+  household started (**Open chat**), `not-picked` once the post closed without them). Offers taken back, hidden posts
+  and blocked people are left out. Before, a worker who wasn't picked only saw the post leave the feed.
 - **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
   `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
   app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the

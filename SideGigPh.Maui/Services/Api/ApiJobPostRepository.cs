@@ -63,4 +63,8 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
     public Task<string?> GetContactNumberAsync(string otherUid) => api.ReadAsync<string?>(async () =>
         (await api.GetAsync($"contacts/{Uri.EscapeDataString(otherUid)}", ApiJson.Default.ContactDto))?.PhoneNumber,
         null, "a contact number");
+
+    public Task<IReadOnlyList<MyOffer>> GetMyOffersAsync() => api.ReadAsync<IReadOnlyList<MyOffer>>(async () =>
+        (await api.GetAsync("offers/mine", ApiJson.Default.ListMyOfferDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+        [], "the worker's offers");
 }

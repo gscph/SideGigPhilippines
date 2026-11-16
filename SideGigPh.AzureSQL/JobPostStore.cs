@@ -101,6 +101,40 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             pickedProId: offers.FirstOrDefault(o => o.PostId == row.Id && o.Status == JobOfferStatuses.Picked)?.ProUid))];
     }
 
+    /// <summary>
+    /// The caller's own offers, as a worker, newest change first (at most <see cref="MaxMine"/>): waiting, picked, or
+    /// closed without them. Offers they took back are left out (they chose that), and so are posts the operator hid
+    /// and posts of someone blocked either way.
+    /// </summary>
+    public async Task<List<MyOfferDto>> MyOffersAsync(string uid, CancellationToken cancellationToken)
+    {
+        var offers = await db.JobOffers.AsNoTracking()
+            .Where(o => o.ProUid == uid && o.Status != JobOfferStatuses.Withdrawn)
+            .Join(db.JobPosts.AsNoTracking().Where(p => p.Status != JobPostStatuses.Hidden), o => o.PostId, p => p.Id,
+                (o, p) => new { Offer = o, p.SeekerUid })
+            .Where(x => !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == x.SeekerUid) || (b.BlockerUid == x.SeekerUid && b.BlockedUid == uid)))
+            .OrderByDescending(x => x.Offer.UpdatedAt).ThenByDescending(x => x.Offer.Id)
+            .Take(MaxMine)
+            .Select(x => x.Offer)
+            .ToListAsync(cancellationToken);
+        var ids = offers.Select(o => o.PostId).ToList();
+        var posts = await db.JobPosts.AsNoTracking().Include(p => p.Photos).Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, cancellationToken);
+        return [.. offers.Where(o => posts.ContainsKey(o.PostId)).Select(o =>
+        {
+            var post = posts[o.PostId];
+            var state = o.Status == JobOfferStatuses.Picked ? MyOfferStates.Picked
+                : post.Status == JobPostStatuses.Open ? MyOfferStates.Waiting
+                : MyOfferStates.NotPicked;
+            return new MyOfferDto(
+                ToDto(post, uid, myOfferPesos: o.PricePesos),
+                o.PricePesos,
+                o.Note,
+                state,
+                o.UpdatedAt,
+                state == MyOfferStates.Picked ? ChatStore.IdFor(uid, post.SeekerUid) : null);
+        })];
+    }
+
     /// <summary>The caller takes their own open post down. False when it isn't theirs or isn't there; closing twice changes nothing.</summary>
     public async Task<bool> CloseAsync(string uid, long postId, CancellationToken cancellationToken)
     {
