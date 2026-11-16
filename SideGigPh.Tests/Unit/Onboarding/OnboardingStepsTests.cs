@@ -382,4 +382,20 @@ public class OnboardingStepsTests
     public void LaunchPath_FinishedWorkerMissingAnAnswer_ReopensTheInterview() =>
         OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now })
             .Should().Be(OnboardingSteps.ProFirstUnansweredPath);
+
+    [Fact]
+    public void FirstPath_EachRoleStartsItsOwnInterview()
+    {
+        OnboardingSteps.FirstPath(UserRole.Seeker).Should().Be("/start/seeker/1");
+        OnboardingSteps.FirstPath(UserRole.Professional).Should().Be("/start/pro/1");
+    }
+
+    [Theory]
+    [InlineData(UserRole.Professional, 0, true)]
+    [InlineData(UserRole.Professional, 200, true)]
+    [InlineData(UserRole.Professional, null, false)]
+    [InlineData(UserRole.Seeker, 0, false)]
+    public void AsksNumberAfterRole_OnlyWorkersWhileACodeCanStillBeSentToday(UserRole role, int? waitSeconds, bool asks) =>
+        OnboardingSteps.AsksNumberAfterRole(role, waitSeconds is { } s ? TimeSpan.FromSeconds(s) : null)
+            .Should().Be(asks);
 }

@@ -113,7 +113,7 @@ public static class CommonCopy
     public static readonly LocalizedText AuthTooManyCodes = new(
         "You've asked for {0} codes today. Try again tomorrow, or continue with Google.",
         "{0} code na ang nahingi mo ngayong araw. Subukan ulit bukas, o tumuloy gamit ang Google.");
-    /// <summary>The same when already signed in (adding a number), where Google is no way out. {0} = the most codes a day.</summary>
+    /// <summary>The same where Google is no way out (adding a number, or no Google/Apple sign-in). {0} = the most codes a day.</summary>
     public static readonly LocalizedText AuthTooManyCodesTomorrow = new(
         "You've asked for {0} codes today. Try again tomorrow.",
         "{0} code na ang nahingi mo ngayong araw. Subukan ulit bukas.");

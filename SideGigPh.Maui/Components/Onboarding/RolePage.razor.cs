@@ -56,7 +56,7 @@ public partial class RolePage : ComponentBase
             state.CompletedAt = null;
         }
 
-        var path = role == UserRole.Seeker ? "/start/seeker/1" : "/start/pro/1";
+        var path = OnboardingSteps.FirstPath(role);
         if (state.CompletedAt is null)
         {
             state.ResumePath = path;
@@ -67,8 +67,8 @@ public partial class RolePage : ComponentBase
         // the tap never waits on it: a cold server or weak 4G used to leave this screen frozen for up to a minute.
         _ = Account.SaveProfileAsync();
         Analytics.SetAudience(role, state.Language);
-        Nav.NavigateTo(role == UserRole.Professional && SmsLimit.WaitLeft() is not null
-            ? await Gate.RedirectAsync(path, requirePhone: true, backPath: "/start/role", canSkipPhone: true) ?? path
+        Nav.NavigateTo(OnboardingSteps.AsksNumberAfterRole(role, SmsLimit.WaitLeft())
+            ? await Gate.RedirectAsync(path, requirePhone: true, backPath: OnboardingSteps.RolePath, canSkipPhone: true) ?? path
             : path);
     }
 

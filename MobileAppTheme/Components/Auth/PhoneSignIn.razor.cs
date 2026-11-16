@@ -54,7 +54,11 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
     private TimeSpan? WaitLeft => Limit.WaitLeft(Target);
 
     private string TooManyCodes => T.Format(
-        LinkToCurrentUser ? CommonCopy.AuthTooManyCodesTomorrow : CommonCopy.AuthTooManyCodes, SmsSendLimit.PerDay);
+        OffersOtherSignIn ? CommonCopy.AuthTooManyCodes : CommonCopy.AuthTooManyCodesTomorrow, SmsSendLimit.PerDay);
+
+    // "Or continue with Google" only where it is a way out: signing in (not adding a number) with Google or Apple offered.
+    private bool OffersOtherSignIn =>
+        !LinkToCurrentUser && (Identity.Methods.HasFlag(AuthMethods.Google) || Identity.Methods.HasFlag(AuthMethods.Apple));
 
     private bool CanSend => WaitLeft == TimeSpan.Zero;
 
@@ -122,7 +126,9 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
         }
         catch (TimeoutException ex)
         {
-            // The provider never answered (no signal, or its app check stalled): say so instead of spinning.
+            // The provider never answered (no signal, or its app check stalled): say so instead of spinning. The SMS may
+            // still have gone out, so it counts: an instant retry would pay for a second one.
+            Limit.Record(e164);
             await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Network, ex.Message));
         }
         catch (Exception ex)

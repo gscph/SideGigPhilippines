@@ -57,6 +57,19 @@ public static class OnboardingSteps
     /// <summary>The Seeker's home-town question (reopened when a saved town is no longer served).</summary>
     public static string SeekerTownPath => PathOf(SeekerStep.City);
 
+    /// <summary>The first interview question for <paramref name="role"/>.</summary>
+    public static string FirstPath(UserRole role) =>
+        role == UserRole.Seeker ? PathOf(SeekerStep.Category) : PathOf(ProStep.Skills);
+
+    /// <summary>
+    /// Whether picking <paramref name="role"/> first asks for a verified number: only a Skilled Worker (customers reach
+    /// them on it; a Seeker never), and only while this phone may still get an SMS code today
+    /// (<paramref name="smsWaitLeft"/> from <c>SmsSendLimit.WaitLeft</c>, null when used up). The step offers
+    /// "Do this later"; Publish asks again either way.
+    /// </summary>
+    public static bool AsksNumberAfterRole(UserRole role, TimeSpan? smsWaitLeft) =>
+        role == UserRole.Professional && smsWaitLeft is not null;
+
     // --- Skilled Worker ------------------------------------------------------
 
     public static ProStep FirstUnanswered(this ProfessionalDraft draft)
