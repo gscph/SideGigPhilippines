@@ -8,7 +8,8 @@ namespace MobileAppTheme.Components.Auth;
 /// <summary>
 /// <c>/verify/phone</c>: adds a verified mobile number to an account that has none (a Google
 /// sign-in), by SMS code, keeping the same account. <see cref="SignInGate"/> sends people here
-/// from pages that need a number; afterwards they go back to <c>then</c>.
+/// from pages that need a number; afterwards they go back to <c>then</c>. With <c>skip=true</c> (an early ask that a later
+/// page repeats) "Do this later" goes on to <c>then</c> without a number, so an SMS that never arrives is no dead end.
 /// </summary>
 public partial class AddPhonePage : ComponentBase
 {
@@ -20,6 +21,8 @@ public partial class AddPhonePage : ComponentBase
     [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
 
     [SupplyParameterFromQuery(Name = "back")] public string? Back { get; set; }
+
+    [SupplyParameterFromQuery(Name = "skip")] public bool Skip { get; set; }
 
     private string? _error;
     private PhoneSignIn? _phone;
@@ -80,6 +83,8 @@ public partial class AddPhonePage : ComponentBase
             _busy = false;
         }
     }
+
+    private void Later() => Nav.NavigateTo(Destination, replace: true);
 
     private void SentToChanged(string? number)
     {

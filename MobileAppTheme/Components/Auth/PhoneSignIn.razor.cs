@@ -8,8 +8,11 @@ namespace MobileAppTheme.Components.Auth;
 /// Phone sign-in in two steps: the number (read with the app's <see cref="IPhoneNumberFormat"/>),
 /// then the SMS code. Reports the <see cref="AuthResult"/> to the parent, failures included.
 /// With <see cref="LinkToCurrentUser"/> the same two steps add the number to the signed-in account.
+/// Codes are rationed by <see cref="SmsSendLimit"/> (another code to the same number after 6 minutes, 3 a day): the
+/// buttons count down the wait, and when today's codes are used up the person is told to try tomorrow (or, signing in,
+/// to continue with Google).
 /// </summary>
-public partial class PhoneSignIn : ComponentBase
+public partial class PhoneSignIn : ComponentBase, IDisposable
 {
     private enum Step
     {
@@ -20,6 +23,7 @@ public partial class PhoneSignIn : ComponentBase
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
     [Inject] private IPhoneNumberFormat PhoneFormat { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private SmsSendLimit Limit { get; set; } = default!;
 
     [Parameter] public EventCallback<AuthResult> OnAuthenticated { get; set; }
 
@@ -38,6 +42,46 @@ public partial class PhoneSignIn : ComponentBase
     private string? _verificationId;
     private string? _sentTo;
     private bool _busy;
+    private Timer? _ticker;
+    private bool _counting;
+
+    // The last send timed out: an SMS may still arrive, but there is no code box to type it in.
+    private bool _timedOut;
+
+    // The number a code would go to now: the typed one on the number step, the one it went to on the code step.
+    private string? Target => _step == Step.EnterCode
+        ? _sentTo
+        : PhoneFormat.TryNormalize(_phoneNumber, out var e164) ? e164 : null;
+
+    // Zero: a code may be sent now; null: today's codes are used up; else how long to wait.
+    private TimeSpan? WaitLeft => Limit.WaitLeft(Target);
+
+    private string TooManyCodes => T.Format(
+        OffersOtherSignIn ? CommonCopy.AuthTooManyCodes : CommonCopy.AuthTooManyCodesTomorrow, SmsSendLimit.PerDay);
+
+    // "Or continue with Google" only where it is a way out: signing in (not adding a number) with Google or Apple offered.
+    private bool OffersOtherSignIn =>
+        !LinkToCurrentUser && (Identity.Methods.HasFlag(AuthMethods.Google) || Identity.Methods.HasFlag(AuthMethods.Apple));
+
+    private bool CanSend => WaitLeft == TimeSpan.Zero;
+
+    // The countdown, e.g. "5:12".
+    private string WaitText => WaitLeft is { } left ? $"{(int)left.TotalMinutes}:{left.Seconds:00}" : string.Empty;
+
+    // Re-draw once a second while a wait is counting down, and once more when it ends, so the buttons unlock on their own.
+    protected override void OnInitialized() =>
+        _ticker = new Timer(_ => _ = InvokeAsync(Tick), null, 1000, 1000);
+
+    private void Tick()
+    {
+        var counting = WaitLeft is { } left && left > TimeSpan.Zero;
+        if (counting || _counting)
+        {
+            StateHasChanged();
+        }
+
+        _counting = counting;
+    }
 
     /// <summary>Back to the number step (the page's back arrow, or "Use a different number").</summary>
     public async Task UseOtherNumberAsync()
@@ -48,6 +92,13 @@ public partial class PhoneSignIn : ComponentBase
         _sentTo = null;
         await SentToChanged.InvokeAsync(null);
         StateHasChanged();
+    }
+
+    // "Send a new code" on the code step: the same number again, once the wait is over.
+    private Task ResendAsync()
+    {
+        _phoneNumber = _sentTo ?? _phoneNumber;
+        return SendCodeAsync();
     }
 
     private async Task SendCodeAsync()
@@ -61,11 +112,17 @@ public partial class PhoneSignIn : ComponentBase
             await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.InvalidPhoneNumber));
             return;
         }
+        if (Limit.WaitLeft(e164) != TimeSpan.Zero)
+        {
+            return;
+        }
 
         _busy = true;
         try
         {
             var verification = await Identity.SignUpWithPhoneAsync(e164);
+            Limit.Record(e164);
+            _timedOut = false;
             _verificationId = verification.VerificationId;
             _sentTo = e164;
             _step = Step.EnterCode;
@@ -73,7 +130,10 @@ public partial class PhoneSignIn : ComponentBase
         }
         catch (TimeoutException ex)
         {
-            // The provider never answered (no signal, or its app check stalled): say so instead of spinning.
+            // The provider never answered (no signal, or its app check stalled): say so instead of spinning. The SMS may
+            // still have gone out, so it counts: an instant retry would pay for a second one.
+            Limit.Record(e164);
+            _timedOut = true;
             await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Network, ex.Message));
         }
         catch (Exception ex)
@@ -117,4 +177,6 @@ public partial class PhoneSignIn : ComponentBase
             _busy = false;
         }
     }
+
+    public void Dispose() => _ticker?.Dispose();
 }

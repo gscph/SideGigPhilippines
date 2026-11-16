@@ -126,8 +126,11 @@ changing that area.**
   words are parsed in the app (`SearchText`, `SearchIntentParser`, synonyms in `TradeWords`); ranking is on the server
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of
   the score; [`docs/search-ranking.md`](docs/search-ranking.md)).
-- **Onboarding** ([`docs/onboarding.md`](docs/onboarding.md)): `/` = `LaunchRouter` → language → sign in (phone
-  code first, Google second; a Google account must add a verified number only before Publish; Seekers are never asked for a number) → role →
+- **Onboarding** ([`docs/onboarding.md`](docs/onboarding.md)): `/` = `LaunchRouter` → language → sign in (Google
+  first, Apple on iOS, the SMS code behind "Use my phone number instead"; each SMS costs money, so another code to the
+  same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone) → role (a worker confirms their number
+  right here, once in their life, or "Do this later" and Publish asks again: the number stays on the sign-in account, so later Google sign-ins never ask again;
+  Seekers are never asked for a number) →
   the interview, one URL per step, rules in `Services/OnboardingSteps` (tested). Money is the hook: prices are per job
   (`Services/Pricing`, price guides in SQL, never under the minimum wage).
 - **Auth** is provider-neutral: contract and screens in the skeleton (`IIdentityProvider`, `AuthError`,
