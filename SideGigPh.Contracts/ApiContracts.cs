@@ -116,7 +116,8 @@ public sealed record ListingDto(
     IReadOnlyList<PhotoDto> WorkPhotos,
     ReviewSummaryDto? Reviews = null,
     int ReferenceCount = 0,
-    IReadOnlyList<BadgeDto>? Badges = null);
+    IReadOnlyList<BadgeDto>? Badges = null,
+    string? OtherWork = null);
 
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
@@ -139,7 +140,8 @@ public sealed record PublishListingRequest(
     IReadOnlyList<ReferenceDto>? References = null,
     double? Latitude = null,
     double? Longitude = null,
-    int? RadiusKm = null);
+    int? RadiusKm = null,
+    string? OtherWork = null);
 
 /// <summary>Someone who can vouch for a Skilled Worker: a name and an E.164 Philippine mobile number.</summary>
 public sealed record ReferenceDto(string Name, string MobileNumber);
@@ -294,6 +296,56 @@ public static class PriceLevels
     public const string AboveAverage = "above-average";
 
     public static bool IsLevel(string? id) => id is Minimum or Average or AboveAverage;
+}
+
+/// <summary>
+/// A Skilled Worker's own price range as it travels in <c>RateTierId</c>: <c>"rate-800-1500"</c> ("from ₱800 to ₱1,500"
+/// per job). The prefix keeps it apart from the old price tiers (<c>500-1000</c>). The guide's levels
+/// (<see cref="PriceLevels"/>) are only benchmarks the worker can start from.
+/// </summary>
+public static class RateRange
+{
+    private const string Prefix = "rate-";
+
+    public static string Format(int from, int upTo) => $"{Prefix}{from}-{upTo}";
+
+    /// <summary>Reads a rate range; false for a level, "quote", an old tier or a malformed id.</summary>
+    public static bool TryParse(string? id, out int from, out int upTo)
+    {
+        from = 0;
+        upTo = 0;
+        if (id is null || !id.StartsWith(Prefix, StringComparison.Ordinal)
+            || !BudgetRange.TryParse(id[Prefix.Length..], out from, out var top) || top is not { } max)
+        {
+            from = 0;
+            return false;
+        }
+
+        upTo = max;
+        return true;
+    }
+
+    /// <summary>A range a worker may save: from more than ₱0, up to the same or more (the minimum wage is only a guide).</summary>
+    public static bool IsValid(int? from, int? upTo) => from is > 0 && upTo is { } top && top >= from && top <= 1_000_000;
+}
+
+/// <summary>
+/// "Others": the tile after the trades (<see cref="TradeId"/>, saved as both the trade and the job) and each trade's
+/// last job (<c>…-other</c>). The person types what they mean; workers' and households' texts are matched by shared
+/// words (search, <c>SearchRanker</c>).
+/// </summary>
+public static class OtherWork
+{
+    /// <summary>The "Others" trade: not a trade we offer, the person typed the kind of work.</summary>
+    public const string TradeId = "other";
+
+    /// <summary>Most characters of a typed "Others" text.</summary>
+    public const int MaxText = 100;
+
+    private const string JobSuffix = "-other";
+
+    /// <summary>The "Others" job of a trade, or the "Others" trade itself.</summary>
+    public static bool IsOther(string? id) => id == TradeId || id?.EndsWith(JobSuffix, StringComparison.Ordinal) == true;
 }
 
 /// <summary>

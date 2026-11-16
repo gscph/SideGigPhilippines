@@ -52,7 +52,7 @@ public partial class JobPostCard : ComponentBase
 
     /// <summary>The trade's name, or null for a trade we no longer offer.</summary>
     private string? TradeLabel =>
-        ReferenceData.Find(ReferenceData.Categories, Post.CategoryId) is { } trade ? T.Get(trade.Label) : null;
+        ReferenceData.FindTrade(Post.CategoryId) is { } trade ? T.Get(trade.Label) : null;
 
     private string Town =>
         ReferenceData.Find(ReferenceData.Cities, Post.CityId) is { } town ? T.Get(town.Label) : Post.CityId;

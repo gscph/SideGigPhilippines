@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services;
@@ -10,7 +11,7 @@ namespace SideGigPh.Maui.Services;
 public sealed class OtherJobNotes(IOtherJobNoteRepository repository, ILogger<OtherJobNotes> logger)
 {
     /// <summary>Longest text sent (the server's <c>OtherJobNoteStore.MaxNote</c>).</summary>
-    public const int MaxText = 100;
+    public const int MaxText = OtherWork.MaxText;
 
     public async Task NoteAsync(string? categoryId, UserRole side, string? text)
     {

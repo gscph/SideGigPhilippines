@@ -37,6 +37,7 @@ public static class ListingMapper
         CityIds = draft.CityIds,
         ExperienceId = draft.ExperienceId,
         RateTierId = draft.RateTierId,
+        OtherWork = draft.OtherJobText,
         MobileNumber = draft.MobileNumber ?? string.Empty,
         PhotoUrl = photoUrl,
         WorkPhotoUrls = workPhotoUrls ?? [],

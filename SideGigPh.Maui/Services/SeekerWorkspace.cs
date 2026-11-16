@@ -46,7 +46,7 @@ public sealed class SeekerWorkspace(
     public string? ProfilePhotoUrl { get; private set; }
 
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
-    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
+    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId, Answers.OtherJobText);
 
     /// <summary>One chat per pro the Seeker contacted, loaded so far (<see cref="InboxPages"/>), most recent message first.</summary>
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
@@ -167,7 +167,7 @@ public sealed class SeekerWorkspace(
     public string DefaultMessage(ProfessionalListing pro)
     {
         var serviceId = JobFor(pro);
-        var trade = ReferenceData.Find(ReferenceData.Categories, pro.CategoryIds.FirstOrDefault());
+        var trade = ReferenceData.FindTrade(pro.CategoryIds.FirstOrDefault());
         // "Others" says what they typed, or the pro's trade: "Others" alone means nothing in a message.
         var job = !ReferenceData.IsOtherJob(serviceId) && ReferenceData.FindService(serviceId) is { } service ? Label(service)
             : ReferenceData.IsOtherJob(serviceId) && Answers.OtherJobText?.Trim() is { Length: > 0 } typed ? typed

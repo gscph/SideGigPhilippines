@@ -82,15 +82,26 @@ public static class OnboardingSteps
         return ProStep.Preview;
     }
 
-    /// <summary>The step a URL asks for, clamped to the real steps and never past the first unanswered one (e.g. a stale resume path).</summary>
+    /// <summary>
+    /// The step a URL asks for, clamped to the real steps and never past the first unanswered one (e.g. a stale resume
+    /// path). The jobs question of the "Others" trade is its trade question, where they typed the work.
+    /// </summary>
     public static ProStep StepToShow(this ProfessionalDraft draft, int? requested)
     {
         var step = (ProStep)Math.Clamp(requested ?? 1, 1, (int)ProStep.Preview);
         var firstUnanswered = draft.FirstUnanswered();
-        return step > firstUnanswered ? firstUnanswered : step;
+        step = step > firstUnanswered ? firstUnanswered : step;
+        return step == ProStep.Services && draft.IsOtherTrade() ? ProStep.Skills : step;
     }
 
-    /// <summary>Picks the one trade. A different trade clears the jobs, which belonged to the previous trade.</summary>
+    /// <summary>The worker picked "Others" after the trades: a kind of work we don't list, typed in <see cref="ProfessionalDraft.OtherJobText"/>.</summary>
+    public static bool IsOtherTrade(this ProfessionalDraft draft) => draft.CategoryId == ReferenceData.OtherTradeId;
+
+    /// <summary>
+    /// Picks the one trade. A different trade clears the jobs, which belonged to the previous trade. "Others" (a kind of
+    /// work we don't list) is its own only job, so the jobs question is skipped and the interview goes on: nobody is
+    /// stuck on the trade question.
+    /// </summary>
     public static void PickTrade(this ProfessionalDraft draft, string categoryId)
     {
         if (draft.CategoryId != categoryId)
@@ -99,7 +110,17 @@ public static class OnboardingSteps
             draft.ServiceIds.Clear();
             draft.OtherJobText = null;
         }
+
+        if (categoryId == ReferenceData.OtherTradeId)
+        {
+            draft.ServiceIds.Clear();
+            draft.ServiceIds.Add(ReferenceData.OtherTradeId);
+        }
     }
+
+    /// <summary>Next from a Skilled Worker question: the next one; the "Others" trade skips the jobs question.</summary>
+    public static string NextPath(this ProfessionalDraft draft, ProStep step) =>
+        PathOf(step == ProStep.Skills && draft.IsOtherTrade() ? ProStep.Towns : step + 1);
 
     /// <summary>Ticks or unticks a job. Unticking "Others" forgets what they typed for it.</summary>
     public static void ToggleService(this ProfessionalDraft draft, string serviceId)
@@ -132,6 +153,10 @@ public static class OnboardingSteps
 
         draft.SetAreaFromTowns();
     }
+
+    /// <summary>Back from a Skilled Worker question, skipping the jobs question of the "Others" trade.</summary>
+    public static string BackPath(this ProfessionalDraft draft, ProStep step, bool finished) =>
+        step == ProStep.Towns && draft.IsOtherTrade() ? PathOf(ProStep.Skills) : BackPath(step, finished);
 
     /// <summary>Back from a Skilled Worker question: the previous one, else Pro home (finished) or the role fork.</summary>
     public static string BackPath(ProStep step, bool finished) =>
@@ -191,15 +216,25 @@ public static class OnboardingSteps
         return SeekerStep.Finding;
     }
 
-    /// <summary>The step a URL asks for, clamped to the real steps and never past the first unanswered one.</summary>
+    /// <summary>
+    /// The step a URL asks for, clamped to the real steps and never past the first unanswered one. The job question of
+    /// the "Others" trade is its trade question, where they typed the work.
+    /// </summary>
     public static SeekerStep StepToShow(this SeekerAnswers answers, int? requested)
     {
         var step = (SeekerStep)Math.Clamp(requested ?? 1, 1, (int)SeekerStep.Finding);
         var firstUnanswered = answers.FirstUnanswered();
-        return step > firstUnanswered ? firstUnanswered : step;
+        step = step > firstUnanswered ? firstUnanswered : step;
+        return step == SeekerStep.Service && answers.IsOtherTrade() ? SeekerStep.Category : step;
     }
 
-    /// <summary>Picks what job. A different trade clears the job, which belonged to the previous trade.</summary>
+    /// <summary>The household picked "Others" after the trades: work we don't list, typed in <see cref="SeekerAnswers.OtherJobText"/>.</summary>
+    public static bool IsOtherTrade(this SeekerAnswers answers) => answers.CategoryId == ReferenceData.OtherTradeId;
+
+    /// <summary>
+    /// Picks what job. A different trade clears the job, which belonged to the previous trade. "Others" (work we don't
+    /// list) is its own job, so the job question is skipped and the interview goes on to the town.
+    /// </summary>
     public static void PickCategory(this SeekerAnswers answers, string categoryId)
     {
         if (answers.CategoryId != categoryId)
@@ -207,6 +242,11 @@ public static class OnboardingSteps
             answers.CategoryId = categoryId;
             answers.ServiceId = null;
             answers.OtherJobText = null;
+        }
+
+        if (categoryId == ReferenceData.OtherTradeId)
+        {
+            answers.ServiceId = ReferenceData.OtherTradeId;
         }
     }
 
@@ -235,12 +275,16 @@ public static class OnboardingSteps
     {
         if (!finished)
         {
-            return PathOf(step + 1);
+            return PathOf(step == SeekerStep.Category && answers.IsOtherTrade() ? SeekerStep.City : step + 1);
         }
 
         var next = answers.FirstUnanswered();
         return next == SeekerStep.Finding ? SeekerRoutes.Search : PathOf(next);
     }
+
+    /// <summary>Back from a Seeker question, skipping the job question of the "Others" trade.</summary>
+    public static string BackPath(this SeekerAnswers answers, SeekerStep step, bool finished) =>
+        !finished && step == SeekerStep.City && answers.IsOtherTrade() ? PathOf(SeekerStep.Category) : BackPath(step, finished);
 
     /// <summary>Back from a Seeker question: the results when changing an answer, else the previous question or the role fork.</summary>
     public static string BackPath(SeekerStep step, bool finished) =>

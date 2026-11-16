@@ -27,7 +27,6 @@ public static class AppImages
     public static readonly string Job = File("wrench");
     public static readonly string When = File("calendar");
     public static readonly string Budget = File("wallet");
-    public static readonly string Noted = File("note-done");
     public static readonly string Report = File("flag");
     public static readonly string Idea = File("bulb");
     public static readonly string Done = File("done");

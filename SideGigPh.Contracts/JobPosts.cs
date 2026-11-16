@@ -27,7 +27,8 @@ public sealed record JobPostDto(
     DateTimeOffset CreatedAt,
     int OfferCount = 0,
     int? MyOfferPesos = null,
-    string? PickedProId = null);
+    string? PickedProId = null,
+    int? BudgetMinPesos = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the
@@ -41,7 +42,8 @@ public sealed record NewJobPostRequest(
     string CityId,
     List<string>? PhotoIds = null,
     double? Latitude = null,
-    double? Longitude = null);
+    double? Longitude = null,
+    int? BudgetMinPesos = null);
 
 /// <summary>
 /// <c>GET job-posts/feed</c>: one page of the open posts a worker can take: their own trade, within the distance they
@@ -81,6 +83,9 @@ public static class JobPostRules
         description?.Trim() is { Length: >= MinDescription and <= MaxDescription };
 
     public static bool IsBudget(int? pesos) => pesos is >= MinBudgetPesos and <= MaxBudgetPesos;
+
+    /// <summary>A budget "from" (optional) and "up to": the top is a budget, and the low end, when given, is 0 to the top.</summary>
+    public static bool IsBudgetRange(int? from, int? upTo) => IsBudget(upTo) && (from is null || (from >= 0 && from <= upTo));
 }
 
 /// <summary>

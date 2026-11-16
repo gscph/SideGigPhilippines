@@ -1,7 +1,8 @@
 namespace SideGigPh.Maui.Models;
 
 /// <summary>What a Seeker is looking for, as ids from <c>ReferenceData</c>. Free text is resolved to these first.</summary>
-public sealed record SearchRequest(string? CategoryId, string? ServiceId, string? CityId, string? BudgetId);
+/// <param name="OtherText">What the Seeker typed under "Others": workers who typed something similar come first.</param>
+public sealed record SearchRequest(string? CategoryId, string? ServiceId, string? CityId, string? BudgetId, string? OtherText = null);
 
 /// <summary>
 /// How free text like "tubero barado" was understood: the best category, a specific job when

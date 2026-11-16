@@ -20,5 +20,6 @@ public static class SchemaScripts
         "014-schema-verification",
         "015-schema-job-posts",
         "016-schema-job-offers",
+        "017-schema-others-and-ranges",
     ];
 }

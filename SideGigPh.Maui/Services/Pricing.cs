@@ -12,9 +12,6 @@ namespace SideGigPh.Maui.Services;
 /// </summary>
 public static class Pricing
 {
-    /// <summary>The Seeker budget tile that opens the two amount boxes.</summary>
-    public const string CustomBudget = "custom";
-
     /// <summary>A job's price guide; for a whole trade (no job) a guide over its jobs; null when nothing is known.</summary>
     public static PriceGuide? GuideFor(string? serviceId, string? categoryId = null)
     {
@@ -36,12 +33,29 @@ public static class Pricing
     public static int? PriceAt(string? rateId, string serviceId) =>
         ReferenceData.Prices.GetValueOrDefault(serviceId) is { } guide ? At(guide, rateId) : null;
 
-    /// <summary>The cheapest and dearest of a rate's prices over <paramref name="serviceIds"/>; null when none is priced.</summary>
+    /// <summary>
+    /// What the worker charges over <paramref name="serviceIds"/>: their own from–to range as they typed it, else the
+    /// cheapest and dearest of a level's prices; null for "depends on the job" or when none is priced.
+    /// </summary>
     public static (int Low, int High)? RateRange(string? rateId, IEnumerable<string> serviceIds)
     {
+        if (Contracts.RateRange.TryParse(rateId, out var from, out var upTo))
+        {
+            return (from, upTo);
+        }
+
         var prices = serviceIds.Select(id => PriceAt(rateId, id)).OfType<int>().ToList();
         return prices.Count == 0 ? null : (prices.Min(), prices.Max());
     }
+
+    /// <summary>
+    /// The worker's two rate boxes' first values: their saved range, else the guide's average prices over their jobs,
+    /// else the suggested minimum price (an "Others" job has no guide).
+    /// </summary>
+    public static (int From, int UpTo) RateStart(string? rateId, IReadOnlyCollection<string> serviceIds) =>
+        Contracts.RateRange.TryParse(rateId, out var from, out var upTo) ? (from, upTo)
+        : RateRange(PriceLevels.Average, serviceIds) is { } average ? (average.Low, average.High)
+        : (ReferenceData.MinimumWage, ReferenceData.MinimumWage);
 
     /// <summary>The rate tiles for a worker's jobs: each level with its price ("₱755 – ₱2,500 per job"), then "depends on the job".</summary>
     public static IReadOnlyList<CatalogOption> RateChoices(IReadOnlyCollection<string> serviceIds) =>
@@ -95,15 +109,24 @@ public static class Pricing
             : Range(min, top);
     }
 
-    /// <summary>A typed budget the app accepts: from at least the minimum wage, up to the same or more.</summary>
+    /// <summary>
+    /// A typed budget the app accepts: from more than ₱0, up to the same or more. The suggested minimum price is only a
+    /// guide shown beside the boxes: the household pays after the work is done, at the price the two agree on.
+    /// </summary>
     public static bool IsValidBudget(int? min, int? max) =>
-        min is { } from && max is { } to && from >= ReferenceData.MinimumWage && to >= from;
+        min is { } from && max is { } to && from > 0 && to >= from && to <= JobPostRules.MaxBudgetPesos;
 
-    /// <summary>The two boxes' first values: the saved typed range, else the job's lowest to average price, else the minimum wage.</summary>
+    /// <summary>The two boxes' first values: the saved range, else the job's lowest to average price, else the suggested minimum price.</summary>
     public static (int Min, int Max) CustomStart(string? budgetId, string? serviceId, string? categoryId) =>
-        BudgetRange.TryParse(budgetId, out var min, out var max) && max is { } top && min >= ReferenceData.MinimumWage ? (min, top)
+        BudgetRange.TryParse(budgetId, out var min, out var max) && max is { } top && min > 0 ? (min, top)
         : GuideFor(serviceId, categoryId) is { } guide ? (guide.Min, guide.Average)
         : (ReferenceData.MinimumWage, ReferenceData.MinimumWage);
+
+    /// <summary>A job post's budget: "₱800 – ₱1,500" with a low end, "₱1,500" with only a top.</summary>
+    public static string PostBudget(JobPost post) =>
+        post.BudgetMinPesos is { } from && from != post.BudgetPesos
+            ? string.Format(Copy.BudgetRange.English, Money.Peso(from), Money.Peso(post.BudgetPesos))
+            : Money.Peso(post.BudgetPesos);
 
     /// <summary>"₱1,000" for one price, "₱755 – ₱2,500" for a spread.</summary>
     public static LocalizedText PriceText((int Low, int High) range) =>

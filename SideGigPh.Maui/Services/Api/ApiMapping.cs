@@ -66,7 +66,8 @@ internal static partial class ApiMapping
         dto.CreatedAt,
         dto.OfferCount,
         dto.MyOfferPesos,
-        dto.PickedProId);
+        dto.PickedProId,
+        dto.BudgetMinPesos);
 
     public static JobOffer ToModel(this JobOfferDto dto) => new(
         dto.Id,
@@ -87,7 +88,8 @@ internal static partial class ApiMapping
         draft.Description?.Trim() ?? string.Empty,
         draft.BudgetPesos ?? 0,
         draft.CityId ?? string.Empty,
-        [.. draft.Photos.Select(photo => photo.Id)]);
+        [.. draft.Photos.Select(photo => photo.Id)],
+        BudgetMinPesos: draft.BudgetMinPesos);
 
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,
@@ -121,6 +123,7 @@ internal static partial class ApiMapping
         CityIds = dto.CityIds,
         ExperienceId = dto.ExperienceId,
         RateTierId = dto.RateTierId,
+        OtherWork = dto.OtherWork,
         MobileNumber = dto.MobileNumber,
         PhotoUrl = dto.ProfilePhoto?.Url,
         WorkPhotoUrls = dto.WorkPhotos.Select(photo => photo.Url).ToList(),
@@ -216,7 +219,8 @@ internal static partial class ApiMapping
         listing.RateTierId,
         PhotoId(listing.PhotoUrl),
         listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
-        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList());
+        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList(),
+        OtherWork: listing.ServiceIds.Any(ReferenceData.IsOtherJob) ? listing.OtherWork : null);
 
     public static Review ToModel(this ReviewDto dto) => new(
         Chat.IdFor(dto.ProfessionalId, dto.SeekerId),

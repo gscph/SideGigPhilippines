@@ -24,10 +24,15 @@ public sealed class ProfessionalSearch(IProfessionalProfileRepository profiles)
         }
 
         var query = new ProfessionalSearchQuery(
-            categoryId, ReferenceData.AreaOf(request.CityId), request.ServiceId, request.CityId, request.BudgetId);
+            categoryId, ReferenceData.AreaOf(request.CityId), request.ServiceId, request.CityId, request.BudgetId,
+            OtherTextFor(request));
         var page = await profiles.SearchAsync(query, shown.Count);
 
         // A page that didn't load (offline) leaves what is shown; scrolling again tries again.
         return shown.Count == 0 ? page : page.Total == 0 ? shown : shown.Append(page);
     }
+
+    // What they typed under "Others", sent only when searching an "Others" job (it orders workers who typed alike first).
+    private static string? OtherTextFor(SearchRequest request) =>
+        ReferenceData.IsOtherJob(request.ServiceId) && request.OtherText?.Trim() is { Length: > 0 } typed ? typed : null;
 }

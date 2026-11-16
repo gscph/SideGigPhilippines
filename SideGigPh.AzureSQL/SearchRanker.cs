@@ -4,9 +4,11 @@ namespace SideGigPh.AzureSQL;
 
 /// <summary>
 /// What a Seeker searched for, as ids: the job (null = the whole trade), their town and their budget
-/// (a <see cref="BudgetRange"/> id such as <c>800-1500</c>, or an old price tier id, which reads the same way).
+/// (a <see cref="BudgetRange"/> id such as <c>800-1500</c>, or an old price tier id, which reads the same way), and,
+/// for an "Others" job (<see cref="OtherWork"/>), what they typed: workers whose own "Others" text shares words with it
+/// come first.
 /// </summary>
-public sealed record RankRequest(string? ServiceId, string? CityId, string? BudgetId);
+public sealed record RankRequest(string? ServiceId, string? CityId, string? BudgetId, string? OtherText = null);
 
 /// <summary>
 /// What ranking reads from the config: each job's price guide (a worker's price = the guide at their
@@ -34,6 +36,12 @@ public sealed record RankScales(
         if (pro.RateTierId is { } tier && TierPrices.TryGetValue(tier, out var tierPrice))
         {
             return tierPrice;
+        }
+
+        // The worker's own range: its low end is what they start at.
+        if (RateRange.TryParse(pro.RateTierId, out var from, out _))
+        {
+            return from;
         }
 
         if (!PriceLevels.IsLevel(pro.RateTierId))
@@ -150,10 +158,13 @@ public static class SearchRanker
     public static RankedResult Rank(IReadOnlyList<RankCandidate> pros, RankRequest request, RankScales scales, DateTimeOffset now)
     {
         var service = request.ServiceId;
+        var typed = OtherWork.IsOther(service) ? FeedbackMatch.Words(request.OtherText) : new HashSet<string>();
         var hits = pros
             .Where(p => service is null || p.Listing.ServiceIds.Contains(service))
-            .Select(pro => (Hit: Hit(pro.Listing, request, scales), Score: Score(pro, request, scales, now).Total))
-            .OrderByDescending(scored => scored.Score)
+            .Select(pro => (Hit: Hit(pro.Listing, request, scales), Score: Score(pro, request, scales, now).Total,
+                Words: OtherWordsMatch(typed, pro.Listing)))
+            .OrderByDescending(scored => scored.Words)
+            .ThenByDescending(scored => scored.Score)
             .ThenBy(scored => scored.Hit.Listing.DisplayName, StringComparer.OrdinalIgnoreCase)
             .ThenBy(scored => scored.Hit.Listing.Id, StringComparer.Ordinal)
             .Select(scored => scored.Hit)
@@ -184,6 +195,14 @@ public static class SearchRanker
             Experience: ExperienceWeight * ExperienceFeature(listing, scales),
             Trust: TrustFeature(listing));
     }
+
+    /// <summary>
+    /// For an "Others" search: the share of the words the Seeker typed that the worker's own "Others" text also has
+    /// (<see cref="FeedbackMatch"/>: small words dropped, plurals ignored), 0 to 1. It orders before the score, so
+    /// "plaster sa kisame" finds the worker who wrote "kisame at plaster" first; 0 for any other search.
+    /// </summary>
+    public static double OtherWordsMatch(IReadOnlySet<string> typed, ListingDto pro) =>
+        typed.Count == 0 ? 0 : FeedbackMatch.Score(typed, FeedbackMatch.Words(pro.OtherWork));
 
     /// <summary>The bonus for the kinds of badge the worker holds (each kind once).</summary>
     public static double TrustFeature(ListingDto pro)

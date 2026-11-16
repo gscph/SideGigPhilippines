@@ -70,6 +70,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             ServiceId = request.ServiceId,
             Description = description,
             BudgetPesos = request.BudgetPesos,
+            BudgetMinPesos = request.BudgetMinPesos,
             CityId = request.CityId,
             Latitude = point?.Latitude,
             Longitude = point?.Longitude,
@@ -373,11 +374,18 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         }
 
         var served = (await config.GetAsync(cancellationToken)).Config;
-        return served.Catalog.FirstOrDefault(c => c.Id == request.CategoryId) is not { } trade ? "categoryId"
-            : !trade.Services.Any(s => s.Id == request.ServiceId) ? "serviceId"
+
+        // "Others" (a kind of work we don't list) is its own trade and job; the description says what it is.
+        var knownJob = request.CategoryId == OtherWork.TradeId
+            ? request.ServiceId == OtherWork.TradeId
+            : served.Catalog.FirstOrDefault(c => c.Id == request.CategoryId) is { } trade ? trade.Services.Any(s => s.Id == request.ServiceId)
+            : (bool?)null;
+        return knownJob is null ? "categoryId"
+            : knownJob == false ? "serviceId"
             : !served.Towns.Any(t => t.Id == request.CityId) ? "cityId"
             : !JobPostRules.IsDescription(request.Description) ? "description"
             : !JobPostRules.IsBudget(request.BudgetPesos) ? "budgetPesos"
+            : !JobPostRules.IsBudgetRange(request.BudgetMinPesos, request.BudgetPesos) ? "budgetMinPesos"
             : request.PhotoIds is { } photos && (photos.Count > JobPostRules.MaxPhotos || !photos.All(StoreText.IsPhotoId)) ? "photoIds"
             : (request.Latitude is not null || request.Longitude is not null) && GeoRules.Point(request.Latitude, request.Longitude) is null ? "latitude"
             : null;
@@ -410,7 +418,8 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         row.CreatedAt,
         offerCount,
         myOfferPesos,
-        pickedProId);
+        pickedProId,
+        row.BudgetMinPesos);
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

@@ -16,9 +16,9 @@ public sealed class ProfessionalFunctions(
     FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, CallerLimits limits, ILogger<ProfessionalFunctions> logger)
 {
     /// <summary>
-    /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;skip=0&amp;take=4</c>:
+    /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;otherText=…&amp;skip=0&amp;take=4</c>:
     /// one page of the trade's workers ranked for this Seeker (only <c>categoryId</c> is required; <c>take</c> defaults
-    /// to <see cref="Paging.Search"/>).
+    /// to <see cref="Paging.Search"/>; <c>otherText</c> is what they typed under "Others").
     /// </summary>
     [Function("SearchProfessionalsRanked")]
     public async Task<IActionResult> SearchRanked(
@@ -47,7 +47,8 @@ public sealed class ProfessionalFunctions(
             return ApiResults.BadRequest(ApiErrors.Invalid("take"));
         }
 
-        var rank = new RankRequest(Optional(query["serviceId"]), Optional(query["cityId"]), Optional(query["budgetId"]));
+        var rank = new RankRequest(Optional(query["serviceId"]), Optional(query["cityId"]), Optional(query["budgetId"]),
+            Optional(query["otherText"]) is { } typed && typed.Length > OtherWork.MaxText ? typed[..OtherWork.MaxText] : Optional(query["otherText"]));
         var hidden = await safety.HiddenForAsync(uid, cancellationToken);
         return new OkObjectResult(await professionals.SearchPageAsync(categoryId, Optional(query["areaId"]), rank, skip, take, hidden, cancellationToken));
     }
