@@ -127,9 +127,26 @@ public static class TestImages
 {
     public static byte[] Jpeg()
     {
-        // A random colour and size: two photos are (practically) never the same, like real photos.
+        // A random colour and size, like real photos. A plain colour alone isn't enough: after the server re-encodes
+        // it, two of the hundreds of test photos sometimes came out byte for byte the same (same size, colours that
+        // encode alike), and the second account got 409 photo-in-use. A fresh Guid drawn as gray pixels across the
+        // top rows makes every photo different by construction.
         var color = new ImageMagick.MagickColor((byte)Random.Shared.Next(256), (byte)Random.Shared.Next(256), (byte)Random.Shared.Next(256));
         using var image = new ImageMagick.MagickImage(color, (uint)Random.Shared.Next(40, 400), (uint)Random.Shared.Next(30, 300)) { Format = ImageMagick.MagickFormat.Jpeg };
+        using var pixels = image.GetPixels();
+        var stamp = Guid.NewGuid().ToByteArray();
+        for (var i = 0; i < stamp.Length; i++)
+        {
+            // 2x2 blocks, so the stamp survives JPEG's smoothing.
+            var level = (ushort)(stamp[i] * 257); // the Q16 build: 0..65535
+            var gray = new[] { level, level, level };
+            for (var dy = 0; dy < 2; dy++)
+            {
+                pixels.SetPixel(i * 2, dy, gray);
+                pixels.SetPixel(i * 2 + 1, dy, gray);
+            }
+        }
+
         return image.ToByteArray();
     }
 }
