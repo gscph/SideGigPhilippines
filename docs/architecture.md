@@ -214,8 +214,22 @@ says "Tarbaho" in `Copy.cs`.
   logged in the chat, `SeekerWorkspace.CallAsync(pro, number)`) and "you can call each other now", or "numbers stay
   private until you pick their offer"; the worker's `ProChatPage` shows **Call** (not logged) and "they picked your
   offer".
-- **Not built yet:** a notification for a new post or a new offer; a worker's list of their own offers and how they
-  ended (a worker who wasn't picked just sees the post leave their feed); the phone's own location on a post.
+- **Notifications** (brief item 10, `SideGigPh.Api/JobAlerts`, called inline by `JobPostFunctions` after the write,
+  never failing it): a **new post** (`JobPostOutcome.IsNew`, so a retry answered with the post already there doesn't
+  ring again) rings the workers `JobPostStore.WorkersToAlertAsync` finds: the same match as the feed (trade, within
+  the worker's own `RadiusKm` of the post or a town match when a point is unknown, never the household or a block
+  either way), the best `MaxWorkers` (30), a service they offer first, then nearest. Title "New request near you",
+  body "₱budget · first line of the description", tag `post-{id}`, Android channel `requests` (loud). A **new or
+  changed offer** rings the household: "New offer: {worker}", "₱price for your post", tag `offers-{postId}` (one
+  line per post), channel `offers` (loud: offers are what a household waits for). Both carry `PushData.PostId` and
+  `Side`; `ChatAlerts.PathFor` opens `JobPostRoutes.Feed` (worker) or `JobPostRoutes.Offers(id)` (household); older
+  apps ignore the data and the unknown channel falls back to Android's default. The household's point and numbers
+  never go into a notification. `NewPostPage` asks to allow notifications right after the first post (there are
+  offers to wait for). One `TargetAsync` per worker (three small queries): fine at 30; batch it if the cap grows.
+  **iOS** needs the APNs key uploaded in the Firebase console (Project settings → Cloud Messaging) before any of
+  these reach an iPhone.
+- **Not built yet:** a worker's list of their own offers and how they ended (a worker who wasn't picked just sees the
+  post leave their feed); the phone's own location on a post.
 
 ## Badges (worker verification)
 

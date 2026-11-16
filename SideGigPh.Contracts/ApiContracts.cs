@@ -227,6 +227,15 @@ public static class PushData
 
     /// <summary>Android channel for a Skilled Worker answering a Seeker: silent, only the tray line and the icon dot.</summary>
     public const string RepliesChannel = "replies";
+
+    /// <summary>The job post a notification is about (a new post for a worker, a new offer for the household).</summary>
+    public const string PostId = "postId";
+
+    /// <summary>Android channel for a new post near a worker: a normal notification (sound, pop-up).</summary>
+    public const string RequestsChannel = "requests";
+
+    /// <summary>Android channel for a new offer on a household's post: a normal notification (sound, pop-up).</summary>
+    public const string OffersChannel = "offers";
 }
 
 /// <summary>
