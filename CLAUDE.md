@@ -38,7 +38,7 @@ changing that area.**
   never the WebView's `localStorage`, no SQLite until local data needs querying; Android backup is off so a reinstall starts fresh), `IChatRepository`, `IUserRepository`,
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
-  `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board),
+  `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board), `IJobPostRepository` (job posts),
   skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers (the add-phone page's "Sign in with this number" when a Google account's number belongs to another account), Start over, Delete account), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
 - **API adapters** (`Services/Api/`, the only app code that talks HTTP): `ApiClient` (one `HttpClient`, the Firebase
   ID token on every request, asks for gzip) and one `Api*Repository` per port, registered by `AddSideGigPhApi`
@@ -144,13 +144,32 @@ changing that area.**
   the person adds their vote to one or says theirs is different. One vote per person; the writer may remove their own
   only while nobody else voted; a 🚩 sends it to the operator's `Reports` queue; the operator sets `Status`
   (`open`/`planned`/`done`/`declined`/`hidden`) in SQL.
+- **Job posts** (`Components/JobPosts/`, `Services/JobBoard`, `JobPostStore`, `015-schema-job-posts.sql`, tables
+  `JobPosts` / `JobPostPhotos`): a Seeker's **Post** tab lists their posts and opens the form (trade, service, town,
+  what is wrong, their own budget in pesos, up to 3 photos; `JobPostRules`); a worker's **Requests** tab is the feed
+  (`GET job-posts/feed`): open posts of **their trade** within **their own `RadiusKm`** of their base point
+  (`STDistance`; town match when a point is unknown), ordered **a service they offer first, then nearest, then
+  newest**, never their own or a blocked person's. The feed needs a published listing (`HasListing`). **The
+  household's point is private:** it is stored (the phone's, else the town's centre) and only a town and a distance
+  in whole kilometres, never under 1, are sent (`JobPostStore.DistanceKm`). A 🚩 on a post goes to the operator's
+  `Reports` queue (`job-post:{id}`); the operator hides it with `Status = 'hidden'`. Copy calls it "what you need
+  done" / "Requests", never a job. **Offers** (`016-schema-job-offers.sql`, table `JobOffers`, inDrive style): under
+  each card in the feed a worker taps "Take it for ₱budget" or offers another price with a short note
+  (`Components/JobPosts/OfferBox`), changes it or takes it back, one offer per worker per post; the household's card
+  says "See N offers" (`OffersPage`, `/posts/{id}/offers`: each worker's `ProCard`, price, distance, note, the picked
+  one first, then cheapest); "Pick" asks once more, closes the post, sends the worker a first chat message and opens
+  the chat (the Seeker still starts every chat). Offers need the worker's published listing of that trade; a block
+  either way hides them. **Phone numbers stay private until a pick:** `ListingDto.MobileNumber` is empty for everyone
+  but the listing's owner (search, profiles, offers); the two sides talk in the app's chat, and Call shows on both
+  chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,
+  `JobPostStore.ContactNumberAsync`, `JobBoard.ContactNumberAsync`; null with no pick, a block, or no number).
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
   (`ProLayout`, `SeekerLayout`) loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
 - **Pro side:** publishing needs a complete listing (`IsListingComplete`) **and proof** (`HasProof`: profile photo,
   2–6 work photos, 1–3 private references; Seekers see only the count) and a verified number; the server checks
   the same (`ProfessionalStore.InvalidField`). **The interview's Done leads straight into the setup** (`Onboarding/ProSetup`, `/start/pro/setup/{1-3}`: a selfie (asks for the camera, opens the front camera by itself, moves on when saved; Android: `Platforms/Android/AndroidPhotoPicker`) → work photos → references, then Publish; rules `ProSetupStep` / `AfterInterviewPath` in `OnboardingSteps`), and launch resumes it until the listing is live; Pro home's `SetupCard` covers whatever is still missing after that. **Edits to a live listing always reach the server:** Edit listing's Done, photo and reference changes mark it `ProfessionalDraft.ListingOutOfDate` and re-publish (`ProWorkspace.ListingEditedAsync` / `SyncListingAsync`, never throwing); a failure keeps the mark and the next Pro refresh retries.
-- **Seeker side:** search → public profile `/pro/{id}` → chat with a ready first message (Send or Call). Search
+- **Seeker side:** search → public profile `/pro/{id}` → chat with a ready first message (Send; Call only after a pick). Search
   words are parsed in the app (`SearchText`, `SearchIntentParser`, synonyms in `TradeWords`); ranking is on the server
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of
   the score; [`docs/search-ranking.md`](docs/search-ranking.md)).
@@ -222,7 +241,7 @@ SideGigPh.slnx
 │   └── MauiProgram.cs         # DI container — AddMobileAppTheme, then binds the app's adapters
 │
 └── SideGigPh.Tests/           # xUnit tests (README.md): compiles the app's Models/ + Services/ by link
-    ├── Unit/                  # one feature per folder, fakes only (Onboarding, Catalog, Publishing, Search, Seeker, Chats, Reviews, Photos, Account, PhoneNumbers, Adapters, Diagnostics, Feedback, UpdateSafety, Performance)
+    ├── Unit/                  # one feature per folder, fakes only (Onboarding, Catalog, Publishing, Search, Seeker, Chats, Reviews, Photos, Account, PhoneNumbers, Adapters, Diagnostics, Feedback, JobPosts, UpdateSafety, Performance)
     ├── Integration/           # real API functions + SQL Server + the app's adapters (Support/: ApiTestHost, TestDatabase, TestTokens, TestPhone)
     └── TestSupport/           # fakes for the ports, FakeApp, StubServer, test data
 ```

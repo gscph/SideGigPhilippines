@@ -218,10 +218,14 @@ public sealed class SeekerWorkspace(
     /// </summary>
     public Task<ChatMessage> SendAsync(ProfessionalListing pro, string message) => PostAsync(pro, ChatMessageKind.Text, message.Trim());
 
-    /// <summary>Opens the dialer and logs the call in the chat: the logged message, or null if the dialer couldn't open.</summary>
-    public async Task<ChatMessage?> CallAsync(ProfessionalListing pro)
+    /// <summary>
+    /// Opens the dialer on <paramref name="number"/> (the pro's, given once the Seeker picked their offer:
+    /// <see cref="JobBoard.ContactNumberAsync"/>) and logs the call in the chat: the logged message, or null if the
+    /// dialer couldn't open.
+    /// </summary>
+    public async Task<ChatMessage?> CallAsync(ProfessionalListing pro, string number)
     {
-        if (!await phone.CallAsync(pro.MobileNumber))
+        if (!await phone.CallAsync(number))
         {
             return null;
         }

@@ -145,8 +145,20 @@ public static class Copy
     public static readonly LocalizedText YouCalled = new("You called", "Tumawag ka");
     public static readonly LocalizedText CalledYou = new("Called you", "Tumawag sa'yo");
     public static readonly LocalizedText ThreadHowItWorks = new(
-        "{0} gets your message here in the app and replies here. You can also call.",
-        "Makikita ni {0} ang message mo dito sa app, at dito rin siya sasagot. Puwede ka ring tumawag.");
+        "{0} gets your message here in the app and replies here.",
+        "Makikita ni {0} ang message mo dito sa app, at dito rin siya sasagot.");
+
+    public static readonly LocalizedText NumberAfterPick = new(
+        "Numbers stay private until you pick their offer on one of your posts. Then you can call.",
+        "Private muna ang mga number hanggang piliin mo ang offer nila sa post mo. Saka kayo puwedeng magtawagan.");
+
+    public static readonly LocalizedText NumberShared = new(
+        "You picked their offer, so you can call each other now.",
+        "Pinili mo ang offer nila, kaya puwede na kayong magtawagan.");
+
+    public static readonly LocalizedText CustomerNumberShared = new(
+        "They picked your offer, so you can call each other now.",
+        "Pinili nila ang offer mo, kaya puwede na kayong magtawagan.");
     public static readonly LocalizedText ThreadStart = new(
         "We wrote a message for you. Change it if you like, then tap Send.",
         "May nakahanda nang message. Puwede mo itong baguhin, tapos i-tap ang I-send.");
@@ -238,6 +250,76 @@ public static class Copy
     public static readonly LocalizedText NavHome = new("Home", "Home");
     public static readonly LocalizedText NavInbox = new("Inbox", "Inbox");
     public static readonly LocalizedText NavReviews = new("Reviews", "Reviews");
+    public static readonly LocalizedText NavPosts = new("Post", "Post");
+    public static readonly LocalizedText NavRequests = new("Requests", "Requests");
+
+    // Job posts. A household says what it needs done and its budget; workers of that trade nearby see it.
+    // Service words only (CLAUDE.md, Legal): "what you need done", never job / hire.
+    public static readonly LocalizedText PostsTitle = new("What you need done", "Mga ipapagawa mo");
+    public static readonly LocalizedText PostsWhy = new("Post it once. Workers of that trade near you will see it.", "I-post nang isang beses. Makikita ng mga malapit na gumagawa nito.");
+    public static readonly LocalizedText PostsEmpty = new("Nothing posted yet. Say what you need done and your budget.", "Wala ka pang post. Sabihin kung ano ang ipapagawa at magkano ang budget mo.");
+    public static readonly LocalizedText PostsNew = new("Post what you need", "Mag-post ng ipapagawa");
+    public static readonly LocalizedText PostNewTitle = new("What do you need done?", "Ano ang ipapagawa mo?");
+    public static readonly LocalizedText PostNewWhy = new("Only workers of this trade near you will see it. Your exact address is never shown.", "Mga malapit na gumagawa lang nito ang makakakita. Hindi ipinapakita ang eksaktong address mo.");
+    public static readonly LocalizedText PostTrade = new("Kind of work", "Uri ng gawa");
+    public static readonly LocalizedText PostService = new("What exactly", "Ano mismo");
+    public static readonly LocalizedText PostDescription = new("Describe the problem", "Ikuwento ang problema");
+    public static readonly LocalizedText PostDescriptionHint = new("e.g. The kitchen faucet leaks even when closed", "hal. Tumutulo ang gripo sa kusina kahit sarado");
+    public static readonly LocalizedText PostBudget = new("Your budget", "Budget mo");
+    public static readonly LocalizedText PostBudgetWhy = new("Your own number. You and the worker agree on the final price.", "Sarili mong presyo. Kayo ng gagawa ang mag-uusap sa final na presyo.");
+    public static readonly LocalizedText PostPhotosAdd = new("Add photos of the problem", "Maglagay ng photo ng problema");
+    public static readonly LocalizedText PostPhotosHint = new("Up to {0} photos. You can skip this.", "Hanggang {0} photo. Puwedeng wala.");
+    public static readonly LocalizedText PostPhotosLabel = new("Photos of the problem", "Mga photo ng problema");
+    public static readonly LocalizedText PostSend = new("Post", "I-post");
+    public static readonly LocalizedText PostFailed = new("It didn't post. Check your internet and try again.", "Hindi na-post. I-check ang internet at subukan ulit.");
+    public static readonly LocalizedText PostShowing = new("Workers can see it", "Nakikita ng mga gagawa");
+    public static readonly LocalizedText PostTakenDown = new("Taken down", "Tinanggal na");
+    public static readonly LocalizedText PostTakeDown = new("Take down", "Tanggalin");
+    public static readonly LocalizedText PostTakeDownFailed = new("It wasn't taken down. Check your internet and try again.", "Hindi natanggal. I-check ang internet at subukan ulit.");
+    public static readonly LocalizedText PostBudgetFact = new("Budget {0}", "Budget {0}");
+    public static readonly LocalizedText PostDistance = new("{0} · {1} km away", "{0} · {1} km ang layo");
+    public static readonly LocalizedText PostOffersService = new("You offer this", "Serbisyo mo ito");
+    public static readonly LocalizedText PostReport = new("Report as fake", "I-report na peke");
+    public static readonly LocalizedText PostReported = new("Thanks. We will check it.", "Salamat. Iche-check namin.");
+    public static readonly LocalizedText PostReportFailed = new("The report didn't send. Check your internet and try again.", "Hindi na-send ang report. I-check ang internet at subukan ulit.");
+    public static readonly LocalizedText ProPostsTitle = new("Customers need this", "Kailangan ng mga customer");
+    public static readonly LocalizedText ProPostsWhy = new("Your trade, near you. What you offer comes first, then the nearest.", "Trade mo, malapit sa'yo. Una ang mga serbisyo mo, tapos ang pinakamalapit.");
+    public static readonly LocalizedText ProPostsEmpty = new("Nothing near you right now. New posts show up here.", "Wala pang malapit sa'yo ngayon. Dito lalabas ang mga bagong post.");
+    public static readonly LocalizedText OfferTakeBudget = new("Take it for {0}", "Kunin sa {0}");
+    public static readonly LocalizedText OfferOtherPrice = new("Offer another price", "Ibang presyo");
+    public static readonly LocalizedText OfferYourPrice = new("Your price", "Presyo mo");
+    public static readonly LocalizedText OfferNote = new("Note for the customer (you can skip this)", "Mensahe sa customer (puwedeng wala)");
+    public static readonly LocalizedText OfferNoteHint = new("e.g. I can come tomorrow morning", "hal. Puwede ako bukas ng umaga");
+    public static readonly LocalizedText OfferSend = new("Send offer", "I-send ang offer");
+    public static readonly LocalizedText OfferMine = new("Your offer: {0}", "Offer mo: {0}");
+    public static readonly LocalizedText OfferWaiting = new("Waiting for the customer to pick", "Hinihintay pumili ang customer");
+    public static readonly LocalizedText OfferChange = new("Change price", "Palitan ang presyo");
+    public static readonly LocalizedText OfferWithdraw = new("Take back", "Bawiin");
+    public static readonly LocalizedText OfferSentNotice = new("Offer sent. The customer will message you if they pick you.", "Na-send ang offer. Ime-message ka ng customer kapag ikaw ang napili.");
+    public static readonly LocalizedText OfferWithdrawnNotice = new("Offer taken back.", "Binawi na ang offer.");
+    public static readonly LocalizedText OfferFailed = new("It didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet at subukan ulit.");
+    public static readonly LocalizedText OfferGone = new("That post is closed now.", "Sarado na ang post na iyon.");
+    public static readonly LocalizedText PostOffersNone = new("No offers yet", "Wala pang offer");
+    public static readonly LocalizedText PostOffersOne = new("See 1 offer", "Tingnan ang 1 offer");
+    public static readonly LocalizedText PostOffersMany = new("See {0} offers", "Tingnan ang {0} offer");
+    public static readonly LocalizedText PostPicked = new("You picked a worker", "May napili ka na");
+    public static readonly LocalizedText PostOpenChat = new("Open chat", "Buksan ang chat");
+    public static readonly LocalizedText OffersTitle = new("Offers", "Mga offer");
+    public static readonly LocalizedText OffersWhy = new("Look at their stars and badges, then pick one.", "Tingnan ang stars at badges nila, tapos pumili ng isa.");
+    public static readonly LocalizedText OffersEmpty = new("No offers yet. Workers near you will see your post.", "Wala pang offer. Makikita ng mga malapit na gumagawa ang post mo.");
+    public static readonly LocalizedText OffersMissing = new("This post isn't here anymore.", "Wala na ang post na ito.");
+    public static readonly LocalizedText OfferPrice = new("Asks {0}", "Singil {0}");
+    public static readonly LocalizedText OfferTakesBudget = new("Takes your budget", "Pasok sa budget mo");
+    public static readonly LocalizedText OfferDistance = new("{0} km away", "{0} km ang layo");
+    public static readonly LocalizedText OfferSeeProfile = new("See profile", "Tingnan ang profile");
+    public static readonly LocalizedText OfferPick = new("Pick", "Piliin");
+    public static readonly LocalizedText OfferPickConfirm = new("Pick {0} for {1}? Your post closes and other workers stop seeing it.", "Piliin si {0} sa {1}? Isasara ang post mo at hindi na ito makikita ng iba.");
+    public static readonly LocalizedText OfferPickYes = new("Yes, pick", "Oo, piliin");
+    public static readonly LocalizedText OfferPicked = new("Picked", "Napili");
+    public static readonly LocalizedText OfferPickFailed = new("It didn't go through. Check your internet and try again.", "Hindi natuloy. I-check ang internet at subukan ulit.");
+    public static readonly LocalizedText OfferPickGone = new("That offer can't be picked anymore.", "Hindi na puwedeng piliin ang offer na iyon.");
+    public static readonly LocalizedText OfferPickMessage = new("Hi! I picked your offer of {0} for {1} on Tarbaho. When can you come?", "Hi! Pinili ko ang offer mo na {0} para sa {1} sa Tarbaho. Kailan ka puwedeng pumunta?");
+    public static readonly LocalizedText ProPostsNeedListing = new("Publish your listing first, so we know your trade and where you go.", "I-publish muna ang listing mo para alam namin ang trade mo at kung saan ka pumupunta.");
 
     // --- Pro home ---------------------------------------------------------
     public static readonly LocalizedText ProHomeNotLive = new("Saved on this phone. Not visible to customers yet.", "Saved on this phone. Hindi pa ito nakikita ng customer.");

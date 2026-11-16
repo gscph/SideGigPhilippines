@@ -1,0 +1,40 @@
+@page "/posts"
+@layout SeekerLayout
+
+<MudStack Spacing="3">
+    <MudStack Spacing="1">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.PostsTitle)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.PostsWhy)</MudText>
+    </MudStack>
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+               StartIcon="@Icons.Material.Rounded.Add" Href="@JobPostRoutes.New">
+        @T.Get(Copy.PostsNew)
+    </MudButton>
+
+    @if (_failed)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.PostTakeDownFailed)</MudAlert>
+    }
+
+    @if (!_loaded)
+    {
+        <MudStack Spacing="3">
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
+        </MudStack>
+    }
+    else if (Board.Mine.Count == 0)
+    {
+        <EmptyState Icon="@Icons.Material.Outlined.Campaign" Text="@T.Get(Copy.PostsEmpty)" />
+    }
+    else
+    {
+        <MudStack Spacing="3">
+            @foreach (var post in Board.Mine)
+            {
+                <JobPostCard @key="post.Id" Post="post" OnTakeDown="TakeDownAsync" />
+            }
+        </MudStack>
+    }
+</MudStack>

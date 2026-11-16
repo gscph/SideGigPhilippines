@@ -7,6 +7,9 @@ public static class ProRoutes
 {
     public const string Home = "/professional";
     public const string Inbox = "/professional/inbox";
+
+    /// <summary>What customers nearby posted for the pro's trade (the Requests tab).</summary>
+    public const string Requests = JobPosts.JobPostRoutes.Feed;
     public const string Reviews = "/professional/reviews";
     public const string Publish = "/professional/publish";
     public const string Me = "/professional/me";

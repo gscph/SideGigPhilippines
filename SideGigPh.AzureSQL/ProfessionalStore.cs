@@ -135,9 +135,18 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         });
     }
 
-    public async Task<ListingDto?> GetAsync(string id, CancellationToken cancellationToken) =>
+    /// <summary>The published listings among <paramref name="ids"/>, with their stars and badges (an id with no listing is left out).</summary>
+    public async Task<IReadOnlyList<ListingDto>> GetManyAsync(IReadOnlyCollection<string> ids, CancellationToken cancellationToken) =>
+        ids.Count == 0 ? [] : await WithReviewsAsync(await Listings().Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken), cancellationToken);
+
+    /// <summary>
+    /// One published listing. Its number is left empty (phone privacy: households and workers talk in the app's chat
+    /// until a pick, then <see cref="JobPostStore.ContactNumberAsync"/> gives it), unless <paramref name="withNumber"/>:
+    /// the worker reading their own listing.
+    /// </summary>
+    public async Task<ListingDto?> GetAsync(string id, CancellationToken cancellationToken, bool withNumber = false) =>
         await Listings().FirstOrDefaultAsync(p => p.Id == id, cancellationToken) is { } row
-            ? (await WithReviewsAsync([row], cancellationToken))[0]
+            ? (await WithReviewsAsync([row], cancellationToken))[0] is var listing && withNumber ? listing with { MobileNumber = row.MobileNumber } : listing
             : null;
 
     /// <summary>
@@ -333,7 +342,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount, IReadOnlyList<BadgeDto> badges) => new(
         p.Id,
         p.DisplayName,
-        p.MobileNumber,
+        string.Empty, // phone privacy: never in search or profiles (the field stays for older apps)
         p.CategoryId,
         p.AreaId,
         p.Services.Select(s => s.ServiceId).ToList(),

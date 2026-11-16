@@ -33,6 +33,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<FeedbackStore>();
         services.AddScoped<WarmupStore>();
         services.AddScoped<VerificationStore>();
+        services.AddScoped<JobPostStore>();
         return services;
     }
 }

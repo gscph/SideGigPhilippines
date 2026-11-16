@@ -18,5 +18,7 @@ public static class SchemaScripts
         "012-schema-feedback",
         "013-schema-geo",
         "014-schema-verification",
+        "015-schema-job-posts",
+        "016-schema-job-offers",
     ];
 }

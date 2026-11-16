@@ -20,6 +20,9 @@ public partial class PublicProfilePage : ComponentBase
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
+    /// <summary>Where Back goes (e.g. the offers on a post); the results when missing.</summary>
+    [SupplyParameterFromQuery(Name = "back")] public string? Back { get; set; }
+
     private ProfessionalListing? _pro;
     private IReadOnlyList<Review> _reviews = [];
     private bool _loading = true;

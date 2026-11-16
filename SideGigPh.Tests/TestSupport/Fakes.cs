@@ -689,3 +689,112 @@ public sealed class FakeErrorReportRepository : IErrorReportRepository
         return Task.FromResult(Answer);
     }
 }
+
+/// <summary>Job posts kept in memory: what the household posted, and a feed a test seeds for the worker.</summary>
+public sealed class FakeJobPosts : IJobPostRepository
+{
+    private readonly List<JobPost> _mine = [];
+    private readonly List<JobPost> _feed = [];
+
+    public List<JobPostDraft> Added { get; } = [];
+
+    public List<long> Reported { get; } = [];
+
+    /// <summary>Every write throws, as with no connection.</summary>
+    public bool Fail { get; set; }
+
+    public bool HasListing { get; set; } = true;
+
+    /// <summary>Puts posts in the worker's feed, in this order.</summary>
+    public void Seed(params JobPost[] posts) => _feed.AddRange(posts);
+
+    public Task<JobPost> AddAsync(JobPostDraft draft)
+    {
+        ThrowIfOffline();
+        Added.Add(draft);
+        var post = new JobPost(_mine.Count + 1000, draft.CategoryId!, draft.ServiceId!, draft.Description!.Trim(), draft.BudgetPesos!.Value, draft.CityId!,
+            [.. draft.Photos.Select(photo => photo.Url)], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null, DateTimeOffset.UnixEpoch);
+        _mine.Insert(0, post);
+        return Task.FromResult(post);
+    }
+
+    public Task<IReadOnlyList<JobPost>> GetMineAsync() => Task.FromResult<IReadOnlyList<JobPost>>([.. _mine]);
+
+    public Task CloseAsync(long postId)
+    {
+        ThrowIfOffline();
+        var index = _mine.FindIndex(p => p.Id == postId);
+        _mine[index] = _mine[index] with { IsOpen = false };
+        return Task.CompletedTask;
+    }
+
+    public Task<JobPostFeed> GetFeedAsync(int skip) => Task.FromResult(new JobPostFeed(
+        HasListing ? [.. _feed.Skip(skip).Take(SideGigPh.Contracts.Paging.JobPosts)] : [],
+        HasListing && _feed.Count > skip + SideGigPh.Contracts.Paging.JobPosts,
+        HasListing));
+
+    public Task ReportAsync(long postId)
+    {
+        ThrowIfOffline();
+        Reported.Add(postId);
+        _feed.RemoveAll(p => p.Id == postId);
+        return Task.CompletedTask;
+    }
+
+    /// <summary>Offer writes answer 404, as when the post closed meanwhile.</summary>
+    public bool Gone { get; set; }
+
+    /// <summary>The offers sent: post id, price, note (a withdraw removes it).</summary>
+    public Dictionary<long, (int Price, string? Note)> Offers { get; } = [];
+
+    /// <summary>What <see cref="GetOffersAsync"/> answers, per post.</summary>
+    public Dictionary<long, List<JobOffer>> OffersOn { get; } = [];
+
+    public List<(long PostId, long OfferId)> Picked { get; } = [];
+
+    public Task SendOfferAsync(long postId, int pricePesos, string? note)
+    {
+        ThrowIfOfflineOrGone();
+        Offers[postId] = (pricePesos, note);
+        return Task.CompletedTask;
+    }
+
+    public Task WithdrawOfferAsync(long postId)
+    {
+        ThrowIfOfflineOrGone();
+        Offers.Remove(postId);
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<JobOffer>> GetOffersAsync(long postId) =>
+        Task.FromResult<IReadOnlyList<JobOffer>>(OffersOn.TryGetValue(postId, out var offers) ? [.. offers] : []);
+
+    /// <summary>The numbers <see cref="GetContactNumberAsync"/> gives, by the other person's uid (a pick linked them).</summary>
+    public Dictionary<string, string> Numbers { get; } = [];
+
+    public Task<string?> GetContactNumberAsync(string otherUid) => Task.FromResult(Numbers.GetValueOrDefault(otherUid));
+
+    public Task<JobOffer> PickOfferAsync(long postId, long offerId)
+    {
+        ThrowIfOfflineOrGone();
+        Picked.Add((postId, offerId));
+        return Task.FromResult(OffersOn[postId].Single(o => o.Id == offerId) with { IsPicked = true });
+    }
+
+    private void ThrowIfOfflineOrGone()
+    {
+        ThrowIfOffline();
+        if (Gone)
+        {
+            throw new HttpRequestException("gone", null, System.Net.HttpStatusCode.NotFound);
+        }
+    }
+
+    private void ThrowIfOffline()
+    {
+        if (Fail)
+        {
+            throw new HttpRequestException("offline");
+        }
+    }
+}

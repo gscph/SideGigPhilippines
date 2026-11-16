@@ -158,6 +158,65 @@ says "Tarbaho" in `Copy.cs`.
 - **Operator:** `UPDATE dbo.FeedbackPosts SET Status = 'planned' WHERE Id = …` (or `done`, `declined`, `hidden`);
   top of the board: `SELECT Id, Votes, Status, Side, Title FROM dbo.FeedbackPosts ORDER BY Votes DESC`.
 
+## Job posts
+
+- **What:** a household says once what it needs done and what it is ready to pay, and the workers of that trade
+  nearby see it. Tarbaho stays a directory: the budget is the household's own number, nothing is paid in the app.
+- **Seeker side:** the **Post** tab (`SeekerRoutes.Posts` = `JobPostRoutes.Mine`, `Components/JobPosts/MyPostsPage`,
+  inside `SeekerLayout`) lists their posts, newest first, each saying whether workers can still see it, with
+  "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen): kind of work,
+  the exact service, town (all three start from their last search), the problem in their words (10–600 letters),
+  their budget in pesos and up to 3 photos, uploaded as they are picked (`JobBoard.AddPhotosAsync`).
+- **Pro side:** the **Requests** tab (`ProRoutes.Requests` = `JobPostRoutes.Feed`, `ProPostsPage`, inside
+  `ProLayout`) is the feed, a page of `Paging.JobPosts` (10) at a time with `LoadMoreOnScroll`. Until the listing is
+  published it says to publish first: the server matches posts to the published listing (trade, services, base
+  point, `RadiusKm`), not to the draft on the phone.
+- **Relevance (`JobPostStore.FeedAsync`, one SQL query):** open posts whose trade is the worker's, within the
+  worker's own `RadiusKm` of their base point (`Professionals.Location.STDistance(JobPosts.Location)`, metres, both
+  on spatial indexes; when either point is unknown, posts in a town the worker goes to). Never the worker's own
+  posts, nor those of someone blocked either way. Order: **a service the worker offers first, then nearest, then
+  newest.**
+- **Privacy:** a post's point is the phone's when the app sends one (it doesn't yet: there is no location
+  permission step), else the centre of its town (`GeoRules.CentreOf`). The point never leaves the server: a worker
+  gets the town and `distanceKm`, whole kilometres and never under 1 (`JobPostStore.DistanceKm`), so a place can't
+  be worked out from it.
+- **Abuse:** posts are limited to 10 an hour per account (`Limited.JobPost`); the same post sent twice is one post;
+  the flag on a card sends it to the operator's `Reports` queue (`job-post:{id}`) and takes it off that worker's
+  feed; the operator hides it with `UPDATE dbo.JobPosts SET Status = 'hidden' WHERE Id = …`. Delete account removes
+  a household's posts and their photos, and a worker's offers. Offers are limited to 60 writes an hour
+  (`Limited.JobOffer`).
+- **App (`Services/JobBoard`, singleton, port `IJobPostRepository`, adapter `ApiJobPostRepository`):** both lists
+  and their actions; a failed call never throws into a page. `JobPostCard` draws a post for both sides.
+- **Offers (inDrive style, `016-schema-job-offers.sql`, table `JobOffers`):** under each card in the Requests feed
+  (`OfferBox`) a worker taps **"Take it for ₱budget"** (one tap) or **"Offer another price"** (their price, same
+  range as a budget, and an optional note up to 300 letters, `JobOfferRules`). Once sent the card shows "Your offer:
+  ₱…, waiting for the customer" with "Change price" and "Take back". One offer per worker per post (a new price
+  replaces the old one, `UX_JobOffers_PostPro`). The server takes offers only from a published listing of the post's
+  trade, on an open post that isn't the worker's own, and never between two people where one blocked the other
+  (`JobPostStore.OpenPostFor`). The feed carries the worker's own price (`myOfferPesos`).
+- **Picking:** the household's card says **"See N offers"** (`offerCount`), opening `OffersPage`
+  (`JobPostRoutes.Offers(id)` = `/posts/{id}/offers`, inside `SeekerLayout`). Each `OfferCard` is the worker's
+  `ProCard` as in search (photo, stars, badges; "Takes your budget" when the price is the budget), their price, how far
+  they are from the post (whole km) and their note, with "See profile" (Back returns to the offers:
+  `SeekerRoutes.Pro(id, back)`) and **"Pick"**, which asks once more. Order: the picked one first, then the lowest
+  price, then the earliest. Picking (`POST job-posts/{id}/offers/{offerId}/pick`, one transaction) marks the offer
+  `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
+  your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
+  worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
+- **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
+  `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
+  app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the
+  publish answer put it back (`GetAsync(withNumber)`). Before a pick the two talk only in the app's chat, which stays
+  as the record. `GET contacts/{otherUid}` (`JobPostStore.ContactNumberAsync`) answers `ContactDto(phoneNumber)` once
+  a `picked` offer links the caller and the other person (either side), else null; also null with a block either way
+  or no number (a worker's is their listing's, a household's the account's, which a Google sign-in may lack). Both
+  chat pages ask for it on open (`JobBoard.ContactNumberAsync`): the Seeker's `ThreadPage` shows **Call** (still
+  logged in the chat, `SeekerWorkspace.CallAsync(pro, number)`) and "you can call each other now", or "numbers stay
+  private until you pick their offer"; the worker's `ProChatPage` shows **Call** (not logged) and "they picked your
+  offer".
+- **Not built yet:** a notification for a new post or a new offer; a worker's list of their own offers and how they
+  ended (a worker who wasn't picked just sees the post leave their feed); the phone's own location on a post.
+
 ## Badges (worker verification)
 
 Three badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the

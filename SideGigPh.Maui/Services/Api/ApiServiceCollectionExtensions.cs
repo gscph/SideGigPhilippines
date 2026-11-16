@@ -27,6 +27,7 @@ public static class ApiServiceCollectionExtensions
         services.AddSingleton<ISafetyRepository, ApiSafetyRepository>();
         services.AddSingleton<IFeedbackRepository, ApiFeedbackRepository>();
         services.AddSingleton<IVerificationRepository, ApiVerificationRepository>();
+        services.AddSingleton<IJobPostRepository, ApiJobPostRepository>();
         services.AddSingleton<IServerWarmup, ApiServerWarmup>();
         services.TryAddSingleton(TimeProvider.System);
         services.AddSingleton<ServerWarmup>();

@@ -55,6 +55,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton(BuildInfo.Current);
             builder.Services.AddSingleton<AppAnalytics>();
             builder.Services.AddSingleton<FeedbackBoard>();
+            builder.Services.AddSingleton<JobBoard>();
             builder.Services.AddSingleton<ChatAlerts>();
             builder.Services.AddSingleton<IAuthLanding, SideGigPhAuthLanding>();
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();

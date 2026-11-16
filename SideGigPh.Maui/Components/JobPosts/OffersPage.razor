@@ -1,0 +1,51 @@
+@page "/posts/{PostId:long}/offers"
+@layout SeekerLayout
+
+<MudStack Spacing="3">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+        <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Dark" Href="@JobPostRoutes.Mine" aria-label="@T.Get(CommonCopy.Back)" />
+        <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.OffersTitle)</MudText>
+    </MudStack>
+
+    @if (_notice is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(_notice)</MudAlert>
+    }
+
+    @if (!_loaded)
+    {
+        <MudStack Spacing="3">
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="140px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="140px" />
+        </MudStack>
+    }
+    else if (_post is null)
+    {
+        <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.Get(Copy.OffersMissing)" />
+    }
+    else
+    {
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@ServiceLabel</MudText>
+            <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
+                         Text="@T.Format(Copy.PostBudgetFact, Money.Peso(_post.BudgetPesos))" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.OffersWhy)</MudText>
+        </MudStack>
+
+        @if (_offers.Count == 0)
+        {
+            <EmptyState Icon="@Icons.Material.Outlined.Campaign" Text="@T.Get(Copy.OffersEmpty)" />
+        }
+        else
+        {
+            <MudStack Spacing="4">
+                @foreach (var offer in _offers)
+                {
+                    <OfferCard @key="offer.Id" Offer="offer" CanPick="@(_post.IsOpen && !_busy)" Confirming="@(_confirming == offer.Id)"
+                               ProfileHref="@SeekerRoutes.Pro(offer.Pro.Id, JobPostRoutes.Offers(PostId))"
+                               OnPick="@(() => _confirming = offer.Id)" OnCancel="@(() => _confirming = null)" OnConfirm="PickAsync" />
+                }
+            </MudStack>
+        }
+    }
+</MudStack>

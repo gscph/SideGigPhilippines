@@ -29,6 +29,9 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<FeedbackVoteRow> FeedbackVotes => Set<FeedbackVoteRow>();
     public DbSet<WorkerVerificationRow> WorkerVerifications => Set<WorkerVerificationRow>();
     public DbSet<VerificationAuditRow> VerificationAudit => Set<VerificationAuditRow>();
+    public DbSet<JobPostRow> JobPosts => Set<JobPostRow>();
+    public DbSet<JobPostPhotoRow> JobPostPhotos => Set<JobPostPhotoRow>();
+    public DbSet<JobOfferRow> JobOffers => Set<JobOfferRow>();
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configuration)
     {
@@ -322,6 +325,45 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             audit.Property(a => a.ActorUid).HasMaxLength(128);
             audit.Property(a => a.Action).HasMaxLength(12);
             audit.HasIndex(a => new { a.VerificationId, a.At }).HasDatabaseName("IX_VerificationAudit_Verification");
+        });
+
+        model.Entity<JobPostRow>(post =>
+        {
+            // 015-schema-job-posts: the geography column Location is computed from Latitude / Longitude by the
+            // database and read only in SQL (the workers' feed).
+            post.ToTable("JobPosts");
+            post.HasKey(p => p.Id).HasName("PK_JobPosts");
+            post.Property(p => p.Id).UseIdentityColumn();
+            post.Property(p => p.SeekerUid).HasMaxLength(128);
+            post.Property(p => p.CategoryId).HasMaxLength(40);
+            post.Property(p => p.ServiceId).HasMaxLength(40);
+            post.Property(p => p.Description).HasMaxLength(600).IsUnicode();
+            post.Property(p => p.CityId).HasMaxLength(40);
+            post.Property(p => p.Status).HasMaxLength(10);
+            post.HasMany(p => p.Photos).WithOne().HasForeignKey(photo => photo.PostId).HasConstraintName("FK_JobPostPhotos_Post").OnDelete(DeleteBehavior.Cascade);
+            post.HasIndex(p => new { p.Status, p.CategoryId, p.CreatedAt }).IsDescending(false, false, true).HasDatabaseName("IX_JobPosts_Open");
+            post.HasIndex(p => new { p.SeekerUid, p.CreatedAt }).IsDescending(false, true).HasDatabaseName("IX_JobPosts_Seeker");
+        });
+
+        model.Entity<JobPostPhotoRow>(photo =>
+        {
+            photo.ToTable("JobPostPhotos");
+            photo.HasKey(p => new { p.PostId, p.PhotoId }).HasName("PK_JobPostPhotos");
+            photo.Property(p => p.PhotoId).HasMaxLength(64);
+        });
+
+        model.Entity<JobOfferRow>(offer =>
+        {
+            // 016-schema-job-offers
+            offer.ToTable("JobOffers");
+            offer.HasKey(o => o.Id).HasName("PK_JobOffers");
+            offer.Property(o => o.Id).UseIdentityColumn();
+            offer.Property(o => o.ProUid).HasMaxLength(128);
+            offer.Property(o => o.Note).HasMaxLength(300).IsUnicode();
+            offer.Property(o => o.Status).HasMaxLength(10);
+            offer.HasOne<JobPostRow>().WithMany().HasForeignKey(o => o.PostId).HasConstraintName("FK_JobOffers_Post").OnDelete(DeleteBehavior.Cascade);
+            offer.HasIndex(o => new { o.PostId, o.ProUid }).IsUnique().HasDatabaseName("UX_JobOffers_PostPro");
+            offer.HasIndex(o => o.ProUid).HasDatabaseName("IX_JobOffers_Pro");
         });
     }
 }

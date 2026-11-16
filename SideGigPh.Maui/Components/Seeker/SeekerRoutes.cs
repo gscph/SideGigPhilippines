@@ -9,6 +9,9 @@ public static class SeekerRoutes
     /// <summary>Results, opened from the home search box or a trade icon; under <see cref="Home"/> so Home stays lit.</summary>
     public const string Search = Home + "/search";
     public const string Inbox = "/inbox";
+
+    /// <summary>The Seeker's own job posts (the Post tab).</summary>
+    public const string Posts = JobPosts.JobPostRoutes.Mine;
     /// <summary>The Seeker's reviews, opened from the Me page; under <see cref="Me"/> so Me stays lit.</summary>
     public const string Reviews = Me + "/reviews";
     public const string Me = "/me";
@@ -18,6 +21,13 @@ public static class SeekerRoutes
 
     /// <summary>A pro's public profile.</summary>
     public static string Pro(string professionalId) => $"/pro/{Uri.EscapeDataString(professionalId)}";
+
+    /// <summary>A pro's public profile whose Back returns to <paramref name="back"/> (a page of this app) instead of the results.</summary>
+    public static string Pro(string professionalId, string back) => $"{Pro(professionalId)}?back={Uri.EscapeDataString(back)}";
+
+    /// <summary><paramref name="back"/> when it is a page of this app (starts with one slash), else the results.</summary>
+    public static string BackOrSearch(string? back) =>
+        back is { Length: > 1 } path && path[0] == '/' && path[1] != '/' && path[1] != '\\' ? path : Search;
 
     /// <summary>The Inbox thread with a pro, where Contact lands.</summary>
     public static string Thread(string professionalId) => $"/inbox/{Uri.EscapeDataString(professionalId)}";

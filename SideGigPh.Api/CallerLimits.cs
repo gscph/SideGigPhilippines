@@ -38,6 +38,12 @@ public enum Limited
     /// <summary>The caller's own profile saved.</summary>
     Profile,
 
+    /// <summary>A job post by a household (each one shows to every worker of that trade nearby).</summary>
+    JobPost,
+
+    /// <summary>An offer sent, changed or taken back on a job post.</summary>
+    JobOffer,
+
     /// <summary>A proof sent for a badge (each ID is a paid AI read and waits for the operator).</summary>
     Verification,
 }
@@ -65,6 +71,8 @@ public sealed class CallerLimits : IDisposable
         [Limited.Listing] = (20, TimeSpan.FromHours(1)),
         [Limited.Profile] = (60, TimeSpan.FromHours(1)),
         [Limited.Verification] = (12, TimeSpan.FromHours(1)),
+        [Limited.JobPost] = (10, TimeSpan.FromHours(1)),
+        [Limited.JobOffer] = (60, TimeSpan.FromHours(1)),
     };
 
     private readonly PartitionedRateLimiter<(Limited Kind, string Uid)> _limiter =
