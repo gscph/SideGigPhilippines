@@ -190,6 +190,24 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
     }
 
     /// <summary>
+    /// <c>GET contacts/{otherUid}</c>: the other person's number once a picked offer links the two, else
+    /// <c>{ "phoneNumber": null }</c>. Numbers stay private until a pick.
+    /// </summary>
+    [Function("GetContact")]
+    public async Task<IActionResult> Contact(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "contacts/{otherUid}")] HttpRequest request,
+        string otherUid,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        return new OkObjectResult(new ContactDto(await posts.ContactNumberAsync(uid, otherUid, cancellationToken)));
+    }
+
+    /// <summary>
     /// <c>POST job-posts/{id}/offers/{offerId}/pick</c>: the caller picks an offer on their own open post, which
     /// closes it. Answers with the picked offer; <c>404</c> when the post isn't theirs and open or the offer isn't waiting.
     /// </summary>

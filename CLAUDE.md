@@ -159,14 +159,17 @@ changing that area.**
   says "See N offers" (`OffersPage`, `/posts/{id}/offers`: each worker's `ProCard`, price, distance, note, the picked
   one first, then cheapest); "Pick" asks once more, closes the post, sends the worker a first chat message and opens
   the chat (the Seeker still starts every chat). Offers need the worker's published listing of that trade; a block
-  either way hides them.
+  either way hides them. **Phone numbers stay private until a pick:** `ListingDto.MobileNumber` is empty for everyone
+  but the listing's owner (search, profiles, offers); the two sides talk in the app's chat, and Call shows on both
+  chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,
+  `JobPostStore.ContactNumberAsync`, `JobBoard.ContactNumberAsync`; null with no pick, a block, or no number).
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
   (`ProLayout`, `SeekerLayout`) loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
 - **Pro side:** publishing needs a complete listing (`IsListingComplete`) **and proof** (`HasProof`: profile photo,
   2–6 work photos, 1–3 private references; Seekers see only the count) and a verified number; the server checks
   the same (`ProfessionalStore.InvalidField`). **The interview's Done leads straight into the setup** (`Onboarding/ProSetup`, `/start/pro/setup/{1-3}`: a selfie (asks for the camera, opens the front camera by itself, moves on when saved; Android: `Platforms/Android/AndroidPhotoPicker`) → work photos → references, then Publish; rules `ProSetupStep` / `AfterInterviewPath` in `OnboardingSteps`), and launch resumes it until the listing is live; Pro home's `SetupCard` covers whatever is still missing after that. **Edits to a live listing always reach the server:** Edit listing's Done, photo and reference changes mark it `ProfessionalDraft.ListingOutOfDate` and re-publish (`ProWorkspace.ListingEditedAsync` / `SyncListingAsync`, never throwing); a failure keeps the mark and the next Pro refresh retries.
-- **Seeker side:** search → public profile `/pro/{id}` → chat with a ready first message (Send or Call). Search
+- **Seeker side:** search → public profile `/pro/{id}` → chat with a ready first message (Send; Call only after a pick). Search
   words are parsed in the app (`SearchText`, `SearchIntentParser`, synonyms in `TradeWords`); ranking is on the server
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of
   the score; [`docs/search-ranking.md`](docs/search-ranking.md)).

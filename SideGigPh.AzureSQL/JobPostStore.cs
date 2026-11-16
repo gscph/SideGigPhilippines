@@ -291,6 +291,32 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
     }
 
     /// <summary>
+    /// The other person's number, once a job post links the two with a picked offer (the caller's post picked their
+    /// offer, or their post picked the caller's). Until then both numbers stay private and they talk in the app's
+    /// chat. Null with no pick, a block either way, or no number on the account (a household signed in with Google
+    /// may have none). A worker's number is their listing's, else the account's.
+    /// </summary>
+    public async Task<string?> ContactNumberAsync(string uid, string otherUid, CancellationToken cancellationToken)
+    {
+        if (uid == otherUid)
+        {
+            return null;
+        }
+
+        var picked = await db.JobOffers.AnyAsync(o => o.Status == JobOfferStatuses.Picked
+            && db.JobPosts.Any(p => p.Id == o.PostId
+                && ((p.SeekerUid == uid && o.ProUid == otherUid) || (p.SeekerUid == otherUid && o.ProUid == uid))), cancellationToken);
+        if (!picked || await db.Blocks.AnyAsync(b => (b.BlockerUid == uid && b.BlockedUid == otherUid)
+                                                     || (b.BlockerUid == otherUid && b.BlockedUid == uid), cancellationToken))
+        {
+            return null;
+        }
+
+        return await db.Professionals.Where(p => p.Id == otherUid).Select(p => p.MobileNumber).FirstOrDefaultAsync(cancellationToken)
+            ?? await db.Users.Where(u => u.Uid == otherUid).Select(u => u.PhoneNumber).FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// The caller reports a post (fake, a prank, abuse). It joins the operator's report queue (<c>Reports</c>, about
     /// the household, subject <c>job-post:{id}</c>); the operator hides it by setting its status to
     /// <see cref="JobPostStatuses.Hidden"/>. False when it isn't open or is the caller's own. Reporting twice changes nothing.

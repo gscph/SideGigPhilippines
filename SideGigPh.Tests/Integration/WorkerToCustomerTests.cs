@@ -27,7 +27,7 @@ public class WorkerToCustomerTests(ApiTestHost api)
         published.Should().Be(PublishResult.Published);
         var hit = results.InTown.Should().ContainSingle(h => h.Pro.Id == worker.Uid).Subject;
         hit.Pro.DisplayName.Should().Be("Juan");
-        hit.Pro.MobileNumber.Should().Be(worker.PhoneNumber, "the listing number is the account's verified number");
+        hit.Pro.MobileNumber.Should().BeEmpty("numbers stay private until a pick: search never carries them");
         hit.Pro.PhotoUrl.Should().StartWith(InMemoryBlobContainer.ContainerUri.ToString());
         hit.Pro.WorkPhotoUrls.Should().HaveCount(2);
         hit.Pro.ReferenceCount.Should().Be(1, "Seekers see how many people vouch, never who");
@@ -72,7 +72,7 @@ public class WorkerToCustomerTests(ApiTestHost api)
         var seeker = await TestPhone.SeekerAsync(api, "Dina");
         var listing = (await seeker.Seeker.GetProAsync(worker.Uid))!;
 
-        var logged = await seeker.Seeker.CallAsync(listing);
+        var logged = await seeker.Seeker.CallAsync(listing, worker.PhoneNumber!);
 
         seeker.Dialer.Called.Should().Equal(worker.PhoneNumber);
         logged!.Kind.Should().Be(ChatMessageKind.Call);

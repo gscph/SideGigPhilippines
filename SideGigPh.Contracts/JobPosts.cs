@@ -131,3 +131,9 @@ public static class JobOfferRules
     /// <summary>No note, or one that fits once trimmed.</summary>
     public static bool IsNote(string? note) => note is null || note.Trim().Length <= MaxNote;
 }
+
+/// <summary>
+/// <c>GET contacts/{otherUid}</c>: the other person's number (E.164), only once a picked offer links the two; null
+/// before that, or when they have none. Listings never carry a number for anyone but their owner.
+/// </summary>
+public sealed record ContactDto(string? PhoneNumber);

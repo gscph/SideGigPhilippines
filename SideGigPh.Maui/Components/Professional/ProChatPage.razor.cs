@@ -20,10 +20,15 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ILogger<ProChatPage> Logger { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
+    [Inject] private JobBoard Board { get; set; } = default!;
+    [Inject] private IContactLauncher Phone { get; set; } = default!;
 
     [Parameter] public string ChatId { get; set; } = string.Empty;
 
     private Chat? _chat;
+
+    /// <summary>The customer's number, only once they picked this worker's offer on a post (numbers stay private until then).</summary>
+    private string? _number;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
     private string? _message;
@@ -61,8 +66,32 @@ public partial class ProChatPage : ComponentBase, IDisposable
         }
 
         var read = Workspace.MarkReadAsync(ChatId);
+        var number = Board.ContactNumberAsync(_chat.SeekerId);
         _history = await Workspace.GetMessagesAsync(ChatId);
+        _number = await number;
         await read;
+    }
+
+    private async Task CallAsync()
+    {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
+        _busy = true;
+        _error = null;
+        try
+        {
+            if (!await Phone.CallAsync(_number!))
+            {
+                _error = T.Get(Copy.ContactFailed);
+            }
+        }
+        finally
+        {
+            _busy = false;
+        }
     }
 
     private async Task SendAsync()

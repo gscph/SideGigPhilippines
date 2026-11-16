@@ -53,6 +53,12 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     /// <summary>How many more photos fit on <paramref name="draft"/>.</summary>
     public static int PhotoRoom(JobPostDraft draft) => Math.Max(0, MaxPhotos - draft.Photos.Count);
 
+    /// <summary>
+    /// The other person's number once a picked offer links the two, for Call; null before that (they chat in the app
+    /// until a pick) or when they have none.
+    /// </summary>
+    public Task<string?> ContactNumberAsync(string otherUid) => posts.GetContactNumberAsync(otherUid);
+
     /// <summary>Reads the household's own posts again.</summary>
     public async Task LoadMineAsync()
     {

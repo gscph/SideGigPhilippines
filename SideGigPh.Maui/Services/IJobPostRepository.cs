@@ -40,4 +40,10 @@ public interface IJobPostRepository
 
     /// <summary>The household picks an offer, which closes its post. Throws when it didn't send (status 404: no longer possible).</summary>
     Task<JobOffer> PickOfferAsync(long postId, long offerId);
+
+    /// <summary>
+    /// The other person's number, once a picked offer links the two (numbers stay private until then). Null before
+    /// that, when they have none, or when it can't be read.
+    /// </summary>
+    Task<string?> GetContactNumberAsync(string otherUid);
 }

@@ -7,10 +7,13 @@
         <ChatHeader BackHref="@SeekerRoutes.Inbox" Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Detail="@T.Trades(_pro)"
                     ProfileHref="@SeekerRoutes.Pro(_pro.Id)" ProfileLabel="@T.Get(Copy.ViewProfile)">
             <Actions>
-                <MudButton Variant="Variant.Outlined" Class="app-button-ink rounded-pill flex-shrink-0"
-                           StartIcon="@Icons.Material.Rounded.Phone" Disabled="_busy" OnClick="CallAsync">
-                    @T.Get(Copy.Call)
-                </MudButton>
+                @if (_number is not null)
+                {
+                    <MudButton Variant="Variant.Outlined" Class="app-button-ink rounded-pill flex-shrink-0"
+                               StartIcon="@Icons.Material.Rounded.Phone" Disabled="_busy" OnClick="CallAsync">
+                        @T.Get(Copy.Call)
+                    </MudButton>
+                }
                 <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"
                                Href="@SeekerRoutes.Report(_pro.Id, ReportSubject.Chat, SeekerRoutes.Thread(_pro.Id), Workspace.ChatIdWith(_pro.Id))" />
             </Actions>
@@ -36,6 +39,7 @@
     {
         <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="px-6">
             @T.Format(Copy.ThreadHowItWorks, _pro.DisplayName)
+            @T.Get(_number is null ? Copy.NumberAfterPick : Copy.NumberShared)
         </MudText>
 
         @if (_history.Count == 0)

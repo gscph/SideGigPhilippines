@@ -59,4 +59,8 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
         await api.EnsureWrittenAsync(response, "pick the offer");
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobOfferDto))!.ToModel();
     }
+
+    public Task<string?> GetContactNumberAsync(string otherUid) => api.ReadAsync<string?>(async () =>
+        (await api.GetAsync($"contacts/{Uri.EscapeDataString(otherUid)}", ApiJson.Default.ContactDto))?.PhoneNumber,
+        null, "a contact number");
 }

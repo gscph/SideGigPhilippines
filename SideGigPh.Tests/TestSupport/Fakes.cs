@@ -769,6 +769,11 @@ public sealed class FakeJobPosts : IJobPostRepository
     public Task<IReadOnlyList<JobOffer>> GetOffersAsync(long postId) =>
         Task.FromResult<IReadOnlyList<JobOffer>>(OffersOn.TryGetValue(postId, out var offers) ? [.. offers] : []);
 
+    /// <summary>The numbers <see cref="GetContactNumberAsync"/> gives, by the other person's uid (a pick linked them).</summary>
+    public Dictionary<string, string> Numbers { get; } = [];
+
+    public Task<string?> GetContactNumberAsync(string otherUid) => Task.FromResult(Numbers.GetValueOrDefault(otherUid));
+
     public Task<JobOffer> PickOfferAsync(long postId, long offerId)
     {
         ThrowIfOfflineOrGone();
