@@ -196,4 +196,112 @@ public class JobBoardTests
 
     private static JobPost Post(long id) =>
         new(id, "plumbing", "plumbing-clog", $"Barado ang lababo {id}", 800, "taytay", [], IsOpen: true, Mine: false, OffersService: true, DistanceKm: 2, DateTimeOffset.UnixEpoch);
+
+    private static JobPost FeedPost(long id, int budget = 800) =>
+        new(id, "plumbing", "plumbing-clog", "Barado ang lababo sa kusina", budget, "taytay", [], IsOpen: true, Mine: false, OffersService: true, DistanceKm: 2, DateTimeOffset.UnixEpoch);
+
+    private static JobOffer Offer(long id, long postId, string proId = "pro-1", int price = 800) =>
+        new(id, postId, TestData.Listing(proId), price, null, IsPicked: false, TakesBudget: price == 800, DistanceKm: 3, DateTimeOffset.UnixEpoch);
+
+    [Fact]
+    public void AnOffer_NeedsAPriceInRange_AndAShortNote()
+    {
+        JobBoard.CanOffer(800, null).Should().BeTrue();
+        JobBoard.CanOffer(800, "Puwede ako bukas").Should().BeTrue();
+        JobBoard.CanOffer(null, null).Should().BeFalse();
+        JobBoard.CanOffer(10, null).Should().BeFalse("under the smallest budget");
+        JobBoard.CanOffer(800, new string('a', JobBoard.MaxOfferNote + 1)).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task SendingAnOffer_MarksThePostInTheFeed_AndChangingItReplacesThePrice()
+    {
+        _posts.Seed(FeedPost(1));
+        await _board.LoadFeedAsync();
+
+        (await _board.SendOfferAsync(_board.Feed[0], 800, null)).Should().Be(OfferResult.Done);
+        _board.Feed[0].MyOfferPesos.Should().Be(800);
+
+        (await _board.SendOfferAsync(_board.Feed[0], 650, "  Bukas ng umaga  ")).Should().Be(OfferResult.Done);
+        _board.Feed[0].MyOfferPesos.Should().Be(650);
+        _posts.Offers[1].Should().Be((650, "Bukas ng umaga"));
+    }
+
+    [Fact]
+    public async Task TakingAnOfferBack_ClearsItFromThePost()
+    {
+        _posts.Seed(FeedPost(1));
+        await _board.LoadFeedAsync();
+        await _board.SendOfferAsync(_board.Feed[0], 800, null);
+
+        (await _board.WithdrawOfferAsync(_board.Feed[0])).Should().Be(OfferResult.Done);
+
+        _board.Feed[0].MyOfferPesos.Should().BeNull();
+        _posts.Offers.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task AnOfferOnAPostThatClosed_TakesItOffTheFeed()
+    {
+        _posts.Seed(FeedPost(1), FeedPost(2));
+        await _board.LoadFeedAsync();
+        _posts.Gone = true;
+
+        (await _board.SendOfferAsync(_board.Feed[0], 800, null)).Should().Be(OfferResult.Gone);
+
+        _board.Feed.Select(p => p.Id).Should().Equal(2);
+    }
+
+    [Fact]
+    public async Task AnOfferThatDidNotSend_ChangesNothing_AndNeverThrows()
+    {
+        _posts.Seed(FeedPost(1));
+        await _board.LoadFeedAsync();
+        _posts.Fail = true;
+
+        (await _board.SendOfferAsync(_board.Feed[0], 800, null)).Should().Be(OfferResult.Failed);
+        (await _board.WithdrawOfferAsync(_board.Feed[0])).Should().Be(OfferResult.Failed);
+
+        _board.Feed[0].MyOfferPesos.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ABadPrice_IsNotSent()
+    {
+        _posts.Seed(FeedPost(1));
+        await _board.LoadFeedAsync();
+
+        (await _board.SendOfferAsync(_board.Feed[0], 5, null)).Should().Be(OfferResult.Failed);
+
+        _posts.Offers.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task PickingAnOffer_ClosesThePost_AndRemembersWhoWasPicked()
+    {
+        await _board.PostAsync(Complete());
+        var post = _board.Mine[0];
+        _posts.OffersOn[post.Id] = [Offer(10, post.Id, "pro-a"), Offer(11, post.Id, "pro-b", 700)];
+
+        var offers = await _board.LoadOffersAsync(post.Id);
+        (await _board.PickAsync(offers[1])).Should().Be(OfferResult.Done);
+
+        _posts.Picked.Should().Equal((post.Id, 11L));
+        _board.Mine[0].IsOpen.Should().BeFalse();
+        _board.Mine[0].PickedProId.Should().Be("pro-b");
+    }
+
+    [Fact]
+    public async Task APickThatDidNotGoThrough_LeavesThePostOpen()
+    {
+        await _board.PostAsync(Complete());
+        var post = _board.Mine[0];
+        _posts.OffersOn[post.Id] = [Offer(10, post.Id)];
+        _posts.Gone = true;
+
+        (await _board.PickAsync(_posts.OffersOn[post.Id][0])).Should().Be(OfferResult.Gone);
+
+        _board.Mine[0].IsOpen.Should().BeTrue();
+        _board.Mine[0].PickedProId.Should().BeNull();
+    }
 }

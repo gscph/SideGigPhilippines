@@ -280,6 +280,22 @@ public sealed class JobPostPhotoRow
     public short Position { get; set; }
 }
 
+/// <summary>
+/// A worker's offer on a job post (<c>JobOffers</c>, <c>016-schema-job-offers.sql</c>): the household's budget or
+/// the worker's own price, one per worker per post.
+/// </summary>
+public sealed class JobOfferRow
+{
+    public long Id { get; set; }
+    public long PostId { get; set; }
+    public required string ProUid { get; set; }
+    public int PricePesos { get; set; }
+    public string? Note { get; set; }
+    public string Status { get; set; } = "sent";
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
 /// <summary>One user blocked another (<c>Blocks</c>); either direction hides the two from each other.</summary>
 public sealed class BlockRow
 {

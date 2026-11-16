@@ -33,7 +33,8 @@
         <MudStack Spacing="3">
             @foreach (var post in Board.Feed)
             {
-                <JobPostCard @key="post.Id" Post="post" ForWorker="true" OnReport="ReportAsync" />
+                <JobPostCard @key="post.Id" Post="post" ForWorker="true" OnReport="ReportAsync"
+                             SendOffer="SendOfferAsync" OnWithdrawOffer="WithdrawOfferAsync" Busy="_busy" />
             }
         </MudStack>
         <LoadMoreOnScroll HasMore="Board.HasMore" OnLoadMore="Board.LoadMoreFeedAsync" />

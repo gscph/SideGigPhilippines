@@ -741,6 +741,50 @@ public sealed class FakeJobPosts : IJobPostRepository
         return Task.CompletedTask;
     }
 
+    /// <summary>Offer writes answer 404, as when the post closed meanwhile.</summary>
+    public bool Gone { get; set; }
+
+    /// <summary>The offers sent: post id, price, note (a withdraw removes it).</summary>
+    public Dictionary<long, (int Price, string? Note)> Offers { get; } = [];
+
+    /// <summary>What <see cref="GetOffersAsync"/> answers, per post.</summary>
+    public Dictionary<long, List<JobOffer>> OffersOn { get; } = [];
+
+    public List<(long PostId, long OfferId)> Picked { get; } = [];
+
+    public Task SendOfferAsync(long postId, int pricePesos, string? note)
+    {
+        ThrowIfOfflineOrGone();
+        Offers[postId] = (pricePesos, note);
+        return Task.CompletedTask;
+    }
+
+    public Task WithdrawOfferAsync(long postId)
+    {
+        ThrowIfOfflineOrGone();
+        Offers.Remove(postId);
+        return Task.CompletedTask;
+    }
+
+    public Task<IReadOnlyList<JobOffer>> GetOffersAsync(long postId) =>
+        Task.FromResult<IReadOnlyList<JobOffer>>(OffersOn.TryGetValue(postId, out var offers) ? [.. offers] : []);
+
+    public Task<JobOffer> PickOfferAsync(long postId, long offerId)
+    {
+        ThrowIfOfflineOrGone();
+        Picked.Add((postId, offerId));
+        return Task.FromResult(OffersOn[postId].Single(o => o.Id == offerId) with { IsPicked = true });
+    }
+
+    private void ThrowIfOfflineOrGone()
+    {
+        ThrowIfOffline();
+        if (Gone)
+        {
+            throw new HttpRequestException("gone", null, System.Net.HttpStatusCode.NotFound);
+        }
+    }
+
     private void ThrowIfOffline()
     {
         if (Fail)

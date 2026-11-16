@@ -9,6 +9,9 @@ namespace SideGigPh.Maui.Models;
 /// <param name="Mine">This phone's user posted it.</param>
 /// <param name="OffersService">For a worker: their listing has this exact service (else it is only their trade).</param>
 /// <param name="DistanceKm">For a worker: how far it is, in whole kilometres; null when unknown or for the household itself.</param>
+/// <param name="OfferCount">For the household: how many workers' offers wait on it.</param>
+/// <param name="MyOfferPesos">For a worker: the price they offered, or null when they haven't.</param>
+/// <param name="PickedProId">For the household: the worker whose offer they picked, else null.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -21,7 +24,10 @@ public sealed record JobPost(
     bool Mine,
     bool OffersService,
     int? DistanceKm,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    int OfferCount = 0,
+    int? MyOfferPesos = null,
+    string? PickedProId = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.
@@ -58,3 +64,35 @@ public enum JobPostResult
     /// <summary>It didn't reach the server (no internet, server error): worth trying again.</summary>
     Failed,
 }
+
+/// <summary>
+/// One worker's offer on the household's post (inDrive style): the worker's listing (photo, stars, badges), their
+/// price and note, and how far they are from the post in whole kilometres.
+/// </summary>
+/// <param name="IsPicked">The household picked this one (the post is closed).</param>
+/// <param name="TakesBudget">The price is the household's own budget.</param>
+public sealed record JobOffer(
+    long Id,
+    long PostId,
+    ProfessionalListing Pro,
+    int PricePesos,
+    string? Note,
+    bool IsPicked,
+    bool TakesBudget,
+    int? DistanceKm,
+    DateTimeOffset CreatedAt);
+
+/// <summary>What became of sending, changing or taking back an offer, or picking one.</summary>
+public enum OfferResult
+{
+    Done,
+
+    /// <summary>The post is no longer open (taken down, another worker picked) or the offer is no longer waiting.</summary>
+    Gone,
+
+    /// <summary>It didn't reach the server (no internet, server error): worth trying again.</summary>
+    Failed,
+}
+
+/// <summary>A worker's offer as the card sends it up: the post, the price (the budget or their own) and an optional note.</summary>
+public sealed record OfferDraft(JobPost Post, int PricePesos, string? Note);

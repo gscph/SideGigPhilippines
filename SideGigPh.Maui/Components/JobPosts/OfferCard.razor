@@ -1,0 +1,40 @@
+<MudStack Spacing="2">
+    <ProCard Listing="Offer.Pro" Reviews="Offer.Pro.Reviews" Dense="true" Highlight="@Highlight" />
+
+    <MudStack Spacing="1" Class="px-1">
+        <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
+                     Text="@T.Format(Copy.OfferPrice, Money.Peso(Offer.PricePesos))" />
+        @if (Offer.DistanceKm is { } km)
+        {
+            <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@T.Format(Copy.OfferDistance, km)" />
+        }
+        @if (!string.IsNullOrWhiteSpace(Offer.Note))
+        {
+            <MudText Typo="Typo.body2">“@Offer.Note”</MudText>
+        }
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Ago(Offer.CreatedAt)</MudText>
+    </MudStack>
+
+    @if (Confirming)
+    {
+        <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" role="status">
+            @T.Format(Copy.OfferPickConfirm, Offer.Pro.DisplayName, Money.Peso(Offer.PricePesos))
+        </MudAlert>
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Text" Color="Color.Dark" Class="flex-1" OnClick="OnCancel">@T.Get(CommonCopy.Cancel)</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="flex-1" Disabled="@(!CanPick)" OnClick="@(() => OnConfirm.InvokeAsync(Offer))">
+                @T.Get(Copy.OfferPickYes)
+            </MudButton>
+        </MudStack>
+    }
+    else
+    {
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" Class="flex-1" Href="@ProfileHref">@T.Get(Copy.OfferSeeProfile)</MudButton>
+            @if (!Offer.IsPicked)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="flex-1" Disabled="@(!CanPick)" OnClick="OnPick">@T.Get(Copy.OfferPick)</MudButton>
+            }
+        </MudStack>
+    }
+</MudStack>

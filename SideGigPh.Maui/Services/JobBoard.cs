@@ -7,13 +7,16 @@ namespace SideGigPh.Maui.Services;
 /// Job posts as the pages use them. The household's side: their own posts, posting a new one (with photos of the
 /// problem uploaded as they are picked) and taking one down. The worker's side: the feed of open posts of their
 /// trade within the distance they travel, most relevant first (a service they offer, then nearest, then newest),
-/// loaded a page at a time, and reporting a fake one. Raises <see cref="Changed"/> after each change.
+/// loaded a page at a time, and reporting a fake one. Offers (inDrive style): a worker takes the budget or names
+/// another price, changes it or takes it back; the household reads the offers on a post and picks one, which closes
+/// it. Raises <see cref="Changed"/> after each change.
 /// </summary>
 public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 {
     public const int MinDescription = JobPostRules.MinDescription;
     public const int MaxDescription = JobPostRules.MaxDescription;
     public const int MaxPhotos = JobPostRules.MaxPhotos;
+    public const int MaxOfferNote = JobOfferRules.MaxNote;
 
     private List<JobPost> _mine = [];
     private List<JobPost> _feed = [];
@@ -43,6 +46,9 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         : null;
 
     public static bool CanPost(JobPostDraft draft) => FirstMissing(draft) is null;
+
+    /// <summary>True when a worker can send <paramref name="pricePesos"/> with <paramref name="note"/> (no note is fine).</summary>
+    public static bool CanOffer(int? pricePesos, string? note) => JobOfferRules.IsPrice(pricePesos) && JobOfferRules.IsNote(note);
 
     /// <summary>How many more photos fit on <paramref name="draft"/>.</summary>
     public static int PhotoRoom(JobPostDraft draft) => Math.Max(0, MaxPhotos - draft.Photos.Count);
@@ -191,6 +197,105 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         _feed.RemoveAll(p => p.Id == post.Id);
         Changed?.Invoke();
         return true;
+    }
+
+    /// <summary>
+    /// The worker sends <paramref name="pricePesos"/> (the budget or their own price) on <paramref name="post"/>, or
+    /// changes the price they sent. A post that is no longer open leaves the feed.
+    /// </summary>
+    public async Task<OfferResult> SendOfferAsync(JobPost post, int pricePesos, string? note)
+    {
+        if (!CanOffer(pricePesos, note))
+        {
+            return OfferResult.Failed;
+        }
+
+        var result = await WriteAsync(() => posts.SendOfferAsync(post.Id, pricePesos, string.IsNullOrWhiteSpace(note) ? null : note.Trim()));
+        UpdateFeed(post.Id, result, p => p with { MyOfferPesos = pricePesos });
+        return result;
+    }
+
+    /// <summary>The worker takes back their offer on <paramref name="post"/>. A post that is no longer open leaves the feed.</summary>
+    public async Task<OfferResult> WithdrawOfferAsync(JobPost post)
+    {
+        var result = await WriteAsync(() => posts.WithdrawOfferAsync(post.Id));
+        UpdateFeed(post.Id, result, p => p with { MyOfferPesos = null });
+        return result;
+    }
+
+    /// <summary>The offers on the household's own post, the picked one first, then the lowest price. Empty when they can't be read.</summary>
+    public Task<IReadOnlyList<JobOffer>> LoadOffersAsync(long postId) => posts.GetOffersAsync(postId);
+
+    /// <summary>
+    /// The household picks <paramref name="offer"/>: its post closes and shows who was picked in their list.
+    /// </summary>
+    public async Task<OfferResult> PickAsync(JobOffer offer)
+    {
+        var result = await WriteAsync(() => posts.PickOfferAsync(offer.PostId, offer.Id));
+        if (result == OfferResult.Done)
+        {
+            var index = _mine.FindIndex(p => p.Id == offer.PostId);
+            if (index >= 0)
+            {
+                _mine[index] = _mine[index] with { IsOpen = false, PickedProId = offer.Pro.Id };
+            }
+
+            Changed?.Invoke();
+        }
+
+        return result;
+    }
+
+    /// <summary>The household's post, from the loaded list or read again; null when it isn't theirs.</summary>
+    public async Task<JobPost?> FindMineAsync(long postId)
+    {
+        if (!_mine.Any(p => p.Id == postId))
+        {
+            await LoadMineAsync();
+        }
+
+        return _mine.FirstOrDefault(p => p.Id == postId);
+    }
+
+    private static async Task<OfferResult> WriteAsync(Func<Task> write)
+    {
+        try
+        {
+            await write();
+            return OfferResult.Done;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            return OfferResult.Gone;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return OfferResult.Failed;
+        }
+    }
+
+    /// <summary>After an offer write: the post changes when it went through, and leaves the feed when it is gone.</summary>
+    private void UpdateFeed(long postId, OfferResult result, Func<JobPost, JobPost> change)
+    {
+        if (result == OfferResult.Failed)
+        {
+            return;
+        }
+
+        var index = _feed.FindIndex(p => p.Id == postId);
+        if (index >= 0)
+        {
+            if (result == OfferResult.Gone)
+            {
+                _feed.RemoveAt(index);
+            }
+            else
+            {
+                _feed[index] = change(_feed[index]);
+            }
+        }
+
+        Changed?.Invoke();
     }
 }
 

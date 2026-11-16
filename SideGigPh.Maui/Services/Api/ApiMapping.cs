@@ -63,6 +63,20 @@ internal static partial class ApiMapping
         dto.Mine,
         dto.OffersService,
         dto.DistanceKm,
+        dto.CreatedAt,
+        dto.OfferCount,
+        dto.MyOfferPesos,
+        dto.PickedProId);
+
+    public static JobOffer ToModel(this JobOfferDto dto) => new(
+        dto.Id,
+        dto.PostId,
+        dto.Pro.ToModel(),
+        dto.PricePesos,
+        dto.Note,
+        IsPicked: dto.Status == JobOfferStatuses.Picked,
+        dto.TakesBudget,
+        dto.DistanceKm,
         dto.CreatedAt);
 
     public static JobPostFeed ToModel(this JobPostFeedDto dto) => new([.. dto.Posts.Select(post => post.ToModel())], dto.HasMore, dto.HasListing);

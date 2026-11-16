@@ -3,7 +3,7 @@
 
 <MudStack Spacing="5">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@SeekerRoutes.Search" aria-label="@T.Get(CommonCopy.Back)" />
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@SeekerRoutes.BackOrSearch(Back)" aria-label="@T.Get(CommonCopy.Back)" />
         @if (_pro is not null && _pro.Id != Workspace.MyId)
         {
             <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"

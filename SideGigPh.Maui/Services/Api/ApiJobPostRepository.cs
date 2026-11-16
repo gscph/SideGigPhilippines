@@ -4,7 +4,7 @@ using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services.Api;
 
-/// <summary><see cref="IJobPostRepository"/> on SideGigPh.Api (<c>job-posts</c>): posting, the household's own posts, the worker's feed.</summary>
+/// <summary><see cref="IJobPostRepository"/> on SideGigPh.Api (<c>job-posts</c>): posting, the household's own posts, the worker's feed, offers.</summary>
 public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
 {
     // A read that failed says nothing about the listing: assume there is one, so the page doesn't ask to publish.
@@ -35,5 +35,28 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
     {
         using var response = await api.SendAsync(HttpMethod.Post, $"job-posts/{postId}/report");
         await api.EnsureWrittenAsync(response, "report the job post");
+    }
+
+    public async Task SendOfferAsync(long postId, int pricePesos, string? note)
+    {
+        using var response = await api.SendJsonAsync(HttpMethod.Post, $"job-posts/{postId}/offers", new SendOfferRequest(pricePesos, note), ApiJson.Default.SendOfferRequest);
+        await api.EnsureWrittenAsync(response, "send the offer");
+    }
+
+    public async Task WithdrawOfferAsync(long postId)
+    {
+        using var response = await api.SendAsync(HttpMethod.Delete, $"job-posts/{postId}/offers/mine");
+        await api.EnsureWrittenAsync(response, "take the offer back");
+    }
+
+    public Task<IReadOnlyList<JobOffer>> GetOffersAsync(long postId) => api.ReadAsync<IReadOnlyList<JobOffer>>(async () =>
+        (await api.GetAsync($"job-posts/{postId}/offers", ApiJson.Default.ListJobOfferDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+        [], "the offers on a job post");
+
+    public async Task<JobOffer> PickOfferAsync(long postId, long offerId)
+    {
+        using var response = await api.SendAsync(HttpMethod.Post, $"job-posts/{postId}/offers/{offerId}/pick");
+        await api.EnsureWrittenAsync(response, "pick the offer");
+        return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobOfferDto))!.ToModel();
     }
 }

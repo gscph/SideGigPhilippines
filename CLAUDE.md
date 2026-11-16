@@ -153,7 +153,13 @@ changing that area.**
   household's point is private:** it is stored (the phone's, else the town's centre) and only a town and a distance
   in whole kilometres, never under 1, are sent (`JobPostStore.DistanceKm`). A 🚩 on a post goes to the operator's
   `Reports` queue (`job-post:{id}`); the operator hides it with `Status = 'hidden'`. Copy calls it "what you need
-  done" / "Requests", never a job. Answering a post (offers, picking one) is not built yet.
+  done" / "Requests", never a job. **Offers** (`016-schema-job-offers.sql`, table `JobOffers`, inDrive style): under
+  each card in the feed a worker taps "Take it for ₱budget" or offers another price with a short note
+  (`Components/JobPosts/OfferBox`), changes it or takes it back, one offer per worker per post; the household's card
+  says "See N offers" (`OffersPage`, `/posts/{id}/offers`: each worker's `ProCard`, price, distance, note, the picked
+  one first, then cheapest); "Pick" asks once more, closes the post, sends the worker a first chat message and opens
+  the chat (the Seeker still starts every chat). Offers need the worker's published listing of that trade; a block
+  either way hides them.
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
   (`ProLayout`, `SeekerLayout`) loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
