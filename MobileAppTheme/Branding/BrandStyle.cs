@@ -29,6 +29,12 @@ public sealed record BrandStyle
 
     public string Error { get; init; } = "#d13438";
 
+    /// <summary><c>Color.Info</c>: an app's extra accent for one kind of nudge. Null means <see cref="Primary"/>.</summary>
+    public string? Info { get; init; }
+
+    /// <summary><c>Color.Tertiary</c>: an app's extra accent for one kind of status. Null means <see cref="Primary"/>.</summary>
+    public string? Tertiary { get; init; }
+
     /// <summary>Page and card background.</summary>
     public string Background { get; init; } = "#ffffff";
 

@@ -17,7 +17,7 @@
 
     @if (Confirming)
     {
-        <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" role="status">
+        <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" role="status">
             @T.Format(Copy.OfferPickConfirm, Offer.Pro.DisplayName, Money.Peso(Offer.PricePesos))
         </MudAlert>
         <MudStack Row="true" Spacing="2">

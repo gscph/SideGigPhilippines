@@ -13,5 +13,5 @@ else if (Result is { Failed: true })
 }
 else if (Result is { Duplicates: > 0 })
 {
-    <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.PhotosDuplicate)</MudAlert>
+    <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.PhotosDuplicate)</MudAlert>
 }
