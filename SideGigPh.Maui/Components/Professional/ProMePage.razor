@@ -21,7 +21,6 @@
     @if (!Workspace.IsPublished)
     {
         <MudStack Spacing="3">
-            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProHomeNotLive)</MudText>
             @if (Workspace.Draft.HasProof)
             {
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Href="@ProRoutes.Publish">

@@ -187,7 +187,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 3. Show a "Why we ask" line whenever the reason isn't obvious.
 4. **Save whenever the user moves forward** (a single tap, or Next). A killed app resumes at the step they were on.
 5. **Each step has its own URL** (`/start/seeker/3`), so Android hardware back walks the steps. The on-screen back button does the same.
-6. The progress bar starts partly filled (Endowed Progress). It has no "n of N" text.
+6. The progress bar starts partly filled (Endowed Progress). It has no "n of N" text. A Skilled Worker has one bar from the first question to the last setup step (`OnboardingSteps.ProgressOf`), so it never drops back when the interview hands over to the setup.
 7. The same components as the real product: the preview card *is* the search-result card.
 8. Mobile-first, MudBlazor components with theme colors only (`AppTheme`), and every string is bilingual (§5).
 
