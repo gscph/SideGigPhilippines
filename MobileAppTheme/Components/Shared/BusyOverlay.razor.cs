@@ -7,7 +7,8 @@ namespace MobileAppTheme.Components.Shared;
 /// <summary>
 /// Full-screen "please wait" while <see cref="BusyIndicator"/> is busy: the brand <see cref="SplashScreen"/> on a
 /// solid background that blocks taps, with a line under the logo that changes every couple of seconds. The lines
-/// come from <see cref="ISplashLines"/> (the app picks them, e.g. by the user's role), so a slow network call reads
+/// come from <see cref="ISplashLines"/> (the app picks them, e.g. by the user's role); the first one is the main line,
+/// shown first every time and held for <see cref="FirstLineFor"/>, so a slow network call reads
 /// as the app at work, not a frozen screen. Hosted once in <c>MainLayout</c>; quick calls finish before
 /// <see cref="ShowAfter"/> and never flash it.
 /// </summary>
@@ -16,7 +17,10 @@ public partial class BusyOverlay : ComponentBase, IDisposable
     /// <summary>Calls shorter than this never show the overlay.</summary>
     public static readonly TimeSpan ShowAfter = TimeSpan.FromMilliseconds(300);
 
-    /// <summary>How long each line stays before the next one.</summary>
+    /// <summary>How long the first (main) line stays before the others take turns.</summary>
+    public static readonly TimeSpan FirstLineFor = TimeSpan.FromSeconds(3);
+
+    /// <summary>How long each of the other lines stays before the next one.</summary>
     public static readonly TimeSpan LineEvery = TimeSpan.FromMilliseconds(1800);
 
     [Inject] private BusyIndicator Busy { get; set; } = default!;
@@ -54,18 +58,20 @@ public partial class BusyOverlay : ComponentBase, IDisposable
         {
             await Task.Delay(ShowAfter, cts.Token);
             _lines = await Lines.LinesAsync();
-            _line = _lines.Count > 0 ? Random.Shared.Next(_lines.Count) : 0;
+            _line = 0;
             cts.Token.ThrowIfCancellationRequested();
             _visible = true;
             StateHasChanged();
+            await Task.Delay(FirstLineFor, cts.Token);
             while (true)
             {
-                await Task.Delay(LineEvery, cts.Token);
                 if (_lines.Count > 1)
                 {
                     _line = (_line + 1) % _lines.Count;
                     StateHasChanged();
                 }
+
+                await Task.Delay(_line == 0 ? FirstLineFor : LineEvery, cts.Token);
             }
         }
         catch (OperationCanceledException)
