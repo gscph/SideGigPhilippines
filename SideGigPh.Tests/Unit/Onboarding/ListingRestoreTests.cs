@@ -111,6 +111,58 @@ public class ListingRestoreTests
     }
 
     [Fact]
+    public async Task WorkerSidePickedWithNothingAnswered_SignedInWithTheNumbersAccount_LandsOnProHome()
+    {
+        // The role page asked a Google sign-in for the number, it belonged to the worker's earlier phone account, and
+        // "Sign in with this number" brought that account back to launch before the first question.
+        var state = new OnboardingState
+        {
+            Language = AppLanguage.English,
+            Role = UserRole.Professional,
+            ResumePath = OnboardingSteps.FirstPath(UserRole.Professional),
+        };
+        var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
+
+        (await restore.RestoreAsync(state)).Should().BeTrue();
+
+        OnboardingSteps.LaunchPath(state).Should().Be(ProRoutes.Home);
+        state.ResumePath.Should().BeNull();
+        state.Professional.PublishedAt.Should().NotBeNull();
+        app.Store.Saves.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task WorkerSideWithTheFirstAnswerGiven_IsNeverOverwritten_NorAsked()
+    {
+        var state = new OnboardingState
+        {
+            Language = AppLanguage.English,
+            Role = UserRole.Professional,
+            ResumePath = "/start/pro/2",
+            Professional = new ProfessionalDraft { CategoryId = "plumbing" },
+        };
+        var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
+
+        (await restore.RestoreAsync(state)).Should().BeFalse();
+
+        state.Professional.CategoryId.Should().Be("plumbing");
+        state.CompletedAt.Should().BeNull();
+        app.Profiles.OwnDraftReads.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SeekerSidePickedWithNothingAnswered_IsLeftAlone()
+    {
+        var state = new OnboardingState { Language = AppLanguage.English, Role = UserRole.Seeker, ResumePath = "/start/seeker/1" };
+        var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
+
+        (await restore.RestoreAsync(state)).Should().BeFalse();
+
+        state.Role.Should().Be(UserRole.Seeker);
+        app.Profiles.OwnDraftReads.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task NobodySignedIn_RestoresNothing()
     {
         var state = FreshInstall();

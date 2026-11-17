@@ -246,7 +246,7 @@ Blazor Hybrid code runs as **native .NET**, not in a browser. The WebView's `loc
 | Queryable data | SQLite (`sqlite-net-pcl`) | — | **Later:** favorites, recently viewed, offline cache |
 | Server cache | — | — | **Later:** recent listings and chats for offline use |
 
-**No SQLite yet.** Onboarding is one document, read at launch and written on every answer. Add SQLite when local data needs *querying*. Android backup is off, so a reinstall starts with no answers: a published worker's listing comes back from the server once they sign in (`ListingRestore`, called by `LaunchRouter` while no side is picked) and they open Pro home; anyone else answers the role question again.
+**No SQLite yet.** Onboarding is one document, read at launch and written on every answer. Add SQLite when local data needs *querying*. Android backup is off, so a reinstall starts with no answers: a published worker's listing comes back from the server once they sign in (`ListingRestore`, called by `LaunchRouter` while the phone holds no answers) and they open Pro home; anyone else answers the role question again.
 
 ### 6.2 The port
 ```csharp
