@@ -13,14 +13,14 @@ public class SearchIntentParserTests
     [InlineData("tubero", "construction")]
     [InlineData("barado ang lababo", "construction")]
     [InlineData("plumber", "construction")]
-    [InlineData("kuryente", "electrical")]
-    [InlineData("electrician po", "electrical")]
+    [InlineData("kuryente", "construction")]
+    [InlineData("electrician po", "construction")]
     [InlineData("hinang gate", "construction")]
     [InlineData("mekaniko", "car_mechanic")]
     [InlineData("sira kotse", "car_mechanic")]
     [InlineData("tulo sa bubong", "construction")]
-    [InlineData("karpintero", "carpentry")]
-    [InlineData("tiles", "masonry_tiling")]
+    [InlineData("karpintero", "construction")]
+    [InlineData("tiles", "construction")]
     [InlineData("pasabuy", "errand_runner")]
     [InlineData("solar panel", "solar_cleaning")]
     [InlineData("AIRCON!!", "aircon")]
@@ -32,7 +32,8 @@ public class SearchIntentParserTests
     [InlineData("aircon leak", "aircon-leak")]
     [InlineData("tumutulo ang aircon", "aircon-leak")]
     [InlineData("pa-freon", "aircon-freon")]
-    [InlineData("cctv", "electrical-cctv")]
+    [InlineData("wiring", "construction-electrical")]
+    [InlineData("pakabit tiles", "construction-tiles")]
     public void Parse_ClearJob_PicksThatJob(string typed, string expectedJob) =>
         SearchIntentParser.Parse(typed).ServiceId.Should().Be(expectedJob);
 

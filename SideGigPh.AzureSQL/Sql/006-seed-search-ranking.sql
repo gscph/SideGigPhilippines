@@ -4,10 +4,10 @@
    Each trade tests one thing. Its workers are identical except for that one thing, so the order you
    see is caused by it alone:
      S1 Construction     the job is a hard filter
-     S2 Electrician      the town: your town first, "Other towns nearby" after, unserved towns hidden
+     S2 Electrical       the town: your town first, "Other towns nearby" after, unserved towns hidden
      S3 Carpentry        reviews: stars (smoothed) + how many
      S4 Errands          responsiveness: reply rate + reply speed
-     S5 Masonry          activity: last opened the app
+     S5 Tile setting     activity: last opened the app
      S6 Car Mechanic     tenure: how long on the app
      S7 Roofing          budget fit (the three rates, "depends on the job", and two listings from old app versions)
      S8 Solar            experience
@@ -113,17 +113,17 @@ INSERT INTO @Pros VALUES
 ( 1, 's1-tubero',    N'S1 Tubero Specialist',              'construction',   'construction-plumbing',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 ( 2, 's1-welder',    N'S1 Welder Specialist',              'construction',   'construction-welding',                 'taytay',          '10-plus', 'minimum',       400,  0,  20, 0, 0, 0, 0, 10,  10,  0,  0,  0),
 ( 3, 's1-both',      N'S1 Tubero at Welder',               'construction',   'construction-plumbing,construction-welding', 'taytay',    '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
--- S2 Electrician: town groups
-( 4, 's2-taytay',    N'S2 Taytay Baguhan',                 'electrical',     'electrical-no-power',                  'taytay',          'under-1', 'average',        10, 20,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 5, 's2-multi',     N'S2 Taytay at Antipolo',             'electrical',     'electrical-no-power',                  'taytay,antipolo', '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 6, 's2-antipolo',  N'S2 Antipolo Star',                  'electrical',     'electrical-no-power',                  'antipolo',        '10-plus', 'average',       400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
-( 7, 's2-angono',    N'S2 Angono Kuryente',                'electrical',     'electrical-no-power',                  'angono',          '3-10',    'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 8, 's2-unserved',  N'S2 Binangonan Lang',                'electrical',     'electrical-no-power',                  'binangonan',      '10-plus', 'average',       400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
--- S3 Carpentry: reviews
-( 9, 's3-steady',    N'S3 Steady 4.8 (40 reviews)',        'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,  32, 8, 0, 0, 0,  0,   0,  0,  0,  0),
-(10, 's3-lucky',     N'S3 Lucky 5.0 (1 review)',           'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,   1, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(11, 's3-new',       N'S3 Bago (no reviews)',              'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(12, 's3-poor',      N'S3 Poor 2.0 (10 reviews)',          'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,   0, 0, 0,10, 0,  0,   0,  0,  0,  0),
+-- S2 Construction, electrical: town groups
+( 4, 's2-taytay',    N'S2 Taytay Baguhan',                 'construction',   'construction-electrical',              'taytay',          'under-1', 'average',        10, 20,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 5, 's2-multi',     N'S2 Taytay at Antipolo',             'construction',   'construction-electrical',              'taytay,antipolo', '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 6, 's2-antipolo',  N'S2 Antipolo Star',                  'construction',   'construction-electrical',              'antipolo',        '10-plus', 'average',       400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
+( 7, 's2-angono',    N'S2 Angono Kuryente',                'construction',   'construction-electrical',              'angono',          '3-10',    'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 8, 's2-unserved',  N'S2 Binangonan Lang',                'construction',   'construction-electrical',              'binangonan',      '10-plus', 'average',       400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
+-- S3 Construction, carpentry: reviews
+( 9, 's3-steady',    N'S3 Steady 4.8 (40 reviews)',        'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,  32, 8, 0, 0, 0,  0,   0,  0,  0,  0),
+(10, 's3-lucky',     N'S3 Lucky 5.0 (1 review)',           'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,   1, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(11, 's3-new',       N'S3 Bago (no reviews)',              'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(12, 's3-poor',      N'S3 Poor 2.0 (10 reviews)',          'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,   0, 0, 0,10, 0,  0,   0,  0,  0,  0),
 -- S4 Errands: responsiveness
 (13, 's4-fast',      N'S4 Mabilis Sumagot (10 min)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10,  10,  0,  0,  0),
 (14, 's4-slow',      N'S4 Matagal Sumagot (5 hrs)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10, 300,  0,  0,  0),
@@ -131,11 +131,11 @@ INSERT INTO @Pros VALUES
 (16, 's4-calls',     N'S4 Tawag Lang (calls only)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  5,  0),
 (17, 's4-fresh',     N'S4 Kaka-message (2 hrs ago)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  3),
 (18, 's4-ghost',     N'S4 Hindi Sumasagot (1 of 10)',      'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  1,  60,  9,  0,  0),
--- S5 Masonry: last active (all joined 120 days ago)
-(19, 's5-today',     N'S5 Active Today',                   'masonry_tiling', 'masonry-tiles',                        'taytay',          '1-3',     'average',       120,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(20, 's5-week',      N'S5 Active 1 Week Ago',              'masonry_tiling', 'masonry-tiles',                        'taytay',          '1-3',     'average',       120,  7,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(21, 's5-month',     N'S5 Active 1 Month Ago',             'masonry_tiling', 'masonry-tiles',                        'taytay',          '1-3',     'average',       120, 30,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(22, 's5-quarter',   N'S5 Active 3 Months Ago',            'masonry_tiling', 'masonry-tiles',                        'taytay',          '1-3',     'average',       120, 90,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+-- S5 Construction, tile setting: last active (all joined 120 days ago)
+(19, 's5-today',     N'S5 Active Today',                   'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(20, 's5-week',      N'S5 Active 1 Week Ago',              'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120,  7,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(21, 's5-month',     N'S5 Active 1 Month Ago',             'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120, 30,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(22, 's5-quarter',   N'S5 Active 3 Months Ago',            'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120, 90,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S6 Car Mechanic: tenure (all active today)
 (23, 's6-year',      N'S6 Joined 1 Year Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',       365,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (24, 's6-quarter',   N'S6 Joined 3 Months Ago',            'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',        90,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),

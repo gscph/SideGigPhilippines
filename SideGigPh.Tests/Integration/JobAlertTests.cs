@@ -8,8 +8,8 @@ namespace SideGigPh.Tests.Integration;
 
 /// <summary>
 /// Job post notifications end to end (brief item 10): a new post rings the workers of its trade who travel that far,
-/// and an offer rings the household. Masons only, a trade no other test publishes, so other tests' workers never
-/// crowd out the ones here.
+/// and an offer rings the household. Masons only (Construction's masonry job, which no other test offers): the
+/// workers who offer the job are rung first, so other tests' construction workers never crowd out the ones here.
 /// </summary>
 [Collection(ApiCollection.Name)]
 [Trait("Category", "Integration")]
@@ -17,8 +17,8 @@ public class JobAlertTests(ApiTestHost api)
 {
     private static JobPostDraft Draft(string tag) => new()
     {
-        CategoryId = "masonry_tiling",
-        ServiceId = "masonry-crack",
+        CategoryId = "construction",
+        ServiceId = "construction-masonry",
         CityId = "taytay",
         BudgetPesos = 1500,
         Description = $"May bitak ang pader sa sala {tag}",
@@ -29,7 +29,7 @@ public class JobAlertTests(ApiTestHost api)
     /// <summary>A published mason with notifications on. One-word names: the fake push token carries the name.</summary>
     private async Task<TestPhone> MasonAsync(string name)
     {
-        var mason = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "masonry_tiling", jobs: ["masonry-crack"]);
+        var mason = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "construction", jobs: ["construction-masonry"]);
         (await mason.Pro.PublishAsync()).Should().Be(PublishResult.Published);
         await mason.Get<ChatAlerts>().RegisterAsync();
         return mason;
@@ -49,9 +49,9 @@ public class JobAlertTests(ApiTestHost api)
     public async Task ANewPost_RingsTheWorkersOfItsTradeNearby_OnceEvenIfSentAgain()
     {
         var mason = await MasonAsync("Lito");
-        var carpenter = await TestPhone.WorkerReadyToPublishAsync(api, "Karpintero", trade: "carpentry", jobs: ["carpentry-door-window"]);
-        await carpenter.Pro.PublishAsync();
-        await carpenter.Get<ChatAlerts>().RegisterAsync();
+        var mechanic = await TestPhone.WorkerReadyToPublishAsync(api, "Mekaniko", trade: "car_mechanic", jobs: ["mechanic-engine"]);
+        await mechanic.Pro.PublishAsync();
+        await mechanic.Get<ChatAlerts>().RegisterAsync();
         var household = await TestPhone.SeekerAsync(api, "Neri");
         var draft = Draft(Tag());
 
@@ -65,7 +65,7 @@ public class JobAlertTests(ApiTestHost api)
         push.Body.Should().StartWith("₱1,500 · May bitak ang pader");
         push.Tag.Should().Be($"post-{post.Id}");
         ChatAlerts.PathFor(push.Data).Should().Be("/professional/requests", "a tap opens the Requests feed");
-        AboutPost(carpenter, post.Id).Should().BeEmpty("another trade");
+        AboutPost(mechanic, post.Id).Should().BeEmpty("another trade");
     }
 
     [IntegrationFact]

@@ -21,7 +21,7 @@ says "Tarbaho" in `Copy.cs`.
 - **Honorifics** (`Services/Honorifics`): workers are Manong, Kuya, Ate or Manang, never "laborers". The name never
   changes, only the honorific: a random one each launch on the `LaunchRouter` splash (both languages, since a first
   launch doesn't know the language yet) and in the search box until a trade is picked; after that the trade's own
-  (`Honorifics.For`: Manong for construction, carpentry, masonry; Ate for errands; Kuya for everyday repairs and any
+  (`Honorifics.For`: Manong for construction (carpentry, masonry and the other building jobs are its jobs); Ate for errands; Kuya for everyday repairs and any
   new trade). Copy takes the word as `{0}`; English lines that want the plural ("Find Kuyas nearby", the empty search
   "No Kuyas…") pass `englishPlural: true` to `AppText.FormatHonorific`. Ate and Manang always stay in the rotation.
 - Spell "maghanap" as one word. The logo is a crew of three workers in hard hats with a hammer and a wrench behind them (a team that fixes homes, not one

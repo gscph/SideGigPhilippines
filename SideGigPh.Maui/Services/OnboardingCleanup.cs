@@ -17,8 +17,9 @@ public static class OnboardingCleanup
 
     /// <summary>
     /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay
-    /// here): Plumber, Welder and Roofing &amp; Gutter are jobs of Construction (019-schema-construction-trade.sql and
-    /// 020-schema-construction-roofing.sql moved the server's rows).
+    /// here): Plumber, Welder, Roofing &amp; Gutter, Electrician, Carpentry and Masonry are jobs of Construction
+    /// (019-schema-construction-trade.sql, 020-schema-construction-roofing.sql and 022-schema-construction-trades.sql
+    /// moved the server's rows).
     /// </summary>
     private static readonly IReadOnlyDictionary<string, (string CategoryId, string ServiceId)> MergedTrades =
         new Dictionary<string, (string, string)>
@@ -26,6 +27,9 @@ public static class OnboardingCleanup
             ["plumbing"] = ("construction", "construction-plumbing"),
             ["welder"] = ("construction", "construction-welding"),
             ["roofing"] = ("construction", "construction-roofing"),
+            ["electrical"] = ("construction", "construction-electrical"),
+            ["carpentry"] = ("construction", "construction-carpentry"),
+            ["masonry_tiling"] = ("construction", "construction-masonry"),
         };
 
     /// <summary>

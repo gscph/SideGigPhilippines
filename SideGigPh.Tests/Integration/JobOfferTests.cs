@@ -158,8 +158,8 @@ public class JobOfferTests(ApiTestHost api)
         var household = await TestPhone.SeekerAsync(api, "May-ari");
         var stranger = await TestPhone.SeekerAsync(api, "Iba");
         var plumber = await PlumberAsync(api, "Tubero");
-        var electrician = await TestPhone.WorkerReadyToPublishAsync(api, "Elektrisyan", trade: "electrical", jobs: ["electrical-wiring"]);
-        await electrician.Pro.PublishAsync();
+        var mechanic = await TestPhone.WorkerReadyToPublishAsync(api, "Mekaniko", trade: "car_mechanic", jobs: ["mechanic-engine"]);
+        await mechanic.Pro.PublishAsync();
         var post = await PostAsync(household, Tag());
         await OfferAsync(plumber, post.Id, 800);
         var offerId = (await household.Get<JobBoard>().LoadOffersAsync(post.Id)).Single().Id;
@@ -167,8 +167,8 @@ public class JobOfferTests(ApiTestHost api)
         var asStranger = api.Client(api.Tokens.For(stranger.Uid));
         (await asStranger.GetAsync($"job-posts/{post.Id}/offers")).StatusCode.Should().Be(HttpStatusCode.NotFound);
         (await asStranger.PostAsync($"job-posts/{post.Id}/offers/{offerId}/pick", null)).StatusCode.Should().Be(HttpStatusCode.NotFound);
-        var asElectrician = api.Client(api.Tokens.For(electrician.Uid, electrician.PhoneNumber));
-        (await asElectrician.PostAsJsonAsync($"job-posts/{post.Id}/offers", new SendOfferRequest(800), ApiJson.Default.SendOfferRequest))
+        var asMechanic = api.Client(api.Tokens.For(mechanic.Uid, mechanic.PhoneNumber));
+        (await asMechanic.PostAsJsonAsync($"job-posts/{post.Id}/offers", new SendOfferRequest(800), ApiJson.Default.SendOfferRequest))
             .StatusCode.Should().Be(HttpStatusCode.NotFound, "another trade");
         (await MineAsync(household, post.Id)).IsOpen.Should().BeTrue();
     }
