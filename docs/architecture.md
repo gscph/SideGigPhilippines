@@ -260,7 +260,7 @@ for Android).
   `WaitingForMe`, `WaitingForThem`, `Open`, `WindowClosed`) words the line under the `PickedJobCard` status: "Your
   review stays hidden until {name} reviews you too, or in N days", "{name} already reviewed you. Send yours to see it",
   "Waiting for {name} to review you…", then "{name} gave you N of 5 stars"; the household's review page opened from the
-  card (`SeekerRoutes.RateAfterJob`, `?job=1`) says the worker won't see it until they review too.
+  card (`SeekerRoutes.RateAfterJob`, `?job=true`: a bool query value must be `true`/`false`) says the worker won't see it until they review too.
   **Locked once both show:** otherwise a side could lower their stars after seeing the other's. A review written since
   the pair's latest completed job locks when the other side's review of it shows too (they reviewed since the job, or
   the 14 days passed): `ReviewRules.IsLocked`, checked by `BlindReviewFilter.IsLockedAsync`. `PUT reviews` and `PUT
