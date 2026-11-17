@@ -1,5 +1,6 @@
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Services;
 
@@ -52,6 +53,20 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         : null;
 
     public static bool CanPost(JobPostDraft draft) => FirstMissing(draft) is null;
+
+    /// <summary>
+    /// What to fix before Post works, in a few words (shown under the greyed-out button, so a too-short description or a
+    /// small budget doesn't leave the household guessing); null when the draft can be posted.
+    /// </summary>
+    public static string? MissingHint(JobPostDraft draft, AppText text) => FirstMissing(draft) switch
+    {
+        JobPostField.Trade => text.Get(Copy.PostMissingTrade),
+        JobPostField.Service => text.Get(Copy.PostMissingService),
+        JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
+        JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
+        JobPostField.Town => text.Get(Copy.PostMissingTown),
+        _ => null,
+    };
 
     /// <summary>True when a worker can send <paramref name="pricePesos"/> with <paramref name="note"/> (no note is fine).</summary>
     public static bool CanOffer(int? pricePesos, string? note) => JobOfferRules.IsPrice(pricePesos) && JobOfferRules.IsNote(note);

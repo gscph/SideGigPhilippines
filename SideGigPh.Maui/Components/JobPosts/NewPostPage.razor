@@ -84,6 +84,10 @@
                        Disabled="@(_busy || !JobBoard.CanPost(_draft))" OnClick="PostAsync">
                 @T.Get(Copy.PostSend)
             </MudButton>
+            @if (JobBoard.MissingHint(_draft, T) is { } missing)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-2">@missing</MudText>
+            }
         </MudPaper>
     </MudStack>
 </MudContainer>

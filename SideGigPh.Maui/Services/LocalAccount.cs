@@ -17,6 +17,7 @@ public sealed class LocalAccount(
     IProfessionalProfileRepository profiles,
     IChatRepository chats,
     IReviewRepository reviews,
+    IJobPostRepository jobPosts,
     ProWorkspace pro,
     SeekerWorkspace seeker,
     AppText text,
@@ -101,6 +102,13 @@ public sealed class LocalAccount(
         var user = await identity.GetCurrentUserAsync();
         string[] personIds = user is null ? [ListingMapper.OwnListingId, SeekerWorkspace.LocalSeekerId] : [user.Uid];
         await profiles.RemoveAsync(personIds[0]);
+
+        // Their open requests come down too: workers would otherwise keep sending offers nobody reads.
+        foreach (var post in (await jobPosts.GetMineAsync()).Where(post => post.IsOpen))
+        {
+            await jobPosts.CloseAsync(post.Id);
+        }
+
         foreach (var personId in personIds)
         {
             await chats.DeleteForPersonAsync(personId);

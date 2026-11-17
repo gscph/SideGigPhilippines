@@ -53,7 +53,7 @@ public static class ReferenceData
     // The answers that live with the code: "no budget", "no set price", and the three rates a worker can charge
     // (a point of each job's price guide, PriceLevels in SideGigPh.Contracts, shared with the server's ranking).
     public static readonly CatalogOption UnsureOption = new(Unsure, new("Not sure yet", "Di ko pa alam"), AppImages.Unsure);
-    public static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the job", "Depende sa trabaho"), AppImages.Quote);
+    public static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the work", "Depende sa trabaho"), AppImages.Quote);
 
     /// <summary>The rates a Skilled Worker can pick, cheapest first: each job's lowest, average or above-average price.</summary>
     public static IReadOnlyList<CatalogOption> RateLevels { get; } =
