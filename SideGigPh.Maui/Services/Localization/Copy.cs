@@ -40,7 +40,7 @@ public static class Copy
     // --- Seeker interview -------------------------------------------------
     public static readonly LocalizedText SeekerCategoryTitle = new("What do you need done?", "Ano'ng ipapagawa mo?");
     public static readonly LocalizedText SeekerServiceTitle = new("What kind of job?", "Anong klaseng trabaho?");
-    public static readonly LocalizedText SeekerServiceWhy = new("So you only see Skilled Workers who do exactly this.", "So you only see Skilled Workers who do exactly this.");
+    public static readonly LocalizedText SeekerServiceWhy = new("So you only see Skilled Workers who do exactly this.", "Para makita mo lang ang mga Skilled Worker na ito mismo ang ginagawa.");
     public static readonly LocalizedText OtherJobSeekerLabel = new("What job do you need?", "Anong trabaho ang kailangan mo?");
     public static readonly LocalizedText OtherJobProLabel = new("What other job do you do?", "Anong iba pang trabaho ang kaya mo?");
     public static readonly LocalizedText OtherJobHelp = new("Optional. It helps us add more jobs.", "Optional. Para madagdagan namin ang listahan.");
@@ -237,8 +237,8 @@ public static class Copy
         "Each job has its own price. Customers see your price for the job they need, and you can still agree on the final price.",
         "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
     public static readonly LocalizedText ProRateNote = new(
-        "Tap a price to start from it, or type your own range. Our suggested minimum price is {0} per job, only a guide.",
-        "I-tap ang presyo para simulan dito, o i-type ang sarili mong range. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
+        "Type the price range you usually ask. Our suggested minimum price is {0} per job, only a guide.",
+        "I-type ang range ng presyo na karaniwan mong singil. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 

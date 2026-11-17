@@ -315,6 +315,27 @@ public class OnboardingStepsTests
     }
 
     [Fact]
+    public void LaunchPath_FinishedSeekerWhoTappedATradeOnHome_OpensSeekerHome()
+    {
+        var seeker = FullSeeker();
+        seeker.ServiceId = null; // a trade tapped on Home: all its jobs, not a lost answer
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+            .Should().Be(SeekerRoutes.Home);
+    }
+
+    [Fact]
+    public void LaunchPath_FinishedSeekerWithNoJobWhoseTownIsNoLongerServed_AsksTheTownAgain()
+    {
+        var seeker = FullSeeker();
+        seeker.ServiceId = null;
+        seeker.CityId = null;
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+            .Should().Be(OnboardingSteps.SeekerTownPath);
+    }
+
+    [Fact]
     public void LaunchPath_FinishedSeekerWhoseTradeWasRetired_AsksTheTradeAgain()
     {
         var seeker = FullSeeker();
