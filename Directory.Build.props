@@ -11,7 +11,7 @@
        Directory.Build.targets stamps the label and the git commit into the app and the API (StampBuildInfo). -->
   <PropertyGroup>
     <AppVersionNumber>0.1.0</AppVersionNumber>
-    <AppVersionStage>rc</AppVersionStage>
+    <AppVersionStage></AppVersionStage>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
 
     <AppVersionLabel>$(AppVersionNumber)</AppVersionLabel>

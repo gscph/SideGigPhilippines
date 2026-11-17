@@ -100,7 +100,7 @@ for Android).
 ## Versioning
 
 - **One source:** `Directory.Build.props` at the repo root. `AppVersionNumber` is SemVer `major.minor.patch` (now
-  `0.1.0`), `AppVersionStage` the pre-release stage (`rc` while testers have it; empty for a final release), and
+  `0.1.0`), `AppVersionStage` the pre-release stage (empty since the Play Store launch; `rc` for a pre-release), and
   `BuildNumber` comes from CI (`-p:BuildNumber=${{ github.run_number }}`; `0` on a PC). Together they make
   `AppVersionLabel`: `0.1.0-rc.12` from CI, `0.1.0-rc` on a PC, `0.1.0` for a final release. To ship a new version,
   change the two properties there and commit; nothing else holds a version.

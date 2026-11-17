@@ -62,7 +62,7 @@ changing that area.**
   `ReferenceData` (`UseConfig`, guarded by `CanUse`); pages never fetch it. New stale-OK data goes into this config,
   not a new endpoint.
 - **Server:** one function class per area, token check first (`FirebaseTokenValidator`; the only public routes are
-  `GET config`, the legal pages `GET legal/{page}` and, until launch, the error-report reader `GET error-reports`, `ApiWiringTests.PublicRoutes`), then a store in `SideGigPh.AzureSQL` holding the data rules and
+  `GET config`, the legal pages `GET legal/{page}`, `ApiWiringTests.PublicRoutes`), then a store in `SideGigPh.AzureSQL` holding the data rules and
   answering with contracts or an outcome enum. Errors are `{ "error", "detail" }` (`ApiErrors` codes); `detail`
   carries the stack trace while `ApiResults.ShowDetails` is on (Function App setting `ShowErrorDetails` = `false`
   turns it off: do that before launch). Repeatable writes are limited per account (`CallerLimits` → `429
@@ -107,11 +107,11 @@ changing that area.**
   escapes to the top (skeleton `NetworkErrors.IsNetwork`: only a request that got no answer, never a file error such as a full phone) is reported (`Crash.Network`) and the app keeps running.
   **A lost connection is never "something broke":** `AppErrorBoundary` shows "No internet" + Try again (rebuilds the
   page) for it, and the skeleton `ConnectionBanner` (`INetworkStatus`) shows a gray "you're offline" strip, sticky above the top bar, after 3 s offline (not on a 1-second signal drop); the busy splash says "Slow connection" (offline: "No internet. Waiting…") once a wait passes `BusyOverlay.SlowAfter` (12 s); a chat's "didn't send" sits inside the pinned `ChatComposer`. A failed read comes back empty, so a list read from the server passes `OnRetry` to the skeleton `EmptyState`: offline it says "No internet" + Try again (never "nothing here") and reloads by itself when the connection is back; `LoadMoreOnScroll` shows Try again when a page never arrives; `ApiClient` gives each GET `ReadTryLimit` (30 s, so two tries match the old 60 s timeout a cold server and paused database may need) and one more try (`ReadTries`), and sends a write once. A push while the app is open refreshes the Seeker's posts and the worker's Requests feed (the layouts' `Alerts.Attach`).
-  Read the reports without a database login at public `GET error-reports?take=50` (remove before launch).
+  Read the reports in SQL (`dbo.ErrorReports`, Azure portal Query editor); there is no public reader.
   A sign-in whose account is gone (deleted, disabled) is signed out by the Firebase adapter (`IsDeadSession`), never
   left calling the API without a token.
 - **Version** (one place: `Directory.Build.props`): `AppVersionNumber` (SemVer, now `0.1.0`) + `AppVersionStage`
-  (`rc`, empty for a final release) + CI's `BuildNumber` (the run number) make the label `0.1.0-rc.12` (`0.1.0-rc` on
+  (empty since the store launch, so the label is `0.1.0`; `rc` for a pre-release) + CI's `BuildNumber` (the run number) make the label `0.1.0-rc.12` (`0.1.0-rc` on
   a PC). `Directory.Build.targets` stamps it with the git commit into the app and the API (`StampBuildInfo`); the app
   reads it as `Services/Diagnostics/BuildInfo`, the API as `ApiVersion`. It shows small and muted on the splash and
   beside the logo in the top bar (`AppBrand.Version`), goes into every error report (`0.1.0-rc.12 (12)`), on every API
@@ -307,7 +307,7 @@ Business logic may later move out of `SideGigPh.Maui` into a `SideGigPh.Shared` 
 
 ## Build & CI
 
-- GitHub Actions workflow at `.github/workflows/build.yml` (manual run; pick the channel `beta`/`prod`): passes `-p:BuildNumber=<run number>` and `-p:AppChannel`, so run 12 builds `0.1.0-rc.12` (Android versionCode 12), names the APK artifact after it, and reads the Firebase flags from the repo variables
+- GitHub Actions workflow at `.github/workflows/build.yml` (manual run; pick the channel `beta`/`prod`): passes `-p:BuildNumber=<run number>` and `-p:AppChannel`, so run 12 builds `0.1.0` with Android versionCode 12, names the artifact after it, and reads the Firebase flags from the repo variables. `beta` makes an APK (release key if set, else the shared dev key); `prod` makes an **AAB signed with the upload key** (fails without the keystore secrets or if the dev key signed it) and, with `play_track` = `internal`, uploads it to Google Play's Internal testing track (secret `PLAY_SERVICE_ACCOUNT_JSON`, `play_status` draft/completed). Play setup and launch checklist: [`docs/play-store.md`](docs/play-store.md)
 - `.github/workflows/tests.yml` runs `SideGigPh.Tests` on `ubuntu-latest` with a SQL Server 2022 service container (`SIDEGIGPH_TEST_SQL`), on pushes and pull requests to `main` that touch code the tests see (not CSS, images, `.razor` markup or docs), by hand, and as a required first job of `deploy-api.yml` (no deploy unless every test passes). It fails if any test was skipped and writes a coverage summary to the run page.
 - `.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` to the Function App `SideGigPhApi` (Flex Consumption, Linux, Southeast Asia) on its own when a push to `main` changes `SideGigPh.Api/`, `SideGigPh.AzureSQL/` (including `Sql/`), `SideGigPh.Migrate/`, `SideGigPh.Contracts/`, `Directory.Build.props`/`.targets` or the workflow, and by hand (it passes `-p:BuildNumber=<run number>`, so the API answers with its own `X-Api-Version`) (Actions → Run workflow); a pending schema script runs on the live database first (the `db-migrate` job), then the API deploys; a script that fails stops the run before deploying. It signs in with OIDC as the user-assigned managed identity `sidegigph-github-deploy` (repo secrets `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, `AZURE_SUBSCRIPTION_ID`, made by `azure/cloudshell-github-deploy.sh`; trusts `main` only), so there is no publish profile; the app's own system-assigned identity is what reaches Azure SQL (setup: [`azure/README.md`](azure/README.md) → Automatic deploy from GitHub)
 - Android builds on `ubuntu-latest`, iOS builds on `macos-latest`

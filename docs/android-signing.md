@@ -67,7 +67,7 @@ Repository → Settings → Secrets and variables → Actions:
 | Secret | Value | Required |
 |---|---|---|
 | `GOOGLE_SERVICES_JSON_BASE64` | `google-services.json`, base64 | **Yes** |
-| `ANDROID_KEYSTORE_BASE64` | release keystore, base64 | Only for store builds |
+| `ANDROID_KEYSTORE_BASE64` | release keystore, base64 | For `prod` builds (the run fails without it) |
 | `ANDROID_KEY_ALIAS` | e.g. `sidegigph` | with the keystore |
 | `ANDROID_KEYSTORE_PASSWORD` | store password | with the keystore |
 | `ANDROID_KEY_PASSWORD` | key password | with the keystore |
@@ -78,7 +78,9 @@ Base64 a file in PowerShell:
 [Convert]::ToBase64String([IO.File]::ReadAllBytes("SideGigPh.Maui\Platforms\Android\google-services.json")) | Set-Clipboard
 ```
 
-Without the keystore secrets, CI signs with the shared dev key, so its test APKs can sign in.
+Without the keystore secrets, a `beta` run signs its APK with the shared dev key, so test APKs can sign in.
+A `prod` run (the AAB for Google Play) refuses to build without them, and fails if the bundle came out signed
+with the dev key. Uploading to Play and the rest of the store setup: [`play-store.md`](play-store.md).
 
 ## Checking which key signed an APK
 
