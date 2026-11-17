@@ -437,4 +437,17 @@ public class OnboardingStepsTests
     public void AsksNumberAfterRole_OnlyWorkersWhileACodeCanStillBeSentToday(UserRole role, int? waitSeconds, bool asks) =>
         OnboardingSteps.AsksNumberAfterRole(role, waitSeconds is { } s ? TimeSpan.FromSeconds(s) : null)
             .Should().Be(asks);
+
+    [Fact]
+    public void ProgressBar_GoesUpFromTheFirstQuestionToTheLastSetupStep_AndNeverDropsBack()
+    {
+        var bar = Enum.GetValues<ProStep>().Select(OnboardingSteps.ProgressOf)
+            .Concat(Enum.GetValues<ProSetupStep>().Select(OnboardingSteps.ProgressOf))
+            .ToList();
+
+        bar.Should().BeInAscendingOrder().And.OnlyHaveUniqueItems();
+        bar[0].Should().BeGreaterThan(0);  // endowed progress
+        bar[^1].Should().Be(1);
+        OnboardingSteps.ProgressOf(ProSetupStep.Photo).Should().BeGreaterThan(OnboardingSteps.ProgressOf(ProStep.Preview));
+    }
 }

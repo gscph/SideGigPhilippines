@@ -18,8 +18,15 @@
     {
         <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true">@T.Format(Copy.ReferencesFull, ProfessionalDraft.MaxReferences)</MudAlert>
     }
-    else
+    else if (ShowForm)
     {
         <ReferenceForm Busy="_busy" OnAdd="AddAsync" Problem="@Problem" @key="_formVersion" />
+    }
+    else
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Large" FullWidth="true"
+                   StartIcon="@Icons.Material.Rounded.PersonAdd" OnClick="OpenForm">
+            @T.Get(Copy.ReferenceAddMore)
+        </MudButton>
     }
 </MudStack>
