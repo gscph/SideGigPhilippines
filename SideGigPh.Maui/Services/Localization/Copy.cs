@@ -44,7 +44,7 @@ public static class Copy
     public static readonly LocalizedText OtherJobSeekerLabel = new("What job do you need?", "Anong trabaho ang kailangan mo?");
     public static readonly LocalizedText OtherJobProLabel = new("What other job do you do?", "Anong iba pang trabaho ang kaya mo?");
     public static readonly LocalizedText OtherJobHelp = new("Optional. It helps us add more jobs.", "Optional. Para madagdagan namin ang listahan.");
-    public static readonly LocalizedText SeekerCityTitle = new("Where's the Job?", "Saan ang trabaho?");
+    public static readonly LocalizedText SeekerCityTitle = new("Where do you need it done?", "Saan ito gagawin?");
     public static readonly LocalizedText SeekerCityWhy = new("See skilled workers near you.", "Makikita mo ang mga skilled worker na malapit sa iyo.");
     public static readonly LocalizedText CitiesNote = new("More towns coming soon.", "Marami pang bayan, abangan!");
     public static readonly LocalizedText TownsAll = new("Select all", "Piliin lahat");
@@ -460,7 +460,7 @@ public static class Copy
     public static readonly LocalizedText SetupReference = new("Add a reference", "Maglagay ng reference");
     public static readonly LocalizedText SetupReferenceWhy = new("Someone you worked for who can vouch for you.", "Isang pinagtrabahuhan mo na magsasabing maayos ka.");
     public static readonly LocalizedText SetupPhone = new("Confirm your number", "I-confirm ang number mo");
-    public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. Customers call this number.", "Ite-text ka namin ng code. Ito ang tatawagan ng customer.");
+    public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. Customers see it only once they pick you.", "Ite-text ka namin ng code. Makikita lang ng customer kapag pinili ka.");
     public static readonly LocalizedText SetupPhoneDone = new("Confirmed with a text code.", "Na-confirm na gamit ang code sa text.");
     public static readonly LocalizedText SetupPublishReady = new("All set! Publish your listing to start finding work.", "Ready ka na! I-publish ang listing mo para magka-trabaho.");
     public static readonly LocalizedText SetupPublishButton = new("Publish and find work", "I-publish at maghanap ng trabaho");
@@ -590,7 +590,7 @@ public static class Copy
 
     // --- Publish ----------------------------------------------------------
     public static readonly LocalizedText PublishTitle = new("Ready to publish?", "Ready na bang i-publish?");
-    public static readonly LocalizedText PublishWhy = new("Customers in your towns will see this and can call or text you.", "Makikita ito ng customer sa mga bayan mo at puwede ka nilang tawagan o i-text.");
+    public static readonly LocalizedText PublishWhy = new("Customers in your towns will see this and message you here in the app. Your number stays private until they pick you.", "Makikita ito ng customer sa mga bayan mo at ime-message ka nila dito sa app. Private ang number mo hanggang piliin ka nila.");
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
