@@ -32,6 +32,15 @@ public class SearchIntentParserTests
     [InlineData("wifi", "it")]
     [InlineData("aircon technician", "aircon")]
     [InlineData("solar technician", "solar_cleaning")]
+    [InlineData("IT support", "it")] // "IT" in capitals names the trade inside a longer search
+    [InlineData("IT tech", "it")]
+    [InlineData("I.T.", "it")]
+    [InlineData("sira IT ko", "it")]
+    [InlineData("car repair", "car_mechanic")] // "car" is also the start of "carpentry": the exact word wins
+    [InlineData("kotse repair", "car_mechanic")]
+    [InlineData("tune up", "car_mechanic")] // "up" is a filler, not the solar "check-up"
+    [InlineData("sira ang gripo", "construction")]
+    [InlineData("faucet", "construction")]
     public void Parse_EverydayWords_FindTheTrade(string typed, string expectedTrade) =>
         SearchIntentParser.Parse(typed).CategoryId.Should().Be(expectedTrade);
 
@@ -68,6 +77,8 @@ public class SearchIntentParserTests
     [InlineData("")]
     [InlineData("po")]          // only a filler word
     [InlineData("xyzzy qwerty")] // nothing we know
+    [InlineData("fix it")]       // lower-case "it" in a sentence is the filler, not the IT trade
+    [InlineData("FIX IT PLEASE")] // all capitals: "IT" is just shouting
     public void Parse_NothingUseful_MatchesNothing(string? typed) =>
         SearchIntentParser.Parse(typed).Matched.Should().BeFalse();
 

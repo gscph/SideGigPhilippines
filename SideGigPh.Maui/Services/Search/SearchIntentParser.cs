@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services.Search;
@@ -12,7 +13,7 @@ namespace SideGigPh.Maui.Services.Search;
 /// when no trade clearly wins ("linis", "repair") the intent has no category: the Seeker is asked
 /// which kind of pro, with the closest trades offered first.
 /// </summary>
-public static class SearchIntentParser
+public static partial class SearchIntentParser
 {
     /// <summary>Lowest job score that counts as a real match (a typed prefix scores 0.8).</summary>
     private const double MinServiceScore = 0.7;
@@ -45,14 +46,15 @@ public static class SearchIntentParser
     private static readonly IReadOnlyDictionary<string, string[]> TradeWords = new Dictionary<string, string[]>
     {
         ["aircon"] = ["ac", "aircond", "airconditioner", "aircondition", "airco", "split", "window", "cooling"],
-        ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "roof", "roofer", "roofing", "bubong", "yero", "gutter", "alulod", "ulan", "rain", "helper", "peon", "obrero", "labor", "gate", "grills"],
+        ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "gripo", "faucet", "roof", "roofer", "roofing", "bubong", "yero", "gutter", "alulod", "ulan", "rain", "helper", "peon", "obrero", "labor", "gate", "grills"],
         ["electrical"] = ["electrician", "electric", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "light", "socket"],
         ["carpentry"] = ["carpenter", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto"],
         ["masonry_tiling"] = ["mason", "masonry", "tile", "tiles", "semento", "cement", "hollow", "blocks", "bakod", "fence", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
-        ["it"] = ["computer", "laptop", "pc", "desktop", "printer", "wifi", "internet", "router", "website", "programmer", "developer", "virus", "reformat"],
-        ["car_mechanic"] = ["mechanic", "mekaniko", "car", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
+        // "it" is never a typed word (it's a filler): Parse adds it when the text names the trade (ItIsTheTrade).
+        ["it"] = ["it", "computer", "laptop", "pc", "desktop", "printer", "wifi", "internet", "router", "website", "programmer", "developer", "virus", "reformat"],
+        ["car_mechanic"] = ["mechanic", "mekaniko", "car", "repair", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
     };
 
     /// <summary>The words of the catalog in use, rebuilt when the server's config replaces the built-in one.</summary>
@@ -61,10 +63,14 @@ public static class SearchIntentParser
     public static SearchIntent Parse(string? text)
     {
         var words = SearchText.Words(text);
+        if (ItIsTheTrade(text))
+        {
+            words = ["it", .. words];
+        }
+
         if (words.Count == 0)
         {
-            // Only filler words left, but the whole text may still be a trade's own name: "IT" is also the word "it".
-            return TradeNamed(text) is { } trade ? new SearchIntent(trade, null, []) : SearchIntent.None;
+            return SearchIntent.None;
         }
 
         var ranked = Index()
@@ -90,13 +96,28 @@ public static class SearchIntentParser
         return new SearchIntent(best.Id, BestService(best, words), others);
     }
 
-    /// <summary>The trade whose own name (English or Taglish) is exactly <paramref name="text"/>, ignoring case.</summary>
-    private static string? TradeNamed(string? text) =>
-        text?.Trim() is { Length: > 0 } name
-            ? ReferenceData.Config.Categories.FirstOrDefault(category =>
-                string.Equals(category.Label.English, name, StringComparison.OrdinalIgnoreCase)
-                || string.Equals(category.Label.Taglish, name, StringComparison.OrdinalIgnoreCase))?.Id
-            : null;
+    /// <summary>
+    /// "IT" is also the English filler "it": it names the trade when typed alone ("it", "I.T.") or in capitals in a
+    /// text that isn't all capitals ("IT support", "sira IT ko"), never in "fix it" or "FIX IT PLEASE".
+    /// </summary>
+    private static bool ItIsTheTrade(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return false;
+        }
+
+        var alone = text.Trim().TrimEnd('.', '!', '?');
+        if (alone.Equals("it", StringComparison.OrdinalIgnoreCase) || alone.Equals("i.t", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return ItInCapitals().IsMatch(text) && text.Any(char.IsLower);
+    }
+
+    [GeneratedRegex(@"(?<![\p{L}\d])I\.?T\.?(?![\p{L}\d])")]
+    private static partial Regex ItInCapitals();
 
     private static double TradeScore(IReadOnlyList<string> words, CategoryIndex category) =>
         words.Sum(word => (GenericWords.Contains(word) ? GenericWordWeight : 1) * Math.Max(
