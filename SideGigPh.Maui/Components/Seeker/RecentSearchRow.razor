@@ -1,12 +1,16 @@
-<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="py-2">
-    <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Dark" aria-hidden="true" />
-    <MudText Typo="Typo.subtitle2" Class="flex-1 two-lines">@Summary</MudText>
-    <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Search"
-               OnClick="() => OnSearch.InvokeAsync(Search)">
-        @T.Get(Copy.RecentSearchAgain)
-    </MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Add"
-               OnClick="() => OnPost.InvokeAsync(Search)">
-        @T.Get(Copy.RecentSearchPost)
-    </MudButton>
+<MudStack Row="true" AlignItems="AlignItems.Start" Spacing="3" Class="py-2">
+    <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Dark" Class="mt-1" aria-hidden="true" />
+    <MudStack Spacing="2" Class="flex-1 app-min-w-0">
+        <MudText Typo="Typo.subtitle1" Class="two-lines">@Summary</MudText>
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="rounded-pill px-4"
+                       StartIcon="@Icons.Material.Rounded.Search" OnClick="() => OnSearch.InvokeAsync(Search)">
+                @T.Get(Copy.RecentSearchAgain)
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Class="rounded-pill px-4"
+                       StartIcon="@Icons.Material.Rounded.Add" OnClick="() => OnPost.InvokeAsync(Search)">
+                @T.Get(Copy.RecentSearchPost)
+            </MudButton>
+        </MudStack>
+    </MudStack>
 </MudStack>

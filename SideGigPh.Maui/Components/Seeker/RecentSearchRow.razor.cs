@@ -5,7 +5,10 @@ using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Seeker;
 
-/// <summary>"🕘 Suspension · Taytay  [Search] [Post]": one recent search on Seeker home; the page decides what the taps do.</summary>
+/// <summary>
+/// One recent search on Seeker home: "🕘 Suspension · Taytay" (up to two lines) with [Search] [Post] under it, so a long job
+/// name never squeezes the buttons on a narrow phone. The page decides what the taps do.
+/// </summary>
 public partial class RecentSearchRow : ComponentBase
 {
     [Inject] private AppText T { get; set; } = default!;
