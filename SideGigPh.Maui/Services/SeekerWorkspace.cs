@@ -112,8 +112,30 @@ public sealed class SeekerWorkspace(
     /// <summary>How the saved search words were understood (None when the job was picked by tapping).</summary>
     public SearchIntent CurrentIntent => SearchIntentParser.Parse(Answers.SearchText);
 
-    /// <summary>The first page of results for the saved search.</summary>
-    public Task<SearchResult> SearchAsync() => search.SearchAsync(Request);
+    /// <summary>The first page of results for the saved search, which goes to the top of the recent searches.</summary>
+    public async Task<SearchResult> SearchAsync()
+    {
+        Answers.RememberCurrent();
+        await SaveAsync();
+        return await search.SearchAsync(Request);
+    }
+
+    /// <summary>The recent searches still offered, newest first (Seeker home).</summary>
+    public IReadOnlyList<RecentSearch> RecentSearches => Answers.Shown();
+
+    /// <summary>A recent search tapped on Seeker home becomes the current search (for the results or the post form).</summary>
+    public Task UseRecentAsync(RecentSearch recent)
+    {
+        Answers.Use(recent);
+        return SaveAsync();
+    }
+
+    /// <summary>A request just posted goes to the top of the recent searches.</summary>
+    public Task RememberPostAsync(JobPostDraft post)
+    {
+        Answers.RememberPost(post);
+        return SaveAsync();
+    }
 
     /// <summary>The results shown so far with the next page added (the Seeker scrolled to the end).</summary>
     public Task<SearchResult> MoreResultsAsync(SearchResult shown) => search.MoreAsync(Request, shown);
@@ -157,6 +179,13 @@ public sealed class SeekerWorkspace(
     {
         Answers.CityId = cityId;
         Answers.AreaId = ReferenceData.AreaOf(cityId);
+        return SaveAsync();
+    }
+
+    /// <summary>When they need it (<c>ReferenceData.Urgencies</c>), changed on the results: it words the first message.</summary>
+    public Task PickUrgencyAsync(string urgencyId)
+    {
+        Answers.UrgencyId = urgencyId;
         return SaveAsync();
     }
 

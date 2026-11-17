@@ -130,6 +130,18 @@ public class SeekerSearchTests
     private static SearchHit Hit(string name) => new(TestData.Listing(name), null, true, true, true);
 
     [Fact]
+    public async Task PickUrgency_IsSaved_AndWordsTheFirstMessage()
+    {
+        var app = await FakeApp.SeekerAsync();
+
+        await app.Seeker.PickUrgencyAsync(ReferenceData.UrgencyThisWeek);
+
+        app.Store.State.Seeker.UrgencyId.Should().Be(ReferenceData.UrgencyThisWeek);
+        app.Store.Saves.Should().Be(1);
+        app.Profiles.Searches.Should().BeEmpty("when they need it doesn't change the results");
+    }
+
+    [Fact]
     public async Task Search_SendsTheWholeSearchToTheServer_AndShowsItsFirstPage()
     {
         var app = await FakeApp.SeekerAsync();

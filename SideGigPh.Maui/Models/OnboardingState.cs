@@ -21,7 +21,7 @@ public sealed class OnboardingState
     public DateTimeOffset? CompletedAt { get; set; }
 }
 
-/// <summary>A household's answers: what job, where, when and for how much.</summary>
+/// <summary>A household's answers: what job, where, when, for how much, and whether to search or post.</summary>
 public sealed class SeekerAnswers
 {
     public string? CategoryId { get; set; }
@@ -44,6 +44,18 @@ public sealed class SeekerAnswers
     /// <c>ReferenceData.Unsure</c>.
     /// </summary>
     public string? BudgetId { get; set; }
+
+    /// <summary>
+    /// How they want to find a worker, asked last (<c>ReferenceData.FindByChoices</c>): <c>"search"</c> opens the results,
+    /// <c>"post"</c> the form to post what they need. Null for someone who finished the interview before it was asked.
+    /// </summary>
+    public string? FindBy { get; set; }
+
+    /// <summary>
+    /// Their last searches and posts, newest first, at most <c>RecentSearches.Max</c>, kept only on the phone
+    /// (<c>Services/RecentSearches</c>). Seeker home lists them for a quick search or post.
+    /// </summary>
+    public List<RecentSearch> RecentSearches { get; set; } = [];
 
     /// <summary>What they last typed in the search box, shown again when they come back.</summary>
     public string? SearchText { get; set; }

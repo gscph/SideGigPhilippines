@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
 /// Search results (under the Home tab, opened from the home search box or a trade icon). The Seeker types what they need in their own words or taps a trade, narrows
-/// to a job, and sets town and budget. Results come ranked by the server, 4 at a time (more as they scroll): pros who go
+/// to a job, and sets town, budget and when they need it (which only words their first message: results stay the same). Results come ranked by the server, 4 at a time (more as they scroll): pros who go
 /// to their town first, then other towns, each best-fit first. Tapping a pro opens their profile.
 /// Every change is saved, so the search is still here after Back or a restart.
 /// </summary>
@@ -66,6 +66,8 @@ public partial class SearchPage : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
 
+    private IReadOnlyList<ChoiceItem> Urgencies => ChoiceItem.From(ReferenceData.Urgencies, T);
+
     private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(Pricing.BudgetChoices(Request.ServiceId, Request.CategoryId, Request.BudgetId), T);
 
     private string Summary => _result!.Total == 1
@@ -114,6 +116,9 @@ public partial class SearchPage : ComponentBase
         await Workspace.PickTownAsync(cityId);
         await RunSearchAsync();
     }
+
+    /// <summary>When they need it: saved for the first message to a worker; the ranking doesn't use it, so no new search.</summary>
+    private Task PickUrgencyAsync(string urgencyId) => Workspace.PickUrgencyAsync(urgencyId);
 
     private async Task PickBudgetAsync(string budgetId)
     {

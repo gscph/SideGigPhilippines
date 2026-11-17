@@ -8,7 +8,9 @@ namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
 /// Seeker home, DoorDash/Grab style: "What do you need done?" with a dense search box, the town
-/// menu under it, every trade as an icon in a sideways-scrolling rail, then their last search,
+/// menu under it, every trade as an icon in a sideways-scrolling rail, the card to post what they need done
+/// (<see cref="PostRequestCard"/>, so posting is seen on landing, not only on the Post tab), then their recent
+/// searches (kept on the phone, <see cref="RecentSearches"/>; each searches again or opens the post form filled with it),
 /// recent messages and pros waiting for a rating. Searching or tapping a trade opens the Search
 /// tab with that search; changing the town updates the saved search.
 /// </summary>
@@ -22,23 +24,6 @@ public partial class SeekerHome : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
 
-    /// <summary>"Pa-linis ng aircon · Taytay", or null before any search.</summary>
-    private string? LastSearch
-    {
-        get
-        {
-            var request = Workspace.Request;
-            var job = ReferenceData.FindService(request.ServiceId) ?? ReferenceData.FindTrade(request.CategoryId);
-            if (job is null)
-            {
-                return null;
-            }
-
-            var town = ReferenceData.Find(ReferenceData.Cities, request.CityId);
-            return string.Join(" · ", new[] { job, town }.OfType<CatalogOption>().Select(option => T.Get(option.Label)));
-        }
-    }
-
     protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
 
     private async Task SearchAsync(string words)
@@ -50,6 +35,18 @@ public partial class SeekerHome : ComponentBase
 
         await Workspace.SearchForAsync(words);
         Nav.NavigateTo(SeekerRoutes.Search);
+    }
+
+    private async Task SearchAgainAsync(RecentSearch recent)
+    {
+        await Workspace.UseRecentAsync(recent);
+        Nav.NavigateTo(SeekerRoutes.Search);
+    }
+
+    private async Task PostAgainAsync(RecentSearch recent)
+    {
+        await Workspace.UseRecentAsync(recent);
+        Nav.NavigateTo(JobPosts.JobPostRoutes.New);
     }
 
     private async Task PickCategoryAsync(string categoryId)

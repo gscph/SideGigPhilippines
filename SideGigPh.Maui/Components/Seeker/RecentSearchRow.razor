@@ -1,0 +1,12 @@
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2" Class="py-2">
+    <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Dark" aria-hidden="true" />
+    <MudText Typo="Typo.subtitle2" Class="flex-1 two-lines">@Summary</MudText>
+    <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Search"
+               OnClick="() => OnSearch.InvokeAsync(Search)">
+        @T.Get(Copy.RecentSearchAgain)
+    </MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Rounded.Add"
+               OnClick="() => OnPost.InvokeAsync(Search)">
+        @T.Get(Copy.RecentSearchPost)
+    </MudButton>
+</MudStack>

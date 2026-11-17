@@ -10,6 +10,8 @@
                     SelectedId="@Request.CityId" OnPick="PickTownAsync" />
         <FilterMenu Icon="@Icons.Material.Filled.Payments" Label="@T.Get(Copy.FilterBudget)" Options="Budgets"
                     SelectedId="@Request.BudgetId" OnPick="PickBudgetAsync" />
+        <FilterMenu Icon="@Icons.Material.Filled.Schedule" Label="@T.Get(Copy.FilterWhen)" Options="Urgencies"
+                    SelectedId="@Workspace.Answers.UrgencyId" OnPick="PickUrgencyAsync" />
     </MudStack>
 
     @if (Request.CategoryId is null || _unmatchedText is not null)

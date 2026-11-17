@@ -20,6 +20,7 @@ public class AppImagesTests
             .Concat(BuiltIn.Urgencies)
             .Concat(ReferenceData.RateLevels)
             .Concat(ReferenceData.TradeChoices)
+            .Concat(ReferenceData.FindByChoices)
             .Append(ReferenceData.UnsureOption)
             .Append(ReferenceData.QuoteOption);
 
