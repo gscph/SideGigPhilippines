@@ -2,7 +2,7 @@
 @layout SeekerLayout
 
 <MudStack Spacing="4">
-    <MudStack Spacing="1">       
+    <MudStack Spacing="1">
         <SearchBox OnSearch="SearchAsync" />
         <MudStack Row="true">
             <FilterMenu Icon="@Icons.Material.Filled.Place" Label="@T.Get(Copy.FilterTown)" Options="Towns"
@@ -11,6 +11,8 @@
     </MudStack>
 
     <CategoryRail Items="Categories" Label="@T.Get(Copy.BrowseTitle)" OnPick="PickCategoryAsync" />
+
+    <PostRequestCard />
 
     @if (LastSearch is not null)
     {

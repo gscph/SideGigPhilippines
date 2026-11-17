@@ -53,6 +53,14 @@
             </InterviewStep>
             break;
 
+        case SeekerStep.FindBy:
+            <InterviewStep Illustration="@AppImages.FindBy" Title="@T.Get(Copy.SeekerFindByTitle)" Why="@T.Get(Copy.SeekerFindByWhy)"
+                           Progress="Progress" OnBack="GoBack">
+                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.FindByChoices, T)"
+                             SelectedIds="Selected(Answers.FindBy)" OnPick="PickFindByAsync" />
+            </InterviewStep>
+            break;
+
         case SeekerStep.Finding:
             @* Nothing of its own: the brand splash (BusyOverlay) covers it while the answers are saved. *@
             break;

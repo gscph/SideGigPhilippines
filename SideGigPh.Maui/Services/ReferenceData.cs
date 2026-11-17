@@ -32,6 +32,10 @@ public static class ReferenceData
     public const string UrgencyThisWeek = "this-week";
     public const string UrgencyCanvassing = "canvassing";
 
+    /// <summary>The Seeker's last question (<see cref="FindByChoices"/>): see workers now, or post what they need.</summary>
+    public const string FindBySearch = "search";
+    public const string FindByPost = "post";
+
     /// <summary>The top experience answer; Seekers see it highlighted in the brand color.</summary>
     public const string TopExperienceId = "10-plus";
 
@@ -57,6 +61,18 @@ public static class ReferenceData
         new(PriceLevels.Minimum, new("Minimum price", "Pinakamababang presyo"), AppImages.For(PriceLevels.Minimum)),
         new(PriceLevels.Average, new("Average price", "Karaniwang presyo"), AppImages.For(PriceLevels.Average)),
         new(PriceLevels.AboveAverage, new("Above average", "Mas mataas sa karaniwan"), AppImages.For(PriceLevels.AboveAverage)),
+    ];
+
+    /// <summary>
+    /// How a household wants to find a worker, the Seeker interview's last question. Lives with the code (it picks a
+    /// page, not a search filter), never in <c>004-config.sql</c>.
+    /// </summary>
+    public static IReadOnlyList<CatalogOption> FindByChoices { get; } =
+    [
+        new(FindBySearch, new("See workers now", "Tingnan ang mga gagawa"), AppImages.SearchNow,
+            new("Pick one near you and message them", "Pumili ng malapit at i-message")),
+        new(FindByPost, new("Post what I need", "I-post ang ipapagawa ko"), AppImages.PostRequest,
+            new("Workers near you send you their price", "Ang mga malapit ang magpapadala ng presyo nila")),
     ];
 
     private static readonly CatalogOption OtherTradeOption = new(

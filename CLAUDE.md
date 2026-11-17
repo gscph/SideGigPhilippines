@@ -186,7 +186,7 @@ changing that area.**
   same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone) → role (a worker confirms their number
   right here, once in their life, or "Do this later" and Publish asks again (its own "Do this later" goes to Pro home, whose banner says the number is still needed to publish): the number stays on the sign-in account, so later Google sign-ins never ask again;
   Seekers are never asked for a number) →
-  the interview, one URL per step, rules in `Services/OnboardingSteps` (tested). Money is the hook: prices are per job
+  the interview, one URL per step, rules in `Services/OnboardingSteps` (tested). The Seeker's last question is **search or post** (`SeekerAnswers.FindBy`, `ReferenceData.FindByChoices`): the interview lands on the results or the post form (`FinishPath`), and Seeker home's `PostRequestCard` offers posting to everyone. Money is the hook: prices are per job
   (`Services/Pricing`, price guides in SQL, never under the minimum wage).
 - **Auth** is provider-neutral: contract and screens in the skeleton (`IIdentityProvider`, `AuthError`,
   `SignInGate`), the vendor in `MobileAppTheme.Firebase` (`AddFirebaseAuth`, `AddFirebasePush`). Never call a provider

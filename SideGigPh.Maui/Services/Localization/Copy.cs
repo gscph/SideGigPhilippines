@@ -46,6 +46,8 @@ public static class Copy
     public static readonly LocalizedText SeekerWhenWhy = new("We'll tell the skilled worker when you need it.", "Sasabihin namin sa skilled worker kung kailan mo kailangan.");
     public static readonly LocalizedText SeekerBudgetTitle = new("What's your budget for this job?", "Magkano ang budget mo dito?");
     public static readonly LocalizedText SeekerBudgetWhy = new("Skilled workers who fit your budget show up first.", "Uunahin namin ang mga skilled worker na pasok sa budget mo.");
+    public static readonly LocalizedText SeekerFindByTitle = new("How do you want to find a worker?", "Paano mo gustong humanap ng gagawa?");
+    public static readonly LocalizedText SeekerFindByWhy = new("You can do both later from Home.", "Puwede mo pang gawin pareho mamaya sa Home.");
 
     // Budget. {0} = a peso amount or range, {1} = the job.
     public static readonly LocalizedText BudgetTypical = new("Most people pay {0} for {1}.", "Karaniwang bayad sa {1}: {0}.");
@@ -254,6 +256,9 @@ public static class Copy
     public static readonly LocalizedText PostsWhy = new("Post it once. Workers of that trade near you will see it.", "I-post nang isang beses. Makikita ng mga malapit na gumagawa nito.");
     public static readonly LocalizedText PostsEmpty = new("Nothing posted yet. Say what you need done and your budget.", "Wala ka pang post. Sabihin kung ano ang ipapagawa at magkano ang budget mo.");
     public static readonly LocalizedText PostsNew = new("Post what you need", "Mag-post ng ipapagawa");
+    public static readonly LocalizedText HomePostTitle = new("Post what you need done", "I-post ang ipapagawa mo");
+    public static readonly LocalizedText HomePostWhy = new("Say your budget. Workers near you send their price.", "Sabihin ang budget mo. Ang mga malapit ang magpapadala ng presyo.");
+    public static readonly LocalizedText HomePostButton = new("Post", "I-post");
     public static readonly LocalizedText PostNewTitle = new("What do you need done?", "Ano ang ipapagawa mo?");
     public static readonly LocalizedText PostNewWhy = new("Only workers of this trade near you will see it. Your exact address is never shown.", "Mga malapit na gumagawa lang nito ang makakakita. Hindi ipinapakita ang eksaktong address mo.");
     public static readonly LocalizedText PostTrade = new("Kind of work", "Uri ng gawa");

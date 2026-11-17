@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Contracts;
-using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -10,7 +9,7 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// Seeker interview: what job → which town (their one home town) → when →
-/// budget → results. "Others" after the trades lets someone type a kind of work we don't list: it is saved as their
+/// budget → search or post → the results, or the form to post what they need (pre-filled from these answers). "Others" after the trades lets someone type a kind of work we don't list: it is saved as their
 /// trade and job (the job question is skipped), sent for analytics and matched with workers who typed something similar,
 /// so nobody is stuck on the trade question. The budget is two peso boxes, "From" and "Up to"; the job's price guide
 /// (<see cref="Pricing.BudgetChoices"/>) shows as ranges that fill them in one tap (a guide, not a rule), and "Not sure
@@ -179,6 +178,12 @@ public partial class SeekerInterview : ComponentBase
         return AdvanceAsync();
     }
 
+    private Task PickFindByAsync(string id)
+    {
+        Answers.FindBy = id;
+        return AdvanceAsync();
+    }
+
     private async Task AdvanceAsync()
     {
         var state = _state!;
@@ -203,7 +208,8 @@ public partial class SeekerInterview : ComponentBase
 
     /// <summary>
     /// The last step: the brand splash (<see cref="BusyIndicator"/>, the same one as at launch) stays up while the
-    /// answers and profile are saved, at most <see cref="OnboardingFinish.WaitLimit"/>, then the results open.
+    /// answers and profile are saved, at most <see cref="OnboardingFinish.WaitLimit"/>, then the results or the post form
+    /// open (<see cref="OnboardingSteps.FinishPath"/>).
     /// </summary>
     private async Task FinishAsync()
     {
@@ -211,7 +217,7 @@ public partial class SeekerInterview : ComponentBase
         state.CompletedAt = DateTimeOffset.Now;
         state.ResumePath = null;
         await Busy.RunAsync(() => OnboardingFinish.WaitAsync(SaveAsync(state), Logger, Clock));
-        Nav.NavigateTo(SeekerRoutes.Search, replace: true);
+        Nav.NavigateTo(Answers.FinishPath(), replace: true);
     }
 
     private async Task SaveAsync(OnboardingState state)

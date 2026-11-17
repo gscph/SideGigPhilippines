@@ -72,8 +72,11 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 | S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`, advances on tap; sets the area) | "See skilled workers near you." | Chip, search, pre-filled text |
 | S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Nagca-canvass lang | "We'll tell the pro when you need it." | Chip, pre-filled text |
 | S5 | What's your budget? / Magkano ang budget mo dito? | Two boxes, **From** and **Up to**; the job's guide ranges fill them in one tap; "Di ko pa alam" skips. The suggested minimum price shows as a guide, never a rule (they pay after the work) | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** badge and sort |
+| S6 | How do you want to find a worker? / Paano mo gustong humanap ng gagawa? | **See workers now** · **Post what I need** (`ReferenceData.FindByChoices`, in code; `SeekerAnswers.FindBy`, advances on tap) | "You can do both later from Home." | Where the interview lands: the results, or the post form pre-filled with S1–S5 (`OnboardingSteps.FinishPath`) |
 
 **"Others" never blocks.** The last tile of the trade question (both sides) is "Others": the person types the work, it is saved as their trade and job (`other`), the job question is skipped and the interview goes on. Workers and households who picked "Others" find each other by what they typed (search orders shared words first). The worker's rate is likewise their own from–to range; the guide's levels only fill the boxes.
+
+**S6 is never asked again:** changing an answer later goes straight back to the results, and someone who finished before S6 existed is never sent to it (Seeker home's `PostRequestCard` offers posting to everyone).
 
 Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Linis ng aircon ✓ · Checking who goes to Taytay ✓ · Putting pros in your budget first ✓".
 
@@ -196,7 +199,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/` | `Onboarding/LaunchRouter` | Loads `IOnboardingStore`, applies the language and redirects to `/start`, `/start/role`, the resume step, `/seeker` or `/professional`. |
 | `/start` | `Onboarding/LanguagePage` | English / Taglish. |
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
-| `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S5, plus the loader at step 6. |
+| `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S6, plus the loader at step 7. |
 | `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
 | `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo, 2 work photos (2–6), 3 references (1–3), each required, then `/professional/publish` (a Google account adds a verified number there first). Launch resumes here until the listing is live. |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |

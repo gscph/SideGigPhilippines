@@ -1,3 +1,4 @@
+using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 
@@ -145,6 +146,7 @@ public class OnboardingStepsTests
         CityId = "taytay",
         UrgencyId = "today",
         BudgetId = "unsure",
+        FindBy = ReferenceData.FindBySearch,
     };
 
     [Theory]
@@ -153,6 +155,7 @@ public class OnboardingStepsTests
     [InlineData("city", SeekerStep.City)]
     [InlineData("when", SeekerStep.When)]
     [InlineData("budget", SeekerStep.Budget)]
+    [InlineData("findBy", SeekerStep.FindBy)]
     [InlineData("none", SeekerStep.Finding)]
     public void SeekerFirstUnanswered_IsTheFirstMissingQuestion(string missing, SeekerStep expected)
     {
@@ -164,6 +167,7 @@ public class OnboardingStepsTests
             case "city": answers.CityId = null; break;
             case "when": answers.UrgencyId = null; break;
             case "budget": answers.BudgetId = null; break;
+            case "findBy": answers.FindBy = null; break;
         }
 
         answers.FirstUnanswered().Should().Be(expected);
@@ -234,6 +238,41 @@ public class OnboardingStepsTests
         answers.PickCategory("plumbing");
 
         answers.NextPath(SeekerStep.Category, finished: true).Should().Be("/start/seeker/2");
+    }
+
+    [Fact]
+    public void NextPath_AfterTheBudget_AsksSearchOrPost() =>
+        FullSeeker().NextPath(SeekerStep.Budget, finished: false).Should().Be("/start/seeker/6");
+
+    [Fact]
+    public void NextPath_ChangingAnAnswer_NeverAsksSearchOrPost_ForSomeoneWhoFinishedBeforeIt()
+    {
+        var answers = FullSeeker();
+        answers.FindBy = null;
+
+        answers.NextPath(SeekerStep.Budget, finished: true).Should().Be("/seeker/search");
+    }
+
+    [Theory]
+    [InlineData(ReferenceData.FindBySearch, "/seeker/search")]
+    [InlineData(ReferenceData.FindByPost, "/posts/new")]
+    [InlineData(null, "/seeker/search")]
+    public void FinishPath_OpensTheResults_OrThePostForm(string? findBy, string expected)
+    {
+        var answers = FullSeeker();
+        answers.FindBy = findBy;
+
+        answers.FinishPath().Should().Be(expected);
+    }
+
+    [Fact]
+    public void LaunchPath_SeekerWhoFinishedBeforeSearchOrPostExisted_OpensSeekerHome()
+    {
+        var seeker = FullSeeker();
+        seeker.FindBy = null;
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+            .Should().Be(SeekerRoutes.Home);
     }
 
     [Theory]

@@ -8,7 +8,8 @@ namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
 /// Seeker home, DoorDash/Grab style: "What do you need done?" with a dense search box, the town
-/// menu under it, every trade as an icon in a sideways-scrolling rail, then their last search,
+/// menu under it, every trade as an icon in a sideways-scrolling rail, the card to post what they need done
+/// (<see cref="PostRequestCard"/>, so posting is seen on landing, not only on the Post tab), then their last search,
 /// recent messages and pros waiting for a rating. Searching or tapping a trade opens the Search
 /// tab with that search; changing the town updates the saved search.
 /// </summary>

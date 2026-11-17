@@ -1,3 +1,4 @@
+using SideGigPh.Maui.Components.JobPosts;
 using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
@@ -34,6 +35,7 @@ public enum SeekerStep
     City,
     When,
     Budget,
+    FindBy,
     Finding,
 }
 
@@ -213,6 +215,7 @@ public static class OnboardingSteps
         if (answers.CityId is null) return SeekerStep.City;
         if (answers.UrgencyId is null) return SeekerStep.When;
         if (answers.BudgetId is null) return SeekerStep.Budget;
+        if (answers.FindBy is null) return SeekerStep.FindBy;
         return SeekerStep.Finding;
     }
 
@@ -267,9 +270,21 @@ public static class OnboardingSteps
         answers.AreaId = ReferenceData.AreaOf(cityId);
     }
 
+    /// <summary>Whether the household wants to post what they need rather than see workers first.</summary>
+    public static bool WantsToPost(this SeekerAnswers answers) => answers.FindBy == ReferenceData.FindByPost;
+
+    /// <summary>
+    /// Where the interview's last step lands: the form to post what they need (pre-filled from these answers) for
+    /// "Post what I need", else the results.
+    /// </summary>
+    public static string FinishPath(this SeekerAnswers answers) =>
+        answers.WantsToPost() ? JobPostRoutes.New : SeekerRoutes.Search;
+
     /// <summary>
     /// Where a Seeker goes after answering <paramref name="step"/>: the next question during the interview; when
     /// changing an answer after it, the next still-missing question, or back to the results when nothing is missing.
+    /// "Search or post" is never asked again when changing an answer (someone who finished before it existed has none):
+    /// Home offers both.
     /// </summary>
     public static string NextPath(this SeekerAnswers answers, SeekerStep step, bool finished)
     {
@@ -279,7 +294,7 @@ public static class OnboardingSteps
         }
 
         var next = answers.FirstUnanswered();
-        return next == SeekerStep.Finding ? SeekerRoutes.Search : PathOf(next);
+        return next is SeekerStep.FindBy or SeekerStep.Finding ? SeekerRoutes.Search : PathOf(next);
     }
 
     /// <summary>Back from a Seeker question, skipping the job question of the "Others" trade.</summary>

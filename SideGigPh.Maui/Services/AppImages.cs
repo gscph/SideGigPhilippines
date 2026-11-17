@@ -30,6 +30,7 @@ public static class AppImages
     public static readonly string Report = File("flag");
     public static readonly string Idea = File("bulb");
     public static readonly string Done = File("done");
+    public static readonly string FindBy = File("people");
 
     // Answers that live with the code.
     public static readonly string Worker = File("worker");
@@ -45,6 +46,8 @@ public static class AppImages
     public static readonly string Fake = File("fake-id");
     public static readonly string Blocked = File("blocked");
     public static readonly string Employment = File("briefcase");
+    public static readonly string SearchNow = File("search");
+    public static readonly string PostRequest = File("megaphone");
 
     /// <summary>The picture for a trade, job or answer id; "Others" jobs and ids without their own picture get <see cref="More"/>.</summary>
     public static string For(string id) => ById.TryGetValue(id, out var name) ? File(name) : More;
