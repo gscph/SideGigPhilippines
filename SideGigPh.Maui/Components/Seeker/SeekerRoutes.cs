@@ -34,6 +34,9 @@ public static class SeekerRoutes
 
     public static string Rate(string professionalId) => $"{Reviews}/rate/{Uri.EscapeDataString(professionalId)}";
 
+    /// <summary>The review page after a completed job: it says the review stays hidden until the worker reviews too (blind reviews).</summary>
+    public static string RateAfterJob(string professionalId) => $"{Rate(professionalId)}?job=1";
+
     /// <summary>Report or block a person (a worker, or a review's writer); Back and Done return to <paramref name="back"/>.</summary>
     public static string Report(string personId, ReportSubject subject, string back, string? chatId = null) =>
         Safety.ReportRoutes.Report(Safety.ReportRoutes.SeekerSide, personId, subject, back, chatId);

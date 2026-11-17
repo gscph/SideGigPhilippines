@@ -11,6 +11,11 @@
 
         <MudText Typo="Typo.body2">@Status</MudText>
 
+        @if (BlindNote is { } note)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@note</MudText>
+        }
+
         @if (!Job.DoneByMe)
         {
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="_busy"

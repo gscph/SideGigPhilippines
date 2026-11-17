@@ -76,7 +76,11 @@ changing that area.**
   **completed job**: a picked offer both sides marked done (`PickedJobStore`, `018-schema-job-done.sql`,
   `picked-jobs/…`; both chat pages show it as `PickedJobCard` with **Mark done**, re-read every 10 s while it waits, `PickedJobWatch`; a pick moves an existing chat to the post's service and town), which shows "Verified service" on the
   review (`ReviewRow`), counts on the listing (`CompletedJobs`, `ListingFacts`) and lets the worker rate the household
-  on the card (`HouseholdReviews`; workers see its stars on its posts).
+  on the card (`HouseholdReviews`; workers see its stars on its posts). **Reviews after a completed job are blind:**
+  each side's review of the other is hidden (from the other side, the profile, averages, counts, search ranking and
+  household stars) until both reviewed since the job or `ReviewRules.BlindFor` (14 days) passed (`ReviewRules.IsHidden`,
+  server SQL `BlindReviewFilter`, no column); the writer sees their own (`ReviewDto.Hidden`), and `PickedJobCard` says
+  so (`Services/BlindReviews`); one-way chat reviews are not blind.
   **Notifications:** a customer writing to a worker rings, a worker's reply only badges the icon; permission is asked
   only with a reason, never at first launch (`ChatAlerts`; a household is asked right after its first post). A new
   job post rings the workers its Requests feed would show it to (`JobAlerts`, `JobPostStore.WorkersToAlertAsync`, at

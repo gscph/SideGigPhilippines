@@ -71,7 +71,8 @@ internal static partial class ApiMapping
         dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null);
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
-        new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating);
+        new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating,
+            dto.CompletedAt, dto.TheyReviewed, dto.TheirRating);
 
     public static JobOffer ToModel(this JobOfferDto dto) => new(
         dto.Id,
@@ -275,7 +276,8 @@ internal static partial class ApiMapping
         dto.Comment,
         dto.ServiceId,
         dto.UpdatedAt,
-        dto.VerifiedJob);
+        dto.VerifiedJob,
+        dto.Hidden);
 
     public static SaveReviewRequest ToSaveRequest(this Review review) =>
         new(review.ProfessionalId, review.ReviewerName, review.Rating, review.Comment, review.ServiceId);

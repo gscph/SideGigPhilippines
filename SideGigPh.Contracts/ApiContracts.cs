@@ -150,6 +150,9 @@ public sealed record PublishListingRequest(
 /// <summary>Someone who can vouch for a Skilled Worker: a name and an E.164 Philippine mobile number.</summary>
 public sealed record ReferenceDto(string Name, string MobileNumber);
 
+/// <summary>A Seeker's review of a Skilled Worker.</summary>
+/// <param name="VerifiedJob">The Seeker picked this worker for a job both marked done.</param>
+/// <param name="Hidden">A blind review only its writer sees for now (<see cref="ReviewRules.IsHidden"/>): it shows when the worker reviews back or <see cref="ReviewRules.BlindFor"/> passes.</param>
 public sealed record ReviewDto(
     string ProfessionalId,
     string SeekerId,
@@ -159,7 +162,8 @@ public sealed record ReviewDto(
     string? ServiceId,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
-    bool VerifiedJob = false);
+    bool VerifiedJob = false,
+    bool Hidden = false);
 
 /// <summary><c>PUT reviews</c>: the caller's review of a Skilled Worker, replacing their earlier one.</summary>
 /// <summary>When a Seeker may rate a Skilled Worker. The app hides the Rate buttons until then, and the server refuses earlier reviews.</summary>
@@ -170,6 +174,26 @@ public static class ReviewRules
 
     /// <summary>True once <see cref="WaitAfterChatStarts"/> has passed since the chat started.</summary>
     public static bool CanRate(DateTimeOffset chatStartedAt, DateTimeOffset now) => now - chatStartedAt >= WaitAfterChatStarts;
+
+    /// <summary>
+    /// Blind reviews: after a completed job (picked, both marked done) each side's review of the other stays hidden
+    /// until the other side has reviewed too, or until this long after the job was completed. So nobody rates in
+    /// fear of the other's answer (no retaliation, no inflated stars). Only the writer sees a hidden review.
+    /// </summary>
+    public static readonly TimeSpan BlindFor = TimeSpan.FromDays(14);
+
+    /// <summary>When the reviews of a job completed at <paramref name="completedAt"/> show, whoever reviewed.</summary>
+    public static DateTimeOffset OpensAt(DateTimeOffset completedAt) => completedAt + BlindFor;
+
+    /// <summary>
+    /// True when a review (last written at <paramref name="writtenAt"/>) is still hidden from everyone but its writer:
+    /// it was written after one of the pair's completed jobs (<paramref name="jobsCompletedAt"/>), that job's
+    /// <see cref="BlindFor"/> hasn't passed, and the other side hasn't reviewed since that job
+    /// (<paramref name="otherWrittenAt"/>, null when they never did). A review written before the job stays as it was.
+    /// The server's SQL (<c>BlindReviewFilter</c>) is the same rule.
+    /// </summary>
+    public static bool IsHidden(DateTimeOffset writtenAt, DateTimeOffset? otherWrittenAt, IEnumerable<DateTimeOffset> jobsCompletedAt, DateTimeOffset now) =>
+        jobsCompletedAt.Any(done => now < OpensAt(done) && writtenAt >= done && !(otherWrittenAt >= done));
 }
 
 public sealed record SaveReviewRequest(string ProfessionalId, string ReviewerName, int Rating, string? Comment, string? ServiceId);

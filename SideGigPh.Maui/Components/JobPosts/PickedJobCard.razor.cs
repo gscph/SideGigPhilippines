@@ -8,7 +8,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// <summary>
 /// The picked job on a chat page (verified reviews, brief item 12): what was picked and for how much, where each side
 /// stands, and the one thing to do next: **Mark done** until this person did; then, once both did, the household's
-/// review (<see cref="RateHref"/>) or the worker's stars for the household, right here. Raises
+/// review (<see cref="RateHref"/>) or the worker's stars for the household, right here, with a line on the blind
+/// reviews (<see cref="BlindReviews"/>: hidden until both reviewed, or 14 days; then the other's stars). Raises
 /// <see cref="OnChanged"/> with the job as the server now has it.
 /// </summary>
 public partial class PickedJobCard : ComponentBase
@@ -46,6 +47,24 @@ public partial class PickedJobCard : ComponentBase
         : Job.DoneByMe ? T.Format(Copy.PickedWaiting, OtherName)
         : (Job.IAmTheHousehold ? Job.DoneByWorker : Job.DoneByHousehold) ? T.Format(Copy.PickedOtherDone, OtherName)
         : T.Get(Copy.PickedNeitherDone);
+
+    /// <summary>Blind reviews: what the other side sees of the reviews of this job, and when (null before it is completed).</summary>
+    private string? BlindNote
+    {
+        get
+        {
+            var now = DateTimeOffset.UtcNow;
+            var when = BlindReviews.DaysLeft(Job, now) is var days && days == 1 ? T.Get(Copy.BlindTomorrow) : T.Format(Copy.BlindInDays, days);
+            return BlindReviews.StageOf(Job, now) switch
+            {
+                BlindReviewStage.WaitingForMe when Job.TheyReviewed => T.Format(Copy.BlindTheyReviewed, OtherName),
+                BlindReviewStage.WaitingForMe => T.Format(Copy.BlindNoteBefore, OtherName, when),
+                BlindReviewStage.WaitingForThem => T.Format(Copy.BlindWaiting, OtherName, when),
+                BlindReviewStage.Open => T.Format(Copy.TheyRatedYou, OtherName, Job.TheirRating!.Value),
+                _ => null,
+            };
+        }
+    }
 
     private void Edit()
     {
@@ -93,7 +112,9 @@ public partial class PickedJobCard : ComponentBase
             if (await Board.RateHouseholdAsync(OtherUid, _stars, _comment))
             {
                 _editing = false;
-                await OnChanged.InvokeAsync(Job with { MyRating = _stars });
+                // Re-read: if the household had reviewed already, both reviews now show (blind reviews).
+                var now = (await Board.PickedJobsAsync(OtherUid)).FirstOrDefault(j => j.PostId == Job.PostId);
+                await OnChanged.InvokeAsync(now ?? Job with { MyRating = _stars });
             }
             else
             {

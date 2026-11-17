@@ -19,25 +19,38 @@ public enum ReviewOutcome
 /// <summary>Seekers' reviews of the Skilled Workers they chatted with: one per pair, writing again replaces it.</summary>
 public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
 {
-    /// <summary>The reviews of a worker, newest first; one whose writer picked them for a completed job is a "Verified job".</summary>
-    public async Task<IReadOnlyList<ReviewDto>> ForProfessionalAsync(string professionalId, CancellationToken cancellationToken)
+    /// <summary>
+    /// The reviews of a worker that <paramref name="viewerUid"/> may see, newest first: a blind review
+    /// (<see cref="BlindReviewFilter"/>) only for its writer, marked <see cref="ReviewDto.Hidden"/>. One whose writer picked
+    /// them for a completed job is a "Verified job".
+    /// </summary>
+    public async Task<IReadOnlyList<ReviewDto>> ForProfessionalAsync(string professionalId, string viewerUid, CancellationToken cancellationToken)
     {
-        var rows = await db.Reviews.AsNoTracking()
-            .Where(r => r.ProfessionalId == professionalId)
+        var now = DateTimeOffset.UtcNow;
+        var about = db.Reviews.AsNoTracking().Where(r => r.ProfessionalId == professionalId);
+        var rows = await BlindReviewFilter.Shown(db, about, now, viewerUid)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync(cancellationToken);
+        var mineHidden = rows.Any(r => r.SeekerId == viewerUid)
+            && !await BlindReviewFilter.Shown(db, about.Where(r => r.SeekerId == viewerUid), now).AnyAsync(cancellationToken);
         var verified = (await CompletedJobs().Where(job => job.ProUid == professionalId).Select(job => job.SeekerUid).ToListAsync(cancellationToken)).ToHashSet();
-        return [.. rows.Select(r => ToDto(r, verified.Contains(r.SeekerId)))];
+        return [.. rows.Select(r => ToDto(r, verified.Contains(r.SeekerId), mineHidden && r.SeekerId == viewerUid))];
     }
 
-    public async Task<IReadOnlyList<ReviewDto>> BySeekerAsync(string seekerId, CancellationToken cancellationToken)
+    /// <summary>The reviews a Seeker wrote, newest first: all of them for the Seeker (hidden ones marked), only the shown ones for anyone else.</summary>
+    public async Task<IReadOnlyList<ReviewDto>> BySeekerAsync(string seekerId, string viewerUid, CancellationToken cancellationToken)
     {
-        var rows = await db.Reviews.AsNoTracking()
-            .Where(r => r.SeekerId == seekerId)
+        var now = DateTimeOffset.UtcNow;
+        var written = db.Reviews.AsNoTracking().Where(r => r.SeekerId == seekerId);
+        var shown = BlindReviewFilter.Shown(db, written, now);
+        var rows = await (viewerUid == seekerId ? written : shown)
             .OrderByDescending(r => r.CreatedAt)
             .ToListAsync(cancellationToken);
+        var shownIds = viewerUid == seekerId
+            ? (await shown.Select(r => r.ProfessionalId).ToListAsync(cancellationToken)).ToHashSet()
+            : [.. rows.Select(r => r.ProfessionalId)];
         var verified = (await CompletedJobs().Where(job => job.SeekerUid == seekerId).Select(job => job.ProUid).ToListAsync(cancellationToken)).ToHashSet();
-        return [.. rows.Select(r => ToDto(r, verified.Contains(r.ProfessionalId)))];
+        return [.. rows.Select(r => ToDto(r, verified.Contains(r.ProfessionalId), !shownIds.Contains(r.ProfessionalId)))];
     }
 
     /// <summary>The completed jobs (picked, both marked done) with the household that posted each.</summary>
@@ -97,7 +110,7 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
         row.ServiceId = request.ServiceId;
         row.UpdatedAt = now;
         await db.SaveChangesAsync(cancellationToken);
-        listings.Clear(); // search results carry the stars
+        listings.Clear(); // search results carry the stars (and this review may open the worker's blind one)
         return ReviewOutcome.Saved;
     }
 
@@ -111,6 +124,6 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
         listings.Clear();
     }
 
-    private static ReviewDto ToDto(ReviewRow r, bool verifiedJob) =>
-        new(r.ProfessionalId, r.SeekerId, r.ReviewerName, r.Rating, r.Comment, r.ServiceId, r.CreatedAt, r.UpdatedAt, verifiedJob);
+    private static ReviewDto ToDto(ReviewRow r, bool verifiedJob, bool hidden) =>
+        new(r.ProfessionalId, r.SeekerId, r.ReviewerName, r.Rating, r.Comment, r.ServiceId, r.CreatedAt, r.UpdatedAt, verifiedJob, hidden);
 }

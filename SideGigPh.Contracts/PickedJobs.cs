@@ -8,6 +8,10 @@ namespace SideGigPh.Contracts;
 /// </summary>
 /// <param name="IAmTheHousehold">The caller posted it (else the caller is the picked worker).</param>
 /// <param name="MyRating">The caller's stars for the other person (household → worker in <c>Reviews</c>, worker → household in <c>HouseholdReviews</c>), or null.</param>
+/// <param name="CompletedAt">When the second side marked it done (null until both did). Blind reviews open
+/// <see cref="ReviewRules.BlindFor"/> after it at the latest.</param>
+/// <param name="TheyReviewed">The other person has reviewed the caller since this job was completed (their stars stay hidden until the caller reviews too).</param>
+/// <param name="TheirRating">The other person's stars for the caller, only once they show (<see cref="ReviewRules.IsHidden"/>), else null.</param>
 public sealed record PickedJobDto(
     long PostId,
     string ServiceId,
@@ -16,7 +20,10 @@ public sealed record PickedJobDto(
     bool IAmTheHousehold,
     bool DoneByHousehold,
     bool DoneByWorker,
-    int? MyRating = null);
+    int? MyRating = null,
+    DateTimeOffset? CompletedAt = null,
+    bool TheyReviewed = false,
+    int? TheirRating = null);
 
 /// <summary><c>PUT household-reviews</c>: a worker's stars for a household, after a completed job between them. Writing again replaces it.</summary>
 public sealed record SaveHouseholdReviewRequest(string SeekerUid, int Rating, string? Comment = null);

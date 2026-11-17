@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -19,6 +20,11 @@ public partial class WriteReviewPage : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
+
+    /// <summary>Opened from a completed job's card: the review is blind (hidden until the worker reviews too, or 14 days).</summary>
+    [SupplyParameterFromQuery(Name = "job")] public bool AfterJob { get; set; }
+
+    private static int BlindDays => (int)ReviewRules.BlindFor.TotalDays;
 
     private ProfessionalListing? _pro;
     private int _rating;

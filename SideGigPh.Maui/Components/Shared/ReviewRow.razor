@@ -28,4 +28,11 @@
     {
         <MudText Typo="Typo.body1">@Review.Comment</MudText>
     }
+    @if (Review.Hidden)
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+            <MudIcon Icon="@Icons.Material.Rounded.VisibilityOff" Size="Size.Small" Color="Color.Secondary" aria-hidden="true" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Format(Copy.ReviewHiddenForNow, BlindDays)</MudText>
+        </MudStack>
+    }
 </MudStack>

@@ -71,7 +71,7 @@ public class WireContractTests
     public void ReviewContracts_FieldNamesNeverChange()
     {
         FieldNames(new ReviewDto("pro-1", "seeker-1", "Ana D.", 5, "Ok", "plumbing-clog", At, At), ApiJson.Default.ReviewDto)
-            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob");
+            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob", "hidden");
         FieldNames(new SaveReviewRequest("pro-1", "Ana D.", 5, null, null), ApiJson.Default.SaveReviewRequest)
             .Should().Equal("professionalId", "reviewerName", "rating", "comment", "serviceId");
     }
