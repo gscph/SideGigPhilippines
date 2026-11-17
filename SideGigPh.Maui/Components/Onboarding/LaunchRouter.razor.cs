@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Analytics;
+using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -18,8 +19,8 @@ public partial class LaunchRouter : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    /// <summary>A different honorific each launch ("Find Ates nearby" / "May Ate para diyan").</summary>
-    private readonly LocalizedText _line = RoleSplashLines.SeekerLine(Honorifics.Random());
+    /// <summary>The main splash line, the same as the busy splash's first: "AI-assisted ID checks".</summary>
+    private static LocalizedText MainLine => Copy.TrustTagline;
 
     protected override async Task OnInitializedAsync()
     {

@@ -5,7 +5,7 @@ using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.Onboarding;
 
-/// <summary>The busy splash speaks to the user's side: Seekers see the honorifics take turns, Skilled Workers see their own lines.</summary>
+/// <summary>The busy splash opens on the ID-check line, then speaks to the user's side: Seekers see the honorifics take turns, Skilled Workers see their own lines.</summary>
 public class SplashLinesTests
 {
     [Fact]
@@ -18,13 +18,15 @@ public class SplashLinesTests
         lines.Should().Contain(line => line.English == "Find Ates nearby");
     }
 
-    [Fact]
-    public async Task Seeker_SeesTheTrustLine_Second()
+    [Theory]
+    [InlineData(UserRole.Seeker)]
+    [InlineData(UserRole.Professional)]
+    public async Task EveryoneSeesTheIdCheckLine_First_AndOnlyOnce(UserRole role)
     {
-        // Brief item 16. Second, so a wait of two lines already shows it.
-        var lines = await new RoleSplashLines(new FakeOnboardingStore(new OnboardingState { Role = UserRole.Seeker })).LinesAsync();
+        // The main splash line: the busy splash always opens on it and holds it longest (BusyOverlay.FirstLineFor).
+        var lines = await new RoleSplashLines(new FakeOnboardingStore(new OnboardingState { Role = role })).LinesAsync();
 
-        lines[1].Should().Be(Copy.TrustTagline);
+        lines[0].Should().Be(Copy.TrustTagline);
         lines.Should().ContainSingle(line => line == Copy.TrustTagline);
     }
 
@@ -33,8 +35,8 @@ public class SplashLinesTests
     {
         var lines = await new RoleSplashLines(new FakeOnboardingStore(new OnboardingState { Role = UserRole.Professional })).LinesAsync();
 
-        lines.Should().BeEquivalentTo(RoleSplashLines.ProLines).And.NotBeEmpty();
-        lines.Should().NotIntersectWith(RoleSplashLines.SeekerLines);
+        lines.Skip(1).Should().Equal(Copy.ProTaglines);
+        lines.Skip(1).Should().NotIntersectWith(RoleSplashLines.SeekerLines);
     }
 
     [Fact]

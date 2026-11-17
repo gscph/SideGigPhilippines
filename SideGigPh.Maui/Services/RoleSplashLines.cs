@@ -4,9 +4,10 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Services;
 
 /// <summary>
-/// What the busy splash says under the Tarbaho logo, by the user's role: a Seeker sees the brand line with the
-/// honorific taking turns ("Find Manongs nearby" → "Find Ates nearby"…), a Skilled Worker sees why the app is worth
-/// it for them (jobs near you, no commission). Before a role is picked it is the Seeker line, like the launch splash.
+/// What the busy splash says under the Tarbaho logo, by the user's role. Both start with the main line,
+/// "AI-assisted ID checks" (<see cref="Copy.TrustTagline"/>, also the launch splash's line), held longest; then a
+/// Seeker sees the brand line with the honorific taking turns ("Find Manongs nearby" → "Find Ates nearby"…), a Skilled
+/// Worker sees why the app is worth it for them (jobs near you, no commission). Before a role is picked: the Seeker lines.
 /// </summary>
 public sealed class RoleSplashLines(IOnboardingStore store) : ISplashLines
 {
@@ -19,12 +20,11 @@ public sealed class RoleSplashLines(IOnboardingStore store) : ISplashLines
     public static IReadOnlyList<LocalizedText> For(UserRole? role) => role == UserRole.Professional ? ProLines : SeekerLines;
 
     /// <summary>
-    /// The Seeker tagline once per honorific (plural in English, as on the launch splash), with the trust line
-    /// (<see cref="Copy.TrustTagline"/>) second, so even a short wait shows it.
+    /// The trust line first, then the Seeker tagline once per honorific (plural in English).
     /// </summary>
-    public static IReadOnlyList<LocalizedText> SeekerLines { get; } = [.. Honorifics.All.Select(SeekerLine).Take(1), Copy.TrustTagline, .. Honorifics.All.Select(SeekerLine).Skip(1)];
+    public static IReadOnlyList<LocalizedText> SeekerLines { get; } = [Copy.TrustTagline, .. Honorifics.All.Select(SeekerLine)];
 
-    public static IReadOnlyList<LocalizedText> ProLines { get; } = Copy.ProTaglines;
+    public static IReadOnlyList<LocalizedText> ProLines { get; } = [Copy.TrustTagline, .. Copy.ProTaglines];
 
     /// <summary>The Seeker tagline with one honorific, in both languages.</summary>
     public static LocalizedText SeekerLine(string honorific) => new(

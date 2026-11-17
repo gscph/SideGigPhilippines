@@ -13,7 +13,7 @@ public static class Copy
     public static readonly LocalizedText SeekerTagline = new("Find {0} nearby", "May {0} para diyan");
 
     /// <summary>
-    /// The trust line among the Seeker's busy-splash lines (brief item 16). True as worded: IDs are read with AI help and
+    /// The main splash line: the launch splash's line and the first busy-splash line for both sides, held 3 s (brief item 16). True as worded: IDs are read with AI help and
     /// a person decides, and only some workers have the badge, so it never says every worker is verified (legal L3:
     /// the app never vouches for a worker).
     /// </summary>
