@@ -191,7 +191,7 @@ changing that area.**
   the score; [`docs/search-ranking.md`](docs/search-ranking.md)).
 - **Onboarding** ([`docs/onboarding.md`](docs/onboarding.md)): `/` = `LaunchRouter` → language → sign in (**phone
   number first for both sides**, then "or" Google, Apple on iOS; each SMS costs money, so another code to the
-  same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone) → role (a worker confirms their number
+  same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone; the sixth digit sends the code, and a number Android confirms by itself signs in without it) → role (a worker confirms their number
   right here if they signed in with Google/Apple, once in their life, or "Do this later" and Publish asks again (its own "Do this later" goes to Pro home, whose banner says the number is still needed to publish): the number stays on the sign-in account, so later Google sign-ins never ask again;
   Seekers are never asked for a number) →
   the interview, one URL per step, rules in `Services/OnboardingSteps` (tested). The Seeker's last question is **search or post** (`SeekerAnswers.FindBy`, `ReferenceData.FindByChoices`): the interview lands on the results or the post form (`FinishPath`), and Seeker home's `PostRequestCard` offers posting to everyone. After that a Seeker has no saved "preferences" (none on the Me page): Home's **recent searches** (`Services/RecentSearches`, last 3 searches and posts, only on the phone in `SeekerAnswers.RecentSearches`) each search again or open the post form filled in. Money is the hook: prices are per job
