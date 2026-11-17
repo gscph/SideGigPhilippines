@@ -14,14 +14,14 @@ public sealed class ListingRestore(
     ILogger<ListingRestore> logger)
 {
     /// <summary>
-    /// Fills <paramref name="state"/> with the signed-in account's live listing and saves it, when this phone has no
-    /// side picked yet (nothing here to overwrite: a picked side, an unfinished interview or unsaved edits are left
-    /// as they are). A Seeker, someone with no listing, nobody signed in or a failed read leaves it unchanged, so
-    /// launch carries on to the role question. Never throws. True when the listing was restored.
+    /// Fills <paramref name="state"/> with the signed-in account's live listing and saves it, when this phone holds
+    /// nothing to keep (<see cref="HoldsNoAnswers"/>): an answered interview, a Seeker side or unsaved edits are left
+    /// as they are. A Seeker, someone with no listing, nobody signed in or a failed read leaves it unchanged, so
+    /// launch carries on as before. Never throws. True when the listing was restored.
     /// </summary>
     public async Task<bool> RestoreAsync(OnboardingState state)
     {
-        if (state.Role is not null)
+        if (!HoldsNoAnswers(state))
         {
             return false;
         }
@@ -65,4 +65,16 @@ public sealed class ListingRestore(
 
         return true;
     }
+
+    /// <summary>
+    /// No side picked (a reinstall, a new phone), or the worker side picked and still on its first question with nothing answered: the role page
+    /// asks a Google sign-in's worker for their number, and "Sign in with this number" brings the account that holds
+    /// it (and maybe its live listing) back here before the first question.
+    /// </summary>
+    private static bool HoldsNoAnswers(OnboardingState state) =>
+        state.Role is null
+        || (state.Role == UserRole.Professional
+            && state.CompletedAt is null
+            && (state.ResumePath is null || state.ResumePath == OnboardingSteps.FirstPath(UserRole.Professional))
+            && state.Professional is { CategoryId: null, PublishedAt: null, ProfilePhotoId: null, WorkPhotoIds.Count: 0, References.Count: 0 });
 }
