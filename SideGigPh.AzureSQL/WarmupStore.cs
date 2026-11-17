@@ -21,7 +21,7 @@ public sealed class WarmupStore(SideGigPhDb db)
     /// <summary>
     /// Runs <c>SELECT 1</c>, unless this instance already did within <see cref="AwakeFor"/>. Answers the required
     /// schema scripts the database is missing (empty when all are there or it already checked); the first time it finds
-    /// some, it also saves an error report about it, so <c>GET error-reports</c> shows it.
+    /// some, it also saves an error report about it, so <c>dbo.ErrorReports</c> shows it.
     /// </summary>
     public async Task<IReadOnlyList<string>> WakeAsync(string serverVersion, CancellationToken cancellationToken)
     {

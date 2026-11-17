@@ -42,20 +42,4 @@ public sealed class ErrorReportFunctions(FirebaseTokenValidator auth, ErrorRepor
             ? new NoContentResult()
             : ApiResults.BadRequest();
     }
-
-    /// <summary>
-    /// <c>GET error-reports?take=50&amp;channel=dev</c>: the newest reports, for reading them while building (the
-    /// <c>ErrorReports</c> table without a database login). <b>Public for now</b>, on the owner's request: the reports are
-    /// scrubbed (no tokens, numbers, emails, uids, query strings) and carry no install id, but they do show stack traces.
-    /// Put it behind a key or remove it before launch (<c>ApiWiringTests.PublicRoutes</c> lists it).
-    /// </summary>
-    [Function("ReadErrorReports")]
-    public async Task<IActionResult> Read(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "error-reports")] HttpRequest request,
-        CancellationToken cancellationToken)
-    {
-        var take = int.TryParse(request.Query["take"], out var asked) ? asked : 50;
-        var channel = request.Query["channel"].ToString() is { Length: > 0 } c ? c : null;
-        return new OkObjectResult(await reports.RecentAsync(take, channel, cancellationToken));
-    }
 }

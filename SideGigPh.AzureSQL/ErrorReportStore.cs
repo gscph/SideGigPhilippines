@@ -60,27 +60,4 @@ public sealed class ErrorReportStore(SideGigPhDb db)
         await db.SaveChangesAsync(cancellationToken);
         return true;
     }
-
-    /// <summary>The most a <see cref="RecentAsync"/> read returns.</summary>
-    public const int MaxRead = 200;
-
-    /// <summary>
-    /// The newest reports first (by when the error last happened), for the operator and for Claude while building. Every
-    /// field was scrubbed on the phone and again here when it was saved; the install id is left out.
-    /// </summary>
-    public async Task<IReadOnlyList<ErrorReportView>> RecentAsync(int take, string? channel, CancellationToken cancellationToken) =>
-        await db.ErrorReports.AsNoTracking()
-            .Where(r => channel == null || r.Channel == channel)
-            .OrderByDescending(r => r.LastAt)
-            .Take(Math.Clamp(take, 1, MaxRead))
-            .Select(r => new ErrorReportView(
-                r.Id, r.AppVersion, r.CodeVersion, r.Channel, r.Platform, r.Device, r.Kind, r.Source, r.Message,
-                r.Detail, r.Route, r.Trail, r.Count, r.FirstAt, r.LastAt, r.ReceivedAt))
-            .ToListAsync(cancellationToken);
 }
-
-/// <summary>One stored error report as <see cref="ErrorReportStore.RecentAsync"/> reads it (no install id).</summary>
-public sealed record ErrorReportView(
-    long Id, string AppVersion, string CodeVersion, string Channel, string Platform, string? Device, string Kind,
-    string Source, string Message, string? Detail, string? Route, string? Trail, int Count,
-    DateTimeOffset FirstAt, DateTimeOffset LastAt, DateTimeOffset ReceivedAt);

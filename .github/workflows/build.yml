@@ -1,21 +1,40 @@
 name: Build Android & iOS
 
 # The version comes from Directory.Build.props (AppVersionNumber + AppVersionStage) plus this run's number:
-# run 12 of 0.1.0-rc builds "0.1.0-rc.12" (Android versionCode 12). To release a new version, change
-# Directory.Build.props and commit; the build number keeps counting up, as the stores require.
+# run 12 builds "0.1.0" with Android versionCode 12 ("0.1.0-rc.12" while AppVersionStage is rc). To release a new
+# version, change Directory.Build.props and commit; the build number keeps counting up, as the stores require.
+#
+# beta: an APK for sideloading, signed with the release key when its secrets are set, else the shared dev key.
+# prod: an AAB for Google Play, always signed with the release (upload) key: the run fails without its secrets
+#       or if the bundle came out signed with the dev key. With play_track = internal it also goes to the Play
+#       Console's Internal testing track (secret PLAY_SERVICE_ACCOUNT_JSON). See docs/play-store.md.
 
 on:
   workflow_dispatch:
     inputs:
       channel:
-        description: 'Release channel stamped into the app (error reports): beta for testers, prod for the store'
+        description: 'beta = APK for testers (sideload); prod = signed AAB for Google Play'
         type: choice
         options: [beta, prod]
         default: beta
+      play_track:
+        description: 'prod only: also upload the AAB to this Google Play track'
+        type: choice
+        options: [none, internal]
+        default: none
+      play_status:
+        description: 'Play release status: draft (you press "Review release" in the Play Console; needed until the app is first reviewed) or completed (goes out to testers at once)'
+        type: choice
+        options: [draft, completed]
+        default: draft
 
 env:
   PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
+  PACKAGE_ID: com.tarbaho.app
   BUILD_NUMBER: ${{ github.run_number }}
+  PACKAGE_FORMAT: ${{ inputs.channel == 'prod' && 'aab' || 'apk' }}
+  # The shared dev key's SHA-1 (docs/android-signing.md): a prod bundle signed with it is refused.
+  DEV_KEY_SHA1: A5:F0:C9:6E:1D:B3:FC:85:E7:2E:6C:98:4F:D4:03:1A:D5:C3:31:B6
   # Optional Firebase parts, off unless the repo variable says "true" (Settings > Secrets and variables > Actions >
   # Variables). See Directory.Build.props and firebase/README.md.
   FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
@@ -35,7 +54,8 @@ jobs:
       - name: Install MAUI workloads
         run: dotnet workload restore ${{ env.PROJECT }}
 
-      # The label people and error reports see (0.1.0-rc.12), read from Directory.Build.props through a plain project.
+      # The label people and error reports see (0.1.0; 0.1.0-rc.12 while AppVersionStage is rc), read from
+      # Directory.Build.props through a plain project.
       - name: Read the version
         id: version
         run: |
@@ -55,35 +75,72 @@ jobs:
           fi
           echo "$GOOGLE_SERVICES_JSON_BASE64" | base64 -d > SideGigPh.Maui/Platforms/Android/google-services.json
 
-      # Optional store key. Without these secrets the APK is signed with the committed shared dev key,
+      # The release (upload) key. beta: optional, without it the APK is signed with the committed shared dev key,
       # whose fingerprint is registered in Firebase, so sign-in still works on sideloaded test APKs.
+      # prod: required, a store build is never signed with the public dev key.
       - name: Write release keystore
         env:
           ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
           if [ -n "$ANDROID_KEYSTORE_BASE64" ]; then
             echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.keystore"
             echo "SIDEGIGPH_KEYSTORE=$RUNNER_TEMP/release.keystore" >> "$GITHUB_ENV"
-          else
+          fi
+          if [ "${{ inputs.channel }}" = "prod" ]; then
+            for name in ANDROID_KEYSTORE_BASE64 ANDROID_KEY_ALIAS ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_PASSWORD; do
+              if [ -z "${!name}" ]; then
+                echo "::error::Secret $name is missing: a prod build must be signed with the upload key (docs/play-store.md)"; exit 1
+              fi
+            done
+          elif [ -z "$ANDROID_KEYSTORE_BASE64" ]; then
             echo "::notice::No ANDROID_KEYSTORE_BASE64 secret: signing with the shared dev key"
           fi
 
-      - name: Build Android APK
+      - name: Build Android ${{ env.PACKAGE_FORMAT }}
         env:
           SIDEGIGPH_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           SIDEGIGPH_KEYSTORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
           SIDEGIGPH_KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: >-
-          dotnet publish ${{ env.PROJECT }} -f net10.0-android -c Release /p:AndroidPackageFormat=apk
+          dotnet publish ${{ env.PROJECT }} -f net10.0-android -c Release -p:AndroidPackageFormat=${{ env.PACKAGE_FORMAT }}
           -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppChannel=${{ inputs.channel }}
           -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
           -o ${{ github.workspace }}/output/android
 
-      - name: Upload Android APK
+      # Which key signed it, on the run page; a prod bundle signed with the dev key stops here.
+      - name: Check the signing key
+        id: package
+        run: |
+          file="$(ls output/android/*-Signed.${PACKAGE_FORMAT} | head -n 1)"
+          if [ -z "$file" ]; then echo "::error::No signed .${PACKAGE_FORMAT} in output/android"; exit 1; fi
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+          sha1="$(keytool -printcert -jarfile "$file" | awk '/SHA1:/ {print $2; exit}')"
+          echo "Signed with SHA-1 \`$sha1\` ($(basename "$file"))" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ inputs.channel }}" = "prod" ] && [ "$sha1" = "$DEV_KEY_SHA1" ]; then
+            echo "::error::The prod bundle is signed with the shared dev key, not the upload key"; exit 1
+          fi
+
+      - name: Upload Android ${{ env.PACKAGE_FORMAT }}
         uses: actions/upload-artifact@v4
         with:
           name: tarbaho-${{ steps.version.outputs.label }}-${{ inputs.channel }}-android
-          path: output/android/**/*.apk
+          path: ${{ steps.package.outputs.file }}
+
+      # Google Play: the Play Console must already have the app (its very first bundle is uploaded by hand) and a
+      # service account with release rights (secret PLAY_SERVICE_ACCOUNT_JSON). See docs/play-store.md.
+      - name: Upload to Google Play (${{ inputs.play_track }})
+        if: inputs.channel == 'prod' && inputs.play_track != 'none'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE_ID }}
+          releaseFiles: ${{ steps.package.outputs.file }}
+          releaseName: ${{ steps.version.outputs.label }} (${{ env.BUILD_NUMBER }})
+          track: ${{ inputs.play_track }}
+          status: ${{ inputs.play_status }}
 
   # build-ios:
   #   runs-on: xcode-27
