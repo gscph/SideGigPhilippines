@@ -76,6 +76,9 @@ public static class CommonCopy
     public static readonly LocalizedText TryAgain = new("Try again", "Subukan ulit");
     public static readonly LocalizedText LoadMoreFailed = new("Couldn't load more. Check your signal.", "Hindi na-load ang iba. I-check ang signal mo.");
     public static readonly LocalizedText Offline = new("You're offline. Some things won't load.", "Offline ka. May mga hindi maglo-load.");
+    /// <summary>The busy splash's line once a wait passes BusyOverlay.SlowAfter (online / offline).</summary>
+    public static readonly LocalizedText BusySlow = new("Slow connection. Still working on it…", "Mabagal ang connection. Tuloy pa rin…");
+    public static readonly LocalizedText BusyOffline = new("No internet. Waiting for the connection…", "Walang internet. Hinihintay ang connection…");
 
     // --- Legal pages (AppBrand.Legal) --------------------------------------
     public static readonly LocalizedText LegalTitle = new("Privacy and terms", "Privacy at terms");

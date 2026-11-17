@@ -27,7 +27,10 @@
     }
     else
     {
-        <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@Summary</MudText>
+        @if (_result.Total > 0 || Network.IsOnline)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@Summary</MudText>
+        }
 
         @if (_result.Total == 0)
         {

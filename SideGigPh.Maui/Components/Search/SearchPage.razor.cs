@@ -20,6 +20,7 @@ public partial class SearchPage : ComponentBase
 
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
+    [Inject] private MobileAppTheme.Services.INetworkStatus Network { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
