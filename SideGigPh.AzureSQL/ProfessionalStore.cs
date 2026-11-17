@@ -214,6 +214,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 row.AreaId = request.AreaId;
                 row.ExperienceId = request.ExperienceId;
                 row.RateTierId = request.RateTierId;
+                row.OtherWorkText = services.Any(OtherWork.IsOther) ? StoreText.Limit(request.OtherWork, OtherWork.MaxText) : null;
                 row.ProfilePhotoId = request.ProfilePhotoId;
                 row.UpdatedAt = now;
 
@@ -362,5 +363,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         reviews,
         referenceCount,
         badges,
+        p.OtherWorkText,
         completedJobs);
 }

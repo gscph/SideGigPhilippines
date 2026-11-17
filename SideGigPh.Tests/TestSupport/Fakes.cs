@@ -829,4 +829,9 @@ public sealed class FakeJobPosts : IJobPostRepository
             throw new HttpRequestException("offline");
         }
     }
+
+    /// <summary>What <see cref="GetMyOffersAsync"/> answers.</summary>
+    public List<MyOffer> MyOffers { get; } = [];
+
+    public Task<IReadOnlyList<MyOffer>> GetMyOffersAsync() => Task.FromResult<IReadOnlyList<MyOffer>>(MyOffers);
 }

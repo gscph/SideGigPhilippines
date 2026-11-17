@@ -33,7 +33,7 @@
 
             <MudStack Spacing="1">
                 <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
-                             Text="@T.Format(Copy.PostBudgetFact, Money.Peso(Post.BudgetPesos))" />
+                             Text="@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(Post))" />
                 <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@Where" />
                 @if (ForWorker && Post.HouseholdStars is { } stars)
                 {

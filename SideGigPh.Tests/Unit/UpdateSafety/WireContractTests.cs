@@ -34,7 +34,7 @@ public class WireContractTests
     public void ListingDto_FieldNamesNeverChange() =>
         FieldNames(Listing(), ApiJson.Default.ListingDto).Should().Equal(
             "id", "displayName", "mobileNumber", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId",
-            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount", "badges", "completedJobs");
+            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount", "badges", "otherWork", "completedJobs");
 
     [Fact]
     public void PublishListingRequest_FieldNamesNeverChange() =>
@@ -43,7 +43,7 @@ public class WireContractTests
                 [new ReferenceDto("Nena", "+639181111111")]),
             ApiJson.Default.PublishListingRequest).Should().Equal(
             "displayName", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId", "rateTierId", "profilePhotoId",
-            "workPhotoIds", "references", "latitude", "longitude", "radiusKm");
+            "workPhotoIds", "references", "latitude", "longitude", "radiusKm", "otherWork");
 
     [Fact]
     public void ChatDto_FieldNamesNeverChange() =>
@@ -122,10 +122,10 @@ public class WireContractTests
         var post = new JobPostDto(7, "plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", JobPostStatuses.Open, [], true, false, 2, At);
         FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
             "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt",
-            "offerCount", "myOfferPesos", "pickedProId", "householdReviews");
+            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews");
         FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
         FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1), ApiJson.Default.NewJobPostRequest)
-            .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude");
+            .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude", "budgetMinPesos");
         JobPostStatuses.Open.Should().Be("open");
         JobPostStatuses.Closed.Should().Be("closed");
         JobPostStatuses.Hidden.Should().Be("hidden");
@@ -178,6 +178,9 @@ public class WireContractTests
         PushData.Side.Should().Be("side");
         PushData.CustomersChannel.Should().Be("customers");
         PushData.RepliesChannel.Should().Be("replies");
+        PushData.PostId.Should().Be("postId");
+        PushData.RequestsChannel.Should().Be("requests");
+        PushData.OffersChannel.Should().Be("offers");
     }
 
     [Fact]

@@ -1,0 +1,44 @@
+@using SideGigPh.Maui.Components.Professional
+<MudCard Outlined="true" Elevation="0" Class="app-rounded">
+    <MudCardContent Class="pa-3">
+        <MudStack Spacing="2">
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="flex-1 app-min-w-0">@ServiceLabel</MudText>
+                <MudChip T="string" Color="@StateColor" Variant="@(Offer.State == MyOfferState.Picked ? Variant.Filled : Variant.Text)"
+                         Size="Size.Small" Icon="@StateIcon" Class="ma-0">@T.Get(StateText)</MudChip>
+            </MudStack>
+
+            <MudText Typo="Typo.body2">@Offer.Post.Description</MudText>
+
+            <MudStack Spacing="1">
+                <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
+                             Text="@T.Format(Copy.MyOfferPrice, Money.Peso(Offer.PricePesos))" />
+                <ProCardFact Icon="@Icons.Material.Outlined.Payments" Text="@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(Offer.Post))" />
+                <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@Town" />
+            </MudStack>
+
+            @if (!string.IsNullOrWhiteSpace(Offer.Note))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@Offer.Note</MudText>
+            }
+
+            @if (Offer.State == MyOfferState.Picked && Offer.ChatId is { } chatId)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" StartIcon="@Icons.Material.Rounded.ChatBubbleOutline"
+                           Href="@ProRoutes.Chat(chatId)">
+                    @T.Get(Copy.PostOpenChat)
+                </MudButton>
+            }
+            else if (Offer.State == MyOfferState.Waiting)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.MyOfferWaitingHint)</MudText>
+            }
+            else if (Offer.State == MyOfferState.NotPicked)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.MyOfferNotPickedHint)</MudText>
+            }
+
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Ago(Offer.SentAt)</MudText>
+        </MudStack>
+    </MudCardContent>
+</MudCard>

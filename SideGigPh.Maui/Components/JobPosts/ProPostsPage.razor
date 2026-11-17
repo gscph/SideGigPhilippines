@@ -6,6 +6,10 @@
     <MudStack Spacing="1">
         <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.ProPostsTitle)</MudText>
         <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProPostsWhy)</MudText>
+        <MudButton Variant="Variant.Text" Class="app-link-button align-self-start" StartIcon="@Icons.Material.Rounded.LocalOffer"
+                   Href="@JobPostRoutes.MyOffers">
+            @T.Get(Copy.MyOffersLink)
+        </MudButton>
     </MudStack>
 
     @if (_notice is not null)

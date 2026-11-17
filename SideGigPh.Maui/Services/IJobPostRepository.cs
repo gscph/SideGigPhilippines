@@ -47,6 +47,9 @@ public interface IJobPostRepository
     /// </summary>
     Task<string?> GetContactNumberAsync(string otherUid);
 
+    /// <summary>The worker's own offers, newest change first, with how each stands (empty when the read failed).</summary>
+    Task<IReadOnlyList<MyOffer>> GetMyOffersAsync();
+
     /// <summary>The picked jobs between this person and <paramref name="otherUid"/>, newest first. Empty when none or it can't be read.</summary>
     Task<IReadOnlyList<PickedJob>> GetPickedJobsAsync(string otherUid);
 

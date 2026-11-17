@@ -9,14 +9,18 @@ namespace SideGigPh.Maui.Services.Localization;
 /// </summary>
 public static class ListingText
 {
-    /// <summary>"Aircon Tech · Tubero".</summary>
+    /// <summary>"Aircon Tech · Tubero"; for the "Others" trade, what the worker typed ("Others" when they typed nothing).</summary>
     public static string Trades(this AppText text, ProfessionalListing listing) =>
-        string.Join(" · ", text.Labels(ReferenceData.Categories, listing.CategoryIds));
+        string.Join(" · ", listing.CategoryIds
+            .Select(id => id == ReferenceData.OtherTradeId && listing.OtherWork is { Length: > 0 } typed ? typed
+                : ReferenceData.FindTrade(id) is { } trade ? text.Get(trade.Label)
+                : null)
+            .OfType<string>());
 
-    /// <summary>The listing's trades still offered, for its trade badge (icon + label). A retired trade shows no badge.</summary>
+    /// <summary>The listing's trades still offered (or "Others"), for its trade badge (icon + label). A retired trade shows no badge.</summary>
     public static IReadOnlyList<CatalogOption> TradeOptions(this ProfessionalListing listing) =>
         listing.CategoryIds
-            .Select(id => ReferenceData.Find(ReferenceData.Categories, id))
+            .Select(ReferenceData.FindTrade)
             .OfType<CatalogOption>()
             .ToList();
 
@@ -24,11 +28,13 @@ public static class ListingText
     public static string Towns(this AppText text, ProfessionalListing listing) =>
         string.Join(", ", text.Labels(ReferenceData.Cities, listing.CityIds));
 
+    /// <summary>The jobs' labels; an "Others" job shows what the worker typed for it.</summary>
     public static IReadOnlyList<string> JobLabels(this AppText text, ProfessionalListing listing) =>
         listing.ServiceIds
-            .Select(ReferenceData.FindService)
-            .OfType<CatalogOption>()
-            .Select(option => text.Get(option.Label))
+            .Select(id => ReferenceData.IsOtherJob(id) && listing.OtherWork is { Length: > 0 } typed ? typed
+                : ReferenceData.FindService(id) is { } option ? text.Get(option.Label)
+                : null)
+            .OfType<string>()
             .ToList();
 
     /// <summary>

@@ -27,6 +27,10 @@ public sealed class ProfessionalRow
     public required string AreaId { get; set; }
     public string? ExperienceId { get; set; }
     public string? RateTierId { get; set; }
+
+    /// <summary>What the worker typed under "Others" (<c>017-schema-others-and-ranges.sql</c>), matched in search.</summary>
+    public string? OtherWorkText { get; set; }
+
     public string? ProfilePhotoId { get; set; }
     public DateTimeOffset PublishedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
@@ -260,7 +264,12 @@ public sealed class JobPostRow
     public required string CategoryId { get; set; }
     public required string ServiceId { get; set; }
     public required string Description { get; set; }
+    /// <summary>The top of the budget ("up to").</summary>
     public int BudgetPesos { get; set; }
+
+    /// <summary>The low end of the budget ("from", <c>017-schema-others-and-ranges.sql</c>); null = only a top was given.</summary>
+    public int? BudgetMinPesos { get; set; }
+
     public required string CityId { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }

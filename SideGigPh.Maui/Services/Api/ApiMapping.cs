@@ -67,6 +67,7 @@ internal static partial class ApiMapping
         dto.OfferCount,
         dto.MyOfferPesos,
         dto.PickedProId,
+        dto.BudgetMinPesos,
         dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null);
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
@@ -83,6 +84,19 @@ internal static partial class ApiMapping
         dto.DistanceKm,
         dto.CreatedAt);
 
+    public static MyOffer ToModel(this MyOfferDto dto) => new(
+        dto.Post.ToModel(),
+        dto.PricePesos,
+        dto.Note,
+        dto.State switch
+        {
+            MyOfferStates.Picked => MyOfferState.Picked,
+            MyOfferStates.NotPicked => MyOfferState.NotPicked,
+            _ => MyOfferState.Waiting,
+        },
+        dto.SentAt,
+        dto.ChatId);
+
     public static JobPostFeed ToModel(this JobPostFeedDto dto) => new([.. dto.Posts.Select(post => post.ToModel())], dto.HasMore, dto.HasListing);
 
     public static NewJobPostRequest ToRequest(this JobPostDraft draft) => new(
@@ -91,7 +105,8 @@ internal static partial class ApiMapping
         draft.Description?.Trim() ?? string.Empty,
         draft.BudgetPesos ?? 0,
         draft.CityId ?? string.Empty,
-        [.. draft.Photos.Select(photo => photo.Id)]);
+        [.. draft.Photos.Select(photo => photo.Id)],
+        BudgetMinPesos: draft.BudgetMinPesos);
 
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,
@@ -125,6 +140,7 @@ internal static partial class ApiMapping
         CityIds = dto.CityIds,
         ExperienceId = dto.ExperienceId,
         RateTierId = dto.RateTierId,
+        OtherWork = dto.OtherWork,
         MobileNumber = dto.MobileNumber,
         PhotoUrl = dto.ProfilePhoto?.Url,
         WorkPhotoUrls = dto.WorkPhotos.Select(photo => photo.Url).ToList(),
@@ -137,6 +153,27 @@ internal static partial class ApiMapping
     /// <summary>A badge on a listing, or null for a kind this app version doesn't know yet.</summary>
     public static Badge? ToModel(this BadgeDto dto) => KindOf(dto.Kind) is { } kind
         ? new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName)
+        : null;
+
+    /// <summary>A request waiting for the operator, or null for a kind this app version doesn't know yet.</summary>
+    public static PendingBadge? ToModel(this AdminVerificationDto dto) => KindOf(dto.Kind) is { } kind
+        ? new PendingBadge(
+            dto.Id,
+            dto.Uid,
+            dto.WorkerName ?? string.Empty,
+            dto.ProfilePhotoUrl,
+            new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName),
+            new BadgeScan(
+                dto.ScanStatus switch
+                {
+                    ScanStatuses.Read => BadgeScanResult.Read,
+                    ScanStatuses.Unreadable => BadgeScanResult.Unreadable,
+                    ScanStatuses.Failed => BadgeScanResult.Failed,
+                    _ => BadgeScanResult.None,
+                },
+                dto.ScannedType, dto.ScannedName, dto.ScannedNumber, dto.ScannedExpiry),
+            dto.HasDocument,
+            dto.CreatedAt)
         : null;
 
     /// <summary>One of the worker's own requests, or null for a kind this app version doesn't know yet.</summary>
@@ -221,7 +258,8 @@ internal static partial class ApiMapping
         listing.RateTierId,
         PhotoId(listing.PhotoUrl),
         listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
-        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList());
+        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList(),
+        OtherWork: listing.ServiceIds.Any(ReferenceData.IsOtherJob) ? listing.OtherWork : null);
 
     public static Review ToModel(this ReviewDto dto) => new(
         Chat.IdFor(dto.ProfessionalId, dto.SeekerId),

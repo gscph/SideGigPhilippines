@@ -4,10 +4,6 @@
 {
     switch (_step)
     {
-        case ProStep.Skills when _otherTradeNoted:
-            <OtherTradeThanks Message="@T.Get(Copy.OtherTradeProThanks)" Progress="Progress" OnPickAnother="PickAnotherTrade" />
-            break;
-
         case ProStep.Skills:
             <InterviewStep Illustration="@AppImages.Trade" Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="OtherTradeNext" CanContinue="@(!string.IsNullOrWhiteSpace(_otherTradeText))">
@@ -51,9 +47,12 @@
 
         case ProStep.Rate:
             <InterviewStep Illustration="@AppImages.Price" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
-                           Note="@T.Format(Copy.ProRateNote, Money.Peso(ReferenceData.MinimumWage))" Progress="Progress" OnBack="GoBack">
+                           Note="@T.Format(Copy.ProRateNote, Money.Peso(ReferenceData.MinimumWage))" Progress="Progress" OnBack="GoBack"
+                           OnNext="SaveRateAsync" CanContinue="@CanSaveRate">
                 <ChoiceTiles Items="ChoiceItem.From(Pricing.RateChoices(Draft.ServiceIds), T)"
-                             SelectedIds="Selected(Draft.RateTierId)" OnPick="PickRateAsync" />
+                             SelectedIds="Selected(_rateLevel)" OnPick="PickRateAsync" />
+                <MudText Typo="Typo.subtitle2">@T.Get(Copy.BudgetOwnRange)</MudText>
+                <BudgetRangeFields @bind-Min="_rateFrom" @bind-Max="_rateUpTo" />
             </InterviewStep>
             break;
 

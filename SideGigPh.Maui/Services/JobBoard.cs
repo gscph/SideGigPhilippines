@@ -41,7 +41,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         draft.CategoryId is null ? JobPostField.Trade
         : draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId) ? JobPostField.Service
         : !JobPostRules.IsDescription(draft.Description) ? JobPostField.Description
-        : !JobPostRules.IsBudget(draft.BudgetPesos) ? JobPostField.Budget
+        : !JobPostRules.IsBudgetRange(draft.BudgetMinPesos, draft.BudgetPesos) ? JobPostField.Budget
         : draft.CityId is null ? JobPostField.Town
         : null;
 
@@ -341,6 +341,13 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 
         Changed?.Invoke();
     }
+
+    /// <summary>
+    /// The worker's own offers (Requests → My offers), newest change first: picked ones open their chat, waiting ones
+    /// can still be changed in the feed, and ones not picked say so (before, a worker who wasn't picked just saw the
+    /// post leave the feed). Read fresh each time: they change when a household picks.
+    /// </summary>
+    public Task<IReadOnlyList<MyOffer>> MyOffersAsync() => posts.GetMyOffersAsync();
 }
 
 /// <summary>The fields of the post form, in the order they are asked.</summary>

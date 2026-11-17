@@ -12,6 +12,8 @@ namespace SideGigPh.Maui.Models;
 /// <param name="OfferCount">For the household: how many workers' offers wait on it.</param>
 /// <param name="MyOfferPesos">For a worker: the price they offered, or null when they haven't.</param>
 /// <param name="PickedProId">For the household: the worker whose offer they picked, else null.</param>
+/// <param name="BudgetPesos">The top of the household's budget ("up to"), the price "Take it" offers.</param>
+/// <param name="BudgetMinPesos">The low end ("from"), or null when they gave only a top.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -28,6 +30,7 @@ public sealed record JobPost(
     int OfferCount = 0,
     int? MyOfferPesos = null,
     string? PickedProId = null,
+    int? BudgetMinPesos = null,
     ReviewSummary? HouseholdStars = null);
 
 /// <summary>
@@ -45,14 +48,36 @@ public sealed class JobPostDraft
 
     public string? Description { get; set; }
 
-    /// <summary>What they are ready to pay, in pesos (their own number: Tarbaho sets no prices).</summary>
+    /// <summary>The most they are ready to pay ("up to"), in pesos (their own number: Tarbaho sets no prices).</summary>
     public int? BudgetPesos { get; set; }
+
+    /// <summary>The low end of their budget ("from"), in pesos; optional.</summary>
+    public int? BudgetMinPesos { get; set; }
 
     public string? CityId { get; set; }
 
     /// <summary>Photos of the problem already uploaded, in the order added.</summary>
     public List<WorkPhoto> Photos { get; } = [];
 }
+
+/// <summary>How a worker's own offer stands.</summary>
+public enum MyOfferState
+{
+    /// <summary>The post is open and the household hasn't picked anyone yet.</summary>
+    Waiting,
+
+    /// <summary>The household picked this worker: their chat is open.</summary>
+    Picked,
+
+    /// <summary>The post closed without picking this worker.</summary>
+    NotPicked,
+}
+
+/// <summary>
+/// One of the worker's own offers: the post, their price and note, how it stands, and once picked the chat the
+/// household opened with them.
+/// </summary>
+public sealed record MyOffer(JobPost Post, int PricePesos, string? Note, MyOfferState State, DateTimeOffset SentAt, string? ChatId);
 
 /// <summary>What became of posting.</summary>
 public enum JobPostResult

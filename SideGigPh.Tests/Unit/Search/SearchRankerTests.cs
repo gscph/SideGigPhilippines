@@ -293,4 +293,41 @@ public class SearchRankerTests
     [Fact]
     public void Rank_NoWorkers_IsEmpty() =>
         Rank(Array.Empty<ListingDto>(), Request()).InTown.Should().BeEmpty();
+
+    [Fact]
+    public void Rank_OthersSearch_WorkersWhoTypedTheSameWordsComeFirst()
+    {
+        // "Others" has no fixed job, so what both sides typed is how they find each other.
+        var pros = new ListingDto[]
+        {
+            Dto("Ace Plaster", services: ["aircon-other"]) with { OtherWork = "Paint ng pader", Reviews = new ReviewSummaryDto(5, 40) },
+            Dto("Ben Kisame", services: ["aircon-other"]) with { OtherWork = "Kisame at plaster" },
+        };
+
+        var result = Rank(pros, Request(service: "aircon-other") with { OtherText = "plaster sa kisame" });
+
+        Names(result.InTown).Should().Equal("Ben Kisame", "Ace Plaster");
+    }
+
+    [Fact]
+    public void Rank_NotAnOthersSearch_IgnoresTypedText()
+    {
+        var pros = new ListingDto[]
+        {
+            Dto("Ace", reviews: new ReviewSummary(5, 40)),
+            Dto("Ben") with { OtherWork = "linis" },
+        };
+
+        var result = Rank(pros, Request() with { OtherText = "linis" });
+
+        Names(result.InTown).Should().Equal("Ace", "Ben");
+    }
+
+    [Fact]
+    public void Price_OfAWorkersOwnRange_IsItsLowEnd()
+    {
+        var pro = Dto("Range Rita", rate: RateRange.Format(900, 2000));
+
+        Scales.PriceOf(pro, "aircon-cleaning").Should().Be(900);
+    }
 }
