@@ -22,6 +22,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private IContactLauncher Phone { get; set; } = default!;
+    [Inject] private AppVisibility Visibility { get; set; } = default!;
 
     [Parameter] public string ChatId { get; set; } = string.Empty;
 
@@ -34,6 +35,10 @@ public partial class ProChatPage : ComponentBase, IDisposable
     private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
+
+    /// <summary>Re-reads the picked job while it waits on the customer (marking done sends no message).</summary>
+    private PickedJobWatch? _jobWatch;
+    private IReadOnlyList<PickedJob> _jobs = [];
     private string? _message;
     private string? _error;
     private bool _busy;
@@ -49,6 +54,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
         _error = null;
         _loaded = false;
         _watch?.Dispose();
+        _jobWatch?.Dispose();
         await Busy.RunAsync(LoadAsync);
         if (_chat is null)
         {
@@ -58,6 +64,12 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
         _loaded = true;
         _watch = Workspace.WatchChat(ChatId, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
+        _jobWatch = PickedJobWatch.Start(Board, Visibility, _chat.SeekerId, _jobs, jobs => InvokeAsync(() =>
+        {
+            _jobs = jobs;
+            _job = jobs.FirstOrDefault();
+            StateHasChanged();
+        }));
     }
 
     private async Task LoadAsync()
@@ -73,7 +85,8 @@ public partial class ProChatPage : ComponentBase, IDisposable
         var jobs = Board.PickedJobsAsync(_chat.SeekerId);
         _history = await Workspace.GetMessagesAsync(ChatId);
         _number = await number;
-        _job = (await jobs).FirstOrDefault();
+        _jobs = await jobs;
+        _job = _jobs.FirstOrDefault();
         await read;
     }
 
@@ -101,6 +114,11 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
     private async Task SendAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _error = null;
         try
@@ -156,5 +174,9 @@ public partial class ProChatPage : ComponentBase, IDisposable
         }
     }
 
-    public void Dispose() => _watch?.Dispose();
+    public void Dispose()
+    {
+        _watch?.Dispose();
+        _jobWatch?.Dispose();
+    }
 }

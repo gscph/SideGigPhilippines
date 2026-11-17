@@ -21,6 +21,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
+    [Inject] private AppVisibility Visibility { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -33,6 +34,9 @@ public partial class ThreadPage : ComponentBase, IDisposable
     private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
+
+    /// <summary>Re-reads the picked job while it waits on the worker (marking done sends no message).</summary>
+    private PickedJobWatch? _jobWatch;
     private string? _message;
     private string? _error;
     private bool _loading = true;
@@ -45,6 +49,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     {
         _loading = true;
         _error = null;
+        _jobWatch?.Dispose();
         _watch?.Dispose();
         await Busy.RunAsync(LoadAsync);
         _loading = false;
@@ -64,7 +69,13 @@ public partial class ThreadPage : ComponentBase, IDisposable
             _message = _history.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
             _watch = Workspace.WatchChat(Id, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
             _number = await number;
-            JobChanged((await jobs).FirstOrDefault());
+            var picked = await jobs;
+            JobsChanged(picked);
+            _jobWatch = PickedJobWatch.Start(Board, Visibility, Id, picked, changed => InvokeAsync(() =>
+            {
+                JobsChanged(changed);
+                StateHasChanged();
+            }));
             await read;
         }
     }
@@ -123,6 +134,20 @@ public partial class ThreadPage : ComponentBase, IDisposable
         }
     }
 
+    /// <summary>
+    /// The picked jobs as the server now has them: the card shows the newest, and any completed one (an earlier job
+    /// too) lets the Seeker review at once.
+    /// </summary>
+    private void JobsChanged(IReadOnlyList<PickedJob> jobs)
+    {
+        if (jobs.Any(job => job.IsCompleted))
+        {
+            Workspace.CompletedJobWith(Id);
+        }
+
+        JobChanged(jobs.FirstOrDefault());
+    }
+
     /// <summary>The picked job as the server now has it; a completed one lets the Seeker review at once.</summary>
     private void JobChanged(PickedJob? job)
     {
@@ -175,5 +200,9 @@ public partial class ThreadPage : ComponentBase, IDisposable
         }
     }
 
-    public void Dispose() => _watch?.Dispose();
+    public void Dispose()
+    {
+        _watch?.Dispose();
+        _jobWatch?.Dispose();
+    }
 }

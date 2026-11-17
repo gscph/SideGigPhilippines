@@ -79,7 +79,7 @@ public partial class OffersPage : ComponentBase
         try
         {
             await Workspace.EnsureLoadedAsync();
-            await Workspace.SendAsync(offer.Pro, T.Format(Copy.OfferPickMessage, Money.Peso(offer.PricePesos), ServiceLabel));
+            await Workspace.SendAsync(offer.Pro, T.Format(Copy.OfferPickMessage, Money.Peso(offer.PricePesos), ServiceLabel), post.ServiceId, post.CityId);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {

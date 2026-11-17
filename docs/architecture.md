@@ -237,7 +237,7 @@ for Android).
   `PickedJob`, `Review.VerifiedJob`, `ProfessionalListing.CompletedJobs`, `JobPost.HouseholdStars`. Screens: both chat
   pages (`ThreadPage`, `ProChatPage`) show the newest picked job as `Components/JobPosts/PickedJobCard` (title, service
   and price, where each side stands, **Mark done** until this person did; then the household's Leave a review link, or
-  the worker's stars and note for the household right on the card). A completed job seen on the Seeker's chat page
+  the worker's stars and note for the household right on the card). Marking done sends no chat message, so while the newest job waits on the other side both pages re-read it every `PickedJobWatch.Interval` (10 s, paused while the app is hidden). A completed job (any of them, an earlier one too) seen on the Seeker's chat page
   tells `SeekerWorkspace.CompletedJobWith`, so `CanRate` opens the review page at once. `ReviewRow` shows a green
   "Verified service" chip (`Review.VerifiedJob`; copy says service, never job), `ListingFacts` a "Done through Tarbaho:
   N" fact, and a worker's `JobPostCard` the household's stars.
