@@ -166,7 +166,8 @@ changing that area.**
   (`Components/JobPosts/OfferBox`), changes it or takes it back, one offer per worker per post; the household's card
   says "See N offers" (`OffersPage`, `/posts/{id}/offers`: each worker's `ProCard`, price, distance, note, the picked
   one first, then cheapest); "Pick" asks once more, closes the post, sends the worker a first chat message and opens
-  the chat (the Seeker still starts every chat). Offers need the worker's published listing of that trade; a block
+  the chat (the Seeker still starts every chat). A worker sees their own offers under Requests → **My offers**
+  (`GET offers/mine`, `MyOffersPage`: waiting, picked with Open chat, or not picked). Offers need the worker's published listing of that trade; a block
   either way hides them. **Phone numbers stay private until a pick:** `ListingDto.MobileNumber` is empty for everyone
   but the listing's owner (search, profiles, offers); the two sides talk in the app's chat, and Call shows on both
   chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,

@@ -46,4 +46,7 @@ public interface IJobPostRepository
     /// that, when they have none, or when it can't be read.
     /// </summary>
     Task<string?> GetContactNumberAsync(string otherUid);
+
+    /// <summary>The worker's own offers, newest change first, with how each stands (empty when the read failed).</summary>
+    Task<IReadOnlyList<MyOffer>> GetMyOffersAsync();
 }

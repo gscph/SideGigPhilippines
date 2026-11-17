@@ -80,6 +80,19 @@ internal static partial class ApiMapping
         dto.DistanceKm,
         dto.CreatedAt);
 
+    public static MyOffer ToModel(this MyOfferDto dto) => new(
+        dto.Post.ToModel(),
+        dto.PricePesos,
+        dto.Note,
+        dto.State switch
+        {
+            MyOfferStates.Picked => MyOfferState.Picked,
+            MyOfferStates.NotPicked => MyOfferState.NotPicked,
+            _ => MyOfferState.Waiting,
+        },
+        dto.SentAt,
+        dto.ChatId);
+
     public static JobPostFeed ToModel(this JobPostFeedDto dto) => new([.. dto.Posts.Select(post => post.ToModel())], dto.HasMore, dto.HasListing);
 
     public static NewJobPostRequest ToRequest(this JobPostDraft draft) => new(

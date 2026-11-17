@@ -264,4 +264,39 @@ public class JobOfferTests(ApiTestHost api)
         using var scope = api.Server.Services.CreateScope();
         (await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().JobOffers.AnyAsync(o => o.ProUid == plumber.Uid)).Should().BeFalse();
     }
+
+    [IntegrationFact]
+    public async Task MyOffers_SaysWhoWasPicked_AndOpensThePickedWorkersChat()
+    {
+        // Before this list, a worker who wasn't picked just saw the post leave the feed.
+        var household = await TestPhone.SeekerAsync(api, "Tess");
+        var picked = await PlumberAsync(api, "Napili");
+        var other = await PlumberAsync(api, "Iba");
+        var post = await PostAsync(household, Tag());
+        var second = await PostAsync(household, Tag());
+        await OfferAsync(picked, post.Id, 700, "Kaya bukas");
+        await OfferAsync(other, post.Id, 900);
+        await OfferAsync(other, second.Id, 600);
+
+        var waiting = await other.Get<JobBoard>().MyOffersAsync();
+        waiting.Select(o => (o.Post.Id, o.State)).Should().BeEquivalentTo([(post.Id, MyOfferState.Waiting), (second.Id, MyOfferState.Waiting)]);
+
+        var offers = await household.Get<JobBoard>().LoadOffersAsync(post.Id);
+        (await household.Get<JobBoard>().PickAsync(offers.Single(o => o.Pro.Id == picked.Uid))).Should().Be(OfferResult.Done);
+
+        var mine = (await picked.Get<JobBoard>().MyOffersAsync()).Should().ContainSingle().Subject;
+        mine.State.Should().Be(MyOfferState.Picked);
+        mine.PricePesos.Should().Be(700);
+        mine.Note.Should().Be("Kaya bukas");
+        mine.ChatId.Should().Be(Chat.IdFor(picked.Uid, household.Uid));
+
+        var theirs = await other.Get<JobBoard>().MyOffersAsync();
+        theirs.Single(o => o.Post.Id == post.Id).State.Should().Be(MyOfferState.NotPicked);
+        theirs.Single(o => o.Post.Id == post.Id).ChatId.Should().BeNull();
+        theirs.Single(o => o.Post.Id == second.Id).State.Should().Be(MyOfferState.Waiting);
+        theirs[0].Post.Id.Should().Be(second.Id, "newest change first");
+
+        (await other.Get<JobBoard>().WithdrawOfferAsync(theirs.Single(o => o.Post.Id == second.Id).Post)).Should().Be(OfferResult.Done);
+        (await other.Get<JobBoard>().MyOffersAsync()).Should().ContainSingle(o => o.Post.Id == post.Id, "an offer taken back leaves the list");
+    }
 }

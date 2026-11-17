@@ -63,6 +63,20 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         return new OkObjectResult(await posts.MineAsync(uid, cancellationToken));
     }
 
+    /// <summary><c>GET offers/mine</c>: the caller's own offers as a worker, newest change first, with how each ended.</summary>
+    [Function("GetMyOffers")]
+    public async Task<IActionResult> MyOffers(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "offers/mine")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        return new OkObjectResult(await posts.MyOffersAsync(uid, cancellationToken));
+    }
+
     /// <summary><c>GET job-posts/feed?skip=0&amp;take=10</c>: one page of the open posts a worker can take, most relevant first.</summary>
     [Function("GetJobPostFeed")]
     public async Task<IActionResult> Feed(

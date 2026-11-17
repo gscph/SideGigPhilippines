@@ -112,6 +112,33 @@ public sealed record JobOfferDto(
 /// </summary>
 public sealed record SendOfferRequest(int PricePesos, string? Note = null);
 
+/// <summary>
+/// One of the caller's own offers (<c>GET offers/mine</c>), as the worker sees it: the post (as in their feed, its
+/// <see cref="JobPostDto.MyOfferPesos"/> set), their price and note, and how it ended. <paramref name="ChatId"/> is
+/// set once the household picked it (the chat the household opened with them).
+/// </summary>
+/// <param name="State">One of <see cref="MyOfferStates"/>.</param>
+public sealed record MyOfferDto(
+    JobPostDto Post,
+    int PricePesos,
+    string? Note,
+    string State,
+    DateTimeOffset SentAt,
+    string? ChatId = null);
+
+/// <summary>How a worker's own offer stands (<see cref="MyOfferDto.State"/>).</summary>
+public static class MyOfferStates
+{
+    /// <summary>The post is open and the household hasn't picked anyone yet.</summary>
+    public const string Waiting = "waiting";
+
+    /// <summary>The household picked this worker.</summary>
+    public const string Picked = "picked";
+
+    /// <summary>The post was closed without picking this worker (another worker, or the household took it down).</summary>
+    public const string NotPicked = "not-picked";
+}
+
 /// <summary>Where an offer stands.</summary>
 public static class JobOfferStatuses
 {

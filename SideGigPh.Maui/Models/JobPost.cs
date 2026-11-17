@@ -59,6 +59,25 @@ public sealed class JobPostDraft
     public List<WorkPhoto> Photos { get; } = [];
 }
 
+/// <summary>How a worker's own offer stands.</summary>
+public enum MyOfferState
+{
+    /// <summary>The post is open and the household hasn't picked anyone yet.</summary>
+    Waiting,
+
+    /// <summary>The household picked this worker: their chat is open.</summary>
+    Picked,
+
+    /// <summary>The post closed without picking this worker.</summary>
+    NotPicked,
+}
+
+/// <summary>
+/// One of the worker's own offers: the post, their price and note, how it stands, and once picked the chat the
+/// household opened with them.
+/// </summary>
+public sealed record MyOffer(JobPost Post, int PricePesos, string? Note, MyOfferState State, DateTimeOffset SentAt, string? ChatId);
+
 /// <summary>What became of posting.</summary>
 public enum JobPostResult
 {

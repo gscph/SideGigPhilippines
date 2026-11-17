@@ -301,6 +301,24 @@ public static class Copy
     public static readonly LocalizedText PostOffersMany = new("See {0} offers", "Tingnan ang {0} offer");
     public static readonly LocalizedText PostPicked = new("You picked a worker", "May napili ka na");
     public static readonly LocalizedText PostOpenChat = new("Open chat", "Buksan ang chat");
+
+    // --- A worker's own offers (Requests → My offers) ---
+    public static readonly LocalizedText MyOffersLink = new("My offers", "Mga offer ko");
+    public static readonly LocalizedText MyOffersTitle = new("My offers", "Mga offer ko");
+    public static readonly LocalizedText MyOffersWhy = new(
+        "Every price you offered, and what the customer decided.", "Lahat ng presyong in-offer mo, at ang desisyon ng customer.");
+    public static readonly LocalizedText MyOffersEmpty = new(
+        "No offers yet. Offer a price on a request in Requests.", "Wala ka pang offer. Mag-offer ng presyo sa isang request sa Requests.");
+    public static readonly LocalizedText MyOffersBack = new("Back to Requests", "Balik sa Requests");
+    public static readonly LocalizedText MyOfferWaiting = new("Waiting for the customer", "Hinihintay ang customer");
+    public static readonly LocalizedText MyOfferPicked = new("Picked you", "Ikaw ang pinili");
+    public static readonly LocalizedText MyOfferNotPicked = new("Not picked", "Hindi napili");
+    public static readonly LocalizedText MyOfferPrice = new("Your price {0}", "Presyo mo {0}");
+    public static readonly LocalizedText MyOfferWaitingHint = new(
+        "You can change or take back your price in Requests.", "Puwede mong palitan o bawiin ang presyo mo sa Requests.");
+    public static readonly LocalizedText MyOfferNotPickedHint = new(
+        "The customer picked another worker or took the request down. Keep offering: new requests come every day.",
+        "Ibang worker ang pinili ng customer o tinanggal niya ang request. Tuloy lang sa pag-offer: may bagong request araw-araw.");
     public static readonly LocalizedText OffersTitle = new("Offers", "Mga offer");
     public static readonly LocalizedText OffersWhy = new("Look at their stars and badges, then pick one.", "Tingnan ang stars at badges nila, tapos pumili ng isa.");
     public static readonly LocalizedText OffersEmpty = new("No offers yet. Workers near you will see your post.", "Wala pang offer. Makikita ng mga malapit na gumagawa ang post mo.");

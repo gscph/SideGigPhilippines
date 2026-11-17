@@ -57,5 +57,7 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(AdminVerificationDto))]
 [JsonSerializable(typeof(List<AdminVerificationDto>))]
 [JsonSerializable(typeof(VerificationDecisionRequest))]
+[JsonSerializable(typeof(MyOfferDto))]
+[JsonSerializable(typeof(List<MyOfferDto>))]
 [JsonSerializable(typeof(AdminStatusDto))]
 public sealed partial class ApiJson : JsonSerializerContext;
