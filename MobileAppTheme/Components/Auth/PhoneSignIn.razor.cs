@@ -115,7 +115,15 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
         if (user is not null && user.PhoneNumber == _sentTo && !_finished && !_busy)
         {
             _finished = true;
-            await OnAuthenticated.InvokeAsync(AuthResult.Ok(user));
+            try
+            {
+                await OnAuthenticated.InvokeAsync(AuthResult.Ok(user));
+            }
+            catch (Exception)
+            {
+                // Runs off a timer, where nothing would catch it: let the person carry on with the code instead.
+                _finished = false;
+            }
         }
     }
 
