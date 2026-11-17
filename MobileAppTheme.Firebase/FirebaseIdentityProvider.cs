@@ -43,6 +43,9 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 
     private static IFirebaseAuth Auth => CrossFirebaseAuth.Current;
 
+    /// <summary>The number the last code went to (E.164), to recognise an automatic sign-in with it.</summary>
+    private string? _pendingPhone;
+
     /// <summary>
     /// Phone and Google everywhere; Apple on iOS only (App Store 4.8 asks for it next to Google; Android doesn't need
     /// it). Apple also needs the Sign in with Apple capability on the App ID, the
@@ -57,6 +60,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         try
         {
             // Plugin.Firebase tracks the verification itself; VerifyPhoneOtpAsync only needs the code.
+            _pendingPhone = phoneNumber;
             await Auth.VerifyPhoneNumberAsync(phoneNumber).WaitAsync(SendCodeLimit);
             return new PhoneVerification { VerificationId = string.Empty };
         }
@@ -73,6 +77,13 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         {
             var user = await Auth.SignInWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
             return AuthResult.Ok(Map(user));
+        }
+        catch (Exception ex) when (Auth.CurrentUser is { } signedIn && Map(signedIn).PhoneNumber is { } number && number == _pendingPhone)
+        {
+            // Android read the SMS and signed in by itself (instant verification), so the typed code was refused as used:
+            // the person is in with the number the code went to.
+            logger.LogWarning(ex, "The typed code was refused, but the number was already confirmed automatically.");
+            return AuthResult.Ok(Map(signedIn));
         }
         catch (Exception ex)
         {

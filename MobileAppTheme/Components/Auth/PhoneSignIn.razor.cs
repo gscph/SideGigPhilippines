@@ -45,6 +45,12 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
     private Timer? _ticker;
     private bool _counting;
 
+    // The result went to the parent (typed code, or the provider confirmed the number itself): never twice.
+    private bool _finished;
+
+    /// <summary>How many digits the SMS code has.</summary>
+    private const int CodeLength = 6;
+
     // The last send timed out: an SMS may still arrive, but there is no code box to type it in.
     private bool _timedOut;
 
@@ -72,7 +78,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
     protected override void OnInitialized() =>
         _ticker = new Timer(_ => _ = InvokeAsync(Tick), null, 1000, 1000);
 
-    private void Tick()
+    private async Task Tick()
     {
         var counting = WaitLeft is { } left && left > TimeSpan.Zero;
         if (counting || _counting)
@@ -81,6 +87,54 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
         }
 
         _counting = counting;
+        await SignedInMeanwhileAsync();
+    }
+
+    /// <summary>
+    /// Android may read the SMS and confirm the number by itself while the code step is open (the provider then signs
+    /// the person in, and the code they type next is refused as used). Signing in, not adding a number: once the
+    /// provider has someone signed in with the number the code went to, go on as if the code was typed.
+    /// </summary>
+    private async Task SignedInMeanwhileAsync()
+    {
+        if (_step != Step.EnterCode || LinkToCurrentUser || _busy || _finished || _sentTo is null)
+        {
+            return;
+        }
+
+        AuthUser? user;
+        try
+        {
+            user = await Identity.GetCurrentUserAsync();
+        }
+        catch (Exception)
+        {
+            return; // runs off a timer: a failed look is simply tried again next second
+        }
+
+        if (user is not null && user.PhoneNumber == _sentTo && !_finished && !_busy)
+        {
+            _finished = true;
+            try
+            {
+                await OnAuthenticated.InvokeAsync(AuthResult.Ok(user));
+            }
+            catch (Exception)
+            {
+                // Runs off a timer, where nothing would catch it: let the person carry on with the code instead.
+                _finished = false;
+            }
+        }
+    }
+
+    /// <summary>The code box: the sixth digit sends it, so nobody has to find the button.</summary>
+    private async Task CodeChangedAsync(string? value)
+    {
+        _code = value ?? string.Empty;
+        if (_code.Trim().Length == CodeLength && _code.Trim().All(char.IsAsciiDigit))
+        {
+            await VerifyAsync();
+        }
     }
 
     /// <summary>Back to the number step (the page's back arrow, or "Use a different number").</summary>
@@ -153,7 +207,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
         {
             return;
         }
-        if (_verificationId is null)
+        if (_verificationId is null || _finished)
         {
             return;
         }
@@ -165,6 +219,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
             var result = LinkToCurrentUser
                 ? await Identity.LinkPhoneAsync(_verificationId, code)
                 : await Identity.VerifyPhoneOtpAsync(_verificationId, code);
+            _finished = result.IsSuccess;
             await OnAuthenticated.InvokeAsync(result);
         }
         catch (Exception ex)

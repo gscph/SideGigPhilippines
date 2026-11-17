@@ -39,7 +39,7 @@
     else
     {
         <MudText Typo="Typo.body1">@T.Format(CommonCopy.AuthCodeSent, _sentTo ?? string.Empty)</MudText>
-        <MudTextField T="string" @bind-Value="_code" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+        <MudTextField T="string" Value="@_code" ValueChanged="CodeChangedAsync" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                       Label="@T.Get(CommonCopy.AuthCodeLabel)" MaxLength="6" Class="app-field app-field-code"
                       InputMode="InputMode.numeric" autocomplete="one-time-code" />
         <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
