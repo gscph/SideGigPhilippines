@@ -4,8 +4,9 @@
 {
     <InterviewStep Illustration="@AppImages.Publish" Title="@T.Get(Copy.PublishTitle)" Why="@T.Get(Copy.PublishWhy)" OnBack="GoBack"
                    OnNext="PublishAsync" NextLabel="@T.Get(Copy.PublishConfirm)" CanContinue="@(_pledged && !_busy)">
-        <ProCard Listing="Workspace.Listing" Class="own-listing" />
+        @* The pledge comes before the card: Publish stays gray until it is ticked, so it must be seen without scrolling. *@
         <MudCheckBox T="bool" @bind-Value="_pledged" Color="Color.Primary" Label="@T.Get(Copy.PublishPledge)" />
+        <ProCard Listing="Workspace.Listing" Class="own-listing" />
         @if (_problem is not null)
         {
             <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(_problem)</MudAlert>

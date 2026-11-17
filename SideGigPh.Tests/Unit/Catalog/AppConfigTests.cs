@@ -20,6 +20,9 @@ public class AppConfigTests
 {
     private static readonly DateTimeOffset Now = new(2026, 11, 13, 8, 0, 0, TimeSpan.Zero);
 
+    /// <summary>The build running these tests, as the saved copy names it.</summary>
+    private static readonly string? ThisBuild = AppConfigService.Rules.AppBuild;
+
     private readonly FakeConfigSource _server = new();
     private readonly FakeConfigCache _phone = new();
     private readonly FakeClock _clock = new(Now);
@@ -55,13 +58,51 @@ public class AppConfigTests
     public async Task SavedCopyUnder12Hours_IsUsed_WithNoServerCall()
     {
         var saved = OneTrade("saved");
-        _phone.Saved = new(saved, Now - TimeSpan.FromHours(11), "\"v1\"");
+        _phone.Saved = new(saved, Now - TimeSpan.FromHours(11), "\"v1\"", ThisBuild);
         _server.Config = OneTrade("server");
 
         await Service().LoadAsync();
 
         _used.Should().ContainSingle().Which.Should().BeSameAs(saved);
         _server.AskedWith.Should().BeEmpty("a fresh copy costs the server nothing");
+    }
+
+    [Theory]
+    [InlineData("0.1.0-rc.11 abc1234")]
+    [InlineData(null)]
+    public async Task FreshCopySavedByAnotherBuild_IsCheckedWithTheServer(string? otherBuild)
+    {
+        var server = OneTrade("server");
+        _phone.Saved = new(OneTrade("saved"), Now - TimeSpan.FromMinutes(5), "\"v1\"", otherBuild);
+        _server.Config = server;
+        _server.Version = "\"v2\"";
+
+        await Service().LoadAsync();
+
+        _server.AskedWith.Should().Equal(["\"v1\""], "an update must not run up to 12 hours on the trade list the old build saved");
+        _used.Should().ContainSingle().Which.Should().BeSameAs(server);
+        _phone.Saved.Should().Be(new Stamped<AppConfig>(server, Now, "\"v2\"", ThisBuild));
+    }
+
+    [Fact]
+    public async Task CopySavedByAnotherBuild_ServerUnchanged_IsKept_AndStampedWithThisBuild()
+    {
+        var saved = OneTrade("saved");
+        _phone.Saved = new(saved, Now - TimeSpan.FromMinutes(5), "\"v1\"", "0.1.0-rc.11 abc1234");
+        _server.Config = OneTrade("server");
+        _server.Version = "\"v1\"";
+
+        await Service().LoadAsync();
+
+        _used.Should().ContainSingle().Which.Should().BeSameAs(saved);
+        _phone.Saved.Should().Be(new Stamped<AppConfig>(saved, Now, "\"v1\"", ThisBuild), "the next launches of this build need no call");
+    }
+
+    [Fact]
+    public void ThisBuild_NamesTheVersionAndTheCommit()
+    {
+        ThisBuild.Should().Contain(SideGigPh.Maui.Services.Diagnostics.BuildInfo.Current.Version)
+            .And.Contain(SideGigPh.Maui.Services.Diagnostics.BuildInfo.Current.CodeVersion);
     }
 
     [Fact]
@@ -92,7 +133,7 @@ public class AppConfigTests
         await Service().LoadAsync();
 
         _used.Should().ContainSingle().Which.Should().BeSameAs(server);
-        _phone.Saved.Should().Be(new Stamped<AppConfig>(server, Now, "\"v2\""));
+        _phone.Saved.Should().Be(new Stamped<AppConfig>(server, Now, "\"v2\"", ThisBuild));
     }
 
     [Fact]
@@ -187,12 +228,13 @@ public class AppConfigTests
     public void SavedFile_RoundTrips_EveryList()
     {
         var builtIn = ReferenceData.BuiltInConfig;
-        var json = System.Text.Json.JsonSerializer.Serialize(new Stamped<AppConfig>(builtIn, Now, "\"v1\""), AppConfigJsonContext.Default.StampedAppConfig);
+        var json = System.Text.Json.JsonSerializer.Serialize(new Stamped<AppConfig>(builtIn, Now, "\"v1\"", "0.1.0-rc.12 abc1234"), AppConfigJsonContext.Default.StampedAppConfig);
 
         var read = System.Text.Json.JsonSerializer.Deserialize(json, AppConfigJsonContext.Default.StampedAppConfig)!;
 
         read.SavedAt.Should().Be(Now);
         read.Version.Should().Be("\"v1\"");
+        read.AppBuild.Should().Be("0.1.0-rc.12 abc1234");
         read.Value.Categories.Should().Equal(builtIn.Categories);
         read.Value.ServicesByCategory.Keys.Should().BeEquivalentTo(builtIn.ServicesByCategory.Keys);
         read.Value.ServicesByCategory["aircon"].Should().Equal(builtIn.ServicesByCategory["aircon"]);

@@ -32,7 +32,7 @@ public static class Copy
     // Service words, never job/hire/employment words: Tarbaho is a directory of independent workers, not an employer
     // or recruiter (Labor Code Art. 13(b); docs/legal/README.md L1).
     public static readonly LocalizedText RoleTitle = new("Find a Skilled Worker or Offer Your Services", "Maghanap ng Skilled Worker o Mag-alok ng Serbisyo");
-    public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
+    public static readonly LocalizedText RoleSeeker = new("I need something done", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, construction, errands, IT, repairs", "Aircon, construction, errands, IT, repair");
     public static readonly LocalizedText RoleProfessional = new("I offer my skills", "May skills akong maiaalok");
     public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Magkaroon ng customer malapit sa'yo");
@@ -40,7 +40,7 @@ public static class Copy
     // --- Seeker interview -------------------------------------------------
     public static readonly LocalizedText SeekerCategoryTitle = new("What do you need done?", "Ano'ng ipapagawa mo?");
     public static readonly LocalizedText SeekerServiceTitle = new("What kind of job?", "Anong klaseng trabaho?");
-    public static readonly LocalizedText SeekerServiceWhy = new("So you only see Skilled Workers who do exactly this.", "So you only see Skilled Workers who do exactly this.");
+    public static readonly LocalizedText SeekerServiceWhy = new("So you only see Skilled Workers who do exactly this.", "Para makita mo lang ang mga Skilled Worker na ito mismo ang ginagawa.");
     public static readonly LocalizedText OtherJobSeekerLabel = new("What job do you need?", "Anong trabaho ang kailangan mo?");
     public static readonly LocalizedText OtherJobProLabel = new("What other job do you do?", "Anong iba pang trabaho ang kaya mo?");
     public static readonly LocalizedText OtherJobHelp = new("Optional. It helps us add more jobs.", "Optional. Para madagdagan namin ang listahan.");
@@ -230,7 +230,7 @@ public static class Copy
     // --- Professional interview -------------------------------------------
     public static readonly LocalizedText ProSkillsTitle = new("What work do you do?", "Ano'ng trabaho mo?");
     public static readonly LocalizedText ProSkillsWhy = new("Pick all that apply.", "Piliin kung san ka pinaka magaling.");
-    public static readonly LocalizedText ProServicesTitle = new("Which jobs do you take?", "Anong mga trabaho ang tinatanggap mo?");
+    public static readonly LocalizedText ProServicesTitle = new("Which services do you offer?", "Anong mga serbisyo ang kaya mo?");
     public static readonly LocalizedText ProServicesWhy = new("Customers search for these exact jobs. Pick all that apply.", "Ito mismo ang hinahanap ng customer. Piliin lahat.");
     public static readonly LocalizedText ProAreasTitle = new("Which towns do you go to?", "Saang mga bayan ka pumupunta?");
     public static readonly LocalizedText ProAreasWhy = new("Customers in these towns see you first.", "Ikaw ang unang makikita ng customer sa mga bayang ito.");
@@ -241,8 +241,8 @@ public static class Copy
         "Each job has its own price. Customers see your price for the job they need, and you can still agree on the final price.",
         "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
     public static readonly LocalizedText ProRateNote = new(
-        "Tap a price to start from it, or type your own range. Our suggested minimum price is {0} per job, only a guide.",
-        "I-tap ang presyo para simulan dito, o i-type ang sarili mong range. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
+        "Type the price range you usually ask. Our suggested minimum price is {0} per job, only a guide.",
+        "I-type ang range ng presyo na karaniwan mong singil. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 
@@ -570,7 +570,7 @@ public static class Copy
     public static readonly LocalizedText BadgeNothingToSend = new("This badge is already sent. Nothing more to do.", "Na-send na ang badge na ito. Wala ka nang kailangang gawin.");
 
     // --- Pro inbox --------------------------------------------------------
-    public static readonly LocalizedText ProInboxWhy = new("Customers who messaged you about a job. Answer them here.", "Mga customer na nag-message tungkol sa trabaho. Dito mo sila sagutin.");
+    public static readonly LocalizedText ProInboxWhy = new("Customers who need something done. Answer them here.", "Mga customer na may ipapagawa sa'yo. Dito mo sila sagutin.");
     public static readonly LocalizedText ProInboxEmpty = new("No messages yet. They show up here when a customer messages you.", "Wala pang message. Lalabas dito kapag may customer na nag-message sa'yo.");
     public static readonly LocalizedText ChatBudget = new("Budget: {0}", "Budget: {0}");
 
@@ -585,7 +585,7 @@ public static class Copy
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
     public static readonly LocalizedText PhotosCount = new("{0} of {1} photos", "{0} sa {1} photos");
     public static readonly LocalizedText PhotosWhy = new("Customers see these on your listing. At least {0}, up to {1} photos.", "Makikita ito ng customer sa listing mo. {0} o higit pa, hanggang {1} photos.");
-    public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they call.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago tumawag.");
+    public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they message you.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago mag-message.");
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");

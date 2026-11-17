@@ -362,9 +362,11 @@ public static class OnboardingSteps
 
         if (role == UserRole.Seeker)
         {
-            // A lost answer (retired trade, unserved town) reopens its question; budget and urgency are never lost.
-            var missing = state.Seeker.FirstUnanswered();
-            return missing is SeekerStep.Category or SeekerStep.Service or SeekerStep.City ? PathOf(missing) : SeekerRoutes.Home;
+            // A lost answer (retired trade, unserved town) reopens its question; budget and urgency are never lost. No job
+            // is not lost: a trade tapped on Home searches all its jobs (SeekerWorkspace.PickCategoryAsync).
+            return state.Seeker.CategoryId is null ? PathOf(SeekerStep.Category)
+                : state.Seeker.CityId is null ? SeekerTownPath
+                : SeekerRoutes.Home;
         }
 
         // Not live yet: back into the setup (photos, references, Publish) where they left it.

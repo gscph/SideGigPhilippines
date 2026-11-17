@@ -1,4 +1,5 @@
 using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services.Diagnostics;
 
 namespace SideGigPh.Maui.Services;
 
@@ -6,7 +7,7 @@ namespace SideGigPh.Maui.Services;
 /// Loads the app's config (<see cref="AppConfig"/>: trades and jobs, towns, price tiers, experience, urgency, goals)
 /// <b>once</b>, while the launch splash shows (<c>LaunchRouter</c>), and hands it to <see cref="ReferenceData"/>, which
 /// every page reads. Pages never fetch it. The skeleton's <see cref="RemoteConfig{T}"/> decides where it comes from:
-/// the phone's copy while it is under 12 hours old, else the server (saved for next time), else the old copy, else the
+/// the phone's copy while it is under 12 hours old and saved by this build, else the server (saved for next time), else the old copy, else the
 /// copy built into the app.
 /// </summary>
 public sealed class AppConfigService
@@ -27,8 +28,14 @@ public sealed class AppConfigService
         _use = use;
     }
 
-    /// <summary>The rules <see cref="RemoteConfig{T}"/> uses for the app's config.</summary>
-    public static RemoteConfigRules<AppConfig> Rules { get; } = new(ReferenceData.CanUse);
+    /// <summary>
+    /// The rules <see cref="RemoteConfig{T}"/> uses for the app's config. A copy saved by another build (an update, a
+    /// reinstall) is checked with the server at the first launch, so a new version never runs on the old trade list.
+    /// </summary>
+    public static RemoteConfigRules<AppConfig> Rules { get; } = new(ReferenceData.CanUse)
+    {
+        AppBuild = $"{BuildInfo.Current.Version} {BuildInfo.Current.CodeVersion}",
+    };
 
     /// <summary>Loads and applies the config. Runs once per app run; later calls return at once.</summary>
     public Task LoadAsync() => _loading ??= LoadOnceAsync();

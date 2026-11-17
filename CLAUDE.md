@@ -55,7 +55,7 @@ changing that area.**
   server still answers old apps that don't send `take`.
 - **Caching windows are named constants:** app `SearchFreshFor` 60 s, `ListingFreshFor` 5 min, `ActivityFreshFor`
   15 s, chat poll `WatchInterval` 5 s (paused while the app is hidden, skeleton `AppVisibility`); server
-  `ListingCache` 30 s, `ConfigStore.ConfigFor` 12 h; the app config `RemoteConfigRules.FreshFor` 12 h, then
+  `ListingCache` 30 s, `ConfigStore.ConfigFor` 12 h; the app config `RemoteConfigRules.FreshFor` 12 h (only for the app build that saved it: an update asks at once), then
   `If-None-Match` → `304`. Writes update lists from the server's answer, never re-read everything.
 - **App config** (trades, jobs with price guides, towns, minimum wage, answer lists): one `ConfigDto` from public
   `GET config`, loaded once per launch behind the splash (`LaunchRouter` → `AppConfigService.LoadAsync`), held by

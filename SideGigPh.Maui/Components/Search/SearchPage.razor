@@ -35,6 +35,11 @@
         @if (_result.Total == 0)
         {
             <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)" OnRetry="RunSearchAsync" />
+            @if (Network.IsOnline)
+            {
+                @* Nobody yet for this job (a new trade, a small town): posting lets workers nearby send their price. *@
+                <PostRequestCard />
+            }
         }
         else if (_result.InTownTotal == 0)
         {
