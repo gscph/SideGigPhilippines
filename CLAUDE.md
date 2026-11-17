@@ -140,7 +140,12 @@ changing that area.**
   pages `ProRoutes.Badges` (`BadgesPage`, a `BadgeRow` per badge with its state) and `ProRoutes.BadgeProof(kind)`
   (`BadgeProofPage`: what to photograph, the company for a project, the unticked consent box, then the photo picker);
   Seekers see `BadgeChips` (app-generic, brand-purple outlined chips) on every `ProCard` and a row per badge in the
-  profile's "What we checked". The privacy policy's §3.5 describes all of it: change them together.
+  profile's "What we checked". **The operator decides in the app:** an account in `AdminUids` (`GET admin/me` →
+  `AdminStatusDto`) gets a "Check badge requests" row on either Me page (`Components/Admin/OperatorMenuRow`) to
+  `AdminRoutes.Badges` (`BadgeReviewPage`, full screen): one `PendingBadgeCard` per request, oldest first (profile
+  photo, badge, what the AI read, the proof photo only on a tap, Approve / Reject with a reason the worker sees);
+  rules in `Services/BadgeReview`, port `IBadgeReviewRepository`. The privacy policy's §3.5 describes all of it:
+  change them together.
 - **Feedback board** (`Components/Feedback/`, `Services/FeedbackBoard`, `FeedbackStore`, tables `FeedbackPosts` /
   `FeedbackVotes`): from the Me page, both sides suggest features and vote; the board is anonymous and sorted most
   voted first. Before posting, the app asks the server for look-alikes (`FeedbackMatch`, shared meaningful words) and

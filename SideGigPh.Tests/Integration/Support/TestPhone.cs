@@ -20,9 +20,9 @@ public sealed class TestPhone
 
     private readonly ServiceProvider _services;
 
-    public TestPhone(ApiTestHost api, string name, bool verifiedPhone = true, OnboardingState? state = null)
+    public TestPhone(ApiTestHost api, string name, bool verifiedPhone = true, OnboardingState? state = null, string? uid = null)
     {
-        Uid = $"{name.ToLowerInvariant()}-{Guid.NewGuid():N}";
+        Uid = uid ?? $"{name.ToLowerInvariant()}-{Guid.NewGuid():N}";
         PhoneNumber = verifiedPhone ? UniqueNumber() : null;
         Push.Token = $"fcm-{Uid}";
         Identity = new FakeIdentity(new AuthUser { Uid = Uid, DisplayName = name, PhoneNumber = PhoneNumber });
@@ -48,6 +48,7 @@ public sealed class TestPhone
         services.AddSingleton<JobBoard>();
         services.AddSingleton<ProWorkspace>();
         services.AddSingleton<ProBadges>();
+        services.AddSingleton<BadgeReview>();
         services.AddSingleton<SeekerWorkspace>();
         services.AddSingleton(provider => new LocalAccount(
             Store, Identity, provider.GetRequiredService<IUserRepository>(), provider.GetRequiredService<IPhotoStore>(),

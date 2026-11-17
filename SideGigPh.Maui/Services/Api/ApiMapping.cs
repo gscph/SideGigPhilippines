@@ -137,6 +137,27 @@ internal static partial class ApiMapping
         ? new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName)
         : null;
 
+    /// <summary>A request waiting for the operator, or null for a kind this app version doesn't know yet.</summary>
+    public static PendingBadge? ToModel(this AdminVerificationDto dto) => KindOf(dto.Kind) is { } kind
+        ? new PendingBadge(
+            dto.Id,
+            dto.Uid,
+            dto.WorkerName ?? string.Empty,
+            dto.ProfilePhotoUrl,
+            new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName),
+            new BadgeScan(
+                dto.ScanStatus switch
+                {
+                    ScanStatuses.Read => BadgeScanResult.Read,
+                    ScanStatuses.Unreadable => BadgeScanResult.Unreadable,
+                    ScanStatuses.Failed => BadgeScanResult.Failed,
+                    _ => BadgeScanResult.None,
+                },
+                dto.ScannedType, dto.ScannedName, dto.ScannedNumber, dto.ScannedExpiry),
+            dto.HasDocument,
+            dto.CreatedAt)
+        : null;
+
     /// <summary>One of the worker's own requests, or null for a kind this app version doesn't know yet.</summary>
     public static BadgeRequest? ToModel(this VerificationDto dto) => KindOf(dto.Kind) is { } kind
         ? new BadgeRequest(

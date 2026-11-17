@@ -242,6 +242,17 @@ worker; each company is its own badge, with an optional building name).
   the photo in the private `verification` container (`IPrivateFiles`), the ID read by `IIdDocumentReader`
   (`DocumentIntelligenceIdReader`; `NoIdDocumentReader` when the settings are missing). Operators (`AdminUids`)
   use `admin/verifications…`; on the decision the photo and what was read are deleted. Routes: `docs/data-model.md` §6.
+- **App, the operator:** `GET admin/me` (`AdminStatusDto.IsOperator`, from the setting, no database call) decides
+  whether either Me page shows `Components/Admin/OperatorMenuRow` ("Check badge requests"; `BadgeReview.IsOperatorAsync`
+  keeps a yes for the launch and asks again after a no). It opens `AdminRoutes.Badges` (`BadgeReviewPage`, full
+  screen outside both shells, Back to `/`; anyone else sees "only for Tarbaho staff", and the server refuses them
+  anyway): the requests waiting, oldest first (`BadgeReview.PageSize` 20), one `PendingBadgeCard` each with the
+  worker's profile photo and name, the badge, for an ID what the AI read (`ScanLine`s, or why it read nothing) and a
+  reminder to compare by eye, **Show the proof photo** (fetched only on that tap, since every look is audited, and
+  shown from memory as a data URL), and Approve / Reject. A rejection needs a reason (`BadgeReview.CanReject`,
+  trimmed to `MaxReason` 200), which the worker sees on their badge row. Port `IBadgeReviewRepository`
+  (`ApiBadgeReviewRepository`); a decided request leaves the list. A push to the worker when a badge is decided is
+  not built yet.
 - **App, the worker:** Me → Badges (`ProRoutes.Badges`, `BadgesPage`): one `BadgeRow` per badge with its state
   (nothing sent / being checked / approved / not approved + the reason). A row opens `BadgeProofPage`
   (`ProRoutes.BadgeProof(kind)`): what to photograph, the company for a project, the consent box (unticked: the

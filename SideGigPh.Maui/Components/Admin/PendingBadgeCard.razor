@@ -1,0 +1,65 @@
+<MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">
+    <MudStack Spacing="3">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+            <PersonAvatar Name="@Request.WorkerName" PhotoUrl="@Request.PhotoUrl" Size="Size.Large" />
+            <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+                <MudText Typo="Typo.subtitle1">@Request.WorkerName</MudText>
+                <MudText Typo="Typo.body2">@T.Badge(Request.Badge)</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Ago(Request.SentAt)</MudText>
+            </MudStack>
+        </MudStack>
+
+        @if (Request.Badge.Kind == BadgeKind.Id)
+        {
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.overline" Color="Color.Secondary">@T.Get(Copy.AdminScanTitle)</MudText>
+                @if (Request.Scan.Result == BadgeScanResult.Read)
+                {
+                    <ScanLine Label="@T.Get(Copy.AdminScanType)" Value="@Request.Scan.Type" />
+                    <ScanLine Label="@T.Get(Copy.AdminScanName)" Value="@Request.Scan.Name" />
+                    <ScanLine Label="@T.Get(Copy.AdminScanNumber)" Value="@Request.Scan.Number" />
+                    <ScanLine Label="@T.Get(Copy.AdminScanExpiry)" Value="@Request.Scan.Expiry?.ToString("yyyy-MM-dd")" />
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(ScanNote)</MudText>
+                }
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.AdminCompareHint)</MudText>
+            </MudStack>
+        }
+
+        @if (_document is not null)
+        {
+            <MudImage Src="@_document" Alt="@T.Get(Copy.AdminProofAlt)" Fluid="true" Class="app-rounded" />
+        }
+        else if (Request.HasDocument)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Disabled="_busy"
+                       StartIcon="@Icons.Material.Rounded.Image" OnClick="ShowDocumentAsync">
+                @T.Get(Copy.AdminShowProof)
+            </MudButton>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.AdminNoProof)</MudText>
+        }
+
+        <MudTextField T="string" @bind-Value="_reason" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                      Class="app-field" MaxLength="@BadgeReview.MaxReason" Label="@T.Get(Copy.AdminRejectReason)" />
+
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" Class="flex-1"
+                       Disabled="@(_busy || !BadgeReview.CanReject(_reason))" OnClick="() => DecideAsync(false)">
+                @T.Get(Copy.AdminReject)
+            </MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="flex-1" Disabled="_busy" OnClick="() => DecideAsync(true)">
+                @T.Get(Copy.AdminApprove)
+            </MudButton>
+        </MudStack>
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(_error)</MudAlert>
+        }
+    </MudStack>
+</MudPaper>

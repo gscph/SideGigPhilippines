@@ -108,6 +108,15 @@ public sealed class VerificationFunctions(
             ? new OkObjectResult(await verifications.MineAsync(uid, cancellationToken))
             : new UnauthorizedResult();
 
+    /// <summary><c>GET admin/me</c>: whether the caller is an operator. No database call: the list is the app setting.</summary>
+    [Function("AdminMe")]
+    public async Task<IActionResult> AdminMe(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/me")] HttpRequest request,
+        CancellationToken cancellationToken) =>
+        await auth.GetUidAsync(request, cancellationToken) is { } uid
+            ? new OkObjectResult(new AdminStatusDto(admins.Contains(uid)))
+            : new UnauthorizedResult();
+
     /// <summary><c>GET admin/verifications?take=20</c>: the requests waiting for an operator, oldest first.</summary>
     [Function("AdminVerifications")]
     public async Task<IActionResult> Pending(
