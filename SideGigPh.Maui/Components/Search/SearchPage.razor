@@ -27,11 +27,14 @@
     }
     else
     {
-        <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@Summary</MudText>
+        @if (_result.Total > 0 || Network.IsOnline)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@Summary</MudText>
+        }
 
         @if (_result.Total == 0)
         {
-            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)</MudText>
+            <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)" OnRetry="RunSearchAsync" />
         }
         else if (_result.InTownTotal == 0)
         {
@@ -40,6 +43,6 @@
 
         <ResultGroup Title="@T.Format(Copy.ResultsInTown, TownLabel)" Hits="_result.InTown" Total="_result.InTownTotal" />
         <ResultGroup Title="@T.Get(Copy.ResultsOtherTowns)" Hits="_result.OtherTowns" Total="_result.OtherTownsTotal" />
-        <LoadMoreOnScroll HasMore="_result.HasMore" OnLoadMore="LoadMoreAsync" />
+        <LoadMoreOnScroll HasMore="_result.HasMore" OnLoadMore="LoadMoreAsync" @key="_searchVersion" />
     }
 </MudStack>

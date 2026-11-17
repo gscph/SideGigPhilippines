@@ -12,6 +12,8 @@
    the + button are placed from it. */
 :root {
     --app-bottom-nav-height: 5.625rem;
+    /* ConnectionBanner height: fixed so the sticky top bar can sit right under it. */
+    --app-offline-banner-height: 2.75rem;
     /* Card and tile borders: a step darker than the divider lines, like Airbnb's boxes against its lighter
        rules. Falls back to the divider color on WebViews without color-mix. */
     --app-box-border: var(--mud-palette-lines-default);
@@ -33,9 +35,30 @@ h1:focus {
    utility class for. Keep this list short.
    ========================================================================== */
 
-/* ConnectionBanner: the "you're offline" strip above every screen (in the flow, so it pushes the page down). */
+/* ConnectionBanner: the "you're offline" strip above every screen. It pushes the page down and sticks at the top
+   (a chat opens scrolled to its end, so a strip in the flow would be off screen), and the sticky top bar sits
+   right under it while it shows. */
 .app-offline-banner {
     border-radius: 0 !important;
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: calc(var(--mud-zindex-appbar) + 1);
+    height: var(--app-offline-banner-height);
+    box-sizing: border-box;
+    overflow: hidden;
+    align-items: center;
+}
+
+body:has(.app-offline-banner) .app-top-bar {
+    top: calc(env(safe-area-inset-top, 0px) + var(--app-offline-banner-height));
+}
+
+/* WebViews without :has (Android System WebView before 105) can't move the top bar down, so the strip stays in the
+   flow there instead of covering the bar's back button. */
+@supports not selector(:has(*)) {
+    .app-offline-banner {
+        position: relative;
+    }
 }
 
 /* Full-screen pages (splash, language, loader, interview step). */

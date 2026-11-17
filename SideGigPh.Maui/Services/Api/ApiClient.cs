@@ -25,16 +25,29 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
 {
     private readonly HttpClient _http = CreateHttp(options);
 
+    /// <summary>
+    /// How long one try of a read may take. On mobile data a reused connection can die without a word (the carrier drops
+    /// it) and the request then hangs until the timeout: a read gets this long, then goes once more on a fresh connection.
+    /// </summary>
+    public static readonly TimeSpan ReadTryLimit = TimeSpan.FromSeconds(30);
+
+    /// <summary>A read (GET) is safe to repeat, so one that got no answer goes once more; writes are sent once.</summary>
+    public const int ReadTries = 2;
+
     /// <summary>Sends the request with the sign-in token. The caller disposes the response.</summary>
     public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null, CancellationToken cancellationToken = default)
     {
-        using var request = new HttpRequestMessage(method, path) { Content = content };
-        if (await identity.GetIdTokenAsync() is { } token)
+        var token = await identity.GetIdTokenAsync();
+        return await SendWithRetryAsync(() =>
         {
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-        }
+            var request = new HttpRequestMessage(method, path) { Content = content };
+            if (token is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
 
-        return await SendOrThrowAsync(request, cancellationToken);
+            return request;
+        }, cancellationToken);
     }
 
     /// <summary>The JSON answer to a GET, or null for 404. Throws for any other failure.</summary>
@@ -58,13 +71,16 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     public async Task<(T? Value, string? Version)> GetIfChangedAsync<T>(string path, string? knownVersion, JsonTypeInfo<T> type, CancellationToken cancellationToken)
         where T : class
     {
-        using var request = new HttpRequestMessage(HttpMethod.Get, path);
-        if (knownVersion is not null && EntityTagHeaderValue.TryParse(knownVersion, out var tag))
+        using var response = await SendWithRetryAsync(() =>
         {
-            request.Headers.IfNoneMatch.Add(tag);
-        }
+            var request = new HttpRequestMessage(HttpMethod.Get, path);
+            if (knownVersion is not null && EntityTagHeaderValue.TryParse(knownVersion, out var tag))
+            {
+                request.Headers.IfNoneMatch.Add(tag);
+            }
 
-        using var response = await SendOrThrowAsync(request, cancellationToken);
+            return request;
+        }, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotModified)
         {
             return (null, response.Headers.ETag?.ToString() ?? knownVersion);
@@ -79,13 +95,43 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// code on every platform: Android's handler throws <see cref="WebException"/> / <see cref="IOException"/>
     /// ("Socket closed", "Canceled") instead, which reads didn't catch, so a flaky 4G signal broke whole screens.
     /// </summary>
-    private async Task<HttpResponseMessage> SendOrThrowAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage> SendWithRetryAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            var request = makeRequest();
+            if (request.Method != HttpMethod.Get)
+            {
+                using (request)
+                {
+                    return await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                }
+            }
+
+            using var tryLimit = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            tryLimit.CancelAfter(ReadTryLimit);
+            try
+            {
+                using (request)
+                {
+                    return await SendOrThrowAsync(request, tryLimit.Token, cancellationToken);
+                }
+            }
+            catch (Exception ex) when (attempt < ReadTries && !cancellationToken.IsCancellationRequested
+                && ex is HttpRequestException { StatusCode: null } or OperationCanceledException)
+            {
+                logger.LogWarning("API: no answer to GET {Path} ({Reason}); trying once more.", request.RequestUri?.OriginalString.Split('?')[0], ex.Message);
+            }
+        }
+    }
+
+    private async Task<HttpResponseMessage> SendOrThrowAsync(HttpRequestMessage request, CancellationToken sendToken, CancellationToken callerToken)
     {
         try
         {
-            return await _http.SendAsync(request, cancellationToken);
+            return await _http.SendAsync(request, sendToken);
         }
-        catch (Exception ex) when (ex is WebException or IOException && !cancellationToken.IsCancellationRequested)
+        catch (Exception ex) when (ex is WebException or IOException or OperationCanceledException && !callerToken.IsCancellationRequested)
         {
             throw new HttpRequestException($"API: couldn't reach {request.Method} {request.RequestUri?.OriginalString.Split('?')[0]}: {ex.Message}", ex);
         }

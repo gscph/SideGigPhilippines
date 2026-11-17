@@ -26,11 +26,11 @@
     }
     else if (!Board.HasListing)
     {
-        <EmptyState Icon="@Icons.Material.Outlined.VisibilityOff" Text="@T.Get(Copy.ProPostsNeedListing)" />
+        <EmptyState Icon="@Icons.Material.Outlined.VisibilityOff" Text="@T.Get(Copy.ProPostsNeedListing)" OnRetry="Board.LoadFeedAsync" />
     }
     else if (Board.Feed.Count == 0)
     {
-        <EmptyState Icon="@Icons.Material.Outlined.Campaign" Text="@T.Get(Copy.ProPostsEmpty)" />
+        <EmptyState Icon="@Icons.Material.Outlined.Campaign" Text="@T.Get(Copy.ProPostsEmpty)" OnRetry="Board.LoadFeedAsync" />
     }
     else
     {

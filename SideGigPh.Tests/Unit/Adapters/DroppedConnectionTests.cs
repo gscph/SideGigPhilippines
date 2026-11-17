@@ -36,11 +36,53 @@ public class DroppedConnectionTests
         failure.Message.Should().NotContain("x=1", "query strings stay out of logs");
     }
 
+    [Fact]
+    public async Task Read_WhenTheFirstTryDrops_GoesOnceMoreAndGetsTheAnswer()
+    {
+        var handler = new FailsFirst(new WebException("Socket closed"));
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/", handler), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
+
+        using var response = await api.SendAsync(HttpMethod.Get, "config");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        handler.Calls.Should().Be(ApiClient.ReadTries);
+    }
+
+    [Fact]
+    public async Task Write_WhenTheConnectionDrops_IsSentOnlyOnce()
+    {
+        var handler = new FailsFirst(new WebException("Socket closed"));
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/", handler), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
+
+        var send = () => api.SendAsync(HttpMethod.Post, "job-posts");
+
+        await send.Should().ThrowAsync<HttpRequestException>();
+        handler.Calls.Should().Be(1, "a write that may have reached the server is never sent twice");
+    }
+
+    [Fact]
+    public async Task Read_ThatNeverAnswers_FailsAsNoAnswerInsteadOfACancel()
+    {
+        var api = Client(new TaskCanceledException("timed out"));
+
+        var send = () => api.SendAsync(HttpMethod.Get, "search/professionals");
+
+        (await send.Should().ThrowAsync<HttpRequestException>()).Which.StatusCode.Should().BeNull();
+    }
+
     private static ApiClient Client(Exception failure) =>
         new(new ApiOptions("https://api.test/api/", "https://photos.test/", new Throwing(failure)), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
 
     private sealed class Throwing(Exception failure) : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => throw failure;
+    }
+
+    private sealed class FailsFirst(Exception failure) : HttpMessageHandler
+    {
+        public int Calls { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            ++Calls == 1 ? throw failure : Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
     }
 }

@@ -10,7 +10,8 @@ namespace MobileAppTheme.Components.Shared;
 /// come from <see cref="ISplashLines"/> (the app picks them, e.g. by the user's role); the first one is the main line,
 /// shown first every time and held for <see cref="FirstLineFor"/>, so a slow network call reads
 /// as the app at work, not a frozen screen. Hosted once in <c>MainLayout</c>; quick calls finish before
-/// <see cref="ShowAfter"/> and never flash it.
+/// <see cref="ShowAfter"/> and never flash it. A wait longer than <see cref="SlowAfter"/> says so instead: "Slow connection.
+/// Still working on it…", or "No internet. Waiting…" while the phone is offline (<see cref="INetworkStatus"/>).
 /// </summary>
 public partial class BusyOverlay : ComponentBase, IDisposable
 {
@@ -23,14 +24,26 @@ public partial class BusyOverlay : ComponentBase, IDisposable
     /// <summary>How long each of the other lines stays before the next one.</summary>
     public static readonly TimeSpan LineEvery = TimeSpan.FromMilliseconds(1800);
 
+    /// <summary>After this long the rotating lines give way to a plain "slow connection" line.</summary>
+    public static readonly TimeSpan SlowAfter = TimeSpan.FromSeconds(12);
+
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private ISplashLines Lines { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private INetworkStatus Network { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
 
     private CancellationTokenSource? _cts;
     private bool _visible;
     private IReadOnlyList<LocalizedText> _lines = [];
     private int _line;
+    private DateTimeOffset _shownAt;
+
+    private bool IsSlow => _visible && Clock.GetUtcNow() - _shownAt >= SlowAfter;
+
+    private string? Line => IsSlow
+        ? T.Get(Network.IsOnline ? CommonCopy.BusySlow : CommonCopy.BusyOffline)
+        : _lines.Count > 0 ? T.Get(_lines[_line]) : null;
 
     protected override void OnInitialized() => Busy.Changed += OnBusyChanged;
 
@@ -60,6 +73,7 @@ public partial class BusyOverlay : ComponentBase, IDisposable
             _lines = await Lines.LinesAsync();
             _line = 0;
             cts.Token.ThrowIfCancellationRequested();
+            _shownAt = Clock.GetUtcNow();
             _visible = true;
             StateHasChanged();
             await Task.Delay(FirstLineFor, cts.Token);
@@ -68,6 +82,10 @@ public partial class BusyOverlay : ComponentBase, IDisposable
                 if (_lines.Count > 1)
                 {
                     _line = (_line + 1) % _lines.Count;
+                }
+
+                if (_lines.Count > 1 || IsSlow)
+                {
                     StateHasChanged();
                 }
 

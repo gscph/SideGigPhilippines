@@ -20,6 +20,7 @@ public partial class SearchPage : ComponentBase
 
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
+    [Inject] private MobileAppTheme.Services.INetworkStatus Network { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -146,8 +147,9 @@ public partial class SearchPage : ComponentBase
         }
 
         var version = _searchVersion;
-        var more = await Workspace.MoreResultsAsync(_result);
-        if (version == _searchVersion)
+        var start = _result;
+        var more = await Workspace.MoreResultsAsync(start);
+        if (version == _searchVersion && ReferenceEquals(start, _result))
         {
             _result = more;
         }

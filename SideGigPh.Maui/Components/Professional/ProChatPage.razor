@@ -55,11 +55,6 @@
             </MudStack>
         }
 
-        @if (_error is not null)
-        {
-            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
-        }
-
-        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" />
+        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" Error="@_error" />
     }
 </MudStack>

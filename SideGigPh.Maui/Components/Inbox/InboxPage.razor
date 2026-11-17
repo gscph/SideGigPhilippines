@@ -7,7 +7,7 @@
     @if (Workspace.Threads.Count == 0)
     {
         <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="py-8">
-            <EmptyState Icon="@Icons.Material.Outlined.ChatBubbleOutline" Text="@T.Get(Copy.InboxEmpty)" />
+            <EmptyState Icon="@Icons.Material.Outlined.ChatBubbleOutline" Text="@T.Get(Copy.InboxEmpty)" OnRetry="Workspace.RefreshActivityAsync" />
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" StartIcon="@Icons.Material.Rounded.Search" Href="@SeekerRoutes.Search">
                 @T.Get(Copy.SearchTitle)
             </MudButton>

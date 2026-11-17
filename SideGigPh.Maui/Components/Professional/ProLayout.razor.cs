@@ -19,6 +19,7 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
+    [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private ProBadges Badges { get; set; } = default!;
 
     private bool _ready;
@@ -53,7 +54,8 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
         }
 
         _ready = true;
-        _alerts = Alerts.Attach(Workspace.RefreshActivityAsync, path => InvokeAsync(() => Nav.NavigateTo(path)));
+        // A push is a new message or a new request near them: the Inbox and the Requests feed are read again.
+        _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadFeedAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
         Alerts.ShowUnread(Workspace.UnreadChatIds);
 
         // A live listing is the reason to want notifications: customers write in. Asks once (the system remembers).
