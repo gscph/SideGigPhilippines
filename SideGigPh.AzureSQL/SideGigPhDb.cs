@@ -23,6 +23,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ServiceRow> Services => Set<ServiceRow>();
     public DbSet<OtherJobNoteRow> OtherJobNotes => Set<OtherJobNoteRow>();
     public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
+    public DbSet<BarangayRow> Barangays => Set<BarangayRow>();
     public DbSet<ErrorReportRow> ErrorReports => Set<ErrorReportRow>();
     public DbSet<ReportRow> Reports => Set<ReportRow>();
     public DbSet<BlockRow> Blocks => Set<BlockRow>();
@@ -228,6 +229,18 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             option.Property(o => o.Icon).HasMaxLength(16).IsUnicode();
         });
 
+        model.Entity<BarangayRow>(barangay =>
+        {
+            // 021-schema-barangays
+            barangay.ToTable("Barangays");
+            barangay.HasKey(b => b.Id).HasName("PK_Barangays");
+            barangay.Property(b => b.Id).HasMaxLength(40);
+            barangay.Property(b => b.CityId).HasMaxLength(40);
+            barangay.Property(b => b.LabelEnglish).HasMaxLength(60).IsUnicode();
+            barangay.Property(b => b.LabelTaglish).HasMaxLength(60).IsUnicode();
+            barangay.HasIndex(b => new { b.CityId, b.SortOrder }).HasDatabaseName("IX_Barangays_City");
+        });
+
         model.Entity<ErrorReportRow>(report =>
         {
             report.ToTable("ErrorReports");
@@ -342,6 +355,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             post.Property(p => p.ServiceId).HasMaxLength(40);
             post.Property(p => p.Description).HasMaxLength(600).IsUnicode();
             post.Property(p => p.CityId).HasMaxLength(40);
+            post.Property(p => p.BarangayId).HasMaxLength(40);
             post.Property(p => p.Status).HasMaxLength(10);
             post.HasMany(p => p.Photos).WithOne().HasForeignKey(photo => photo.PostId).HasConstraintName("FK_JobPostPhotos_Post").OnDelete(DeleteBehavior.Cascade);
             post.HasIndex(p => new { p.Status, p.CategoryId, p.CreatedAt }).IsDescending(false, false, true).HasDatabaseName("IX_JobPosts_Open");

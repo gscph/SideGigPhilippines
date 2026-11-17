@@ -5,8 +5,10 @@ namespace SideGigPh.Maui.Models;
 /// (<see cref="Categories"/>) and each trade's jobs (most-requested first, "Others" last), the towns we serve, the
 /// old price scale (cheapest first, read only for listings and budgets from older app versions), experience, urgency,
 /// monthly income goals, each job's price guide (<see cref="Prices"/>, by job id) and the minimum wage every job's lowest
-/// price stays at or above. Loaded once when the app opens and kept on the phone (<c>RemoteConfig</c>); the app ships a
-/// copy for its first launch offline (<c>ReferenceData.BuiltInConfig</c>).
+/// price stays at or above, the launch's town (<see cref="DefaultTownId"/>, pre-selected wherever a town is picked) and
+/// the barangays we serve in each town (<see cref="BarangaysByTown"/>, A–Z, always optional to pick). Loaded once when
+/// the app opens and kept on the phone (<c>RemoteConfig</c>); the app ships a copy for its first launch offline
+/// (<c>ReferenceData.BuiltInConfig</c>). The last two are null in a copy saved before them.
 /// </summary>
 public sealed record AppConfig(
     IReadOnlyList<CatalogOption> Categories,
@@ -17,7 +19,9 @@ public sealed record AppConfig(
     IReadOnlyList<CatalogOption> Urgencies,
     IReadOnlyList<CatalogOption> IncomeGoals,
     IReadOnlyDictionary<string, PriceGuide> Prices,
-    int MinimumWage);
+    int MinimumWage,
+    string? DefaultTownId = null,
+    IReadOnlyDictionary<string, IReadOnlyList<CatalogOption>>? BarangaysByTown = null);
 
 /// <summary>
 /// What a job usually costs, in pesos (labor only): the lowest fair price (never under the minimum wage), the average,

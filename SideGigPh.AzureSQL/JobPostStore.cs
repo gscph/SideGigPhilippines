@@ -46,8 +46,9 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
     public const string ReportSubjectPrefix = "job-post:";
 
     /// <summary>
-    /// Saves the caller's post, open at once. The trade, service and town must be ones we serve; the point is the
-    /// phone's when it sent a valid one, else the centre of the town. The same words for the same service and town from
+    /// Saves the caller's post, open at once. The trade, service and town must be ones we serve; the barangay is
+    /// optional and kept only when it is one we serve in that town (else left off: it never stops a post); the point is
+    /// the phone's when it sent a valid one, else the centre of the town. The same words for the same service and town from
     /// the same person while that post is still open (a retry, a double tap) answer with the one already there.
     /// </summary>
     public async Task<JobPostOutcome> AddAsync(string uid, NewJobPostRequest request, CancellationToken cancellationToken)
@@ -67,6 +68,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         }
 
         var point = GeoRules.Point(request.Latitude, request.Longitude) ?? GeoRules.CentreOf([request.CityId]);
+        var served = (await config.GetAsync(cancellationToken)).Config;
         var row = new JobPostRow
         {
             SeekerUid = uid,
@@ -76,6 +78,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             BudgetPesos = request.BudgetPesos,
             BudgetMinPesos = request.BudgetMinPesos,
             CityId = request.CityId,
+            BarangayId = ServedBarangay(served, request.CityId, request.BarangayId),
             Latitude = point?.Latitude,
             Longitude = point?.Longitude,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -449,6 +452,10 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
     /// <summary>A distance for other people's eyes: whole kilometres, never under 1, so a point can't be worked out from it.</summary>
     public static int? DistanceKm(double? meters) => meters is { } m ? Math.Max(1, (int)Math.Round(m / 1000.0)) : null;
 
+    /// <summary>The barangay when it is one we serve in <paramref name="cityId"/>, else null.</summary>
+    internal static string? ServedBarangay(ConfigDto served, string cityId, string? barangayId) =>
+        barangayId is not null && (served.Barangays ?? []).Any(b => b.Id == barangayId && b.TownId == cityId) ? barangayId : null;
+
     /// <summary>The first field of a new post that's missing or not valid (its JSON name), or null when it can be saved.</summary>
     private async Task<string?> InvalidFieldAsync(NewJobPostRequest request, CancellationToken cancellationToken)
     {
@@ -504,7 +511,8 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         myOfferPesos,
         pickedProId,
         row.BudgetMinPesos,
-        householdReviews);
+        householdReviews,
+        row.BarangayId);
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

@@ -272,4 +272,40 @@ public class JobPostTests(ApiTestHost api)
         var mine = await api.Client(api.Tokens.For(household.Uid)).GetStringAsync("job-posts/mine");
         mine.Should().Contain(tag).And.NotContain("atitude");
     }
+
+    [IntegrationFact]
+    public async Task ABarangay_IsKeptOnThePost_AndWorkersSeeIt()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Barangay");
+        var plumber = await PlumberAsync(api, "Tubero", towns: ["angono"]);
+        var draft = Draft(tag, town: "angono");
+        draft.BarangayId = "angono-san-isidro";
+
+        var posted = await PostAsync(household, draft);
+
+        posted.BarangayId.Should().Be("angono-san-isidro");
+        (await FeedAsync(plumber, tag)).Should().ContainSingle().Which.BarangayId.Should().Be("angono-san-isidro");
+    }
+
+    [IntegrationFact]
+    public async Task ABarangayOfAnotherTown_OrNotServed_IsLeftOff_AndThePostStillGoesThrough()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Iba");
+        var client = api.Client(api.Tokens.For(household.Uid));
+
+        async Task<string?> PostWith(string? barangayId, string words)
+        {
+            var request = new NewJobPostRequest("construction", "construction-plumbing", $"{words} {tag}", 800, "taytay", BarangayId: barangayId);
+            using var response = await client.PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.OK, "a barangay is optional and never stops a post");
+            return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.BarangayId;
+        }
+
+        (await PostWith("angono-san-isidro", "Barado ang lababo sa kusina")).Should().BeNull("San Isidro of Angono is not in Taytay");
+        (await PostWith("taytay-nowhere", "Tumutulo ang gripo sa banyo")).Should().BeNull("not a barangay we serve");
+        (await PostWith(null, "Sira ang inidoro sa itaas")).Should().BeNull();
+        (await PostWith("taytay-san-isidro", "Barado ang drain sa labas")).Should().Be("taytay-san-isidro");
+    }
 }

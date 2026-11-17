@@ -48,7 +48,29 @@ public class ConfigTests(ApiTestHost api)
         Ids(config.Experience).Should().Contain(Ids(builtIn.Experience), because);
         Ids(config.Urgencies).Should().Contain(Ids(builtIn.Urgencies), because);
         Ids(config.IncomeGoals).Should().Contain(Ids(builtIn.IncomeGoals), because);
+        foreach (var (town, barangays) in builtIn.BarangaysByTown!)
+        {
+            Ids(config.BarangaysByTown![town]).Should().Contain(Ids(barangays), because);
+        }
+
         ReferenceData.CanUse(config).Should().BeTrue();
+    }
+
+    // The narrower launch: the default town and the barangays are server data (004-config.sql), so changing the
+    // default or adding/retiring a town or barangay is a SQL-only edit.
+    [IntegrationFact]
+    public async Task LaunchTown_AndBarangays_ComeFromTheServer()
+    {
+        var config = (await api.Client().GetFromJsonAsync("config", ApiJson.Default.ConfigDto))!;
+
+        var towns = config.Towns.Select(t => t.Id).ToList();
+        config.DefaultTownId.Should().BeOneOf(towns, "the default must be a town we serve");
+        config.Barangays.Should().NotBeNullOrEmpty();
+        config.Barangays!.Select(b => b.TownId).Should().OnlyContain(town => towns.Contains(town));
+        config.Barangays.Select(b => b.Id).Should().OnlyHaveUniqueItems()
+            .And.OnlyContain(id => System.Text.RegularExpressions.Regex.IsMatch(id, "^[a-z0-9-]+$"), "ids are stable codes with no accents");
+        config.Barangays.Where(b => b.TownId == "angono").Should().HaveCount(10);
+        (await Scalar("SELECT COUNT(*) FROM dbo.ConfigOptions WHERE ListId = 'default-town' AND IsActive = 1")).Should().Be(1);
     }
 
     [IntegrationFact]

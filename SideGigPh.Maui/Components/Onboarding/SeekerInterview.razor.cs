@@ -8,7 +8,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// Seeker interview: what job → which town (their one home town) → when →
+/// Seeker interview: what job → which town (their one home town; the launch's default town starts picked, and a town
+/// with barangays offers an optional barangay, then Next) → when →
 /// budget → search or post → the results, or the form to post what they need (pre-filled from these answers). "Others" after the trades lets someone type a kind of work we don't list: it is saved as their
 /// trade and job (the job question is skipped), sent for analytics and matched with workers who typed something similar,
 /// so nobody is stuck on the trade question. The budget is two peso boxes, "From" and "Up to"; the job's price guide
@@ -40,6 +41,9 @@ public partial class SeekerInterview : ComponentBase
     private bool _pickedOtherTrade;
     private string? _otherTradeText;
 
+    // The town the town question shows picked: theirs, else the launch's default town, saved on Next.
+    private string? _town;
+
     // The budget's two boxes, saved as a range on Next.
     private int? _budgetMin;
     private int? _budgetMax;
@@ -55,6 +59,11 @@ public partial class SeekerInterview : ComponentBase
     private EventCallback OtherJobNext => PickedOtherJob ? EventCallback.Factory.Create(this, NextFromOtherJobAsync) : default;
 
     private bool HasOtherTradeText => !string.IsNullOrWhiteSpace(_otherTradeText);
+
+    // A town with barangays waits for Next (the barangay is optional); any other town moves on when tapped.
+    private EventCallback TownNext => _town is not null && ReferenceData.BarangaysOf(_town).Count > 0
+        ? EventCallback.Factory.Create(this, SaveTownAsync)
+        : default;
 
     // Next shows only under "Others" (trades); other trade tiles move on when tapped.
     private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, PickOtherTradeAsync) : default;
@@ -95,6 +104,7 @@ public partial class SeekerInterview : ComponentBase
         _pickedOtherTrade = Answers.IsOtherTrade();
         _otherTradeText = _pickedOtherTrade ? Answers.OtherJobText : null;
         (_budgetMin, _budgetMax) = Pricing.CustomStart(Answers.BudgetId, Answers.ServiceId, Answers.CategoryId);
+        _town = Answers.TownShown();
     }
 
     private Task PickCategoryAsync(string id)
@@ -149,7 +159,17 @@ public partial class SeekerInterview : ComponentBase
 
     private Task PickCityAsync(string id)
     {
+        _town = id;
         Answers.PickTown(id);
+        return ReferenceData.BarangaysOf(id).Count > 0 ? Store.SaveAsync(_state!) : AdvanceAsync();
+    }
+
+    private void PickBarangay(string? barangayId) => Answers.PickBarangay(_town, barangayId);
+
+    /// <summary>Next on a town with barangays: the town shown (the default one if they tapped nothing) and any barangay.</summary>
+    private Task SaveTownAsync()
+    {
+        Answers.PickTown(_town!);
         return AdvanceAsync();
     }
 

@@ -47,7 +47,7 @@ public sealed class SeekerWorkspace(
     public string? ProfilePhotoUrl { get; private set; }
 
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
-    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId, Answers.OtherJobText);
+    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.TownShown(), Answers.BudgetId, Answers.OtherJobText);
 
     /// <summary>One chat per pro the Seeker contacted, loaded so far (<see cref="InboxPages"/>), most recent message first.</summary>
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
@@ -185,8 +185,7 @@ public sealed class SeekerWorkspace(
 
     public Task PickTownAsync(string cityId)
     {
-        Answers.CityId = cityId;
-        Answers.AreaId = ReferenceData.AreaOf(cityId);
+        Answers.PickTown(cityId);
         return SaveAsync();
     }
 

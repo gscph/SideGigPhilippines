@@ -134,6 +134,19 @@ public static class OnboardingSteps
         }
     }
 
+    /// <summary>
+    /// A Skilled Worker reaching the towns question with none ticked starts with the launch's default town ticked
+    /// (server-set); they can untick it and tick others. Does nothing once they have towns.
+    /// </summary>
+    public static void PreselectDefaultTown(this ProfessionalDraft draft)
+    {
+        if (draft.CityIds.Count == 0 && ReferenceData.DefaultTownId is { } town)
+        {
+            draft.CityIds.Add(town);
+            draft.SetAreaFromTowns();
+        }
+    }
+
     public static void ToggleTown(this ProfessionalDraft draft, string cityId)
     {
         Toggle(draft.CityIds, cityId);
@@ -273,11 +286,23 @@ public static class OnboardingSteps
     }
 
     /// <summary>Picks the one home town; its area (never asked) follows.</summary>
+    /// <summary>Picks their home town. A barangay of another town is dropped (one of this town stays).</summary>
     public static void PickTown(this SeekerAnswers answers, string cityId)
     {
         answers.CityId = cityId;
         answers.AreaId = ReferenceData.AreaOf(cityId);
+        answers.BarangayId = ReferenceData.FindBarangay(cityId, answers.BarangayId)?.Id;
     }
+
+    /// <summary>
+    /// The town the household's town question shows picked: their own, else the launch's default town (server-set),
+    /// so most people only confirm it. Null when neither is there.
+    /// </summary>
+    public static string? TownShown(this SeekerAnswers answers) => answers.CityId ?? ReferenceData.DefaultTownId;
+
+    /// <summary>Picks (or with null, "Not sure", clears) their barangay; only one we serve in <paramref name="cityId"/> is kept.</summary>
+    public static void PickBarangay(this SeekerAnswers answers, string? cityId, string? barangayId) =>
+        answers.BarangayId = ReferenceData.FindBarangay(cityId, barangayId)?.Id;
 
     /// <summary>Whether the household wants to post what they need rather than see workers first.</summary>
     public static bool WantsToPost(this SeekerAnswers answers) => answers.FindBy == ReferenceData.FindByPost;
