@@ -51,6 +51,12 @@ public sealed class SeekerAnswers
     /// </summary>
     public string? FindBy { get; set; }
 
+    /// <summary>
+    /// Their last searches and posts, newest first, at most <c>RecentSearches.Max</c>, kept only on the phone
+    /// (<c>Services/RecentSearches</c>). Seeker home lists them for a quick search or post.
+    /// </summary>
+    public List<RecentSearch> RecentSearches { get; set; } = [];
+
     /// <summary>What they last typed in the search box, shown again when they come back.</summary>
     public string? SearchText { get; set; }
 

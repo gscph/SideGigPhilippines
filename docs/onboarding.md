@@ -220,7 +220,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 - **Layout:** `AppShell` (`AppTopBar`, `AppBottomNav`, `AppNavItem`), used by `ProLayout` and `SeekerLayout`.
 - **Search:** `SearchPage`, `SearchBox`, `ChipStrip`, `FilterMenu`, `ResultGroup`, `ResultCard`, `PublicProfilePage` (`FilterMenu` is in Shared); ranking in `Services/Search`.
 - **Inbox:** `InboxPage`, `ThreadPage`, `ThreadRow`, `ContactBubble`, `MessageComposer`.
-- **Seeker:** `SeekerLayout`, `SeekerHome`, `CategoryRail`, `LastSearchCard`, `SeekerReviewsPage`, `ToRateRow`, `WriteReviewPage`, `SeekerMePage`.
+- **Seeker:** `SeekerLayout`, `SeekerHome`, `CategoryRail`, `PostRequestCard`, `RecentSearchRow`, `SeekerReviewsPage`, `ToRateRow`, `WriteReviewPage`, `SeekerMePage`.
 
 ### Text and reference data
 - `Services/Localization/AppText`: a singleton holding the chosen language. Use `T.Get(text)` and `T.Format(text, args)`.

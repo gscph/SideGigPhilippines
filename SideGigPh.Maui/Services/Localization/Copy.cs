@@ -74,8 +74,9 @@ public static class Copy
     // Labor-illusion loader. {0} = job or town label.
 
     // --- Seeker shell + home ----------------------------------------------
-    public static readonly LocalizedText LastSearch = new("Recent Search", "Recent Search");
-    public static readonly LocalizedText SeePros = new("View more", "View more");
+    public static readonly LocalizedText RecentSearches = new("Recent searches", "Mga huling hinanap");
+    public static readonly LocalizedText RecentSearchAgain = new("Search", "Hanapin");
+    public static readonly LocalizedText RecentSearchPost = new("Post", "I-post");
     public static readonly LocalizedText SectionMessages = new("Recent messages", "Recent messages");
 
     // --- Search -----------------------------------------------------------
@@ -91,10 +92,6 @@ public static class Copy
     public static readonly LocalizedText FilterBudget = new("Budget", "Budget");
 
     // --- Seeker Me: their search answers, each one tap from its question ---
-    public static readonly LocalizedText PreferencesTitle = new("Your preferences", "Mga pinili mo");
-    public static readonly LocalizedText PreferenceNeed = new("What you need", "Kailangan mo");
-    public static readonly LocalizedText PreferenceWhen = new("When", "Kailan");
-    public static readonly LocalizedText PreferenceNotSet = new("Not set", "Wala pa");
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng serbisyo");
 
     // --- Search results ---------------------------------------------------

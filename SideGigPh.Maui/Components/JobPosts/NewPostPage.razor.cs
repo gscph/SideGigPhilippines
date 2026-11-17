@@ -101,6 +101,7 @@ public partial class NewPostPage : ComponentBase
         {
             if (await Busy.RunAsync(() => Board.PostAsync(_draft)) == JobPostResult.Posted)
             {
+                await Workspace.RememberPostAsync(_draft);
                 // Now there are offers to wait for: allow notifications (asked once; the system remembers).
                 _ = Alerts.AskAsync();
                 Nav.NavigateTo(JobPostRoutes.Mine, replace: true);

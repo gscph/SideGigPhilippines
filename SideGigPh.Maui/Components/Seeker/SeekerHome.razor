@@ -14,9 +14,16 @@
 
     <PostRequestCard />
 
-    @if (LastSearch is not null)
+    @if (Workspace.RecentSearches.Count > 0)
     {
-        <LastSearchCard Summary="@LastSearch" />
+        <HomeSection Title="@T.Get(Copy.RecentSearches)">
+            <MudStack Spacing="0">
+                @foreach (var recent in Workspace.RecentSearches)
+                {
+                    <RecentSearchRow Search="recent" @key="recent" OnSearch="SearchAgainAsync" OnPost="PostAgainAsync" />
+                }
+            </MudStack>
+        </HomeSection>
     }
 
     @if (Workspace.Threads.Count > 0)

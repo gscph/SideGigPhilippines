@@ -77,6 +77,35 @@ public class SavedAnswersTests
         state.Professional.PublishedAt.Should().BeNull();
     }
 
+    // Written before recent searches and "search or post": the list starts empty, the question is unanswered.
+    [Fact]
+    public void FileWithoutRecentSearches_LoadsWithAnEmptyList()
+    {
+        var state = Load("""{ "Role": "Seeker", "Seeker": { "CategoryId": "aircon", "CityId": "taytay" } }""");
+
+        state.Seeker.RecentSearches.Should().BeEmpty();
+        state.Seeker.FindBy.Should().BeNull();
+    }
+
+    [Fact]
+    public void RecentSearches_SurviveSavingAndLoading()
+    {
+        var saved = new OnboardingState
+        {
+            Role = UserRole.Seeker,
+            Seeker = new SeekerAnswers
+            {
+                FindBy = ReferenceData.FindByPost,
+                RecentSearches = [new RecentSearch("plumbing", "plumbing-leak", null, "angono", "800-1500")],
+            },
+        };
+
+        var state = Load(JsonSerializer.Serialize(saved, OnboardingJsonContext.Default.OnboardingState));
+
+        state.Seeker.FindBy.Should().Be(ReferenceData.FindByPost);
+        state.Seeker.RecentSearches.Should().Equal(new RecentSearch("plumbing", "plumbing-leak", null, "angono", "800-1500"));
+    }
+
     // A newer app may write fields an older one doesn't know (e.g. a downgrade, or a field removed later).
     [Fact]
     public void FileWithUnknownFields_StillLoads()
