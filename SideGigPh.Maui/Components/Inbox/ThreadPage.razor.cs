@@ -144,8 +144,14 @@ public partial class ThreadPage : ComponentBase, IDisposable
         }
 
         _jobWatch?.Dispose();
-        _jobWatch = PickedJobWatch.Start(Board, Visibility, Id, jobs, changed => InvokeAsync(() =>
+        PickedJobWatch? watch = null;
+        watch = _jobWatch = PickedJobWatch.Start(Board, Visibility, Id, jobs, changed => InvokeAsync(() =>
         {
+            if (!ReferenceEquals(watch, _jobWatch))
+            {
+                return; // a newer state replaced this watch: its last read is stale
+            }
+
             WatchJobs(changed);
             StateHasChanged();
         }));
