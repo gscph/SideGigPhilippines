@@ -19,7 +19,7 @@ public partial class MyOfferCard : ComponentBase
 
     private string ServiceLabel => ReferenceData.FindService(Offer.Post.ServiceId) is { } service
         ? T.Get(service.Label)
-        : ReferenceData.Find(ReferenceData.Categories, Offer.Post.CategoryId) is { } trade ? T.Get(trade.Label) : Offer.Post.ServiceId;
+        : ReferenceData.FindTrade(Offer.Post.CategoryId) is { } trade ? T.Get(trade.Label) : Offer.Post.ServiceId;
 
     private string Town => ReferenceData.Find(ReferenceData.Cities, Offer.Post.CityId) is { } town ? T.Get(town.Label) : Offer.Post.CityId;
 
