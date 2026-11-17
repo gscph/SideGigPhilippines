@@ -147,8 +147,9 @@ public partial class SearchPage : ComponentBase
         }
 
         var version = _searchVersion;
-        var more = await Workspace.MoreResultsAsync(_result);
-        if (version == _searchVersion)
+        var start = _result;
+        var more = await Workspace.MoreResultsAsync(start);
+        if (version == _searchVersion && ReferenceEquals(start, _result))
         {
             _result = more;
         }
