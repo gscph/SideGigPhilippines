@@ -47,6 +47,7 @@ public sealed class TestPhone
         services.AddSingleton<FeedbackBoard>();
         services.AddSingleton<JobBoard>();
         services.AddSingleton<ProWorkspace>();
+        services.AddSingleton<ListingRestore>();
         services.AddSingleton<ProBadges>();
         services.AddSingleton<BadgeReview>();
         services.AddSingleton<SeekerWorkspace>();

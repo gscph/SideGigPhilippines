@@ -101,6 +101,23 @@ public sealed class ProfessionalFunctions(
         return await professionals.GetAsync(id, cancellationToken, withNumber: id == uid) is { } listing ? new OkObjectResult(listing) : new NotFoundResult();
     }
 
+    /// <summary>
+    /// <c>GET professionals/me/references</c>: the caller's own references (private, never in <see cref="ListingDto"/>), so
+    /// a reinstalled app restores their live listing with them and later edits can re-publish it.
+    /// </summary>
+    [Function("GetMyReferences")]
+    public async Task<IActionResult> MyReferences(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "professionals/me/references")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        return new OkObjectResult(await professionals.ReferencesAsync(uid, cancellationToken));
+    }
+
     /// <summary>Publishes the caller's listing, or replaces it. Needs a verified phone number on the account.</summary>
     [Function("PublishProfessional")]
     public async Task<IActionResult> Publish(

@@ -60,7 +60,6 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<FeedbackBoard>();
             builder.Services.AddSingleton<JobBoard>();
             builder.Services.AddSingleton<ChatAlerts>();
-            builder.Services.AddSingleton<IAuthLanding, SideGigPhAuthLanding>();
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
             // Users, listings, reviews, chats and the trades and jobs (Azure SQL) and photos (Blob Storage), all through SideGigPh.Api.
             // Replaces the skeleton's on-device FilePhotoStore.
@@ -78,6 +77,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<AppConfigService>();
             builder.Services.AddSingleton<OtherJobNotes>();
             builder.Services.AddSingleton<ProWorkspace>();
+            builder.Services.AddSingleton<ListingRestore>();
             builder.Services.AddSingleton<ProBadges>();
             builder.Services.AddSingleton<BadgeReview>();
             builder.Services.AddSingleton<ProfessionalSearch>();

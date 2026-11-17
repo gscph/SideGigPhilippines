@@ -213,22 +213,6 @@ public class AccountTests
         app.Users.Deleted.Should().BeEmpty();
     }
 
-    [Theory]
-    [InlineData(true, "/professional")]
-    [InlineData(false, "/")]
-    public async Task AuthLanding_WorkerWithAListing_GoesToProHome(bool hasListing, string expected)
-    {
-        var profiles = new FakeProfiles();
-        if (hasListing)
-        {
-            profiles.ById[TestData.WorkerUid] = TestData.Listing("Juan");
-        }
-
-        var landing = new SideGigPhAuthLanding(profiles);
-
-        (await landing.GetDestinationAsync(TestData.Worker())).Should().Be(expected);
-    }
-
     [Fact]
     public void TakeAccount_NotSignedIn_KeepsTheDraftAsIs()
     {
