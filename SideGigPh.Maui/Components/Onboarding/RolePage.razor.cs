@@ -10,8 +10,8 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// The fork: are you looking for someone to do a job, or looking for work?
-/// Tile ids are the <see cref="UserRole"/> names. A worker confirms their mobile number first (the one SMS of their
-/// lifetime; customers reach them on it), then starts the interview; a customer is never asked. "Do this later" on that
+/// Tile ids are the <see cref="UserRole"/> names. A worker who signed in with Google or Apple confirms their mobile number
+/// first (one SMS, once; a phone sign-in already has it), then starts the interview; a customer is never asked. "Do this later" on that
 /// step, or a phone that has used up today's SMS codes, goes straight to the interview instead of a dead end, and
 /// Publish asks for the number again.
 /// </summary>

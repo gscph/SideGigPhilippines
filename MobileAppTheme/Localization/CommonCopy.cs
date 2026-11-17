@@ -121,7 +121,6 @@ public static class CommonCopy
         "If a code arrives later, it won't work here. Ask for a new one when the timer ends.",
         "Kung may dumating na code mamaya, hindi na 'yon gagana dito. Humingi ng bago pag tapos na ang timer.");
     public static readonly LocalizedText AuthLater = new("Do this later", "Mamaya na lang");
-    public static readonly LocalizedText AuthUsePhone = new("Use my phone number instead", "Gamitin na lang ang phone number ko");
     public static readonly LocalizedText AuthSignInWithNumber = new("Sign in with this number", "Mag-sign in gamit ang number na 'to");
     public static readonly LocalizedText AuthSignOutFailed = new("Couldn't sign out. Check your signal and try again.", "Hindi maka-sign out. I-check ang signal at subukan ulit.");
     public static readonly LocalizedText AuthErrorNetwork = new("No connection. Check your internet and try again.", "Walang connection. I-check ang internet mo at subukan ulit.");

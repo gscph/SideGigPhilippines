@@ -49,7 +49,7 @@ screen.
 signs in without SMS. A Firebase sign-in already lasts until sign-out or reinstall (no re-verify); a new phone or a
 reinstall signs back in with Google, or Apple on iOS, where the phone's own PIN, fingerprint or Face ID does the
 unlocking. So:
-- **Everyone signs in with Google (Apple on iOS).** The phone-number sign-in leaves the sign-in screen.
+- ~~**Everyone signs in with Google (Apple on iOS).**~~ Reversed 2026-11-17 (owner decision): the phone number is the main sign-in again for everyone, Google/Apple below it; the SMS cost is accepted. Workers who sign in with Google/Apple still verify their number once.
 - **Workers verify their number first, once:** right after choosing "Skilled Worker", before the interview (anti-fraud
   rule 1; the number is linked to the Google/Apple account, so the uid stays the same). The server records when the
   account's number was verified (`Users.PhoneVerifiedAt`), and the app never asks that account again: not after a
