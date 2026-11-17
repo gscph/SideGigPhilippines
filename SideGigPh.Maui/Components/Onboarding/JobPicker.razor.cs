@@ -25,5 +25,8 @@ public partial class JobPicker : ComponentBase
     /// <summary>"Select all" / "Remove all" was tapped.</summary>
     [Parameter] public EventCallback OnPickAll { get; set; }
 
+    // With one listed job or none, "Select all" would do no more than a tap on the tile.
+    private bool ShowSelectAll => OnboardingSteps.ListedJobs(CategoryId).Count > 1;
+
     private IReadOnlyList<ChoiceItem> Tiles => ChoiceItem.From(ReferenceData.ServicesOf(CategoryId), T);
 }

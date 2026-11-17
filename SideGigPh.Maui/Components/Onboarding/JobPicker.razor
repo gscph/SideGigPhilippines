@@ -1,9 +1,12 @@
 <MudStack Spacing="4">
-    <MudStack Row="true" Justify="Justify.FlexEnd">
-        <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="() => OnPickAll.InvokeAsync()">
-            @T.Get(AllSelected ? Copy.RemoveAll : Copy.SelectAll)
-        </MudButton>
-    </MudStack>
+    @if (ShowSelectAll)
+    {
+        <MudStack Row="true" Justify="Justify.FlexEnd">
+            <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="() => OnPickAll.InvokeAsync()">
+                @T.Get(AllSelected ? Copy.RemoveAll : Copy.SelectAll)
+            </MudButton>
+        </MudStack>
+    }
 
     <ChoiceTiles Items="Tiles" Multiple="true" SelectedIds="SelectedIds" OnPick="OnPick" />
 </MudStack>
