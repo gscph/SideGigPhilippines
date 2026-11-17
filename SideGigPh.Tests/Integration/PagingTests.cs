@@ -19,18 +19,18 @@ public class PagingTests(ApiTestHost api)
     [IntegrationFact]
     public async Task Search_ComesAPageAtATime_InRankedOrder_UntilEveryoneIsShown()
     {
-        // Welders only in this test, so other tests' workers don't change the count.
-        var cheap = await PublishWelderAsync("Abe", "taytay", "under-500");
+        // Errand runners only in this test, so other tests' workers don't change the count.
+        var cheap = await PublishErrandRunnerAsync("Abe", "taytay", "under-500");
         var local = new List<TestPhone> { cheap };
         foreach (var name in new[] { "Bert", "Cesar", "Dado" })
         {
-            local.Add(await PublishWelderAsync(name, "taytay", "2000-5000"));
+            local.Add(await PublishErrandRunnerAsync(name, "taytay", "2000-5000"));
         }
 
-        var nearby = await PublishWelderAsync("Eddie", "antipolo", "under-500");
+        var nearby = await PublishErrandRunnerAsync("Eddie", "antipolo", "under-500");
         var answers = SideGigPh.Tests.TestSupport.TestData.AirconCleaningInTaytay();
-        answers.CategoryId = "welder";
-        answers.ServiceId = "welder-gate";
+        answers.CategoryId = "errand_runner";
+        answers.ServiceId = "errand-grocery";
         var seeker = await TestPhone.SeekerAsync(api, "Fely", answers);
 
         var first = await seeker.Seeker.SearchAsync();
@@ -152,13 +152,13 @@ public class PagingTests(ApiTestHost api)
     [IntegrationFact]
     public async Task Search_UnrankedListRoute_StillAnswers_ForAppsBeforePaging_AndBadPagesAreRefused()
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Mando", trade: "welder", jobs: ["welder-grills"], towns: ["angono"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Mando", trade: "errand_runner", jobs: ["errand-parcel"], towns: ["angono"]);
         await worker.Pro.PublishAsync();
         var client = api.Client(api.Tokens.For("old-app"));
 
-        var listings = await client.GetFromJsonAsync("professionals?categoryId=welder&areaId=rizal", ApiJson.Default.ListListingDto);
-        using var badSkip = await client.GetAsync("search/professionals?categoryId=welder&skip=-1");
-        using var badTake = await client.GetAsync("search/professionals?categoryId=welder&take=x");
+        var listings = await client.GetFromJsonAsync("professionals?categoryId=errand_runner&areaId=rizal", ApiJson.Default.ListListingDto);
+        using var badSkip = await client.GetAsync("search/professionals?categoryId=errand_runner&skip=-1");
+        using var badTake = await client.GetAsync("search/professionals?categoryId=errand_runner&take=x");
         using var noTrade = await client.GetAsync("search/professionals");
 
         listings.Should().Contain(l => l.Id == worker.Uid);
@@ -167,9 +167,9 @@ public class PagingTests(ApiTestHost api)
         noTrade.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    private async Task<TestPhone> PublishWelderAsync(string name, string town, string rate)
+    private async Task<TestPhone> PublishErrandRunnerAsync(string name, string town, string rate)
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "welder", jobs: ["welder-gate"], towns: [town], rate: rate);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "errand_runner", jobs: ["errand-grocery"], towns: [town], rate: rate);
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
         return worker;
     }

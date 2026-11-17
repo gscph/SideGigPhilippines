@@ -3,10 +3,10 @@
 
    Each trade tests one thing. Its workers are identical except for that one thing, so the order you
    see is caused by it alone:
-     S1 Plumber          the job is a hard filter
+     S1 Construction     the job is a hard filter
      S2 Electrician      the town: your town first, "Other towns nearby" after, unserved towns hidden
      S3 Carpentry        reviews: stars (smoothed) + how many
-     S4 Welder           responsiveness: reply rate + reply speed
+     S4 Errands          responsiveness: reply rate + reply speed
      S5 Masonry          activity: last opened the app
      S6 Car Mechanic     tenure: how long on the app
      S7 Roofing          budget fit (the three rates, "depends on the job", and two listings from old app versions)
@@ -109,10 +109,10 @@ DECLARE @Pros TABLE
 
 INSERT INTO @Pros VALUES
 --  #  code             name                                  trade             jobs                                    towns              exp        rate             joined active  5  4  3  2  1  ans  min  ign call fresh
--- S1 Plumber: only workers who list the job
-( 1, 's1-leak',      N'S1 Tagas Specialist',               'plumbing',       'plumbing-leak',                        'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 2, 's1-clog',      N'S1 Barado Specialist',              'plumbing',       'plumbing-clog',                        'taytay',          '10-plus', 'minimum',       400,  0,  20, 0, 0, 0, 0, 10,  10,  0,  0,  0),
-( 3, 's1-both',      N'S1 Tagas at Barado',                'plumbing',       'plumbing-leak,plumbing-clog',          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+-- S1 Construction: only workers who list the job
+( 1, 's1-tubero',    N'S1 Tubero Specialist',              'construction',   'construction-plumbing',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 2, 's1-welder',    N'S1 Welder Specialist',              'construction',   'construction-welding',                 'taytay',          '10-plus', 'minimum',       400,  0,  20, 0, 0, 0, 0, 10,  10,  0,  0,  0),
+( 3, 's1-both',      N'S1 Tubero at Welder',               'construction',   'construction-plumbing,construction-welding', 'taytay',    '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S2 Electrician: town groups
 ( 4, 's2-taytay',    N'S2 Taytay Baguhan',                 'electrical',     'electrical-no-power',                  'taytay',          'under-1', 'average',        10, 20,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 ( 5, 's2-multi',     N'S2 Taytay at Antipolo',             'electrical',     'electrical-no-power',                  'taytay,antipolo', '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
@@ -124,13 +124,13 @@ INSERT INTO @Pros VALUES
 (10, 's3-lucky',     N'S3 Lucky 5.0 (1 review)',           'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,   1, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (11, 's3-new',       N'S3 Bago (no reviews)',              'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (12, 's3-poor',      N'S3 Poor 2.0 (10 reviews)',          'carpentry',      'carpentry-furniture',                  'taytay',          '1-3',     'average',        90,  1,   0, 0, 0,10, 0,  0,   0,  0,  0,  0),
--- S4 Welder: responsiveness
-(13, 's4-fast',      N'S4 Mabilis Sumagot (10 min)',       'welder',         'welder-gate',                          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10,  10,  0,  0,  0),
-(14, 's4-slow',      N'S4 Matagal Sumagot (5 hrs)',        'welder',         'welder-gate',                          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10, 300,  0,  0,  0),
-(15, 's4-new',       N'S4 Bago (no chats yet)',            'welder',         'welder-gate',                          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(16, 's4-calls',     N'S4 Tawag Lang (calls only)',        'welder',         'welder-gate',                          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  5,  0),
-(17, 's4-fresh',     N'S4 Kaka-message (2 hrs ago)',       'welder',         'welder-gate',                          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  3),
-(18, 's4-ghost',     N'S4 Hindi Sumasagot (1 of 10)',      'welder',         'welder-gate',                          'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  1,  60,  9,  0,  0),
+-- S4 Errands: responsiveness
+(13, 's4-fast',      N'S4 Mabilis Sumagot (10 min)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10,  10,  0,  0,  0),
+(14, 's4-slow',      N'S4 Matagal Sumagot (5 hrs)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10, 300,  0,  0,  0),
+(15, 's4-new',       N'S4 Bago (no chats yet)',            'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(16, 's4-calls',     N'S4 Tawag Lang (calls only)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  5,  0),
+(17, 's4-fresh',     N'S4 Kaka-message (2 hrs ago)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  3),
+(18, 's4-ghost',     N'S4 Hindi Sumasagot (1 of 10)',      'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  1,  60,  9,  0,  0),
 -- S5 Masonry: last active (all joined 120 days ago)
 (19, 's5-today',     N'S5 Active Today',                   'masonry_tiling', 'masonry-tiles',                        'taytay',          '1-3',     'average',       120,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (20, 's5-week',      N'S5 Active 1 Week Ago',              'masonry_tiling', 'masonry-tiles',                        'taytay',          '1-3',     'average',       120,  7,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),

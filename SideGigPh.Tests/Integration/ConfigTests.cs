@@ -151,9 +151,9 @@ public class ConfigTests(ApiTestHost api)
         var phone = new TestPhone(api, "Noel");
         var notes = new OtherJobNotes(phone.Get<IOtherJobNoteRepository>(), NullLogger<OtherJobNotes>.Instance);
 
-        await notes.NoteAsync("welder", UserRole.Professional, "Stainless na rehas");
+        await notes.NoteAsync("construction", UserRole.Professional, "Stainless na rehas");
 
-        (await Scalar($"SELECT COUNT(*) FROM dbo.OtherJobNotes WHERE Uid = '{phone.Uid}' AND CategoryId = 'welder' AND Side = 'professional' AND Text = N'Stainless na rehas'"))
+        (await Scalar($"SELECT COUNT(*) FROM dbo.OtherJobNotes WHERE Uid = '{phone.Uid}' AND CategoryId = 'construction' AND Side = 'professional' AND Text = N'Stainless na rehas'"))
             .Should().Be(1);
 
         await phone.Get<IUserRepository>().DeleteAsync(phone.Uid);
@@ -168,8 +168,8 @@ public class ConfigTests(ApiTestHost api)
     {
         var client = api.Client(api.Tokens.For("someone"));
 
-        using var empty = await client.PostAsJsonAsync("other-jobs", new OtherJobRequest("welder", Wire.Seeker, "  "), ApiJson.Default.OtherJobRequest);
-        using var badSide = await client.PostAsJsonAsync("other-jobs", new OtherJobRequest("welder", "admin", "gate"), ApiJson.Default.OtherJobRequest);
+        using var empty = await client.PostAsJsonAsync("other-jobs", new OtherJobRequest("construction", Wire.Seeker, "  "), ApiJson.Default.OtherJobRequest);
+        using var badSide = await client.PostAsJsonAsync("other-jobs", new OtherJobRequest("construction", "admin", "gate"), ApiJson.Default.OtherJobRequest);
         using var badId = await client.PostAsJsonAsync("other-jobs", new OtherJobRequest("Welder!", Wire.Seeker, "gate"), ApiJson.Default.OtherJobRequest);
 
         empty.StatusCode.Should().Be(HttpStatusCode.BadRequest);

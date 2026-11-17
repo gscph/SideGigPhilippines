@@ -86,7 +86,7 @@ public class OthersTests(ApiTestHost api)
     public async Task ABudgetFromAboveTheTop_IsRefused()
     {
         var household = await TestPhone.SeekerAsync(api, "Mali");
-        var request = new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo sa kusina", 800, "taytay", BudgetMinPesos: 900);
+        var request = new NewJobPostRequest("construction", "construction-plumbing", "Barado ang lababo sa kusina", 800, "taytay", BudgetMinPesos: 900);
 
         using var response = await api.Client(api.Tokens.For(household.Uid)).PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
 

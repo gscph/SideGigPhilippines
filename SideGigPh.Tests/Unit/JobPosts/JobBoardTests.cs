@@ -19,8 +19,8 @@ public class JobBoardTests
 
     private static JobPostDraft Complete() => new()
     {
-        CategoryId = "plumbing",
-        ServiceId = "plumbing-clog",
+        CategoryId = "construction",
+        ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = 800,
         Description = "Barado ang lababo sa kusina",
@@ -195,10 +195,10 @@ public class JobBoardTests
         JobPostStore.DistanceKm(meters).Should().Be(km);
 
     private static JobPost Post(long id) =>
-        new(id, "plumbing", "plumbing-clog", $"Barado ang lababo {id}", 800, "taytay", [], IsOpen: true, Mine: false, OffersService: true, DistanceKm: 2, DateTimeOffset.UnixEpoch);
+        new(id, "construction", "construction-plumbing", $"Barado ang lababo {id}", 800, "taytay", [], IsOpen: true, Mine: false, OffersService: true, DistanceKm: 2, DateTimeOffset.UnixEpoch);
 
     private static JobPost FeedPost(long id, int budget = 800) =>
-        new(id, "plumbing", "plumbing-clog", "Barado ang lababo sa kusina", budget, "taytay", [], IsOpen: true, Mine: false, OffersService: true, DistanceKm: 2, DateTimeOffset.UnixEpoch);
+        new(id, "construction", "construction-plumbing", "Barado ang lababo sa kusina", budget, "taytay", [], IsOpen: true, Mine: false, OffersService: true, DistanceKm: 2, DateTimeOffset.UnixEpoch);
 
     private static JobOffer Offer(long id, long postId, string proId = "pro-1", int price = 800) =>
         new(id, postId, TestData.Listing(proId), price, null, IsPicked: false, TakesBudget: price == 800, DistanceKm: 3, DateTimeOffset.UnixEpoch);

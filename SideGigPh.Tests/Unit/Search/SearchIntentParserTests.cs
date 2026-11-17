@@ -10,12 +10,12 @@ namespace SideGigPh.Tests.Unit.Search;
 public class SearchIntentParserTests
 {
     [Theory]
-    [InlineData("tubero", "plumbing")]
-    [InlineData("barado ang lababo", "plumbing")]
-    [InlineData("plumber", "plumbing")]
+    [InlineData("tubero", "construction")]
+    [InlineData("barado ang lababo", "construction")]
+    [InlineData("plumber", "construction")]
     [InlineData("kuryente", "electrical")]
     [InlineData("electrician po", "electrical")]
-    [InlineData("hinang gate", "welder")]
+    [InlineData("hinang gate", "construction")]
     [InlineData("mekaniko", "car_mechanic")]
     [InlineData("sira kotse", "car_mechanic")]
     [InlineData("tulo sa bubong", "roofing")]
