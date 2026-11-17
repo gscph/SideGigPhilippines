@@ -37,6 +37,12 @@ public sealed class SeekerAnswers
     /// <summary>Their one home town (<c>ReferenceData.Cities</c>).</summary>
     public string? CityId { get; set; }
 
+    /// <summary>
+    /// Their barangay in <see cref="CityId"/> (<c>ReferenceData.BarangaysOf</c>), optional: picked on the town question or
+    /// a post, and filled into their next post. Dropped when it is retired or not in their town (<c>OnboardingCleanup</c>).
+    /// </summary>
+    public string? BarangayId { get; set; }
+
     public string? UrgencyId { get; set; }
 
     /// <summary>

@@ -7,8 +7,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
-/// One job post as a card: the service and trade, what is wrong, the budget (green, like all money), the town (for
-/// a worker also how far, in whole kilometres), its photos and how long ago it was posted. For its household
+/// One job post as a card: the service and trade, what is wrong, the budget (green, like all money), the town and barangay
+/// when given (for a worker also how far, in whole kilometres), its photos and how long ago it was posted. For its household
 /// (<see cref="ForWorker"/> false) it says whether workers can still see it and offers "Take down"; for a worker it
 /// marks a service they offer and has a flag to report a fake post. Offers: the household gets "See N offers" on an
 /// open post and "Open chat" once they picked a worker; the worker answers under the card (<see cref="OfferBox"/>).
@@ -54,8 +54,8 @@ public partial class JobPostCard : ComponentBase
     private string? TradeLabel =>
         ReferenceData.FindTrade(Post.CategoryId) is { } trade ? T.Get(trade.Label) : null;
 
-    private string Town =>
-        ReferenceData.Find(ReferenceData.Cities, Post.CityId) is { } town ? T.Get(town.Label) : Post.CityId;
+    // "Angono · Brgy. San Isidro" when the household picked a barangay, else the town.
+    private string Town => T.Place(Post.CityId, Post.BarangayId);
 
     private string Where => ForWorker && Post.DistanceKm is { } km ? T.Format(Copy.PostDistance, Town, km) : Town;
 }

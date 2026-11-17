@@ -253,6 +253,10 @@ public static class PushData
 /// rates are still read). Newer apps price each job from its <see cref="ServiceDto.Price"/>.
 /// <paramref name="MinimumWage"/>: the NCR daily minimum wage in pesos; no job's lowest price, and no Seeker budget, is under it
 /// (0 from a server before price guides).
+/// <paramref name="DefaultTownId"/>: the launch's town, pre-selected wherever a person picks a town (a <paramref name="Towns"/>
+/// id; null from a server before it, or when none is set). <paramref name="Barangays"/>: the barangays we serve, each in
+/// one of <paramref name="Towns"/>, in display order (null from a server before them). Both are only defaults and
+/// choices: nobody has to pick a barangay.
 /// </summary>
 public sealed record ConfigDto(
     List<CategoryDto> Catalog,
@@ -261,7 +265,12 @@ public sealed record ConfigDto(
     List<OptionDto> Experience,
     List<OptionDto> Urgencies,
     List<OptionDto> IncomeGoals,
-    int MinimumWage = 0);
+    int MinimumWage = 0,
+    string? DefaultTownId = null,
+    List<BarangayDto>? Barangays = null);
+
+/// <summary>A barangay we serve: <c>angono-san-isidro</c> "San Isidro" in the town <c>angono</c> (the app adds "Brgy.").</summary>
+public sealed record BarangayDto(string Id, string TownId, string English, string Taglish);
 
 /// <summary>One answer in a config list: <c>taytay</c> "Taytay", <c>500-1000</c> "₱500 – ₱1,000" (Amount 750)…</summary>
 /// <param name="Amount">Pesos for price tiers (a typical job) and income goals (per month); 0 otherwise.</param>

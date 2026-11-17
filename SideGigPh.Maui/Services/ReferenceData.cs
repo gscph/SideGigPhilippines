@@ -92,6 +92,19 @@ public static class ReferenceData
     /// <summary>Every town we serve (A–Z), all in <see cref="ServiceAreaId"/>. A saved town no longer here is dropped on load (<see cref="OnboardingCleanup"/>).</summary>
     public static IReadOnlyList<CatalogOption> Cities => Current.Config.Cities;
 
+    /// <summary>
+    /// The launch's town (server-set, <c>default-town</c> in <c>004-config.sql</c>), pre-selected wherever a person picks
+    /// a town; the others stay selectable. Null when none is set or it is not a town we serve.
+    /// </summary>
+    public static string? DefaultTownId => Find(Cities, Current.Config.DefaultTownId)?.Id;
+
+    /// <summary>The barangays we serve in <paramref name="cityId"/> (A–Z), none for a town without a list. Picking one is always optional.</summary>
+    public static IReadOnlyList<CatalogOption> BarangaysOf(string? cityId) =>
+        cityId is not null && Current.Config.BarangaysByTown?.TryGetValue(cityId, out var barangays) == true ? barangays : [];
+
+    /// <summary>A barangay we serve in <paramref name="cityId"/>, or null (none picked, retired, or of another town).</summary>
+    public static CatalogOption? FindBarangay(string? cityId, string? barangayId) => Find(BarangaysOf(cityId), barangayId);
+
     public static IReadOnlyList<CatalogOption> Urgencies => Current.Config.Urgencies;
 
     public static IReadOnlyList<CatalogOption> Experience => Current.Config.Experience;
@@ -376,7 +389,17 @@ public static class ReferenceData
         ["solar-inverter"] = new(1000, 2000, 3500),
         ["solar-other"] = new(1000, 2000, 3500),
     },
-    MinimumWage: 755);
+    MinimumWage: 755,
+    DefaultTownId: "angono",
+    BarangaysByTown: new Dictionary<string, IReadOnlyList<CatalogOption>>
+    {
+        ["angono"] = Barangays("angono", "Bagumbayan", "Kalayaan", "Mahabang Parang", "Poblacion Ibaba", "Poblacion Itaas",
+            "San Isidro", "San Pedro", "San Roque", "San Vicente", "Santo Niño"),
+        ["antipolo"] = Barangays("antipolo", "Bagong Nayon", "Beverly Hills", "Calawis", "Cupang", "Dalig", "Dela Paz",
+            "Inarawan", "Mambugan", "Mayamot", "Muntingdilaw", "San Isidro", "San Jose", "San Juan", "San Luis", "San Roque",
+            "Santa Cruz"),
+        ["taytay"] = Barangays("taytay", "Dolores", "Muzon", "San Isidro", "San Juan", "Santa Ana"),
+    });
 
     // After BuiltInConfig: static fields start in the order they are written.
     private static Loaded _current = new(BuiltInConfig);
@@ -395,6 +418,13 @@ public static class ReferenceData
 
     // Place names are the same in English and Taglish.
     private static CatalogOption Town(string id, string name) => new(id, new(name, name));
+
+    // A town's barangays as 004-config.sql names them: "{town}-{name}", lower case, no accents, dashes for spaces.
+    private static IReadOnlyList<CatalogOption> Barangays(string townId, params string[] names) =>
+        [.. names.Select(name => new CatalogOption(BarangayId(townId, name), new(name, name)))];
+
+    private static string BarangayId(string townId, string name) =>
+        $"{townId}-{name.ToLowerInvariant().Replace('ñ', 'n').Replace(' ', '-')}";
 
     /// <summary>A config with the lists built from it, swapped in as one so a page never sees half of each.</summary>
     private sealed class Loaded(AppConfig config)

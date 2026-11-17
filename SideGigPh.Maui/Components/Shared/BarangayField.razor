@@ -1,0 +1,11 @@
+@if (Barangays.Count > 0)
+{
+    <MudSelect T="string" Value="@(Value ?? Unsure)" ValueChanged="PickAsync" Disabled="Disabled" Variant="Variant.Filled" Underline="false"
+               Label="@T.Get(Copy.BarangayLabel)" HelperText="@T.Get(Copy.BarangayWhy)" Class="@($"app-field {Class}")">
+        <MudSelectItem T="string" Value="@Unsure">@T.Get(Copy.BarangayUnsure)</MudSelectItem>
+        @foreach (var barangay in Barangays)
+        {
+            <MudSelectItem T="string" Value="@barangay.Id">@T.Get(barangay.Label)</MudSelectItem>
+        }
+    </MudSelect>
+}

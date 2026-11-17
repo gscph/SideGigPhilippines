@@ -1,7 +1,8 @@
 /* =====================================================================================
    SideGigPh: the app's config, the answer lists that are fine to be a few hours stale:
      - the trades (dbo.Categories) and their jobs (dbo.Services),
-     - towns, price tiers, experience, urgency and income goals (dbo.ConfigOptions).
+     - towns, the launch's default town, price tiers, experience, urgency and income goals (dbo.ConfigOptions),
+     - the barangays we serve in each town (dbo.Barangays; needs 021-schema-barangays.sql first).
    REQUIRED data, not a sample: the app reads it all in one GET config when it opens.
 
    How: run after 001-schema.sql, the same way (portal Query editor, the WHOLE file). Safe to run
@@ -195,6 +196,9 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 ('towns',        'angono',     N'Angono',                  N'Angono',                  NULL,     0, 1, 1),
 ('towns',        'antipolo',   N'Antipolo',                N'Antipolo',                NULL,     0, 2, 1),
 ('towns',        'taytay',     N'Taytay',                  N'Taytay',                  NULL,     0, 3, 1),
+-- The launch's default town: pre-selected wherever a person picks a town (the others stay selectable). One row; its
+-- Id is the town ('towns' above). To change it, change the Id: the old row is retired by the MERGE below.
+('default-town', 'angono',     N'Angono',                  N'Angono',                  NULL,     0, 1, 1),
 -- The old one price scale, CHEAPEST FIRST, read only for budgets and rates from app versions before price guides
 -- (newer apps price each job, above). Amount = a typical job price.
 ('price-tiers',  'under-500',  N'Below ₱500',              N'Mas mababa sa ₱500',      NULL,   400, 1, 1),
@@ -218,6 +222,55 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 ('income-goals', '10000',      N'₱10,000',                 N'₱10,000',                 NULL,  10000, 2, 1),
 ('income-goals', '20000',      N'₱20,000',                 N'₱20,000',                 NULL,  20000, 3, 1),
 ('income-goals', '30000-up',   N'₱30,000 or more',         N'₱30,000 pataas',          NULL,  30000, 4, 1);
+
+-- The barangays we serve in each town ('towns' above), A–Z. Ids are stable, town first, no accents ('angono-santo-nino');
+-- labels are the barangay's own name (the app adds "Brgy."), the same in both languages. To add one, add a row; to stop
+-- serving one, set IsActive = 0 (never delete or reuse an id: posts point at them). Picking one is always optional.
+-- Sources (Nov 2026): PSA PSGC / the towns' official lists: Angono 10, Taytay 5, Antipolo 16.
+DECLARE @Barangays TABLE
+(
+    Id            varchar(40)    NOT NULL PRIMARY KEY,
+    CityId        varchar(40)    NOT NULL,
+    LabelEnglish  nvarchar(60)   NOT NULL,
+    LabelTaglish  nvarchar(60)   NOT NULL,
+    SortOrder     int            NOT NULL,
+    IsActive      bit            NOT NULL
+);
+
+INSERT INTO @Barangays (Id, CityId, LabelEnglish, LabelTaglish, SortOrder, IsActive) VALUES
+('angono-bagumbayan',        'angono',   N'Bagumbayan',        N'Bagumbayan',         1, 1),
+('angono-kalayaan',          'angono',   N'Kalayaan',          N'Kalayaan',           2, 1),
+('angono-mahabang-parang',   'angono',   N'Mahabang Parang',   N'Mahabang Parang',    3, 1),
+('angono-poblacion-ibaba',   'angono',   N'Poblacion Ibaba',   N'Poblacion Ibaba',    4, 1),
+('angono-poblacion-itaas',   'angono',   N'Poblacion Itaas',   N'Poblacion Itaas',    5, 1),
+('angono-san-isidro',        'angono',   N'San Isidro',        N'San Isidro',         6, 1),
+('angono-san-pedro',         'angono',   N'San Pedro',         N'San Pedro',          7, 1),
+('angono-san-roque',         'angono',   N'San Roque',         N'San Roque',          8, 1),
+('angono-san-vicente',       'angono',   N'San Vicente',       N'San Vicente',        9, 1),
+('angono-santo-nino',        'angono',   N'Santo Niño',        N'Santo Niño',        10, 1),
+
+('antipolo-bagong-nayon',    'antipolo', N'Bagong Nayon',      N'Bagong Nayon',       1, 1),
+('antipolo-beverly-hills',   'antipolo', N'Beverly Hills',     N'Beverly Hills',      2, 1),
+('antipolo-calawis',         'antipolo', N'Calawis',           N'Calawis',            3, 1),
+('antipolo-cupang',          'antipolo', N'Cupang',            N'Cupang',             4, 1),
+('antipolo-dalig',           'antipolo', N'Dalig',             N'Dalig',              5, 1),
+('antipolo-dela-paz',        'antipolo', N'Dela Paz',          N'Dela Paz',           6, 1),
+('antipolo-inarawan',        'antipolo', N'Inarawan',          N'Inarawan',           7, 1),
+('antipolo-mambugan',        'antipolo', N'Mambugan',          N'Mambugan',           8, 1),
+('antipolo-mayamot',         'antipolo', N'Mayamot',           N'Mayamot',            9, 1),
+('antipolo-muntingdilaw',    'antipolo', N'Muntingdilaw',      N'Muntingdilaw',      10, 1),
+('antipolo-san-isidro',      'antipolo', N'San Isidro',        N'San Isidro',        11, 1),
+('antipolo-san-jose',        'antipolo', N'San Jose',          N'San Jose',          12, 1),
+('antipolo-san-juan',        'antipolo', N'San Juan',          N'San Juan',          13, 1),
+('antipolo-san-luis',        'antipolo', N'San Luis',          N'San Luis',          14, 1),
+('antipolo-san-roque',       'antipolo', N'San Roque',         N'San Roque',         15, 1),
+('antipolo-santa-cruz',      'antipolo', N'Santa Cruz',        N'Santa Cruz',        16, 1),
+
+('taytay-dolores',           'taytay',   N'Dolores',           N'Dolores',            1, 1),
+('taytay-muzon',             'taytay',   N'Muzon',             N'Muzon',              2, 1),
+('taytay-san-isidro',        'taytay',   N'San Isidro',        N'San Isidro',         3, 1),
+('taytay-san-juan',          'taytay',   N'San Juan',          N'San Juan',           4, 1),
+('taytay-santa-ana',         'taytay',   N'Santa Ana',         N'Santa Ana',          5, 1);
 
 BEGIN TRANSACTION;
 
@@ -251,6 +304,16 @@ WHEN NOT MATCHED BY TARGET THEN
     INSERT (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive, PriceMin, PriceAverage, PriceHigh)
     VALUES (source.Id, source.CategoryId, source.LabelEnglish, source.LabelTaglish, source.Icon, source.SortOrder, source.IsActive,
             source.PriceMin, source.PriceAverage, source.PriceHigh)
+WHEN NOT MATCHED BY SOURCE THEN UPDATE SET IsActive = 0;
+
+MERGE dbo.Barangays AS target
+USING @Barangays AS source ON target.Id = source.Id
+WHEN MATCHED THEN UPDATE SET
+    CityId = source.CityId, LabelEnglish = source.LabelEnglish, LabelTaglish = source.LabelTaglish,
+    SortOrder = source.SortOrder, IsActive = source.IsActive
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (Id, CityId, LabelEnglish, LabelTaglish, SortOrder, IsActive)
+    VALUES (source.Id, source.CityId, source.LabelEnglish, source.LabelTaglish, source.SortOrder, source.IsActive)
 WHEN NOT MATCHED BY SOURCE THEN UPDATE SET IsActive = 0;
 
 COMMIT TRANSACTION;

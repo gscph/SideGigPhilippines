@@ -6,7 +6,7 @@
         <SearchBox OnSearch="SearchAsync" />
         <MudStack Row="true">
             <FilterMenu Icon="@Icons.Material.Filled.Place" Label="@T.Get(Copy.FilterTown)" Options="Towns"
-                        SelectedId="@Workspace.Answers.CityId" OnPick="Workspace.PickTownAsync" />
+                        SelectedId="@Workspace.Answers.TownShown()" OnPick="Workspace.PickTownAsync" />
         </MudStack>
     </MudStack>
 

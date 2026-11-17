@@ -12,6 +12,7 @@ namespace SideGigPh.Contracts;
 /// <param name="OfferCount">For the household: how many workers' offers wait on it (withdrawn ones not counted).</param>
 /// <param name="MyOfferPesos">For a worker: the price they offered on it, or null when they haven't (or took it back).</param>
 /// <param name="PickedProId">For the household: the worker whose offer they picked (the post is closed then), else null.</param>
+/// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked (config <c>Barangays</c>), or null.</param>
 public sealed record JobPostDto(
     long Id,
     string CategoryId,
@@ -29,11 +30,13 @@ public sealed record JobPostDto(
     int? MyOfferPesos = null,
     string? PickedProId = null,
     int? BudgetMinPesos = null,
-    ReviewSummaryDto? HouseholdReviews = null);
+    ReviewSummaryDto? HouseholdReviews = null,
+    string? BarangayId = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the
 /// phone's point when it has one; without them the post sits at the centre of <paramref name="CityId"/>.
+/// <paramref name="BarangayId"/> is optional: a barangay of <paramref name="CityId"/> we serve (anything else is left off).
 /// </summary>
 public sealed record NewJobPostRequest(
     string CategoryId,
@@ -44,7 +47,8 @@ public sealed record NewJobPostRequest(
     List<string>? PhotoIds = null,
     double? Latitude = null,
     double? Longitude = null,
-    int? BudgetMinPesos = null);
+    int? BudgetMinPesos = null,
+    string? BarangayId = null);
 
 /// <summary>
 /// <c>GET job-posts/feed</c>: one page of the open posts a worker can take: their own trade, within the distance they
