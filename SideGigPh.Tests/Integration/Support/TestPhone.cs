@@ -54,7 +54,7 @@ public sealed class TestPhone
         services.AddSingleton(provider => new LocalAccount(
             Store, Identity, provider.GetRequiredService<IUserRepository>(), provider.GetRequiredService<IPhotoStore>(),
             provider.GetRequiredService<IProfessionalProfileRepository>(), provider.GetRequiredService<IChatRepository>(),
-            provider.GetRequiredService<IReviewRepository>(), provider.GetRequiredService<ProWorkspace>(),
+            provider.GetRequiredService<IReviewRepository>(), provider.GetRequiredService<IJobPostRepository>(), provider.GetRequiredService<ProWorkspace>(),
             provider.GetRequiredService<SeekerWorkspace>(), provider.GetRequiredService<AppText>(), NullLogger<LocalAccount>.Instance));
         _services = services.BuildServiceProvider();
     }

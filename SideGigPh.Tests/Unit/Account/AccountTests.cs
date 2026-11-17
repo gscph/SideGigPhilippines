@@ -132,6 +132,37 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task StartOver_TakesTheirOpenRequestsDown()
+    {
+        var app = new FakeApp(TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()), TestData.Worker());
+        await app.JobPosts.AddAsync(Request("Tumutulo ang aircon sa sala"));
+        var closed = await app.JobPosts.AddAsync(Request("Hindi lumalamig ang aircon"));
+        await app.JobPosts.CloseAsync(closed.Id);
+
+        await app.Account.StartOverAsync();
+
+        (await app.JobPosts.GetMineAsync()).Should().OnlyContain(post => !post.IsOpen, "workers stop sending offers nobody reads");
+    }
+
+    [Fact]
+    public async Task StartOver_OfflineWhileTakingRequestsDown_FailsSoTheyCanTryAgain()
+    {
+        var app = new FakeApp(TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()), TestData.Worker());
+        await app.JobPosts.AddAsync(Request("Tumutulo ang aircon sa sala"));
+        app.JobPosts.Fail = true;
+
+        var act = () => app.Account.StartOverAsync();
+
+        await act.Should().ThrowAsync<HttpRequestException>();
+        app.Store.Cleared.Should().BeFalse("nothing on the phone is cleared before the server confirmed");
+    }
+
+    private static JobPostDraft Request(string description) => new()
+    {
+        CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "taytay", Description = description, BudgetPesos = 1000,
+    };
+
+    [Fact]
     public async Task DeleteAccount_DeletesOnTheServer_ThenTheSignInAccount_ThenThePhone()
     {
         var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());

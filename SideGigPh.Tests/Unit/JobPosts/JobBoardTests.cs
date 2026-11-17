@@ -57,6 +57,27 @@ public class JobBoardTests
     }
 
     [Fact]
+    public void AGreyedOutPost_SaysWhatIsMissing_AndNothingOnceReady()
+    {
+        var text = new AppText();
+        JobBoard.MissingHint(Complete(), text).Should().BeNull("the Post button works");
+
+        var draft = Complete();
+        draft.Description = "Sira";
+        JobBoard.MissingHint(draft, text).Should().Be("Describe the problem in at least 10 letters.");
+
+        draft = Complete();
+        draft.BudgetPesos = 40;
+        JobBoard.MissingHint(draft, text).Should().Contain("₱50 or more");
+
+        draft = Complete();
+        (draft.BudgetMinPesos, draft.BudgetPesos) = (1500, 1000);
+        JobBoard.MissingHint(draft, text).Should().Contain("not less than", "\"from\" above \"up to\" is refused by the server too");
+
+        JobBoard.MissingHint(new JobPostDraft(), text).Should().Be("Pick the kind of work.");
+    }
+
+    [Fact]
     public async Task Photos_AreUploadedAsPicked_UpToThree_WithoutRepeats()
     {
         var draft = Complete();

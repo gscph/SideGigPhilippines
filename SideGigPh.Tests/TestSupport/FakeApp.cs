@@ -19,7 +19,7 @@ public sealed class FakeApp
         Text.Use(language);
         Pro = new ProWorkspace(Store, Photos, Picker, Chats, Reviews, Profiles, Identity, Safety);
         Seeker = new SeekerWorkspace(Store, new ProfessionalSearch(Profiles), Profiles, Chats, Reviews, Phone, Identity, Picker, Photos, Safety, Text);
-        Account = new LocalAccount(Store, Identity, Users, Photos, Profiles, Chats, Reviews, Pro, Seeker, Text, NullLogger<LocalAccount>.Instance);
+        Account = new LocalAccount(Store, Identity, Users, Photos, Profiles, Chats, Reviews, JobPosts, Pro, Seeker, Text, NullLogger<LocalAccount>.Instance);
     }
 
     public FakeOnboardingStore Store { get; }
@@ -43,6 +43,8 @@ public sealed class FakeApp
     public FakeContactLauncher Phone { get; } = new();
 
     public FakeSafety Safety { get; } = new();
+
+    public FakeJobPosts JobPosts { get; } = new();
 
     public ProWorkspace Pro { get; }
 

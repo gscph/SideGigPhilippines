@@ -32,8 +32,8 @@ public class PricingTests
         var tiles = Pricing.RateChoices(["aircon-cleaning", "aircon-install"]);
 
         tiles.Select(t => t.Id).Should().Equal(PriceLevels.Minimum, PriceLevels.Average, PriceLevels.AboveAverage, ReferenceData.Quote);
-        tiles[0].Hint.Should().Be(new LocalizedText("₱755 – ₱2,500 per job", "₱755 – ₱2,500 per job"));
-        Pricing.RateChoices(["aircon-cleaning"])[1].Hint!.English.Should().Be("₱1,000 per job");
+        tiles[0].Hint.Should().Be(new LocalizedText("₱755 – ₱2,500 per service", "₱755 – ₱2,500 kada serbisyo"));
+        Pricing.RateChoices(["aircon-cleaning"])[1].Hint!.English.Should().Be("₱1,000 per service");
     }
 
     [Fact]
@@ -42,10 +42,10 @@ public class PricingTests
         var text = new AppText();
         var listing = TestData.Listing("Ana", services: ["aircon-cleaning", "aircon-install"], rate: PriceLevels.Average);
 
-        text.Rate(listing, "aircon-install").Should().Be("₱3,500 per job");
-        text.Rate(listing).Should().Be("₱1,000 – ₱3,500 per job");
+        text.Rate(listing, "aircon-install").Should().Be("₱3,500 per service");
+        text.Rate(listing).Should().Be("₱1,000 – ₱3,500 per service");
         text.RateLabel(listing, "plumbing-clog").Should().Be("₱1,000 – ₱3,500", "a job they don't list falls back to all their jobs");
-        text.Rate(TestData.Listing("Old", rate: "500-1000")).Should().Be("₱500 – ₱1,000 per job", "an old listing shows its tier");
+        text.Rate(TestData.Listing("Old", rate: "500-1000")).Should().Be("₱500 – ₱1,000 per service", "an old listing shows its tier");
         text.Rate(TestData.Listing("Quin", rate: ReferenceData.Quote)).Should().Be(text.Get(Copy.RateQuote));
     }
 
