@@ -55,5 +55,5 @@
 @if (Workspace.WorkPhotos.Count < ProWorkspace.MaxWorkPhotos)
 {
     <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddAPhoto" Class="app-fab"
-            aria-label="@T.Get(Copy.PhotosAdd)" OnClick="AddPhotosAsync" />
+            aria-label="@T.Get(Copy.PhotosAdd)" Disabled="_busy" OnClick="AddPhotosAsync" />
 }
