@@ -423,6 +423,9 @@ public static class Copy
     public static readonly LocalizedText BlindNoteForm = new(
         "{0} won't see your review until they review you too, or {1} days after the service. So you can be honest.",
         "Hindi makikita ni {0} ang review mo hangga't hindi rin siya nagre-review sa'yo, o {1} araw pagkatapos ng serbisyo. Kaya puwede kang maging tapat.");
+    public static readonly LocalizedText ReviewLockedNote = new(
+        "Reviews can't be changed once both are shown.",
+        "Hindi na puwedeng palitan ang review kapag lumabas na ang review ninyong dalawa.");
     public static readonly LocalizedText ReviewHiddenForNow = new(
         "Only you see this for now. It shows when the worker reviews you too, or {0} days after the service.",
         "Ikaw lang muna ang nakakakita nito. Lalabas ito kapag nag-review na rin ang worker sa'yo, o {0} araw pagkatapos ng serbisyo.");

@@ -80,7 +80,10 @@ changing that area.**
   each side's review of the other is hidden (from the other side, the profile, averages, counts, search ranking and
   household stars) until both reviewed since the job or `ReviewRules.BlindFor` (14 days) passed (`ReviewRules.IsHidden`,
   server SQL `BlindReviewFilter`, no column); the writer sees their own (`ReviewDto.Hidden`), and `PickedJobCard` says
-  so (`Services/BlindReviews`); one-way chat reviews are not blind.
+  so (`Services/BlindReviews`); one-way chat reviews are not blind. **Once both show, they lock:** a review of the
+  pair's latest completed job can't be changed or removed by Start over (`ReviewRules.IsLocked`, `403 review-locked`,
+  `ReviewDto.Locked` / `PickedJobDto.MyReviewLocked` hide the edit buttons and say so); a hidden one can still change,
+  a newer completed job opens it again, and deleting the account still deletes it.
   **Notifications:** a customer writing to a worker rings, a worker's reply only badges the icon; permission is asked
   only with a reason, never at first launch (`ChatAlerts`; a household is asked right after its first post). A new
   job post rings the workers its Requests feed would show it to (`JobAlerts`, `JobPostStore.WorkersToAlertAsync`, at

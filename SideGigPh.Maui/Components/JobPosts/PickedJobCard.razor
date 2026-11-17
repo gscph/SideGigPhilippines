@@ -23,6 +23,14 @@
                 @T.Get(Copy.MarkDone)
             </MudButton>
         }
+        else if (Job.IsCompleted && Job.MyReviewLocked)
+        {
+            @if (!Job.IAmTheHousehold && Job.MyRating is { } locked)
+            {
+                <MudText Typo="Typo.body2">@T.Format(Copy.YouRatedCustomer, locked)</MudText>
+            }
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ReviewLockedNote)</MudText>
+        }
         else if (Job.IsCompleted && Job.IAmTheHousehold && RateHref is not null)
         {
             <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" Href="@RateHref"

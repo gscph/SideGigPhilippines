@@ -9,7 +9,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// The picked job on a chat page (verified reviews, brief item 12): what was picked and for how much, where each side
 /// stands, and the one thing to do next: **Mark done** until this person did; then, once both did, the household's
 /// review (<see cref="RateHref"/>) or the worker's stars for the household, right here, with a line on the blind
-/// reviews (<see cref="BlindReviews"/>: hidden until both reviewed, or 14 days; then the other's stars). Raises
+/// reviews (<see cref="BlindReviews"/>: hidden until both reviewed, or 14 days; then the other's stars, and this
+/// person's review is locked: no Change button, <see cref="PickedJob.MyReviewLocked"/>). Raises
 /// <see cref="OnChanged"/> with the job as the server now has it.
 /// </summary>
 public partial class PickedJobCard : ComponentBase

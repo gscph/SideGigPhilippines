@@ -61,11 +61,12 @@ public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore rev
             ReviewOutcome.Saved => new NoContentResult(),
             ReviewOutcome.NoChat => ApiResults.Forbidden(ApiErrors.NoChat),
             ReviewOutcome.TooSoon => ApiResults.Forbidden(ApiErrors.ReviewTooSoon),
+            ReviewOutcome.Locked => ApiResults.Forbidden(ApiErrors.ReviewLocked),
             _ => ApiResults.BadRequest(),
         };
     }
 
-    /// <summary>Deletes the reviews the caller wrote (Start over). Reviews about them stay.</summary>
+    /// <summary>Deletes the reviews the caller wrote (Start over), except locked ones. Reviews about them stay.</summary>
     [Function("DeleteMyReviews")]
     public async Task<IActionResult> DeleteMine(
         [HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "reviews/mine")] HttpRequest request,

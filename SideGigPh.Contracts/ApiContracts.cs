@@ -56,6 +56,12 @@ public static class ApiErrors
     /// <summary>403 on review: the chat started less than <see cref="ReviewRules.WaitAfterChatStarts"/> ago.</summary>
     public const string ReviewTooSoon = "review-too-soon";
 
+    /// <summary>
+    /// 403 on a review or a worker's rating of a household: it is about a completed job and both sides' reviews already
+    /// show (<see cref="ReviewRules.IsLocked"/>), so it can't be changed any more.
+    /// </summary>
+    public const string ReviewLocked = "review-locked";
+
     /// <summary>429 on a chat message, new chat, "Others" note, photo upload or review: this account sent too many too fast.</summary>
     public const string TooManyRequests = "too-many-requests";
 
@@ -153,6 +159,7 @@ public sealed record ReferenceDto(string Name, string MobileNumber);
 /// <summary>A Seeker's review of a Skilled Worker.</summary>
 /// <param name="VerifiedJob">The Seeker picked this worker for a job both marked done.</param>
 /// <param name="Hidden">A blind review only its writer sees for now (<see cref="ReviewRules.IsHidden"/>): it shows when the worker reviews back or <see cref="ReviewRules.BlindFor"/> passes.</param>
+/// <param name="Locked">For its writer only: it can't be changed any more (<see cref="ReviewRules.IsLocked"/>).</param>
 public sealed record ReviewDto(
     string ProfessionalId,
     string SeekerId,
@@ -163,7 +170,8 @@ public sealed record ReviewDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
     bool VerifiedJob = false,
-    bool Hidden = false);
+    bool Hidden = false,
+    bool Locked = false);
 
 /// <summary><c>PUT reviews</c>: the caller's review of a Skilled Worker, replacing their earlier one.</summary>
 /// <summary>When a Seeker may rate a Skilled Worker. The app hides the Rate buttons until then, and the server refuses earlier reviews.</summary>
@@ -194,6 +202,25 @@ public static class ReviewRules
     /// </summary>
     public static bool IsHidden(DateTimeOffset writtenAt, DateTimeOffset? otherWrittenAt, IEnumerable<DateTimeOffset> jobsCompletedAt, DateTimeOffset now) =>
         jobsCompletedAt.Any(done => now < OpensAt(done) && writtenAt >= done && !(otherWrittenAt >= done));
+
+    /// <summary>
+    /// True when a review (last written at <paramref name="writtenAt"/>) can't be changed or deleted any more: it is
+    /// about the pair's latest completed job (written since it) and the other side's review of that job shows too
+    /// (they reviewed since the job, or <see cref="BlindFor"/> passed). Otherwise one side could lower their stars after
+    /// seeing the other's. A hidden review can still be changed, and a newer completed job opens it again. Reviews
+    /// with no completed job (one-way, after a chat) never lock.
+    /// </summary>
+    public static bool IsLocked(DateTimeOffset writtenAt, DateTimeOffset? otherWrittenAt, IEnumerable<DateTimeOffset> jobsCompletedAt, DateTimeOffset now)
+    {
+        var jobs = jobsCompletedAt.ToList();
+        if (jobs.Count == 0)
+        {
+            return false;
+        }
+
+        var latest = jobs.Max();
+        return writtenAt >= latest && (otherWrittenAt >= latest || now >= OpensAt(latest));
+    }
 }
 
 public sealed record SaveReviewRequest(string ProfessionalId, string ReviewerName, int Rating, string? Comment, string? ServiceId);

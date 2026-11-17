@@ -11,6 +11,9 @@ public enum HouseholdReviewOutcome
     /// <summary>No completed job (picked, both marked done) between the worker and that household.</summary>
     NoCompletedJob,
 
+    /// <summary>Both sides' reviews of the latest completed job show: the rating can't be changed (<see cref="ReviewRules.IsLocked"/>).</summary>
+    Locked,
+
     Invalid,
 }
 
@@ -71,7 +74,8 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                 mine?.Rating,
                 completedAt,
                 TheyReviewed: theirs is not null && completedAt is { } done && theirs.At >= done,
-                TheirRating: theirs is not null && !ReviewRules.IsHidden(theirs.At, mine?.At, completed, now) ? theirs.Rating : null);
+                TheirRating: theirs is not null && !ReviewRules.IsHidden(theirs.At, mine?.At, completed, now) ? theirs.Rating : null,
+                MyReviewLocked: mine is not null && ReviewRules.IsLocked(mine.At, theirs?.At, completed, now));
         })];
     }
 
@@ -119,7 +123,7 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
 
     /// <summary>
     /// The caller, a worker, rates a household after a completed job between them (one review per pair, writing
-    /// again replaces it; the first write's time is kept).
+    /// again replaces it, unless it is locked: <see cref="ReviewRules.IsLocked"/>; the first write's time is kept).
     /// </summary>
     public async Task<HouseholdReviewOutcome> SaveHouseholdReviewAsync(string proUid, SaveHouseholdReviewRequest request, CancellationToken cancellationToken)
     {
@@ -135,6 +139,11 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
         }
 
         var now = DateTimeOffset.UtcNow;
+        if (await BlindReviewFilter.IsLockedAsync(db, request.SeekerUid, proUid, byHousehold: false, now, cancellationToken))
+        {
+            return HouseholdReviewOutcome.Locked;
+        }
+
         var row = await db.HouseholdReviews.FirstOrDefaultAsync(r => r.ProUid == proUid && r.SeekerUid == request.SeekerUid, cancellationToken);
         if (row is null)
         {

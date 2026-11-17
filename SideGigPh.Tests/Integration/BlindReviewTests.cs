@@ -67,18 +67,35 @@ public class BlindReviewTests(ApiTestHost api)
         (await worker.Get<JobBoard>().SendOfferAsync((await InFeedAsync(worker, postId))!, 900, null)).Should().Be(OfferResult.Done);
         var homeBoard = household.Get<JobBoard>();
         (await homeBoard.PickAsync((await homeBoard.LoadOffersAsync(postId)).Single())).Should().Be(OfferResult.Done);
-        await homeBoard.MarkDoneAsync((await homeBoard.PickedJobsAsync(worker.Uid)).Single());
+        await homeBoard.MarkDoneAsync((await homeBoard.PickedJobsAsync(worker.Uid)).Single(j => j.PostId == postId));
         var workBoard = worker.Get<JobBoard>();
-        (await workBoard.MarkDoneAsync((await workBoard.PickedJobsAsync(household.Uid)).Single()))!.IsCompleted.Should().BeTrue();
+        (await workBoard.MarkDoneAsync((await workBoard.PickedJobsAsync(household.Uid)).Single(j => j.PostId == postId)))!.IsCompleted.Should().BeTrue();
         return postId;
     }
 
-    private async Task ReviewAsync(TestPhone household, string workerUid, int stars)
+    private async Task ReviewAsync(TestPhone household, string workerUid, int stars) =>
+        (await TryReviewAsync(household, workerUid, stars)).Should().Be(HttpStatusCode.NoContent);
+
+    private async Task<HttpStatusCode> TryReviewAsync(TestPhone household, string workerUid, int stars)
     {
         using var response = await api.Client(api.Tokens.For(household.Uid)).PutAsJsonAsync("reviews",
             new SaveReviewRequest(workerUid, "Lorna", stars, "Maayos", "construction-plumbing"), ApiJson.Default.SaveReviewRequest);
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        return response.StatusCode;
     }
+
+    /// <summary>A PUT that must be refused as locked: 403 with <see cref="ApiErrors.ReviewLocked"/>.</summary>
+    private async Task ShouldBeLockedAsync(TestPhone caller, string route, HttpContent body)
+    {
+        using var response = await api.Client(api.Tokens.For(caller.Uid, caller.PhoneNumber)).PutAsync(route, body);
+        response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.ReviewLocked);
+    }
+
+    private static HttpContent Review(string workerUid, int stars) =>
+        JsonContent.Create(new SaveReviewRequest(workerUid, "Lorna", stars, "Binago ko", "construction-plumbing"), ApiJson.Default.SaveReviewRequest);
+
+    private static HttpContent HouseholdRating(string seekerUid, int stars) =>
+        JsonContent.Create(new SaveHouseholdReviewRequest(seekerUid, stars, null), ApiJson.Default.SaveHouseholdReviewRequest);
 
     private static async Task<SearchHit?> InSearchAsync(TestPhone seeker, string workerUid)
     {
@@ -179,5 +196,64 @@ public class BlindReviewTests(ApiTestHost api)
         await CompletedJobAsync(household, worker);
 
         (await stranger.Get<IReviewRepository>().GetForProfessionalAsync(worker.Uid)).Should().ContainSingle("it was written before the job, so it stays as it was");
+    }
+
+    [IntegrationFact]
+    public async Task OnceBothShow_NeitherSideCanChangeTheirReview_ButAHiddenOneCanStillBeChanged()
+    {
+        var household = await TestPhone.SeekerAsync(api, "Linda");
+        var worker = await PlumberAsync("Tonyo");
+        await CompletedJobAsync(household, worker);
+        await ReviewAsync(household, worker.Uid, 2);
+        await ReviewAsync(household, worker.Uid, 3); // still hidden: it can change
+        (await household.Get<IReviewRepository>().GetBySeekerAsync(household.Uid)).Single().Locked.Should().BeFalse();
+
+        (await worker.Get<JobBoard>().RateHouseholdAsync(household.Uid, 4, null)).Should().BeTrue();
+
+        await ShouldBeLockedAsync(household, "reviews", Review(worker.Uid, 1));
+        await ShouldBeLockedAsync(worker, "household-reviews", HouseholdRating(household.Uid, 1));
+        (await worker.Get<JobBoard>().RateHouseholdAsync(household.Uid, 1, null)).Should().BeFalse();
+        (await household.Get<IReviewRepository>().GetForProfessionalAsync(worker.Uid)).Single().Should().Match<Review>(r => r.Rating == 3 && r.Locked);
+        (await household.Get<IReviewRepository>().GetBySeekerAsync(household.Uid)).Single().Locked.Should().BeTrue();
+        (await worker.Get<IReviewRepository>().GetForProfessionalAsync(worker.Uid)).Single().Locked.Should().BeFalse("only the writer is told");
+        (await household.Get<JobBoard>().PickedJobsAsync(worker.Uid)).Single().MyReviewLocked.Should().BeTrue();
+        (await worker.Get<JobBoard>().PickedJobsAsync(household.Uid)).Single().Should().Match<PickedJob>(j => j.MyReviewLocked && j.MyRating == 4);
+
+        await household.Get<IReviewRepository>().DeleteForPersonAsync(household.Uid); // Start over
+
+        (await worker.Get<IReviewRepository>().GetForProfessionalAsync(worker.Uid)).Should().ContainSingle("a locked review can't be taken back either");
+    }
+
+    [IntegrationFact]
+    public async Task AfterTheWindow_TheOneSidedReviewLocks_AndANewCompletedJobOpensItAgain()
+    {
+        var household = await TestPhone.SeekerAsync(api, "Mercy");
+        var worker = await PlumberAsync("Jun");
+        var postId = await CompletedJobAsync(household, worker);
+        await ReviewAsync(household, worker.Uid, 4);
+        await api.CompleteJobEarlierAsync(postId, ReviewRules.BlindFor + TimeSpan.FromHours(1));
+
+        await ShouldBeLockedAsync(household, "reviews", Review(worker.Uid, 1));
+        (await household.Get<JobBoard>().PickedJobsAsync(worker.Uid)).Single().MyReviewLocked.Should().BeTrue();
+
+        var newer = await CompletedJobAsync(household, worker);
+
+        await ReviewAsync(household, worker.Uid, 5);
+        var review = (await household.Get<IReviewRepository>().GetBySeekerAsync(household.Uid)).Single();
+        review.Should().Match<Review>(r => r.Rating == 5 && r.Hidden && !r.Locked, "a review of the new service, blind again");
+        (await household.Get<JobBoard>().PickedJobsAsync(worker.Uid)).Single(j => j.PostId == newer).MyReviewLocked.Should().BeFalse();
+    }
+
+    [IntegrationFact]
+    public async Task AOneWayReviewAfterAChat_CanAlwaysBeChanged()
+    {
+        var household = await TestPhone.SeekerAsync(api, "Susan");
+        var worker = await PlumberAsync("Rudy");
+        await household.Seeker.SendAsync((await household.Seeker.GetProAsync(worker.Uid))!, "Hello po");
+        await api.StartChatEarlierAsync(household.Seeker.ChatIdWith(worker.Uid), TimeSpan.FromDays(30));
+        await ReviewAsync(household, worker.Uid, 4);
+
+        (await TryReviewAsync(household, worker.Uid, 2)).Should().Be(HttpStatusCode.NoContent);
+        (await household.Get<IReviewRepository>().GetBySeekerAsync(household.Uid)).Single().Should().Match<Review>(r => r.Rating == 2 && !r.Locked);
     }
 }

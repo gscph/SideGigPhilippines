@@ -71,7 +71,7 @@ public class WireContractTests
     public void ReviewContracts_FieldNamesNeverChange()
     {
         FieldNames(new ReviewDto("pro-1", "seeker-1", "Ana D.", 5, "Ok", "plumbing-clog", At, At), ApiJson.Default.ReviewDto)
-            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob", "hidden");
+            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob", "hidden", "locked");
         FieldNames(new SaveReviewRequest("pro-1", "Ana D.", 5, null, null), ApiJson.Default.SaveReviewRequest)
             .Should().Equal("professionalId", "reviewerName", "rating", "comment", "serviceId");
     }
@@ -198,6 +198,7 @@ public class WireContractTests
         ApiErrors.PhoneRequired.Should().Be("phone-required");
         ApiErrors.NoChat.Should().Be("no-chat");
         ApiErrors.ReviewTooSoon.Should().Be("review-too-soon");
+        ApiErrors.ReviewLocked.Should().Be("review-locked");
         ApiErrors.Exception.Should().Be("exception");
         ApiErrors.TooManyRequests.Should().Be("too-many-requests");
         ApiErrors.Invalid("references").Should().Be("invalid-references");

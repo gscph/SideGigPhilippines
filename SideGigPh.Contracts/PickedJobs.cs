@@ -12,6 +12,7 @@ namespace SideGigPh.Contracts;
 /// <see cref="ReviewRules.BlindFor"/> after it at the latest.</param>
 /// <param name="TheyReviewed">The other person has reviewed the caller since this job was completed (their stars stay hidden until the caller reviews too).</param>
 /// <param name="TheirRating">The other person's stars for the caller, only once they show (<see cref="ReviewRules.IsHidden"/>), else null.</param>
+/// <param name="MyReviewLocked">The caller's review of the other can't be changed any more (<see cref="ReviewRules.IsLocked"/>).</param>
 public sealed record PickedJobDto(
     long PostId,
     string ServiceId,
@@ -23,7 +24,8 @@ public sealed record PickedJobDto(
     int? MyRating = null,
     DateTimeOffset? CompletedAt = null,
     bool TheyReviewed = false,
-    int? TheirRating = null);
+    int? TheirRating = null,
+    bool MyReviewLocked = false);
 
 /// <summary><c>PUT household-reviews</c>: a worker's stars for a household, after a completed job between them. Writing again replaces it.</summary>
 public sealed record SaveHouseholdReviewRequest(string SeekerUid, int Rating, string? Comment = null);

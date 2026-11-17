@@ -84,4 +84,23 @@ public class BlindReviewRulesTests
         BlindReviews.DaysLeft(Job(), Done.AddDays(13).AddHours(1)).Should().Be(1);
         BlindReviews.DaysLeft(Job(), Done.AddDays(14).AddHours(-1)).Should().Be(1);
     }
+
+    [Fact]
+    public void AReviewLocks_OnceBothReviewsOfTheLatestJobShow()
+    {
+        var mine = Done.AddHours(1);
+
+        ReviewRules.IsLocked(mine, otherWrittenAt: null, [Done], Done.AddDays(1)).Should().BeFalse("hidden: it can still change");
+        ReviewRules.IsLocked(mine, otherWrittenAt: Done.AddHours(2), [Done], Done.AddDays(1)).Should().BeTrue("both show");
+        ReviewRules.IsLocked(mine, otherWrittenAt: null, [Done], ReviewRules.OpensAt(Done)).Should().BeTrue("the 14 days passed");
+    }
+
+    [Fact]
+    public void AReviewNotAboutTheLatestJob_DoesNotLock()
+    {
+        ReviewRules.IsLocked(Done, null, [], Done.AddDays(30)).Should().BeFalse("a one-way review after a chat");
+        ReviewRules.IsLocked(Done.AddDays(-1), Done.AddHours(1), [Done], Done.AddDays(1)).Should().BeFalse("written before the job");
+        ReviewRules.IsLocked(Done.AddHours(1), Done.AddHours(2), [Done, Done.AddDays(20)], Done.AddDays(21)).Should().BeFalse(
+            "a newer service: the review can be written again");
+    }
 }

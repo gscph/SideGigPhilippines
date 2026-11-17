@@ -258,8 +258,17 @@ for Android).
   `WaitingForMe`, `WaitingForThem`, `Open`, `WindowClosed`) words the line under the `PickedJobCard` status: "Your
   review stays hidden until {name} reviews you too, or in N days", "{name} already reviewed you. Send yours to see it",
   "Waiting for {name} to review you…", then "{name} gave you N of 5 stars"; the household's review page opened from the
-  card (`SeekerRoutes.RateAfterJob`, `?job=1`) says the worker won't see it until they review too. Not closed yet: a
-  side can still change their review after both show (`PUT` replaces it).
+  card (`SeekerRoutes.RateAfterJob`, `?job=1`) says the worker won't see it until they review too.
+  **Locked once both show:** otherwise a side could lower their stars after seeing the other's. A review written since
+  the pair's latest completed job locks when the other side's review of it shows too (they reviewed since the job, or
+  the 14 days passed): `ReviewRules.IsLocked`, checked by `BlindReviewFilter.IsLockedAsync`. `PUT reviews` and `PUT
+  household-reviews` then answer `403 review-locked` (`ReviewOutcome.Locked`, `HouseholdReviewOutcome.Locked`), and
+  Start over (`DELETE reviews/mine`, `ReviewStore.DeleteWrittenByAsync`) keeps locked reviews (deleting the account
+  still removes everything). A hidden review can still change; a newer completed job opens it again (blind again);
+  one-way chat reviews never lock. The writer is told: `ReviewDto.Locked` (own reviews only) and
+  `PickedJobDto.MyReviewLocked`. In the app `SeekerWorkspace.ReviewLocked` makes `CanRate` false, so the thread shows
+  `Copy.ReviewLockedNote` ("Reviews can't be changed once both are shown") instead of Edit your review, "Your reviews"
+  lists it without the edit link (`ReviewRow` adds a lock line), and `PickedJobCard` drops its Change buttons for the note.
 - **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
   `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
   app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the
