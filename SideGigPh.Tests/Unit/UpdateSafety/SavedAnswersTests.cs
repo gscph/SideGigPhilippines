@@ -89,6 +89,19 @@ public class SavedAnswersTests
         state.Seeker.ServiceId.Should().Be("construction-welding");
     }
 
+    [Fact]
+    public void OldFile_RoofingWorker_MovesToConstructionRoofing()
+    {
+        var state = Load(FourAreaVersionJson);
+        state.Professional.CategoryId = "roofing";
+        state.Professional.ServiceIds = ["roofing-leak", "roofing-gutter"];
+
+        state.FitToCatalog();
+
+        state.Professional.CategoryId.Should().Be("construction");
+        state.Professional.ServiceIds.Should().Equal("construction-roofing");
+    }
+
     // Written before photos and references existed: the new lists must start empty, not null.
     [Fact]
     public void FileWithoutNewerFields_LoadsWithEmptyLists()

@@ -38,14 +38,14 @@ public class SearchRankingTests(ApiTestHost api)
     private static SeekerAnswers Answers()
     {
         var answers = SideGigPh.Tests.TestSupport.TestData.AirconCleaningInTaytay();
-        answers.CategoryId = "roofing";
-        answers.ServiceId = "roofing-leak";
+        answers.CategoryId = "construction";
+        answers.ServiceId = "construction-roofing";
         return answers;
     }
 
     private async Task<TestPhone> PublishRooferAsync(string name)
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "roofing", jobs: ["roofing-leak"], towns: ["taytay"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "construction", jobs: ["construction-roofing"], towns: ["taytay"]);
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
         return worker;
     }
