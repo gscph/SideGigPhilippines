@@ -71,7 +71,7 @@ public class WireContractTests
     public void ReviewContracts_FieldNamesNeverChange()
     {
         FieldNames(new ReviewDto("pro-1", "seeker-1", "Ana D.", 5, "Ok", "plumbing-clog", At, At), ApiJson.Default.ReviewDto)
-            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob");
+            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob", "hidden", "locked");
         FieldNames(new SaveReviewRequest("pro-1", "Ana D.", 5, null, null), ApiJson.Default.SaveReviewRequest)
             .Should().Equal("professionalId", "reviewerName", "rating", "comment", "serviceId");
     }
@@ -89,8 +89,10 @@ public class WireContractTests
 
         var option = new OptionDto("under-500", "Under ₱500", "Below ₱500", null, 400);
 
-        FieldNames(new ConfigDto([category], [option], [option], [option], [option], [option], 755), ApiJson.Default.ConfigDto)
-            .Should().Equal("catalog", "towns", "priceTiers", "experience", "urgencies", "incomeGoals", "minimumWage");
+        var barangay = new BarangayDto("angono-san-isidro", "angono", "San Isidro", "San Isidro");
+        FieldNames(new ConfigDto([category], [option], [option], [option], [option], [option], 755, "angono", [barangay]), ApiJson.Default.ConfigDto)
+            .Should().Equal("catalog", "towns", "priceTiers", "experience", "urgencies", "incomeGoals", "minimumWage", "defaultTownId", "barangays");
+        FieldNames(barangay, ApiJson.Default.BarangayDto).Should().Equal("id", "townId", "english", "taglish");
         FieldNames(option, ApiJson.Default.OptionDto).Should().Equal("id", "english", "taglish", "icon", "amount");
         FieldNames(category, ApiJson.Default.CategoryDto).Should().Equal("id", "english", "taglish", "icon", "hintEnglish", "hintTaglish", "services");
         FieldNames(service, ApiJson.Default.ServiceDto).Should().Equal("id", "english", "taglish", "icon", "price");
@@ -119,13 +121,16 @@ public class WireContractTests
     [Fact]
     public void JobPostFieldNamesAndStatuses_NeverChange()
     {
-        var post = new JobPostDto(7, "plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", JobPostStatuses.Open, [], true, false, 2, At);
+        var post = new JobPostDto(7, "plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", JobPostStatuses.Open, [], true, false, 2, At,
+            BarangayId: "taytay-muzon");
         FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
             "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt",
-            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews");
+            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews", "barangayId");
         FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
-        FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1), ApiJson.Default.NewJobPostRequest)
-            .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude", "budgetMinPesos");
+        FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1, BarangayId: "taytay-muzon"),
+                ApiJson.Default.NewJobPostRequest)
+            .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude", "budgetMinPesos",
+                "barangayId");
         JobPostStatuses.Open.Should().Be("open");
         JobPostStatuses.Closed.Should().Be("closed");
         JobPostStatuses.Hidden.Should().Be("hidden");
@@ -198,6 +203,7 @@ public class WireContractTests
         ApiErrors.PhoneRequired.Should().Be("phone-required");
         ApiErrors.NoChat.Should().Be("no-chat");
         ApiErrors.ReviewTooSoon.Should().Be("review-too-soon");
+        ApiErrors.ReviewLocked.Should().Be("review-locked");
         ApiErrors.Exception.Should().Be("exception");
         ApiErrors.TooManyRequests.Should().Be("too-many-requests");
         ApiErrors.Invalid("references").Should().Be("invalid-references");

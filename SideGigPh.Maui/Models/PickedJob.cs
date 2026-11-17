@@ -6,6 +6,10 @@ namespace SideGigPh.Maui.Models;
 /// </summary>
 /// <param name="IAmTheHousehold">This person posted it (else they are the picked worker).</param>
 /// <param name="MyRating">This person's stars for the other one, or null when they haven't rated yet.</param>
+/// <param name="CompletedAt">When the second side marked it done (null until both did).</param>
+/// <param name="TheyReviewed">The other one reviewed this person since the job was completed (hidden until this person reviews too).</param>
+/// <param name="TheirRating">The other one's stars for this person, only once they show (blind reviews, <c>Services/BlindReviews</c>).</param>
+/// <param name="MyReviewLocked">This person's review of the other can't be changed any more: both reviews of the job show.</param>
 public sealed record PickedJob(
     long PostId,
     string ServiceId,
@@ -14,7 +18,11 @@ public sealed record PickedJob(
     bool IAmTheHousehold,
     bool DoneByHousehold,
     bool DoneByWorker,
-    int? MyRating = null)
+    int? MyRating = null,
+    DateTimeOffset? CompletedAt = null,
+    bool TheyReviewed = false,
+    int? TheirRating = null,
+    bool MyReviewLocked = false)
 {
     /// <summary>Both sides marked it done.</summary>
     public bool IsCompleted => DoneByHousehold && DoneByWorker;

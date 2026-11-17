@@ -68,10 +68,12 @@ internal static partial class ApiMapping
         dto.MyOfferPesos,
         dto.PickedProId,
         dto.BudgetMinPesos,
-        dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null);
+        dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null,
+        dto.BarangayId);
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
-        new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating);
+        new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating,
+            dto.CompletedAt, dto.TheyReviewed, dto.TheirRating, dto.MyReviewLocked);
 
     public static JobOffer ToModel(this JobOfferDto dto) => new(
         dto.Id,
@@ -108,7 +110,8 @@ internal static partial class ApiMapping
         [.. draft.Photos.Select(photo => photo.Id)],
         draft.Point?.Latitude,
         draft.Point?.Longitude,
-        BudgetMinPesos: draft.BudgetMinPesos);
+        BudgetMinPesos: draft.BudgetMinPesos,
+        BarangayId: ReferenceData.FindBarangay(draft.CityId, draft.BarangayId)?.Id);
 
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,
@@ -275,7 +278,9 @@ internal static partial class ApiMapping
         dto.Comment,
         dto.ServiceId,
         dto.UpdatedAt,
-        dto.VerifiedJob);
+        dto.VerifiedJob,
+        dto.Hidden,
+        dto.Locked);
 
     public static SaveReviewRequest ToSaveRequest(this Review review) =>
         new(review.ProfessionalId, review.ReviewerName, review.Rating, review.Comment, review.ServiceId);
@@ -328,7 +333,12 @@ internal static partial class ApiMapping
         dto.Catalog.SelectMany(c => c.Services)
             .Where(s => s.Price is not null)
             .ToDictionary(s => s.Id, s => new PriceGuide(s.Price!.Min, s.Price.Average, s.Price.High)),
-        dto.MinimumWage);
+        dto.MinimumWage,
+        dto.DefaultTownId,
+        // A server before barangays sends none (null): no town has a list then.
+        dto.Barangays?.GroupBy(b => b.TownId).ToDictionary(
+            town => town.Key,
+            town => (IReadOnlyList<CatalogOption>)[.. town.Select(b => new CatalogOption(b.Id, new(b.English, b.Taglish)))]));
 
     private static IReadOnlyList<CatalogOption> Options(List<OptionDto>? options) =>
         (options ?? []).Select(o => new CatalogOption(o.Id, new(o.English, o.Taglish), o.Icon is null ? null : AppImages.For(o.Id), Amount: o.Amount)).ToList();

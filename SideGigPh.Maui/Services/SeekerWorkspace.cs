@@ -47,7 +47,7 @@ public sealed class SeekerWorkspace(
     public string? ProfilePhotoUrl { get; private set; }
 
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
-    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId, Answers.OtherJobText);
+    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.TownShown(), Answers.BudgetId, Answers.OtherJobText);
 
     /// <summary>One chat per pro the Seeker contacted, loaded so far (<see cref="InboxPages"/>), most recent message first.</summary>
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
@@ -74,12 +74,20 @@ public sealed class SeekerWorkspace(
 
     /// <summary>
     /// Whether the Seeker may rate this pro now: they chatted, and the chat started at least
-    /// <see cref="ReviewRules.WaitAfterChatStarts"/> ago (so the stars are about the job). An earlier review can always be changed.
+    /// <see cref="ReviewRules.WaitAfterChatStarts"/> ago (so the stars are about the job). An earlier review can be changed
+    /// unless it is locked (<see cref="ReviewLocked"/>).
     /// </summary>
     public bool CanRate(string professionalId) =>
-        ThreadWith(professionalId) is { } thread
+        !ReviewLocked(professionalId)
+        && ThreadWith(professionalId) is { } thread
         && (MyReviewOf(professionalId) is not null || _completedWith.Contains(professionalId)
             || ReviewRules.CanRate(thread.Chat.CreatedAt, DateTimeOffset.UtcNow));
+
+    /// <summary>
+    /// The Seeker's review of this pro can't be changed any more: it is about a completed job and both reviews show
+    /// (<see cref="ReviewRules.IsLocked"/>; the server refuses with <c>review-locked</c>).
+    /// </summary>
+    public bool ReviewLocked(string professionalId) => MyReviewOf(professionalId)?.Locked == true;
 
     /// <summary>
     /// The chat page saw a completed job with this pro (picked, both marked done): the Seeker may review them at once,
@@ -177,8 +185,7 @@ public sealed class SeekerWorkspace(
 
     public Task PickTownAsync(string cityId)
     {
-        Answers.CityId = cityId;
-        Answers.AreaId = ReferenceData.AreaOf(cityId);
+        Answers.PickTown(cityId);
         return SaveAsync();
     }
 

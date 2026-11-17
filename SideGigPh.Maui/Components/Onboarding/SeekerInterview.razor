@@ -31,8 +31,9 @@
 
         case SeekerStep.City:
             <InterviewStep Illustration="@AppImages.Town" Title="@T.Get(Copy.SeekerCityTitle)" Why="@T.Get(Copy.SeekerCityWhy)" Note="@T.Get(Copy.CitiesNote)"
-                           Progress="Progress" OnBack="GoBack">
-                <TownPicker SelectedIds="Selected(Answers.CityId)" OnPick="PickCityAsync" />
+                           Progress="Progress" OnBack="GoBack" OnNext="TownNext">
+                <TownPicker SelectedIds="Selected(_town)" OnPick="PickCityAsync" />
+                <BarangayField TownId="@_town" Value="@Answers.BarangayId" ValueChanged="PickBarangay" />
             </InterviewStep>
             break;
 

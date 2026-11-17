@@ -21,7 +21,7 @@ public partial class MyOfferCard : ComponentBase
         ? T.Get(service.Label)
         : ReferenceData.FindTrade(Offer.Post.CategoryId) is { } trade ? T.Get(trade.Label) : Offer.Post.ServiceId;
 
-    private string Town => ReferenceData.Find(ReferenceData.Cities, Offer.Post.CityId) is { } town ? T.Get(town.Label) : Offer.Post.CityId;
+    private string Town => T.Place(Offer.Post.CityId, Offer.Post.BarangayId);
 
     private LocalizedText StateText => Offer.State switch
     {

@@ -25,13 +25,14 @@
                         <MudSelectItem T="string" Value="@service.Id">@T.Get(service.Label)</MudSelectItem>
                     }
                 </MudSelect>
-                <MudSelect T="string" @bind-Value="_draft.CityId" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                <MudSelect T="string" Value="_draft.CityId" ValueChanged="PickTown" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                            Label="@T.Get(Copy.FilterTown)" Class="app-field">
                     @foreach (var town in ReferenceData.Cities)
                     {
                         <MudSelectItem T="string" Value="@town.Id">@T.Get(town.Label)</MudSelectItem>
                     }
                 </MudSelect>
+                <BarangayField TownId="@_draft.CityId" @bind-Value="_draft.BarangayId" Disabled="_busy" />
             </MudStack>
 
             <LocationButton IsSet="@(_draft.Point is not null)" Disabled="_busy" Why="@T.Get(Copy.PostLocationWhy)"

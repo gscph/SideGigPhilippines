@@ -80,6 +80,7 @@ public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobSto
         {
             HouseholdReviewOutcome.Saved => new NoContentResult(),
             HouseholdReviewOutcome.NoCompletedJob => ApiResults.Forbidden(ApiErrors.NoCompletedJob),
+            HouseholdReviewOutcome.Locked => ApiResults.Forbidden(ApiErrors.ReviewLocked),
             _ => ApiResults.BadRequest(),
         };
     }

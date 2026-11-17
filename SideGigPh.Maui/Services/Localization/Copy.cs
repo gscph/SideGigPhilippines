@@ -47,6 +47,10 @@ public static class Copy
     public static readonly LocalizedText SeekerCityTitle = new("Where do you need it done?", "Saan ito gagawin?");
     public static readonly LocalizedText SeekerCityWhy = new("See skilled workers near you.", "Makikita mo ang mga skilled worker na malapit sa iyo.");
     public static readonly LocalizedText CitiesNote = new("More towns coming soon.", "Marami pang bayan, abangan!");
+    public static readonly LocalizedText BarangayLabel = new("Barangay (optional)", "Barangay (optional)");
+    public static readonly LocalizedText BarangayUnsure = new("Not sure / skip", "Hindi sigurado / skip");
+    public static readonly LocalizedText BarangayWhy = new("So workers know which part of town.", "Para alam ng gagawa kung saang parte ng bayan.");
+    public static readonly LocalizedText PlaceBarangay = new("{0} · Brgy. {1}", "{0} · Brgy. {1}");
     public static readonly LocalizedText TownsAll = new("Select all", "Piliin lahat");
     public static readonly LocalizedText TownsClear = new("Remove all", "Alisin lahat");
     public static readonly LocalizedText SeekerWhenTitle = new("When do you need it?", "Kailan mo kailangan?");
@@ -406,6 +410,29 @@ public static class Copy
     public static readonly LocalizedText YouRatedCustomer = new("You gave this customer {0} of 5 stars.", "Binigyan mo ang customer ng {0} sa 5 star.");
     public static readonly LocalizedText ChangeRating = new("Change", "Palitan");
     public static readonly LocalizedText PickedDidNotSend = new("Didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet mo at subukan ulit.");
+
+    // --- Blind reviews: hidden until both review, or 14 days ---------------
+    public static readonly LocalizedText BlindNoteBefore = new(
+        "Your review stays hidden until {0} reviews you too, or {1}.",
+        "Hindi muna makikita ang review mo hanggang mag-review din si {0} sa'yo, o {1}.");
+    public static readonly LocalizedText BlindTheyReviewed = new(
+        "{0} already reviewed you. Send yours to see it.",
+        "Nag-review na si {0} sa'yo. I-send ang sa'yo para makita mo.");
+    public static readonly LocalizedText BlindWaiting = new(
+        "Waiting for {0} to review you. You both see the reviews then, or {1}.",
+        "Hinihintay pa si {0} na mag-review. Makikita n'yo pareho ang review pagkatapos, o {1}.");
+    public static readonly LocalizedText BlindInDays = new("in {0} days", "pagkalipas ng {0} araw");
+    public static readonly LocalizedText BlindTomorrow = new("tomorrow", "bukas");
+    public static readonly LocalizedText TheyRatedYou = new("{0} gave you {1} of 5 stars.", "Binigyan ka ni {0} ng {1} sa 5 star.");
+    public static readonly LocalizedText BlindNoteForm = new(
+        "{0} won't see your review until they review you too, or {1} days after the service. So you can be honest.",
+        "Hindi makikita ni {0} ang review mo hangga't hindi rin siya nagre-review sa'yo, o {1} araw pagkatapos ng serbisyo. Kaya puwede kang maging tapat.");
+    public static readonly LocalizedText ReviewLockedNote = new(
+        "Reviews can't be changed once both are shown.",
+        "Hindi na puwedeng palitan ang review kapag lumabas na ang review ninyong dalawa.");
+    public static readonly LocalizedText ReviewHiddenForNow = new(
+        "Only you see this for now. It shows when the worker reviews you too, or {0} days after the service.",
+        "Ikaw lang muna ang nakakakita nito. Lalabas ito kapag nag-review na rin ang worker sa'yo, o {0} araw pagkatapos ng serbisyo.");
     public static readonly LocalizedText HouseholdStarsFact = new("Customer rating: {0}", "Rating ng customer: {0}");
 
     // --- Location: the worker's base and travel distance, a post's place ---

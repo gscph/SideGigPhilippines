@@ -11,12 +11,25 @@
 
         <MudText Typo="Typo.body2">@Status</MudText>
 
+        @if (BlindNote is { } note)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@note</MudText>
+        }
+
         @if (!Job.DoneByMe)
         {
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="_busy"
                        StartIcon="@Icons.Material.Rounded.TaskAlt" OnClick="MarkDoneAsync">
                 @T.Get(Copy.MarkDone)
             </MudButton>
+        }
+        else if (Job.IsCompleted && Job.MyReviewLocked)
+        {
+            @if (!Job.IAmTheHousehold && Job.MyRating is { } locked)
+            {
+                <MudText Typo="Typo.body2">@T.Format(Copy.YouRatedCustomer, locked)</MudText>
+            }
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ReviewLockedNote)</MudText>
         }
         else if (Job.IsCompleted && Job.IAmTheHousehold && RateHref is not null)
         {

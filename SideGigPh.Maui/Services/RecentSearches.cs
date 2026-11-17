@@ -37,6 +37,12 @@ public static class RecentSearches
             : $"under-{upTo}";
         var other = categoryId == ReferenceData.OtherTradeId ? post.Description : null;
         answers.Remember(new RecentSearch(categoryId, post.ServiceId, OtherTextOf(post.ServiceId, other), post.CityId, budget));
+
+        // A barangay picked on a post in their home town fills their next post.
+        if (post.CityId == answers.CityId && post.BarangayId is not null)
+        {
+            answers.PickBarangay(post.CityId, post.BarangayId);
+        }
     }
 
     /// <summary>Makes <paramref name="recent"/> the current search (typed words no longer apply) and moves it to the top.</summary>

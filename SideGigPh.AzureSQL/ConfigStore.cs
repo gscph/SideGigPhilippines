@@ -7,8 +7,8 @@ using SideGigPh.Contracts;
 namespace SideGigPh.AzureSQL;
 
 /// <summary>
-/// The app's config (<c>GET config</c>): the trades and jobs (<c>Categories</c>, <c>Services</c>) and the other answer
-/// lists (<c>ConfigOptions</c>), all filled by <c>004-config.sql</c>. It changes rarely and may be stale, so each API
+/// The app's config (<c>GET config</c>): the trades and jobs (<c>Categories</c>, <c>Services</c>), the barangays we
+/// serve per town (<c>Barangays</c>) and the other answer lists (<c>ConfigOptions</c>), all filled by <c>004-config.sql</c>. It changes rarely and may be stale, so each API
 /// instance keeps it for <see cref="ConfigFor"/> (restart the Function App to show an edit sooner).
 /// </summary>
 public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
@@ -27,6 +27,9 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
 
         /// <summary>One row: the NCR daily minimum wage (its Amount), the floor of every job's price.</summary>
         public const string MinimumWage = "minimum-wage";
+
+        /// <summary>One row: its Id is the launch's town (a <see cref="Towns"/> id), pre-selected wherever a town is picked.</summary>
+        public const string DefaultTown = "default-town";
     }
 
     private const string CacheKey = "config";
@@ -57,6 +60,12 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
                 .OrderBy(o => o.SortOrder).ThenBy(o => o.Id)
                 .ToListAsync(cancellationToken))
             .ToLookup(o => o.ListId);
+        var towns = List(Lists.Towns);
+        var barangays = await db.Barangays.AsNoTracking()
+            .Where(b => b.IsActive)
+            .OrderBy(b => b.CityId).ThenBy(b => b.SortOrder).ThenBy(b => b.Id)
+            .Select(b => new BarangayDto(b.Id, b.CityId, b.LabelEnglish, b.LabelTaglish))
+            .ToListAsync(cancellationToken);
 
         List<OptionDto> List(string listId) =>
             options[listId].Select(o => new OptionDto(o.Id, o.LabelEnglish, o.LabelTaglish, o.Icon, o.Amount)).ToList();
@@ -66,12 +75,15 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
                 .Select(c => new CategoryDto(c.Id, c.LabelEnglish, c.LabelTaglish, c.Icon, c.HintEnglish, c.HintTaglish,
                     services[c.Id].Select(s => new ServiceDto(s.Id, s.LabelEnglish, s.LabelTaglish, s.Icon, Price(s))).ToList()))
                 .ToList(),
-            List(Lists.Towns),
+            towns,
             List(Lists.PriceTiers),
             List(Lists.Experience),
             List(Lists.Urgencies),
             List(Lists.IncomeGoals),
-            options[Lists.MinimumWage].Select(o => o.Amount).FirstOrDefault());
+            options[Lists.MinimumWage].Select(o => o.Amount).FirstOrDefault(),
+            // Only a town we serve can be the default; barangays of a town we don't serve are left out.
+            options[Lists.DefaultTown].Select(o => o.Id).FirstOrDefault(id => towns.Any(t => t.Id == id)),
+            [.. barangays.Where(b => towns.Any(t => t.Id == b.TownId))]);
     }
 
     private static PriceGuideDto? Price(ServiceRow s) =>
