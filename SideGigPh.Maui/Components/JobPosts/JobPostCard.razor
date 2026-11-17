@@ -35,6 +35,10 @@
                 <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
                              Text="@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(Post))" />
                 <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@Where" />
+                @if (ForWorker && Post.HouseholdStars is { } stars)
+                {
+                    <ProCardFact Icon="@Icons.Material.Filled.Star" IconColor="Color.Warning" Text="@T.Format(Copy.HouseholdStarsFact, T.Stars(stars))" />
+                }
             </MudStack>
 
             @if (Post.PhotoUrls.Count > 0)

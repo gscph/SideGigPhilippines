@@ -193,9 +193,11 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         var mine = await db.JobOffers.AsNoTracking()
             .Where(o => ids.Contains(o.PostId) && o.ProUid == uid && o.Status == JobOfferStatuses.Sent)
             .ToDictionaryAsync(o => o.PostId, o => o.PricePesos, cancellationToken);
+        var stars = await PickedJobStore.HouseholdStarsAsync(db, [.. rows.Values.Select(row => row.SeekerUid).Distinct()], cancellationToken);
         var posts = page.Where(hit => rows.ContainsKey(hit.Id))
             .Select(hit => ToDto(rows[hit.Id], uid, hit.OffersService, DistanceKm(hit.DistanceMeters),
-                myOfferPesos: mine.TryGetValue(hit.Id, out var price) ? price : null))
+                myOfferPesos: mine.TryGetValue(hit.Id, out var price) ? price : null,
+                householdReviews: stars.GetValueOrDefault(rows[hit.Id].SeekerUid)))
             .ToList();
         return new JobPostFeedDto(posts, hits.Count > take, HasListing: true);
     }
@@ -477,7 +479,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             && !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == j.SeekerUid) || (b.BlockerUid == j.SeekerUid && b.BlockedUid == uid)));
 
     private JobPostDto ToDto(JobPostRow row, string uid, bool offersService = false, int? distanceKm = null,
-        int offerCount = 0, int? myOfferPesos = null, string? pickedProId = null) => new(
+        int offerCount = 0, int? myOfferPesos = null, string? pickedProId = null, ReviewSummaryDto? householdReviews = null) => new(
         row.Id,
         row.CategoryId,
         row.ServiceId,
@@ -493,7 +495,8 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         offerCount,
         myOfferPesos,
         pickedProId,
-        row.BudgetMinPesos);
+        row.BudgetMinPesos,
+        householdReviews);
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

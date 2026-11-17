@@ -377,6 +377,29 @@ public static class Copy
     public static readonly LocalizedText AdminApprove = new("Approve", "I-approve");
     public static readonly LocalizedText AdminReject = new("Reject", "I-reject");
     public static readonly LocalizedText AdminDecideFailed = new("Didn't send. Try again.", "Hindi na-send. Subukan ulit.");
+
+    public static readonly LocalizedText CompletedFact = new("Done through Tarbaho: {0}", "Natapos sa Tarbaho: {0}");
+    public static readonly LocalizedText VerifiedService = new("Verified service", "Verified na serbisyo");
+
+    // --- Picked offers: both mark done, then verified reviews -------------
+    public static readonly LocalizedText PickedTitleHousehold = new("You picked {0}'s offer", "Pinili mo ang offer ni {0}");
+    public static readonly LocalizedText PickedTitleWorker = new("{0} picked your offer", "Pinili ni {0} ang offer mo");
+    public static readonly LocalizedText PickedNeitherDone = new(
+        "When the work is finished, tap Mark done. You both do this.",
+        "Kapag tapos na ang serbisyo, i-tap ang Tapos na. Pareho kayong mag-tap.");
+    public static readonly LocalizedText PickedOtherDone = new("{0} says it's done. Is it done on your side?", "Sabi ni {0}, tapos na. Tapos na rin ba sa'yo?");
+    public static readonly LocalizedText PickedWaiting = new("Waiting for {0} to mark it done.", "Hinihintay pa si {0} na i-mark na tapos na.");
+    public static readonly LocalizedText PickedCompleted = new("Done on both sides: a verified service.", "Tapos na sa inyong dalawa: verified na serbisyo.");
+    public static readonly LocalizedText MarkDone = new("Mark done", "Tapos na");
+    public static readonly LocalizedText LeaveReview = new("Leave a review", "Mag-review");
+    public static readonly LocalizedText ChangeReview = new("Change your review", "Palitan ang review mo");
+    public static readonly LocalizedText RateCustomerLabel = new("How was this customer?", "Kumusta ang customer na ito?");
+    public static readonly LocalizedText RateCustomerComment = new("Anything other workers should know? (optional)", "May dapat bang malaman ang ibang worker? (optional)");
+    public static readonly LocalizedText RateCustomerSend = new("Send rating", "I-send ang rating");
+    public static readonly LocalizedText YouRatedCustomer = new("You gave this customer {0} of 5 stars.", "Binigyan mo ang customer ng {0} sa 5 star.");
+    public static readonly LocalizedText ChangeRating = new("Change", "Palitan");
+    public static readonly LocalizedText PickedDidNotSend = new("Didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet mo at subukan ulit.");
+    public static readonly LocalizedText HouseholdStarsFact = new("Customer rating: {0}", "Rating ng customer: {0}");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.

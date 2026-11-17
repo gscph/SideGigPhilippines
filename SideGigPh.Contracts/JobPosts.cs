@@ -28,7 +28,8 @@ public sealed record JobPostDto(
     int OfferCount = 0,
     int? MyOfferPesos = null,
     string? PickedProId = null,
-    int? BudgetMinPesos = null);
+    int? BudgetMinPesos = null,
+    ReviewSummaryDto? HouseholdReviews = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the

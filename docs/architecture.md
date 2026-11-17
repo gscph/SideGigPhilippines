@@ -209,6 +209,22 @@ says "Tarbaho" in `Copy.cs`.
   their note, and its state (`MyOfferStates`: `waiting` while the post is open, `picked` with the `chatId` the
   household started (**Open chat**), `not-picked` once the post closed without them). Offers taken back, hidden posts
   and blocked people are left out. Before, a worker who wasn't picked only saw the post leave the feed.
+- **Verified two-way reviews** (brief item 12, `PickedJobStore`, `PickedJobFunctions`, `018-schema-job-done.sql`):
+  a picked offer is the job record. Each side marks it done (`POST picked-jobs/{postId}/done`, `JobOffers.HouseholdDoneAt`
+  / `WorkerDoneAt`), in any order; both marks make a **completed job** (`PickedJobStore.Completed`). Then the
+  household's review of that worker (still `PUT reviews`, one per pair) needs no chat and no 24 h wait and comes back
+  with `ReviewDto.VerifiedJob` (computed when read, so an older review becomes verified too); `ListingDto.CompletedJobs`
+  counts them; the worker can rate the household (`PUT household-reviews`, table `HouseholdReviews`, `403
+  no-completed-job` before), and workers see the household's stars on its posts in the feed (`JobPostDto.HouseholdReviews`).
+  Reviews after a chat without a pick still work as before, without the label. Done is each side's own word: no money
+  passes through the app. App: `JobBoard.PickedJobsAsync` / `MarkDoneAsync` / `RateHouseholdAsync`, models
+  `PickedJob`, `Review.VerifiedJob`, `ProfessionalListing.CompletedJobs`, `JobPost.HouseholdStars`. Screens: both chat
+  pages (`ThreadPage`, `ProChatPage`) show the newest picked job as `Components/JobPosts/PickedJobCard` (title, service
+  and price, where each side stands, **Mark done** until this person did; then the household's Leave a review link, or
+  the worker's stars and note for the household right on the card). A completed job seen on the Seeker's chat page
+  tells `SeekerWorkspace.CompletedJobWith`, so `CanRate` opens the review page at once. `ReviewRow` shows a green
+  "Verified service" chip (`Review.VerifiedJob`; copy says service, never job), `ListingFacts` a "Done through Tarbaho:
+  N" fact, and a worker's `JobPostCard` the household's stars.
 - **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
   `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
   app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the

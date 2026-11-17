@@ -31,6 +31,7 @@ public sealed class SeekerWorkspace(
     public static readonly TimeSpan ActivityFreshFor = TimeSpan.FromSeconds(15);
 
     private OnboardingState? _state;
+    private readonly HashSet<string> _completedWith = [];
     private Task<bool>? _loading;
     private DateTimeOffset _refreshedAt = DateTimeOffset.MinValue;
 
@@ -77,7 +78,20 @@ public sealed class SeekerWorkspace(
     /// </summary>
     public bool CanRate(string professionalId) =>
         ThreadWith(professionalId) is { } thread
-        && (MyReviewOf(professionalId) is not null || ReviewRules.CanRate(thread.Chat.CreatedAt, DateTimeOffset.UtcNow));
+        && (MyReviewOf(professionalId) is not null || _completedWith.Contains(professionalId)
+            || ReviewRules.CanRate(thread.Chat.CreatedAt, DateTimeOffset.UtcNow));
+
+    /// <summary>
+    /// The chat page saw a completed job with this pro (picked, both marked done): the Seeker may review them at once,
+    /// as the server allows.
+    /// </summary>
+    public void CompletedJobWith(string professionalId)
+    {
+        if (_completedWith.Add(professionalId))
+        {
+            Changed?.Invoke();
+        }
+    }
 
     /// <summary>
     /// Loads the saved answers and Inbox once. False if this user hasn't finished the Seeker

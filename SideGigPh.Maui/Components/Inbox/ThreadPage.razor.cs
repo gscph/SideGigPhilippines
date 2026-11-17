@@ -28,6 +28,9 @@ public partial class ThreadPage : ComponentBase, IDisposable
 
     /// <summary>The pro's number, only once the Seeker picked their offer on a post (numbers stay private until then).</summary>
     private string? _number;
+
+    /// <summary>The newest picked job with this pro (null when the Seeker never picked their offer).</summary>
+    private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
     private string? _message;
@@ -51,14 +54,17 @@ public partial class ThreadPage : ComponentBase, IDisposable
     {
         _pro = Workspace.ThreadWith(Id)?.Pro ?? await Workspace.GetProAsync(Id);
         _number = null;
+        _job = null;
         if (_pro is not null)
         {
             var read = Workspace.MarkReadAsync(Id);
             var number = Board.ContactNumberAsync(Id);
+            var jobs = Board.PickedJobsAsync(Id);
             _history = await Workspace.GetMessagesAsync(Id);
             _message = _history.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
             _watch = Workspace.WatchChat(Id, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
             _number = await number;
+            JobChanged((await jobs).FirstOrDefault());
             await read;
         }
     }
@@ -114,6 +120,16 @@ public partial class ThreadPage : ComponentBase, IDisposable
         finally
         {
             _busy = false;
+        }
+    }
+
+    /// <summary>The picked job as the server now has it; a completed one lets the Seeker review at once.</summary>
+    private void JobChanged(PickedJob? job)
+    {
+        _job = job;
+        if (job is { IsCompleted: true })
+        {
+            Workspace.CompletedJobWith(Id);
         }
     }
 

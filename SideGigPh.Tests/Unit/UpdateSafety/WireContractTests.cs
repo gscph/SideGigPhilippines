@@ -34,7 +34,7 @@ public class WireContractTests
     public void ListingDto_FieldNamesNeverChange() =>
         FieldNames(Listing(), ApiJson.Default.ListingDto).Should().Equal(
             "id", "displayName", "mobileNumber", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId",
-            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount", "badges", "otherWork");
+            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount", "badges", "otherWork", "completedJobs");
 
     [Fact]
     public void PublishListingRequest_FieldNamesNeverChange() =>
@@ -71,7 +71,7 @@ public class WireContractTests
     public void ReviewContracts_FieldNamesNeverChange()
     {
         FieldNames(new ReviewDto("pro-1", "seeker-1", "Ana D.", 5, "Ok", "plumbing-clog", At, At), ApiJson.Default.ReviewDto)
-            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt");
+            .Should().Equal("professionalId", "seekerId", "reviewerName", "rating", "comment", "serviceId", "createdAt", "updatedAt", "verifiedJob");
         FieldNames(new SaveReviewRequest("pro-1", "Ana D.", 5, null, null), ApiJson.Default.SaveReviewRequest)
             .Should().Equal("professionalId", "reviewerName", "rating", "comment", "serviceId");
     }
@@ -122,7 +122,7 @@ public class WireContractTests
         var post = new JobPostDto(7, "plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", JobPostStatuses.Open, [], true, false, 2, At);
         FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
             "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt",
-            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos");
+            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews");
         FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
         FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1), ApiJson.Default.NewJobPostRequest)
             .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude", "budgetMinPesos");

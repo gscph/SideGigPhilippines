@@ -67,7 +67,11 @@ internal static partial class ApiMapping
         dto.OfferCount,
         dto.MyOfferPesos,
         dto.PickedProId,
-        dto.BudgetMinPesos);
+        dto.BudgetMinPesos,
+        dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null);
+
+    public static PickedJob ToModel(this PickedJobDto dto) =>
+        new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating);
 
     public static JobOffer ToModel(this JobOfferDto dto) => new(
         dto.Id,
@@ -143,6 +147,7 @@ internal static partial class ApiMapping
         Reviews = dto.Reviews is { } reviews ? new ReviewSummary(reviews.Average, reviews.Count) : null,
         ReferenceCount = dto.ReferenceCount,
         Badges = [.. (dto.Badges ?? []).Select(ToModel).OfType<Badge>()],
+        CompletedJobs = dto.CompletedJobs,
     };
 
     /// <summary>A badge on a listing, or null for a kind this app version doesn't know yet.</summary>
@@ -264,7 +269,8 @@ internal static partial class ApiMapping
         dto.Rating,
         dto.Comment,
         dto.ServiceId,
-        dto.UpdatedAt);
+        dto.UpdatedAt,
+        dto.VerifiedJob);
 
     public static SaveReviewRequest ToSaveRequest(this Review review) =>
         new(review.ProfessionalId, review.ReviewerName, review.Rating, review.Comment, review.ServiceId);
