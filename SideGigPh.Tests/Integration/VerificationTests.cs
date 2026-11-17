@@ -70,10 +70,10 @@ public class VerificationTests(ApiTestHost api)
     [IntegrationFact]
     public async Task FromTheApp_ASentProofIsBeingChecked_ThenTheBadgeShowsAndMovesTheWorkerUp()
     {
-        // Carpenters only in this test. Same listing for both, and "Zaldy" sorts after "Abner": only his badge can put him first.
-        var plain = await TestPhone.WorkerReadyToPublishAsync(api, "Abner", trade: "carpentry", jobs: ["carpentry-furniture"]);
+        // IT workers only in this test. Same listing for both, and "Zaldy" sorts after "Abner": only his badge can put him first.
+        var plain = await TestPhone.WorkerReadyToPublishAsync(api, "Abner", trade: "it", jobs: ["it-hardware"]);
         await plain.Pro.PublishAsync();
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Zaldy", trade: "carpentry", jobs: ["carpentry-furniture"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Zaldy", trade: "it", jobs: ["it-hardware"]);
         await worker.Pro.PublishAsync();
         var photo = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
 
@@ -88,8 +88,8 @@ public class VerificationTests(ApiTestHost api)
         worker.Badges.ApprovedKinds.Should().Be(1);
 
         var answers = TestData.AirconCleaningInTaytay();
-        answers.CategoryId = "carpentry";
-        answers.ServiceId = "carpentry-furniture";
+        answers.CategoryId = "it";
+        answers.ServiceId = "it-hardware";
         var results = await (await TestPhone.SeekerAsync(api, "Bina", answers)).Seeker.SearchAsync();
 
         results.InTown.Select(h => h.Pro.Id).Should().Equal(worker.Uid, plain.Uid);

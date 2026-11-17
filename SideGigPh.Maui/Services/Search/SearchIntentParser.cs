@@ -25,8 +25,8 @@ public static partial class SearchIntentParser
     private const double GenericWordWeight = 0.5;
 
     /// <summary>
-    /// How much a word counts toward a trade when only one of its jobs has it: "karpintero" is the Carpentry trade
-    /// first, a Construction job second; "kotse" is the Car Mechanic first, the Errands car cleaning second.
+    /// How much a word counts toward a trade when only one of its jobs has it: "kotse" is the Car Mechanic first, the
+    /// Errands car cleaning second.
     /// </summary>
     private const double JobOnlyWordWeight = 0.9;
 
@@ -46,10 +46,10 @@ public static partial class SearchIntentParser
     private static readonly IReadOnlyDictionary<string, string[]> TradeWords = new Dictionary<string, string[]>
     {
         ["aircon"] = ["ac", "aircond", "airconditioner", "aircondition", "airco", "split", "window", "cooling"],
-        ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "gripo", "faucet", "roof", "roofer", "roofing", "bubong", "yero", "gutter", "alulod", "ulan", "rain", "helper", "peon", "obrero", "labor", "gate", "grills"],
-        ["electrical"] = ["electrician", "electric", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "light", "socket"],
-        ["carpentry"] = ["carpenter", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto"],
-        ["masonry_tiling"] = ["mason", "masonry", "tile", "tiles", "semento", "cement", "hollow", "blocks", "bakod", "fence", "renovation", "renovate"],
+        ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "gripo", "faucet", "roof", "roofer", "roofing", "bubong", "yero", "gutter", "alulod", "ulan", "rain", "helper", "peon", "obrero", "labor", "gate", "grills",
+            "electrician", "elektrisyan", "electric", "electrical", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "saksakan", "light", "ilaw", "socket", "breaker", "wiring", "cctv", "meralco",
+            "carpenter", "karpintero", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto", "cabinet", "kisame", "ceiling",
+            "mason", "masonry", "tile", "tiles", "semento", "cement", "palitada", "hollow", "blocks", "bakod", "fence", "pader", "bitak", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
         // "it" is never a typed word (it's a filler): Parse adds it when the text names the trade (ItIsTheTrade).

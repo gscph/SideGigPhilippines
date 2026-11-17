@@ -76,8 +76,8 @@ public class JobPostTests(ApiTestHost api)
         var tag = Tag();
         var household = await TestPhone.SeekerAsync(api, "Maricel");
         var plumber = await PlumberAsync(api, "Tubero");
-        var electrician = await TestPhone.WorkerReadyToPublishAsync(api, "Elektrisyan", trade: "electrical", jobs: ["electrical-wiring"]);
-        await electrician.Pro.PublishAsync();
+        var mechanic = await TestPhone.WorkerReadyToPublishAsync(api, "Mekaniko", trade: "car_mechanic", jobs: ["mechanic-engine"]);
+        await mechanic.Pro.PublishAsync();
 
         var posted = await PostAsync(household, Draft(tag));
 
@@ -90,7 +90,7 @@ public class JobPostTests(ApiTestHost api)
         seen.BudgetPesos.Should().Be(800);
         seen.CityId.Should().Be("taytay");
         seen.DistanceKm.Should().Be(1, "both sit at Taytay's centre, and a distance is never shown under 1 km");
-        (await FeedAsync(electrician, tag)).Should().BeEmpty("another trade");
+        (await FeedAsync(mechanic, tag)).Should().BeEmpty("another trade");
     }
 
     [IntegrationFact]

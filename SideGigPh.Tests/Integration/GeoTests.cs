@@ -53,25 +53,25 @@ public class GeoTests(ApiTestHost api)
     [IntegrationFact]
     public async Task MatchingByDistance_UsesEachWorkersOwnRadius_AndTheJob()
     {
-        var near = await TestPhone.WorkerReadyToPublishAsync(api, "Near", trade: "electrical", jobs: ["electrical-wiring"]);
+        var near = await TestPhone.WorkerReadyToPublishAsync(api, "Near", trade: "construction", jobs: ["construction-electrical"]);
         await near.Pro.PublishAsync();
-        var far = await TestPhone.WorkerReadyToPublishAsync(api, "Far", trade: "electrical", jobs: ["electrical-wiring"]);
+        var far = await TestPhone.WorkerReadyToPublishAsync(api, "Far", trade: "construction", jobs: ["construction-electrical"]);
         await far.Pro.PublishAsync();
 
         // Both are based at Taytay's centre; one goes 3 km, the other 20 km. The job is in Antipolo, about 6 km away.
         (await PublishAsync(near, Taytay.Latitude, Taytay.Longitude, 3)).StatusCode.Should().Be(HttpStatusCode.OK);
         (await PublishAsync(far, Taytay.Latitude, Taytay.Longitude, 20)).StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var matched = await InRangeAsync("electrical", "electrical-wiring", InAntipolo);
+        var matched = await InRangeAsync("construction", "construction-electrical", InAntipolo);
         matched.Should().Contain(far.Uid).And.NotContain(near.Uid);
-        (await InRangeAsync("electrical", "electrical-outlet", InAntipolo)).Should().NotContain(far.Uid, "they don't offer that job");
-        (await InRangeAsync("electrical", null, Taytay)).Should().Contain([near.Uid, far.Uid]);
+        (await InRangeAsync("construction", "construction-tiles", InAntipolo)).Should().NotContain(far.Uid, "they don't offer that job");
+        (await InRangeAsync("construction", null, Taytay)).Should().Contain([near.Uid, far.Uid]);
     }
 
     [IntegrationFact]
     public async Task ARepublishWithoutAPoint_KeepsTheWorkersOwnPointAndRadius()
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Keeps", trade: "carpentry", jobs: ["carpentry-door-window"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Keeps", trade: "construction", jobs: ["construction-carpentry"]);
         await worker.Pro.PublishAsync();
         (await PublishAsync(worker, InAntipolo.Latitude, InAntipolo.Longitude, 25)).StatusCode.Should().Be(HttpStatusCode.OK);
 

@@ -17,8 +17,9 @@ public static class OnboardingCleanup
 
     /// <summary>
     /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay
-    /// here): Plumber, Welder and Roofing &amp; Gutter are jobs of Construction (019-schema-construction-trade.sql and
-    /// 020-schema-construction-roofing.sql moved the server's rows).
+    /// here): Plumber, Welder, Roofing &amp; Gutter, Electrician, Carpentry and Masonry are jobs of Construction
+    /// (019-schema-construction-trade.sql, 020-schema-construction-roofing.sql and 022-schema-construction-trades.sql
+    /// moved the server's rows).
     /// </summary>
     private static readonly IReadOnlyDictionary<string, (string CategoryId, string ServiceId)> MergedTrades =
         new Dictionary<string, (string, string)>
@@ -26,7 +27,19 @@ public static class OnboardingCleanup
             ["plumbing"] = ("construction", "construction-plumbing"),
             ["welder"] = ("construction", "construction-welding"),
             ["roofing"] = ("construction", "construction-roofing"),
+            ["electrical"] = ("construction", "construction-electrical"),
+            ["carpentry"] = ("construction", "construction-carpentry"),
+            ["masonry_tiling"] = ("construction", "construction-masonry"),
         };
+
+    /// <summary>
+    /// Jobs of a merged trade that go to another job than the trade's own (<see cref="MergedTrades"/>): Masonry's tiles
+    /// work is Construction's tile setting, as 022-schema-construction-trades.sql moved it on the server.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, string> MergedJobs = new Dictionary<string, string>
+    {
+        ["masonry-tiles"] = "construction-tiles",
+    };
 
     /// <summary>
     /// An answer naming a merged trade (<see cref="MergedTrades"/>) moves to the trade that took it in, with its job,
@@ -38,7 +51,7 @@ public static class OnboardingCleanup
         if (MergedInto(seeker.CategoryId) is var (seekerTrade, seekerJob))
         {
             seeker.CategoryId = seekerTrade;
-            seeker.ServiceId = seeker.ServiceId is null ? null : seekerJob;
+            seeker.ServiceId = seeker.ServiceId is null ? null : MergedJobs.GetValueOrDefault(seeker.ServiceId, seekerJob);
             seeker.OtherJobText = null;
         }
 
@@ -46,12 +59,9 @@ public static class OnboardingCleanup
         if (MergedInto(pro.CategoryId) is var (proTrade, proJob))
         {
             pro.CategoryId = proTrade;
-            var hadJobs = pro.ServiceIds.Count > 0;
+            var jobs = pro.ServiceIds.Select(job => MergedJobs.GetValueOrDefault(job, proJob)).Distinct().ToList();
             pro.ServiceIds.Clear();
-            if (hadJobs)
-            {
-                pro.ServiceIds.Add(proJob);
-            }
+            pro.ServiceIds.AddRange(jobs);
 
             pro.OtherJobText = null;
         }

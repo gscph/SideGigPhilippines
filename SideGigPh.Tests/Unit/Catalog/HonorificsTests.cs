@@ -10,11 +10,9 @@ namespace SideGigPh.Tests.Unit.Catalog;
 public class HonorificsTests
 {
     [Theory]
-    [InlineData("carpentry", Honorifics.Manong)]
     [InlineData("construction", Honorifics.Manong)]
-    [InlineData("masonry_tiling", Honorifics.Manong)]
     [InlineData("aircon", Honorifics.Kuya)]
-    [InlineData("electrical", Honorifics.Kuya)]
+    [InlineData("car_mechanic", Honorifics.Kuya)]
     [InlineData("errand_runner", Honorifics.Ate)]
     [InlineData("it", Honorifics.Kuya)]
     [InlineData("a_new_trade", Honorifics.Kuya)]

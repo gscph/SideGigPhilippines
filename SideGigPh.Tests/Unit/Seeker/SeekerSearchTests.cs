@@ -95,9 +95,9 @@ public class SeekerSearchTests
         var app = await FakeApp.SeekerAsync();
         await app.Seeker.SearchForAsync("aircon leak");
 
-        await app.Seeker.PickCategoryAsync("electrical");
+        await app.Seeker.PickCategoryAsync("construction");
 
-        app.Seeker.Request.Should().Be(new SearchRequest("electrical", null, "taytay", "500-1000"));
+        app.Seeker.Request.Should().Be(new SearchRequest("construction", null, "taytay", "500-1000"));
         app.Seeker.Answers.SearchText.Should().BeNull();
     }
 

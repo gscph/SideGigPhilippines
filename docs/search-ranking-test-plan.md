@@ -19,8 +19,9 @@ deploy that isn't current, or a real bug. It isn't a typo in this page.
 4. On the phone, sign in as a **Seeker**. Open Search: Home → search box.
 
 **How to search for a job.** Type the words in the table into the search box; each one picks the trade *and* the
-job. Tapping a trade icon instead searches the **whole trade** (no job filter). For scenarios S3–S8 that gives the
-same order, because every sample worker in those trades lists the same single job.
+job. Tapping a trade icon instead searches the **whole trade** (no job filter). For scenarios S4 and S6–S8 that gives the
+same order, because every sample worker in those trades lists the same single job. S1, S2, S3 and S5 are all
+Construction jobs, so type the words (or pick the job) to see one scenario on its own.
 **Town and budget** are the two chips under the search box. Unless a test says otherwise, use
 **Town: Taytay** and the **first budget choice** ("Tipid": the job's lowest to average price, e.g. ₱755–₱1,000 for
 aircon cleaning, ₱1,000–₱2,000 for a roof leak).
@@ -28,10 +29,10 @@ aircon cleaning, ₱1,000–₱2,000 for a roof leak).
 | Scenario | Type this | Trade → job |
 |---|---|---|
 | S1 | `tagas tubo` or `barado lababo` / `pa-weld gate` or `hinang rehas` / `steelman rebar` | Construction → Plumbing / Welding / Steelman |
-| S2 | `walang kuryente` | Electrician → No power |
-| S3 | `repair furniture` | Carpentry → Furniture repair |
+| S2 | `walang kuryente` | Construction → Electrical |
+| S3 | `repair furniture` | Construction → Carpentry |
 | S4 | `linis ng bahay` | Errands → House cleaning |
-| S5 | `pakabit tiles` | Masonry → Tiles |
+| S5 | `pakabit tiles` | Construction → Tile setting |
 | S6 | `makina kotse` | Car Mechanic → Engine |
 | S7 | `inverter` | Solar Panel Technician → Inverter or battery check |
 | S8 | `linis solar panel` | Solar → Panel cleaning |
@@ -52,14 +53,14 @@ active yesterday).
 | `steelman rebar` | "No skilled workers for this job yet" | No fallback to other construction workers. |
 | Tap the **Construction** icon | All 3 | A whole-trade search has no job filter. |
 
-### S2 Town: your town first, nearby after (Electrician)
+### S2 Town: your town first, nearby after (Construction → Electrical)
 | Search | Expect | Proves |
 |---|---|---|
 | `walang kuryente`, Town **Taytay** | Goes to Taytay: **S2 Taytay at Antipolo**, **S2 Taytay Baguhan**. Other towns nearby: **S2 Antipolo Star**, **S2 Angono Kuryente**. | *Antipolo Star* (10+ yrs, 30 five-star reviews, fast replies) is far better but never jumps above a Taytay worker. |
 | Same, Town **Antipolo** | Goes to Antipolo: **S2 Antipolo Star**, **S2 Taytay at Antipolo**. Nearby: **S2 Angono Kuryente**, **S2 Taytay Baguhan**. | Groups follow the Seeker's town. A worker who goes to several towns is "in town" for each. |
 | Either | *S2 Binangonan Lang* **never** shows | A worker only in a town we don't serve is left out. |
 
-### S3 Reviews: stars and how many (Carpentry)
+### S3 Reviews: stars and how many (Construction → Carpentry)
 Expect: **S3 Steady 4.8 (40 reviews)** → **S3 Lucky 5.0 (1 review)** → **S3 Bago (no reviews)** → **S3 Poor 2.0 (10 reviews)**.
 Proves: one lucky 5★ can't beat 40 good reviews; a new worker starts from a fair 4★ guess, so bad reviews sink below "no reviews yet". Open each profile: the stars and counts match.
 
@@ -72,7 +73,7 @@ Expect:
 
 Proves: answering beats not answering, and fast beats slow. A chat under 24 hours old isn't held against the worker yet. Chats where the Seeker only tapped Call don't count (they may have talked on the phone).
 
-### S5 Activity (Masonry)
+### S5 Activity (Construction → Tile setting)
 Expect: **S5 Active Today** → **1 Week Ago** → **1 Month Ago** → **3 Months Ago**. Proves the activity points halve every week away.
 
 ### S6 Tenure (Car Mechanic)
@@ -118,7 +119,7 @@ Expect: **S8 10+ Years** (purple award icon) → **3 to 10** → **1 to 3** → 
   (see the end of this page).
 
 ### S10 Nobody in your town
-`repair furniture` (Carpentry) with Town **Angono** (every S3 worker is in Taytay): expect the note "No skilled
+`repair furniture` (Construction → Carpentry) with Town **Angono** (every S3 worker is in Taytay): expect the note "No skilled
 workers in Angono yet, so here are skilled workers from nearby towns", and all four under "Other towns nearby" in
 the S3 order.
 

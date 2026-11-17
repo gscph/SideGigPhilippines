@@ -22,24 +22,24 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
         (await InTown("construction", "construction-plumbing")).Should().Equal("S1 Tubero at Welder", "S1 Tubero Specialist");
         (await InTown("construction", "construction-welding")).Should().Equal("S1 Welder Specialist", "S1 Tubero at Welder");
         (await Search("construction", "construction-steelman")).Hits.Should().BeEmpty("nobody lists steelman work");
-        (await InTown("construction", null)).Should().HaveCount(3, "a whole-trade search shows every construction worker");
+        (await InTown("construction", null)).Should().HaveCount(13, "a whole-trade search shows every construction worker in town (S1, S2, S3 and S5)");
     }
 
     [IntegrationFact]
     public async Task S2_YourTownFirst_NearbyAfter_UnservedTownsNever()
     {
-        var taytay = await Search("electrical", "electrical-no-power");
+        var taytay = await Search("construction", "construction-electrical");
         Names(taytay, inTown: true).Should().Equal("S2 Taytay at Antipolo", "S2 Taytay Baguhan");
         Names(taytay, inTown: false).Should().Equal("S2 Antipolo Star", "S2 Angono Kuryente");
 
-        var antipolo = await Search("electrical", "electrical-no-power", city: "antipolo");
+        var antipolo = await Search("construction", "construction-electrical", city: "antipolo");
         Names(antipolo, inTown: true).Should().Equal("S2 Antipolo Star", "S2 Taytay at Antipolo");
         Names(antipolo, inTown: false).Should().Equal("S2 Angono Kuryente", "S2 Taytay Baguhan");
     }
 
     [IntegrationFact]
     public async Task S3_ManyGoodReviewsBeatOneLuckyReview_BadReviewsSinkBelowNone() =>
-        (await InTown("carpentry", "carpentry-furniture")).Should().Equal(
+        (await InTown("construction", "construction-carpentry")).Should().Equal(
             "S3 Steady 4.8 (40 reviews)", "S3 Lucky 5.0 (1 review)", "S3 Bago (no reviews)", "S3 Poor 2.0 (10 reviews)");
 
     [IntegrationFact]
@@ -54,7 +54,7 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
 
     [IntegrationFact]
     public async Task S5_RecentlyActiveFirst() =>
-        (await InTown("masonry_tiling", "masonry-tiles")).Should().Equal(
+        (await InTown("construction", "construction-tiles")).Should().Equal(
             "S5 Active Today", "S5 Active 1 Week Ago", "S5 Active 1 Month Ago", "S5 Active 3 Months Ago");
 
     [IntegrationFact]
@@ -109,11 +109,11 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     [InlineData("barado lababo", "construction", "construction-plumbing")]
     [InlineData("pa-weld gate", "construction", "construction-welding")]
     [InlineData("steelman rebar", "construction", "construction-steelman")]
-    [InlineData("walang kuryente", "electrical", "electrical-no-power")]
-    [InlineData("repair furniture", "carpentry", "carpentry-furniture")]
+    [InlineData("walang kuryente", "construction", "construction-electrical")]
+    [InlineData("repair furniture", "construction", "construction-carpentry")]
     [InlineData("linis ng bahay", "errand_runner", "errand-house-cleaning")]
     [InlineData("pa-grocery", "errand_runner", "errand-grocery")]
-    [InlineData("pakabit tiles", "masonry_tiling", "masonry-tiles")]
+    [InlineData("pakabit tiles", "construction", "construction-tiles")]
     [InlineData("makina kotse", "car_mechanic", "mechanic-engine")]
     [InlineData("tulo sa bubong", "construction", "construction-roofing")]
     [InlineData("linis solar panel", "solar_cleaning", "solar-cleaning")]
