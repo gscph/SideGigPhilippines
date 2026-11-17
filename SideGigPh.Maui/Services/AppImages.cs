@@ -70,6 +70,7 @@ public static class AppImages
         ["car_mechanic"] = "mechanic",
         ["errand_runner"] = "errand",
         ["solar_cleaning"] = "solar",
+        ["it"] = "it",
 
         // Jobs
         ["aircon-cleaning"] = "clean",

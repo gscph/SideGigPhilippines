@@ -21,8 +21,8 @@
      - The app's code depends on some ids: price tiers cheapest first (budget vs rate), experience
        '10-plus', urgencies 'today' / 'this-week' / 'canvassing'. Don't retire those.
      - English first, then everyday Taglish (local words where people use them: Tubero, Karpintero…).
-   The app ships a copy of all of this (SideGigPh.Maui/Services/ReferenceData.cs, BuiltInConfig) for
-   its very first launch offline; keep the two in step (an integration test compares them).
+   The app ships a copy of this (SideGigPh.Maui/Services/ReferenceData.cs, BuiltInConfig) only for its very first
+   launch offline. Labels, order, prices and new trades here need no app change; just never remove an id the copy has.
    ===================================================================================== */
 
 SET NOCOUNT ON;
@@ -51,6 +51,7 @@ INSERT INTO @Categories (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, Hint
 ('car_mechanic',   N'Car Mechanic',           N'Mekaniko',                N'🚗', N'Suspension, engine, electronics',       N'Suspension, makina, electronics',               8, 1),
 ('errand_runner',  N'Errands & Delivery',     N'Errand Runner / PasaBuy', N'🛵', N'Grocery, bills payment, documents',     N'Pa-grocery, pabayad ng bills, hatid-papeles',   9, 1),
 ('solar_cleaning', N'Solar Panel Technician', N'Solar Panel Technician',  N'☀️', N'Panel cleaning and check-up',           N'Linis at check-up ng solar panel',             10, 1),
+('it',             N'IT',                     N'IT',                      N'💻', N'Computers, software, networks, AI',     N'Computer, software, network, AI',              11, 1),
 -- Retired: no longer offered. Old listings and reviews keep the id.
 ('home_massage',   N'Home Service Massage',   N'Home Service Massage',    N'💆', NULL,                                     NULL,                                            99, 0);
 
@@ -145,6 +146,13 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('solar-checkup',            'solar_cleaning', N'Solar check-up / maintenance',              N'Check-up o maintenance ng solar',            N'📋', 2, 1,  1000,  1800,  3000),
 ('solar-inverter',           'solar_cleaning', N'Inverter or battery check',                 N'Check ng inverter o battery',                N'🔋', 3, 1,  1000,  2000,  3500),
 ('solar-other',              'solar_cleaning', N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
+
+('it-software',              'it',             N'Software',                                  N'Software',                                   N'💾', 1, 1,   755,  1200,  2000),
+('it-hardware',              'it',             N'Hardware',                                  N'Hardware',                                   N'🖥️', 2, 1,   755,  1500,  2500),
+('it-cybersecurity',         'it',             N'Cybersecurity',                             N'Cybersecurity',                              N'🔒', 3, 1,  1000,  2000,  3500),
+('it-ai',                    'it',             N'Artificial Intelligence',              N'Artificial Intelligence (AI)',               N'🤖', 4, 1,  1500,  3000,  5000),
+('it-enterprise',            'it',             N'Enterprise Solutions',                      N'Enterprise Solutions',                       N'🏢', 5, 1,  3000,  6000, 10000),
+('it-other',                 'it',             N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1500,  2500),
 
 -- Retired with home_massage.
 ('massage-full-body',        'home_massage',   N'Full body massage',                         N'Full body massage',                          N'💆', 1, 0,  NULL,  NULL,  NULL),

@@ -52,7 +52,8 @@ Services/Models): copy the projects without bin/obj to a short path and `dotnet 
    - deleting, skipping (`Skip =`), commenting out or loosening an assertion (`BeLessThan` limits, `ContainSingle` → `NotBeEmpty`);
    - special-casing test values in app code (`if (uid == "worker-uid")`), catching and hiding exceptions to turn red green;
    - editing a snapshot list to match a rename. `UpdateSafety/StableIdsTests` and `WireContractTests` fail **on
-     purpose** when an id, JSON field name or error code changes: phones running the old version break. Change
+     purpose** when an id the code names, a JSON field name or error code changes (never add data ids such as
+     trades or jobs to a snapshot: adding data must never need a test edit): phones running the old version break. Change
      the label instead, or add a new field next to the old one. Only edit the snapshot when the user explicitly
      accepts that old app versions break, and say so.
    - raising a performance budget in `Performance/` because the code got slower: find the slowdown.
