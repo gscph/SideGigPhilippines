@@ -213,10 +213,10 @@ public static class ReferenceData
         ["construction"] =
         [
             new("construction-foreman", new("Foreman / maestro", "Foreman / maestro"), AppImages.For("construction-foreman")),
-            new("construction-carpentry", new("Carpentry (furniture, doors, cabinets)", "Karpintero (furniture, pinto, cabinet)"), AppImages.For("construction-carpentry")),
-            new("construction-electrical", new("Electrical (wiring, outlets, lights)", "Electrician (kuryente, wiring, ilaw)"), AppImages.For("construction-electrical")),
+            new("construction-carpentry", new("Carpentry (furniture, doors, cabinets, ceiling)", "Karpintero (furniture, pinto, cabinet, kisame)"), AppImages.For("construction-carpentry")),
+            new("construction-electrical", new("Electrical (wiring, outlets, breaker, CCTV)", "Electrician (kuryente, wiring, breaker, CCTV)"), AppImages.For("construction-electrical")),
             new("construction-plumbing", new("Plumbing (clogs, leaks, pipes, CR)", "Tubero (barado, tagas, lababo, CR)"), AppImages.For("construction-plumbing")),
-            new("construction-masonry", new("Masonry (hollow blocks, cement)", "Mason (hollow blocks, semento)"), AppImages.For("construction-masonry")),
+            new("construction-masonry", new("Masonry (hollow blocks, cement, cracks, walls)", "Mason (hollow blocks, semento, bitak, pader)"), AppImages.For("construction-masonry")),
             new("construction-tiles", new("Tile setting", "Pakabit ng tiles"), AppImages.For("construction-tiles")),
             new("construction-welding", new("Welding (gates, grills, railings)", "Welder (gate, grills, rehas)"), AppImages.For("construction-welding")),
             new("construction-roofing", new("Roofing & gutter (leaks, roof sheets)", "Bubong at alulod (tulo, yero)"), AppImages.For("construction-roofing")),

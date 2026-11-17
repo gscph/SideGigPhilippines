@@ -33,6 +33,15 @@ public static class OnboardingCleanup
         };
 
     /// <summary>
+    /// Jobs of a merged trade that go to another job than the trade's own (<see cref="MergedTrades"/>): Masonry's tiles
+    /// work is Construction's tile setting, as 022-schema-construction-trades.sql moved it on the server.
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, string> MergedJobs = new Dictionary<string, string>
+    {
+        ["masonry-tiles"] = "construction-tiles",
+    };
+
+    /// <summary>
     /// An answer naming a merged trade (<see cref="MergedTrades"/>) moves to the trade that took it in, with its job,
     /// instead of being dropped, so a worker or household isn't asked again. Only while that trade is offered.
     /// </summary>
@@ -42,7 +51,7 @@ public static class OnboardingCleanup
         if (MergedInto(seeker.CategoryId) is var (seekerTrade, seekerJob))
         {
             seeker.CategoryId = seekerTrade;
-            seeker.ServiceId = seeker.ServiceId is null ? null : seekerJob;
+            seeker.ServiceId = seeker.ServiceId is null ? null : MergedJobs.GetValueOrDefault(seeker.ServiceId, seekerJob);
             seeker.OtherJobText = null;
         }
 
@@ -50,12 +59,9 @@ public static class OnboardingCleanup
         if (MergedInto(pro.CategoryId) is var (proTrade, proJob))
         {
             pro.CategoryId = proTrade;
-            var hadJobs = pro.ServiceIds.Count > 0;
+            var jobs = pro.ServiceIds.Select(job => MergedJobs.GetValueOrDefault(job, proJob)).Distinct().ToList();
             pro.ServiceIds.Clear();
-            if (hadJobs)
-            {
-                pro.ServiceIds.Add(proJob);
-            }
+            pro.ServiceIds.AddRange(jobs);
 
             pro.OtherJobText = null;
         }

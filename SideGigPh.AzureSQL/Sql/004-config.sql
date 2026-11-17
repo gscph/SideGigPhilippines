@@ -87,10 +87,10 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('aircon-other',             'aircon',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
 
 ('construction-foreman',     'construction',   N'Foreman / maestro',                         N'Foreman / maestro',                          N'👷', 1, 1,  1200,  1800,  2500),
-('construction-carpentry',   'construction',   N'Carpentry (furniture, doors, cabinets)',    N'Karpintero (furniture, pinto, cabinet)',     N'🔨', 2, 1,   755,  1200,  2000),
-('construction-electrical',  'construction',   N'Electrical (wiring, outlets, lights)',      N'Electrician (kuryente, wiring, ilaw)',       N'⚡', 3, 1,   755,  1200,  2500),
+('construction-carpentry',   'construction',   N'Carpentry (furniture, doors, cabinets, ceiling)', N'Karpintero (furniture, pinto, cabinet, kisame)', N'🔨', 2, 1,   755,  1200,  2000),
+('construction-electrical',  'construction',   N'Electrical (wiring, outlets, breaker, CCTV)', N'Electrician (kuryente, wiring, breaker, CCTV)', N'⚡', 3, 1,   755,  1200,  2500),
 ('construction-plumbing',    'construction',   N'Plumbing (clogs, leaks, pipes, CR)',        N'Tubero (barado, tagas, lababo, CR)',         N'🚰', 4, 1,   755,  1200,  2000),
-('construction-masonry',     'construction',   N'Masonry (hollow blocks, cement)',           N'Mason (hollow blocks, semento)',             N'🧱', 5, 1,   755,  1200,  2000),
+('construction-masonry',     'construction',   N'Masonry (hollow blocks, cement, cracks, walls)', N'Mason (hollow blocks, semento, bitak, pader)', N'🧱', 5, 1,   755,  1200,  2000),
 ('construction-tiles',       'construction',   N'Tile setting',                              N'Pakabit ng tiles',                           N'🔲', 6, 1,  1000,  2000,  3500),
 ('construction-welding',     'construction',   N'Welding (gates, grills, railings)',         N'Welder (gate, grills, rehas)',               N'🔥', 7, 1,   755,  1200,  2000),
 ('construction-roofing',     'construction',   N'Roofing & gutter (leaks, roof sheets)',     N'Bubong at alulod (tulo, yero)',              N'🏠', 8, 1,  1000,  2000,  3500),

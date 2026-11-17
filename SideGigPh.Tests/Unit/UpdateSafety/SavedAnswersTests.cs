@@ -105,7 +105,7 @@ public class SavedAnswersTests
     [Theory]
     [InlineData("electrical", "electrical-wiring", "construction-electrical")]
     [InlineData("carpentry", "carpentry-cabinet", "construction-carpentry")]
-    [InlineData("masonry_tiling", "masonry-tiles", "construction-masonry")]
+    [InlineData("masonry_tiling", "masonry-crack", "construction-masonry")]
     public void OldFile_ElectricianCarpenterOrMasonWorker_MovesToItsConstructionJob(string oldTrade, string oldJob, string newJob)
     {
         var state = Load(FourAreaVersionJson);
@@ -116,6 +116,32 @@ public class SavedAnswersTests
 
         state.Professional.CategoryId.Should().Be("construction");
         state.Professional.ServiceIds.Should().Equal(newJob);
+    }
+
+    [Fact]
+    public void OldFile_MasonWithTilesWork_KeepsTilesAsConstructionTileSetting()
+    {
+        var state = Load(FourAreaVersionJson);
+        state.Professional.CategoryId = "masonry_tiling";
+        state.Professional.ServiceIds = ["masonry-tiles", "masonry-cement", "masonry-crack"];
+
+        state.FitToCatalog();
+
+        state.Professional.CategoryId.Should().Be("construction");
+        state.Professional.ServiceIds.Should().Equal("construction-tiles", "construction-masonry");
+    }
+
+    [Fact]
+    public void OldFile_SeekerTilesSearch_MovesToConstructionTileSetting()
+    {
+        var state = Load(FourAreaVersionJson);
+        state.Seeker.CategoryId = "masonry_tiling";
+        state.Seeker.ServiceId = "masonry-tiles";
+
+        state.FitToCatalog();
+
+        state.Seeker.CategoryId.Should().Be("construction");
+        state.Seeker.ServiceId.Should().Be("construction-tiles");
     }
 
     [Fact]

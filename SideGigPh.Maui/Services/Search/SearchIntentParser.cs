@@ -47,8 +47,8 @@ public static partial class SearchIntentParser
     {
         ["aircon"] = ["ac", "aircond", "airconditioner", "aircondition", "airco", "split", "window", "cooling"],
         ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "gripo", "faucet", "roof", "roofer", "roofing", "bubong", "yero", "gutter", "alulod", "ulan", "rain", "helper", "peon", "obrero", "labor", "gate", "grills",
-            "electrician", "elektrisyan", "electric", "electrical", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "saksakan", "light", "ilaw", "socket", "breaker", "wiring", "cctv", "meralco", "metro",
-            "carpenter", "karpintero", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto", "bintana", "cabinet", "kisame", "ceiling",
+            "electrician", "elektrisyan", "electric", "electrical", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "saksakan", "light", "ilaw", "socket", "breaker", "wiring", "cctv", "meralco",
+            "carpenter", "karpintero", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto", "cabinet", "kisame", "ceiling",
             "mason", "masonry", "tile", "tiles", "semento", "cement", "palitada", "hollow", "blocks", "bakod", "fence", "pader", "bitak", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],

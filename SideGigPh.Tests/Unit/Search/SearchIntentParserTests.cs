@@ -48,7 +48,9 @@ public class SearchIntentParserTests
     [InlineData("aircon leak", "aircon-leak")]
     [InlineData("tumutulo ang aircon", "aircon-leak")]
     [InlineData("pa-freon", "aircon-freon")]
-    [InlineData("wiring", "construction-electrical")]
+    [InlineData("cctv", "construction-electrical")]
+    [InlineData("may bitak ang pader", "construction-masonry")]
+    [InlineData("sira kisame", "construction-carpentry")]
     [InlineData("pakabit tiles", "construction-tiles")]
     public void Parse_ClearJob_PicksThatJob(string typed, string expectedJob) =>
         SearchIntentParser.Parse(typed).ServiceId.Should().Be(expectedJob);
