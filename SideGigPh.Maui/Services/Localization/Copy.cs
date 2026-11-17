@@ -460,7 +460,7 @@ public static class Copy
     public static readonly LocalizedText SetupReference = new("Add a reference", "Maglagay ng reference");
     public static readonly LocalizedText SetupReferenceWhy = new("Someone you worked for who can vouch for you.", "Isang pinagtrabahuhan mo na magsasabing maayos ka.");
     public static readonly LocalizedText SetupPhone = new("Confirm your number", "I-confirm ang number mo");
-    public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. A customer sees this number only after they pick you.", "Ite-text ka namin ng code. Makikita lang ng customer ang number na ito kapag pinili ka na nila.");
+    public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. Customers see it only once they pick you.", "Ite-text ka namin ng code. Makikita lang ng customer kapag pinili ka.");
     public static readonly LocalizedText SetupPhoneDone = new("Confirmed with a text code.", "Na-confirm na gamit ang code sa text.");
     public static readonly LocalizedText SetupPublishReady = new("All set! Publish your listing to start finding work.", "Ready ka na! I-publish ang listing mo para magka-trabaho.");
     public static readonly LocalizedText SetupPublishButton = new("Publish and find work", "I-publish at maghanap ng trabaho");
