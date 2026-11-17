@@ -168,6 +168,13 @@ public sealed class SeekerWorkspace(
         return SaveAsync();
     }
 
+    /// <summary>When they need it (<c>ReferenceData.Urgencies</c>), changed on the results: it words the first message.</summary>
+    public Task PickUrgencyAsync(string urgencyId)
+    {
+        Answers.UrgencyId = urgencyId;
+        return SaveAsync();
+    }
+
     public Task PickBudgetAsync(string budgetId)
     {
         Answers.BudgetId = budgetId;

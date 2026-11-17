@@ -90,6 +90,7 @@ public static class Copy
     public static readonly LocalizedText SearchAllJobs = new("All {0} jobs", "Lahat ng {0}");
     public static readonly LocalizedText FilterTown = new("Town", "Bayan");
     public static readonly LocalizedText FilterBudget = new("Budget", "Budget");
+    public static readonly LocalizedText FilterWhen = new("When", "Kailan");
 
     // --- Seeker Me: their search answers, each one tap from its question ---
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng serbisyo");
