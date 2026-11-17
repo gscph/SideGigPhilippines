@@ -25,6 +25,13 @@ public class SearchIntentParserTests
     [InlineData("solar panel", "solar_cleaning")]
     [InlineData("AIRCON!!", "aircon")]
     [InlineData("airc", "aircon")] // typed only the start of the word
+    [InlineData("IT", "it")] // "it" is also an English filler word: the trade's own name still finds it
+    [InlineData("it", "it")]
+    [InlineData("computer technician", "it")] // "technician" is in other trades' names: it can't outvote "computer"
+    [InlineData("sira laptop", "it")]
+    [InlineData("wifi", "it")]
+    [InlineData("aircon technician", "aircon")]
+    [InlineData("solar technician", "solar_cleaning")]
     public void Parse_EverydayWords_FindTheTrade(string typed, string expectedTrade) =>
         SearchIntentParser.Parse(typed).CategoryId.Should().Be(expectedTrade);
 

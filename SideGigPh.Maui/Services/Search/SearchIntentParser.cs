@@ -37,18 +37,21 @@ public static class SearchIntentParser
     [
         "repair", "fix", "broken", "sira", "sirang", "ayos", "ayusin", "install", "installation", "pakabit", "kabit",
         "palit", "replace", "replacement", "check", "checkup", "maintenance", "service", "gawa", "pagawa", "bago",
+        // In more than one trade's name ("Aircon Technician", "Solar Panel Technician"): "computer technician" is IT.
+        "technician", "tech",
     ];
 
     /// <summary>Words people use for a trade that its labels don't already contain. Lower case, no accents.</summary>
     private static readonly IReadOnlyDictionary<string, string[]> TradeWords = new Dictionary<string, string[]>
     {
-        ["aircon"] = ["ac", "aircond", "airconditioner", "aircondition", "airco", "split", "window", "cooling", "technician"],
+        ["aircon"] = ["ac", "aircond", "airconditioner", "aircondition", "airco", "split", "window", "cooling"],
         ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "roof", "roofer", "roofing", "bubong", "yero", "gutter", "alulod", "ulan", "rain", "helper", "peon", "obrero", "labor", "gate", "grills"],
         ["electrical"] = ["electrician", "electric", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "light", "socket"],
         ["carpentry"] = ["carpenter", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto"],
         ["masonry_tiling"] = ["mason", "masonry", "tile", "tiles", "semento", "cement", "hollow", "blocks", "bakod", "fence", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
+        ["it"] = ["computer", "laptop", "pc", "desktop", "printer", "wifi", "internet", "router", "website", "programmer", "developer", "virus", "reformat"],
         ["car_mechanic"] = ["mechanic", "mekaniko", "car", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
     };
 
@@ -60,7 +63,8 @@ public static class SearchIntentParser
         var words = SearchText.Words(text);
         if (words.Count == 0)
         {
-            return SearchIntent.None;
+            // Only filler words left, but the whole text may still be a trade's own name: "IT" is also the word "it".
+            return TradeNamed(text) is { } trade ? new SearchIntent(trade, null, []) : SearchIntent.None;
         }
 
         var ranked = Index()
@@ -85,6 +89,14 @@ public static class SearchIntentParser
         var others = ranked.Skip(1).Take(MaxOtherCategories).Select(match => match.category.Id).ToList();
         return new SearchIntent(best.Id, BestService(best, words), others);
     }
+
+    /// <summary>The trade whose own name (English or Taglish) is exactly <paramref name="text"/>, ignoring case.</summary>
+    private static string? TradeNamed(string? text) =>
+        text?.Trim() is { Length: > 0 } name
+            ? ReferenceData.Config.Categories.FirstOrDefault(category =>
+                string.Equals(category.Label.English, name, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(category.Label.Taglish, name, StringComparison.OrdinalIgnoreCase))?.Id
+            : null;
 
     private static double TradeScore(IReadOnlyList<string> words, CategoryIndex category) =>
         words.Sum(word => (GenericWords.Contains(word) ? GenericWordWeight : 1) * Math.Max(

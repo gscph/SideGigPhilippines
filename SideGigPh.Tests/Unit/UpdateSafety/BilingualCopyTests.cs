@@ -71,6 +71,20 @@ public partial class BilingualCopyTests
         taglish.Should().NotBeNullOrWhiteSpace($"{id} needs a Taglish label");
     }
 
+    /// <summary>
+    /// A title or sentence (four words or more) left in English on the Taglish side was forgotten, not chosen: short
+    /// labels ("Contact", "IT", "Aircon Technician") may stay the same in both.
+    /// </summary>
+    [Theory]
+    [MemberData(nameof(AllTexts))]
+    public void EverySentence_IsTranslated(string name, string english, string taglish)
+    {
+        if (Words().Matches(english).Count >= 4)
+        {
+            taglish.Should().NotBe(english, $"{name} is a sentence: say it in Taglish too");
+        }
+    }
+
     [Fact]
     public void ThereAreTextsToCheck() => AllTexts().Count().Should().BeGreaterThan(100);
 
@@ -79,4 +93,7 @@ public partial class BilingualCopyTests
 
     [GeneratedRegex(@"\{\d+\}")]
     private static partial Regex Placeholder();
+
+    [GeneratedRegex(@"\p{L}{2,}")]
+    private static partial Regex Words();
 }

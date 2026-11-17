@@ -138,7 +138,7 @@ public static class Copy
         "Mga taong pwedeng magpatunay sa gawa nila. Itanong sa chat.");
     public static readonly LocalizedText ProProfilePhotos = new("Photos of their work", "Photos ng mga gawa nila");
     public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet.", "Wala pang review.");
-    public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Skilled worker not found");
+    public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Hindi makita ang skilled worker");
     public static readonly LocalizedText ProNotFound = new("This listing isn't available anymore.", "Wala na ang listing na ito.");
     public static readonly LocalizedText ContactPro = new("Contact", "Contact");
 
