@@ -68,7 +68,11 @@ public class JobBoardTests
 
         draft = Complete();
         draft.BudgetPesos = 40;
-        JobBoard.MissingHint(draft, text).Should().Contain("₱50 or more");
+        JobBoard.MissingHint(draft, text).Should().Contain("₱50 – ₱1,000,000");
+
+        draft = Complete();
+        draft.BudgetPesos = 2_000_000;
+        JobBoard.MissingHint(draft, text).Should().Contain("₱50 – ₱1,000,000", "a budget over the top is refused too");
 
         draft = Complete();
         (draft.BudgetMinPesos, draft.BudgetPesos) = (1500, 1000);

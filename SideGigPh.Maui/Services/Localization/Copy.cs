@@ -287,8 +287,8 @@ public static class Copy
     public static readonly LocalizedText PostMissingService = new("Pick what exactly you need.", "Piliin kung ano mismo ang ipapagawa.");
     /// <summary>{0} = the fewest letters the description needs.</summary>
     public static readonly LocalizedText PostMissingDescription = new("Describe the problem in at least {0} letters.", "Ikuwento ang problema, kahit {0} letra man lang.");
-    /// <summary>{0} = the smallest budget, e.g. "₱50".</summary>
-    public static readonly LocalizedText PostMissingBudget = new("Type your budget \"up to\": {0} or more, and not less than \"from\".", "I-type ang budget \"hanggang\": {0} pataas, at hindi bababa sa \"mula\".");
+    /// <summary>{0} = the smallest budget, e.g. "₱50"; {1} = the largest.</summary>
+    public static readonly LocalizedText PostMissingBudget = new("Type your budget \"up to\" ({0} – {1}), not less than \"from\".", "I-type ang budget \"hanggang\" ({0} – {1}), hindi bababa sa \"mula\".");
     public static readonly LocalizedText PostMissingTown = new("Pick your town.", "Piliin ang bayan mo.");
     public static readonly LocalizedText PostFailed = new("It didn't post. Check your internet and try again.", "Hindi na-post. I-check ang internet at subukan ulit.");
     public static readonly LocalizedText PostShowing = new("Workers can see it", "Nakikita ng mga gagawa");

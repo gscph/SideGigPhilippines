@@ -63,7 +63,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         JobPostField.Trade => text.Get(Copy.PostMissingTrade),
         JobPostField.Service => text.Get(Copy.PostMissingService),
         JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
-        JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos)),
+        JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
         JobPostField.Town => text.Get(Copy.PostMissingTown),
         _ => null,
     };
