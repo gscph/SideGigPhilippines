@@ -12,6 +12,13 @@ public static class Copy
     /// <summary>The Seeker line under the logo; {0} = a rotating honorific, plural in English (<see cref="Honorifics"/>).</summary>
     public static readonly LocalizedText SeekerTagline = new("Find {0} nearby", "May {0} para diyan");
 
+    /// <summary>
+    /// The trust line among the Seeker's busy-splash lines (brief item 16). True as worded: IDs are read with AI help and
+    /// a person decides, and only some workers have the badge, so it never says every worker is verified (legal L3:
+    /// the app never vouches for a worker).
+    /// </summary>
+    public static readonly LocalizedText TrustTagline = new("AI-assisted ID checks", "May ID check, tulong ng AI");
+
     /// <summary>The Skilled Worker lines that take turns on the busy splash (<see cref="RoleSplashLines"/>).</summary>
     public static readonly IReadOnlyList<LocalizedText> ProTaglines =
     [
