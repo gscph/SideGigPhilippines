@@ -141,12 +141,12 @@ INSERT INTO @Pros VALUES
 (24, 's6-quarter',   N'S6 Joined 3 Months Ago',            'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',        90,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (25, 's6-new',       N'S6 Joined 3 Days Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',         3,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S7 Roofing: budget fit (Roof leak repair guide: ₱1,000 lowest, ₱2,000 average, ₱3,500 above average)
-(26, 's7-minimum',   N'S7 Lowest Price',                   'roofing',        'roofing-leak',                         'taytay',          '1-3',     'minimum',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(27, 's7-average',   N'S7 Average Price',                  'roofing',        'roofing-leak',                         'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(28, 's7-above',     N'S7 Above Average',                  'roofing',        'roofing-leak',                         'taytay',          '1-3',     'above-average',  90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(29, 's7-quote',     N'S7 Depends on the Job',             'roofing',        'roofing-leak',                         'taytay',          '1-3',     'quote',          90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(30, 's7-old-cheap', N'S7 Old App, Cheap Tier',            'roofing',        'roofing-leak',                         'taytay',          '1-3',     '500-1000',       90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(31, 's7-old-top',   N'S7 Old App, Top Tier',              'roofing',        'roofing-leak',                         'taytay',          '1-3',     '5000-up',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(26, 's7-minimum',   N'S7 Lowest Price',                   'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'minimum',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(27, 's7-average',   N'S7 Average Price',                  'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(28, 's7-above',     N'S7 Above Average',                  'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'above-average',  90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(29, 's7-quote',     N'S7 Depends on the Job',             'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'quote',          90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(30, 's7-old-cheap', N'S7 Old App, Cheap Tier',            'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     '500-1000',       90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(31, 's7-old-top',   N'S7 Old App, Top Tier',              'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     '5000-up',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S8 Solar: experience
 (32, 's8-10plus',    N'S8 10+ Years',                      'solar_cleaning', 'solar-cleaning',                       'taytay',          '10-plus', 'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (33, 's8-3to10',     N'S8 3 to 10 Years',                  'solar_cleaning', 'solar-cleaning',                       'taytay',          '3-10',    'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),

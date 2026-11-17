@@ -17,13 +17,15 @@ public static class OnboardingCleanup
 
     /// <summary>
     /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay
-    /// here): Plumber and Welder are jobs of Construction (019-schema-construction-trade.sql moved the server's rows).
+    /// here): Plumber, Welder and Roofing &amp; Gutter are jobs of Construction (019-schema-construction-trade.sql and
+    /// 020-schema-construction-roofing.sql moved the server's rows).
     /// </summary>
     private static readonly IReadOnlyDictionary<string, (string CategoryId, string ServiceId)> MergedTrades =
         new Dictionary<string, (string, string)>
         {
             ["plumbing"] = ("construction", "construction-plumbing"),
             ["welder"] = ("construction", "construction-welding"),
+            ["roofing"] = ("construction", "construction-roofing"),
         };
 
     /// <summary>

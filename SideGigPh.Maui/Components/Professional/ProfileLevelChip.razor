@@ -1,3 +1,6 @@
-<MudChip T="string" Variant="Variant.Text" Size="Size.Small" Color="@ChipColor" Icon="@ChipIcon" Class="ma-0 align-self-start">
-    @T.Get(Label)
-</MudChip>
+@if (Level != ProfileLevel.NotLive)
+{
+    <MudChip T="string" Variant="Variant.Text" Size="Size.Small" Color="@ChipColor" Icon="@ChipIcon" Class="ma-0 align-self-start">
+        @T.Get(Label)
+    </MudChip>
+}

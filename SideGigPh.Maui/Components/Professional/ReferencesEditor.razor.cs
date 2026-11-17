@@ -9,7 +9,8 @@ namespace SideGigPh.Maui.Components.Professional;
 /// <summary>
 /// Add and remove the pro's references (1 to 3 people they worked for, name and mobile number), on the References
 /// page and in the setup after the interview. Private (never shown to customers); at least one is needed to publish.
-/// A published listing keeps at least one.
+/// A published listing keeps at least one. The form shows only while there is none; after that "Add more" opens it,
+/// and it closes again once the next one is added.
 /// </summary>
 public partial class ReferencesEditor : ComponentBase
 {
@@ -24,6 +25,11 @@ public partial class ReferencesEditor : ComponentBase
     private bool _busy;
     private LocalizedText? _problem;
     private int _formVersion;
+
+    // "Add more" was tapped (the form always shows while there is no reference yet).
+    private bool _addingMore;
+
+    private bool ShowForm => References.Count == 0 || _addingMore;
 
     private IReadOnlyList<WorkReference> References => Workspace.Draft.References;
 
@@ -56,6 +62,7 @@ public partial class ReferencesEditor : ComponentBase
             if (result == ReferenceAddResult.Added)
             {
                 _formVersion++;
+                _addingMore = false;
             }
         }
         catch (Exception ex)
@@ -70,6 +77,12 @@ public partial class ReferencesEditor : ComponentBase
         }
 
         await OnChanged.InvokeAsync();
+    }
+
+    private void OpenForm()
+    {
+        _addingMore = true;
+        _problem = null;
     }
 
     private async Task RemoveAsync(WorkReference reference)

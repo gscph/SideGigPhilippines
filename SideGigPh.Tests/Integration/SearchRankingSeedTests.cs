@@ -65,17 +65,17 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     [IntegrationFact]
     public async Task S7_InBudgetFirst_ALittleOverBeforeQuote_FarOverLast_OldTiersStillRead()
     {
-        // Roof leak repair: ₱1,000 lowest, ₱2,000 average, ₱3,500 above average. Old tiers: ₱750 and ₱5,000.
-        (await InTown("roofing", "roofing-leak")).Should().Equal(
+        // Inverter or battery check: ₱1,000 lowest, ₱2,000 average, ₱3,500 above average. Old tiers: ₱750 and ₱5,000.
+        (await InTown("solar_cleaning", "solar-inverter")).Should().Equal(
             "S7 Average Price", "S7 Lowest Price", "S7 Old App, Cheap Tier",   // ₱1,000–₱2,000 (Tipid): all fit (A–Z)
             "S7 Depends on the Job", "S7 Above Average", "S7 Old App, Top Tier");
-        (await InTown("roofing", "roofing-leak", budget: "2000-3500")).Should().Equal(
+        (await InTown("solar_cleaning", "solar-inverter", budget: "2000-3500")).Should().Equal(
             "S7 Above Average", "S7 Average Price", "S7 Lowest Price", "S7 Old App, Cheap Tier",
             "S7 Old App, Top Tier", "S7 Depends on the Job");                    // ₱5,000 is 43% over: still beats no price
-        (await InTown("roofing", "roofing-leak", budget: "1000-1500")).Should().Equal(
+        (await InTown("solar_cleaning", "solar-inverter", budget: "1000-1500")).Should().Equal(
             "S7 Lowest Price", "S7 Old App, Cheap Tier", "S7 Average Price",
             "S7 Depends on the Job", "S7 Above Average", "S7 Old App, Top Tier"); // the last two are far over: no points (A–Z)
-        (await InTown("roofing", "roofing-leak", budget: "unsure")).Should().Equal(
+        (await InTown("solar_cleaning", "solar-inverter", budget: "unsure")).Should().Equal(
             "S7 Above Average", "S7 Average Price", "S7 Depends on the Job", "S7 Lowest Price", "S7 Old App, Cheap Tier", "S7 Old App, Top Tier");
     }
 
@@ -115,7 +115,7 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     [InlineData("pa-grocery", "errand_runner", "errand-grocery")]
     [InlineData("pakabit tiles", "masonry_tiling", "masonry-tiles")]
     [InlineData("makina kotse", "car_mechanic", "mechanic-engine")]
-    [InlineData("tulo sa bubong", "roofing", "roofing-leak")]
+    [InlineData("tulo sa bubong", "construction", "construction-roofing")]
     [InlineData("linis solar panel", "solar_cleaning", "solar-cleaning")]
     [InlineData("linis aircon", "aircon", "aircon-cleaning")]
     [InlineData("pakabit aircon", "aircon", "aircon-install")]

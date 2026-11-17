@@ -35,7 +35,8 @@ public partial class ProSetup : ComponentBase
 
     private ProfessionalDraft Draft => Workspace.Draft;
 
-    private double Progress => (int)_step / (double)ProSetupStep.References;
+    // Carries on from the interview's bar (OnboardingSteps.ProgressOf).
+    private double Progress => OnboardingSteps.ProgressOf(_step);
 
     protected override async Task OnInitializedAsync()
     {

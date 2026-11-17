@@ -18,7 +18,7 @@ public class SearchIntentParserTests
     [InlineData("hinang gate", "construction")]
     [InlineData("mekaniko", "car_mechanic")]
     [InlineData("sira kotse", "car_mechanic")]
-    [InlineData("tulo sa bubong", "roofing")]
+    [InlineData("tulo sa bubong", "construction")]
     [InlineData("karpintero", "carpentry")]
     [InlineData("tiles", "masonry_tiling")]
     [InlineData("pasabuy", "errand_runner")]

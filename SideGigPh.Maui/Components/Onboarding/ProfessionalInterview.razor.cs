@@ -62,8 +62,8 @@ public partial class ProfessionalInterview : ComponentBase
 
     private ProfessionalDraft Draft => _state!.Professional;
 
-    // Step 1 already shows some progress (endowed progress); the preview is 100%.
-    private double Progress => (int)_step / (double)ProStep.Preview;
+    // One bar with the setup after it (OnboardingSteps.ProgressOf).
+    private double Progress => OnboardingSteps.ProgressOf(_step);
 
     protected override async Task OnInitializedAsync()
     {

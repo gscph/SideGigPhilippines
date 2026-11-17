@@ -23,5 +23,6 @@ public static class SchemaScripts
         "017-schema-others-and-ranges",
         "018-schema-job-done",
         "019-schema-construction-trade",
+        "020-schema-construction-roofing",
     ];
 }

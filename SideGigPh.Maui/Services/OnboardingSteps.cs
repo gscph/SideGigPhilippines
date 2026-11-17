@@ -170,6 +170,15 @@ public static class OnboardingSteps
 
     public static string PathOf(ProSetupStep step) => $"/start/pro/setup/{(int)step}";
 
+    // One progress bar from the first question to the last setup step, so it never drops back between the two parts.
+    private const int ProTotalSteps = (int)ProStep.Preview + (int)ProSetupStep.References;
+
+    /// <summary>How full the progress bar is on an interview question (step 1 already shows some: endowed progress).</summary>
+    public static double ProgressOf(ProStep step) => (int)step / (double)ProTotalSteps;
+
+    /// <summary>How full the progress bar is on a setup step: it carries on from the interview's preview; the last is 100%.</summary>
+    public static double ProgressOf(ProSetupStep step) => ((int)ProStep.Preview + (int)step) / (double)ProTotalSteps;
+
     /// <summary>The first proof still missing (own photo, work photos, a reference), or null when all are there.</summary>
     public static ProSetupStep? FirstUnfinished(this ProfessionalDraft draft)
     {

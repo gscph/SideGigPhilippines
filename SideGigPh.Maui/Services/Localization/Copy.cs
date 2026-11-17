@@ -347,8 +347,6 @@ public static class Copy
     public static readonly LocalizedText ProPostsNeedListing = new("Publish your listing first, so we know your trade and where you go.", "I-publish muna ang listing mo para alam namin ang trade mo at kung saan ka pumupunta.");
 
     // --- Pro home ---------------------------------------------------------
-    public static readonly LocalizedText ProHomeNotLive = new("Saved on this phone. Not visible to customers yet.", "Saved on this phone. Hindi pa ito nakikita ng customer.");
-    public static readonly LocalizedText LevelNotLive = new("Not visible to customers yet", "Hindi ka pa nakikita ng customer");
     public static readonly LocalizedText LevelLive = new("Live · customers can find you", "Live · nakikita ka na ng customer");
     public static readonly LocalizedText LevelComplete = new("Fully set up profile", "Kumpletong profile");
     public static readonly LocalizedText PartMissing = new("Needed to publish", "Kailangan para ma-publish");
@@ -476,6 +474,7 @@ public static class Copy
     public static readonly LocalizedText ReferenceName = new("Their name", "Pangalan niya");
     public static readonly LocalizedText ReferenceNumber = new("Their mobile number", "Mobile number niya");
     public static readonly LocalizedText ReferenceAdd = new("Add reference", "I-add ang reference");
+    public static readonly LocalizedText ReferenceAddMore = new("Add more", "Magdagdag pa");
     public static readonly LocalizedText ReferenceConsent = new(
         "They agreed to be my reference and to be contacted by Tarbaho.",
         "Pumayag siyang maging reference ko at na tawagan siya ng Tarbaho.");
