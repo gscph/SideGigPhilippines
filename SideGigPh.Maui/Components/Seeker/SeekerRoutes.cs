@@ -35,7 +35,8 @@ public static class SeekerRoutes
     public static string Rate(string professionalId) => $"{Reviews}/rate/{Uri.EscapeDataString(professionalId)}";
 
     /// <summary>The review page after a completed job: it says the review stays hidden until the worker reviews too (blind reviews).</summary>
-    public static string RateAfterJob(string professionalId) => $"{Rate(professionalId)}?job=1";
+    // job=true, not 1: Blazor reads a bool query value only as true/false, and anything else breaks the page.
+    public static string RateAfterJob(string professionalId) => $"{Rate(professionalId)}?job=true";
 
     /// <summary>Report or block a person (a worker, or a review's writer); Back and Done return to <paramref name="back"/>.</summary>
     public static string Report(string personId, ReportSubject subject, string back, string? chatId = null) =>

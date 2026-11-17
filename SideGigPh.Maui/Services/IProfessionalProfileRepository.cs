@@ -9,8 +9,12 @@ namespace SideGigPh.Maui.Services;
 /// </summary>
 public interface IProfessionalProfileRepository
 {
-    /// <summary>Whether the authenticated user already has a Professional profile.</summary>
-    Task<bool> HasProfileAsync(string uid);
+    /// <summary>
+    /// The signed-in worker's own live listing as interview answers, photo ids and private references included, read
+    /// fresh from the server (a reinstalled app restores it: <see cref="ListingRestore"/>). Null when they have no
+    /// listing or it couldn't be read (logged).
+    /// </summary>
+    Task<ProfessionalDraft?> GetOwnDraftAsync(string uid);
 
     /// <summary>
     /// One page of a search, ranked by the server: the <c>Paging.Search</c> results after the first

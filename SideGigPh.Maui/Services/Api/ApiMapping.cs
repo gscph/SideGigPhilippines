@@ -155,6 +155,24 @@ internal static partial class ApiMapping
         CompletedJobs = dto.CompletedJobs,
     };
 
+    /// <summary>
+    /// The worker's own live listing as the answers that publish it again: photo ids (not URLs) and the private
+    /// <paramref name="references"/>. Name and number are not taken: they always come from the account (<c>TakeAccount</c>).
+    /// </summary>
+    public static ProfessionalDraft ToDraft(this ListingDto dto, IReadOnlyList<ReferenceDto> references) => new()
+    {
+        CategoryId = dto.CategoryId,
+        ServiceIds = [.. dto.ServiceIds],
+        OtherJobText = dto.OtherWork,
+        AreaId = dto.AreaId,
+        CityIds = [.. dto.CityIds],
+        ExperienceId = dto.ExperienceId,
+        RateTierId = dto.RateTierId,
+        ProfilePhotoId = dto.ProfilePhoto?.Id,
+        WorkPhotoIds = [.. dto.WorkPhotos.Select(photo => photo.Id)],
+        References = [.. references.Select(reference => new WorkReference(reference.Name, reference.MobileNumber))],
+    };
+
     /// <summary>A badge on a listing, or null for a kind this app version doesn't know yet.</summary>
     public static Badge? ToModel(this BadgeDto dto) => KindOf(dto.Kind) is { } kind
         ? new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName)

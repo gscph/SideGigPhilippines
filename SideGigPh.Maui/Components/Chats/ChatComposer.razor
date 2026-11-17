@@ -6,7 +6,7 @@
         }
         <MudStack Row="true" AlignItems="AlignItems.End" Spacing="2">
             <MudTextField T="string" Value="@Message" ValueChanged="@(value => MessageChanged.InvokeAsync(value))" Immediate="true"
-                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="1" MaxLines="5" MaxLength="1000" Class="app-pill-input flex-1"
+                          Variant="Variant.Outlined" Margin="Margin.Dense" Lines="1" MaxLines="5" Sizing="InputSizing.Auto" MaxLength="1000" Class="app-pill-input flex-1"
                           Placeholder="@T.Get(Copy.YourMessage)" aria-label="@T.Get(Copy.YourMessage)" />
             <MudIconButton Icon="@Icons.Material.Rounded.ArrowUpward" Variant="Variant.Filled" Color="Color.Primary" Class="rounded-circle mb-1"
                            Disabled="@(Busy || string.IsNullOrWhiteSpace(Message))" aria-label="@T.Get(Copy.Send)"

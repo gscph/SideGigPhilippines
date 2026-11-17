@@ -150,6 +150,17 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             : null;
 
     /// <summary>
+    /// <paramref name="uid"/>'s own references, first added first (empty without a listing): only for the worker
+    /// themselves, so a new phone can restore their live listing whole (<c>GET professionals/me/references</c>).
+    /// </summary>
+    public async Task<List<ReferenceDto>> ReferencesAsync(string uid, CancellationToken cancellationToken) =>
+        await db.ProfessionalReferences.AsNoTracking()
+            .Where(r => r.ProfessionalId == uid)
+            .OrderBy(r => r.Position)
+            .Select(r => new ReferenceDto(r.Name, r.MobileNumber))
+            .ToListAsync(cancellationToken);
+
+    /// <summary>
     /// Makes <paramref name="uid"/>'s listing live, or replaces it. The number is the account's verified number
     /// (from the sign-in token), so one phone gets one listing and one account (anti-fraud rule 1; a stale account
     /// still showing the number loses it); a photo can be on one listing only (rule 2).

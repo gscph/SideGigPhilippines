@@ -22,7 +22,20 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
     private readonly TimedCache<SearchResult> _searches = new(SearchFreshFor);
     private readonly TimedCache<ProfessionalListing> _listings = new(ListingFreshFor);
 
-    public async Task<bool> HasProfileAsync(string uid) => await GetByIdAsync(uid) is not null;
+    public Task<ProfessionalDraft?> GetOwnDraftAsync(string uid) =>
+        api.ReadAsync(async () =>
+        {
+            // Not from the kept listings: those carry no photo ids, and the restore needs the server's latest.
+            if (await api.GetAsync($"professionals/{ApiClient.Escape(uid)}", ApiJson.Default.ListingDto) is not { } listing)
+            {
+                return null;
+            }
+
+            // Both or nothing: a listing restored without its references couldn't be re-published after an edit.
+            var references = await api.GetAsync("professionals/me/references", ApiJson.Default.ListReferenceDto)
+                ?? throw new HttpRequestException("The references of a live listing were not found.");
+            return listing.ToDraft(references);
+        }, null, $"the own listing of {uid}");
 
     public Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip)
     {
