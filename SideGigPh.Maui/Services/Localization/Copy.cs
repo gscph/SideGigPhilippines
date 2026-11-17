@@ -59,7 +59,7 @@ public static class Copy
     public static readonly LocalizedText BudgetLow = new("Budget-friendly", "Tipid");
     public static readonly LocalizedText BudgetMid = new("Average", "Karaniwan");
     public static readonly LocalizedText BudgetHigh = new("For bigger or harder jobs", "Para sa mas malaki o mahirap na trabaho");
-    public static readonly LocalizedText BudgetOwnRange = new("Or type your own range", "O i-type ang sarili mong range");
+    public static readonly LocalizedText BudgetOwnRange = new("Type your own range", "I-type ang sarili mong presyo");
     public static readonly LocalizedText BudgetRange = new("{0} – {1}", "{0} – {1}");
     public static readonly LocalizedText BudgetUpTo = new("Up to {0}", "Hanggang {0}");
     public static readonly LocalizedText BudgetAndUp = new("{0} and up", "{0} pataas");

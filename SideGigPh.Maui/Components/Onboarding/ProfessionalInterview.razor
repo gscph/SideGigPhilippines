@@ -49,8 +49,8 @@
             <InterviewStep Illustration="@AppImages.Price" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
                            Note="@T.Format(Copy.ProRateNote, Money.Peso(ReferenceData.MinimumWage))" Progress="Progress" OnBack="GoBack"
                            OnNext="SaveRateAsync" CanContinue="@CanSaveRate">
-                <ChoiceTiles Items="ChoiceItem.From(Pricing.RateChoices(Draft.ServiceIds), T)"
-                             SelectedIds="Selected(_rateLevel)" OnPick="PickRateAsync" />
+                @* <ChoiceTiles Items="ChoiceItem.From(Pricing.RateChoices(Draft.ServiceIds), T)"
+                             SelectedIds="Selected(_rateLevel)" OnPick="PickRateAsync" /> *@
                 <MudText Typo="Typo.subtitle2">@T.Get(Copy.BudgetOwnRange)</MudText>
                 <BudgetRangeFields @bind-Min="_rateFrom" @bind-Max="_rateUpTo" />
             </InterviewStep>
