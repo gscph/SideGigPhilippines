@@ -45,8 +45,9 @@ public partial class LaunchRouter : ComponentBase
             return;
         }
 
-        // Signed in on a phone with no side picked (reinstalled, or a new phone): a worker's live listing comes back,
-        // so they open Pro home instead of the interview. Every sign-in comes back here (IAuthLanding's default "/").
+        // Signed in on a phone with no answers (reinstalled, a new phone, or "Sign in with this number" before the first
+        // question): a worker's live listing comes back, so they open Pro home instead of the interview. Every sign-in
+        // comes back here (IAuthLanding's default "/").
         await Restore.RestoreAsync(state);
         Nav.NavigateTo(OnboardingSteps.LaunchPath(state), replace: true);
     }
