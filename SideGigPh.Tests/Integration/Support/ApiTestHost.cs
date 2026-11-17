@@ -122,6 +122,24 @@ public sealed class ApiTestHost : IAsyncLifetime
         (await command.ExecuteNonQueryAsync()).Should().Be(1, "the chat exists");
     }
 
+    /// <summary>
+    /// Moves both "done" marks of the picked job on <paramref name="postId"/> back by <paramref name="by"/>, as if it
+    /// was completed that long ago (blind reviews open <see cref="SideGigPh.Contracts.ReviewRules.BlindFor"/> after it).
+    /// </summary>
+    public async Task CompleteJobEarlierAsync(long postId, TimeSpan by)
+    {
+        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
+            """
+            UPDATE JobOffers SET HouseholdDoneAt = DATEADD(second, -@seconds, HouseholdDoneAt), WorkerDoneAt = DATEADD(second, -@seconds, WorkerDoneAt)
+            WHERE PostId = @postId AND Status = 'picked' AND HouseholdDoneAt IS NOT NULL AND WorkerDoneAt IS NOT NULL
+            """, connection);
+        command.Parameters.AddWithValue("@seconds", (int)by.TotalSeconds);
+        command.Parameters.AddWithValue("@postId", postId);
+        (await command.ExecuteNonQueryAsync()).Should().Be(1, "the job is completed");
+    }
+
     /// <summary>A raw HTTP client to the API, signed in with <paramref name="token"/> when given.</summary>
     public HttpClient Client(string? token = null)
     {

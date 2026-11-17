@@ -308,16 +308,16 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             .AsSplitQuery();
 
     /// <summary>
-    /// The listings with their average stars and review count, and how many references each has (two grouped
-    /// queries). Only the count leaves the server: reference names and numbers stay private.
+    /// The listings with their average stars and review count (blind reviews left out until they open, so search
+    /// ranking ignores them too), and how many references each has (grouped queries). Only the count leaves the
+    /// server: reference names and numbers stay private.
     /// </summary>
     private async Task<IReadOnlyList<ListingDto>> WithReviewsAsync(IReadOnlyList<ProfessionalRow> rows, CancellationToken cancellationToken)
     {
         var ids = rows.Select(p => p.Id).ToList();
         var reviews = ids.Count == 0
             ? new Dictionary<string, ReviewSummaryDto>()
-            : await db.Reviews.AsNoTracking()
-                .Where(r => ids.Contains(r.ProfessionalId))
+            : await BlindReviewFilter.Shown(db, db.Reviews.AsNoTracking().Where(r => ids.Contains(r.ProfessionalId)), DateTimeOffset.UtcNow)
                 .GroupBy(r => r.ProfessionalId)
                 .Select(g => new { g.Key, Average = g.Average(r => (double)r.Rating), Count = g.Count() })
                 .ToDictionaryAsync(g => g.Key, g => new ReviewSummaryDto(g.Average, g.Count), cancellationToken);

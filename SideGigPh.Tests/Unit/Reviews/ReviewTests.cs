@@ -52,6 +52,18 @@ public class ReviewTests
     }
 
     [Fact]
+    public async Task ALockedReview_CannotBeChanged()
+    {
+        var locked = new Review("ana_seeker-uid", "ana", TestData.SeekerUid, "Maricel", 3, null, null, DateTimeOffset.Now.AddDays(-1), Locked: true);
+        var app = await SeekerWhoContactedAna([locked]);
+
+        app.Seeker.ReviewLocked("ana").Should().BeTrue();
+        app.Seeker.CanRate("ana").Should().BeFalse("both reviews of the service show: no changing stars after seeing the other's");
+        (await app.Seeker.SubmitReviewAsync(Ana(), 1, null, "Maricel")).Should().BeFalse();
+        app.Reviews.Saved.Should().BeEmpty();
+    }
+
+    [Fact]
     public void ReviewRules_OpenExactly24HoursAfterTheChatStarts()
     {
         var started = new DateTimeOffset(2026, 11, 1, 8, 0, 0, TimeSpan.Zero);

@@ -28,10 +28,17 @@
             @foreach (var review in Workspace.MyReviews)
             {
                 var pro = Workspace.ThreadWith(review.ProfessionalId)?.Pro;
-                <MudLink Href="@SeekerRoutes.Rate(review.ProfessionalId)" Underline="Underline.None" Color="Color.Inherit"
-                         aria-label="@T.Get(Copy.EditYourReview)" @key="review.Id">
-                    <ReviewRow Review="review" Name="@pro?.DisplayName" PhotoUrl="@pro?.PhotoUrl" />
-                </MudLink>
+                @if (review.Locked)
+                {
+                    <ReviewRow Review="review" Name="@pro?.DisplayName" PhotoUrl="@pro?.PhotoUrl" @key="review.Id" />
+                }
+                else
+                {
+                    <MudLink Href="@SeekerRoutes.Rate(review.ProfessionalId)" Underline="Underline.None" Color="Color.Inherit"
+                             aria-label="@T.Get(Copy.EditYourReview)" @key="review.Id">
+                        <ReviewRow Review="review" Name="@pro?.DisplayName" PhotoUrl="@pro?.PhotoUrl" />
+                    </MudLink>
+                }
                 <MudDivider />
             }
         </MudStack>

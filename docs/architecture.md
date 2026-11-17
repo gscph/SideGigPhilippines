@@ -243,6 +243,34 @@ for Android).
   tells `SeekerWorkspace.CompletedJobWith`, so `CanRate` opens the review page at once. `ReviewRow` shows a green
   "Verified service" chip (`Review.VerifiedJob`; copy says service, never job), `ListingFacts` a "Done through Tarbaho:
   N" fact, and a worker's `JobPostCard` the household's stars.
+- **Blind two-way reviews** (no schema change, computed from the existing times): if one side's review showed first,
+  the other could answer it in kind, so people would inflate their stars out of fear. After a completed job, a review
+  either side writes (or changes) from then on stays **hidden until the other side has reviewed since that job too, or
+  `ReviewRules.BlindFor` (14 days, `SideGigPh.Contracts`) after the job** (`ReviewRules.IsHidden`, the rule in C#;
+  the job is completed when its second "done" mark lands). The server applies it as SQL in
+  `SideGigPh.AzureSQL/BlindReviewFilter` (`Shown`, one per review table) everywhere a review reaches someone else: the
+  worker's reviews (`ReviewStore.ForProfessionalAsync`, the worker too), a Seeker's written reviews read by anyone
+  else (`BySeekerAsync`), the stars and count on every listing (`ProfessionalStore.WithReviewsAsync`, so
+  `SearchRanker` never sees a hidden review) and a household's stars on its posts (`PickedJobStore.HouseholdStarsAsync`).
+  The writer always sees their own, marked `ReviewDto.Hidden` (`ReviewRow` says "Only you see this for now"). A review
+  written before the job (a one-way review 24 h after a chat) stays as it was, and reviews with no completed job are
+  not blind. Saving a household review clears the search cache, since it can open the household's review.
+  `PickedJobDto` carries `CompletedAt`, `TheyReviewed` (the other side reviewed since the job; its stars stay hidden)
+  and `TheirRating` (only once it shows). In the app, `Services/BlindReviews.StageOf` (`BlindReviewStage`:
+  `WaitingForMe`, `WaitingForThem`, `Open`, `WindowClosed`) words the line under the `PickedJobCard` status: "Your
+  review stays hidden until {name} reviews you too, or in N days", "{name} already reviewed you. Send yours to see it",
+  "Waiting for {name} to review you…", then "{name} gave you N of 5 stars"; the household's review page opened from the
+  card (`SeekerRoutes.RateAfterJob`, `?job=1`) says the worker won't see it until they review too.
+  **Locked once both show:** otherwise a side could lower their stars after seeing the other's. A review written since
+  the pair's latest completed job locks when the other side's review of it shows too (they reviewed since the job, or
+  the 14 days passed): `ReviewRules.IsLocked`, checked by `BlindReviewFilter.IsLockedAsync`. `PUT reviews` and `PUT
+  household-reviews` then answer `403 review-locked` (`ReviewOutcome.Locked`, `HouseholdReviewOutcome.Locked`), and
+  Start over (`DELETE reviews/mine`, `ReviewStore.DeleteWrittenByAsync`) keeps locked reviews (deleting the account
+  still removes everything). A hidden review can still change; a newer completed job opens it again (blind again);
+  one-way chat reviews never lock. The writer is told: `ReviewDto.Locked` (own reviews only) and
+  `PickedJobDto.MyReviewLocked`. In the app `SeekerWorkspace.ReviewLocked` makes `CanRate` false, so the thread shows
+  `Copy.ReviewLockedNote` ("Reviews can't be changed once both are shown") instead of Edit your review, "Your reviews"
+  lists it without the edit link (`ReviewRow` adds a lock line), and `PickedJobCard` drops its Change buttons for the note.
 - **Phone numbers stay private until a pick** (brief item 11): `ProfessionalStore.ToDto` leaves
   `ListingDto.MobileNumber` empty (the field stays for older apps, whose Call then fails with "couldn't open your phone
   app"), so search, profiles and offers never carry it; `GET professionals/{id}` for the caller's own id and the
