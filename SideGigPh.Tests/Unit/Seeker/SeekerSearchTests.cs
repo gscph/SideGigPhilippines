@@ -58,11 +58,11 @@ public class SeekerSearchTests
 
         var intent = await app.Seeker.SearchForAsync("  barado ang lababo  ");
 
-        intent.CategoryId.Should().Be("plumbing");
-        app.Seeker.Answers.CategoryId.Should().Be("plumbing");
-        app.Seeker.Answers.ServiceId.Should().Be("plumbing-clog");
+        intent.CategoryId.Should().Be("construction");
+        app.Seeker.Answers.CategoryId.Should().Be("construction");
+        app.Seeker.Answers.ServiceId.Should().Be("construction-plumbing");
         app.Seeker.Answers.SearchText.Should().Be("barado ang lababo");
-        app.Seeker.CurrentIntent.CategoryId.Should().Be("plumbing");
+        app.Seeker.CurrentIntent.CategoryId.Should().Be("construction");
         app.Store.Saves.Should().Be(1);
     }
 

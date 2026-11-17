@@ -5,14 +5,62 @@ namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// Fits saved answers to what we offer now. Answers saved earlier can hold a town or area that is gone
-/// (<see cref="DropUnservedTowns"/>), a trade or job that was retired (<see cref="DropRetiredJobs"/>) or a rate on the
+/// (<see cref="DropUnservedTowns"/>), a trade that moved under another (<see cref="MoveMergedTrades"/>: kept, on its new
+/// trade), a trade or job that was retired (<see cref="DropRetiredJobs"/>) or a rate on the
 /// old price scale (<see cref="DropOldRate"/>): those are dropped, so the interview asks the question again instead
 /// of showing something we no longer offer.
 /// </summary>
 public static class OnboardingCleanup
 {
     /// <summary>Every cleanup, as the saved answers load.</summary>
-    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropRetiredJobs().DropOldRate();
+    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().MoveMergedTrades().DropRetiredJobs().DropOldRate();
+
+    /// <summary>
+    /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay
+    /// here): Plumber and Welder are jobs of Construction (019-schema-construction-trade.sql moved the server's rows).
+    /// </summary>
+    private static readonly IReadOnlyDictionary<string, (string CategoryId, string ServiceId)> MergedTrades =
+        new Dictionary<string, (string, string)>
+        {
+            ["plumbing"] = ("construction", "construction-plumbing"),
+            ["welder"] = ("construction", "construction-welding"),
+        };
+
+    /// <summary>
+    /// An answer naming a merged trade (<see cref="MergedTrades"/>) moves to the trade that took it in, with its job,
+    /// instead of being dropped, so a worker or household isn't asked again. Only while that trade is offered.
+    /// </summary>
+    public static OnboardingState MoveMergedTrades(this OnboardingState state)
+    {
+        var seeker = state.Seeker;
+        if (MergedInto(seeker.CategoryId) is var (seekerTrade, seekerJob))
+        {
+            seeker.CategoryId = seekerTrade;
+            seeker.ServiceId = seeker.ServiceId is null ? null : seekerJob;
+            seeker.OtherJobText = null;
+        }
+
+        var pro = state.Professional;
+        if (MergedInto(pro.CategoryId) is var (proTrade, proJob))
+        {
+            pro.CategoryId = proTrade;
+            var hadJobs = pro.ServiceIds.Count > 0;
+            pro.ServiceIds.Clear();
+            if (hadJobs)
+            {
+                pro.ServiceIds.Add(proJob);
+            }
+
+            pro.OtherJobText = null;
+        }
+
+        return state;
+    }
+
+    private static (string CategoryId, string ServiceId)? MergedInto(string? categoryId) =>
+        categoryId is not null && MergedTrades.TryGetValue(categoryId, out var target) && ReferenceData.FindTrade(target.CategoryId) is not null
+            ? target
+            : null;
 
     /// <summary>
     /// A Skilled Worker rate from before price guides (an old one-scale tier such as <c>500-1000</c>) is dropped, so the

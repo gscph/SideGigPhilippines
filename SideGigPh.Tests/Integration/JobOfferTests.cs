@@ -23,8 +23,8 @@ public class JobOfferTests(ApiTestHost api)
 
     private static JobPostDraft Draft(string tag, int budget = 800) => new()
     {
-        CategoryId = "plumbing",
-        ServiceId = "plumbing-clog",
+        CategoryId = "construction",
+        ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = budget,
         Description = $"Barado ang lababo sa kusina {tag}",
@@ -39,7 +39,7 @@ public class JobOfferTests(ApiTestHost api)
 
     private static async Task<TestPhone> PlumberAsync(ApiTestHost api, string name)
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "plumbing", jobs: ["plumbing-clog"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "construction", jobs: ["construction-plumbing"]);
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
         return worker;
     }

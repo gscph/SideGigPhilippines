@@ -150,7 +150,7 @@ public class WorkerToCustomerTests(ApiTestHost api)
     [IntegrationFact]
     public async Task TypedSearch_FindsTheWorker()
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Lito", trade: "plumbing", jobs: ["plumbing-clog"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Lito", trade: "construction", jobs: ["construction-plumbing"]);
         await worker.Pro.PublishAsync();
         var seeker = await TestPhone.SeekerAsync(api, "Mia");
 

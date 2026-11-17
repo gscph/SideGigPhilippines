@@ -23,9 +23,9 @@ public class JobPostTests(ApiTestHost api)
 {
     private static string Tag() => $"zq{Guid.NewGuid():N}"[..10];
 
-    private static JobPostDraft Draft(string tag, string service = "plumbing-clog", string town = "taytay", int budget = 800) => new()
+    private static JobPostDraft Draft(string tag, string service = "construction-plumbing", string town = "taytay", int budget = 800) => new()
     {
-        CategoryId = "plumbing",
+        CategoryId = "construction",
         ServiceId = service,
         CityId = town,
         BudgetPesos = budget,
@@ -54,7 +54,7 @@ public class JobPostTests(ApiTestHost api)
 
     private static async Task<TestPhone> PlumberAsync(ApiTestHost api, string name, string[]? jobs = null, string[]? towns = null)
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "plumbing", jobs: jobs ?? ["plumbing-clog"], towns: towns);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "construction", jobs: jobs ?? ["construction-plumbing"], towns: towns);
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
         return worker;
     }
@@ -98,12 +98,12 @@ public class JobPostTests(ApiTestHost api)
     {
         var tag = Tag();
         var household = await TestPhone.SeekerAsync(api, "Lorna");
-        var plumber = await PlumberAsync(api, "Tubero", jobs: ["plumbing-clog"], towns: ["taytay"]);
+        var plumber = await PlumberAsync(api, "Tubero", jobs: ["construction-plumbing"], towns: ["taytay"]);
         await MoveAsync(plumber, GeoRules.TownCentres["taytay"], radiusKm: 20);
 
-        var otherServiceNear = await PostAsync(household, Draft(tag, service: "plumbing-leak", town: "taytay"));
-        var theirServiceFar = await PostAsync(household, Draft(tag, service: "plumbing-clog", town: "antipolo"));
-        var theirServiceNear = await PostAsync(household, Draft(tag, service: "plumbing-clog", town: "taytay"));
+        var otherServiceNear = await PostAsync(household, Draft(tag, service: "construction-welding", town: "taytay"));
+        var theirServiceFar = await PostAsync(household, Draft(tag, service: "construction-plumbing", town: "antipolo"));
+        var theirServiceNear = await PostAsync(household, Draft(tag, service: "construction-plumbing", town: "taytay"));
 
         var feed = await FeedAsync(plumber, tag);
 
@@ -122,7 +122,7 @@ public class JobPostTests(ApiTestHost api)
         await MoveAsync(plumber, GeoRules.TownCentres["taytay"], radiusKm: 3);
 
         var near = await PostAsync(household, Draft(tag, town: "taytay"));
-        await PostAsync(household, Draft(tag, service: "plumbing-leak", town: "antipolo"));
+        await PostAsync(household, Draft(tag, service: "construction-welding", town: "antipolo"));
 
         (await FeedAsync(plumber, tag)).Select(p => p.Id).Should().Equal(near.Id);
     }
@@ -130,7 +130,7 @@ public class JobPostTests(ApiTestHost api)
     [IntegrationFact]
     public async Task AWorkerWithoutAPublishedListing_IsToldToPublishFirst()
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Di pa live", trade: "plumbing", jobs: ["plumbing-clog"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Di pa live", trade: "construction", jobs: ["construction-plumbing"]);
 
         var board = worker.Get<JobBoard>();
         await board.LoadFeedAsync();
@@ -232,13 +232,13 @@ public class JobPostTests(ApiTestHost api)
         var household = await TestPhone.SeekerAsync(api, "Kulang");
         (NewJobPostRequest Request, string Error)[] cases =
         [
-            (new("plumbing", "plumbing-clog", "Tulo", 800, "taytay"), "invalid-description"),
-            (new("plumbing", "aircon-cleaning", Problem, 800, "taytay"), "invalid-serviceId"),
-            (new("karaoke", "plumbing-clog", Problem, 800, "taytay"), "invalid-categoryId"),
-            (new("plumbing", "plumbing-clog", Problem, 800, "makati"), "invalid-cityId"),
-            (new("plumbing", "plumbing-clog", Problem, 5, "taytay"), "invalid-budgetPesos"),
-            (new("plumbing", "plumbing-clog", Problem, 800, "taytay", ["not-a-photo"]), "invalid-photoIds"),
-            (new("plumbing", "plumbing-clog", Problem, 800, "taytay", null, 0, 0), "invalid-latitude"),
+            (new("construction", "construction-plumbing", "Tulo", 800, "taytay"), "invalid-description"),
+            (new("construction", "aircon-cleaning", Problem, 800, "taytay"), "invalid-serviceId"),
+            (new("karaoke", "construction-plumbing", Problem, 800, "taytay"), "invalid-categoryId"),
+            (new("construction", "construction-plumbing", Problem, 800, "makati"), "invalid-cityId"),
+            (new("construction", "construction-plumbing", Problem, 5, "taytay"), "invalid-budgetPesos"),
+            (new("construction", "construction-plumbing", Problem, 800, "taytay", ["not-a-photo"]), "invalid-photoIds"),
+            (new("construction", "construction-plumbing", Problem, 800, "taytay", null, 0, 0), "invalid-latitude"),
         ];
 
         foreach (var (request, error) in cases)
@@ -256,7 +256,7 @@ public class JobPostTests(ApiTestHost api)
         var tag = Tag();
         var household = await TestPhone.SeekerAsync(api, "Pribado");
         var plumber = await PlumberAsync(api, "Tubero");
-        var request = new NewJobPostRequest("plumbing", "plumbing-clog", $"Barado ang lababo sa kusina {tag}", 800, "taytay", null, 14.5601, 121.1352);
+        var request = new NewJobPostRequest("construction", "construction-plumbing", $"Barado ang lababo sa kusina {tag}", 800, "taytay", null, 14.5601, 121.1352);
         using var response = await api.Client(api.Tokens.For(household.Uid)).PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var id = (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.Id;

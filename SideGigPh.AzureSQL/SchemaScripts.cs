@@ -22,5 +22,6 @@ public static class SchemaScripts
         "016-schema-job-offers",
         "017-schema-others-and-ranges",
         "018-schema-job-done",
+        "019-schema-construction-trade",
     ];
 }

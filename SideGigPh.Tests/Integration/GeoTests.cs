@@ -41,13 +41,13 @@ public class GeoTests(ApiTestHost api)
     [IntegrationFact]
     public async Task AnAppThatSendsNoPoint_StartsTheWorkerAtTheirTownsCentre_With10Km()
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Geo", trade: "plumbing", jobs: ["plumbing-clog"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Geo", trade: "construction", jobs: ["construction-plumbing"]);
         await worker.Pro.PublishAsync();
 
         using var scope = api.Server.Services.CreateScope();
         var row = await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().Professionals.AsNoTracking().SingleAsync(p => p.Id == worker.Uid);
         (row.Latitude, row.Longitude, row.RadiusKm).Should().Be((Taytay.Latitude, Taytay.Longitude, GeoRules.DefaultRadiusKm));
-        (await InRangeAsync("plumbing", "plumbing-clog", Taytay)).Should().Contain(worker.Uid);
+        (await InRangeAsync("construction", "construction-plumbing", Taytay)).Should().Contain(worker.Uid);
     }
 
     [IntegrationFact]

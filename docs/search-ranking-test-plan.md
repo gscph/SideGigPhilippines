@@ -27,10 +27,10 @@ aircon cleaning, ₱1,000–₱2,000 for a roof leak).
 
 | Scenario | Type this | Trade → job |
 |---|---|---|
-| S1 | `tagas tubo` / `barado lababo` / `poso negro` | Plumber → Leaking pipe / Clogged sink / Septic siphoning |
+| S1 | `tagas tubo` or `barado lababo` / `pa-weld gate` or `hinang rehas` / `steelman rebar` | Construction → Plumbing / Welding / Steelman |
 | S2 | `walang kuryente` | Electrician → No power |
 | S3 | `repair furniture` | Carpentry → Furniture repair |
-| S4 | `pagawa gate` | Welder → Gate |
+| S4 | `linis ng bahay` | Errands → House cleaning |
 | S5 | `pakabit tiles` | Masonry → Tiles |
 | S6 | `makina kotse` | Car Mechanic → Engine |
 | S7 | `tulo sa bubong` | Roofing → Roof leak |
@@ -44,13 +44,13 @@ active yesterday).
 
 ## Scenarios with the sample workers
 
-### S1 The job is a hard filter (Plumber)
+### S1 The job is a hard filter (Construction)
 | Search | Expect | Proves |
 |---|---|---|
-| `tagas tubo` | **S1 Tagas at Barado**, **S1 Tagas Specialist**. *S1 Barado Specialist* is **not shown**, even though it's the best plumber (10+ years, 20 five-star reviews, cheapest). | No score gets you past the job filter. |
-| `barado lababo` | **S1 Barado Specialist**, **S1 Tagas at Barado** | A worker listing two jobs shows for both. |
-| `poso negro` | "No skilled workers for this job yet" | No fallback to other plumbers. |
-| Tap the **Plumber** icon | All 3 | A whole-trade search has no job filter. |
+| `tagas tubo` | **S1 Tubero at Welder**, **S1 Tubero Specialist**. *S1 Welder Specialist* is **not shown**, even though it's the best construction worker (10+ years, 20 five-star reviews, cheapest). | No score gets you past the job filter. |
+| `pa-weld gate` | **S1 Welder Specialist**, **S1 Tubero at Welder** | A worker listing two jobs shows for both. |
+| `steelman rebar` | "No skilled workers for this job yet" | No fallback to other construction workers. |
+| Tap the **Construction** icon | All 3 | A whole-trade search has no job filter. |
 
 ### S2 Town: your town first, nearby after (Electrician)
 | Search | Expect | Proves |
@@ -63,7 +63,7 @@ active yesterday).
 Expect: **S3 Steady 4.8 (40 reviews)** → **S3 Lucky 5.0 (1 review)** → **S3 Bago (no reviews)** → **S3 Poor 2.0 (10 reviews)**.
 Proves: one lucky 5★ can't beat 40 good reviews; a new worker starts from a fair 4★ guess, so bad reviews sink below "no reviews yet". Open each profile: the stars and counts match.
 
-### S4 Responsiveness (Welder)
+### S4 Responsiveness (Errands)
 Expect:
 1. **S4 Mabilis Sumagot (10 min)**: answered 10 of 10 chats within 10 minutes
 2. **S4 Matagal Sumagot (5 hrs)**: answered 10 of 10, slowly
@@ -124,19 +124,19 @@ the S3 order.
 
 ## Scenarios with real accounts (two phones)
 
-Use a second account as a **Skilled Worker** (Phone B) next to your Seeker (Phone A). Publish B as a **Welder**
-offering **Gate**, in **Taytay**, rate **Average price**, 1–3 years, so it lines up against S4.
+Use a second account as a **Skilled Worker** (Phone B) next to your Seeker (Phone A). Publish B under **Errands**
+offering **House cleaning** and **Grocery**, in **Taytay**, rate **Average price**, 1–3 years, so it lines up against S4.
 
 | # | Do | Expect | Proves |
 |---|---|---|---|
-| L1 | Publish B, wait a minute, search `pagawa gate` on A | B lands in the middle: just below *S4 Bago / Kaka-message / Tawag Lang* (they've been on the app 90 days, B for 0), well above *S4 Hindi Sumasagot* | New workers aren't buried (cold start) |
+| L1 | Publish B, wait a minute, search `linis ng bahay` on A | B lands in the middle: just below *S4 Bago / Kaka-message / Tawag Lang* (they've been on the app 90 days, B for 0), well above *S4 Hindi Sumasagot* | New workers aren't buried (cold start) |
 | L2 | On A, open B and **Send** the first message. On B, **reply within 5 minutes**. Wait a minute, search again | B moves up past *S4 Bago / Kaka-message / Tawag Lang*, still below the two repliers | A reply counts right away |
 | L3 | With a third account (or after a Start over), message B and **don't reply** | No change for 24 hours. After that, B drops | An unanswered chat is held against the worker only after a day |
 | L4 | On A, tap **Call** on B's profile (no text) and don't reply on B | No change, even after a day | Call-only chats don't count |
 | L5 | 24 h after A's first message, rate B 5★ from A | B rises a little (one review moves the stars only slightly; see S3) | Reviews feed ranking |
 | L6 | Leave B unopened for a week | B slowly drops below the "active yesterday" workers. Opening B's Inbox brings it back within a minute | Activity counts (stamped when the worker opens their Inbox) |
 | L7 | On B, change the rate to **Above average** and republish | B loses the "Fits your budget" chip and sinks | Budget fit |
-| L8 | On B, remove Gate from its jobs (keep Repair) and republish | B disappears from `pagawa gate` and shows for `pa-weld sira` | Job filter on real listings |
+| L8 | On B, remove House cleaning from its jobs (keep Grocery) and republish | B disappears from `linis ng bahay` and shows for `pa-grocery` | Job filter on real listings |
 
 ## Things that look like bugs but aren't
 

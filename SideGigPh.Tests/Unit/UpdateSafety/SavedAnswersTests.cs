@@ -66,6 +66,29 @@ public class SavedAnswersTests
         state.Seeker.AreaId.Should().BeNull();
     }
 
+    [Fact]
+    public void OldFile_PlumberMovedUnderConstruction_KeepsTheTradeAsItsPlumbingJob()
+    {
+        var state = Load(FourAreaVersionJson).FitToCatalog();
+
+        state.Professional.CategoryId.Should().Be("construction");
+        state.Professional.ServiceIds.Should().Equal("construction-plumbing");
+        state.CompletedAt.Should().NotBeNull("the worker isn't sent back through the interview");
+    }
+
+    [Fact]
+    public void OldFile_SeekerWelderSearch_MovesToConstructionWelding()
+    {
+        var state = Load(FourAreaVersionJson);
+        state.Seeker.CategoryId = "welder";
+        state.Seeker.ServiceId = "welder-gate";
+
+        state.FitToCatalog();
+
+        state.Seeker.CategoryId.Should().Be("construction");
+        state.Seeker.ServiceId.Should().Be("construction-welding");
+    }
+
     // Written before photos and references existed: the new lists must start empty, not null.
     [Fact]
     public void FileWithoutNewerFields_LoadsWithEmptyLists()

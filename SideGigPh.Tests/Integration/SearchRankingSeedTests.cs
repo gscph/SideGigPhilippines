@@ -19,10 +19,10 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     [IntegrationFact]
     public async Task S1_TheJobIsAHardFilter()
     {
-        (await InTown("plumbing", "plumbing-leak")).Should().Equal("S1 Tagas at Barado", "S1 Tagas Specialist");
-        (await InTown("plumbing", "plumbing-clog")).Should().Equal("S1 Barado Specialist", "S1 Tagas at Barado");
-        (await Search("plumbing", "plumbing-septic")).Hits.Should().BeEmpty("nobody lists septic siphoning");
-        (await InTown("plumbing", null)).Should().HaveCount(3, "a whole-trade search shows every plumber");
+        (await InTown("construction", "construction-plumbing")).Should().Equal("S1 Tubero at Welder", "S1 Tubero Specialist");
+        (await InTown("construction", "construction-welding")).Should().Equal("S1 Welder Specialist", "S1 Tubero at Welder");
+        (await Search("construction", "construction-steelman")).Hits.Should().BeEmpty("nobody lists steelman work");
+        (await InTown("construction", null)).Should().HaveCount(3, "a whole-trade search shows every construction worker");
     }
 
     [IntegrationFact]
@@ -44,7 +44,7 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
 
     [IntegrationFact]
     public async Task S4_RepliesWin_UnansweredChatsSink_CallsAndFreshChatsDontCount() =>
-        (await InTown("welder", "welder-gate")).Should().Equal(
+        (await InTown("errand_runner", "errand-house-cleaning")).Should().Equal(
             "S4 Mabilis Sumagot (10 min)",
             "S4 Matagal Sumagot (5 hrs)",
             "S4 Bago (no chats yet)",            // these three score the same (A–Z):
@@ -105,19 +105,21 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     }
 
     [Theory]
-    [InlineData("tagas tubo", "plumbing", "plumbing-leak")]
-    [InlineData("barado lababo", "plumbing", "plumbing-clog")]
-    [InlineData("poso negro", "plumbing", "plumbing-septic")]
+    [InlineData("tagas tubo", "construction", "construction-plumbing")]
+    [InlineData("barado lababo", "construction", "construction-plumbing")]
+    [InlineData("pa-weld gate", "construction", "construction-welding")]
+    [InlineData("steelman rebar", "construction", "construction-steelman")]
     [InlineData("walang kuryente", "electrical", "electrical-no-power")]
     [InlineData("repair furniture", "carpentry", "carpentry-furniture")]
-    [InlineData("pagawa gate", "welder", "welder-gate")]
+    [InlineData("linis ng bahay", "errand_runner", "errand-house-cleaning")]
+    [InlineData("pa-grocery", "errand_runner", "errand-grocery")]
     [InlineData("pakabit tiles", "masonry_tiling", "masonry-tiles")]
     [InlineData("makina kotse", "car_mechanic", "mechanic-engine")]
     [InlineData("tulo sa bubong", "roofing", "roofing-leak")]
     [InlineData("linis solar panel", "solar_cleaning", "solar-cleaning")]
     [InlineData("linis aircon", "aircon", "aircon-cleaning")]
     [InlineData("pakabit aircon", "aircon", "aircon-install")]
-    [InlineData("pa-weld sira", "welder", "welder-repair")]
+    [InlineData("hinang rehas", "construction", "construction-welding")]
     public void ThePlansTypedSearches_FindTheRightTradeAndJob(string typed, string category, string? service)
     {
         var intent = SearchIntentParser.Parse(typed);

@@ -23,6 +23,12 @@ public static class SearchIntentParser
     /// <summary>How much a <see cref="GenericWords"/> word counts toward choosing the trade.</summary>
     private const double GenericWordWeight = 0.5;
 
+    /// <summary>
+    /// How much a word counts toward a trade when only one of its jobs has it: "karpintero" is the Carpentry trade
+    /// first, a Construction job second; "kotse" is the Car Mechanic first, the Errands car cleaning second.
+    /// </summary>
+    private const double JobOnlyWordWeight = 0.9;
+
     /// <summary>At most this many "did you mean" categories.</summary>
     private const int MaxOtherCategories = 3;
 
@@ -37,13 +43,12 @@ public static class SearchIntentParser
     private static readonly IReadOnlyDictionary<string, string[]> TradeWords = new Dictionary<string, string[]>
     {
         ["aircon"] = ["ac", "aircond", "airconditioner", "aircondition", "airco", "split", "window", "cooling", "technician"],
-        ["plumbing"] = ["plumber", "tubo", "pipe", "water", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "septic", "pump"],
+        ["construction"] = ["construction", "konstruksyon", "foreman", "maestro", "kapatas", "plumber", "tubero", "tubo", "pipe", "tubig", "toilet", "sink", "bara", "baradong", "kanal", "barado", "lababo", "inidoro", "poso", "septic", "welding", "weld", "hinang", "bakal", "steel", "rebar", "steelman", "helper", "peon", "obrero", "labor", "gate", "grills"],
         ["electrical"] = ["electrician", "electric", "kuryente", "brownout", "short", "circuit", "switch", "outlet", "light", "socket"],
         ["roofing"] = ["roof", "roofer", "bubong", "tulo", "yero", "gutter", "ulan", "rain"],
         ["carpentry"] = ["carpenter", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto"],
-        ["welder"] = ["welding", "weld", "hinang", "bakal", "steel", "iron", "gate"],
         ["masonry_tiling"] = ["mason", "masonry", "tile", "tiles", "semento", "cement", "hollow", "blocks", "bakod", "fence", "renovation", "renovate"],
-        ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery"],
+        ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
         ["car_mechanic"] = ["mechanic", "mekaniko", "car", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
     };
@@ -60,7 +65,7 @@ public static class SearchIntentParser
         }
 
         var ranked = Index()
-            .Select(category => (category, score: TradeScore(words, category.Words)))
+            .Select(category => (category, score: TradeScore(words, category)))
             .Where(match => match.score > 0)
             .OrderByDescending(match => match.score)
             .ToList();
@@ -82,8 +87,10 @@ public static class SearchIntentParser
         return new SearchIntent(best.Id, BestService(best, words), others);
     }
 
-    private static double TradeScore(IReadOnlyList<string> words, HashSet<string> tradeWords) =>
-        words.Sum(word => (GenericWords.Contains(word) ? GenericWordWeight : 1) * tradeWords.Max(known => SearchText.Similarity(word, known)));
+    private static double TradeScore(IReadOnlyList<string> words, CategoryIndex category) =>
+        words.Sum(word => (GenericWords.Contains(word) ? GenericWordWeight : 1) * Math.Max(
+            category.OwnWords.Max(known => SearchText.Similarity(word, known)),
+            JobOnlyWordWeight * category.Words.Max(known => SearchText.Similarity(word, known))));
 
     private static string? BestService(CategoryIndex category, IReadOnlyList<string> words)
     {
@@ -120,19 +127,20 @@ public static class SearchIntentParser
                 .Where(service => !ReferenceData.IsOtherJob(service.Id))
                 .Select(service => new ServiceIndex(service.Id, WordsOf(service.Label).ToHashSet()))
                 .ToList();
-            var words = WordsOf(category.Label)
+            var own = WordsOf(category.Label)
                 .Concat(category.Hint is { } hint ? WordsOf(hint) : [])
                 .Concat(TradeWords.GetValueOrDefault(category.Id, []))
-                .Concat(services.SelectMany(service => service.Words))
                 .ToHashSet();
-            return new CategoryIndex(category.Id, words, services);
+            var words = own.Concat(services.SelectMany(service => service.Words)).ToHashSet();
+            return new CategoryIndex(category.Id, own, words, services);
         })
         .ToList();
 
     private static IEnumerable<string> WordsOf(LocalizedText label) =>
         SearchText.Words(label.English).Concat(SearchText.Words(label.Taglish));
 
-    private sealed record CategoryIndex(string Id, HashSet<string> Words, IReadOnlyList<ServiceIndex> Services);
+    /// <summary>A trade's words: its own (label, hint, <see cref="TradeWords"/>), and those plus its jobs' labels.</summary>
+    private sealed record CategoryIndex(string Id, HashSet<string> OwnWords, HashSet<string> Words, IReadOnlyList<ServiceIndex> Services);
 
     private sealed record ServiceIndex(string Id, HashSet<string> Words);
 

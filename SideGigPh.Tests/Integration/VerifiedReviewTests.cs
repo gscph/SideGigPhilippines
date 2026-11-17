@@ -20,8 +20,8 @@ public class VerifiedReviewTests(ApiTestHost api)
 
     private static JobPostDraft Draft(string tag) => new()
     {
-        CategoryId = "plumbing",
-        ServiceId = "plumbing-clog",
+        CategoryId = "construction",
+        ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = 900,
         Description = $"Barado ang CR sa taas {tag}",
@@ -29,7 +29,7 @@ public class VerifiedReviewTests(ApiTestHost api)
 
     private async Task<TestPhone> PlumberAsync(string name)
     {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "plumbing", jobs: ["plumbing-clog"]);
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "construction", jobs: ["construction-plumbing"]);
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
         return worker;
     }
@@ -61,7 +61,7 @@ public class VerifiedReviewTests(ApiTestHost api)
     private async Task<HttpStatusCode> ReviewAsync(TestPhone household, string workerUid, int stars)
     {
         using var response = await api.Client(api.Tokens.For(household.Uid)).PutAsJsonAsync("reviews",
-            new SaveReviewRequest(workerUid, "Lorna", stars, "Mabilis at malinis", "plumbing-clog"), ApiJson.Default.SaveReviewRequest);
+            new SaveReviewRequest(workerUid, "Lorna", stars, "Mabilis at malinis", "construction-plumbing"), ApiJson.Default.SaveReviewRequest);
         return response.StatusCode;
     }
 
@@ -75,7 +75,7 @@ public class VerifiedReviewTests(ApiTestHost api)
         var workBoard = worker.Get<JobBoard>();
 
         var job = (await homeBoard.PickedJobsAsync(worker.Uid)).Should().ContainSingle().Subject;
-        job.Should().Be(new PickedJob(post.Id, "plumbing-clog", 900, job.PickedAt, IAmTheHousehold: true, DoneByHousehold: false, DoneByWorker: false));
+        job.Should().Be(new PickedJob(post.Id, "construction-plumbing", 900, job.PickedAt, IAmTheHousehold: true, DoneByHousehold: false, DoneByWorker: false));
         (await workBoard.PickedJobsAsync(household.Uid)).Single().IAmTheHousehold.Should().BeFalse();
         (await ReviewAsync(household, worker.Uid, 5)).Should().Be(HttpStatusCode.Forbidden, "no completed job yet, and the chat is new");
 
@@ -109,7 +109,7 @@ public class VerifiedReviewTests(ApiTestHost api)
         await PickedJobAsync(household, worker);
 
         var chat = (await chats.GetAsync(chatId))!;
-        chat.ServiceId.Should().Be("plumbing-clog", "the chat is now about the picked post, so reviews and Inbox rows name it");
+        chat.ServiceId.Should().Be("construction-plumbing", "the chat is now about the picked post, so reviews and Inbox rows name it");
         chat.CityId.Should().Be("taytay");
     }
 
