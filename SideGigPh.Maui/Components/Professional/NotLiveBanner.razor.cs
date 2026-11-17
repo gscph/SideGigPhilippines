@@ -1,21 +1,38 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// A one-line purple strip under the top bar while the listing isn't published: customers can't see the worker
-/// yet. Tapping it opens Pro home, where the "Ihanda ang listing mo" checklist and the Publish button are.
-/// Always one line (long text is cut with "…"). When only the number is missing (someone who chose "Do this later" on
-/// the add-number page, e.g. out of SMS codes for today) it says so: confirm the number to publish.
+/// A one-line light red strip under the top bar while the listing isn't published: customers can't see the worker
+/// yet. It names the next thing publishing needs (<see cref="ProfileProgress.NextStep"/>: own photo, work photos, a
+/// reference, the confirmed number, then Publish) and a tap opens that page. Always one line (long text is cut with "…").
 /// </summary>
 public partial class NotLiveBanner : ComponentBase
 {
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
-    /// <summary>Photos and references are done; only the confirmed number stands between them and Publish.</summary>
-    [Parameter] public bool OnlyNumberLeft { get; set; }
+    [Parameter, EditorRequired] public ProfileNextStep Step { get; set; }
 
-    private void GoToSetup() => Nav.NavigateTo(ProRoutes.Home);
+    private LocalizedText Text => Step switch
+    {
+        ProfileNextStep.Photo => Copy.NotLiveBannerPhoto,
+        ProfileNextStep.WorkPhotos => Copy.NotLiveBannerWork,
+        ProfileNextStep.References => Copy.NotLiveBannerReference,
+        ProfileNextStep.Phone => Copy.NotLiveBannerNumber,
+        _ => Copy.NotLiveBannerPublish,
+    };
+
+    private string Href => Step switch
+    {
+        ProfileNextStep.Photo => ProRoutes.Me, // the photo button sits on the Me page's profile card
+        ProfileNextStep.WorkPhotos => ProRoutes.Photos,
+        ProfileNextStep.References => ProRoutes.References,
+        ProfileNextStep.Phone => AuthRoutes.AddPhone(ProRoutes.Home, canSkip: true),
+        _ => ProRoutes.Publish,
+    };
+
+    private void GoToStep() => Nav.NavigateTo(Href);
 }

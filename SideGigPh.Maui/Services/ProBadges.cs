@@ -14,12 +14,22 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
 
     public event Action? Changed;
 
-    /// <summary>Reads the worker's requests again (opening the badges page; after sending one).</summary>
+    /// <summary>How long Pro home trusts the last read (an operator may approve one at any time).</summary>
+    public static readonly TimeSpan FreshFor = TimeSpan.FromMinutes(5);
+
+    private DateTimeOffset? _loadedAt;
+
+    /// <summary>Reads the worker's requests again (opening the badges page or Me; after sending one).</summary>
     public async Task LoadAsync()
     {
         Requests = await repository.GetMineAsync();
+        _loadedAt = DateTimeOffset.UtcNow;
         Changed?.Invoke();
     }
+
+    /// <summary>Reads them only when the last read is older than <see cref="FreshFor"/> (Pro home, opened often).</summary>
+    public Task RefreshIfStaleAsync() =>
+        _loadedAt is { } at && DateTimeOffset.UtcNow - at < FreshFor ? Task.CompletedTask : LoadAsync();
 
     /// <summary>The newest request of each badge of this kind that still counts: approved, waiting, or rejected with nothing newer.</summary>
     public IReadOnlyList<BadgeRequest> Of(BadgeKind kind) =>

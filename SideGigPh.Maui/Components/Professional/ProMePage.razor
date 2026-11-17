@@ -2,10 +2,10 @@
 @layout ProLayout
 
 <MePage Title="@T.Get(Copy.ProfileTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)">
-    <ProfileCard Name="@Name" PhotoUrl="@Workspace.ProfilePhotoUrl"
-                 Subtitle="@T.Get(Workspace.IsPublished ? Copy.StatusPublished : Copy.StatusNotPublished)"
-                 SubtitleColor="@(Workspace.IsPublished ? Color.Success : Color.Secondary)">
+    <ProfileCard Name="@Name" PhotoUrl="@Workspace.ProfilePhotoUrl">
+        <ProfileLevelChip Level="Progress.Level" />
         <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.PhotoCamera"
+                   Color="@(Progress.Photo == ProfileMark.Missing ? Color.Error : Color.Default)"
                    Disabled="_busy" OnClick="ChangePhotoAsync">
             @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
         </MudButton>
@@ -29,9 +29,15 @@
             else
             {
                 <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"
-                           HasReference="@Workspace.Draft.HasReference" />
+                           HasReference="@Workspace.Draft.HasReference" HasVerifiedPhone="@Workspace.HasVerifiedPhone"
+                           AddPhoneHref="@AddPhonePath" />
             }
         </MudStack>
+    }
+
+    @if (Progress.ShowBadgeNudge)
+    {
+        <BadgeNudgeCard BadgeCount="Progress.BadgeCount" />
     }
 
     <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
@@ -39,11 +45,17 @@
         <MenuRow Href="@ProRoutes.WorkArea" Icon="@Icons.Material.Rounded.LocationOn"
                  Text="@T.Get(Copy.WorkAreaMenu)" SecondaryText="@T.Format(Copy.WorkAreaMenuHint, Workspace.Draft.RadiusKm ?? WorkArea.DefaultRadiusKm)" />
         <MenuRow Href="@ProRoutes.Photos" Icon="@Icons.Material.Rounded.PhotoLibrary"
-                 Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel" />
+                 Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel">
+            <EndContent><ProfileMarkIcon Mark="Progress.WorkPhotos" /></EndContent>
+        </MenuRow>
         <MenuRow Href="@ProRoutes.References" Icon="@Icons.Material.Rounded.VerifiedUser"
-                 Text="@T.Get(Copy.ReferencesTitle)" SecondaryText="@ReferencesCountLabel" />
+                 Text="@T.Get(Copy.ReferencesTitle)" SecondaryText="@ReferencesCountLabel">
+            <EndContent><ProfileMarkIcon Mark="Progress.References" /></EndContent>
+        </MenuRow>
         <MenuRow Href="@ProRoutes.Badges" Icon="@Icons.Material.Rounded.WorkspacePremium"
-                 Text="@T.Get(Copy.BadgesTitle)" SecondaryText="@BadgesCountLabel" />
+                 Text="@T.Get(Copy.BadgesTitle)" SecondaryText="@BadgesCountLabel">
+            <EndContent><ProfileMarkIcon Mark="Progress.Badges" /></EndContent>
+        </MenuRow>
         <MenuRow Href="@ProRoutes.Feedback" Icon="@Icons.Material.Rounded.Lightbulb"
                  Text="@T.Get(Copy.FeedbackMenu)" SecondaryText="@T.Get(Copy.FeedbackMenuHint)" />
         <OperatorMenuRow />

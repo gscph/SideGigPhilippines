@@ -21,6 +21,10 @@
                    HasReference="@Workspace.Draft.HasReference" HasVerifiedPhone="@Workspace.HasVerifiedPhone"
                    AddPhoneHref="@AddPhonePath" IsPublished="@Workspace.IsPublished" />
     }
+    else if (Progress.ShowBadgeNudge)
+    {
+        <BadgeNudgeCard BadgeCount="Progress.BadgeCount" />
+    }
 
     <HomeSection Title="@T.Get(Copy.SectionMessages)" Href="@ProRoutes.Inbox">
         @if (Workspace.Chats.Count == 0)

@@ -146,6 +146,7 @@
     cursor: pointer;
 }
 
+.app-banner .mud-alert-position,
 .app-banner .mud-alert-message {
     flex: 1;
     min-width: 0;

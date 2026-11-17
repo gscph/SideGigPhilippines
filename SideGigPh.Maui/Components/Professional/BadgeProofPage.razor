@@ -14,7 +14,7 @@
 
     @if (!Badges.CanSend(BadgeKind))
     {
-        <MudAlert Severity="Severity.Info" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.BadgeNothingToSend)</MudAlert>
+        <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.BadgeNothingToSend)</MudAlert>
     }
     else
     {

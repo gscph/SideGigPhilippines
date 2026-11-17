@@ -345,8 +345,14 @@ public static class Copy
 
     // --- Pro home ---------------------------------------------------------
     public static readonly LocalizedText ProHomeNotLive = new("Saved on this phone. Not visible to customers yet.", "Saved on this phone. Hindi pa ito nakikita ng customer.");
-    public static readonly LocalizedText StatusPublished = new("Published", "Naka-publish na");
-    public static readonly LocalizedText StatusNotPublished = new("Not published yet", "Hindi pa naka-publish");
+    public static readonly LocalizedText LevelNotLive = new("Not visible to customers yet", "Hindi ka pa nakikita ng customer");
+    public static readonly LocalizedText LevelLive = new("Live · customers can find you", "Live · nakikita ka na ng customer");
+    public static readonly LocalizedText LevelComplete = new("Fully set up profile", "Kumpletong profile");
+    public static readonly LocalizedText PartMissing = new("Needed to publish", "Kailangan para ma-publish");
+    public static readonly LocalizedText PartDone = new("Enough to publish", "Pwede na i-publish");
+    public static readonly LocalizedText PartFull = new("Complete", "Kumpleto na");
+    public static readonly LocalizedText PartRecommended = new("Recommended", "Recommended");
+    public static readonly LocalizedText PartWaiting = new("Waiting for our check", "Hinihintay pa ang check");
     public static readonly LocalizedText StatRating = new("{0} ★ ({1})", "{0} ★ ({1})");
 
     // --- Operator: badge review (only accounts in the server's AdminUids) ---
@@ -438,7 +444,10 @@ public static class Copy
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.
-    public static readonly LocalizedText NotLiveBanner = new("Not visible yet · Finish your listing", "Di ka pa nakikita · Tapusin ang listing");
+    public static readonly LocalizedText NotLiveBannerPhoto = new("Not visible yet · Add a photo of you", "Di ka pa nakikita · Maglagay ng photo mo");
+    public static readonly LocalizedText NotLiveBannerWork = new("Not visible yet · Add photos of your work", "Di ka pa nakikita · Maglagay ng photos ng gawa mo");
+    public static readonly LocalizedText NotLiveBannerReference = new("Not visible yet · Add a reference", "Di ka pa nakikita · Maglagay ng reference");
+    public static readonly LocalizedText NotLiveBannerPublish = new("Not visible yet · Ready! Tap to publish", "Di ka pa nakikita · Ready na! I-tap para i-publish");
     public static readonly LocalizedText NotLiveBannerNumber = new("Not visible yet · Confirm your number to publish", "Di ka pa nakikita · I-confirm ang number para ma-publish");
     public static readonly LocalizedText SetupTitle =new("Get ready for customers", "Ihanda ang listing mo");
     public static readonly LocalizedText SetupPhoto = new("Add a photo of you", "Maglagay ng photo mo");
@@ -489,6 +498,9 @@ public static class Copy
         "Customers pick workers they can trust. Each badge shows on your listing and moves you up in search. It's free.",
         "Pinipili ng customer ang mapagkakatiwalaan. Lalabas ang bawat badge sa listing mo at aangat ka sa search. Libre ito.");
     public static readonly LocalizedText BadgesCount = new("{0} of {1}", "{0} sa {1}");
+    public static readonly LocalizedText BadgeNudgeTitle = new("Get more customers with badges", "Dumami ang customer gamit ang badges");
+    public static readonly LocalizedText BadgeNudgeText = new("Workers with an ID, TESDA or past-project badge show higher in search, and customers trust them more.", "Mas mataas ka sa search kapag may ID, TESDA o past project badge ka, at mas nagtitiwala ang customer.");
+    public static readonly LocalizedText BadgeNudgeButton = new("Add a badge", "Maglagay ng badge");
     public static readonly LocalizedText BadgeIdTitle = new("Government ID", "Government ID");
     public static readonly LocalizedText BadgeTesdaTitle = new("TESDA certificate or training", "TESDA certificate o training");
     public static readonly LocalizedText BadgeProjectTitle = new("Past project with a company", "Dating project sa isang kumpanya");

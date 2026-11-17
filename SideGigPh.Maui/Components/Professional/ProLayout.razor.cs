@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Components.Professional;
 /// <summary>
 /// The Professional's pages inside the shared <see cref="AppShell"/>: tabs Home, Requests (what customers nearby posted for their trade), Inbox (with an
 /// unread badge), Reviews and Me (profile, work photos, language, Start over); the avatar opens
-/// Me too, with a green dot once published; until then a <see cref="NotLiveBanner"/> sits under the top bar. Loads <see cref="ProWorkspace"/> first and sends anyone who hasn't finished the
+/// Me too, with a green dot once published; until then a red <see cref="NotLiveBanner"/> under the top bar links to the next thing publishing needs. Loads <see cref="ProWorkspace"/> first and sends anyone who hasn't finished the
 /// Professional interview back to <c>/</c>. When the setup checklist gets finished it opens the Publish page once.
 /// </summary>
 public partial class ProLayout : LayoutComponentBase, IDisposable
@@ -19,17 +19,20 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
+    [Inject] private ProBadges Badges { get; set; } = default!;
 
     private bool _ready;
     private IDisposable? _alerts;
 
-    /// <summary>Under the top bar until the listing is published: customers can't see the worker yet.</summary>
-    private RenderFragment NotLive => builder =>
-    {
-        builder.OpenComponent<NotLiveBanner>(0);
-        builder.AddComponentParameter(1, nameof(NotLiveBanner.OnlyNumberLeft), Workspace.Draft.HasProof && !Workspace.HasVerifiedPhone);
-        builder.CloseComponent();
-    };
+    /// <summary>Under the top bar until the listing is published: customers can't see the worker yet, and the next step is one tap away.</summary>
+    private RenderFragment? NotLive => ProfileProgress.Of(Workspace, Badges).NextStep is { } step
+        ? builder =>
+        {
+            builder.OpenComponent<NotLiveBanner>(0);
+            builder.AddComponentParameter(1, nameof(NotLiveBanner.Step), step);
+            builder.CloseComponent();
+        }
+        : null;
 
     private IReadOnlyList<AppTab> Tabs =>
     [

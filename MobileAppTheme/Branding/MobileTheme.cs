@@ -25,7 +25,11 @@ public static class MobileTheme
             Secondary = style.Muted,
             SecondaryContrastText = style.OnPrimary,
 
-            Info = style.Primary,
+            // Info and Tertiary are spare accents an app may set; without them they stay the brand color.
+            Info = style.Info ?? style.Primary,
+            InfoContrastText = style.OnPrimary,
+            Tertiary = style.Tertiary ?? style.Primary,
+            TertiaryContrastText = style.OnPrimary,
             Success = style.Success,
             Warning = style.Warning,
             Error = style.Error,

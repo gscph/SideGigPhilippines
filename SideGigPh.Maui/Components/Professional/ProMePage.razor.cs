@@ -7,8 +7,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// The pro's Me tab (also the avatar in the top bar): their photo (add or change), status,
-/// Edit listing and Publish, a link to their work photos, their card exactly as customers see
+/// The pro's Me tab (also the avatar in the top bar): their photo (add or change), their profile level (red, green,
+/// verified blue), Edit listing and Publish, the amber badge reminder, rows for work photos, references and badges
+/// each with its mark (<see cref="ProfileProgress"/>), their card exactly as customers see
 /// it, then the shared <see cref="Shared.MePage"/> parts (language, Start over).
 /// </summary>
 public partial class ProMePage : ComponentBase
@@ -21,6 +22,12 @@ public partial class ProMePage : ComponentBase
 
     private PhotoAddResult? _photoResult;
     private bool _busy;
+
+    /// <summary>Where the profile stands: the level under the name, the mark on each row, the badge reminder.</summary>
+    private ProfileProgress Progress => ProfileProgress.Of(Workspace, Badges);
+
+    /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
+    private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Me, canSkip: true);
 
     private string Name => Workspace.Draft.DisplayName ?? string.Empty;
 
