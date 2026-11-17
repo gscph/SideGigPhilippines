@@ -173,8 +173,8 @@ public static class ReferenceData
     // the server's config loads. Ids are stored in saved answers, listings and chats: never rename them, only their
     // labels. Within each trade, jobs are listed most-requested first, and every trade ends with "Others" so nobody
     // is forced into a wrong pick. Towns are A–Z; price tiers cheapest first; prices are pesos, labor only (lowest,
-    // average, above average; the lowest never under the NCR minimum wage, Wage Order NCR-28). Keep this in step with
-    // 004-config.sql (an integration test compares them).
+    // average, above average; the lowest never under the NCR minimum wage, Wage Order NCR-28). It may lag behind
+    // 004-config.sql; every id here must still exist there (an integration test checks).
     public static AppConfig BuiltInConfig { get; } = new(
     [
         new("aircon", new("Aircon Technician", "Aircon Technician"), AppImages.For("aircon"), new("Cleaning, repair, installation", "Linis, repair, pakabit")),

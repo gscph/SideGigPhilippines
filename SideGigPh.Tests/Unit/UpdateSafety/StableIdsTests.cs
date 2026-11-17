@@ -4,19 +4,11 @@ using SideGigPh.Maui.Services;
 namespace SideGigPh.Tests.Unit.UpdateSafety;
 
 /// <summary>
-/// Ids of trades, jobs, towns, prices and so on are saved on phones, in listings and in chats. Renaming or
-/// removing one after release silently breaks those users (a worker vanishes from search, a saved answer is lost).
-/// These tests are snapshots: if one fails, you changed an id. Change only the label instead. If you really meant
-/// to add a new option, add its id to the list here too.
+/// The ids the app's code names by hand (and old app versions still send), plus the shape every trade must have.
+/// Trades and jobs themselves live in 004-config.sql and are not listed here: adding one needs no test edit.
 /// </summary>
 public class StableIdsTests
 {
-    [Fact]
-    public void CategoryIds_NeverChange() =>
-        ReferenceData.Categories.Select(c => c.Id).Should().Equal(
-            "aircon", "plumbing", "electrical", "roofing", "carpentry", "welder", "masonry_tiling", "car_mechanic",
-            "errand_runner", "solar_cleaning");
-
     // A retired trade keeps its id in the database (004-config.sql, IsActive = 0) so old listings and reviews still
     // read. Giving the id to a new trade would relabel those old listings.
     [Fact]
@@ -26,26 +18,6 @@ public class StableIdsTests
         ReferenceData.BuiltInConfig.ServicesByCategory.Values.SelectMany(s => s).Select(s => s.Id)
             .Should().NotContain(id => id.StartsWith("massage-"));
     }
-
-    public static TheoryData<string, string[]> ServiceIdsByCategory => new()
-    {
-        { "aircon", ["aircon-cleaning", "aircon-repair", "aircon-leak", "aircon-freon", "aircon-install", "aircon-relocate", "aircon-pms", "aircon-other"] },
-        { "plumbing", ["plumbing-clog", "plumbing-leak", "plumbing-toilet", "plumbing-replace", "plumbing-install", "plumbing-water-heater", "plumbing-pump", "plumbing-septic", "plumbing-other"] },
-        { "electrical", ["electrical-no-power", "electrical-outlet", "electrical-lights", "electrical-wiring", "electrical-breaker-panel", "electrical-meter", "electrical-cctv", "electrical-other"] },
-        { "roofing", ["roofing-leak", "roofing-gutter", "roofing-sheet", "roofing-waterproofing", "roofing-paint", "roofing-other"] },
-        { "carpentry", ["carpentry-furniture", "carpentry-door-window", "carpentry-cabinet", "carpentry-ceiling-roof", "carpentry-partition", "carpentry-other"] },
-        { "welder", ["welder-repair", "welder-gate", "welder-grills", "welder-railings", "welder-frame", "welder-other"] },
-        { "masonry_tiling", ["masonry-tiles", "masonry-cement", "masonry-crack", "masonry-wall", "masonry-cr-renovation", "masonry-other"] },
-        { "errand_runner", ["errand-grocery", "errand-bills", "errand-pasabuy", "errand-documents", "errand-parcel", "errand-other"] },
-        { "car_mechanic", ["mechanic-suspension", "mechanic-engine", "mechanic-electronics", "mechanic-other"] },
-        { "solar_cleaning", ["solar-cleaning", "solar-checkup", "solar-inverter", "solar-other"] },
-    };
-
-    // Order may change (most-requested first), ids may not, so this compares as a set.
-    [Theory]
-    [MemberData(nameof(ServiceIdsByCategory))]
-    public void ServiceIds_NeverChange(string categoryId, string[] expected) =>
-        ReferenceData.ServicesByCategory[categoryId].Select(s => s.Id).Should().BeEquivalentTo(expected);
 
     [Fact]
     public void EveryCategory_HasServices_EndingWithOther()

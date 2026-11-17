@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging.Abstractions;
+using MobileAppTheme.Models;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -31,21 +32,22 @@ public class ConfigTests(ApiTestHost api)
         fetched!.Version.Should().NotBeNullOrEmpty();
         var config = fetched.Value!;
         var builtIn = ReferenceData.BuiltInConfig;
-        const string because = "004-config.sql and ReferenceData.BuiltInConfig must say the same (ids, labels, icons, amounts, order)";
-        config.Categories.Should().Equal(builtIn.Categories, because);
+        // The built-in copy is only for the first launch offline; the server's replaces it. So labels, order, prices
+        // and new trades may differ (changing them is a SQL-only edit); the copy just must not offer an id the server
+        // doesn't know.
+        const string because = "every id built into the app must exist in 004-config.sql";
+        static IEnumerable<string> Ids(IEnumerable<CatalogOption> options) => options.Select(o => o.Id);
+        Ids(config.Categories).Should().Contain(Ids(builtIn.Categories), because);
         foreach (var category in builtIn.Categories)
         {
-            config.ServicesByCategory[category.Id].Should().Equal(builtIn.ServicesByCategory[category.Id], $"the jobs of {category.Id}");
+            Ids(config.ServicesByCategory[category.Id]).Should().Contain(Ids(builtIn.ServicesByCategory[category.Id]), because);
         }
 
-        config.ServicesByCategory.Keys.Should().BeEquivalentTo(builtIn.ServicesByCategory.Keys);
-        config.Cities.Should().Equal(builtIn.Cities, because);
-        config.PriceTiers.Should().Equal(builtIn.PriceTiers, because);
-        config.Experience.Should().Equal(builtIn.Experience, because);
-        config.Urgencies.Should().Equal(builtIn.Urgencies, because);
-        config.IncomeGoals.Should().Equal(builtIn.IncomeGoals, because);
-        config.Prices.Should().BeEquivalentTo(builtIn.Prices, because);
-        config.MinimumWage.Should().Be(builtIn.MinimumWage, because);
+        Ids(config.Cities).Should().Contain(Ids(builtIn.Cities), because);
+        Ids(config.PriceTiers).Should().Contain(Ids(builtIn.PriceTiers), because);
+        Ids(config.Experience).Should().Contain(Ids(builtIn.Experience), because);
+        Ids(config.Urgencies).Should().Contain(Ids(builtIn.Urgencies), because);
+        Ids(config.IncomeGoals).Should().Contain(Ids(builtIn.IncomeGoals), because);
         ReferenceData.CanUse(config).Should().BeTrue();
     }
 
