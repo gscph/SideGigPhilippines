@@ -1,3 +1,4 @@
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services;
@@ -15,13 +16,14 @@ public static class OnboardingCleanup
 
     /// <summary>
     /// A Skilled Worker rate from before price guides (an old one-scale tier such as <c>500-1000</c>) is dropped, so the
-    /// interview asks the rate again on today's per-job prices (<see cref="ReferenceData.RateLevels"/> or "depends on
-    /// the job"). Seeker budgets need nothing: old tiers read as peso ranges.
+    /// interview asks the rate again on today's per-job prices (their own from–to range, a
+    /// <see cref="ReferenceData.RateLevels"/> point, or "depends on the job"). Seeker budgets need nothing: old tiers read as peso ranges.
     /// </summary>
     public static OnboardingState DropOldRate(this OnboardingState state)
     {
         var pro = state.Professional;
-        if (pro.RateTierId is { } rate && rate != ReferenceData.Quote && ReferenceData.Find(ReferenceData.RateLevels, rate) is null)
+        if (pro.RateTierId is { } rate && rate != ReferenceData.Quote && ReferenceData.Find(ReferenceData.RateLevels, rate) is null
+            && !RateRange.TryParse(rate, out _, out _))
         {
             pro.RateTierId = null;
         }
@@ -82,7 +84,8 @@ public static class OnboardingCleanup
         return state;
     }
 
-    private static bool IsOffered(string categoryId) => ReferenceData.Find(ReferenceData.Categories, categoryId) is not null;
+    // "Others" (the tile after the trades) stays: it is an answer, not a trade we could retire.
+    private static bool IsOffered(string categoryId) => ReferenceData.FindTrade(categoryId) is not null;
 
     private static bool HasJob(string? categoryId, string serviceId) =>
         ReferenceData.ServicesOf(categoryId).Any(service => service.Id == serviceId);

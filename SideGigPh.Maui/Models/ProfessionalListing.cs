@@ -17,6 +17,9 @@ public sealed class ProfessionalListing
 
     public string? RateTierId { get; init; }
 
+    /// <summary>What the worker typed under "Others" (a kind of work we don't list, or a job their trade doesn't list); shown in place of "Others".</summary>
+    public string? OtherWork { get; init; }
+
     /// <summary>E.164 format, e.g. +639171234567.</summary>
     public required string MobileNumber { get; init; }
 

@@ -28,7 +28,7 @@ public partial class SeekerHome : ComponentBase
         get
         {
             var request = Workspace.Request;
-            var job = ReferenceData.FindService(request.ServiceId) ?? ReferenceData.Find(ReferenceData.Categories, request.CategoryId);
+            var job = ReferenceData.FindService(request.ServiceId) ?? ReferenceData.FindTrade(request.CategoryId);
             if (job is null)
             {
                 return null;

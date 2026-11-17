@@ -71,7 +71,9 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 | S2 | What kind of job? / Anong klaseng trabaho? | The category's jobs, most-requested first, ending with "Iba pa" | "So you only see pros who do exactly this." | Chip, ranking, **pre-filled text** |
 | S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`, advances on tap; sets the area) | "See skilled workers near you." | Chip, search, pre-filled text |
 | S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Nagca-canvass lang | "We'll tell the pro when you need it." | Chip, pre-filled text |
-| S5 | What's your budget? / Magkano ang budget mo dito? | Price scale + "Di ko pa alam" | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** badge and sort |
+| S5 | What's your budget? / Magkano ang budget mo dito? | Two boxes, **From** and **Up to**; the job's guide ranges fill them in one tap; "Di ko pa alam" skips. The suggested minimum price shows as a guide, never a rule (they pay after the work) | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** badge and sort |
+
+**"Others" never blocks.** The last tile of the trade question (both sides) is "Others": the person types the work, it is saved as their trade and job (`other`), the job question is skipped and the interview goes on. Workers and households who picked "Others" find each other by what they typed (search orders shared words first). The worker's rate is likewise their own from–to range; the guide's levels only fill the boxes.
 
 Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Linis ng aircon ✓ · Checking who goes to Taytay ✓ · Putting pros in your budget first ✓".
 

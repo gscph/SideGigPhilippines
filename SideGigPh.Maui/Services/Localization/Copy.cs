@@ -52,29 +52,22 @@ public static class Copy
     public static readonly LocalizedText BudgetLow = new("Budget-friendly", "Tipid");
     public static readonly LocalizedText BudgetMid = new("Average", "Karaniwan");
     public static readonly LocalizedText BudgetHigh = new("For bigger or harder jobs", "Para sa mas malaki o mahirap na trabaho");
-    public static readonly LocalizedText BudgetCustom = new("Other amount", "Ibang halaga");
-    public static readonly LocalizedText BudgetCustomHint = new("Type your own range", "I-type ang sarili mong budget");
+    public static readonly LocalizedText BudgetOwnRange = new("Or type your own range", "O i-type ang sarili mong range");
     public static readonly LocalizedText BudgetRange = new("{0} – {1}", "{0} – {1}");
     public static readonly LocalizedText BudgetUpTo = new("Up to {0}", "Hanggang {0}");
     public static readonly LocalizedText BudgetAndUp = new("{0} and up", "{0} pataas");
     public static readonly LocalizedText BudgetFromLabel = new("From (₱)", "Mula (₱)");
     public static readonly LocalizedText BudgetToLabel = new("Up to (₱)", "Hanggang (₱)");
     // A suggested price, never "minimum wage": workers are independent and set their own prices (docs/legal/README.md L2).
-    public static readonly LocalizedText BudgetFromHelp = new("At least {0}, the suggested minimum price", "Hindi bababa sa {0}, ang suggested na pinakamababang presyo");
+    public static readonly LocalizedText BudgetFromHelp = new("Suggested minimum price: {0}. Only a guide.", "Suggested na pinakamababang presyo: {0}. Gabay lang ito.");
     public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat pareho o mas mataas sa unang halaga");
 
-    // "Others" after the trades: kinds of work we don't offer yet (sent for analytics).
+    // "Others" after the trades: kinds of work we don't list yet. The text is matched with the other side's (search).
     public static readonly LocalizedText OtherTradeSeekerLabel = new("What work do you need?", "Anong klaseng trabaho ang kailangan mo?");
     public static readonly LocalizedText OtherTradeProLabel = new("What kind of work do you do?", "Anong klaseng trabaho mo?");
-    public static readonly LocalizedText OtherTradeHelp = new("We use this to add new kinds of work.", "Gagamitin namin ito para magdagdag ng bagong trabaho.");
-    public static readonly LocalizedText OtherTradeThanksTitle = new("Thanks! We noted it.", "Salamat! Na-note namin.");
-    public static readonly LocalizedText OtherTradeSeekerThanks = new(
-        "We don't have skilled workers for this yet. It helps us choose what to add next.",
-        "Wala pa kaming skilled worker para dito. Makakatulong ito sa pagpili namin ng susunod na idadagdag.");
-    public static readonly LocalizedText OtherTradeProThanks = new(
-        "We don't list this kind of work yet. It helps us choose what to add next. For now, you can pick the closest one.",
-        "Hindi pa namin nililista ang ganitong trabaho. Makakatulong ito sa pagpili namin ng idadagdag. Pwede ka munang pumili ng pinakamalapit.");
-    public static readonly LocalizedText OtherTradePickAnother = new("Pick another", "Pumili ng iba");
+    public static readonly LocalizedText OtherTradeHelp = new(
+        "We match you with people who typed something similar.",
+        "Itutugma ka namin sa mga nag-type ng katulad.");
 
     // Labor-illusion loader. {0} = job or town label.
 
@@ -237,8 +230,8 @@ public static class Copy
         "Each job has its own price. Customers see your price for the job they need, and you can still agree on the final price.",
         "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
     public static readonly LocalizedText ProRateNote = new(
-        "Our suggested minimum price is {0} per job. You set your own price.",
-        "Ang suggested na pinakamababang presyo ay {0} kada trabaho. Ikaw ang magpapasya ng presyo mo.");
+        "Tap a price to start from it, or type your own range. Our suggested minimum price is {0} per job, only a guide.",
+        "I-tap ang presyo para simulan dito, o i-type ang sarili mong range. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 
@@ -268,6 +261,8 @@ public static class Copy
     public static readonly LocalizedText PostDescription = new("Describe the problem", "Ikuwento ang problema");
     public static readonly LocalizedText PostDescriptionHint = new("e.g. The kitchen faucet leaks even when closed", "hal. Tumutulo ang gripo sa kusina kahit sarado");
     public static readonly LocalizedText PostBudget = new("Your budget", "Budget mo");
+    public static readonly LocalizedText PostBudgetFrom = new("Budget from (₱)", "Budget mula (₱)");
+    public static readonly LocalizedText PostBudgetUpTo = new("Up to (₱)", "Hanggang (₱)");
     public static readonly LocalizedText PostBudgetWhy = new("Your own number. You and the worker agree on the final price.", "Sarili mong presyo. Kayo ng gagawa ang mag-uusap sa final na presyo.");
     public static readonly LocalizedText PostPhotosAdd = new("Add photos of the problem", "Maglagay ng photo ng problema");
     public static readonly LocalizedText PostPhotosHint = new("Up to {0} photos. You can skip this.", "Hanggang {0} photo. Puwedeng wala.");
