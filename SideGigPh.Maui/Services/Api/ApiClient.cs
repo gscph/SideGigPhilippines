@@ -29,7 +29,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// How long one try of a read may take. On mobile data a reused connection can die without a word (the carrier drops
     /// it) and the request then hangs until the timeout: a read gets this long, then goes once more on a fresh connection.
     /// </summary>
-    public static readonly TimeSpan ReadTryLimit = TimeSpan.FromSeconds(20);
+    public static readonly TimeSpan ReadTryLimit = TimeSpan.FromSeconds(30);
 
     /// <summary>A read (GET) is safe to repeat, so one that got no answer goes once more; writes are sent once.</summary>
     public const int ReadTries = 2;

@@ -21,6 +21,12 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     private List<JobPost> _mine = [];
     private List<JobPost> _feed = [];
 
+    /// <summary>How many feed posts the server has handed out so far: the next page starts there.</summary>
+    private int _feedRead;
+
+    /// <summary>How many pages <see cref="LoadMoreFeedAsync"/> reads in a row while they hold only posts already shown.</summary>
+    public const int FeedSkipsAhead = 3;
+
     /// <summary>Raised after a list changes.</summary>
     public event Action? Changed;
 
@@ -206,23 +212,33 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     {
         var page = await posts.GetFeedAsync(0);
         _feed = [.. page.Posts];
+        _feedRead = page.Posts.Count;
         HasMore = page.HasMore;
         HasListing = page.HasListing;
         Changed?.Invoke();
     }
 
-    /// <summary>Adds the next page under the loaded ones (a post already shown isn't repeated).</summary>
+    /// <summary>
+    /// Adds the next page under the loaded ones (a post already shown isn't repeated). New posts arriving meanwhile shift
+    /// the server's offsets, so a page can hold only posts already shown: it reads on (at most <see cref="FeedSkipsAhead"/>
+    /// pages) rather than add nothing, which the list would show as "couldn't load more".
+    /// </summary>
     public async Task LoadMoreFeedAsync()
     {
-        if (!HasMore)
+        for (var read = 0; HasMore && read < FeedSkipsAhead; read++)
         {
-            return;
+            var page = await posts.GetFeedAsync(_feedRead);
+            _feedRead += page.Posts.Count;
+            var shown = _feed.Select(p => p.Id).ToHashSet();
+            var fresh = page.Posts.Where(p => !shown.Contains(p.Id)).ToList();
+            _feed.AddRange(fresh);
+            HasMore = page.HasMore && page.Posts.Count > 0;
+            if (fresh.Count > 0 || page.Posts.Count == 0)
+            {
+                break; // something new, or nothing at all (offline: the list offers Try again)
+            }
         }
 
-        var page = await posts.GetFeedAsync(_feed.Count);
-        var shown = _feed.Select(p => p.Id).ToHashSet();
-        _feed.AddRange(page.Posts.Where(p => !shown.Contains(p.Id)));
-        HasMore = page.HasMore && page.Posts.Count > 0;
         Changed?.Invoke();
     }
 

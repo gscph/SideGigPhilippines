@@ -43,6 +43,6 @@
 
         <ResultGroup Title="@T.Format(Copy.ResultsInTown, TownLabel)" Hits="_result.InTown" Total="_result.InTownTotal" />
         <ResultGroup Title="@T.Get(Copy.ResultsOtherTowns)" Hits="_result.OtherTowns" Total="_result.OtherTownsTotal" />
-        <LoadMoreOnScroll HasMore="_result.HasMore" OnLoadMore="LoadMoreAsync" />
+        <LoadMoreOnScroll HasMore="_result.HasMore" OnLoadMore="LoadMoreAsync" @key="_searchVersion" />
     }
 </MudStack>

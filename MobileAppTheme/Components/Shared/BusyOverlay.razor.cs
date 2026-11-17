@@ -79,9 +79,13 @@ public partial class BusyOverlay : ComponentBase, IDisposable
             await Task.Delay(FirstLineFor, cts.Token);
             while (true)
             {
-                if (_lines.Count > 1 || IsSlow)
+                if (_lines.Count > 1)
                 {
                     _line = (_line + 1) % _lines.Count;
+                }
+
+                if (_lines.Count > 1 || IsSlow)
+                {
                     StateHasChanged();
                 }
 

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using MobileAppTheme.Localization;
+using MobileAppTheme.Services;
 
 namespace MobileAppTheme.Components.Shared;
 
@@ -19,7 +20,9 @@ public enum LoadMoreEdge
 /// <see cref="LoadMoreEdge.Top"/>). While <see cref="HasMore"/> is true it shows a small spinner and raises
 /// <see cref="OnLoadMore"/> when the page is scrolled near that end, or right away when the list is too short to
 /// scroll. A load that adds nothing (no signal, or the server took too long) swaps the spinner for "Couldn't load more"
-/// and a Try again button, since a spinner that never moves leaves the person stuck. For <see cref="LoadMoreEdge.Top"/> it first scrolls the page to its end, and keeps what the person was
+/// and a Try again button, since a spinner that never moves leaves the person stuck; it tries again by itself when the
+/// connection comes back (<see cref="INetworkStatus"/>). A list whose content is replaced (a new search) gives it a new
+/// <c>@key</c> so it starts afresh. For <see cref="LoadMoreEdge.Top"/> it first scrolls the page to its end, and keeps what the person was
 /// reading in place when older items are added above. Uses MudBlazor's scroll listener and scroll manager on the page
 /// itself, so no JavaScript of our own.
 /// </summary>
@@ -37,6 +40,7 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
     [Inject] private IScrollListenerFactory ScrollListeners { get; set; } = default!;
     [Inject] private IScrollManager Scroll { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private INetworkStatus Network { get; set; } = default!;
 
     /// <summary>Whether there is more to load; the spinner and the listener stop when false.</summary>
     [Parameter, EditorRequired] public bool HasMore { get; set; }
@@ -57,6 +61,17 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
 
     /// <summary>Where the page was when an older page was asked for (<see cref="LoadMoreEdge.Top"/>), to keep the place.</summary>
     private ScrollEventArgs? _beforeLoad;
+
+    protected override void OnInitialized() => Network.Changed += OnNetworkChanged;
+
+    /// <summary>Back online after a load that added nothing: try again without waiting for a tap.</summary>
+    private void OnNetworkChanged() => _ = InvokeAsync(async () =>
+    {
+        if (_stalled && Network.IsOnline)
+        {
+            await RetryAsync();
+        }
+    });
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -149,6 +164,7 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        Network.Changed -= OnNetworkChanged;
         if (_listener is not null)
         {
             _listener.OnScroll -= OnScroll;

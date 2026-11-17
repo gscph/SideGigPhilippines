@@ -53,6 +53,14 @@ body:has(.app-offline-banner) .app-top-bar {
     top: calc(env(safe-area-inset-top, 0px) + var(--app-offline-banner-height));
 }
 
+/* WebViews without :has (Android System WebView before 105) can't move the top bar down, so the strip stays in the
+   flow there instead of covering the bar's back button. */
+@supports not selector(:has(*)) {
+    .app-offline-banner {
+        position: relative;
+    }
+}
+
 /* Full-screen pages (splash, language, loader, interview step). */
 .full-screen {
     min-height: 100vh;
