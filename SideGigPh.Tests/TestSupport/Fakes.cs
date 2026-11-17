@@ -49,7 +49,19 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
 
     public List<string> Removed { get; } = [];
 
-    public Task<bool> HasProfileAsync(string uid) => Task.FromResult(ById.ContainsKey(uid));
+    /// <summary>What <see cref="GetOwnDraftAsync"/> answers per uid (a worker's live listing on the server).</summary>
+    public Dictionary<string, ProfessionalDraft> OwnDrafts { get; } = [];
+
+    /// <summary>Thrown by <see cref="GetOwnDraftAsync"/> (a broken adapter), to test that launch never breaks on it.</summary>
+    public Exception? OwnDraftThrows { get; set; }
+
+    public List<string> OwnDraftReads { get; } = [];
+
+    public Task<ProfessionalDraft?> GetOwnDraftAsync(string uid)
+    {
+        OwnDraftReads.Add(uid);
+        return OwnDraftThrows is { } error ? Task.FromException<ProfessionalDraft?>(error) : Task.FromResult(OwnDrafts.GetValueOrDefault(uid));
+    }
 
     public Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip)
     {

@@ -37,7 +37,7 @@ changing that area.**
 
 - **Ports** (`SideGigPh.Maui/Services/`, skeleton ports in `MobileAppTheme/Services/` and `Auth/`): `IIdentityProvider`
   (sign-in; Firebase adapter), `IOnboardingStore` (answers on the phone, one JSON file via the skeleton `JsonFile<T>`,
-  never the WebView's `localStorage`, no SQLite until local data needs querying; Android backup is off so a reinstall starts fresh), `IChatRepository`, `IUserRepository`,
+  never the WebView's `localStorage`, no SQLite until local data needs querying; Android backup is off so a reinstall starts fresh; a published worker's live listing comes back from the server at launch, `ListingRestore`), `IChatRepository`, `IUserRepository`,
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
   `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board), `IJobPostRepository` (job posts),
@@ -262,7 +262,7 @@ SideGigPh.slnx
 │   ├── Components/            # UI views — one folder per feature (+ Shared/ for SideGigPh-only generic parts)
 │   │   └── Layout/AppTheme.cs # the Tarbaho brand (BrandStyle + AppBrand)
 │   ├── Models/                # Data contracts only, no DTOs
-│   ├── Services/              # SideGigPh ports, workspaces, search, Api/ adapters (all data + photos), Local/, auth hooks (SideGigPhAuthLanding, PhilippinePhoneNumberFormat)
+│   ├── Services/              # SideGigPh ports, workspaces, search, Api/ adapters (all data + photos), Local/, auth hook PhilippinePhoneNumberFormat, ListingRestore (a reinstalled worker's live listing back at launch)
 │   └── MauiProgram.cs         # DI container — AddMobileAppTheme, then binds the app's adapters
 │
 └── SideGigPh.Tests/           # xUnit tests (README.md): compiles the app's Models/ + Services/ by link

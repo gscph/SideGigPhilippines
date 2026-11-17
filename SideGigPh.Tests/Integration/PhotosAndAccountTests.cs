@@ -1,4 +1,6 @@
 using System.Net;
+using System.Net.Http.Json;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Tests.Integration.Support;
@@ -114,13 +116,36 @@ public class PhotosAndAccountTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task AfterSignIn_WorkerWithAListing_LandsOnProHome()
+    public async Task AfterAReinstall_PublishedWorker_GetsTheLiveListingBack_AndLandsOnProHome()
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Cid");
         await worker.Pro.PublishAsync();
+        var published = worker.Pro.Draft;
 
-        var landing = new SideGigPhAuthLanding(new TestPhone(api, "Other").Get<IProfessionalProfileRepository>());
+        // The same account on a fresh install: nothing on the phone but the language.
+        var state = new OnboardingState { Language = AppLanguage.English };
+        var reinstalled = new TestPhone(api, "Cid", state: state, uid: worker.Uid);
 
-        (await landing.GetDestinationAsync(worker.Identity.User!)).Should().Be("/professional");
+        (await reinstalled.Get<ListingRestore>().RestoreAsync(state)).Should().BeTrue();
+
+        OnboardingSteps.LaunchPath(state).Should().Be("/professional");
+        state.Professional.ServiceIds.Should().BeEquivalentTo(published.ServiceIds);
+        state.Professional.WorkPhotoIds.Should().Equal(published.WorkPhotoIds);
+        state.Professional.ProfilePhotoId.Should().Be(published.ProfilePhotoId);
+        state.Professional.References.Should().Equal(published.References);
+        state.Professional.HasProof.Should().BeTrue();
+    }
+
+    [IntegrationFact]
+    public async Task MyReferences_AreOnlyTheCallersOwn()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Dan");
+        await worker.Pro.PublishAsync();
+        var other = api.Client(api.Tokens.For("someone-else"));
+
+        using var response = await other.GetAsync("professionals/me/references");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadFromJsonAsync(ApiJson.Default.ListReferenceDto)).Should().BeEmpty();
     }
 }

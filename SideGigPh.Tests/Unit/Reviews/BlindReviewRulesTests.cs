@@ -86,6 +86,12 @@ public class BlindReviewRulesTests
     }
 
     [Fact]
+    public void DaysLeft_PhoneClockBehindTheServer_StillSays14()
+    {
+        BlindReviews.DaysLeft(Job(), Done.AddSeconds(-30)).Should().Be(14, "the window is 14 days, never \"in 15 days\"");
+    }
+
+    [Fact]
     public void AReviewLocks_OnceBothReviewsOfTheLatestJobShow()
     {
         var mine = Done.AddHours(1);

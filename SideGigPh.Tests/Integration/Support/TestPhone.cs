@@ -47,13 +47,14 @@ public sealed class TestPhone
         services.AddSingleton<FeedbackBoard>();
         services.AddSingleton<JobBoard>();
         services.AddSingleton<ProWorkspace>();
+        services.AddSingleton<ListingRestore>();
         services.AddSingleton<ProBadges>();
         services.AddSingleton<BadgeReview>();
         services.AddSingleton<SeekerWorkspace>();
         services.AddSingleton(provider => new LocalAccount(
             Store, Identity, provider.GetRequiredService<IUserRepository>(), provider.GetRequiredService<IPhotoStore>(),
             provider.GetRequiredService<IProfessionalProfileRepository>(), provider.GetRequiredService<IChatRepository>(),
-            provider.GetRequiredService<IReviewRepository>(), provider.GetRequiredService<ProWorkspace>(),
+            provider.GetRequiredService<IReviewRepository>(), provider.GetRequiredService<IJobPostRepository>(), provider.GetRequiredService<ProWorkspace>(),
             provider.GetRequiredService<SeekerWorkspace>(), provider.GetRequiredService<AppText>(), NullLogger<LocalAccount>.Instance));
         _services = services.BuildServiceProvider();
     }

@@ -21,6 +21,7 @@ public partial class ProfessionalHome : ComponentBase, IDisposable
     [Inject] private ProBadges Badges { get; set; } = default!;
 
     private PhotoAddResult? _photoResult;
+    private bool _busy;
 
     /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
     private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Home, canSkip: true);
@@ -44,8 +45,21 @@ public partial class ProfessionalHome : ComponentBase, IDisposable
 
     private async Task AddPhotosAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the picker showed (opened it twice and uploaded the photos twice)
+        }
+
+        _busy = true;
         var from = Nav.Uri;
-        _photoResult = await Busy.RunAsync(Workspace.AddWorkPhotosAsync);
+        try
+        {
+            _photoResult = await Busy.RunAsync(Workspace.AddWorkPhotosAsync);
+        }
+        finally
+        {
+            _busy = false;
+        }
 
         // Unless those photos finished the checklist and the layout already opened Publish.
         if (_photoResult is { Added: > 0, Duplicates: 0, Failed: false } && Nav.Uri == from)

@@ -108,7 +108,7 @@ public class ApiAdapterTests
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
         (await repo.GetByIdAsync("nobody")).Should().BeNull();
-        (await repo.HasProfileAsync("nobody")).Should().BeFalse();
+        (await repo.GetByIdAsync("nobody")).Should().BeNull();
 
         server.CountOf("GET professionals/nobody").Should().Be(2, "a listing may be published any moment");
     }
@@ -120,10 +120,63 @@ public class ApiAdapterTests
         server.Answer("GET professionals/pro-1", HttpStatusCode.OK, Json(ListingDto(), ApiJson.Default.ListingDto));
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        (await repo.HasProfileAsync("pro-1")).Should().BeTrue();
+        (await repo.GetByIdAsync("pro-1")).Should().NotBeNull();
         await repo.GetByIdAsync("pro-1");
 
         server.CountOf("GET professionals/pro-1").Should().Be(1);
+    }
+
+    [Fact]
+    public async Task OwnDraft_IsTheLiveListingWithPhotoIdsAndReferences_ReadFresh()
+    {
+        var server = new StubServer();
+        var live = ListingDto() with
+        {
+            ProfilePhoto = new PhotoDto("p1", "https://x/p1.jpg"),
+            WorkPhotos = [new PhotoDto("w2", "https://x/w2.jpg"), new PhotoDto("w1", "https://x/w1.jpg")],
+            OtherWork = null,
+        };
+        server.Answer("GET professionals/pro-1", HttpStatusCode.OK, Json(live, ApiJson.Default.ListingDto));
+        server.Answer("GET professionals/me/references", HttpStatusCode.OK,
+            Json(new List<ReferenceDto> { new("Aling Nena", "+639181111111") }, ApiJson.Default.ListReferenceDto));
+        var repo = new ApiProfessionalProfileRepository(server.Client());
+        await repo.GetByIdAsync("pro-1"); // kept, but the restore still asks the server
+
+        var draft = (await repo.GetOwnDraftAsync("pro-1"))!;
+
+        server.CountOf("GET professionals/pro-1").Should().Be(2);
+        draft.CategoryId.Should().Be("aircon");
+        draft.AreaId.Should().Be("rizal");
+        draft.ServiceIds.Should().Equal("aircon-cleaning");
+        draft.CityIds.Should().Equal("taytay");
+        draft.ExperienceId.Should().Be("1-3");
+        draft.RateTierId.Should().Be("under-500");
+        draft.ProfilePhotoId.Should().Be("p1");
+        draft.WorkPhotoIds.Should().Equal("w2", "w1");
+        draft.References.Should().Equal(new WorkReference("Aling Nena", "+639181111111"));
+        draft.PublishedAt.Should().BeNull("the restore decides that, not the adapter");
+    }
+
+    [Fact]
+    public async Task OwnDraft_NoListing_IsNull_AndReferencesAreNotAsked()
+    {
+        var server = new StubServer();
+        var repo = new ApiProfessionalProfileRepository(server.Client());
+
+        (await repo.GetOwnDraftAsync("nobody")).Should().BeNull();
+
+        server.CountOf("GET professionals/me/references").Should().Be(0);
+    }
+
+    [Fact]
+    public async Task OwnDraft_ReferencesNotRead_IsNull_NeverHalfAListing()
+    {
+        var server = new StubServer();
+        server.Answer("GET professionals/pro-1", HttpStatusCode.OK, Json(ListingDto(), ApiJson.Default.ListingDto));
+        server.Answer("GET professionals/me/references", HttpStatusCode.InternalServerError, Error(ApiErrors.Exception));
+        var repo = new ApiProfessionalProfileRepository(server.Client());
+
+        (await repo.GetOwnDraftAsync("pro-1")).Should().BeNull();
     }
 
     [Fact]

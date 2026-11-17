@@ -35,7 +35,7 @@ public class HonorificsTests
         text.FormatHonorific(Copy.SeekerTagline, Honorifics.Manang, englishPlural: true).Should().Be("Find Manangs nearby");
         text.FormatHonorific(Copy.SearchPlaceholder, Honorifics.Manong).Should().Be("Find a Manong…");
 
-        text.FormatHonorific(Copy.ResultsEmpty, Honorifics.Ate, englishPlural: true).Should().Be("No Ates for this job here yet… soon!");
+        text.FormatHonorific(Copy.ResultsEmpty, Honorifics.Ate, englishPlural: true).Should().Be("No Ates here yet… soon!");
 
         text.Use(AppLanguage.Taglish);
         text.FormatHonorific(Copy.SeekerTagline, Honorifics.Ate, englishPlural: true).Should().Be("May Ate para diyan");

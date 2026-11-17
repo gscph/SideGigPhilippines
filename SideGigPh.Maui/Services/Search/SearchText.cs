@@ -13,7 +13,7 @@ public static class SearchText
     private static readonly HashSet<string> FillerWords =
     [
         // English
-        "a", "an", "the", "and", "or", "of", "for", "to", "in", "on", "at", "my", "me", "i", "is", "it",
+        "a", "an", "the", "and", "or", "of", "for", "to", "in", "on", "at", "my", "me", "i", "is", "it", "up",
         "need", "needs", "want", "someone", "somebody", "please", "with", "near", "help", "new",
         // Tagalog / Taglish
         "ng", "sa", "ang", "mga", "na", "at", "o", "ko", "po", "pa", "paki", "mag", "magpa", "kailangan",

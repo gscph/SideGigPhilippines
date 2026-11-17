@@ -120,6 +120,11 @@ public partial class ProSetup : ComponentBase
 
     private async Task SetPhotoAsync(Func<Task<PhotoAddResult>> save)
     {
+        if (_busy)
+        {
+            return; // a second tap on "choose a photo" before it re-rendered as disabled (opened the picker twice)
+        }
+
         _busy = true;
         try
         {

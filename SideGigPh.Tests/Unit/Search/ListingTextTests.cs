@@ -28,7 +28,7 @@ public class ListingTextTests
         Card.TradeOptions().Select(trade => trade.Id).Should().Equal("aircon"); // the trade badge
         text.Towns(Card).Should().Be("Taytay, Angono");
         text.JobLabels(Card).Should().Equal("Aircon cleaning"); // an unknown job id is skipped, not shown blank
-        text.Rate(Card).Should().Be("₱500 – ₱1,000 per job");
+        text.Rate(Card).Should().Be("₱500 – ₱1,000 per service");
         text.RateLabel(Card).Should().Be("₱500 – ₱1,000");
         text.Experience(Card).Should().Be("Exp: 10+ years");
         text.ExperienceLabel(Card).Should().Be("10+ years");
@@ -42,7 +42,7 @@ public class ListingTextTests
         var text = English();
         var listing = TestData.Listing("Ben", rate: "quote", experience: null);
 
-        text.Rate(listing).Should().Be("Price depends on the job");
+        text.Rate(listing).Should().Be("Price depends on the work");
         text.RateLabel(listing).Should().BeNull();
         text.Experience(listing).Should().BeNull();
         text.ExperienceLabel(listing).Should().BeNull();

@@ -37,7 +37,12 @@ public static class BlindReviews
         : job.MyRating is null ? BlindReviewStage.WaitingForMe
         : BlindReviewStage.WaitingForThem;
 
-    /// <summary>Whole days left (at least 1) before the reviews of <paramref name="job"/> show anyway, for "or in N days".</summary>
+    /// <summary>
+    /// Whole days left (1 to 14) before the reviews of <paramref name="job"/> show anyway, for "or in N days". Never more
+    /// than the window: a phone clock a little behind the server's would otherwise say "in 15 days" right after the job.
+    /// </summary>
     public static int DaysLeft(PickedJob job, DateTimeOffset now) =>
-        job.CompletedAt is { } done ? Math.Max(1, (int)Math.Ceiling((ReviewRules.OpensAt(done) - now).TotalDays)) : 0;
+        job.CompletedAt is { } done
+            ? Math.Clamp((int)Math.Ceiling((ReviewRules.OpensAt(done) - now).TotalDays), 1, (int)ReviewRules.BlindFor.TotalDays)
+            : 0;
 }

@@ -8,13 +8,15 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// <summary>
 /// App entry point (no UI of its own). Applies the saved language and sends the user to
 /// wherever they left off: language → sign in (+ name after a phone sign-in) → role → the
-/// interview step → their home. Everyone signs in before using the app.
+/// interview step → their home. Everyone signs in before using the app; a worker whose app was reinstalled gets their
+/// live listing back first (<see cref="ListingRestore"/>).
 /// </summary>
 public partial class LaunchRouter : ComponentBase
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private AppConfigService Config { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
+    [Inject] private ListingRestore Restore { get; set; } = default!;
     [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -37,6 +39,16 @@ public partial class LaunchRouter : ComponentBase
         }
 
         T.Use(language);
-        Nav.NavigateTo(await Gate.RedirectAsync("/") ?? OnboardingSteps.LaunchPath(state), replace: true);
+        if (await Gate.RedirectAsync("/") is { } signIn)
+        {
+            Nav.NavigateTo(signIn, replace: true);
+            return;
+        }
+
+        // Signed in on a phone with no answers (reinstalled, a new phone, or "Sign in with this number" before the first
+        // question): a worker's live listing comes back, so they open Pro home instead of the interview. Every sign-in
+        // comes back here (IAuthLanding's default "/").
+        await Restore.RestoreAsync(state);
+        Nav.NavigateTo(OnboardingSteps.LaunchPath(state), replace: true);
     }
 }
