@@ -400,6 +400,41 @@ public static class Copy
     public static readonly LocalizedText ChangeRating = new("Change", "Palitan");
     public static readonly LocalizedText PickedDidNotSend = new("Didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText HouseholdStarsFact = new("Customer rating: {0}", "Rating ng customer: {0}");
+
+    // --- Location: the worker's base and travel distance, a post's place ---
+    public static readonly LocalizedText UseMyLocation = new("Use my location", "Gamitin ang location ko");
+    public static readonly LocalizedText LocationSet = new("Location set from your phone.", "Naka-set na ang location mula sa phone mo.");
+    public static readonly LocalizedText LocationTownCentre = new(
+        "Not set: we use the middle of your town.", "Hindi pa naka-set: gitna ng bayan mo ang gamit namin.");
+    public static readonly LocalizedText LocationDenied = new(
+        "Location is not allowed. You can turn it on in Settings.", "Hindi naka-allow ang location. Puwede mo itong i-on sa Settings.");
+    public static readonly LocalizedText LocationOpenSettings = new("Open Settings", "Buksan ang Settings");
+    public static readonly LocalizedText LocationOff = new(
+        "Location is off on your phone. Turn it on, then try again.", "Naka-off ang location ng phone mo. I-on muna, tapos subukan ulit.");
+    public static readonly LocalizedText LocationRough = new(
+        "Your phone gave only a rough location. Allow \"precise location\" for Tarbaho, then try again.",
+        "Pa-tantiya lang ang location na binigay ng phone mo. I-allow ang \"precise location\" para sa Tarbaho, tapos subukan ulit.");
+    public static readonly LocalizedText LocationAbroad = new(
+        "That location is outside the Philippines, so we didn't use it.", "Nasa labas ng Pilipinas ang location na iyan, kaya hindi namin ginamit.");
+    public static readonly LocalizedText LocationFailed = new(
+        "Your phone couldn't find where you are. Try again near a window or outside.",
+        "Hindi mahanap ng phone mo kung nasaan ka. Subukan ulit malapit sa bintana o sa labas.");
+    public static readonly LocalizedText WorkAreaTitle = new("Where you work", "Saan ka nagse-serbisyo");
+    public static readonly LocalizedText WorkAreaWhy = new(
+        "Requests come from customers within this distance of your base. Customers never see your exact location, only your town and how many km away.",
+        "Ang mga request ay galing sa customers na pasok sa layong ito mula sa base mo. Hindi nakikita ng customers ang eksaktong location mo, bayan at ilang km lang.");
+    public static readonly LocalizedText WorkAreaBase = new("Your base", "Ang base mo");
+    public static readonly LocalizedText WorkAreaBaseWhy = new(
+        "Use your location at home or where you usually start from.", "Gamitin ang location mo sa bahay o kung saan ka karaniwang umaalis.");
+    public static readonly LocalizedText WorkAreaRadius = new("How far you go", "Gaano kalayo ka pumupunta");
+    public static readonly LocalizedText RadiusKm = new("{0} km", "{0} km");
+    public static readonly LocalizedText WorkAreaSave = new("Save", "I-save");
+    public static readonly LocalizedText WorkAreaFailed = new("Didn't save. Try again.", "Hindi na-save. Subukan ulit.");
+    public static readonly LocalizedText WorkAreaMenu = new("Where you work", "Saan ka nagse-serbisyo");
+    public static readonly LocalizedText WorkAreaMenuHint = new("Within {0} km", "Hanggang {0} km");
+    public static readonly LocalizedText PostLocationWhy = new(
+        "Workers nearby see your post first. They see only your town and how many km away, never your exact location.",
+        "Mauunang makita ng malalapit na workers ang post mo. Bayan at ilang km lang ang nakikita nila, hindi ang eksaktong location mo.");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.

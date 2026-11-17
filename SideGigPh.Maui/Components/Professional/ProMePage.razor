@@ -36,6 +36,8 @@
 
     <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
         <MenuRow Href="/start/pro/1" Icon="@Icons.Material.Rounded.Edit" Text="@T.Get(Copy.ProfileEdit)" />
+        <MenuRow Href="@ProRoutes.WorkArea" Icon="@Icons.Material.Rounded.LocationOn"
+                 Text="@T.Get(Copy.WorkAreaMenu)" SecondaryText="@T.Format(Copy.WorkAreaMenuHint, Workspace.Draft.RadiusKm ?? WorkArea.DefaultRadiusKm)" />
         <MenuRow Href="@ProRoutes.Photos" Icon="@Icons.Material.Rounded.PhotoLibrary"
                  Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel" />
         <MenuRow Href="@ProRoutes.References" Icon="@Icons.Material.Rounded.VerifiedUser"

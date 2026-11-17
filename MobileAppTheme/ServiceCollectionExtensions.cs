@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<DevicePhotoPicker>();
         services.TryAddSingleton<IPhotoPicker>(provider => provider.GetRequiredService<DevicePhotoPicker>());
         services.TryAddSingleton<IPhotoStore, FilePhotoStore>();
+        services.TryAddSingleton<IDeviceLocation, DeviceLocation>();
         services.TryAddSingleton<IPushNotifications, NoPushNotifications>();
         services.TryAddSingleton<IAnalytics, NoAnalytics>();
         services.TryAddSingleton<IExperiments, NoExperiments>();

@@ -8,6 +8,8 @@ using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Tests.Integration.Support;
 
+using GeoPoint = SideGigPh.AzureSQL.GeoPoint;
+
 namespace SideGigPh.Tests.Integration;
 
 /// <summary>

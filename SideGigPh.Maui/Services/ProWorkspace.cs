@@ -382,6 +382,22 @@ public sealed class ProWorkspace(
     }
 
     /// <summary>
+    /// Saves where the worker works from: their base point when the phone gave one (null keeps the one they have) and
+    /// how far they travel. A live listing is re-published, retried later on failure like any edit.
+    /// </summary>
+    public async Task SetWorkAreaAsync(GeoPoint? basePoint, int radiusKm)
+    {
+        if (basePoint is { } point)
+        {
+            Draft.BaseLatitude = point.Latitude;
+            Draft.BaseLongitude = point.Longitude;
+        }
+
+        Draft.RadiusKm = WorkArea.ClampRadius(radiusKm);
+        await SaveAsync(listingChanged: true);
+    }
+
+    /// <summary>
     /// The live listing was edited on the phone (Done on Edit listing): mark it out of date and re-publish it. Answers
     /// what the server said, or null when it wasn't sent or didn't get through (then it is retried later).
     /// </summary>

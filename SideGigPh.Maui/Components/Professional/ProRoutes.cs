@@ -23,6 +23,9 @@ public static class ProRoutes
     /// <summary>The pro's badges (ID, TESDA, past projects), opened from the Me page; under <see cref="Me"/>.</summary>
     public const string Badges = Me + "/badges";
 
+    /// <summary>Where the worker works from: their base point and how far they travel (<c>WorkAreaPage</c>).</summary>
+    public const string WorkArea = Me + "/area";
+
     /// <summary>Sending the proof for one kind of badge; under <see cref="Badges"/>.</summary>
     public static string BadgeProof(BadgeKind kind) => $"{Badges}/{kind.ToString().ToLowerInvariant()}";
 

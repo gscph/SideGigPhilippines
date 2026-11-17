@@ -106,6 +106,8 @@ internal static partial class ApiMapping
         draft.BudgetPesos ?? 0,
         draft.CityId ?? string.Empty,
         [.. draft.Photos.Select(photo => photo.Id)],
+        draft.Point?.Latitude,
+        draft.Point?.Longitude,
         BudgetMinPesos: draft.BudgetMinPesos);
 
     public static UserProfile ToModel(this UserDto dto) => new(
@@ -259,6 +261,9 @@ internal static partial class ApiMapping
         PhotoId(listing.PhotoUrl),
         listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
         references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList(),
+        listing.BasePoint?.Latitude,
+        listing.BasePoint?.Longitude,
+        listing.RadiusKm,
         OtherWork: listing.ServiceIds.Any(ReferenceData.IsOtherJob) ? listing.OtherWork : null);
 
     public static Review ToModel(this ReviewDto dto) => new(

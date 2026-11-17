@@ -94,6 +94,20 @@ public sealed class ProfessionalDraft
     /// <summary>People who can vouch for the pro (private, never shown to customers), first added first.</summary>
     public List<WorkReference> References { get; set; } = [];
 
+    /// <summary>
+    /// The worker's base point, read from the phone when they tap "Use my location" (private: only the server gets it,
+    /// and others see a town or whole kilometres). Null until then: the server uses the middle of their towns.
+    /// </summary>
+    public double? BaseLatitude { get; set; }
+
+    public double? BaseLongitude { get; set; }
+
+    /// <summary>How far they travel, in km (<c>WorkArea.RadiusChoices</c>); null until they pick (the server starts at 10).</summary>
+    public int? RadiusKm { get; set; }
+
+    public GeoPoint? BasePoint =>
+        BaseLatitude is { } latitude && BaseLongitude is { } longitude ? new GeoPoint(latitude, longitude) : null;
+
     /// <summary>Set when the pro took the pledge and published the listing.</summary>
     public DateTimeOffset? PublishedAt { get; set; }
 

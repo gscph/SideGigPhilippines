@@ -123,7 +123,10 @@ changing that area.**
   keeps what it has or starts at the middle of the listing's towns (`GeoRules.TownCentres`: a new town needs a line).
   Matching by distance is `ProfessionalStore.WorkersInRangeAsync` (`Location.STDistance(point) <= RadiusKm * 1000`).
   **The point never leaves the server**: not in `ListingDto`, only a town or a rounded distance may be shown. Town
-  lists and town-based search stay until search moves to radius.
+  lists and town-based search stay until search moves to radius. **In the app** the point comes only from a tap on
+  **Use my location** (`Components/Shared/LocationButton`, skeleton port `IDeviceLocation`, "while using the app",
+  never background; rules in `Services/WorkArea`: a rough or foreign point is not used): the worker's **Where you
+  work** page (`ProRoutes.WorkArea`: base + travel distance, `ProWorkspace.SetWorkAreaAsync`) and the post form.
 - **Worker verification** (`014-schema-verification.sql`, `VerificationFunctions`, `VerificationStore`, contracts in
   `Verification.cs`): **three badges**: a government ID, a TESDA certificate or training, and a past project with a
   developer **or any other company**. A worker sends a photo with `POST verifications/{kind}?consent=true` (`id`,
@@ -229,7 +232,7 @@ SideGigPh.slnx
 │   ├── Components/Pages/      # NotFound
 │   ├── Localization/          # AppText, LocalizedText, AppLanguage, TimeAgo, CommonCopy
 │   ├── Models/                # CatalogOption
-│   ├── Services/              # ports: IAppAccount, IContactLauncher, IPhotoPicker, IPhotoStore, IPushNotifications, IAnalytics, IExperiments; RemoteConfig<T>
+│   ├── Services/              # ports: IAppAccount, IContactLauncher, IDeviceLocation, IPhotoPicker, IPhotoStore, IPushNotifications, IAnalytics, IExperiments; RemoteConfig<T>
 │   │   └── Local/             # on-device adapters + JsonFile<T>
 │   └── wwwroot/mobile-app-theme.css
 │

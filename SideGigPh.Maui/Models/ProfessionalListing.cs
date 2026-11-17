@@ -43,4 +43,13 @@ public sealed class ProfessionalListing
 
     /// <summary>Jobs done through Tarbaho: a household picked this worker's offer and both marked it done.</summary>
     public int CompletedJobs { get; init; }
+
+    /// <summary>
+    /// The worker's own base point, from their phone (only on their own listing, never sent to others; null = the
+    /// server keeps what it has, or the middle of their towns).
+    /// </summary>
+    public GeoPoint? BasePoint { get; init; }
+
+    /// <summary>How far they travel, in km (only on their own listing; null = the server keeps what it has).</summary>
+    public int? RadiusKm { get; init; }
 }
