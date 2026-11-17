@@ -48,6 +48,7 @@ else
 }
 
 builder.Services.AddScoped<ChatNotifier>();
+builder.Services.AddScoped<JobAlerts>();
 
 // Worker verification: proofs go to a private container; an ID is read by Azure AI Document Intelligence when it's set
 // up (azure/cloudshell-document-intelligence.sh), else the operator checks by eye only. Operators are named in AdminUids.

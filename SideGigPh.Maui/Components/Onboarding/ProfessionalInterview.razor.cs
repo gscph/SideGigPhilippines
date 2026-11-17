@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -9,9 +10,11 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate →
-/// preview. "Others" after the trades lets a worker type a kind of work we don't list (sent for analytics), then thanks
-/// them and goes back to the trades. The rate is a point of each job's price guide (minimum, average, above average,
-/// each tile showing its prices for their jobs: <see cref="Pricing.RateChoices"/>) or "depends on the job". The answers build the listing card the pro sees at the end; its name and number come
+/// preview. "Others" after the trades lets a worker type a kind of work we don't list: it is saved as their trade and
+/// job (the jobs question is skipped), sent for analytics and matched with households who typed something similar, so
+/// nobody is stuck on the trade question. The rate is their own range in two peso boxes ("From" / "Up to"); the guide's
+/// points (minimum, average, above average, each tile showing its prices for their jobs: <see cref="Pricing.RateChoices"/>)
+/// fill the boxes in one tap, and "depends on the job" moves on. The answers build the listing card the pro sees at the end; its name and number come
 /// from the account (<see cref="ListingMapper.TakeAccount"/>), so they are never asked here.
 /// One URL per step; answers are saved whenever the user moves forward. The rules (which step, what an
 /// answer clears, where Back goes) are in <see cref="OnboardingSteps"/>.
@@ -44,12 +47,18 @@ public partial class ProfessionalInterview : ComponentBase
     // The "Others" text already sent, so going back and forward doesn't send it twice.
     private string? _notedOtherJob;
 
-    // "Others" after the trades: never saved as a trade, only typed, sent and thanked for.
+    // "Others" after the trades: the tile is picked, waiting for what they type and Next.
     private bool _pickedOtherTrade;
     private string? _otherTradeText;
-    private bool _otherTradeNoted;
 
-    private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, NoteOtherTrade) : default;
+    // The rate's two boxes, saved as their range on Next, and the guide tile that last filled them.
+    private int? _rateFrom;
+    private int? _rateUpTo;
+    private string? _rateLevel;
+
+    private bool CanSaveRate => RateRange.IsValid(_rateFrom, _rateUpTo);
+
+    private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, PickOtherTradeAsync) : default;
 
     private ProfessionalDraft Draft => _state!.Professional;
 
@@ -73,7 +82,10 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         _step = Draft.StepToShow(Step);
-        PickAnotherTrade();
+        _pickedOtherTrade = Draft.IsOtherTrade();
+        _otherTradeText = _pickedOtherTrade ? Draft.OtherJobText : null;
+        (_rateFrom, _rateUpTo) = Pricing.RateStart(Draft.RateTierId, Draft.ServiceIds);
+        _rateLevel = Draft.RateTierId == ReferenceData.Quote ? ReferenceData.Quote : null;
     }
 
     private Task PickSkillAsync(string categoryId)
@@ -90,17 +102,19 @@ public partial class ProfessionalInterview : ComponentBase
 
     private void SetOtherTradeText(string text) => _otherTradeText = text;
 
-    private void NoteOtherTrade()
+    /// <summary>"Others" with what they typed: saved as their trade and job, and the interview goes on to the towns.</summary>
+    private Task PickOtherTradeAsync()
     {
-        _ = Notes.NoteAsync(ReferenceData.OtherTradeId, UserRole.Professional, _otherTradeText);  // never holds up the interview
-        _otherTradeNoted = true;
-    }
+        var typed = _otherTradeText?.Trim();
+        if (typed != _notedOtherJob)
+        {
+            _notedOtherJob = typed;
+            _ = Notes.NoteAsync(ReferenceData.OtherTradeId, UserRole.Professional, typed);  // never holds up the interview
+        }
 
-    private void PickAnotherTrade()
-    {
-        _pickedOtherTrade = false;
-        _otherTradeText = null;
-        _otherTradeNoted = false;
+        Draft.PickTrade(ReferenceData.OtherTradeId);
+        Draft.OtherJobText = typed;
+        return AdvanceAsync();
     }
 
     private void ToggleService(string serviceId) => Draft.ToggleService(serviceId);
@@ -115,9 +129,27 @@ public partial class ProfessionalInterview : ComponentBase
         return AdvanceAsync();
     }
 
+    /// <summary>A guide point fills the two boxes with its prices for their jobs; "depends on the job" moves on.</summary>
     private Task PickRateAsync(string id)
     {
-        Draft.RateTierId = id;
+        if (id == ReferenceData.Quote)
+        {
+            Draft.RateTierId = id;
+            return AdvanceAsync();
+        }
+
+        _rateLevel = id;
+        if (Pricing.RateRange(id, Draft.ServiceIds) is { } range)
+        {
+            (_rateFrom, _rateUpTo) = range;
+        }
+
+        return Task.CompletedTask;  // they can change the amounts, then Next
+    }
+
+    private Task SaveRateAsync()
+    {
+        Draft.RateTierId = RateRange.Format(_rateFrom!.Value, _rateUpTo!.Value);
         return AdvanceAsync();
     }
 
@@ -132,7 +164,7 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         var state = _state!;
-        var path = OnboardingSteps.PathOf(_step + 1);
+        var path = Draft.NextPath(_step);
         if (state.CompletedAt is null)
         {
             state.ResumePath = path;
@@ -171,7 +203,7 @@ public partial class ProfessionalInterview : ComponentBase
         await Workspace.ListingEditedAsync(); // Edit listing on a live listing: customers see the new answers.
     }
 
-    private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, finished: _state!.CompletedAt is not null));
+    private void GoBack() => Nav.NavigateTo(Draft.BackPath(_step, finished: _state!.CompletedAt is not null));
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };

@@ -12,6 +12,8 @@ namespace SideGigPh.Maui.Models;
 /// <param name="OfferCount">For the household: how many workers' offers wait on it.</param>
 /// <param name="MyOfferPesos">For a worker: the price they offered, or null when they haven't.</param>
 /// <param name="PickedProId">For the household: the worker whose offer they picked, else null.</param>
+/// <param name="BudgetPesos">The top of the household's budget ("up to"), the price "Take it" offers.</param>
+/// <param name="BudgetMinPesos">The low end ("from"), or null when they gave only a top.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -27,7 +29,8 @@ public sealed record JobPost(
     DateTimeOffset CreatedAt,
     int OfferCount = 0,
     int? MyOfferPesos = null,
-    string? PickedProId = null);
+    string? PickedProId = null,
+    int? BudgetMinPesos = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.
@@ -44,8 +47,11 @@ public sealed class JobPostDraft
 
     public string? Description { get; set; }
 
-    /// <summary>What they are ready to pay, in pesos (their own number: Tarbaho sets no prices).</summary>
+    /// <summary>The most they are ready to pay ("up to"), in pesos (their own number: Tarbaho sets no prices).</summary>
     public int? BudgetPesos { get; set; }
+
+    /// <summary>The low end of their budget ("from"), in pesos; optional.</summary>
+    public int? BudgetMinPesos { get; set; }
 
     public string? CityId { get; set; }
 

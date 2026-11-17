@@ -41,7 +41,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         draft.CategoryId is null ? JobPostField.Trade
         : draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId) ? JobPostField.Service
         : !JobPostRules.IsDescription(draft.Description) ? JobPostField.Description
-        : !JobPostRules.IsBudget(draft.BudgetPesos) ? JobPostField.Budget
+        : !JobPostRules.IsBudgetRange(draft.BudgetMinPesos, draft.BudgetPesos) ? JobPostField.Budget
         : draft.CityId is null ? JobPostField.Town
         : null;
 

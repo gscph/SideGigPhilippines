@@ -1,0 +1,4 @@
+<MudStack Row="true" Spacing="2">
+    <MudText Typo="Typo.body2" Color="Color.Secondary">@Label</MudText>
+    <MudText Typo="Typo.body2" Class="flex-1 app-min-w-0">@(string.IsNullOrWhiteSpace(Value) ? "—" : Value)</MudText>
+</MudStack>

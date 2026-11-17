@@ -34,9 +34,10 @@ public partial class SeekerMePage : ComponentBase
 
     /// <summary>"Aircon Technician · Linis ng aircon", or the trade alone while no job is picked.</summary>
     private string NeedLabel =>
+        Answers.IsOtherTrade() && Answers.OtherJobText is { Length: > 0 } typed ? typed :
         string.Join(" · ", new[]
         {
-            ReferenceData.Find(ReferenceData.Categories, Answers.CategoryId),
+            ReferenceData.FindTrade(Answers.CategoryId),
             ReferenceData.Find(ReferenceData.ServicesOf(Answers.CategoryId), Answers.ServiceId),
         }.OfType<CatalogOption>().Select(option => T.Get(option.Label))) is { Length: > 0 } label ? label : NotSet;
 

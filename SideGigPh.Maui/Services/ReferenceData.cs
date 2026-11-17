@@ -134,12 +134,22 @@ public static class ReferenceData
     private static bool IsSound(PriceGuide price, int minimumWage) =>
         price.Min >= minimumWage && price.Min <= price.Average && price.Average <= price.High;
 
-    /// <summary>A trade's jobs, or none for a trade that isn't offered (retired).</summary>
+    /// <summary>
+    /// A trade's jobs, or none for a trade that isn't offered (retired). The "Others" trade (<see cref="OtherTradeId"/>)
+    /// has one job, itself: what the person typed says the rest.
+    /// </summary>
     public static IReadOnlyList<CatalogOption> ServicesOf(string? categoryId) =>
-        categoryId is not null && ServicesByCategory.TryGetValue(categoryId, out var services) ? services : [];
+        categoryId == OtherTradeId ? Current.OtherTradeJobs
+        : categoryId is not null && ServicesByCategory.TryGetValue(categoryId, out var services) ? services : [];
 
-    /// <summary>The "Others" job of a trade: picking it lets the person type what they need (kept for analytics only).</summary>
-    public static bool IsOtherJob(string? serviceId) => serviceId?.EndsWith(OtherJobSuffix, StringComparison.Ordinal) == true;
+    /// <summary>
+    /// An "Others" answer: a trade's last job (<c>…-other</c>) or the "Others" trade itself. Picking it lets the person
+    /// type what they need; the text is sent for analytics and matched against the other side's (search).
+    /// </summary>
+    public static bool IsOtherJob(string? serviceId) => OtherWork.IsOther(serviceId);
+
+    /// <summary>A trade, or the "Others" tile, by id; null for a trade we don't offer.</summary>
+    public static CatalogOption? FindTrade(string? id) => Find(TradeChoices, id);
 
     // --- The copy built into the app ------------------------------------------------
 
@@ -369,7 +379,7 @@ public static class ReferenceData
         id is null ? null : options.FirstOrDefault(o => o.Id == id);
 
     public static CatalogOption? FindService(string? id) =>
-        Find(ServicesByCategory.Values.SelectMany(services => services), id);
+        id == OtherTradeId ? OtherTradeOption : Find(ServicesByCategory.Values.SelectMany(services => services), id);
 
     /// <summary>The area a town belongs to (<see cref="ServiceAreaId"/>), or null for a town we don't serve.</summary>
     public static string? AreaOf(string? cityId) =>
@@ -384,5 +394,7 @@ public static class ReferenceData
         public AppConfig Config { get; } = config;
 
         public IReadOnlyList<CatalogOption> TradeChoices { get; } = [.. config.Categories, OtherTradeOption];
+
+        public IReadOnlyList<CatalogOption> OtherTradeJobs { get; } = [OtherTradeOption];
     }
 }

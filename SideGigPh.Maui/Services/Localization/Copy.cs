@@ -52,29 +52,22 @@ public static class Copy
     public static readonly LocalizedText BudgetLow = new("Budget-friendly", "Tipid");
     public static readonly LocalizedText BudgetMid = new("Average", "Karaniwan");
     public static readonly LocalizedText BudgetHigh = new("For bigger or harder jobs", "Para sa mas malaki o mahirap na trabaho");
-    public static readonly LocalizedText BudgetCustom = new("Other amount", "Ibang halaga");
-    public static readonly LocalizedText BudgetCustomHint = new("Type your own range", "I-type ang sarili mong budget");
+    public static readonly LocalizedText BudgetOwnRange = new("Or type your own range", "O i-type ang sarili mong range");
     public static readonly LocalizedText BudgetRange = new("{0} – {1}", "{0} – {1}");
     public static readonly LocalizedText BudgetUpTo = new("Up to {0}", "Hanggang {0}");
     public static readonly LocalizedText BudgetAndUp = new("{0} and up", "{0} pataas");
     public static readonly LocalizedText BudgetFromLabel = new("From (₱)", "Mula (₱)");
     public static readonly LocalizedText BudgetToLabel = new("Up to (₱)", "Hanggang (₱)");
     // A suggested price, never "minimum wage": workers are independent and set their own prices (docs/legal/README.md L2).
-    public static readonly LocalizedText BudgetFromHelp = new("At least {0}, the suggested minimum price", "Hindi bababa sa {0}, ang suggested na pinakamababang presyo");
+    public static readonly LocalizedText BudgetFromHelp = new("Suggested minimum price: {0}. Only a guide.", "Suggested na pinakamababang presyo: {0}. Gabay lang ito.");
     public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat pareho o mas mataas sa unang halaga");
 
-    // "Others" after the trades: kinds of work we don't offer yet (sent for analytics).
+    // "Others" after the trades: kinds of work we don't list yet. The text is matched with the other side's (search).
     public static readonly LocalizedText OtherTradeSeekerLabel = new("What work do you need?", "Anong klaseng trabaho ang kailangan mo?");
     public static readonly LocalizedText OtherTradeProLabel = new("What kind of work do you do?", "Anong klaseng trabaho mo?");
-    public static readonly LocalizedText OtherTradeHelp = new("We use this to add new kinds of work.", "Gagamitin namin ito para magdagdag ng bagong trabaho.");
-    public static readonly LocalizedText OtherTradeThanksTitle = new("Thanks! We noted it.", "Salamat! Na-note namin.");
-    public static readonly LocalizedText OtherTradeSeekerThanks = new(
-        "We don't have skilled workers for this yet. It helps us choose what to add next.",
-        "Wala pa kaming skilled worker para dito. Makakatulong ito sa pagpili namin ng susunod na idadagdag.");
-    public static readonly LocalizedText OtherTradeProThanks = new(
-        "We don't list this kind of work yet. It helps us choose what to add next. For now, you can pick the closest one.",
-        "Hindi pa namin nililista ang ganitong trabaho. Makakatulong ito sa pagpili namin ng idadagdag. Pwede ka munang pumili ng pinakamalapit.");
-    public static readonly LocalizedText OtherTradePickAnother = new("Pick another", "Pumili ng iba");
+    public static readonly LocalizedText OtherTradeHelp = new(
+        "We match you with people who typed something similar.",
+        "Itutugma ka namin sa mga nag-type ng katulad.");
 
     // Labor-illusion loader. {0} = job or town label.
 
@@ -197,6 +190,8 @@ public static class Copy
     // --- Notification channels (Android Settings › Notifications; made at launch, before the language is known, so English) ---
     public static readonly LocalizedText PushChannelCustomers = new("New customers", "Bagong customer");
     public static readonly LocalizedText PushChannelReplies = new("Replies from skilled workers", "Sagot ng skilled worker");
+    public static readonly LocalizedText PushChannelRequests = new("Requests near you", "Mga request malapit sa'yo");
+    public static readonly LocalizedText PushChannelOffers = new("Offers on your posts", "Mga offer sa post mo");
     public static readonly LocalizedText AccountTitle = new("Your account", "Account mo");
     public static readonly LocalizedText StartOverWarning = new(
         "Your answers, listing, photos, messages and reviews on this phone will be deleted. You can't undo this.",
@@ -235,8 +230,8 @@ public static class Copy
         "Each job has its own price. Customers see your price for the job they need, and you can still agree on the final price.",
         "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
     public static readonly LocalizedText ProRateNote = new(
-        "Our suggested minimum price is {0} per job. You set your own price.",
-        "Ang suggested na pinakamababang presyo ay {0} kada trabaho. Ikaw ang magpapasya ng presyo mo.");
+        "Tap a price to start from it, or type your own range. Our suggested minimum price is {0} per job, only a guide.",
+        "I-tap ang presyo para simulan dito, o i-type ang sarili mong range. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 
@@ -266,6 +261,8 @@ public static class Copy
     public static readonly LocalizedText PostDescription = new("Describe the problem", "Ikuwento ang problema");
     public static readonly LocalizedText PostDescriptionHint = new("e.g. The kitchen faucet leaks even when closed", "hal. Tumutulo ang gripo sa kusina kahit sarado");
     public static readonly LocalizedText PostBudget = new("Your budget", "Budget mo");
+    public static readonly LocalizedText PostBudgetFrom = new("Budget from (₱)", "Budget mula (₱)");
+    public static readonly LocalizedText PostBudgetUpTo = new("Up to (₱)", "Hanggang (₱)");
     public static readonly LocalizedText PostBudgetWhy = new("Your own number. You and the worker agree on the final price.", "Sarili mong presyo. Kayo ng gagawa ang mag-uusap sa final na presyo.");
     public static readonly LocalizedText PostPhotosAdd = new("Add photos of the problem", "Maglagay ng photo ng problema");
     public static readonly LocalizedText PostPhotosHint = new("Up to {0} photos. You can skip this.", "Hanggang {0} photo. Puwedeng wala.");
@@ -344,6 +341,35 @@ public static class Copy
     public static readonly LocalizedText StatusPublished = new("Published", "Naka-publish na");
     public static readonly LocalizedText StatusNotPublished = new("Not published yet", "Hindi pa naka-publish");
     public static readonly LocalizedText StatRating = new("{0} ★ ({1})", "{0} ★ ({1})");
+
+    // --- Operator: badge review (only accounts in the server's AdminUids) ---
+    public static readonly LocalizedText AdminBadgesMenu = new("Check badge requests", "I-check ang mga badge request");
+    public static readonly LocalizedText AdminBadgesMenuHint = new("For Tarbaho staff", "Para sa Tarbaho staff");
+    public static readonly LocalizedText AdminBadgesTitle = new("Badge requests", "Mga badge request");
+    public static readonly LocalizedText AdminBadgesWhy = new(
+        "Oldest first. Compare the profile photo with the ID by eye. The AI reading only helps: you decide.",
+        "Pinakaluma muna. Ikumpara ang profile photo sa ID gamit ang mata. Tulong lang ang basa ng AI: ikaw ang magdedesisyon.");
+    public static readonly LocalizedText AdminNothingWaiting = new("No badge requests waiting.", "Walang naghihintay na badge request.");
+    public static readonly LocalizedText AdminNotOperator = new("This page is only for Tarbaho staff.", "Para lang sa Tarbaho staff ang page na ito.");
+    public static readonly LocalizedText AdminScanTitle = new("What the AI read", "Ang nabasa ng AI");
+    public static readonly LocalizedText AdminScanType = new("Type", "Uri");
+    public static readonly LocalizedText AdminScanName = new("Name", "Pangalan");
+    public static readonly LocalizedText AdminScanNumber = new("Number", "Numero");
+    public static readonly LocalizedText AdminScanExpiry = new("Expires", "Expiry");
+    public static readonly LocalizedText AdminScanNone = new("Not read by the AI.", "Hindi binasa ng AI.");
+    public static readonly LocalizedText AdminScanUnreadable = new("The AI couldn't read this ID.", "Hindi nabasa ng AI ang ID na ito.");
+    public static readonly LocalizedText AdminScanFailed = new("The AI reader didn't answer.", "Hindi sumagot ang AI reader.");
+    public static readonly LocalizedText AdminCompareHint = new(
+        "Check the name matches the listing and the face matches the profile photo.",
+        "I-check kung tugma ang pangalan sa listing at ang mukha sa profile photo.");
+    public static readonly LocalizedText AdminShowProof = new("Show the proof photo", "Ipakita ang proof photo");
+    public static readonly LocalizedText AdminProofAlt = new("The proof photo the worker sent", "Ang proof photo na pinadala ng worker");
+    public static readonly LocalizedText AdminNoProof = new("The proof photo is gone.", "Wala na ang proof photo.");
+    public static readonly LocalizedText AdminProofFailed = new("The photo didn't load. Try again.", "Hindi nag-load ang photo. Subukan ulit.");
+    public static readonly LocalizedText AdminRejectReason = new("Reason, if you reject (the worker sees it)", "Dahilan kung ire-reject (makikita ng worker)");
+    public static readonly LocalizedText AdminApprove = new("Approve", "I-approve");
+    public static readonly LocalizedText AdminReject = new("Reject", "I-reject");
+    public static readonly LocalizedText AdminDecideFailed = new("Didn't send. Try again.", "Hindi na-send. Subukan ulit.");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
     // Setup checklist on Pro home: photo, 2 work photos, a reference, a confirmed number, then the Publish button.
