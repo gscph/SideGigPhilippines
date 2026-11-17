@@ -105,6 +105,39 @@ public class OnboardingStepsTests
     }
 
     [Fact]
+    public void ToggleAllJobs_TicksEveryListedJobButOthers_ThenRemovesAll()
+    {
+        var draft = new ProfessionalDraft { CategoryId = "it", ServiceIds = ["it-software"] };
+        var listed = ReferenceData.ServicesOf("it").Select(job => job.Id).Where(id => !ReferenceData.IsOtherJob(id)).ToList();
+
+        draft.ToggleAllJobs();
+        draft.ServiceIds.Should().BeEquivalentTo(listed, "\"Others\" asks them to type the work, so it isn't ticked for them");
+        draft.HasAllJobs().Should().BeTrue();
+
+        draft.ToggleAllJobs();
+        draft.ServiceIds.Should().BeEmpty();
+        draft.HasAllJobs().Should().BeFalse();
+    }
+
+    [Fact]
+    public void ToggleAllJobs_KeepsATickedOthers_AndRemoveAllForgetsItsText()
+    {
+        var draft = new ProfessionalDraft { CategoryId = "it", ServiceIds = ["it-other"], OtherJobText = "Drone repair" };
+
+        draft.ToggleAllJobs();
+        draft.ServiceIds.Should().Contain("it-other");
+        draft.OtherJobText.Should().Be("Drone repair");
+
+        draft.ToggleAllJobs();
+        draft.ServiceIds.Should().BeEmpty();
+        draft.OtherJobText.Should().BeNull();
+    }
+
+    [Fact]
+    public void HasAllJobs_WithoutATrade_IsFalse() =>
+        new ProfessionalDraft().HasAllJobs().Should().BeFalse("there is nothing to select, so the button reads \"Select all\"");
+
+    [Fact]
     public void ToggleTown_SetsTheAreaFromTheTowns_AndClearsItWithNoTowns()
     {
         var draft = new ProfessionalDraft();

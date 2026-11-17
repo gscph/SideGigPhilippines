@@ -3,7 +3,7 @@
     {
         <MudStack Row="true" Justify="Justify.FlexEnd">
             <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="() => OnPickAll.InvokeAsync()">
-                @T.Get(AllSelected ? Copy.TownsClear : Copy.TownsAll)
+                @T.Get(AllSelected ? Copy.RemoveAll : Copy.SelectAll)
             </MudButton>
         </MudStack>
     }
