@@ -35,8 +35,7 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     [
         new(ProRoutes.Home, Icons.Material.Filled.Home, T.Get(Copy.NavHome)),
         new(ProRoutes.Requests, Icons.Material.Filled.Campaign, T.Get(Copy.NavRequests)),
-        new(ProRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), Workspace.UnreadCount, MatchPrefix: true),
-        new(ProRoutes.Reviews, Icons.Material.Filled.StarOutline, T.Get(Copy.NavReviews)),
+        new(ProRoutes.Inbox, Icons.Material.Filled.ChatBubbleOutline, T.Get(Copy.NavInbox), Workspace.UnreadCount, MatchPrefix: true),       
         new(ProRoutes.Me, Icons.Material.Filled.Person, T.Get(Copy.NavMe), MatchPrefix: true),
     ];
 

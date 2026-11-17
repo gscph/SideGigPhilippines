@@ -1,21 +1,21 @@
 @page "/professional/me"
 @layout ProLayout
 
-<MePage Title="@T.Get(Copy.ProfileTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)">
-    <ProfileCard Name="@Name" PhotoUrl="@Workspace.ProfilePhotoUrl"
-                 Subtitle="@T.Get(Workspace.IsPublished ? Copy.StatusPublished : Copy.StatusNotPublished)"
-                 SubtitleColor="@(Workspace.IsPublished ? Color.Success : Color.Secondary)">
-        <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.PhotoCamera"
-                   Disabled="_busy" OnClick="ChangePhotoAsync">
-            @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
-        </MudButton>
-        <PhotoAddNotice Result="_photoResult" />
-        <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.Badge"
-                   Href="@AuthRoutes.EditName(ProRoutes.Me)">
-            @T.Get(Copy.ProfileNameChange)
-        </MudButton>
-    </ProfileCard>
-
+<MePage Title="@T.Get(Copy.ProPreviewTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)"> 
+    <MudStack HtmlTag="section" Spacing="4">       
+        <ProCard Listing="Workspace.Listing" Reviews="Workspace.ReviewSummary" />
+        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="rounded-pill px-4"
+                       StartIcon="@Icons.Material.Rounded.PhotoCamera" Disabled="_busy" OnClick="ChangePhotoAsync">
+                @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="rounded-pill px-4"
+                       StartIcon="@Icons.Material.Rounded.Badge" Href="@AuthRoutes.EditName(ProRoutes.Me)">
+                @T.Get(Copy.ProfileNameChange)
+            </MudButton>
+        </MudStack>
+        <PhotoAddNotice Result="_photoResult" />         
+    </MudStack>
     @if (!Workspace.IsPublished)
     {
         <MudStack Spacing="3">
@@ -49,10 +49,7 @@
         <OperatorMenuRow />
     </MudStack>
 
-    <MudStack Spacing="3">
-        <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.ProPreviewTitle)</MudText>
-        <ProCard Listing="Workspace.Listing" Reviews="Workspace.ReviewSummary" />
-    </MudStack>
+    
 
     <ErrorReportsSwitch />
 
