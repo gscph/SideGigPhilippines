@@ -214,6 +214,20 @@ public sealed class ConfigOptionRow
     public bool IsActive { get; set; }
 }
 
+/// <summary>
+/// A barangay we serve in a town (<c>Barangays</c>, <c>021-schema-barangays.sql</c>, filled by <c>004-config.sql</c>):
+/// <c>angono-san-isidro</c> "San Isidro" in <c>angono</c>. Ids are stable; a barangay we stop serving is retired.
+/// </summary>
+public sealed class BarangayRow
+{
+    public required string Id { get; set; }
+    public required string CityId { get; set; }
+    public required string LabelEnglish { get; set; }
+    public required string LabelTaglish { get; set; }
+    public int SortOrder { get; set; }
+    public bool IsActive { get; set; }
+}
+
 /// <summary>A user reporting another user's listing, review, chat or account (<c>Reports</c>); the operator answers within 5 business days.</summary>
 public sealed class ReportRow
 {
@@ -271,6 +285,10 @@ public sealed class JobPostRow
     public int? BudgetMinPesos { get; set; }
 
     public required string CityId { get; set; }
+
+    /// <summary>The barangay the household picked (<c>021-schema-barangays.sql</c>); null = not sure or not given.</summary>
+    public string? BarangayId { get; set; }
+
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public string Status { get; set; } = "open";

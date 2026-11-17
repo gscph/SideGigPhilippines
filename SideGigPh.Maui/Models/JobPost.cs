@@ -14,6 +14,7 @@ namespace SideGigPh.Maui.Models;
 /// <param name="PickedProId">For the household: the worker whose offer they picked, else null.</param>
 /// <param name="BudgetPesos">The top of the household's budget ("up to"), the price "Take it" offers.</param>
 /// <param name="BudgetMinPesos">The low end ("from"), or null when they gave only a top.</param>
+/// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked, or null (not sure).</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -31,7 +32,8 @@ public sealed record JobPost(
     int? MyOfferPesos = null,
     string? PickedProId = null,
     int? BudgetMinPesos = null,
-    ReviewSummary? HouseholdStars = null);
+    ReviewSummary? HouseholdStars = null,
+    string? BarangayId = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.
@@ -55,6 +57,9 @@ public sealed class JobPostDraft
     public int? BudgetMinPesos { get; set; }
 
     public string? CityId { get; set; }
+
+    /// <summary>The barangay in <see cref="CityId"/> (<c>ReferenceData.BarangaysOf</c>); optional, null = not sure.</summary>
+    public string? BarangayId { get; set; }
 
     /// <summary>
     /// Where the work is, from the phone when the household taps "Use my location" (private: workers see the town and

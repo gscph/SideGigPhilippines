@@ -47,6 +47,10 @@ public static class Copy
     public static readonly LocalizedText SeekerCityTitle = new("Where do you need it done?", "Saan ito gagawin?");
     public static readonly LocalizedText SeekerCityWhy = new("See skilled workers near you.", "Makikita mo ang mga skilled worker na malapit sa iyo.");
     public static readonly LocalizedText CitiesNote = new("More towns coming soon.", "Marami pang bayan, abangan!");
+    public static readonly LocalizedText BarangayLabel = new("Barangay (optional)", "Barangay (optional)");
+    public static readonly LocalizedText BarangayUnsure = new("Not sure / skip", "Hindi sigurado / skip");
+    public static readonly LocalizedText BarangayWhy = new("So workers know which part of town.", "Para alam ng gagawa kung saang parte ng bayan.");
+    public static readonly LocalizedText PlaceBarangay = new("{0} · Brgy. {1}", "{0} · Brgy. {1}");
     public static readonly LocalizedText TownsAll = new("Select all", "Piliin lahat");
     public static readonly LocalizedText TownsClear = new("Remove all", "Alisin lahat");
     public static readonly LocalizedText SeekerWhenTitle = new("When do you need it?", "Kailan mo kailangan?");

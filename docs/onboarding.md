@@ -69,7 +69,7 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 |------|--------------------------|-------|--------------|------------------|
 | S1 | What do you need done? / Ano'ng ipapagawa mo? | 10 category tiles with icon and hint (aircon, tubero, electrician, bubong at alulod, karpintero, welder, mason & tiles, errands/PasaBuy, solar cleaning, home service massage) | none | Results chip, search |
 | S2 | What kind of job? / Anong klaseng trabaho? | The category's jobs, most-requested first, ending with "Iba pa" | "So you only see pros who do exactly this." | Chip, ranking, **pre-filled text** |
-| S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`, advances on tap; sets the area) | "See skilled workers near you." | Chip, search, pre-filled text |
+| S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`; sets the area), the server's default town (Angono) shown picked. A town with barangays shows the optional `BarangayField` ("Not sure / skip" first) and waits for Next; a town without moves on when tapped | "See skilled workers near you." | Chip, search, pre-filled text |
 | S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Nagca-canvass lang | "We'll tell the pro when you need it." | Chip, pre-filled text |
 | S5 | What's your budget? / Magkano ang budget mo dito? | Two boxes, **From** and **Up to**; the job's guide ranges fill them in one tap; "Di ko pa alam" skips. The suggested minimum price shows as a guide, never a rule (they pay after the work) | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** badge and sort |
 | S6 | How do you want to find a worker? / Paano mo gustong humanap ng gagawa? | **See workers now** · **Post what I need** (`ReferenceData.FindByChoices`, in code; `SeekerAnswers.FindBy`, advances on tap) | "You can do both later from Home." | Where the interview lands: the results, or the post form pre-filled with S1–S5 (`OnboardingSteps.FinishPath`) |
@@ -92,7 +92,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 |------|----------|-------|--------------|----------------------|
 | P1 | What work do you do? / Ano'ng trabaho mo? | Multi-select categories | "Pick all that apply." | Trade line |
 | P2 | Which jobs do you take? | Multi-select, grouped by trade | "Customers search for these exact jobs." | Job chips |
-| P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles, "Select all"; sets the area) | "Customers in these towns see you first." | 📍 Goes to … |
+| P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles, "Select all"; sets the area), the server's default town (Angono) ticked when none is (`PreselectDefaultTown`) | "Customers in these towns see you first." | 📍 Goes to … |
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
 | P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |
 | Preview | This is how customers will see you | Their card inside a mock search list | "Your listing, built from your answers." | "Ayos na 'to!" |
@@ -276,7 +276,7 @@ A silent anonymous session at launch gives a UID for API calls and App Check wit
 ## 8. Open questions
 1. **Edit name:** a Skilled Worker's listing shows the account name. A shop name ("Mang Jun Aircon Services") needs an edit-name option on the Me page.
 2. **Monetization:** subscription, boost or lead fees? This decides when GCash is collected.
-4. **Barangay-level location:** needs an authoritative barangay list (PSGC) for the 3 towns.
+4. **Barangay-level location:** the 3 towns' barangays are server data now (`dbo.Barangays`, optional on the Seeker's town step and the post form); search and the workers' feed don't rank by barangay yet, and workers don't pick barangays.
 5. **Non-trade pros** (web dev, video editing): needs an "Other" path with free text.
 6. **Per-service town coverage:** today a pro's towns apply to all their services. If pros need "I do installs only in Taytay", coverage has to move to each service (and later to barangays).
 7. **Category count (10 and growing):** past about 10 tiles, S1 should show popular categories first with a "More" option, or add search (Hick's Law).

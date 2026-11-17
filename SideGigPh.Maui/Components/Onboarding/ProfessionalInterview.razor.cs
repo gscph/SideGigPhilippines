@@ -82,6 +82,10 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         _step = Draft.StepToShow(Step);
+        if (_step == ProStep.Towns)
+        {
+            Draft.PreselectDefaultTown();  // the launch's town starts ticked; the others stay tickable
+        }
         _pickedOtherTrade = Draft.IsOtherTrade();
         _otherTradeText = _pickedOtherTrade ? Draft.OtherJobText : null;
         (_rateFrom, _rateUpTo) = Pricing.RateStart(Draft.RateTierId, Draft.ServiceIds);

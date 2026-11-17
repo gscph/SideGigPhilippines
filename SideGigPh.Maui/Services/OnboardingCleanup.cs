@@ -5,7 +5,7 @@ namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// Fits saved answers to what we offer now. Answers saved earlier can hold a town or area that is gone
-/// (<see cref="DropUnservedTowns"/>), a trade that moved under another (<see cref="MoveMergedTrades"/>: kept, on its new
+/// (<see cref="DropUnservedTowns"/>), a barangay that was retired or is not in their town (<see cref="DropUnservedBarangays"/>), a trade that moved under another (<see cref="MoveMergedTrades"/>: kept, on its new
 /// trade), a trade or job that was retired (<see cref="DropRetiredJobs"/>) or a rate on the
 /// old price scale (<see cref="DropOldRate"/>): those are dropped, so the interview asks the question again instead
 /// of showing something we no longer offer.
@@ -13,7 +13,7 @@ namespace SideGigPh.Maui.Services;
 public static class OnboardingCleanup
 {
     /// <summary>Every cleanup, as the saved answers load.</summary>
-    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().MoveMergedTrades().DropRetiredJobs().DropOldRate();
+    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropUnservedBarangays().MoveMergedTrades().DropRetiredJobs().DropOldRate();
 
     /// <summary>
     /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay
@@ -94,6 +94,17 @@ public static class OnboardingCleanup
         var pro = state.Professional;
         pro.CityIds.RemoveAll(cityId => ReferenceData.AreaOf(cityId) is null);
         pro.AreaId = ReferenceData.AreaOf(pro.CityIds.FirstOrDefault());
+        return state;
+    }
+
+    /// <summary>
+    /// A household's barangay we no longer serve (retired in <c>004-config.sql</c>) or that isn't in their town is
+    /// dropped. It was optional, so nothing is asked again: their next post just starts at "Not sure".
+    /// </summary>
+    public static OnboardingState DropUnservedBarangays(this OnboardingState state)
+    {
+        var seeker = state.Seeker;
+        seeker.BarangayId = ReferenceData.FindBarangay(seeker.CityId, seeker.BarangayId)?.Id;
         return state;
     }
 
