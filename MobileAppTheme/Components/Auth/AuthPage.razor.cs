@@ -7,10 +7,9 @@ namespace MobileAppTheme.Components.Auth;
 
 /// <summary>
 /// The sign-in sheet (<c>/verify</c>, Airbnb's "Log in or sign up"): a welcome line with the brand,
-/// then the methods the registered <see cref="IIdentityProvider"/> offers: Apple (iOS) and Google first, since they
-/// cost nothing and a returning person signs in with the phone's own PIN or face, then "Use my phone number instead",
-/// which opens the SMS code sign-in (each SMS costs money; it is first only when it is the only method), then the
-/// agreement to the terms and privacy policy (<see cref="LegalConsent"/>). After the code is sent the sheet becomes "Confirm your
+/// then the methods the registered <see cref="IIdentityProvider"/> offers, phone code first for everyone (it also
+/// verifies the number), "or", Apple (iOS) and Google below, then the agreement to the terms and privacy policy
+/// (<see cref="LegalConsent"/>). After the code is sent the sheet becomes "Confirm your
 /// number" with a back arrow to the number. After sign-in, or if the user is already signed in, it asks for their name if the account
 /// has none (<see cref="NamePage"/>), else goes where the app's <see cref="IAuthLanding"/> says. With no provider
 /// registered it explains that sign-in isn't available.
@@ -29,9 +28,6 @@ public partial class AuthPage : ComponentBase
     // The number the SMS code went to; while set, the sheet is "Confirm your number" with a back arrow.
     private string? _sentTo;
 
-    // The person tapped "Use my phone number instead".
-    private bool _usePhone;
-
     // Only the code step has somewhere to go back to (the number).
     private EventCallback BackHandler => _sentTo is null
         ? default
@@ -44,15 +40,6 @@ public partial class AuthPage : ComponentBase
     private bool HasApple => Identity.Methods.HasFlag(AuthMethods.Apple);
 
     private bool HasOtherMethod => HasGoogle || HasApple;
-
-    // The SMS sign-in shows at once only when it is the only way in.
-    private bool ShowPhone => HasPhone && (_usePhone || !HasOtherMethod);
-
-    private void UsePhone()
-    {
-        _usePhone = true;
-        _error = null;
-    }
 
     protected override async Task OnInitializedAsync()
     {

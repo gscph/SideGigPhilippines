@@ -126,6 +126,11 @@ public static class AppImages
         ["solar-cleaning"] = "clean",
         ["solar-checkup"] = "checklist",
         ["solar-inverter"] = "battery",
+        ["it-software"] = "software",
+        ["it-hardware"] = "chip",
+        ["it-cybersecurity"] = "cyber-lock",
+        ["it-ai"] = "robot",
+        ["it-enterprise"] = "building",
 
         // Experience
         ["under-1"] = "level-1",

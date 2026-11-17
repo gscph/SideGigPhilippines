@@ -12,6 +12,20 @@
         </MudStack>
     }
 
+    @if (HasPhone)
+    {
+        <PhoneSignIn @ref="_phone" OnAuthenticated="HandleAuthenticatedAsync" SentToChanged="SentToChanged" />
+    }
+
+    @if (HasPhone && HasOtherMethod && _sentTo is null)
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
+            <MudDivider Class="flex-1" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthOr)</MudText>
+            <MudDivider Class="flex-1" />
+        </MudStack>
+    }
+
     @if (HasApple && _sentTo is null)
     {
         <AppleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
@@ -20,23 +34,6 @@
     @if (HasGoogle && _sentTo is null)
     {
         <GoogleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
-    }
-
-    @if (ShowPhone)
-    {
-        @if (HasOtherMethod && _sentTo is null)
-        {
-            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="4">
-                <MudDivider Class="flex-1" />
-                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthOr)</MudText>
-                <MudDivider Class="flex-1" />
-            </MudStack>
-        }
-        <PhoneSignIn @ref="_phone" OnAuthenticated="HandleAuthenticatedAsync" SentToChanged="SentToChanged" />
-    }
-    else if (HasPhone)
-    {
-        <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="UsePhone">@T.Get(CommonCopy.AuthUsePhone)</MudButton>
     }
 
     @if (_error is not null)
