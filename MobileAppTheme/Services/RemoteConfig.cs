@@ -2,8 +2,11 @@ using Microsoft.Extensions.Logging;
 
 namespace MobileAppTheme.Services;
 
-/// <summary>A value saved with the time it was last checked, and the server's version of it (e.g. an ETag).</summary>
-public sealed record Stamped<T>(T Value, DateTimeOffset SavedAt, string? Version = null);
+/// <summary>
+/// A value saved with the time it was last checked, the server's version of it (e.g. an ETag) and the app build that
+/// saved it (<see cref="RemoteConfigRules{T}.AppBuild"/>).
+/// </summary>
+public sealed record Stamped<T>(T Value, DateTimeOffset SavedAt, string? Version = null, string? AppBuild = null);
 
 /// <summary>
 /// What the server answered: a new <see cref="Value"/> with its <see cref="Version"/>, or (<see cref="IsUnchanged"/>)
@@ -39,6 +42,12 @@ public interface IConfigCache<T> where T : class
 /// <param name="FetchTimeout">The longest the app waits for the server when it opens; after that it uses what it has.</param>
 public sealed record RemoteConfigRules<T>(Func<T, bool> IsUsable, TimeSpan FreshFor, TimeSpan FetchTimeout)
 {
+    /// <summary>
+    /// This app build (version and commit). A copy saved by another build is never "fresh": a new install asks the
+    /// server at its first launch, so it never runs up to <see cref="FreshFor"/> on a list the old build saved.
+    /// </summary>
+    public string? AppBuild { get; init; }
+
     public static readonly TimeSpan DefaultFreshFor = TimeSpan.FromHours(12);
 
     public static readonly TimeSpan DefaultFetchTimeout = TimeSpan.FromSeconds(8);
@@ -53,7 +62,8 @@ public sealed record RemoteConfigRules<T>(Func<T, bool> IsUsable, TimeSpan Fresh
 /// Data the app needs on every page but that may be a few hours stale (answer lists, labels, settings), loaded
 /// <b>once</b> when the app opens (behind its splash) and then held in memory: pages never fetch it.
 /// <list type="bullet">
-/// <item>A saved copy checked less than <see cref="RemoteConfigRules{T}.FreshFor"/> ago is used with no network call.</item>
+/// <item>A saved copy checked less than <see cref="RemoteConfigRules{T}.FreshFor"/> ago by this same app build
+/// (<see cref="RemoteConfigRules{T}.AppBuild"/>) is used with no network call.</item>
 /// <item>Otherwise the server is asked, with the saved version: when it hasn't changed, nothing is downloaded and the
 /// saved copy counts as checked again; when it has, the new copy is used and replaces the saved one.</item>
 /// <item>When the server can't be reached in <see cref="RemoteConfigRules{T}.FetchTimeout"/>, the old saved copy is
@@ -76,7 +86,7 @@ public sealed class RemoteConfig<T>(
     private async Task<T?> LoadOnceAsync()
     {
         var saved = await ReadSavedAsync();
-        if (saved is not null && clock.GetUtcNow() - saved.SavedAt < rules.FreshFor)
+        if (saved is not null && saved.AppBuild == rules.AppBuild && clock.GetUtcNow() - saved.SavedAt < rules.FreshFor)
         {
             return saved.Value;
         }
@@ -84,11 +94,11 @@ public sealed class RemoteConfig<T>(
         switch (await FetchAsync(saved?.Version))
         {
             case { IsUnchanged: true } unchanged when saved is not null:
-                await SaveAsync(saved with { SavedAt = clock.GetUtcNow(), Version = unchanged.Version ?? saved.Version });
+                await SaveAsync(saved with { SavedAt = clock.GetUtcNow(), Version = unchanged.Version ?? saved.Version, AppBuild = rules.AppBuild });
                 return saved.Value;
 
             case { Value: { } fresh } fetched when rules.IsUsable(fresh):
-                await SaveAsync(new Stamped<T>(fresh, clock.GetUtcNow(), fetched.Version));
+                await SaveAsync(new Stamped<T>(fresh, clock.GetUtcNow(), fetched.Version, rules.AppBuild));
                 return fresh;
 
             case { IsUnchanged: false }:

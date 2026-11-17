@@ -9,9 +9,10 @@ namespace SideGigPh.Maui.Components.Professional;
 /// Pro home, Slack style: the setup checklist until the listing is published (then the amber badge reminder while a
 /// badge can still be asked for), then
 /// collapsible sections for recent messages and latest reviews.
-/// The + button adds work photos.
+/// The + button adds work photos. Redraws when the workspace changes (a push re-read the Inbox, a reply was sent), so
+/// "Recent messages" shows the newest message like the Inbox does.
 /// </summary>
-public partial class ProfessionalHome : ComponentBase
+public partial class ProfessionalHome : ComponentBase, IDisposable
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
@@ -29,12 +30,17 @@ public partial class ProfessionalHome : ComponentBase
 
     protected override async Task OnInitializedAsync()
     {
+        Workspace.Changed += OnChanged;
         await Workspace.RefreshIfStaleAsync();
         if (Workspace.IsPublished)
         {
             await Badges.RefreshIfStaleAsync();
         }
     }
+
+    public void Dispose() => Workspace.Changed -= OnChanged;
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
 
     private async Task AddPhotosAsync()
     {

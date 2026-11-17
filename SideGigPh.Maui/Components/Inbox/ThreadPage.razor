@@ -61,7 +61,11 @@
                            OnChanged="JobChanged" />
         }
 
-        @if (_history.Count > 0 && !Workspace.CanRate(_pro.Id))
+        @if (_job is { IsCompleted: true })
+        {
+            @* The picked card above has the one review button. *@
+        }
+        else if (_history.Count > 0 && !Workspace.CanRate(_pro.Id))
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Format(Copy.RateLater, _pro.DisplayName)</MudText>
         }

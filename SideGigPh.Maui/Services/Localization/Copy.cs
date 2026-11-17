@@ -32,7 +32,7 @@ public static class Copy
     // Service words, never job/hire/employment words: Tarbaho is a directory of independent workers, not an employer
     // or recruiter (Labor Code Art. 13(b); docs/legal/README.md L1).
     public static readonly LocalizedText RoleTitle = new("Find a Skilled Worker or Offer Your Services", "Maghanap ng Skilled Worker o Mag-alok ng Serbisyo");
-    public static readonly LocalizedText RoleSeeker = new("I need someone for a job", "May ipapagawa ako");
+    public static readonly LocalizedText RoleSeeker = new("I need something done", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, construction, errands, IT, repairs", "Aircon, construction, errands, IT, repair");
     public static readonly LocalizedText RoleProfessional = new("I offer my skills", "May skills akong maiaalok");
     public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Magkaroon ng customer malapit sa'yo");
@@ -543,7 +543,7 @@ public static class Copy
     public static readonly LocalizedText BadgeNothingToSend = new("This badge is already sent. Nothing more to do.", "Na-send na ang badge na ito. Wala ka nang kailangang gawin.");
 
     // --- Pro inbox --------------------------------------------------------
-    public static readonly LocalizedText ProInboxWhy = new("Customers who messaged you about a job. Answer them here.", "Mga customer na nag-message tungkol sa trabaho. Dito mo sila sagutin.");
+    public static readonly LocalizedText ProInboxWhy = new("Customers who need something done. Answer them here.", "Mga customer na may ipapagawa sa'yo. Dito mo sila sagutin.");
     public static readonly LocalizedText ProInboxEmpty = new("No messages yet. They show up here when a customer messages you.", "Wala pang message. Lalabas dito kapag may customer na nag-message sa'yo.");
     public static readonly LocalizedText ChatBudget = new("Budget: {0}", "Budget: {0}");
 
@@ -558,7 +558,7 @@ public static class Copy
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
     public static readonly LocalizedText PhotosCount = new("{0} of {1} photos", "{0} sa {1} photos");
     public static readonly LocalizedText PhotosWhy = new("Customers see these on your listing. At least {0}, up to {1} photos.", "Makikita ito ng customer sa listing mo. {0} o higit pa, hanggang {1} photos.");
-    public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they call.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago tumawag.");
+    public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they message you.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago mag-message.");
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");
