@@ -91,7 +91,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 | Step | Question | Input | "Why we ask" | On the card / payoff |
 |------|----------|-------|--------------|----------------------|
 | P1 | What work do you do? / Ano'ng trabaho mo? | Multi-select categories | "Pick all that apply." | Trade line |
-| P2 | Which jobs do you take? | Multi-select, grouped by trade | "Customers search for these exact jobs." | Job chips |
+| P2 | Which jobs do you take? | Multi-select of their trade's jobs (`JobPicker`: "Select all" ticks every listed job but "Others", "Remove all" clears them; `OnboardingSteps.ToggleAllJobs`) | "Customers search for these exact jobs." | Job chips |
 | P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles, "Select all"; sets the area), the server's default town (Angono) ticked when none is (`PreselectDefaultTown`) | "Customers in these towns see you first." | 📍 Goes to … |
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
 | P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |

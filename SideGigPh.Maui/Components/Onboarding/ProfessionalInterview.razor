@@ -20,8 +20,8 @@
         case ProStep.Services:
             <InterviewStep Illustration="@AppImages.Jobs" Title="@T.Get(Copy.ProServicesTitle)" Why="@T.Get(Copy.ProServicesWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="AdvanceAsync" CanContinue="@(Draft.ServiceIds.Count > 0)">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesOf(Draft.CategoryId), T)" Multiple="true"
-                             SelectedIds="Draft.ServiceIds" OnPick="ToggleService" />
+                <JobPicker CategoryId="@Draft.CategoryId" SelectedIds="Draft.ServiceIds" AllSelected="@Draft.HasAllJobs()"
+                           OnPick="ToggleService" OnPickAll="ToggleAllJobs" />
                 @if (Draft.ServiceIds.Any(ReferenceData.IsOtherJob))
                 {
                     <OtherJobField Label="@T.Get(Copy.OtherJobProLabel)" Value="@Draft.OtherJobText" ValueChanged="SetOtherJobText" />

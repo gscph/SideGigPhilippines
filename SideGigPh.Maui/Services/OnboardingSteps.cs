@@ -134,6 +134,33 @@ public static class OnboardingSteps
         }
     }
 
+    /// <summary>The jobs "Select all" ticks for a trade: every job it lists, not "Others" (which asks them to type the work).</summary>
+    public static IReadOnlyList<string> ListedJobs(string? categoryId) =>
+        ReferenceData.ServicesOf(categoryId).Select(job => job.Id).Where(id => !ReferenceData.IsOtherJob(id)).ToList();
+
+    /// <summary>True when every listed job of their trade is ticked, so the button reads "Remove all".</summary>
+    public static bool HasAllJobs(this ProfessionalDraft draft)
+    {
+        var jobs = ListedJobs(draft.CategoryId);
+        return jobs.Count > 0 && jobs.All(draft.ServiceIds.Contains);
+    }
+
+    /// <summary>
+    /// "Select all" ticks every listed job of their trade (keeping "Others" if ticked); when all are already ticked,
+    /// "Remove all" unticks every job, "Others" and its text too, so they start the question again.
+    /// </summary>
+    public static void ToggleAllJobs(this ProfessionalDraft draft)
+    {
+        if (draft.HasAllJobs())
+        {
+            draft.ServiceIds.Clear();
+            draft.OtherJobText = null;
+            return;
+        }
+
+        draft.ServiceIds.AddRange(ListedJobs(draft.CategoryId).Except(draft.ServiceIds));
+    }
+
     /// <summary>
     /// A Skilled Worker reaching the towns question with none ticked starts with the launch's default town ticked
     /// (server-set); they can untick it and tick others. Does nothing once they have towns.

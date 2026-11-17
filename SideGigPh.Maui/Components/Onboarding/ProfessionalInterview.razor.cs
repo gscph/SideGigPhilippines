@@ -123,6 +123,8 @@ public partial class ProfessionalInterview : ComponentBase
 
     private void ToggleService(string serviceId) => Draft.ToggleService(serviceId);
 
+    private void ToggleAllJobs() => Draft.ToggleAllJobs();
+
     private void ToggleCity(string cityId) => Draft.ToggleTown(cityId);
 
     private void ToggleAllTowns() => Draft.ToggleAllTowns();
