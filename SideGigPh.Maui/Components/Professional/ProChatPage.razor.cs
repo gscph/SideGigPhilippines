@@ -22,6 +22,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private IContactLauncher Phone { get; set; } = default!;
+    [Inject] private AppVisibility Visibility { get; set; } = default!;
 
     [Parameter] public string ChatId { get; set; } = string.Empty;
 
@@ -34,6 +35,10 @@ public partial class ProChatPage : ComponentBase, IDisposable
     private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
+
+    /// <summary>Re-reads the picked job while it waits on the customer (marking done sends no message).</summary>
+    private PickedJobWatch? _jobWatch;
+    private IReadOnlyList<PickedJob> _jobs = [];
     private string? _message;
     private string? _error;
     private bool _busy;
@@ -49,6 +54,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
         _error = null;
         _loaded = false;
         _watch?.Dispose();
+        _jobWatch?.Dispose();
         await Busy.RunAsync(LoadAsync);
         if (_chat is null)
         {
@@ -58,7 +64,33 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
         _loaded = true;
         _watch = Workspace.WatchChat(ChatId, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
+        WatchJobs(_jobs);
     }
+
+    /// <summary>
+    /// The picked jobs as the server now has them: the card shows the newest, and while it waits on the customer a fresh
+    /// watch re-reads it from this state (so a read started before the worker's own Mark done never undoes it).
+    /// </summary>
+    private void WatchJobs(IReadOnlyList<PickedJob> jobs)
+    {
+        _jobs = jobs;
+        _job = jobs.FirstOrDefault();
+        _jobWatch?.Dispose();
+        PickedJobWatch? watch = null;
+        watch = _jobWatch = PickedJobWatch.Start(Board, Visibility, _chat!.SeekerId, jobs, changed => InvokeAsync(() =>
+        {
+            if (!ReferenceEquals(watch, _jobWatch))
+            {
+                return; // a newer state replaced this watch: its last read is stale
+            }
+
+            WatchJobs(changed);
+            StateHasChanged();
+        }));
+    }
+
+    /// <summary>The card's own change (Mark done, a rating): the newest job as the server answered.</summary>
+    private void JobChanged(PickedJob job) => WatchJobs([job, .. _jobs.Skip(1)]);
 
     private async Task LoadAsync()
     {
@@ -73,7 +105,8 @@ public partial class ProChatPage : ComponentBase, IDisposable
         var jobs = Board.PickedJobsAsync(_chat.SeekerId);
         _history = await Workspace.GetMessagesAsync(ChatId);
         _number = await number;
-        _job = (await jobs).FirstOrDefault();
+        _jobs = await jobs;
+        _job = _jobs.FirstOrDefault();
         await read;
     }
 
@@ -101,6 +134,11 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
     private async Task SendAsync()
     {
+        if (_busy)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
         _busy = true;
         _error = null;
         try
@@ -133,6 +171,13 @@ public partial class ProChatPage : ComponentBase, IDisposable
         _history = await Workspace.NewMessagesAsync(ChatId, _history);
         _scrollToEnd = true;
         await Workspace.MarkReadAsync(ChatId);
+
+        // The pick's first message: the card appears without reopening (an empty answer is a failed read: keep the card).
+        if (await Board.PickedJobsAsync(chat.SeekerId) is { Count: > 0 } jobs)
+        {
+            WatchJobs(jobs);
+        }
+
         StateHasChanged();
     }
 
@@ -156,5 +201,9 @@ public partial class ProChatPage : ComponentBase, IDisposable
         }
     }
 
-    public void Dispose() => _watch?.Dispose();
+    public void Dispose()
+    {
+        _watch?.Dispose();
+        _jobWatch?.Dispose();
+    }
 }

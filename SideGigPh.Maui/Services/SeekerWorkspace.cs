@@ -256,10 +256,12 @@ public sealed class SeekerWorkspace(
     }
 
     /// <summary>
-    /// Sends a message to the pro; the first one starts the chat, with the job from the Seeker's answers.
-    /// Returns the message as the server saved it, for the page to show.
+    /// Sends a message to the pro; the first one starts the chat, with the job from the Seeker's answers, or the
+    /// picked post's <paramref name="serviceId"/> and <paramref name="cityId"/> when given (the server moves an existing
+    /// chat to a picked post itself). Returns the message as the server saved it, for the page to show.
     /// </summary>
-    public Task<ChatMessage> SendAsync(ProfessionalListing pro, string message) => PostAsync(pro, ChatMessageKind.Text, message.Trim());
+    public Task<ChatMessage> SendAsync(ProfessionalListing pro, string message, string? serviceId = null, string? cityId = null) =>
+        PostAsync(pro, ChatMessageKind.Text, message.Trim(), serviceId, cityId);
 
     /// <summary>
     /// Opens the dialer on <paramref name="number"/> (the pro's, given once the Seeker picked their offer:
@@ -467,14 +469,14 @@ public sealed class SeekerWorkspace(
         return true;
     }
 
-    private async Task<ChatMessage> PostAsync(ProfessionalListing pro, ChatMessageKind kind, string? message)
+    private async Task<ChatMessage> PostAsync(ProfessionalListing pro, ChatMessageKind kind, string? message, string? serviceId = null, string? cityId = null)
     {
         var chatId = ChatIdWith(pro.Id);
         var sent = new ChatMessage(Guid.NewGuid().ToString("N"), chatId, MyId, kind, message, DateTimeOffset.Now);
 
-        // Only used when this starts the chat: the job comes from the Seeker's answers.
+        // Only used when this starts the chat: the job comes from the picked post, else the Seeker's answers.
         var chat = new Chat(chatId, pro.Id, MyId, pro.DisplayName, Answers.ReviewerName ?? text.Get(Copy.ChatCustomer),
-            JobFor(pro), Answers.CityId, Answers.UrgencyId, Answers.BudgetId, sent, sent.At, null, sent.At);
+            serviceId ?? JobFor(pro), cityId ?? Answers.CityId, Answers.UrgencyId, Answers.BudgetId, sent, sent.At, null, sent.At);
         var saved = await chats.SendAsync(chat, sent);
         Put(pro, saved);
         return saved.LastMessage;

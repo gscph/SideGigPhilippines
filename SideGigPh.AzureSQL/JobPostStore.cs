@@ -305,8 +305,8 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
 
     /// <summary>
     /// The caller picks an offer on their own open post: the offer becomes picked and the post closes (workers stop
-    /// seeing it). Answers with the picked offer, or null when the post isn't the caller's and open, or the offer
-    /// isn't waiting on it.
+    /// seeing it), and a chat the two already have moves to this post's service and town. Answers with the picked offer,
+    /// or null when the post isn't the caller's and open, or the offer isn't waiting on it.
     /// </summary>
     public async Task<JobOfferDto?> PickAsync(string uid, long postId, long offerId, CancellationToken cancellationToken)
     {
@@ -323,6 +323,14 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
 
             await db.JobOffers.Where(o => o.Id == offerId)
                 .ExecuteUpdateAsync(set => set.SetProperty(o => o.Status, JobOfferStatuses.Picked).SetProperty(o => o.UpdatedAt, now), ct);
+
+            // The two may already have a chat (an earlier job): it is now about this post's service and town, so its
+            // Inbox rows and the review written from it name the right job.
+            var proUid = await db.JobOffers.Where(o => o.Id == offerId).Select(o => o.ProUid).FirstAsync(ct);
+            var post = await db.JobPosts.Where(p => p.Id == postId).Select(p => new { p.ServiceId, p.CityId }).FirstAsync(ct);
+            var chatId = ChatStore.IdFor(proUid, uid);
+            await db.Chats.Where(c => c.Id == chatId)
+                .ExecuteUpdateAsync(set => set.SetProperty(c => c.ServiceId, post.ServiceId).SetProperty(c => c.CityId, post.CityId), ct);
             return true;
         }, cancellationToken);
 

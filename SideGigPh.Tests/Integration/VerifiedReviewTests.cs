@@ -97,6 +97,23 @@ public class VerifiedReviewTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task APickBetweenTwoWhoAlreadyChatted_MovesTheirChatToThePostsServiceAndTown()
+    {
+        var household = await TestPhone.SeekerAsync(api, "Nena");
+        var worker = await PlumberAsync("Pedro");
+        await household.Seeker.SendAsync((await household.Seeker.GetProAsync(worker.Uid))!, "Hello po");
+        var chats = household.Get<IChatRepository>();
+        var chatId = Chat.IdFor(worker.Uid, household.Uid);
+        (await chats.GetAsync(chatId))!.ServiceId.Should().BeNull("the household searched nothing before writing");
+
+        await PickedJobAsync(household, worker);
+
+        var chat = (await chats.GetAsync(chatId))!;
+        chat.ServiceId.Should().Be("plumbing-clog", "the chat is now about the picked post, so reviews and Inbox rows name it");
+        chat.CityId.Should().Be("taytay");
+    }
+
+    [IntegrationFact]
     public async Task OnlyTheTwoOfThem_SeeOrMarkTheirJob()
     {
         var household = await TestPhone.SeekerAsync(api, "Mila");

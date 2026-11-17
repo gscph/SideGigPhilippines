@@ -31,7 +31,7 @@
 
         @if (_job is not null)
         {
-            <PickedJobCard Job="_job" OtherName="@T.SeekerName(_chat)" OtherUid="@_chat.SeekerId" OnChanged="@(job => _job = job)" />
+            <PickedJobCard Job="_job" OtherName="@T.SeekerName(_chat)" OtherUid="@_chat.SeekerId" OnChanged="JobChanged" />
         }
 
         @if (!string.IsNullOrEmpty(T.WhenAndBudget(_chat)))
