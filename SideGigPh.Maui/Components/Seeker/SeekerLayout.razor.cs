@@ -20,6 +20,7 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
+    [Inject] private JobBoard Board { get; set; } = default!;
 
     private bool _ready;
     private IDisposable? _alerts;
@@ -43,7 +44,8 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
         }
 
         _ready = true;
-        _alerts = Alerts.Attach(Workspace.RefreshActivityAsync, path => InvokeAsync(() => Nav.NavigateTo(path)));
+        // A push is a new message or a new offer on one of their posts: both lists are read again.
+        _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadMineAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
         Alerts.ShowUnread(Workspace.UnreadChatIds);
 
         // Seekers are asked only after they write to a worker (ThreadPage); here the phone is just registered.

@@ -16,5 +16,7 @@ public partial class MyOffersPage : ComponentBase
 
     private IReadOnlyList<MyOffer>? _offers;
 
-    protected override async Task OnInitializedAsync() => _offers = await Board.MyOffersAsync();
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync() => _offers = await Board.MyOffersAsync();
 }

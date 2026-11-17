@@ -1,4 +1,13 @@
-@if (HasMore)
+@if (HasMore && _stalled)
+{
+    <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="py-4">
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.LoadMoreFailed)</MudText>
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Rounded.Refresh" OnClick="RetryAsync">
+            @T.Get(CommonCopy.TryAgain)
+        </MudButton>
+    </MudStack>
+}
+else if (HasMore)
 {
     <MudStack AlignItems="AlignItems.Center" Class="py-4" aria-hidden="true">
         <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />

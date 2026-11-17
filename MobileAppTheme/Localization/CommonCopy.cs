@@ -74,6 +74,7 @@ public static class CommonCopy
         "No internet. Check your data or Wi-Fi, then try again.",
         "Walang internet. I-check ang data o Wi-Fi mo, tapos subukan ulit.");
     public static readonly LocalizedText TryAgain = new("Try again", "Subukan ulit");
+    public static readonly LocalizedText LoadMoreFailed = new("Couldn't load more. Check your signal.", "Hindi na-load ang iba. I-check ang signal mo.");
     public static readonly LocalizedText Offline = new("You're offline. Some things won't load.", "Offline ka. May mga hindi maglo-load.");
 
     // --- Legal pages (AppBrand.Legal) --------------------------------------

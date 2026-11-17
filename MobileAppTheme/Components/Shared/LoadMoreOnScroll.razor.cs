@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using MobileAppTheme.Localization;
 
 namespace MobileAppTheme.Components.Shared;
 
@@ -17,7 +18,8 @@ public enum LoadMoreEdge
 /// Put at the growing end of a long list (last for <see cref="LoadMoreEdge.Bottom"/>, first for
 /// <see cref="LoadMoreEdge.Top"/>). While <see cref="HasMore"/> is true it shows a small spinner and raises
 /// <see cref="OnLoadMore"/> when the page is scrolled near that end, or right away when the list is too short to
-/// scroll. For <see cref="LoadMoreEdge.Top"/> it first scrolls the page to its end, and keeps what the person was
+/// scroll. A load that adds nothing (no signal, or the server took too long) swaps the spinner for "Couldn't load more"
+/// and a Try again button, since a spinner that never moves leaves the person stuck. For <see cref="LoadMoreEdge.Top"/> it first scrolls the page to its end, and keeps what the person was
 /// reading in place when older items are added above. Uses MudBlazor's scroll listener and scroll manager on the page
 /// itself, so no JavaScript of our own.
 /// </summary>
@@ -34,6 +36,7 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
 
     [Inject] private IScrollListenerFactory ScrollListeners { get; set; } = default!;
     [Inject] private IScrollManager Scroll { get; set; } = default!;
+    [Inject] private AppText T { get; set; } = default!;
 
     /// <summary>Whether there is more to load; the spinner and the listener stop when false.</summary>
     [Parameter, EditorRequired] public bool HasMore { get; set; }
@@ -45,6 +48,9 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
 
     private IScrollListener? _listener;
     private bool _loading;
+
+    /// <summary>The last load added nothing: Try again shows instead of the spinner, and scrolling doesn't load.</summary>
+    private bool _stalled;
 
     /// <summary>The page height when the last load started; a load that added nothing (offline) waits for the next scroll.</summary>
     private double? _heightAtLastLoad;
@@ -98,11 +104,28 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
         var nearEnd = Edge == LoadMoreEdge.Top
             ? position.ScrollTop <= NearEndPx
             : position.ScrollTop + position.ClientHeight >= position.ScrollHeight - NearEndPx;
-        if (!HasMore || _loading || !nearEnd)
+        if (!HasMore || _loading || _stalled || !nearEnd)
         {
             return;
         }
 
+        await LoadAsync(position);
+    }
+
+    /// <summary>Try again after a load that added nothing.</summary>
+    private async Task RetryAsync()
+    {
+        if (_loading || _listener is null || await _listener.GetCurrentScrollDataAsync() is not { } position)
+        {
+            return;
+        }
+
+        _stalled = false;
+        await LoadAsync(position);
+    }
+
+    private async Task LoadAsync(ScrollEventArgs position)
+    {
         _loading = true;
         _beforeLoad = Edge == LoadMoreEdge.Top ? position : null;
         try
@@ -113,6 +136,14 @@ public sealed partial class LoadMoreOnScroll : ComponentBase, IAsyncDisposable
         {
             _loading = false;
             _heightAtLastLoad = position.ScrollHeight;
+        }
+
+        // Nothing was added though there is more: the page didn't load.
+        if (HasMore && _listener is not null && await _listener.GetCurrentScrollDataAsync() is { } after
+            && after.ScrollHeight == position.ScrollHeight)
+        {
+            _stalled = true;
+            StateHasChanged();
         }
     }
 

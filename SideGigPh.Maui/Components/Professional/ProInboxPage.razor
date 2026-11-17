@@ -9,7 +9,7 @@
 
     @if (Workspace.Chats.Count == 0)
     {
-        <EmptyState Icon="@Icons.Material.Outlined.ChatBubbleOutline" Text="@T.Get(Copy.ProInboxEmpty)" />
+        <EmptyState Icon="@Icons.Material.Outlined.ChatBubbleOutline" Text="@T.Get(Copy.ProInboxEmpty)" OnRetry="Workspace.RefreshActivityAsync" />
     }
 
     <MudStack Spacing="0">

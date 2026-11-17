@@ -31,7 +31,7 @@
 
         @if (_result.Total == 0)
         {
-            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" Class="py-8">@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)</MudText>
+            <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)" OnRetry="RunSearchAsync" />
         }
         else if (_result.InTownTotal == 0)
         {

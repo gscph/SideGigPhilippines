@@ -35,9 +35,14 @@ public partial class OffersPage : ComponentBase
     protected override async Task OnParametersSetAsync()
     {
         _loaded = false;
+        await LoadAsync();
+        _loaded = true;
+    }
+
+    private async Task LoadAsync()
+    {
         _post = await Board.FindMineAsync(PostId);
         _offers = _post is null ? [] : await Board.LoadOffersAsync(PostId);
-        _loaded = true;
     }
 
     private async Task PickAsync(JobOffer offer)

@@ -1,6 +1,12 @@
 <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="py-10 px-4">
     <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="app-empty-icon rounded-circle">
-        <MudIcon Icon="@Icon" Color="Color.Primary" Size="Size.Large" aria-hidden="true" />
+        <MudIcon Icon="@(Offline ? Icons.Material.Outlined.WifiOff : Icon)" Color="Color.Primary" Size="Size.Large" aria-hidden="true" />
     </MudStack>
-    <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@Text</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center" role="@(Offline ? "status" : null)">@(Offline ? T.Get(CommonCopy.NoConnection) : Text)</MudText>
+    @if (Offline && OnRetry.HasDelegate)
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Rounded.Refresh" Disabled="_retrying" OnClick="RetryAsync">
+            @T.Get(CommonCopy.TryAgain)
+        </MudButton>
+    }
 </MudStack>

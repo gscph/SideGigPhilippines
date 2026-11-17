@@ -21,7 +21,7 @@
     }
     else if (_post is null)
     {
-        <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.Get(Copy.OffersMissing)" />
+        <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.Get(Copy.OffersMissing)" OnRetry="LoadAsync" />
     }
     else
     {
@@ -34,7 +34,7 @@
 
         @if (_offers.Count == 0)
         {
-            <EmptyState Icon="@Icons.Material.Outlined.Campaign" Text="@T.Get(Copy.OffersEmpty)" />
+            <EmptyState Icon="@Icons.Material.Outlined.Campaign" Text="@T.Get(Copy.OffersEmpty)" OnRetry="LoadAsync" />
         }
         else
         {
