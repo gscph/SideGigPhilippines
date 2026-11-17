@@ -42,17 +42,17 @@ DECLARE @Categories TABLE
 
 INSERT INTO @Categories (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, HintTaglish, SortOrder, IsActive) VALUES
 ('aircon',         N'Aircon Technician',      N'Aircon Technician',       N'❄️', N'Cleaning, repair, installation',        N'Linis, repair, pakabit',                        1, 1),
-('construction',   N'Construction',           N'Construction',            N'🏗️', N'Foreman, plumber, mason, welder, helper', N'Foreman, tubero, mason, welder, helper',       2, 1),
+('construction',   N'Construction',           N'Construction',            N'🏗️', N'Foreman, plumber, mason, welder, roofer', N'Foreman, tubero, mason, welder, bubong',       2, 1),
 ('errand_runner',  N'Errands',                N'Errands',                 N'🛵', N'House cleaning, grocery, bills, gardening', N'Linis ng bahay, pa-grocery, bills, halaman', 3, 1),
 ('it',             N'IT',                     N'IT',                      N'💻', N'Computers, software, networks, AI',     N'Computer, software, network, AI',               4, 1),
 ('electrical',     N'Electrician',            N'Electrician',             N'⚡', N'Power, breaker, outlets, lights',       N'Kuryente, breaker, saksakan, ilaw',             5, 1),
-('roofing',        N'Roofing & Gutter',       N'Roofing & Gutter',        N'🏠', N'Roof leaks, gutters, waterproofing',    N'Tulo sa bubong, yero, alulod, waterproofing',   6, 1),
-('carpentry',      N'Carpentry',              N'Karpintero',              N'🔨', N'Furniture, doors, cabinets',            N'Custom furniture, pinto, cabinet',              7, 1),
-('masonry_tiling', N'Masonry',                N'Mason',                   N'🧱', N'Tiles, cement work, walls',             N'Tiles, semento, palitada, pader',               8, 1),
-('car_mechanic',   N'Car Mechanic',           N'Mekaniko',                N'🚗', N'Suspension, engine, electronics',       N'Suspension, makina, electronics',               9, 1),
-('solar_cleaning', N'Solar Panel Technician', N'Solar Panel Technician',  N'☀️', N'Panel cleaning and check-up',           N'Linis at check-up ng solar panel',             10, 1),
--- Retired: moved under Construction (its Plumber and Welder jobs; 019-schema-construction-trade.sql moved the data).
+('carpentry',      N'Carpentry',              N'Karpintero',              N'🔨', N'Furniture, doors, cabinets',            N'Custom furniture, pinto, cabinet',              6, 1),
+('masonry_tiling', N'Masonry',                N'Mason',                   N'🧱', N'Tiles, cement work, walls',             N'Tiles, semento, palitada, pader',               7, 1),
+('car_mechanic',   N'Car Mechanic',           N'Mekaniko',                N'🚗', N'Suspension, engine, electronics',       N'Suspension, makina, electronics',               8, 1),
+('solar_cleaning', N'Solar Panel Technician', N'Solar Panel Technician',  N'☀️', N'Panel cleaning and check-up',           N'Linis at check-up ng solar panel',              9, 1),
+-- Retired: moved under Construction as its Plumbing, Welding and Roofing jobs (019 and 020-schema-construction-roofing.sql moved the data).
 ('plumbing',       N'Plumber',                N'Tubero',                  N'🚰', N'Clogs, leaks, faucets, CR',             N'Barado, tagas, gripo, CR',                     97, 0),
+('roofing',        N'Roofing & Gutter',       N'Roofing & Gutter',        N'🏠', N'Roof leaks, gutters, waterproofing',    N'Tulo sa bubong, yero, alulod, waterproofing',  96, 0),
 ('welder',         N'Welder',                 N'Welder',                  N'🔥', N'Gates, grills, railings',               N'Gate, grills, rehas, pa-weld',                 98, 0),
 -- Retired: no longer offered. Old listings and reviews keep the id.
 ('home_massage',   N'Home Service Massage',   N'Home Service Massage',    N'💆', NULL,                                     NULL,                                            99, 0);
@@ -91,8 +91,9 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('construction-masonry',     'construction',   N'Masonry (hollow blocks, cement)',           N'Mason (hollow blocks, semento)',             N'🧱', 4, 1,   755,  1200,  2000),
 ('construction-tiles',       'construction',   N'Tile setting',                              N'Pakabit ng tiles',                           N'🔲', 5, 1,  1000,  2000,  3500),
 ('construction-welding',     'construction',   N'Welding (gates, grills, railings)',         N'Welder (gate, grills, rehas)',               N'🔥', 6, 1,   755,  1200,  2000),
-('construction-steelman',    'construction',   N'Steelman (rebar work)',                     N'Steelman (bakal / rebar)',                   N'🏗️', 7, 1,   755,  1100,  1500),
-('construction-helper',      'construction',   N'Construction helper',                       N'Helper / peon',                              N'🧰', 8, 1,   755,   850,  1000),
+('construction-roofing',     'construction',   N'Roofing & gutter (leaks, roof sheets)',     N'Bubong at alulod (tulo, yero)',              N'🏠', 7, 1,  1000,  2000,  3500),
+('construction-steelman',    'construction',   N'Steelman (rebar work)',                     N'Steelman (bakal / rebar)',                   N'🏗️', 8, 1,   755,  1100,  1500),
+('construction-helper',      'construction',   N'Construction helper',                       N'Helper / peon',                              N'🧰', 9, 1,   755,   850,  1000),
 ('construction-other',       'construction',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
 
 ('plumbing-clog',            'plumbing',       N'Clogged sink, drain or CR',                 N'Barado ang lababo, drain o CR',              N'🪠', 1, 0,   755,  1000,  1800),
@@ -114,12 +115,12 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('electrical-cctv',          'electrical',     N'CCTV installation',                         N'Pakabit ng CCTV',                            N'📹', 7, 1,  1500,  2500,  4000),
 ('electrical-other',         'electrical',     N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
 
-('roofing-leak',             'roofing',        N'Roof leak repair',                          N'Tulo sa bubong',                             N'🌧️', 1, 1,  1000,  2000,  3500),
-('roofing-gutter',           'roofing',        N'Gutter cleaning or repair',                 N'Linis o repair ng alulod',                   N'🍂', 2, 1,   755,  1500,  2500),
-('roofing-sheet',            'roofing',        N'Roof sheet replacement',                    N'Palit ng yero',                              N'🔩', 3, 1,  1500,  3000,  5000),
-('roofing-waterproofing',    'roofing',        N'Waterproofing (roof deck, walls)',          N'Waterproofing ng roof deck o pader',         N'🛡️', 4, 1,  2000,  4000,  7000),
-('roofing-paint',            'roofing',        N'Roof painting',                             N'Pintura ng bubong',                          N'🎨', 5, 1,  2000,  3500,  6000),
-('roofing-other',            'roofing',        N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
+('roofing-leak',             'roofing',        N'Roof leak repair',                          N'Tulo sa bubong',                             N'🌧️', 1, 0,  1000,  2000,  3500),
+('roofing-gutter',           'roofing',        N'Gutter cleaning or repair',                 N'Linis o repair ng alulod',                   N'🍂', 2, 0,   755,  1500,  2500),
+('roofing-sheet',            'roofing',        N'Roof sheet replacement',                    N'Palit ng yero',                              N'🔩', 3, 0,  1500,  3000,  5000),
+('roofing-waterproofing',    'roofing',        N'Waterproofing (roof deck, walls)',          N'Waterproofing ng roof deck o pader',         N'🛡️', 4, 0,  2000,  4000,  7000),
+('roofing-paint',            'roofing',        N'Roof painting',                             N'Pintura ng bubong',                          N'🎨', 5, 0,  2000,  3500,  6000),
+('roofing-other',            'roofing',        N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 0,  1000,  2000,  3500),
 
 ('carpentry-furniture',      'carpentry',      N'Furniture repair',                          N'Repair ng furniture',                        N'🪑', 1, 1,   755,  1200,  2000),
 ('carpentry-door-window',    'carpentry',      N'Door or window repair',                     N'Repair ng pinto o bintana',                  N'🚪', 2, 1,   755,  1200,  2000),

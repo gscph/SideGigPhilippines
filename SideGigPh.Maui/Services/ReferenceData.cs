@@ -178,11 +178,10 @@ public static class ReferenceData
     public static AppConfig BuiltInConfig { get; } = new(
     [
         new("aircon", new("Aircon Technician", "Aircon Technician"), AppImages.For("aircon"), new("Cleaning, repair, installation", "Linis, repair, pakabit")),
-        new("construction", new("Construction", "Construction"), AppImages.For("construction"), new("Foreman, plumber, mason, welder, helper", "Foreman, tubero, mason, welder, helper")),
+        new("construction", new("Construction", "Construction"), AppImages.For("construction"), new("Foreman, plumber, mason, welder, roofer", "Foreman, tubero, mason, welder, bubong")),
         new("errand_runner", new("Errands", "Errands"), AppImages.For("errand_runner"), new("House cleaning, grocery, bills, gardening", "Linis ng bahay, pa-grocery, bills, halaman")),
         new("it", new("IT", "IT"), AppImages.For("it"), new("Computers, software, networks, AI", "Computer, software, network, AI")),
         new("electrical", new("Electrician", "Electrician"), AppImages.For("electrical"), new("Power, breaker, outlets, lights", "Kuryente, breaker, saksakan, ilaw")),
-        new("roofing", new("Roofing & Gutter", "Roofing & Gutter"), AppImages.For("roofing"), new("Roof leaks, gutters, waterproofing", "Tulo sa bubong, yero, alulod, waterproofing")),
         new("carpentry", new("Carpentry", "Karpintero"), AppImages.For("carpentry"), new("Furniture, doors, cabinets", "Custom furniture, pinto, cabinet")),
         new("masonry_tiling", new("Masonry", "Mason"), AppImages.For("masonry_tiling"), new("Tiles, cement work, walls", "Tiles, semento, palitada, pader")),
         new("car_mechanic", new("Car Mechanic", "Mekaniko"), AppImages.For("car_mechanic"), new("Suspension, engine, electronics", "Suspension, makina, electronics")),
@@ -209,6 +208,7 @@ public static class ReferenceData
             new("construction-masonry", new("Masonry (hollow blocks, cement)", "Mason (hollow blocks, semento)"), AppImages.For("construction-masonry")),
             new("construction-tiles", new("Tile setting", "Pakabit ng tiles"), AppImages.For("construction-tiles")),
             new("construction-welding", new("Welding (gates, grills, railings)", "Welder (gate, grills, rehas)"), AppImages.For("construction-welding")),
+            new("construction-roofing", new("Roofing & gutter (leaks, roof sheets)", "Bubong at alulod (tulo, yero)"), AppImages.For("construction-roofing")),
             new("construction-steelman", new("Steelman (rebar work)", "Steelman (bakal / rebar)"), AppImages.For("construction-steelman")),
             new("construction-helper", new("Construction helper", "Helper / peon"), AppImages.For("construction-helper")),
             new("construction-other", OtherJob, AppImages.For("construction-other")),
@@ -223,15 +223,6 @@ public static class ReferenceData
             new("electrical-meter", new("Meralco meter / new line", "Pakabit ng metro / bagong linya (Meralco)"), AppImages.For("electrical-meter")),
             new("electrical-cctv", new("CCTV installation", "Pakabit ng CCTV"), AppImages.For("electrical-cctv")),
             new("electrical-other", OtherJob, AppImages.For("electrical-other")),
-        ],
-        ["roofing"] =
-        [
-            new("roofing-leak", new("Roof leak repair", "Tulo sa bubong"), AppImages.For("roofing-leak")),
-            new("roofing-gutter", new("Gutter cleaning or repair", "Linis o repair ng alulod"), AppImages.For("roofing-gutter")),
-            new("roofing-sheet", new("Roof sheet replacement", "Palit ng yero"), AppImages.For("roofing-sheet")),
-            new("roofing-waterproofing", new("Waterproofing (roof deck, walls)", "Waterproofing ng roof deck o pader"), AppImages.For("roofing-waterproofing")),
-            new("roofing-paint", new("Roof painting", "Pintura ng bubong"), AppImages.For("roofing-paint")),
-            new("roofing-other", OtherJob, AppImages.For("roofing-other")),
         ],
         ["carpentry"] =
         [
@@ -337,6 +328,7 @@ public static class ReferenceData
         ["construction-masonry"] = new(755, 1200, 2000),
         ["construction-tiles"] = new(1000, 2000, 3500),
         ["construction-welding"] = new(755, 1200, 2000),
+        ["construction-roofing"] = new(1000, 2000, 3500),
         ["construction-steelman"] = new(755, 1100, 1500),
         ["construction-helper"] = new(755, 850, 1000),
         ["construction-other"] = new(755, 1200, 2000),
@@ -348,12 +340,6 @@ public static class ReferenceData
         ["electrical-meter"] = new(1500, 2500, 4000),
         ["electrical-cctv"] = new(1500, 2500, 4000),
         ["electrical-other"] = new(755, 1200, 2000),
-        ["roofing-leak"] = new(1000, 2000, 3500),
-        ["roofing-gutter"] = new(755, 1500, 2500),
-        ["roofing-sheet"] = new(1500, 3000, 5000),
-        ["roofing-waterproofing"] = new(2000, 4000, 7000),
-        ["roofing-paint"] = new(2000, 3500, 6000),
-        ["roofing-other"] = new(1000, 2000, 3500),
         ["carpentry-furniture"] = new(755, 1200, 2000),
         ["carpentry-door-window"] = new(755, 1200, 2000),
         ["carpentry-cabinet"] = new(2500, 5000, 8000),

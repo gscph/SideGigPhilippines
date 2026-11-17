@@ -18,7 +18,7 @@ public static class Honorifics
     public static IReadOnlyList<string> All { get; } = [Manong, Kuya, Ate, Manang];
 
     /// <summary>Construction and maestro trades (category ids are stable).</summary>
-    private static readonly HashSet<string> ManongTrades = ["construction", "roofing", "carpentry", "masonry_tiling"];
+    private static readonly HashSet<string> ManongTrades = ["construction", "carpentry", "masonry_tiling"];
 
     /// <summary>Errands, and the cleaning, laundry and sewing trades if they come back.</summary>
     private static readonly HashSet<string> AteTrades = ["errand_runner"];

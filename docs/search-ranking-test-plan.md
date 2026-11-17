@@ -33,7 +33,7 @@ aircon cleaning, ₱1,000–₱2,000 for a roof leak).
 | S4 | `linis ng bahay` | Errands → House cleaning |
 | S5 | `pakabit tiles` | Masonry → Tiles |
 | S6 | `makina kotse` | Car Mechanic → Engine |
-| S7 | `tulo sa bubong` | Roofing → Roof leak |
+| S7 | `inverter` | Solar Panel Technician → Inverter or battery check |
 | S8 | `linis solar panel` | Solar → Panel cleaning |
 | S9 | `linis aircon` / `pakabit aircon` | Aircon → Cleaning / Installation |
 
@@ -78,7 +78,7 @@ Expect: **S5 Active Today** → **1 Week Ago** → **1 Month Ago** → **3 Month
 ### S6 Tenure (Car Mechanic)
 Expect: **S6 Joined 1 Year Ago** → **3 Months Ago** → **3 Days Ago**. All three were active today. Tenure is a small part (6 of 100 points), so it only decides ties like this one.
 
-### S7 Budget (Roofing)
+### S7 Budget (Solar inverter check)
 Roof leak repair costs ₱1,000 (lowest), ₱2,000 (average) or ₱3,500 (above average). Four workers use the rates the
 app offers now; the two "Old App" workers still carry a price tier from app versions before price guides
 (₱500–1,000 reads as ₱750, ₱5,000 and up as ₱5,000).
