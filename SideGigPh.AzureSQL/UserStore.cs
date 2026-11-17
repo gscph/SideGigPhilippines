@@ -90,6 +90,7 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
             await db.Professionals.Where(p => p.Id == uid).ExecuteDeleteAsync(ct);
             await db.Chats.Where(c => c.SeekerId == uid || c.ProfessionalId == uid).ExecuteDeleteAsync(ct);
             await db.Reviews.Where(r => r.SeekerId == uid || r.ProfessionalId == uid).ExecuteDeleteAsync(ct);
+            await db.HouseholdReviews.Where(r => r.SeekerUid == uid || r.ProUid == uid).ExecuteDeleteAsync(ct);
             await db.Blocks.Where(b => b.BlockerUid == uid || b.BlockedUid == uid).ExecuteDeleteAsync(ct);
             await db.Reports.Where(r => r.ReporterUid == uid).ExecuteUpdateAsync(set => set.SetProperty(r => r.ReporterUid, (string?)null), ct);
             await db.PushDevices.Where(d => d.Uid == uid).ExecuteDeleteAsync(ct);

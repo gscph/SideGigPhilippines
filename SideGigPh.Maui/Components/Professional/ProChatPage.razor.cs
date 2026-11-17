@@ -29,6 +29,9 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
     /// <summary>The customer's number, only once they picked this worker's offer on a post (numbers stay private until then).</summary>
     private string? _number;
+
+    /// <summary>The newest picked job with this customer (null when they never picked this worker's offer).</summary>
+    private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
     private string? _message;
@@ -67,8 +70,10 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
         var read = Workspace.MarkReadAsync(ChatId);
         var number = Board.ContactNumberAsync(_chat.SeekerId);
+        var jobs = Board.PickedJobsAsync(_chat.SeekerId);
         _history = await Workspace.GetMessagesAsync(ChatId);
         _number = await number;
+        _job = (await jobs).FirstOrDefault();
         await read;
     }
 

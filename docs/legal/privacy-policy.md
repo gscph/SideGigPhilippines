@@ -62,7 +62,9 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Precise location** (optional, only when you tap **Use my location**): a Skilled Worker's base point, or the place of a Customer's post. Without it we use the middle of your town | Skilled Workers, Customers who post | To match posts with Skilled Workers who travel that far. **Never shown to anyone**: others see only your town and a distance in whole kilometres. Read once, when you tap; never in the background. Deleted with your listing, your post or your account |
 | **Offers on a post** (optional): your price and a short note, and which offer the customer picked | Skilled Workers who answer a post, and the customer who picks | To show your offer to the customer who posted, and to open a chat with the worker they pick |
 | **Chat messages** and a note that you tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
-| **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing |
+| **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing. Marked "Verified service" when the Customer picked that Skilled Worker's offer on a post and both marked the work done |
+| **Ratings of Customers** (star rating, optional comment) | Skilled Workers, only after a job both of you marked done | Other Skilled Workers see the Customer's average stars on the Customer's posts (never the comment or who wrote it) |
+| **Done marks** on a picked post | Customers and Skilled Workers | To show completed jobs on the Skilled Worker's listing and to mark reviews as verified |
 | **"Others" text**: the job or trade you typed when it was not on our list | Anyone who types it | To learn which jobs and trades to add. Never shown to other users |
 | **Feature suggestions and votes**: what you write on the "Suggest a feature" board, and which suggestions you vote for | Anyone who uses the board | To learn what to build next. Other users see the suggestion and its number of votes, **never your name or who voted** |
 | **Income goal** (e.g. ₱10,000 a month) | Skilled Workers, optional | To personalise tips in the App. Private |
@@ -75,7 +77,7 @@ Interview answers you have not finished are kept **only on your phone**.
 
 | Data | Why |
 |---|---|
-| **Push notification token** and phone platform (Android / iOS) | To notify you of new messages |
+| **Push notification token** and phone platform (Android / iOS) | To notify you of new messages, new posts near a Skilled Worker, and new offers on a Customer's post |
 | **Last active time** (at most once an hour, Skilled Workers) | Search ranking ("replies fast", "active recently") |
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
 | **Usage analytics** (see §3.3) | **Not active yet** |
@@ -163,7 +165,7 @@ terms:
 |---|---|---|---|
 | **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
 | **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
-| **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message) | Their own locations |
+| **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message; for a post, its budget and first line; for an offer, the Skilled Worker's name and price) | Their own locations |
 
 Some of these providers store data **outside the Philippines**. We remain responsible for your data under the DPA
 wherever it is processed, and we choose providers that use encryption and recognised security certifications.

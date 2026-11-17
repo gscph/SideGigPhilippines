@@ -214,6 +214,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 row.AreaId = request.AreaId;
                 row.ExperienceId = request.ExperienceId;
                 row.RateTierId = request.RateTierId;
+                row.OtherWorkText = services.Any(OtherWork.IsOther) ? StoreText.Limit(request.OtherWork, OtherWork.MaxText) : null;
                 row.ProfilePhotoId = request.ProfilePhotoId;
                 row.UpdatedAt = now;
 
@@ -336,10 +337,18 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .ToListAsync(cancellationToken))
                 .GroupBy(v => v.Uid)
                 .ToDictionary(g => g.Key, g => (IReadOnlyList<BadgeDto>)[.. g.Select(v => new BadgeDto(v.Kind, v.BadgeId, v.ProjectName, v.CompanyName.Length == 0 ? null : v.CompanyName))]);
-        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id), badges.GetValueOrDefault(p.Id) ?? [])).ToList();
+        var completed = ids.Count == 0
+            ? new Dictionary<string, int>()
+            : await db.JobOffers.AsNoTracking()
+                .Where(o => ids.Contains(o.ProUid) && o.Status == JobOfferStatuses.Picked && o.HouseholdDoneAt != null && o.WorkerDoneAt != null)
+                .GroupBy(o => o.ProUid)
+                .Select(g => new { g.Key, Count = g.Count() })
+                .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken);
+        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id), badges.GetValueOrDefault(p.Id) ?? [],
+            completed.GetValueOrDefault(p.Id))).ToList();
     }
 
-    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount, IReadOnlyList<BadgeDto> badges) => new(
+    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount, IReadOnlyList<BadgeDto> badges, int completedJobs) => new(
         p.Id,
         p.DisplayName,
         string.Empty, // phone privacy: never in search or profiles (the field stays for older apps)
@@ -353,5 +362,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList(),
         reviews,
         referenceCount,
-        badges);
+        badges,
+        p.OtherWorkText,
+        completedJobs);
 }

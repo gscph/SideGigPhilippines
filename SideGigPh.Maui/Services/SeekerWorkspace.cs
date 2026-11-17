@@ -31,6 +31,7 @@ public sealed class SeekerWorkspace(
     public static readonly TimeSpan ActivityFreshFor = TimeSpan.FromSeconds(15);
 
     private OnboardingState? _state;
+    private readonly HashSet<string> _completedWith = [];
     private Task<bool>? _loading;
     private DateTimeOffset _refreshedAt = DateTimeOffset.MinValue;
 
@@ -46,7 +47,7 @@ public sealed class SeekerWorkspace(
     public string? ProfilePhotoUrl { get; private set; }
 
     /// <summary>What search results show: the interview answers, as changed on the results page since.</summary>
-    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId);
+    public SearchRequest Request => new(Answers.CategoryId, Answers.ServiceId, Answers.CityId, Answers.BudgetId, Answers.OtherJobText);
 
     /// <summary>One chat per pro the Seeker contacted, loaded so far (<see cref="InboxPages"/>), most recent message first.</summary>
     public IReadOnlyList<InboxThread> Threads { get; private set; } = [];
@@ -77,7 +78,20 @@ public sealed class SeekerWorkspace(
     /// </summary>
     public bool CanRate(string professionalId) =>
         ThreadWith(professionalId) is { } thread
-        && (MyReviewOf(professionalId) is not null || ReviewRules.CanRate(thread.Chat.CreatedAt, DateTimeOffset.UtcNow));
+        && (MyReviewOf(professionalId) is not null || _completedWith.Contains(professionalId)
+            || ReviewRules.CanRate(thread.Chat.CreatedAt, DateTimeOffset.UtcNow));
+
+    /// <summary>
+    /// The chat page saw a completed job with this pro (picked, both marked done): the Seeker may review them at once,
+    /// as the server allows.
+    /// </summary>
+    public void CompletedJobWith(string professionalId)
+    {
+        if (_completedWith.Add(professionalId))
+        {
+            Changed?.Invoke();
+        }
+    }
 
     /// <summary>
     /// Loads the saved answers and Inbox once. False if this user hasn't finished the Seeker
@@ -167,7 +181,7 @@ public sealed class SeekerWorkspace(
     public string DefaultMessage(ProfessionalListing pro)
     {
         var serviceId = JobFor(pro);
-        var trade = ReferenceData.Find(ReferenceData.Categories, pro.CategoryIds.FirstOrDefault());
+        var trade = ReferenceData.FindTrade(pro.CategoryIds.FirstOrDefault());
         // "Others" says what they typed, or the pro's trade: "Others" alone means nothing in a message.
         var job = !ReferenceData.IsOtherJob(serviceId) && ReferenceData.FindService(serviceId) is { } service ? Label(service)
             : ReferenceData.IsOtherJob(serviceId) && Answers.OtherJobText?.Trim() is { Length: > 0 } typed ? typed

@@ -101,11 +101,12 @@ public class PricingTests
     [Theory]
     [InlineData(755, 755, true)]
     [InlineData(800, 1500, true)]
-    [InlineData(700, 1500, false)]   // under the minimum wage
+    [InlineData(300, 1500, true)]    // under the suggested minimum price: it is only a guide
+    [InlineData(0, 1500, false)]     // a budget starts above ₱0
     [InlineData(1500, 800, false)]   // top under the bottom
     [InlineData(null, 1500, false)]
     [InlineData(800, null, false)]
-    public void TypedBudget_StartsAtTheMinimumWage_AndGoesUp(int? min, int? max, bool valid) =>
+    public void TypedBudget_AnyAmountAboveZero_AndGoesUp(int? min, int? max, bool valid) =>
         Pricing.IsValidBudget(min, max).Should().Be(valid);
 
     [Fact]
@@ -147,5 +148,44 @@ public class PricingTests
         scales.Prices["aircon-cleaning"].Should().Be(new PriceGuideDto(755, 1000, 1500));
         scales.TierPrices["500-1000"].Should().Be(750);
         scales.TownIds.Should().Equal("taytay");
+    }
+
+    [Fact]
+    public void Rate_OwnRange_ReadsAsTyped_AndStartsTheBoxes()
+    {
+        var rate = RateRange.Format(900, 2000);
+
+        Pricing.RateRange(rate, ["aircon-cleaning"]).Should().Be((900, 2000));
+        Pricing.RateStart(rate, ["aircon-cleaning"]).Should().Be((900, 2000));
+    }
+
+    [Fact]
+    public void RateStart_WithoutARange_IsTheGuidesAverage_ElseTheSuggestedMinimum()
+    {
+        var average = Pricing.RateRange(PriceLevels.Average, ["aircon-cleaning"])!.Value;
+
+        Pricing.RateStart(null, ["aircon-cleaning"]).Should().Be(average);
+        Pricing.RateStart(null, [ReferenceData.OtherTradeId]).Should().Be((ReferenceData.MinimumWage, ReferenceData.MinimumWage));
+    }
+
+    [Theory]
+    [InlineData("rate-800-1500", true, 800, 1500)]
+    [InlineData("800-1500", false, 0, 0)]     // an old price tier, not a worker's range
+    [InlineData("average", false, 0, 0)]
+    [InlineData("rate-1500-800", false, 0, 0)]
+    [InlineData("rate-800-up", false, 0, 0)]  // a rate range needs a top
+    public void RateRange_ReadsOnlyAWorkersOwnRange(string id, bool reads, int from, int upTo)
+    {
+        RateRange.TryParse(id, out var f, out var u).Should().Be(reads);
+        (f, u).Should().Be((from, upTo));
+    }
+
+    [Fact]
+    public void PostBudget_ShowsTheRange_OrTheTopAlone()
+    {
+        var post = new JobPost(1, "plumbing", "plumbing-clog", "Barado ang lababo", 1500, "taytay", [], true, true, false, null, DateTimeOffset.Now, BudgetMinPesos: 800);
+
+        Pricing.PostBudget(post).Should().Be("₱800 – ₱1,500");
+        Pricing.PostBudget(post with { BudgetMinPesos = null }).Should().Be("₱1,500");
     }
 }

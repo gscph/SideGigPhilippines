@@ -43,7 +43,7 @@ public partial class SearchPage : ComponentBase
             var selected = _unmatchedText is null ? Request.CategoryId : null;
             var first = new[] { selected }.Concat(_suggestedCategoryIds).OfType<string>().Distinct().ToList();
             var ordered = first
-                .Select(id => ReferenceData.Find(ReferenceData.Categories, id))
+                .Select(ReferenceData.FindTrade)
                 .OfType<CatalogOption>()
                 .Concat(ReferenceData.Categories.Where(category => !first.Contains(category.Id)));
             return ChoiceItem.From(ordered, T);
@@ -54,7 +54,7 @@ public partial class SearchPage : ComponentBase
     {
         get
         {
-            var category = ReferenceData.Find(ReferenceData.Categories, Request.CategoryId);
+            var category = ReferenceData.FindTrade(Request.CategoryId);
             var services = ReferenceData.ServicesOf(category?.Id);
             return
             [

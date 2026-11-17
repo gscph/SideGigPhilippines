@@ -13,7 +13,7 @@
             <MudStack Spacing="0" Class="app-field-group">
                 <MudSelect T="string" Value="_draft.CategoryId" ValueChanged="PickTrade" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                            Label="@T.Get(Copy.PostTrade)" Class="app-field">
-                    @foreach (var trade in ReferenceData.Categories)
+                    @foreach (var trade in ReferenceData.TradeChoices)
                     {
                         <MudSelectItem T="string" Value="@trade.Id">@T.Get(trade.Label)</MudSelectItem>
                     }
@@ -41,9 +41,15 @@
                           Class="app-field" Lines="4" MaxLength="@JobBoard.MaxDescription"
                           Label="@T.Get(Copy.PostDescription)" Placeholder="@T.Get(Copy.PostDescriptionHint)" />
 
-            <MudNumericField T="int?" @bind-Value="_draft.BudgetPesos" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                             Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
-                             Label="@T.Get(Copy.PostBudget)" HelperText="@T.Get(Copy.PostBudgetWhy)" />
+            <MudStack Spacing="0" Class="app-field-group">
+                <MudNumericField T="int?" @bind-Value="_draft.BudgetMinPesos" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                                 Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
+                                 Label="@T.Get(Copy.PostBudgetFrom)" HelperText="@BudgetGuide" />
+                <MudNumericField T="int?" @bind-Value="_draft.BudgetPesos" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                                 Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
+                                 Label="@T.Get(Copy.PostBudgetUpTo)" HelperText="@T.Get(Copy.PostBudgetWhy)"
+                                 Error="@BudgetTopTooLow" ErrorText="@T.Get(Copy.BudgetToError)" />
+            </MudStack>
 
             <MudStack Spacing="2">
                 @if (_draft.Photos.Count > 0)

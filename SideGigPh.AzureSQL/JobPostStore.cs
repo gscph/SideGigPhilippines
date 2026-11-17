@@ -6,7 +6,11 @@ namespace SideGigPh.AzureSQL;
 /// <summary>What became of a new job post (<see cref="JobPostStore.AddAsync"/>).</summary>
 /// <param name="Post">The saved post, or null when <paramref name="InvalidField"/> names what was wrong.</param>
 /// <param name="InvalidField">The first field that's missing or not valid (its JSON name).</param>
-public sealed record JobPostOutcome(JobPostDto? Post, string? InvalidField);
+/// <param name="IsNew">The post was just made (false for a retry answered with the post already there), so workers are told.</param>
+public sealed record JobPostOutcome(JobPostDto? Post, string? InvalidField, bool IsNew = false);
+
+/// <summary>What the household's notification about an offer says (<see cref="JobPostStore.OfferAlertAsync"/>).</summary>
+public sealed record OfferAlert(string SeekerUid, string WorkerName, int PricePesos);
 
 /// <summary>What became of a worker's offer (<see cref="JobPostStore.SendOfferAsync"/>).</summary>
 public enum OfferOutcome
@@ -70,6 +74,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             ServiceId = request.ServiceId,
             Description = description,
             BudgetPesos = request.BudgetPesos,
+            BudgetMinPesos = request.BudgetMinPesos,
             CityId = request.CityId,
             Latitude = point?.Latitude,
             Longitude = point?.Longitude,
@@ -78,7 +83,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         };
         db.JobPosts.Add(row);
         await db.SaveChangesAsync(cancellationToken);
-        return new JobPostOutcome(ToDto(row, uid), null);
+        return new JobPostOutcome(ToDto(row, uid), null, IsNew: true);
     }
 
     /// <summary>The caller's own posts, newest first (closed ones too; one the operator hid is left out).</summary>
@@ -99,6 +104,40 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             uid,
             offerCount: offers.Count(o => o.PostId == row.Id),
             pickedProId: offers.FirstOrDefault(o => o.PostId == row.Id && o.Status == JobOfferStatuses.Picked)?.ProUid))];
+    }
+
+    /// <summary>
+    /// The caller's own offers, as a worker, newest change first (at most <see cref="MaxMine"/>): waiting, picked, or
+    /// closed without them. Offers they took back are left out (they chose that), and so are posts the operator hid
+    /// and posts of someone blocked either way.
+    /// </summary>
+    public async Task<List<MyOfferDto>> MyOffersAsync(string uid, CancellationToken cancellationToken)
+    {
+        var offers = await db.JobOffers.AsNoTracking()
+            .Where(o => o.ProUid == uid && o.Status != JobOfferStatuses.Withdrawn)
+            .Join(db.JobPosts.AsNoTracking().Where(p => p.Status != JobPostStatuses.Hidden), o => o.PostId, p => p.Id,
+                (o, p) => new { Offer = o, p.SeekerUid })
+            .Where(x => !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == x.SeekerUid) || (b.BlockerUid == x.SeekerUid && b.BlockedUid == uid)))
+            .OrderByDescending(x => x.Offer.UpdatedAt).ThenByDescending(x => x.Offer.Id)
+            .Take(MaxMine)
+            .Select(x => x.Offer)
+            .ToListAsync(cancellationToken);
+        var ids = offers.Select(o => o.PostId).ToList();
+        var posts = await db.JobPosts.AsNoTracking().Include(p => p.Photos).Where(p => ids.Contains(p.Id)).ToDictionaryAsync(p => p.Id, cancellationToken);
+        return [.. offers.Where(o => posts.ContainsKey(o.PostId)).Select(o =>
+        {
+            var post = posts[o.PostId];
+            var state = o.Status == JobOfferStatuses.Picked ? MyOfferStates.Picked
+                : post.Status == JobPostStatuses.Open ? MyOfferStates.Waiting
+                : MyOfferStates.NotPicked;
+            return new MyOfferDto(
+                ToDto(post, uid, myOfferPesos: o.PricePesos),
+                o.PricePesos,
+                o.Note,
+                state,
+                o.UpdatedAt,
+                state == MyOfferStates.Picked ? ChatStore.IdFor(uid, post.SeekerUid) : null);
+        })];
     }
 
     /// <summary>The caller takes their own open post down. False when it isn't theirs or isn't there; closing twice changes nothing.</summary>
@@ -154,9 +193,11 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         var mine = await db.JobOffers.AsNoTracking()
             .Where(o => ids.Contains(o.PostId) && o.ProUid == uid && o.Status == JobOfferStatuses.Sent)
             .ToDictionaryAsync(o => o.PostId, o => o.PricePesos, cancellationToken);
+        var stars = await PickedJobStore.HouseholdStarsAsync(db, [.. rows.Values.Select(row => row.SeekerUid).Distinct()], cancellationToken);
         var posts = page.Where(hit => rows.ContainsKey(hit.Id))
             .Select(hit => ToDto(rows[hit.Id], uid, hit.OffersService, DistanceKm(hit.DistanceMeters),
-                myOfferPesos: mine.TryGetValue(hit.Id, out var price) ? price : null))
+                myOfferPesos: mine.TryGetValue(hit.Id, out var price) ? price : null,
+                householdReviews: stars.GetValueOrDefault(rows[hit.Id].SeekerUid)))
             .ToList();
         return new JobPostFeedDto(posts, hits.Count > take, HasListing: true);
     }
@@ -317,6 +358,42 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
     }
 
     /// <summary>
+    /// The workers to tell about a new post: the same match as their Requests feed (<see cref="FeedAsync"/>): the
+    /// post's trade, within the worker's own <c>RadiusKm</c> of the post (a town match when a point is unknown), never
+    /// the household itself or someone either of them blocked. The best <paramref name="max"/>: a service they offer
+    /// first, then nearest.
+    /// </summary>
+    public async Task<IReadOnlyList<string>> WorkersToAlertAsync(long postId, int max, CancellationToken cancellationToken) =>
+        await db.Database.SqlQuery<string>($"""
+            SELECT TOP ({max}) p.Id AS Value
+              FROM dbo.JobPosts AS j
+              JOIN dbo.Professionals AS p ON p.CategoryId = j.CategoryId
+             WHERE j.Id = {postId}
+               AND j.Status = 'open'
+               AND p.Id <> j.SeekerUid
+               AND NOT EXISTS (SELECT 1 FROM dbo.Blocks AS b
+                                WHERE (b.BlockerUid = p.Id AND b.BlockedUid = j.SeekerUid) OR (b.BlockerUid = j.SeekerUid AND b.BlockedUid = p.Id))
+               AND ((p.Location IS NOT NULL AND j.Location IS NOT NULL AND p.Location.STDistance(j.Location) <= p.RadiusKm * 1000.0)
+                    OR ((p.Location IS NULL OR j.Location IS NULL)
+                        AND EXISTS (SELECT 1 FROM dbo.ProfessionalCities AS c WHERE c.ProfessionalId = p.Id AND c.CityId = j.CityId)))
+             ORDER BY CASE WHEN EXISTS (SELECT 1 FROM dbo.ProfessionalServices AS s WHERE s.ProfessionalId = p.Id AND s.ServiceId = j.ServiceId)
+                           THEN 0 ELSE 1 END,
+                      CASE WHEN p.Location IS NOT NULL AND j.Location IS NOT NULL THEN p.Location.STDistance(j.Location) ELSE 1000000000 END,
+                      p.Id
+            """).ToListAsync(cancellationToken);
+
+    /// <summary>
+    /// Who to tell about <paramref name="workerUid"/>'s waiting offer on a post, and what it says (their listing's
+    /// name and the price). Null when that offer isn't waiting.
+    /// </summary>
+    public Task<OfferAlert?> OfferAlertAsync(long postId, string workerUid, CancellationToken cancellationToken) =>
+        (from o in db.JobOffers.AsNoTracking()
+         join p in db.JobPosts on o.PostId equals p.Id
+         join w in db.Professionals on o.ProUid equals w.Id
+         where o.PostId == postId && o.ProUid == workerUid && o.Status == JobOfferStatuses.Sent
+         select new OfferAlert(p.SeekerUid, w.DisplayName, o.PricePesos)).FirstOrDefaultAsync(cancellationToken);
+
+    /// <summary>
     /// The caller reports a post (fake, a prank, abuse). It joins the operator's report queue (<c>Reports</c>, about
     /// the household, subject <c>job-post:{id}</c>); the operator hides it by setting its status to
     /// <see cref="JobPostStatuses.Hidden"/>. False when it isn't open or is the caller's own. Reporting twice changes nothing.
@@ -373,11 +450,18 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         }
 
         var served = (await config.GetAsync(cancellationToken)).Config;
-        return served.Catalog.FirstOrDefault(c => c.Id == request.CategoryId) is not { } trade ? "categoryId"
-            : !trade.Services.Any(s => s.Id == request.ServiceId) ? "serviceId"
+
+        // "Others" (a kind of work we don't list) is its own trade and job; the description says what it is.
+        var knownJob = request.CategoryId == OtherWork.TradeId
+            ? request.ServiceId == OtherWork.TradeId
+            : served.Catalog.FirstOrDefault(c => c.Id == request.CategoryId) is { } trade ? trade.Services.Any(s => s.Id == request.ServiceId)
+            : (bool?)null;
+        return knownJob is null ? "categoryId"
+            : knownJob == false ? "serviceId"
             : !served.Towns.Any(t => t.Id == request.CityId) ? "cityId"
             : !JobPostRules.IsDescription(request.Description) ? "description"
             : !JobPostRules.IsBudget(request.BudgetPesos) ? "budgetPesos"
+            : !JobPostRules.IsBudgetRange(request.BudgetMinPesos, request.BudgetPesos) ? "budgetMinPesos"
             : request.PhotoIds is { } photos && (photos.Count > JobPostRules.MaxPhotos || !photos.All(StoreText.IsPhotoId)) ? "photoIds"
             : (request.Latitude is not null || request.Longitude is not null) && GeoRules.Point(request.Latitude, request.Longitude) is null ? "latitude"
             : null;
@@ -395,7 +479,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             && !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == j.SeekerUid) || (b.BlockerUid == j.SeekerUid && b.BlockedUid == uid)));
 
     private JobPostDto ToDto(JobPostRow row, string uid, bool offersService = false, int? distanceKm = null,
-        int offerCount = 0, int? myOfferPesos = null, string? pickedProId = null) => new(
+        int offerCount = 0, int? myOfferPesos = null, string? pickedProId = null, ReviewSummaryDto? householdReviews = null) => new(
         row.Id,
         row.CategoryId,
         row.ServiceId,
@@ -410,7 +494,9 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         row.CreatedAt,
         offerCount,
         myOfferPesos,
-        pickedProId);
+        pickedProId,
+        row.BudgetMinPesos,
+        householdReviews);
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

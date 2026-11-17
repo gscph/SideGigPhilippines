@@ -12,7 +12,7 @@ namespace SideGigPh.Api;
 /// exact point never leaves the server. Offers (inDrive style): a worker takes the budget or names another price;
 /// the household reads the offers on its post and picks one, which closes the post.
 /// </summary>
-public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore posts, CallerLimits limits)
+public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore posts, CallerLimits limits, JobAlerts alerts)
 {
     /// <summary><c>POST job-posts</c>: the caller's new post, open at once. Answers with it.</summary>
     [Function("AddJobPost")]
@@ -36,9 +36,17 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         }
 
         var outcome = await posts.AddAsync(uid, post, cancellationToken);
-        return outcome.Post is { } saved
-            ? new OkObjectResult(saved)
-            : ApiResults.BadRequest(ApiErrors.Invalid(outcome.InvalidField!));
+        if (outcome.Post is not { } saved)
+        {
+            return ApiResults.BadRequest(ApiErrors.Invalid(outcome.InvalidField!));
+        }
+
+        if (outcome.IsNew)
+        {
+            await alerts.NewPostAsync(saved, cancellationToken);
+        }
+
+        return new OkObjectResult(saved);
     }
 
     /// <summary><c>GET job-posts/mine</c>: the caller's own posts, newest first.</summary>
@@ -53,6 +61,20 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         }
 
         return new OkObjectResult(await posts.MineAsync(uid, cancellationToken));
+    }
+
+    /// <summary><c>GET offers/mine</c>: the caller's own offers as a worker, newest change first, with how each ended.</summary>
+    [Function("GetMyOffers")]
+    public async Task<IActionResult> MyOffers(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "offers/mine")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        return new OkObjectResult(await posts.MyOffersAsync(uid, cancellationToken));
     }
 
     /// <summary><c>GET job-posts/feed?skip=0&amp;take=10</c>: one page of the open posts a worker can take, most relevant first.</summary>
@@ -141,7 +163,13 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
             return ApiResults.BadRequest();
         }
 
-        return await posts.SendOfferAsync(uid, postId, offer, cancellationToken) switch
+        var sent = await posts.SendOfferAsync(uid, postId, offer, cancellationToken);
+        if (sent == OfferOutcome.Sent)
+        {
+            await alerts.NewOfferAsync(postId, uid, cancellationToken);
+        }
+
+        return sent switch
         {
             OfferOutcome.Sent => new NoContentResult(),
             OfferOutcome.InvalidPrice => ApiResults.BadRequest(ApiErrors.Invalid("pricePesos")),

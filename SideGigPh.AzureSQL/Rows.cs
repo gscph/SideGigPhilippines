@@ -27,6 +27,10 @@ public sealed class ProfessionalRow
     public required string AreaId { get; set; }
     public string? ExperienceId { get; set; }
     public string? RateTierId { get; set; }
+
+    /// <summary>What the worker typed under "Others" (<c>017-schema-others-and-ranges.sql</c>), matched in search.</summary>
+    public string? OtherWorkText { get; set; }
+
     public string? ProfilePhotoId { get; set; }
     public DateTimeOffset PublishedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
@@ -260,7 +264,12 @@ public sealed class JobPostRow
     public required string CategoryId { get; set; }
     public required string ServiceId { get; set; }
     public required string Description { get; set; }
+    /// <summary>The top of the budget ("up to").</summary>
     public int BudgetPesos { get; set; }
+
+    /// <summary>The low end of the budget ("from", <c>017-schema-others-and-ranges.sql</c>); null = only a top was given.</summary>
+    public int? BudgetMinPesos { get; set; }
+
     public required string CityId { get; set; }
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
@@ -292,6 +301,26 @@ public sealed class JobOfferRow
     public int PricePesos { get; set; }
     public string? Note { get; set; }
     public string Status { get; set; } = "sent";
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+
+    /// <summary>When the household marked the picked job done (<c>018-schema-job-done.sql</c>).</summary>
+    public DateTimeOffset? HouseholdDoneAt { get; set; }
+
+    /// <summary>When the worker marked the picked job done. Both set: a completed job.</summary>
+    public DateTimeOffset? WorkerDoneAt { get; set; }
+}
+
+/// <summary>
+/// A worker's stars for a household (<c>HouseholdReviews</c>, <c>018-schema-job-done.sql</c>): one per worker per
+/// household, only after a completed job between them.
+/// </summary>
+public sealed class HouseholdReviewRow
+{
+    public required string ProUid { get; set; }
+    public required string SeekerUid { get; set; }
+    public byte Rating { get; set; }
+    public string? Comment { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

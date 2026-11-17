@@ -10,10 +10,11 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// Seeker interview: what job → which town (their one home town) → when →
-/// budget → results. "Others" after the trades lets someone type a kind of work we don't offer (sent for analytics),
-/// then thanks them and goes back to the trades. The budget offers three ranges from the job's price guide
-/// (<see cref="Pricing.BudgetChoices"/>), "Other amount" (two peso boxes) and "Not sure yet". Each step has its own
-/// URL so Android back walks the steps; every answer is saved as soon as it's tapped.
+/// budget → results. "Others" after the trades lets someone type a kind of work we don't list: it is saved as their
+/// trade and job (the job question is skipped), sent for analytics and matched with workers who typed something similar,
+/// so nobody is stuck on the trade question. The budget is two peso boxes, "From" and "Up to"; the job's price guide
+/// (<see cref="Pricing.BudgetChoices"/>) shows as ranges that fill them in one tap (a guide, not a rule), and "Not sure
+/// yet" moves on. Each step has its own URL so Android back walks the steps; every answer is saved as soon as it's tapped.
 /// Once finished, tapping an answer chip on the results reopens one step and returns there.
 /// The rules (which step, what an answer clears, where Next and Back go) are in <see cref="OnboardingSteps"/>.
 /// </summary>
@@ -36,15 +37,13 @@ public partial class SeekerInterview : ComponentBase
     // The "Others" text already sent, so going back and forward doesn't send it twice.
     private string? _notedOtherJob;
 
-    // "Others" after the trades: never saved as a trade, only typed, sent and thanked for.
+    // "Others" after the trades: the tile is picked, waiting for what they type and Next.
     private bool _pickedOtherTrade;
     private string? _otherTradeText;
-    private bool _otherTradeNoted;
 
-    // "Other amount": the two boxes, saved as a range on Next.
-    private bool _customBudget;
-    private int? _customMin;
-    private int? _customMax;
+    // The budget's two boxes, saved as a range on Next.
+    private int? _budgetMin;
+    private int? _budgetMax;
 
     // The last step started saving (it runs once, however often the page renders).
     private bool _finishing;
@@ -58,23 +57,20 @@ public partial class SeekerInterview : ComponentBase
 
     private bool HasOtherTradeText => !string.IsNullOrWhiteSpace(_otherTradeText);
 
-    // Next shows only under "Others" (trades) and "Other amount" (budget); other tiles move on when tapped.
-    private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, NoteOtherTrade) : default;
+    // Next shows only under "Others" (trades); other trade tiles move on when tapped.
+    private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, PickOtherTradeAsync) : default;
 
-    private EventCallback CustomBudgetNext => _customBudget ? EventCallback.Factory.Create(this, SaveCustomBudgetAsync) : default;
+    // The guide's ranges (and a range typed earlier), then "Not sure yet".
+    private IReadOnlyList<CatalogOption> BudgetChoices => Pricing.BudgetChoices(Answers.ServiceId, Answers.CategoryId, Answers.BudgetId);
 
-    private IReadOnlyList<CatalogOption> BudgetChoices =>
-    [
-        .. Pricing.BudgetChoices(Answers.ServiceId, Answers.CategoryId, Answers.BudgetId).Where(choice => choice.Id != ReferenceData.Unsure),
-        new(Pricing.CustomBudget, Copy.BudgetCustom, AppImages.Custom, Copy.BudgetCustomHint),
-        ReferenceData.UnsureOption,
-    ];
+    // The tile the two boxes match, if any.
+    private string? PickedBudget => _budgetMin is { } min ? BudgetRange.Format(min, _budgetMax) : null;
 
     // "Most people pay ₱1,000 for Aircon cleaning." (the job's average), as an anchor above the choices.
     private string? BudgetWhy =>
         Pricing.GuideFor(Answers.ServiceId, Answers.CategoryId) is { } guide
             ? T.Format(Copy.BudgetTypical, Money.Peso(guide.Average), Label(ReferenceData.FindService(Answers.ServiceId)
-                ?? ReferenceData.Find(ReferenceData.Categories, Answers.CategoryId)))
+                ?? ReferenceData.FindTrade(Answers.CategoryId)))
             : null;
 
     private bool IsEditing => _state!.CompletedAt is not null;
@@ -97,8 +93,9 @@ public partial class SeekerInterview : ComponentBase
 
         // Never show a step whose earlier answers are missing (e.g. a stale resume path).
         _step = Answers.StepToShow(Step);
-        PickAnotherTrade();
-        _customBudget = false;
+        _pickedOtherTrade = Answers.IsOtherTrade();
+        _otherTradeText = _pickedOtherTrade ? Answers.OtherJobText : null;
+        (_budgetMin, _budgetMax) = Pricing.CustomStart(Answers.BudgetId, Answers.ServiceId, Answers.CategoryId);
     }
 
     private Task PickCategoryAsync(string id)
@@ -115,17 +112,19 @@ public partial class SeekerInterview : ComponentBase
 
     private void SetOtherTradeText(string text) => _otherTradeText = text;
 
-    private void NoteOtherTrade()
+    /// <summary>"Others" with what they typed: saved as their trade and job, and the interview goes on to the town.</summary>
+    private Task PickOtherTradeAsync()
     {
-        _ = Notes.NoteAsync(ReferenceData.OtherTradeId, UserRole.Seeker, _otherTradeText);  // never holds up the interview
-        _otherTradeNoted = true;
-    }
+        var typed = _otherTradeText?.Trim();
+        if (typed != _notedOtherJob)
+        {
+            _notedOtherJob = typed;
+            _ = Notes.NoteAsync(ReferenceData.OtherTradeId, UserRole.Seeker, typed);  // never holds up the interview
+        }
 
-    private void PickAnotherTrade()
-    {
-        _pickedOtherTrade = false;
-        _otherTradeText = null;
-        _otherTradeNoted = false;
+        Answers.PickCategory(ReferenceData.OtherTradeId);
+        Answers.OtherJobText = typed;
+        return AdvanceAsync();
     }
 
     private Task PickServiceAsync(string id)
@@ -161,23 +160,22 @@ public partial class SeekerInterview : ComponentBase
         return AdvanceAsync();
     }
 
+    /// <summary>A guide range fills the two boxes (an open-ended one leaves "Up to" for them); "Not sure yet" moves on.</summary>
     private Task PickBudgetAsync(string id)
     {
-        _customBudget = id == Pricing.CustomBudget;
-        if (_customBudget)
+        if (BudgetRange.TryParse(id, out var min, out var max))
         {
-            (_customMin, _customMax) = Pricing.CustomStart(Answers.BudgetId, Answers.ServiceId, Answers.CategoryId);
-            return Task.CompletedTask;  // waits for the two amounts, then Next
+            (_budgetMin, _budgetMax) = (min, max);
+            return Task.CompletedTask;  // they can change the amounts, then Next
         }
 
         Answers.BudgetId = id;
         return AdvanceAsync();
     }
 
-    private Task SaveCustomBudgetAsync()
+    private Task SaveBudgetAsync()
     {
-        Answers.BudgetId = BudgetRange.Format(_customMin!.Value, _customMax!.Value);
-        _customBudget = false;
+        Answers.BudgetId = BudgetRange.Format(_budgetMin!.Value, _budgetMax!.Value);
         return AdvanceAsync();
     }
 
@@ -222,7 +220,7 @@ public partial class SeekerInterview : ComponentBase
         await Account.SaveProfileAsync();
     }
 
-    private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(_step, IsEditing));
+    private void GoBack() => Nav.NavigateTo(Answers.BackPath(_step, IsEditing));
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };

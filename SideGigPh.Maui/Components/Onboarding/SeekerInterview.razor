@@ -4,10 +4,6 @@
 {
     switch (_step)
     {
-        case SeekerStep.Category when _otherTradeNoted:
-            <OtherTradeThanks Message="@T.Get(Copy.OtherTradeSeekerThanks)" Progress="Progress" OnPickAnother="PickAnotherTrade" />
-            break;
-
         case SeekerStep.Category:
             <InterviewStep Illustration="@AppImages.HomeRepair" Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack"
                            OnNext="OtherTradeNext" CanContinue="@HasOtherTradeText">
@@ -50,13 +46,10 @@
 
         case SeekerStep.Budget:
             <InterviewStep Illustration="@AppImages.Budget" Title="@T.Get(Copy.SeekerBudgetTitle)" Why="@BudgetWhy" Note="@T.Get(Copy.SeekerBudgetWhy)"
-                           Progress="Progress" OnBack="GoBack" OnNext="CustomBudgetNext" CanContinue="@Pricing.IsValidBudget(_customMin, _customMax)">
-                <ChoiceTiles Items="ChoiceItem.From(BudgetChoices, T)"
-                             SelectedIds="Selected(_customBudget ? Pricing.CustomBudget : Answers.BudgetId)" OnPick="PickBudgetAsync" />
-                @if (_customBudget)
-                {
-                    <BudgetRangeFields @bind-Min="_customMin" @bind-Max="_customMax" />
-                }
+                           Progress="Progress" OnBack="GoBack" OnNext="SaveBudgetAsync" CanContinue="@Pricing.IsValidBudget(_budgetMin, _budgetMax)">
+                <ChoiceTiles Items="ChoiceItem.From(BudgetChoices, T)" SelectedIds="Selected(PickedBudget)" OnPick="PickBudgetAsync" />
+                <MudText Typo="Typo.subtitle2">@T.Get(Copy.BudgetOwnRange)</MudText>
+                <BudgetRangeFields @bind-Min="_budgetMin" @bind-Max="_budgetMax" />
             </InterviewStep>
             break;
 

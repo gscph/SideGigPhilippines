@@ -2,7 +2,8 @@ namespace SideGigPh.Maui.Models;
 
 /// <summary>
 /// A Seeker's rating of a Professional they contacted. <see cref="Rating"/> is 1–5 stars.
-/// One review per Seeker per pro; writing again replaces it.
+/// One review per Seeker per pro; writing again replaces it. <see cref="VerifiedJob"/>: the Seeker picked this pro's
+/// offer on a post and both marked the work done.
 /// </summary>
 public sealed record Review(
     string Id,
@@ -12,7 +13,8 @@ public sealed record Review(
     int Rating,
     string? Comment,
     string? ServiceId,
-    DateTimeOffset At);
+    DateTimeOffset At,
+    bool VerifiedJob = false);
 
 /// <summary>A pro's average stars and how many reviews it's based on.</summary>
 public sealed record ReviewSummary(double Average, int Count);

@@ -79,6 +79,7 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddSingleton<IPushSender>(Pushes);
                     services.AddSingleton<IAccountDeleter>(Accounts);
                     services.AddScoped<ChatNotifier>();
+                    services.AddScoped<JobAlerts>();
                     services.AddSingleton<IPrivateFiles>(PrivateFiles);
                     services.AddSingleton<IIdDocumentReader>(IdReader);
                     services.AddSingleton(new AdminList(AdminUid));

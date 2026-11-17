@@ -1,0 +1,54 @@
+<MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">
+    <MudStack Spacing="3">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+            <MudIcon Icon="@(Job.IsCompleted ? Icons.Material.Rounded.Verified : Icons.Material.Rounded.Handshake)"
+                     Color="@(Job.IsCompleted ? Color.Success : Color.Dark)" aria-hidden="true" />
+            <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+                <MudText Typo="Typo.subtitle1">@Title</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@ServiceLabel · @Money.Peso(Job.PricePesos)</MudText>
+            </MudStack>
+        </MudStack>
+
+        <MudText Typo="Typo.body2">@Status</MudText>
+
+        @if (!Job.DoneByMe)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="_busy"
+                       StartIcon="@Icons.Material.Rounded.TaskAlt" OnClick="MarkDoneAsync">
+                @T.Get(Copy.MarkDone)
+            </MudButton>
+        }
+        else if (Job.IsCompleted && Job.IAmTheHousehold && RateHref is not null)
+        {
+            <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" Href="@RateHref"
+                       StartIcon="@Icons.Material.Rounded.StarOutline">
+                @T.Get(Job.MyRating is null ? Copy.LeaveReview : Copy.ChangeReview)
+            </MudButton>
+        }
+        else if (Job.IsCompleted && !Job.IAmTheHousehold)
+        {
+            @if (Job.MyRating is { } given && !_editing)
+            {
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                    <MudText Typo="Typo.body2" Class="flex-1">@T.Format(Copy.YouRatedCustomer, given)</MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Dark" OnClick="Edit">@T.Get(Copy.ChangeRating)</MudButton>
+                </MudStack>
+            }
+            else
+            {
+                <MudText Typo="Typo.subtitle2">@T.Get(Copy.RateCustomerLabel)</MudText>
+                <MudRating @bind-SelectedValue="_stars" Color="Color.Warning" Size="Size.Large" aria-label="@T.Get(Copy.RateCustomerLabel)" />
+                <MudTextField @bind-Value="_comment" Variant="Variant.Filled" Class="app-field" Lines="2" MaxLength="1000"
+                              Label="@T.Get(Copy.RateCustomerComment)" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(_busy || _stars == 0)" OnClick="RateAsync">
+                    @T.Get(Copy.RateCustomerSend)
+                </MudButton>
+            }
+        }
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
+        }
+    </MudStack>
+</MudPaper>

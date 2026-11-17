@@ -55,6 +55,12 @@
             }
         </MudStack>
 
+        @if (_job is not null)
+        {
+            <PickedJobCard Job="_job" OtherName="@_pro.DisplayName" OtherUid="@_pro.Id" RateHref="@SeekerRoutes.Rate(_pro.Id)"
+                           OnChanged="JobChanged" />
+        }
+
         @if (_history.Count > 0 && !Workspace.CanRate(_pro.Id))
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Format(Copy.RateLater, _pro.DisplayName)</MudText>

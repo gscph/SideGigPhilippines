@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using SideGigPh.Contracts;
+using SideGigPh.Maui.Components.JobPosts;
 using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Components.Seeker;
 
@@ -78,8 +79,19 @@ public sealed class ChatAlerts
     /// <summary>The chats still unread on the open side: the icon badge counts them and read ones leave the tray.</summary>
     public void ShowUnread(IReadOnlyCollection<string> unreadChatIds) => _push.ShowOnly(unreadChatIds);
 
-    /// <summary>The page a notification opens: the chat on the receiver's side. Null for data it doesn't understand.</summary>
+    /// <summary>
+    /// The page a notification opens: the chat on the receiver's side; for a job post, the worker's Requests feed or
+    /// the household's offers on it. Null for data it doesn't understand.
+    /// </summary>
     public static string? PathFor(IReadOnlyDictionary<string, string> data) =>
+        (data.GetValueOrDefault(PushData.Side), long.TryParse(data.GetValueOrDefault(PushData.PostId), out var postId) && postId > 0) switch
+        {
+            (Wire.Professional, true) => JobPostRoutes.Feed,
+            (Wire.Seeker, true) => JobPostRoutes.Offers(postId),
+            _ => ChatPathFor(data),
+        };
+
+    private static string? ChatPathFor(IReadOnlyDictionary<string, string> data) =>
         data.GetValueOrDefault(PushData.Side) switch
         {
             Wire.Professional when data.GetValueOrDefault(PushData.ChatId) is { Length: > 0 } chatId => ProRoutes.Chat(chatId),

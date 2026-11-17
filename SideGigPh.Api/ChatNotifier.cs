@@ -65,7 +65,7 @@ public sealed class ChatNotifier(PushDeviceStore devices, IPushSender sender, IL
             });
     }
 
-    private static string Preview(string? text)
+    internal static string Preview(string? text)
     {
         var line = (text ?? string.Empty).ReplaceLineEndings(" ").Trim();
         return line.Length > MaxPreview ? $"{line[..(MaxPreview - 1)]}…" : line;

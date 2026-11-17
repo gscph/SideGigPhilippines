@@ -63,4 +63,26 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
     public Task<string?> GetContactNumberAsync(string otherUid) => api.ReadAsync<string?>(async () =>
         (await api.GetAsync($"contacts/{Uri.EscapeDataString(otherUid)}", ApiJson.Default.ContactDto))?.PhoneNumber,
         null, "a contact number");
+
+    public Task<IReadOnlyList<MyOffer>> GetMyOffersAsync() => api.ReadAsync<IReadOnlyList<MyOffer>>(async () =>
+        (await api.GetAsync("offers/mine", ApiJson.Default.ListMyOfferDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+        [], "the worker's offers");
+
+    public Task<IReadOnlyList<PickedJob>> GetPickedJobsAsync(string otherUid) => api.ReadAsync<IReadOnlyList<PickedJob>>(async () =>
+        (await api.GetAsync($"picked-jobs/{Uri.EscapeDataString(otherUid)}", ApiJson.Default.ListPickedJobDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+        [], "the picked jobs with someone");
+
+    public async Task<PickedJob> MarkDoneAsync(long postId)
+    {
+        using var response = await api.SendAsync(HttpMethod.Post, $"picked-jobs/{postId}/done");
+        await api.EnsureWrittenAsync(response, "mark the job done");
+        return (await response.Content.ReadFromJsonAsync(ApiJson.Default.PickedJobDto))!.ToModel();
+    }
+
+    public async Task RateHouseholdAsync(string seekerUid, int rating, string? comment)
+    {
+        using var response = await api.SendJsonAsync(HttpMethod.Put, "household-reviews",
+            new SaveHouseholdReviewRequest(seekerUid, rating, comment), ApiJson.Default.SaveHouseholdReviewRequest);
+        await api.EnsureWrittenAsync(response, "rate the customer");
+    }
 }

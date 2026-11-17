@@ -17,4 +17,7 @@ public static class JobPostRoutes
 
     /// <summary>What customers nearby posted for the worker's trade (the pro's Requests tab).</summary>
     public const string Feed = "/professional/requests";
+
+    /// <summary>The worker's own offers and how each stands (<c>MyOffersPage</c>), under the Requests tab.</summary>
+    public const string MyOffers = Feed + "/offers";
 }

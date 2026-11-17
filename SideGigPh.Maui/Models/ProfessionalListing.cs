@@ -17,6 +17,9 @@ public sealed class ProfessionalListing
 
     public string? RateTierId { get; init; }
 
+    /// <summary>What the worker typed under "Others" (a kind of work we don't list, or a job their trade doesn't list); shown in place of "Others".</summary>
+    public string? OtherWork { get; init; }
+
     /// <summary>E.164 format, e.g. +639171234567.</summary>
     public required string MobileNumber { get; init; }
 
@@ -37,6 +40,9 @@ public sealed class ProfessionalListing
 
     /// <summary>The badges a person at Tarbaho approved (ID, TESDA, past projects), oldest first. Search ranks by them.</summary>
     public IReadOnlyList<Badge> Badges { get; init; } = [];
+
+    /// <summary>Jobs done through Tarbaho: a household picked this worker's offer and both marked it done.</summary>
+    public int CompletedJobs { get; init; }
 
     /// <summary>
     /// The worker's own base point, from their phone (only on their own listing, never sent to others; null = the

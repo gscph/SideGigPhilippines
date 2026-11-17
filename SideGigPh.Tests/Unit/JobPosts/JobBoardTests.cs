@@ -304,4 +304,26 @@ public class JobBoardTests
         _board.Mine[0].IsOpen.Should().BeTrue();
         _board.Mine[0].PickedProId.Should().BeNull();
     }
+
+    [Fact]
+    public void ABudgetFrom_AboveTheTop_CantBePosted()
+    {
+        var draft = Complete();
+        draft.BudgetMinPesos = draft.BudgetPesos + 1;
+
+        JobBoard.FirstMissing(draft).Should().Be(JobPostField.Budget);
+
+        draft.BudgetMinPesos = 0;
+        JobBoard.CanPost(draft).Should().BeTrue("the low end is optional and may start at ₱0");
+    }
+
+    [Fact]
+    public void AnOthersPost_CanBePosted_WithTheOthersService()
+    {
+        var draft = Complete();
+        draft.CategoryId = ReferenceData.OtherTradeId;
+        draft.ServiceId = ReferenceData.OtherTradeId;
+
+        JobBoard.CanPost(draft).Should().BeTrue();
+    }
 }

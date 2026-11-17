@@ -107,5 +107,8 @@ public sealed record AdminVerificationDto(
     DateTimeOffset CreatedAt,
     string? CompanyName = null);
 
+/// <summary><c>GET admin/me</c>: whether the caller is an operator (in the setting <c>AdminUids</c>), so the app shows the badge review screen.</summary>
+public sealed record AdminStatusDto(bool IsOperator);
+
 /// <summary><c>POST admin/verifications/{id}/decision</c>: approve (the badge shows) or reject with a short reason the worker sees.</summary>
 public sealed record VerificationDecisionRequest(bool Approve, string? Reason = null);

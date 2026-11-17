@@ -774,6 +774,38 @@ public sealed class FakeJobPosts : IJobPostRepository
 
     public Task<string?> GetContactNumberAsync(string otherUid) => Task.FromResult(Numbers.GetValueOrDefault(otherUid));
 
+    /// <summary>The picked jobs <see cref="GetPickedJobsAsync"/> gives, by the other person's uid.</summary>
+    public Dictionary<string, List<PickedJob>> PickedWith { get; } = [];
+
+    /// <summary>The household ratings sent: household uid, stars, comment.</summary>
+    public List<(string SeekerUid, int Rating, string? Comment)> HouseholdRatings { get; } = [];
+
+    public Task<IReadOnlyList<PickedJob>> GetPickedJobsAsync(string otherUid) =>
+        Task.FromResult<IReadOnlyList<PickedJob>>(PickedWith.TryGetValue(otherUid, out var jobs) ? [.. jobs] : []);
+
+    public Task<PickedJob> MarkDoneAsync(long postId)
+    {
+        ThrowIfOfflineOrGone();
+        foreach (var jobs in PickedWith.Values)
+        {
+            var index = jobs.FindIndex(j => j.PostId == postId);
+            if (index >= 0)
+            {
+                jobs[index] = jobs[index].IAmTheHousehold ? jobs[index] with { DoneByHousehold = true } : jobs[index] with { DoneByWorker = true };
+                return Task.FromResult(jobs[index]);
+            }
+        }
+
+        throw new InvalidOperationException($"No picked job on post {postId}.");
+    }
+
+    public Task RateHouseholdAsync(string seekerUid, int rating, string? comment)
+    {
+        ThrowIfOfflineOrGone();
+        HouseholdRatings.Add((seekerUid, rating, comment));
+        return Task.CompletedTask;
+    }
+
     public Task<JobOffer> PickOfferAsync(long postId, long offerId)
     {
         ThrowIfOfflineOrGone();
@@ -797,4 +829,9 @@ public sealed class FakeJobPosts : IJobPostRepository
             throw new HttpRequestException("offline");
         }
     }
+
+    /// <summary>What <see cref="GetMyOffersAsync"/> answers.</summary>
+    public List<MyOffer> MyOffers { get; } = [];
+
+    public Task<IReadOnlyList<MyOffer>> GetMyOffersAsync() => Task.FromResult<IReadOnlyList<MyOffer>>(MyOffers);
 }
