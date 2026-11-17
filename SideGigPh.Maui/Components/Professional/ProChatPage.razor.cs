@@ -64,13 +64,27 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
         _loaded = true;
         _watch = Workspace.WatchChat(ChatId, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
-        _jobWatch = PickedJobWatch.Start(Board, Visibility, _chat.SeekerId, _jobs, jobs => InvokeAsync(() =>
+        WatchJobs(_jobs);
+    }
+
+    /// <summary>
+    /// The picked jobs as the server now has them: the card shows the newest, and while it waits on the customer a fresh
+    /// watch re-reads it from this state (so a read started before the worker's own Mark done never undoes it).
+    /// </summary>
+    private void WatchJobs(IReadOnlyList<PickedJob> jobs)
+    {
+        _jobs = jobs;
+        _job = jobs.FirstOrDefault();
+        _jobWatch?.Dispose();
+        _jobWatch = PickedJobWatch.Start(Board, Visibility, _chat!.SeekerId, jobs, changed => InvokeAsync(() =>
         {
-            _jobs = jobs;
-            _job = jobs.FirstOrDefault();
+            WatchJobs(changed);
             StateHasChanged();
         }));
     }
+
+    /// <summary>The card's own change (Mark done, a rating): the newest job as the server answered.</summary>
+    private void JobChanged(PickedJob job) => WatchJobs([job, .. _jobs.Skip(1)]);
 
     private async Task LoadAsync()
     {
@@ -151,6 +165,13 @@ public partial class ProChatPage : ComponentBase, IDisposable
         _history = await Workspace.NewMessagesAsync(ChatId, _history);
         _scrollToEnd = true;
         await Workspace.MarkReadAsync(ChatId);
+
+        // The pick's first message: the card appears without reopening (an empty answer is a failed read: keep the card).
+        if (await Board.PickedJobsAsync(chat.SeekerId) is { Count: > 0 } jobs)
+        {
+            WatchJobs(jobs);
+        }
+
         StateHasChanged();
     }
 
