@@ -296,15 +296,8 @@ public static class Copy
     public static readonly LocalizedText PostReport = new("Report as fake", "I-report na peke");
     public static readonly LocalizedText PostReported = new("Thanks. We will check it.", "Salamat. Iche-check namin.");
     public static readonly LocalizedText PostReportFailed = new("The report didn't send. Check your internet and try again.", "Hindi na-send ang report. I-check ang internet at subukan ulit.");
-    public static readonly LocalizedText ProPostsTitle = new("Job Requests", "Mga Job Request");
-    public static readonly LocalizedText ProPostsWhy = new(
-        "Take a request at the customer's budget, or offer your own price. The customer then picks who to hire.",
-        "Kunin ang request sa budget ng customer, o mag-offer ng sarili mong presyo. Ang customer ang pipili kung sino ang kukunin.");
-    public static readonly LocalizedText HomeSeeJobRequests = new("See all job requests", "Tingnan lahat ng job request");
-    public static readonly LocalizedText HomeRequestsWaiting = new("New near you. Take or offer a price.", "May bago malapit sa'yo. Kunin o mag-offer.");
-    public static readonly LocalizedText HomeRequestsNone = new("Find jobs near you", "Maghanap ng trabaho malapit sa'yo");
-    public static readonly LocalizedText HomeInboxWaiting = new("Customers are waiting for your reply", "May naghihintay ng reply mo");
-    public static readonly LocalizedText HomeInboxNone = new("Talk to your customers", "Kausapin ang mga customer mo");
+    public static readonly LocalizedText ProPostsTitle = new("Customers need this", "Kailangan ng mga customer");
+    public static readonly LocalizedText ProPostsWhy = new("Your trade, near you. What you offer comes first, then the nearest.", "Trade mo, malapit sa'yo. Una ang mga serbisyo mo, tapos ang pinakamalapit.");
     public static readonly LocalizedText ProPostsEmpty = new("Nothing near you right now. New posts show up here.", "Wala pang malapit sa'yo ngayon. Dito lalabas ang mga bagong post.");
     public static readonly LocalizedText OfferTakeBudget = new("Take it for {0}", "Kunin sa {0}");
     public static readonly LocalizedText OfferOtherPrice = new("Offer another price", "Ibang presyo");
