@@ -68,7 +68,8 @@ Every run's number is the Android versionCode, so each upload is higher than the
 - **Privacy policy**: `https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/privacy`.
 - **Data safety**: phone number, name, email (Google), photos, approximate and precise location (only while
   the app is open), messages (chat), government ID / TESDA photos (badges; deleted after the decision),
-  references' names and numbers, crash and diagnostic data (error reports, can be turned off). Encrypted in
+  crash and diagnostic data (error reports, can be turned off). References (third people's names and numbers) are
+  no longer collected since 18 Nov 2026: untick them in the Data safety form with the next release. Encrypted in
   transit; people can ask for deletion. It must match [`legal/privacy-policy.md`](legal/privacy-policy.md).
 - **Account deletion link**: `…/api/legal/data` (in-app: Me → Delete account).
 - **App access**: the Firebase test number above.

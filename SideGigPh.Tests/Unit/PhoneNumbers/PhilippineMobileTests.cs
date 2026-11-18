@@ -1,4 +1,3 @@
-using SideGigPh.AzureSQL;
 using SideGigPh.Maui.Services;
 
 namespace SideGigPh.Tests.Unit.PhoneNumbers;
@@ -6,7 +5,7 @@ namespace SideGigPh.Tests.Unit.PhoneNumbers;
 /// <summary>
 /// Phone numbers are how people sign in, how customers call workers and the anti-fraud key (1 phone = 1 listing).
 /// The app must accept every way Filipinos type a mobile number, always store it the same way (+639…), and that
-/// stored form must be one the server accepts.
+/// stored form must be one the database accepts.
 /// </summary>
 public class PhilippineMobileTests
 {
@@ -37,11 +36,12 @@ public class PhilippineMobileTests
         PhilippineMobile.TryNormalize(typed, out _).Should().BeFalse();
 
     [Fact]
-    public void TryNormalize_Result_IsAcceptedByTheServer()
+    public void TryNormalize_Result_IsAcceptedByTheDatabase()
     {
         PhilippineMobile.TryNormalize("0918 765 4321", out var e164);
 
-        StoreText.IsMobileNumber(e164).Should().BeTrue("the app must never send a number the server refuses");
+        // The schema's mobile number checks (001-schema.sql: LIKE '+639' and 9 digits).
+        e164.Should().MatchRegex(@"^\+639[0-9]{9}$", "the app must never store a number the database refuses");
     }
 
     [Fact]

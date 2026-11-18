@@ -17,9 +17,6 @@ public static class ProRoutes
     /// <summary>Work photos, opened from the Me page; under <see cref="Me"/> so the Me tab stays lit.</summary>
     public const string Photos = Me + "/photos";
 
-    /// <summary>The pro's private references, opened from the Me page and the setup checklist; under <see cref="Me"/>.</summary>
-    public const string References = Me + "/references";
-
     /// <summary>The pro's badges (ID, TESDA, past projects), opened from the Me page; under <see cref="Me"/>.</summary>
     public const string Badges = Me + "/badges";
 

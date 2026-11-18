@@ -67,19 +67,18 @@ public class PublishListingTests
     }
 
     [Fact]
-    public async Task Publish_SendsAccountNameNumberPhotosAndReferences()
+    public async Task Publish_SendsAccountNameNumberAndPhotos()
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
 
         await app.Pro.PublishAsync();
 
-        var (listing, references) = app.Profiles.Published.Single();
+        var listing = app.Profiles.Published.Single();
         listing.Id.Should().Be(TestData.WorkerUid, "the listing id is the signed-in uid");
         listing.DisplayName.Should().Be("Juan Dela Cruz");
         listing.MobileNumber.Should().Be(TestData.WorkerNumber);
         listing.PhotoUrl.Should().EndWith($"{TestData.PhotoId(1)}.jpg");
         listing.WorkPhotoUrls.Should().HaveCount(2);
-        references.Should().ContainSingle().Which.MobileNumber.Should().Be(TestData.ReferenceNumber);
     }
 
     [Fact]
@@ -119,41 +118,30 @@ public class PublishListingTests
     }
 
     [Fact]
-    public async Task Publish_NoReference_ReturnsMissingProof()
+    public async Task Publish_PhotoAndTwoWorkPhotos_IsEnoughProof()
     {
-        var draft = TestData.ReadyDraft();
-        draft.References = [];
+        // References were dropped: own photo and 2 work photos are the whole setup checklist.
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
 
-        var app = await FakeApp.ProAsync(draft);
-
-        (await app.Pro.PublishAsync()).Should().Be(PublishResult.MissingProof);
+        app.Pro.Draft.HasProof.Should().BeTrue();
+        (await app.Pro.PublishAsync()).Should().Be(PublishResult.Published);
     }
 
-    // The bug that started this test project: references were added while a Google account had no phone yet,
-    // then the worker linked that same number. The server refused the listing and the worker was stuck.
+    // A Google account with no phone at the interview links its number before publishing: the account's number is
+    // taken then, and nothing on the phone can block the publish on it any more.
     [Fact]
-    public async Task Publish_ReferenceHasWorkersOwnNumber_ReturnsBadReferenceWithoutSending()
+    public async Task Publish_NumberLinkedAfterTheInterview_PublishesWithThatNumber()
     {
-        // Arrange: a Google account with no phone added this reference...
-        var draft = TestData.ReadyDraft();
-        draft.References = [new WorkReference("Me again", TestData.WorkerNumber)];
-        var app = await FakeApp.ProAsync(draft, TestData.Worker(phone: null));
-
-        // ...then linked that very number before publishing.
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft(), TestData.Worker(phone: null));
         app.Identity.User = TestData.Worker(phone: TestData.WorkerNumber);
 
-        // Act
-        var result = await app.Pro.PublishAsync();
-
-        // Assert
-        result.Should().Be(PublishResult.BadReference);
-        app.Profiles.Published.Should().BeEmpty("the server would refuse it anyway");
-        app.Pro.IsPublished.Should().BeFalse();
+        (await app.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+        app.Profiles.Published.Should().ContainSingle().Which.MobileNumber.Should().Be(TestData.WorkerNumber);
     }
 
     [Theory]
     [InlineData(PublishResult.PhoneTaken)]
-    [InlineData(PublishResult.BadReference)]
+    [InlineData(PublishResult.PhotoInUse)]
     public async Task Publish_ServerRefuses_PassesReasonOnAndStaysUnpublished(PublishResult serverAnswer)
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());

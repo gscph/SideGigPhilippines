@@ -72,7 +72,10 @@ public sealed class WorkPhotoRow
     public short Position { get; set; }
 }
 
-/// <summary>Someone who can vouch for a worker. Private: never sent to Seekers.</summary>
+/// <summary>
+/// Someone who vouched for a worker, from before the references feature was dropped. Nothing reads or writes these
+/// rows any more except Delete account, which purges them; the table goes in a later guarded drop script.
+/// </summary>
 public sealed class ReferenceRow
 {
     public required string ProfessionalId { get; set; }

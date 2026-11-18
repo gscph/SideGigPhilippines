@@ -201,7 +201,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S6, plus the loader at step 7. |
 | `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
-| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo, 2 work photos (2–6), 3 references (1–3), each required, then `/professional/publish` (a Google account adds a verified number there first). Launch resumes here until the listing is live. |
+| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo, 2 work photos (2–6), each required, then `/professional/publish` (a Google account adds a verified number there first). Launch resumes here until the listing is live. |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
 | `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |

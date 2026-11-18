@@ -41,7 +41,7 @@ public class ListingRestoreTests
         state.Professional.PublishedAt.Should().NotBeNull();
         state.Professional.ListingOutOfDate.Should().BeFalse("the phone holds exactly what is live");
         state.Professional.IsListingComplete.Should().BeTrue();
-        state.Professional.HasProof.Should().BeTrue("the private references came back too, so edits can re-publish");
+        state.Professional.HasProof.Should().BeTrue("the photos came back too, so edits can re-publish");
         state.Professional.DisplayName.Should().Be("Juan Dela Cruz", "name and number come from the account");
         state.Professional.MobileNumber.Should().Be(TestData.WorkerNumber);
         app.Store.State.Should().BeSameAs(state);
@@ -49,7 +49,7 @@ public class ListingRestoreTests
     }
 
     [Fact]
-    public async Task RestoredWorker_OpensProHome_AndAnEditRePublishesWithTheReferences()
+    public async Task RestoredWorker_OpensProHome_AndAnEditRePublishesTheListing()
     {
         var state = FreshInstall();
         var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
@@ -60,7 +60,7 @@ public class ListingRestoreTests
         app.Pro.WorkPhotos.Should().HaveCount(2);
         (await app.Pro.ListingEditedAsync()).Should().Be(PublishResult.Published);
 
-        app.Profiles.Published.Should().ContainSingle().Which.References.Should().ContainSingle(r => r.MobileNumber == TestData.ReferenceNumber);
+        app.Profiles.Published.Should().ContainSingle().Which.WorkPhotoUrls.Should().HaveCount(2);
     }
 
     [Fact]

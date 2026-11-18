@@ -1,6 +1,6 @@
 # How Tarbaho Handles Your Personal Data
 
-**Last updated:** November 14, 2026
+**Last updated:** November 18, 2026
 
 This is the plain-language companion to the [Privacy Policy](privacy-policy.md), and where to **delete your account
 and data**, with or without the App.
@@ -17,7 +17,7 @@ and data**, with or without the App.
 | Profile photo / selfie | Lahat ng user (Skilled Worker); ang kausap mo (Customer) | Hanggang palitan o i-delete mo |
 | Work photos | Lahat ng user | Hanggang tanggalin mo o i-delete ang account |
 | Trabaho, bayan, presyo, experience (Listing) | Lahat ng user, habang naka-publish | Hanggang i-unpublish o i-delete mo |
-| References (pangalan at number) | **Kami lang. Hindi kailanman ipinapakita sa customer** | Hanggang tanggalin mo o i-delete ang account |
+| References (pangalan at number), kung nagbigay ka bago Nov 18, 2026. Hindi na namin hinihingi o ginagamit ang mga ito | **Kami lang. Hindi kailanman ipinapakita kaninuman** | Hanggang i-delete mo ang account, o burahin namin lahat |
 | Chat messages | Kayong dalawa lang. Titingnan lang namin kapag may nag-report, may utos ng korte, o para pigilan ang scam | Hanggang i-delete ng isa sa inyo ang account |
 | Reviews | Lahat ng user | Hanggang i-delete ang account ng sumulat o ng ni-review |
 | Bayan mo (hindi GPS) | Ginagamit sa search | Hanggang palitan mo |
@@ -40,7 +40,7 @@ and data**, with or without the App.
 
 | Gusto mo (You want to) | Pumunta sa (Go to) |
 |---|---|
-| Palitan ang photo, work photos o references | **Me** |
+| Palitan ang photo o work photos | **Me** |
 | Burahin ang listing at mga sagot mo, pero hindi ang account | Me → **Start over** |
 | Patayin ang notifications | Phone settings → Apps → Tarbaho → Notifications |
 | Huwag magpadala ng error reports | Me → **Send error reports** (off) |
@@ -64,7 +64,7 @@ send an SMS code to that number to make sure the request is really from you. We 
 ### What gets deleted
 
 - your sign-in account (mobile number, email, name);
-- your profile, listing, profile photo, work photos and references;
+- your profile, listing, profile photo and work photos, and any references you gave before November 18, 2026;
 - every chat you are in, with its messages (for both people in the chat);
 - reviews you wrote, and reviews about you;
 - the people you blocked, and who blocked you;

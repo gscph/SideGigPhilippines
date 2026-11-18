@@ -72,7 +72,7 @@ public class PublishPromptTests
     public async Task MissingProof_DoesNotPrompt()
     {
         var draft = TestData.ReadyDraft();
-        draft.References.Clear();
+        draft.WorkPhotoIds = [TestData.PhotoId(2)]; // one work photo short
         var app = await FakeApp.ProAsync(draft);
 
         app.Pro.IsReadyToPublish.Should().BeFalse();

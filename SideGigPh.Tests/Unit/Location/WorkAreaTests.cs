@@ -63,7 +63,7 @@ public class WorkAreaTests
 
         await app.Pro.SetWorkAreaAsync(InTaytay, 20);
 
-        var sent = app.Profiles.Published.Should().ContainSingle().Which.Listing;
+        var sent = app.Profiles.Published.Should().ContainSingle().Which;
         sent.BasePoint.Should().Be(InTaytay);
         sent.RadiusKm.Should().Be(20);
         app.Store.State.Professional.BasePoint.Should().Be(InTaytay, "it is kept on the phone for the next publish");
@@ -80,7 +80,7 @@ public class WorkAreaTests
 
         await app.Pro.SetWorkAreaAsync(null, 5);
 
-        var sent = app.Profiles.Published.Last().Listing;
+        var sent = app.Profiles.Published.Last();
         sent.BasePoint.Should().Be(InTaytay);
         sent.RadiusKm.Should().Be(5);
     }
@@ -89,14 +89,14 @@ public class WorkAreaTests
     public void TheListingRequest_CarriesTheBaseAndDistance_OrLeavesThemOut()
     {
         var draft = TestData.ReadyDraft();
-        draft.ToListing(TestData.WorkerUid).ToPublishRequest(draft.References)
+        draft.ToListing(TestData.WorkerUid).ToPublishRequest()
             .Should().Match<SideGigPh.Contracts.PublishListingRequest>(r => r.Latitude == null && r.Longitude == null && r.RadiusKm == null,
                 "without them the server keeps what it has");
 
         draft.BaseLatitude = InTaytay.Latitude;
         draft.BaseLongitude = InTaytay.Longitude;
         draft.RadiusKm = 30;
-        var request = draft.ToListing(TestData.WorkerUid).ToPublishRequest(draft.References);
+        var request = draft.ToListing(TestData.WorkerUid).ToPublishRequest();
 
         request.Latitude.Should().Be(InTaytay.Latitude);
         request.Longitude.Should().Be(InTaytay.Longitude);

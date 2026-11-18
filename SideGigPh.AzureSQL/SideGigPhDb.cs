@@ -14,6 +14,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ProfessionalServiceRow> ProfessionalServices => Set<ProfessionalServiceRow>();
     public DbSet<ProfessionalCityRow> ProfessionalCities => Set<ProfessionalCityRow>();
     public DbSet<WorkPhotoRow> ProfessionalWorkPhotos => Set<WorkPhotoRow>();
+    /// <summary>Legacy (references were dropped): only Delete account still touches it, to purge old rows.</summary>
     public DbSet<ReferenceRow> ProfessionalReferences => Set<ReferenceRow>();
     public DbSet<ReviewRow> Reviews => Set<ReviewRow>();
     public DbSet<ChatRow> Chats => Set<ChatRow>();

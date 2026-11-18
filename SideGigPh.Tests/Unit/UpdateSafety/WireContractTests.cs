@@ -24,26 +24,29 @@ public class WireContractTests
 
     private static ListingDto Listing() => new(
         "pro-1", "Maria", "+639171234567", "plumbing", "rizal", ["plumbing-clog"], ["antipolo"], "1-3", "under-500",
-        new PhotoDto("p1", "https://x/p1.jpg"), [new PhotoDto("w1", "https://x/w1.jpg")], new ReviewSummaryDto(4.5, 3), 2);
+        new PhotoDto("p1", "https://x/p1.jpg"), [new PhotoDto("w1", "https://x/w1.jpg")], new ReviewSummaryDto(4.5, 3));
 
     private static ChatDto Chat() => new(
         "pro-1_seeker-1", "pro-1", "seeker-1", "Maria", "Ana", "plumbing-clog", "taytay", "today", "under-500",
         new MessageDto("m1", "pro-1_seeker-1", "seeker-1", Wire.Text, "Hi po", At), null, At, At);
 
+    // "referenceCount" was removed on purpose when references were dropped: an older app reads a missing int as 0,
+    // which only hides its "N references" row (Listing_FromOlderApiWithoutNewerFields_StillReads covers the reading).
     [Fact]
     public void ListingDto_FieldNamesNeverChange() =>
         FieldNames(Listing(), ApiJson.Default.ListingDto).Should().Equal(
             "id", "displayName", "mobileNumber", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId",
-            "rateTierId", "profilePhoto", "workPhotos", "reviews", "referenceCount", "badges", "otherWork", "completedJobs");
+            "rateTierId", "profilePhoto", "workPhotos", "reviews", "badges", "otherWork", "completedJobs");
 
+    // "references" was removed on purpose when references were dropped: an older app that still sends it is read
+    // with the field ignored (ServerListingRulesTests.OldAppBody_WithReferences_ReadsAndIsAccepted).
     [Fact]
     public void PublishListingRequest_FieldNamesNeverChange() =>
         FieldNames(
-            new PublishListingRequest("Juan", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", "quote", "p1", ["w1", "w2"],
-                [new ReferenceDto("Nena", "+639181111111")]),
+            new PublishListingRequest("Juan", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", "quote", "p1", ["w1", "w2"]),
             ApiJson.Default.PublishListingRequest).Should().Equal(
             "displayName", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId", "rateTierId", "profilePhotoId",
-            "workPhotoIds", "references", "latitude", "longitude", "radiusKm", "otherWork");
+            "workPhotoIds", "latitude", "longitude", "radiusKm", "otherWork");
 
     [Fact]
     public void ChatDto_FieldNamesNeverChange() =>
@@ -206,7 +209,7 @@ public class WireContractTests
         ApiErrors.ReviewLocked.Should().Be("review-locked");
         ApiErrors.Exception.Should().Be("exception");
         ApiErrors.TooManyRequests.Should().Be("too-many-requests");
-        ApiErrors.Invalid("references").Should().Be("invalid-references");
+        ApiErrors.Invalid("workPhotoIds").Should().Be("invalid-workPhotoIds");
         ApiErrors.ConsentRequired.Should().Be("consent-required");
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
@@ -248,7 +251,6 @@ public class WireContractTests
         var listing = JsonSerializer.Deserialize(json, ApiJson.Default.ListingDto)!;
 
         listing.Reviews.Should().BeNull();
-        listing.ReferenceCount.Should().Be(0);
         listing.Badges.Should().BeNull();
     }
 

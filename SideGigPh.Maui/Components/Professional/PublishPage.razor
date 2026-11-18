@@ -11,15 +11,6 @@
         {
             <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(_problem)</MudAlert>
         }
-        @if (_badReference)
-        {
-            <MudAlert Severity="Severity.Error" Dense="true" role="alert">
-                <MudStack Spacing="1" AlignItems="AlignItems.Start">
-                    <MudText Typo="Typo.body2">@T.Get(Copy.PublishBadReference)</MudText>
-                    <MudButton Variant="Variant.Text" Color="Color.Error" Href="@ProRoutes.References" Class="pa-0">@T.Get(Copy.PublishFixReferences)</MudButton>
-                </MudStack>
-            </MudAlert>
-        }
         @if (_failed)
         {
             <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(Copy.PublishFailed)</MudAlert>

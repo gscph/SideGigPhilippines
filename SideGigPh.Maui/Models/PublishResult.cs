@@ -12,16 +12,10 @@ public enum PublishResult
     Incomplete,
 
     /// <summary>
-    /// Not sent: the setup checklist isn't done (own photo, 2 work photos, 1 reference;
+    /// Not sent: the setup checklist isn't done (own photo, 2 work photos;
     /// <see cref="ProfessionalDraft.HasProof"/>).
     /// </summary>
     MissingProof,
-
-    /// <summary>
-    /// A reference has the worker's own number: possible when the references were added before a Google
-    /// account linked its phone. Caught before sending, or answered by the server as <c>invalid-references</c>.
-    /// </summary>
-    BadReference,
 
     /// <summary>Anti-fraud rule 2: one of the photos belongs to another account (the server's <c>photo-in-use</c>).</summary>
     PhotoInUse,

@@ -109,9 +109,6 @@ public sealed class ProfessionalDraft
     /// <summary>Photos of their work, <c>IPhotoStore</c> ids, newest first.</summary>
     public List<string> WorkPhotoIds { get; set; } = [];
 
-    /// <summary>People who can vouch for the pro (private, never shown to customers), first added first.</summary>
-    public List<WorkReference> References { get; set; } = [];
-
     /// <summary>
     /// The worker's base point, read from the phone when they tap "Use my location" (private: only the server gets it,
     /// and others see a town or whole kilometres). Null until then: the server uses the middle of their towns.
@@ -130,7 +127,7 @@ public sealed class ProfessionalDraft
     public DateTimeOffset? PublishedAt { get; set; }
 
     /// <summary>
-    /// The live listing is behind this phone's copy: an edit (Edit listing, photos, references) didn't reach the
+    /// The live listing is behind this phone's copy: an edit (Edit listing, photos) didn't reach the
     /// server yet (weak signal, cold server, refused). Cleared when a re-publish goes through; until then the Pro
     /// screens try again (<c>ProWorkspace.SyncListingAsync</c>), so an edit is never silently lost.
     /// </summary>
@@ -150,22 +147,12 @@ public sealed class ProfessionalDraft
     /// <summary>At least <see cref="MinWorkPhotos"/> work photos.</summary>
     public bool HasEnoughWorkPhotos => WorkPhotoIds.Count >= MinWorkPhotos;
 
-    public bool HasReference => References.Count >= MinReferences;
-
     /// <summary>
-    /// The setup checklist is done: own photo, at least 2 work photos and at least 1 reference (the API refuses a
-    /// listing without them). Together with <see cref="IsListingComplete"/> the listing can be published.
+    /// The setup checklist is done: own photo and at least 2 work photos (the API refuses a listing without them).
+    /// Together with <see cref="IsListingComplete"/> the listing can be published.
     /// </summary>
-    public bool HasProof => HasProfilePhoto && HasEnoughWorkPhotos && HasReference;
+    public bool HasProof => HasProfilePhoto && HasEnoughWorkPhotos;
 
     /// <summary>Fewest work photos a listing can be published with (the API's <c>ProfessionalStore.MinWorkPhotos</c>).</summary>
     public const int MinWorkPhotos = 2;
-
-    /// <summary>Fewest and most references (the API's <c>ProfessionalStore.MinReferences</c> / <c>MaxReferences</c>).</summary>
-    public const int MinReferences = 1;
-    public const int MaxReferences = 3;
 }
-
-/// <summary>Someone who can vouch for a Professional: a past customer or employer.</summary>
-/// <param name="MobileNumber">E.164 format, e.g. +639171234567.</param>
-public sealed record WorkReference(string Name, string MobileNumber);

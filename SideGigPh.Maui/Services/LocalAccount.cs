@@ -126,7 +126,7 @@ public sealed class LocalAccount(
     }
 
     /// <summary>
-    /// Delete account: the server deletes everything the person has there (listing, photos, references, chats, the
+    /// Delete account: the server deletes everything the person has there (listing, photos, any old references, chats, the
     /// reviews they wrote and the ones about them) and, when it can, their sign-in account; then the sign-in provider's
     /// part (deletes the account if it's still there, signs out) and this phone's answers. Throws when the server
     /// didn't confirm, before anything on the phone is touched, so the person can try again.

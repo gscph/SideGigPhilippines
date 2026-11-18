@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 16, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 18, 2026
 
 ---
 
@@ -13,7 +13,7 @@
 - **Bakit:** para mahanap ng customer ang Skilled Worker, para makapag-usap kayo, at para iwas-scam (isang number,
   isang account).
 - **Sino ang nakakakita:** ang listing ng Skilled Worker (pangalan, photo, trabaho, bayan, presyo, review) ay
-  **public sa lahat ng user**. Ang chat ay kayong dalawa lang. Ang mga reference ay **hindi** ipinapakita kaninuman.
+  **public sa lahat ng user**. Ang chat ay kayong dalawa lang.
   **Private ang mobile number** ng worker at ng customer hanggang piliin ng customer ang offer ng worker sa post
   niya; saka lang nila makikita ang number ng isa't isa.
 - **Kung gusto mo ng badge** (ID, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
@@ -55,7 +55,6 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Profile photo / selfie** | Skilled Workers (required), Customers (optional) | Shown on your listing or chats so the other person knows who they are dealing with |
 | **Listing details**: trade, jobs, towns you serve, years of experience, prices | Skilled Workers | Your public listing and search results |
 | **Work photos** (2–6) | Skilled Workers | Shown on your listing |
-| **References**: name and mobile number of 1–3 people who can vouch for you | Skilled Workers | Trust check. **Never shown to Customers** (they see only how many references you have). We may contact a reference to confirm, or when a Customer reports a problem. See §3.4 |
 | **Badge proofs** (optional): a photo of a **government ID**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
 | **Job request details**: job, town, how urgent, budget | Customers | To find matching Skilled Workers and to start a chat |
 | **Posts of what you need done** (optional): the kind of work, your description of the problem, your budget, your town and up to 3 photos | Customers who post | To show your post to Skilled Workers of that trade near you. Do not put your address, phone number or anyone's face in the description or photos |
@@ -98,13 +97,13 @@ address, which Google does not store). When we turn it on:
 - analytics data is linked only to a random app-instance ID and kept by Google for **14 months**;
 - you will be able to turn it off with a switch on the **Me** page.
 
-### 3.4 Data about other people (references)
+### 3.4 Data about other people (references): no longer collected
 
-When a Skilled Worker adds a reference, they give us another person's name and mobile number. **By adding a
-reference, the Skilled Worker confirms that the person agreed to be a reference and to be contacted by us.** We use
-reference data only to verify the Skilled Worker or investigate a report, never for marketing, and we delete it
-when the reference is removed or the account is deleted. A reference may ask us to delete their data at any time by
-writing to jcadiao1102@gmail.com.
+Earlier versions of the App asked Skilled Workers for the name and mobile number of 1–3 people who could vouch for
+them ("references"). **Since November 18, 2026 we no longer ask for, accept or use references.** References given
+before then are not shown to anyone, not read and not used for anything; they stay in our database only until the
+Skilled Worker deletes their account or we delete all of them, whichever comes first. A reference may ask us to
+delete their data at any time by writing to jcadiao1102@gmail.com.
 
 ### 3.5 Badge proofs (government ID, certificates, proof of work)
 
@@ -144,7 +143,7 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 
 | What | Who can see it |
 |---|---|
-| A Skilled Worker's **published listing**: name, photo, work photos, trade, jobs, towns, experience, prices, reviews, star rating, number of references, "phone number verified" | **Every signed-in user** of the App |
+| A Skilled Worker's **published listing**: name, photo, work photos, trade, jobs, towns, experience, prices, reviews, star rating, badges, "phone number verified" | **Every signed-in user** of the App |
 | A Skilled Worker's or Customer's **mobile number** | **Nobody**, until a Customer picks a Skilled Worker's offer on one of their posts. Then only those two see each other's number (a Customer who signed in with Google may have none). Before that, you talk only in the App's chat. A block hides it again |
 | **Photos** you upload | Stored at a web address that is hard to guess. Anyone who has that address can open the photo, even outside the App |
 | **Chat messages** | The two people in the chat. Our authorised staff may read a chat **only** when one of you reports it, to answer a legal order, or to stop fraud or abuse |
@@ -154,7 +153,7 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | **Posts of what you need done** (the work, your description, budget, town and photos) | **Skilled Workers of that trade who are signed in and travel to your area**, with your **town and a rounded distance** (whole kilometres). Never your name, number, address or exact location |
 | **Badges** on a listing ("ID Verified", "TESDA Certified", the company and building of a past project) | **Every signed-in user**, as part of the listing |
 | **Badge proofs** (the photo of your ID, certificate or proof of work, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
-| **References**, income goal, "Others" text, error reports, email | **Only us** |
+| Income goal, "Others" text, error reports, email, and references given before November 18, 2026 (§3.4) | **Only us** |
 
 ### Service providers (processors)
 
@@ -180,7 +179,8 @@ or defend legal claims.
 
 | Data | Kept until |
 |---|---|
-| Account, profile, listing, photos, references, chats | You delete it or your account. A listing you unpublish leaves search right away |
+| Account, profile, listing, photos, chats | You delete it or your account. A listing you unpublish leaves search right away |
+| References given before November 18, 2026 (§3.4) | You delete your account, or we delete all of them, whichever comes first |
 | Reviews you **wrote** | You delete your account |
 | Reviews **about** a Skilled Worker | Kept while the Skilled Worker's account exists, even if they unpublish or restart their listing, so reviews can't be wiped. Deleted when the account is deleted |
 | Badge proofs (the photo, and what was read from an ID) | **Deleted when the check is done** (normally within 2 days), or when you delete your account if that is sooner |
@@ -231,7 +231,7 @@ ask you to confirm the number with an SMS code. We answer within **5 business da
 ## 9. Deleting your account
 
 - **In the App:** Me → **Delete account** → confirm. This deletes your sign-in account, profile, listing, photos,
-  references, chats (for both people in each chat), reviews you wrote and reviews about you, and your push tokens.
+  any references you gave before November 18, 2026, chats (for both people in each chat), reviews you wrote and reviews about you, and your push tokens.
 - **Without the App:** follow the steps at **https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/data** or email jcadiao1102@gmail.com with your mobile number.
   We delete the account within **5 business days**.
 

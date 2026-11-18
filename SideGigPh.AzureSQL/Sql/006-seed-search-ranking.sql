@@ -25,7 +25,7 @@
    touched; real users and their listings never are.
    Numbers use the unassigned +63 900 2xx xxxx range, so a Call never reaches a real person.
    These aren't Firebase accounts: nobody can sign in as them, and a chat with one never gets a reply.
-   No photos (there are no blobs for them): cards show initials, and the profile shows 1 reference.
+   No photos (there are no blobs for them): cards show initials.
 
    Needs: 001-schema.sql, 005-schema-ranking-signals.sql, 007-schema-config-tables.sql,
    008-schema-service-prices.sql and 004-config.sql already run (the script stops with a message if the price
@@ -53,7 +53,7 @@ BEGIN TRANSACTION;
 /* ---------- Remove this seed's rows (chats real Seekers started with these workers go too) ---------- */
 DELETE FROM dbo.Chats WHERE ProfessionalId LIKE @TagPattern OR SeekerId LIKE @TagPattern;  -- messages cascade
 DELETE FROM dbo.Reviews WHERE ProfessionalId LIKE @TagPattern OR SeekerId LIKE @TagPattern;
-DELETE FROM dbo.Professionals WHERE Id LIKE @TagPattern;                                     -- jobs, towns, photos, references cascade
+DELETE FROM dbo.Professionals WHERE Id LIKE @TagPattern;                                     -- jobs, towns, photos (and old references) cascade
 DELETE FROM dbo.Users WHERE Uid LIKE @TagPattern;
 
 -- Blocks and reports real users made about these workers (011-schema-safety.sql, when it has run).
@@ -189,10 +189,6 @@ SELECT i.Id, TRIM(s.value) FROM @Pros p JOIN @Ids i ON i.Num = p.Num CROSS APPLY
 
 INSERT INTO dbo.ProfessionalCities (ProfessionalId, CityId)
 SELECT i.Id, TRIM(c.value) FROM @Pros p JOIN @Ids i ON i.Num = p.Num CROSS APPLY STRING_SPLIT(p.CityIds, ',') c;
-
--- One reference each (Seekers see only the count).
-INSERT INTO dbo.ProfessionalReferences (ProfessionalId, Position, Name, MobileNumber)
-SELECT i.Id, 0, N'Sample Reference', CONCAT('+639003', RIGHT(CONCAT('000000', i.Num), 6)) FROM @Ids i;
 
 /* ---------- Sample Seekers: they wrote the reviews and started the chats ---------- */
 DECLARE @N TABLE (n int NOT NULL PRIMARY KEY);

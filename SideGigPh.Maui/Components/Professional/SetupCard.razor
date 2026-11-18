@@ -11,8 +11,6 @@
                        Title="@T.Get(Copy.SetupPhoto)" Why="@T.Get(Copy.SetupPhotoWhy)" />
             <SetupStep Href="@ProRoutes.Photos" Done="HasWorkPhotos"
                        Title="@T.Get(Copy.SetupWork)" Why="@T.Format(Copy.SetupWorkWhy, Math.Min(WorkPhotoCount, ProfessionalDraft.MinWorkPhotos))" />
-            <SetupStep Href="@ProRoutes.References" Done="HasReference"
-                       Title="@T.Get(Copy.SetupReference)" Why="@T.Get(Copy.SetupReferenceWhy)" />
             <SetupStep Href="@AddPhoneHref" Done="HasVerifiedPhone"
                        Title="@T.Get(Copy.SetupPhone)" Why="@T.Get(HasVerifiedPhone ? Copy.SetupPhoneDone : Copy.SetupPhoneWhy)" />
             @if (AllDone && !IsPublished)

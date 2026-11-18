@@ -167,8 +167,7 @@ public class AbuseTests(ApiTestHost api)
         var workerClient = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
         var listing = (await workerClient.GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!;
         var request = new PublishListingRequest(listing.DisplayName, listing.CategoryId, listing.AreaId, listing.ServiceIds, listing.CityIds,
-            listing.ExperienceId, listing.RateTierId, photo, [.. listing.WorkPhotos.Select(p => p.Id)],
-            [new ReferenceDto("Aling Nena", TestPhone.UniqueNumber())]);
+            listing.ExperienceId, listing.RateTierId, photo, [.. listing.WorkPhotos.Select(p => p.Id)]);
 
         using var response = await workerClient.PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
 

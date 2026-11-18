@@ -32,12 +32,6 @@ public sealed class ProfessionalListing
     /// <summary>Average stars and review count, or null with no reviews yet. Search ranks by it.</summary>
     public ReviewSummary? Reviews { get; init; }
 
-    /// <summary>
-    /// How many people vouch for this worker (their private references). Seekers see only this count,
-    /// never the names or numbers.
-    /// </summary>
-    public int ReferenceCount { get; init; }
-
     /// <summary>The badges a person at Tarbaho approved (ID, TESDA, past projects), oldest first. Search ranks by them.</summary>
     public IReadOnlyList<Badge> Badges { get; init; } = [];
 

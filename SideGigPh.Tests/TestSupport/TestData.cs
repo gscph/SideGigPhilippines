@@ -10,7 +10,6 @@ public static class TestData
 {
     public const string WorkerUid = "worker-uid";
     public const string WorkerNumber = "+639171234567";
-    public const string ReferenceNumber = "+639181111111";
 
     /// <summary>A valid photo id (64 hex characters, like a SHA-256), different for each <paramref name="n"/>.</summary>
     public static string PhotoId(int n) => n.ToString("x").PadLeft(64, '0');
@@ -30,7 +29,6 @@ public static class TestData
         RateTierId = "500-1000",
         ProfilePhotoId = PhotoId(1),
         WorkPhotoIds = [PhotoId(2), PhotoId(3)],
-        References = [new WorkReference("Aling Nena", ReferenceNumber)],
     };
 
     /// <summary>A Professional who finished the interview, with <paramref name="draft"/> as their listing.</summary>

@@ -26,10 +26,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>Fewest work photos a listing can be published with (the app's <c>ProWorkspace.MinWorkPhotos</c>).</summary>
     public const int MinWorkPhotos = 2;
 
-    /// <summary>Fewest and most references a listing has (the app's <c>ProWorkspace.MinReferences</c> / <c>MaxReferences</c>).</summary>
-    public const int MinReferences = 1;
-    public const int MaxReferences = 3;
-
     /// <summary>
     /// The most jobs or towns one listing may send: far more than any trade has jobs or we serve towns, so a client
     /// can't make one publish insert thousands of rows.
@@ -150,24 +146,13 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             : null;
 
     /// <summary>
-    /// <paramref name="uid"/>'s own references, first added first (empty without a listing): only for the worker
-    /// themselves, so a new phone can restore their live listing whole (<c>GET professionals/me/references</c>).
-    /// </summary>
-    public async Task<List<ReferenceDto>> ReferencesAsync(string uid, CancellationToken cancellationToken) =>
-        await db.ProfessionalReferences.AsNoTracking()
-            .Where(r => r.ProfessionalId == uid)
-            .OrderBy(r => r.Position)
-            .Select(r => new ReferenceDto(r.Name, r.MobileNumber))
-            .ToListAsync(cancellationToken);
-
-    /// <summary>
     /// Makes <paramref name="uid"/>'s listing live, or replaces it. The number is the account's verified number
     /// (from the sign-in token), so one phone gets one listing and one account (anti-fraud rule 1; a stale account
     /// still showing the number loses it); a photo can be on one listing only (rule 2).
     /// </summary>
     public async Task<PublishOutcome> PublishAsync(string uid, string mobileNumber, PublishListingRequest request, CancellationToken cancellationToken)
     {
-        if (InvalidField(request, mobileNumber) is not null)
+        if (InvalidField(request) is not null)
         {
             return PublishOutcome.Invalid;
         }
@@ -175,7 +160,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         var services = request.ServiceIds.Distinct().ToList();
         var cities = request.CityIds.Distinct().ToList();
         var workPhotos = request.WorkPhotoIds.Distinct().Take(MaxWorkPhotos).ToList();
-        var references = request.References!;
 
         if (await db.UsedByAnotherAsync(uid, [request.ProfilePhotoId!, .. workPhotos], cancellationToken))
         {
@@ -216,7 +200,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                     await db.ProfessionalServices.Where(s => s.ProfessionalId == uid).ExecuteDeleteAsync(ct);
                     await db.ProfessionalCities.Where(c => c.ProfessionalId == uid).ExecuteDeleteAsync(ct);
                     await db.ProfessionalWorkPhotos.Where(w => w.ProfessionalId == uid).ExecuteDeleteAsync(ct);
-                    await db.ProfessionalReferences.Where(r => r.ProfessionalId == uid).ExecuteDeleteAsync(ct);
                 }
 
                 row.DisplayName = StoreText.Name(request.DisplayName, 60);
@@ -245,8 +228,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 db.ProfessionalCities.AddRange(cities.Select(id => new ProfessionalCityRow { ProfessionalId = uid, CityId = id }));
                 db.ProfessionalWorkPhotos.AddRange(workPhotos.Select((id, i) =>
                     new WorkPhotoRow { PhotoId = id, ProfessionalId = uid, Position = (short)i }));
-                db.ProfessionalReferences.AddRange(references.Select((r, i) =>
-                    new ReferenceRow { ProfessionalId = uid, Position = (short)i, Name = StoreText.Name(r.Name, 60), MobileNumber = r.MobileNumber }));
 
                 await db.SaveChangesAsync(ct);
                 return PublishOutcome.Published;
@@ -266,11 +247,9 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     /// <summary>
     /// The first listing field that's missing or not valid (its JSON name), or null when it can be published.
-    /// Besides the interview answers a listing needs a profile photo, at least <see cref="MinWorkPhotos"/> work
-    /// photos and <see cref="MinReferences"/> to <see cref="MaxReferences"/> references with Philippine mobile
-    /// numbers, none of them <paramref name="ownNumber"/> (the worker's own) and no number twice.
+    /// Besides the interview answers a listing needs a profile photo and at least <see cref="MinWorkPhotos"/> work photos.
     /// </summary>
-    public static string? InvalidField(PublishListingRequest request, string ownNumber) =>
+    public static string? InvalidField(PublishListingRequest request) =>
         !StoreText.IsCode(request.CategoryId) ? "categoryId"
         : !StoreText.IsCode(request.AreaId) ? "areaId"
         : request.ServiceIds is not { Count: > 0 and <= MaxListed } || !request.ServiceIds.All(StoreText.IsCode) ? "serviceIds"
@@ -280,9 +259,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         : !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
         : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId)
           || request.WorkPhotoIds.Distinct().Count() < MinWorkPhotos ? "workPhotoIds"
-        : request.References is not { Count: >= MinReferences and <= MaxReferences }
-          || !request.References.All(r => StoreText.Limit(r?.Name, 60) is not null && StoreText.IsMobileNumber(r!.MobileNumber) && r.MobileNumber != ownNumber)
-          || request.References.Select(r => r.MobileNumber).Distinct().Count() != request.References.Count ? "references"
         : (request.Latitude is not null || request.Longitude is not null) && GeoRules.Point(request.Latitude, request.Longitude) is null ? "latitude"
         : request.RadiusKm is not null && !GeoRules.IsRadius(request.RadiusKm) ? "radiusKm"
         : null;
@@ -320,8 +296,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     /// <summary>
     /// The listings with their average stars and review count (blind reviews left out until they open, so search
-    /// ranking ignores them too), and how many references each has (grouped queries). Only the count leaves the
-    /// server: reference names and numbers stay private.
+    /// ranking ignores them too), their badges and completed jobs (grouped queries).
     /// </summary>
     private async Task<IReadOnlyList<ListingDto>> WithReviewsAsync(IReadOnlyList<ProfessionalRow> rows, CancellationToken cancellationToken)
     {
@@ -332,13 +307,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .GroupBy(r => r.ProfessionalId)
                 .Select(g => new { g.Key, Average = g.Average(r => (double)r.Rating), Count = g.Count() })
                 .ToDictionaryAsync(g => g.Key, g => new ReviewSummaryDto(g.Average, g.Count), cancellationToken);
-        var references = ids.Count == 0
-            ? new Dictionary<string, int>()
-            : await db.ProfessionalReferences.AsNoTracking()
-                .Where(r => ids.Contains(r.ProfessionalId))
-                .GroupBy(r => r.ProfessionalId)
-                .Select(g => new { g.Key, Count = g.Count() })
-                .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken);
         var badges = ids.Count == 0
             ? []
             : (await db.WorkerVerifications.AsNoTracking()
@@ -355,11 +323,11 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .GroupBy(o => o.ProUid)
                 .Select(g => new { g.Key, Count = g.Count() })
                 .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken);
-        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), references.GetValueOrDefault(p.Id), badges.GetValueOrDefault(p.Id) ?? [],
+        return rows.Select(p => ToDto(p, reviews.GetValueOrDefault(p.Id), badges.GetValueOrDefault(p.Id) ?? [],
             completed.GetValueOrDefault(p.Id))).ToList();
     }
 
-    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, int referenceCount, IReadOnlyList<BadgeDto> badges, int completedJobs) => new(
+    private ListingDto ToDto(ProfessionalRow p, ReviewSummaryDto? reviews, IReadOnlyList<BadgeDto> badges, int completedJobs) => new(
         p.Id,
         p.DisplayName,
         string.Empty, // phone privacy: never in search or profiles (the field stays for older apps)
@@ -372,8 +340,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         p.ProfilePhotoId is { } photoId ? new PhotoDto(photoId, photoLinks.For(photoId)) : null,
         p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList(),
         reviews,
-        referenceCount,
-        badges,
-        p.OtherWorkText,
-        completedJobs);
+        Badges: badges,
+        OtherWork: p.OtherWorkText,
+        CompletedJobs: completedJobs);
 }

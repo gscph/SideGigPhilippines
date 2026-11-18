@@ -44,7 +44,7 @@ public class PhotoTests
         await app.Pro.ChangeProfilePhotoAsync();
 
         app.Profiles.Published.Should().ContainSingle()
-            .Which.Listing.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
+            .Which.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
     }
 
     [Fact]
@@ -201,6 +201,19 @@ public class PhotoTests
         await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(99));
 
         app.Store.Saves.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task RemoveWorkPhoto_BelowTwoOnPublishedListing_IsNotAllowed()
+    {
+        var draft = TestData.ReadyDraft();
+        draft.PublishedAt = DateTimeOffset.Now;
+        var app = await FakeApp.ProAsync(draft);
+
+        await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(2));
+
+        app.Pro.CanRemoveWorkPhoto.Should().BeFalse();
+        app.Pro.Draft.WorkPhotoIds.Should().HaveCount(2);
     }
 
     // --- Seeker's own photo -------------------------------------------------

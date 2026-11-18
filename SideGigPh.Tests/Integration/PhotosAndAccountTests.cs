@@ -132,20 +132,6 @@ public class PhotosAndAccountTests(ApiTestHost api)
         state.Professional.ServiceIds.Should().BeEquivalentTo(published.ServiceIds);
         state.Professional.WorkPhotoIds.Should().Equal(published.WorkPhotoIds);
         state.Professional.ProfilePhotoId.Should().Be(published.ProfilePhotoId);
-        state.Professional.References.Should().Equal(published.References);
         state.Professional.HasProof.Should().BeTrue();
-    }
-
-    [IntegrationFact]
-    public async Task MyReferences_AreOnlyTheCallersOwn()
-    {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Dan");
-        await worker.Pro.PublishAsync();
-        var other = api.Client(api.Tokens.For("someone-else"));
-
-        using var response = await other.GetAsync("professionals/me/references");
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadFromJsonAsync(ApiJson.Default.ListReferenceDto)).Should().BeEmpty();
     }
 }
