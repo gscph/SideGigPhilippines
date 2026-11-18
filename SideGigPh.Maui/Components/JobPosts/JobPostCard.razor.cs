@@ -7,7 +7,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
-/// One job post as a card: the service and trade, what is wrong, the budget (green, like all money), the town and barangay
+/// One job post as a raised card that opens like Seeker home's "Post what you need done": the household's first photo
+/// (else the megaphone, <see cref="Shared.PostThumb"/>), the service and trade, what is wrong, the budget (green, like all money), the town and barangay
 /// when given (for a worker also how far, in whole kilometres), its photos and how long ago it was posted. For its household
 /// (<see cref="ForWorker"/> false) it says whether workers can still see it and offers "Take down"; for a worker it
 /// marks a service they offer and has a flag to report a fake post. Offers: the household gets "See N offers" on an

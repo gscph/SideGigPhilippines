@@ -1,0 +1,17 @@
+<MudLink Href="@JobPostRoutes.Feed" Underline="Underline.None" Color="Color.Inherit">
+    <MudCard Outlined="true" Elevation="0" Class="app-raised">
+        <MudCardContent>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                <PostThumb PhotoUrl="@Post.PhotoUrls.FirstOrDefault()" />
+                <MudStack Spacing="0" Class="flex-1 overflow-hidden">
+                    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="2">
+                        <MudText Typo="Typo.subtitle1" Class="one-line app-min-w-0">@ServiceLabel</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="flex-shrink-0">@T.Ago(Post.CreatedAt)</MudText>
+                    </MudStack>
+                    <MudText Typo="Typo.body2" Color="Color.Success" Class="one-line">@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(Post))</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@Where</MudText>
+                </MudStack>
+            </MudStack>
+        </MudCardContent>
+    </MudCard>
+</MudLink>

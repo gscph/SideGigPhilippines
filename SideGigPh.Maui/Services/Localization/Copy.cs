@@ -263,7 +263,7 @@ public static class Copy
     public static readonly LocalizedText HomePostTitle = new("Post what you need done", "I-post ang ipapagawa mo");
     public static readonly LocalizedText HomePostWhy = new("Say your budget. Workers near you send their price.", "Sabihin ang budget mo. Ang mga malapit ang magpapadala ng presyo.");
     public static readonly LocalizedText HomePostButton = new("Post", "I-post");
-    public static readonly LocalizedText PostNewTitle = new("What do you need done?", "Ano ang ipapagawa mo?");
+    public static readonly LocalizedText PostNewTitle = new("Create a Job Posting", "Create Job Posting");
     public static readonly LocalizedText PostNewWhy = new("Only workers of this trade near you will see it. Your exact address is never shown.", "Mga malapit na gumagawa lang nito ang makakakita. Hindi ipinapakita ang eksaktong address mo.");
     public static readonly LocalizedText PostTrade = new("Kind of work", "Uri ng gawa");
     public static readonly LocalizedText PostService = new("What exactly", "Ano mismo");
@@ -296,8 +296,15 @@ public static class Copy
     public static readonly LocalizedText PostReport = new("Report as fake", "I-report na peke");
     public static readonly LocalizedText PostReported = new("Thanks. We will check it.", "Salamat. Iche-check namin.");
     public static readonly LocalizedText PostReportFailed = new("The report didn't send. Check your internet and try again.", "Hindi na-send ang report. I-check ang internet at subukan ulit.");
-    public static readonly LocalizedText ProPostsTitle = new("Customers need this", "Kailangan ng mga customer");
-    public static readonly LocalizedText ProPostsWhy = new("Your trade, near you. What you offer comes first, then the nearest.", "Trade mo, malapit sa'yo. Una ang mga serbisyo mo, tapos ang pinakamalapit.");
+    public static readonly LocalizedText ProPostsTitle = new("Customer Requests", "Mga Customer Request");
+    public static readonly LocalizedText ProPostsWhy = new(
+        "Take a request at the customer's budget, or offer your own price. The customer then picks who does it.",
+        "Kunin ang request sa budget ng customer, o mag-offer ng sarili mong presyo. Ang customer ang pipili ng gagawa.");
+    public static readonly LocalizedText SectionNewRequests = new("Newest near you", "Pinakabago malapit sa'yo");
+    public static readonly LocalizedText HomeRequestsWaiting = new("New near you", "May bago malapit sa'yo");
+    public static readonly LocalizedText HomeRequestsNone = new("See what customers need", "Tingnan ang kailangan nila");
+    public static readonly LocalizedText HomeInboxWaiting = new("Waiting for your reply", "May naghihintay ng reply");
+    public static readonly LocalizedText HomeInboxNone = new("Talk to your customers", "Kausapin ang mga customer mo");
     public static readonly LocalizedText ProPostsEmpty = new("Nothing near you right now. New posts show up here.", "Wala pang malapit sa'yo ngayon. Dito lalabas ang mga bagong post.");
     public static readonly LocalizedText OfferTakeBudget = new("Take it for {0}", "Kunin sa {0}");
     public static readonly LocalizedText OfferOtherPrice = new("Offer another price", "Ibang presyo");

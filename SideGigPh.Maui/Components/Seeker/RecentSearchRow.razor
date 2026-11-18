@@ -4,12 +4,10 @@
         <MudText Typo="Typo.subtitle1" Class="two-lines">@Summary</MudText>
         <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
             <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="rounded-pill px-4"
-                       StartIcon="@Icons.Material.Rounded.Search" OnClick="() => OnSearch.InvokeAsync(Search)">
-                @T.Get(Copy.RecentSearchAgain)
+                       StartIcon="@Icons.Material.Rounded.Search" OnClick="() => OnSearch.InvokeAsync(Search)">               
             </MudButton>
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Class="rounded-pill px-4"
                        StartIcon="@Icons.Material.Rounded.Add" OnClick="() => OnPost.InvokeAsync(Search)">
-                @T.Get(Copy.RecentSearchPost)
             </MudButton>
         </MudStack>
     </MudStack>
