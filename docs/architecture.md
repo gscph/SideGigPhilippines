@@ -204,11 +204,32 @@ for Android).
   a household's posts and their photos, and a worker's offers. Offers are limited to 60 writes an hour
   (`Limited.JobOffer`).
 - **App (`Services/JobBoard`, singleton, port `IJobPostRepository`, adapter `ApiJobPostRepository`):** both lists
-  and their actions; a failed call never throws into a page. `JobPostCard` draws a post for both sides.
-- **Offers (inDrive style, `016-schema-job-offers.sql`, table `JobOffers`):** under each card in the Requests feed
-  (`OfferBox`) a worker taps **"Take it for ₱budget"** (one tap) or **"Offer another price"** (their price, same
-  range as a budget, and an optional note up to 300 letters, `JobOfferRules`). Once sent the card shows "Your offer:
-  ₱…, waiting for the customer" with "Change price" and "Take back". One offer per worker per post (a new price
+  and their actions; a failed call never throws into a page. `JobPostCard` draws a household's own post (Post tab).
+- **A worker's requests are short rows** (Airbnb Trips style, `Components/JobPosts/RequestRow`, the Requests feed,
+  My offers and Pro home's "Newest near you", divider between rows): a small `PostThumb` (the customer's first photo,
+  else the service's own picture, `AppImages.For(serviceId)`), the service with the budget right-aligned in money
+  green, the place · distance, then time · state ("You offered ₱1,000", "Picked you", "Not picked") and one button
+  look, "Offer" or "My offer". No trade chip, no description, no flag on the row: the whole row opens the request's
+  own page. The rules are `Services/RequestItem` (`RequestState` New / Offered / Picked / NotPicked, built from a
+  feed post or a `MyOffer`; `Offered` / `Withdrawn` after the worker's writes) and `Services/Localization/RequestText`
+  (each line's words), tested in `Unit/JobPosts/RequestRowsTests`. The Requests tab's title has no explainer line,
+  and a 2-way switch (`RequestsSwitch`, `MudToggleGroup`) moves between **New** (`ProPostsPage`) and **My offers**
+  (`MyOffersPage`).
+- **A request's own page** (`RequestDetailPage`, `ProRoutes.Request(id)` = `JobPostRoutes.Request(id)` =
+  `/professional/requests/{id}`, inside `ProLayout`): back and 🚩 at the top, the service as a centered title, place ·
+  distance, a stat row (`StatTile`: budget, the customer's stars when `HouseholdStars`, how long ago), highlight rows
+  (`RequestHighlight`: icon, bold line, one muted line: "You offer this service", what the customer wrote, the
+  worker's note) and the photos. The sticky bar (`RequestActionBar` in `app-sticky-action`): the budget and "their
+  budget" on the left with an "Offer another price" link, **Take it** on the right; once offered "Your offer: ₱X ·
+  Waiting for the customer" with Take back and Change; picked: Open chat; not picked: just that. "Offer another
+  price" / "Change" swap the bar for `OfferBox` (price + note, Send / Cancel). The page reads the request from what
+  `JobBoard` has loaded (`FindLoadedRequest`: the feed, else the worker's cached `MyOffersAsync` list) and, for a link
+  to one not loaded, reads the feed and then the offers again (`FindRequestAsync`); still missing → "This request is
+  no longer open". No server endpoint was added for one post.
+- **Offers (inDrive style, `016-schema-job-offers.sql`, table `JobOffers`):** on a request's own page a worker taps
+  **"Take it"** (the budget, one tap) or **"Offer another price"** (`OfferBox`: their price, same range as a budget,
+  and an optional note up to 300 letters, `JobOfferRules`). Once sent the bar shows "Your offer: ₱…, waiting for the
+  customer" with "Change" and "Take back". One offer per worker per post (a new price
   replaces the old one, `UX_JobOffers_PostPro`). The server takes offers only from a published listing of the post's
   trade, on an open post that isn't the worker's own, and never between two people where one blocked the other
   (`JobPostStore.OpenPostFor`). The feed carries the worker's own price (`myOfferPesos`).
@@ -221,10 +242,10 @@ for Android).
   `picked` and closes the post, so it leaves every feed; the app then sends the worker a first message ("I picked
   your offer of ₱…") and opens the chat: the Seeker still starts every chat, and a customer's message rings the
   worker. The household's card then says "You picked a worker" with **Open chat** (`pickedProId`).
-- **A worker's own offers:** Requests → **My offers** (`JobPostRoutes.MyOffers`, `MyOffersPage`, one `MyOfferCard`
+- **A worker's own offers:** Requests → **My offers** (`JobPostRoutes.MyOffers`, `MyOffersPage`, one `RequestRow`
   each; `GET offers/mine` → `JobPostStore.MyOffersAsync` → `MyOfferDto`, `JobBoard.MyOffersAsync`, read fresh on each
-  visit): newest change first, at most 50, each with the service, the worker's price against the budget, the town and
-  their note, and its state (`MyOfferStates`: `waiting` while the post is open, `picked` with the `chatId` the
+  visit): newest change first, at most 50, each with the service, the budget, the place and the worker's price
+  or state on the row (the note and Open chat on the request's page), and its state (`MyOfferStates`: `waiting` while the post is open, `picked` with the `chatId` the
   household started (**Open chat**), `not-picked` once the post closed without them). Offers taken back, hidden posts
   and blocked people are left out. Before, a worker who wasn't picked only saw the post leave the feed.
 - **Verified two-way reviews** (brief item 12, `PickedJobStore`, `PickedJobFunctions`, `018-schema-job-done.sql`):
@@ -409,5 +430,5 @@ Never call a provider SDK from a page, workspace or service. If the UI needs som
 ## Component inventory
 
 - **Skeleton** (`MobileAppTheme/Components/Shared/`): generic UI any product would use unchanged, with no domain words: `InterviewStep`, `ChoiceTiles` (+ `ChoiceTile`, `ChoiceItem`), `PersonAvatar` (photo, initials on ink or a person icon), `SplashScreen` (logo + name + a line, optional second line, small spinner: the launch splash and the busy splash), `BusyOverlay` (in the skeleton `MainLayout`: the `SplashScreen` on a solid surface with a line from the `ISplashLines` port: always the first (main) line first, held `FirstLineFor` 3 s, then the others every 1.8 s (skeleton default `BusySplashLines` = `CommonCopy.Busy*`; Tarbaho's `RoleSplashLines`: both sides open on the main line `Copy.TrustTagline` ("AI-assisted ID checks", worded so it never vouches for every worker; also the launch splash's line in `LaunchRouter`), then Seekers see "Find {honorific}s nearby" with the honorifics taking turns, Skilled Workers `Copy.ProTaglines`, no role yet = the Seeker lines), while the `BusyIndicator` singleton is busy; **the one loading screen for anything that fills the whole screen**: pages wrap slow actions and full-page loads in `await Busy.RunAsync(...)`: the end of both interviews, a chat or profile opening, publish, photo uploads, review, Start over (inline spinners stay only for part of a page: search results under the box, load-more, a button); it raises `Stuck` past `StuckAfter`, 20 s, for error reports), `SheetHeader` (✕/← + centered title + hairline) and `SheetPage` (full-screen sheet with that header: sign-in, name, add phone), `MenuRow` (settings-list row with chevron), `ProfileCard` (raised card: big photo, name, status), `HomeSection` (collapsible home section), `EmptyState` (an empty list, Airbnb style: outlined icon in a soft brand-tinted circle above a gray line; Inbox, Reviews, Photos), `FilterMenu` (a chip with a dropdown that scrolls and shows `ChoiceItem.Group` headings: Search filters and the home town picker; in MudBlazor 9 a custom `ActivatorContent` must open the menu itself, so the chip calls `context.ToggleAsync`), `BrandMark` (logo + name from `AppBrand`), `LanguagePicker`, `LoadMoreOnScroll` (at a long list's growing end: spinner + `OnLoadMore` near that end or when the list is too short to scroll, via MudBlazor's scroll listener and scroll manager; `Edge` `Bottom` for results, `Top` for a chat: opens at the end and keeps the reader's place when older items go above), `ConfirmActionCard` (a destructive action confirmed twice: Start over, Delete account) and `MePage` (the Me page frame: title, the side's own sections, then `LanguagePicker`, the legal links from `AppBrand.Legal`, Start over and Delete account; SideGigPh passes its own `StartOverWarning`); in `Components/Auth/`, `LegalConsent` (the sign-in agreement line) and `AppleSignInButton` (iOS). The skeleton never references SideGigPh.
-  - **App-generic** (`SideGigPh.Maui/Components/Shared/`): used by two or more SideGigPh features but tied to its domain: `BadgeChips` (a worker's approved badges as brand-purple outlined chips, on every `ProCard`; icons from `BadgeIcons`), `TradeBadge` (the worker's trade as a purple `Variant.Text` chip, label only, "Aircon Technician", on `ProCard` and the public profile's `ProfileHero`; shows nothing for a retired trade), `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview; results pass `Dense`: photo, name, trade + budget badge, one row of facts, so 3–4 fit on screen), `ListingFacts` and `ServiceChips` (the dense card; the public profile uses its own `ProfileStats` and `JobList`; all their text comes from `Services/Localization/ListingText`), `ReviewRow` + `RatingSummary`, `PhotoAddNotice` (why photos weren't added or the camera was refused, on both Me pages, the work-photo pages and the setup), `PostThumb` (the square picture opening a job post on `JobPostCard` and Pro home's `ProRequestRow`, in the same soft box as `PostRequestCard`: the first photo the household added, else the megaphone), `PhotoStrip` (work photos two across, scrolling sideways past two: the public profile, before Reviews, and the work-photo page).
+  - **App-generic** (`SideGigPh.Maui/Components/Shared/`): used by two or more SideGigPh features but tied to its domain: `BadgeChips` (a worker's approved badges as brand-purple outlined chips, on every `ProCard`; icons from `BadgeIcons`), `TradeBadge` (the worker's trade as a purple `Variant.Text` chip, label only, "Aircon Technician", on `ProCard` and the public profile's `ProfileHero`; shows nothing for a retired trade), `ProCard` (+ `ProCardFact`; one card for search results *and* the pro's own preview; results pass `Dense`: photo, name, trade + budget badge, one row of facts, so 3–4 fit on screen), `ListingFacts` and `ServiceChips` (the dense card; the public profile uses its own `ProfileStats` and `JobList`; all their text comes from `Services/Localization/ListingText`), `ReviewRow` + `RatingSummary`, `PhotoAddNotice` (why photos weren't added or the camera was refused, on both Me pages, the work-photo pages and the setup), `PostThumb` (the square picture opening a job post on `JobPostCard` and the worker's `RequestRow`, in the same soft box as `PostRequestCard`: the first photo the household added, else `Fallback`: the megaphone, or the service's own picture on a request row), `PhotoStrip` (work photos two across, scrolling sideways past two: the public profile, before Reviews, and the work-photo page).
   - **Feature** components stay in their feature folder.

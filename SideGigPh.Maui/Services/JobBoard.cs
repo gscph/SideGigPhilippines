@@ -21,6 +21,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 
     private List<JobPost> _mine = [];
     private List<JobPost> _feed = [];
+    private List<MyOffer> _myOffers = [];
 
     /// <summary>How many feed posts the server has handed out so far: the next page starts there.</summary>
     private int _feedRead;
@@ -285,7 +286,9 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             return OfferResult.Failed;
         }
 
-        var result = await WriteAsync(() => posts.SendOfferAsync(post.Id, pricePesos, string.IsNullOrWhiteSpace(note) ? null : note.Trim()));
+        var trimmed = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+        var result = await WriteAsync(() => posts.SendOfferAsync(post.Id, pricePesos, trimmed));
+        UpdateMyOffers(post.Id, result, offer => offer with { PricePesos = pricePesos, Note = trimmed });
         UpdateFeed(post.Id, result, p => p with { MyOfferPesos = pricePesos });
         return result;
     }
@@ -294,6 +297,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     public async Task<OfferResult> WithdrawOfferAsync(JobPost post)
     {
         var result = await WriteAsync(() => posts.WithdrawOfferAsync(post.Id));
+        UpdateMyOffers(post.Id, result, _ => null);
         UpdateFeed(post.Id, result, p => p with { MyOfferPesos = null });
         return result;
     }
@@ -373,12 +377,73 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         Changed?.Invoke();
     }
 
+    /// <summary>After an offer write: the worker's loaded offer changes (null: taken back) or goes when the post is gone.</summary>
+    private void UpdateMyOffers(long postId, OfferResult result, Func<MyOffer, MyOffer?> change)
+    {
+        var index = _myOffers.FindIndex(o => o.Post.Id == postId);
+        if (index < 0 || result == OfferResult.Failed)
+        {
+            return;
+        }
+
+        if (result == OfferResult.Done && change(_myOffers[index]) is { } changed)
+        {
+            _myOffers[index] = changed;
+        }
+        else
+        {
+            _myOffers.RemoveAt(index);
+        }
+    }
+
     /// <summary>
     /// The worker's own offers (Requests → My offers), newest change first: picked ones open their chat, waiting ones
     /// can still be changed in the feed, and ones not picked say so (before, a worker who wasn't picked just saw the
     /// post leave the feed). Read fresh each time: they change when a household picks.
     /// </summary>
-    public Task<IReadOnlyList<MyOffer>> MyOffersAsync() => posts.GetMyOffersAsync();
+    public async Task<IReadOnlyList<MyOffer>> MyOffersAsync()
+    {
+        _myOffers = [.. await posts.GetMyOffersAsync()];
+        return _myOffers;
+    }
+
+    /// <summary>
+    /// One request for its own page, from what is already loaded: the feed first (it is current for open posts), else
+    /// the worker's own offers (a picked or closed one). Null when neither holds it.
+    /// </summary>
+    public RequestItem? FindLoadedRequest(long postId)
+    {
+        if (_feed.FirstOrDefault(p => p.Id == postId) is { } post)
+        {
+            var item = RequestItem.From(post);
+            return item.State == RequestState.Offered && _myOffers.FirstOrDefault(o => o.Post.Id == postId) is { } offer
+                ? item with { MyNote = string.IsNullOrWhiteSpace(offer.Note) ? null : offer.Note }
+                : item;
+        }
+
+        return _myOffers.FirstOrDefault(o => o.Post.Id == postId) is { } mine ? RequestItem.From(mine) : null;
+    }
+
+    /// <summary>
+    /// One request for its own page, read again when it isn't loaded (a link from a notification, an app that was
+    /// closed): the feed from the top, then the worker's own offers. Null when it is no longer open to this worker.
+    /// </summary>
+    public async Task<RequestItem?> FindRequestAsync(long postId)
+    {
+        if (FindLoadedRequest(postId) is { } loaded)
+        {
+            return loaded;
+        }
+
+        await LoadFeedAsync();
+        if (FindLoadedRequest(postId) is { } inFeed)
+        {
+            return inFeed;
+        }
+
+        await MyOffersAsync();
+        return FindLoadedRequest(postId);
+    }
 }
 
 /// <summary>The fields of the post form, in the order they are asked.</summary>

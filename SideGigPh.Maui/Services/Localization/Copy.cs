@@ -292,29 +292,22 @@ public static class Copy
     public static readonly LocalizedText PostTakeDownFailed = new("It wasn't taken down. Check your internet and try again.", "Hindi natanggal. I-check ang internet at subukan ulit.");
     public static readonly LocalizedText PostBudgetFact = new("Budget {0}", "Budget {0}");
     public static readonly LocalizedText PostDistance = new("{0} · {1} km away", "{0} · {1} km ang layo");
-    public static readonly LocalizedText PostOffersService = new("You offer this", "Serbisyo mo ito");
     public static readonly LocalizedText PostReport = new("Report as fake", "I-report na peke");
     public static readonly LocalizedText PostReported = new("Thanks. We will check it.", "Salamat. Iche-check namin.");
     public static readonly LocalizedText PostReportFailed = new("The report didn't send. Check your internet and try again.", "Hindi na-send ang report. I-check ang internet at subukan ulit.");
     public static readonly LocalizedText ProPostsTitle = new("Customer Requests", "Mga Customer Request");
-    public static readonly LocalizedText ProPostsWhy = new(
-        "Take a request at the customer's budget, or offer your own price. The customer then picks who does it.",
-        "Kunin ang request sa budget ng customer, o mag-offer ng sarili mong presyo. Ang customer ang pipili ng gagawa.");
     public static readonly LocalizedText SectionNewRequests = new("Newest near you", "Pinakabago malapit sa'yo");
     public static readonly LocalizedText HomeRequestsWaiting = new("New near you", "May bago malapit sa'yo");
     public static readonly LocalizedText HomeRequestsNone = new("See what customers need", "Tingnan ang kailangan nila");
     public static readonly LocalizedText HomeInboxWaiting = new("Waiting for your reply", "May naghihintay ng reply");
     public static readonly LocalizedText HomeInboxNone = new("Talk to your customers", "Kausapin ang mga customer mo");
     public static readonly LocalizedText ProPostsEmpty = new("Nothing near you right now. New posts show up here.", "Wala pang malapit sa'yo ngayon. Dito lalabas ang mga bagong post.");
-    public static readonly LocalizedText OfferTakeBudget = new("Take it for {0}", "Kunin sa {0}");
     public static readonly LocalizedText OfferOtherPrice = new("Offer another price", "Ibang presyo");
     public static readonly LocalizedText OfferYourPrice = new("Your price", "Presyo mo");
     public static readonly LocalizedText OfferNote = new("Note for the customer (you can skip this)", "Mensahe sa customer (puwedeng wala)");
     public static readonly LocalizedText OfferNoteHint = new("e.g. I can come tomorrow morning", "hal. Puwede ako bukas ng umaga");
     public static readonly LocalizedText OfferSend = new("Send offer", "I-send ang offer");
     public static readonly LocalizedText OfferMine = new("Your offer: {0}", "Offer mo: {0}");
-    public static readonly LocalizedText OfferWaiting = new("Waiting for the customer to pick", "Hinihintay pumili ang customer");
-    public static readonly LocalizedText OfferChange = new("Change price", "Palitan ang presyo");
     public static readonly LocalizedText OfferWithdraw = new("Take back", "Bawiin");
     public static readonly LocalizedText OfferSentNotice = new("Offer sent. The customer will message you if they pick you.", "Na-send ang offer. Ime-message ka ng customer kapag ikaw ang napili.");
     public static readonly LocalizedText OfferWithdrawnNotice = new("Offer taken back.", "Binawi na ang offer.");
@@ -326,23 +319,32 @@ public static class Copy
     public static readonly LocalizedText PostPicked = new("You picked a worker", "May napili ka na");
     public static readonly LocalizedText PostOpenChat = new("Open chat", "Buksan ang chat");
 
+    // --- A worker's request rows and the request's own page (RequestRow, RequestDetailPage) ---
+    public static readonly LocalizedText RequestsNew = new("New", "Bago");
+    public static readonly LocalizedText RequestOffer = new("Offer", "Mag-offer");
+    public static readonly LocalizedText RequestMyOffer = new("My offer", "Offer ko");
+    public static readonly LocalizedText RequestYouOffered = new("You offered {0}", "Nag-offer ka ng {0}");
+    public static readonly LocalizedText RequestTimeAndStatus = new("{0} · {1}", "{0} · {1}");
+    public static readonly LocalizedText RequestStatBudget = new("budget", "budget");
+    public static readonly LocalizedText RequestStatStars = new("customer's stars", "stars ng customer");
+    public static readonly LocalizedText RequestStatPosted = new("posted", "na-post");
+    public static readonly LocalizedText RequestOffersService = new("You offer this service", "Serbisyo mo ito");
+    public static readonly LocalizedText RequestOffersServiceWhy = new("It's on your listing.", "Nasa listing mo ito.");
+    public static readonly LocalizedText RequestTheyWrote = new("What the customer wrote", "Sabi ng customer");
+    public static readonly LocalizedText RequestYourNote = new("Your note", "Mensahe mo");
+    public static readonly LocalizedText RequestTheirBudget = new("their budget", "budget nila");
+    public static readonly LocalizedText RequestTakeIt = new("Take it", "Kunin");
+    public static readonly LocalizedText RequestWaiting = new("Waiting for the customer", "Hinihintay ang customer");
+    public static readonly LocalizedText RequestChange = new("Change", "Palitan");
+    public static readonly LocalizedText RequestGone = new("This request is no longer open", "Sarado na ang request na ito");
+    public static readonly LocalizedText RequestSeeAll = new("See requests", "Tingnan ang requests");
+
     // --- A worker's own offers (Requests → My offers) ---
     public static readonly LocalizedText MyOffersLink = new("My offers", "Mga offer ko");
-    public static readonly LocalizedText MyOffersTitle = new("My offers", "Mga offer ko");
-    public static readonly LocalizedText MyOffersWhy = new(
-        "Every price you offered, and what the customer decided.", "Lahat ng presyong in-offer mo, at ang desisyon ng customer.");
     public static readonly LocalizedText MyOffersEmpty = new(
         "No offers yet. Offer a price on a request in Requests.", "Wala ka pang offer. Mag-offer ng presyo sa isang request sa Requests.");
-    public static readonly LocalizedText MyOffersBack = new("Back to Requests", "Balik sa Requests");
-    public static readonly LocalizedText MyOfferWaiting = new("Waiting for the customer", "Hinihintay ang customer");
     public static readonly LocalizedText MyOfferPicked = new("Picked you", "Ikaw ang pinili");
     public static readonly LocalizedText MyOfferNotPicked = new("Not picked", "Hindi napili");
-    public static readonly LocalizedText MyOfferPrice = new("Your price {0}", "Presyo mo {0}");
-    public static readonly LocalizedText MyOfferWaitingHint = new(
-        "You can change or take back your price in Requests.", "Puwede mong palitan o bawiin ang presyo mo sa Requests.");
-    public static readonly LocalizedText MyOfferNotPickedHint = new(
-        "The customer picked another worker or took the request down. Keep offering: new requests come every day.",
-        "Ibang worker ang pinili ng customer o tinanggal niya ang request. Tuloy lang sa pag-offer: may bagong request araw-araw.");
     public static readonly LocalizedText OffersTitle = new("Offers", "Mga offer");
     public static readonly LocalizedText OffersWhy = new("Look at their stars and badges, then pick one.", "Tingnan ang stars at badges nila, tapos pumili ng isa.");
     public static readonly LocalizedText OffersEmpty = new("No offers yet. Workers near you will see your post.", "Wala pang offer. Makikita ng mga malapit na gumagawa ang post mo.");
@@ -443,7 +445,6 @@ public static class Copy
     public static readonly LocalizedText ReviewHiddenForNow = new(
         "Only you see this for now. It shows when the worker reviews you too, or {0} days after the service.",
         "Ikaw lang muna ang nakakakita nito. Lalabas ito kapag nag-review na rin ang worker sa'yo, o {0} araw pagkatapos ng serbisyo.");
-    public static readonly LocalizedText HouseholdStarsFact = new("Customer rating: {0}", "Rating ng customer: {0}");
 
     // --- Location: the worker's base and travel distance, a post's place ---
     public static readonly LocalizedText UseMyLocation = new("Use my location", "Gamitin ang location ko");

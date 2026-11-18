@@ -20,4 +20,7 @@ public static class JobPostRoutes
 
     /// <summary>The worker's own offers and how each stands (<c>MyOffersPage</c>), under the Requests tab.</summary>
     public const string MyOffers = Feed + "/offers";
+
+    /// <summary>One request's own page (<c>RequestDetailPage</c>): the description, photos and the worker's offer.</summary>
+    public static string Request(long postId) => $"{Feed}/{postId}";
 }
