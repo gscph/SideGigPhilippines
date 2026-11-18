@@ -216,20 +216,28 @@ for Android).
   and a 2-way switch (`RequestsSwitch`, `MudToggleGroup`) moves between **New** (`ProPostsPage`) and **My offers**
   (`MyOffersPage`).
 - **A request's own page** (`RequestDetailPage`, `ProRoutes.Request(id)` = `JobPostRoutes.Request(id)` =
-  `/professional/requests/{id}`, inside `ProLayout`): back and 🚩 at the top, the service as a centered title, place ·
-  distance, a stat row (`StatTile`: budget, the customer's stars when `HouseholdStars`, how long ago), highlight rows
-  (`RequestHighlight`: icon, bold line, one muted line: "You offer this service", what the customer wrote, the
-  worker's note) and the photos. The sticky bar (`RequestActionBar` in `app-sticky-action`): the budget and "their
-  budget" on the left with an "Offer another price" link, **Take it** on the right; once offered "Your offer: ₱X ·
-  Waiting for the customer" with Take back and Change; picked: Open chat; not picked: just that. "Offer another
-  price" / "Change" swap the bar for `OfferBox` (price + note, Send / Cancel). The page reads the request from what
+  `/professional/requests/{id}`), modelled on Airbnb's **"Review and continue"** booking screen
+  (`docs/ux/airbnb-2026-11-18/airbnb-20…22`). **Full screen, outside `ProLayout`** (no top bar or tabs, so the button
+  has room; it calls `ProWorkspace.EnsureLoadedAsync` itself, `/` when that fails): ✕ (back to Requests) and 🚩 in a
+  `SheetHeader`, a big left title that says what to do or what became of it (`RequestText.RequestPageTitle`: "Send your
+  price", "Your offer", "Picked you", "Not picked"), then **one outlined card**: `RequestSummary` (the customer's first
+  photo, else the service's picture, as a `PostThumb`; service; place · distance; ★ stars when `HouseholdStars` · how
+  long ago, `RequestMeta`) and `DetailRow`s split by dividers (bold label, value, one muted line, an optional gray
+  button on the right): **Your price** (once offered: green price, "Waiting for the customer" and the note,
+  `RequestOfferDetail`, with **Change**), **Their budget** (green), **What they need** (the customer's words and the
+  photo strip). A new request then asks **Your price** as two radios in one card (`PriceChoice`, Airbnb's "Choose when
+  to pay"): "Take it for ₱budget" (picked at first) or "Offer another price", which opens `OfferFields` (price + note).
+  The pinned bottom (`RequestFooter`, `sticky-footer`) holds one action: **Send offer** (full width); while changing a
+  sent offer, the price row turns into `OfferFields` and the bottom shows **Cancel** + **Save**; picked: **Open chat**.
+  "Take back my offer" is a link under the card. What a tap sends is `Services/OfferDraft` (the budget with no note,
+  or the typed price and trimmed note; `IsValid` enables the button). The page reads the request from what
   `JobBoard` has loaded (`FindLoadedRequest`: the feed, else the worker's cached `MyOffersAsync` list) and, for a link
   to one not loaded, reads the feed and then the offers again (`FindRequestAsync`); still missing → "This request is
   no longer open". No server endpoint was added for one post.
 - **Offers (inDrive style, `016-schema-job-offers.sql`, table `JobOffers`):** on a request's own page a worker taps
-  **"Take it"** (the budget, one tap) or **"Offer another price"** (`OfferBox`: their price, same range as a budget,
-  and an optional note up to 300 letters, `JobOfferRules`). Once sent the bar shows "Your offer: ₱…, waiting for the
-  customer" with "Change" and "Take back". One offer per worker per post (a new price
+  **"Take it for ₱budget"** or **"Offer another price"** (`OfferFields`: their price, same range as a budget,
+  and an optional note up to 300 letters, `JobOfferRules`). Once sent the page shows "Your price ₱…, waiting for the
+  customer" with "Change" and a "Take back my offer" link. One offer per worker per post (a new price
   replaces the old one, `UX_JobOffers_PostPro`). The server takes offers only from a published listing of the post's
   trade, on an open post that isn't the worker's own, and never between two people where one blocked the other
   (`JobPostStore.OpenPostFor`). The feed carries the worker's own price (`myOfferPesos`).

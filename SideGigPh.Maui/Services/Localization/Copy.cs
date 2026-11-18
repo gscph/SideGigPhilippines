@@ -307,8 +307,6 @@ public static class Copy
     public static readonly LocalizedText OfferNote = new("Note for the customer (you can skip this)", "Mensahe sa customer (puwedeng wala)");
     public static readonly LocalizedText OfferNoteHint = new("e.g. I can come tomorrow morning", "hal. Puwede ako bukas ng umaga");
     public static readonly LocalizedText OfferSend = new("Send offer", "I-send ang offer");
-    public static readonly LocalizedText OfferMine = new("Your offer: {0}", "Offer mo: {0}");
-    public static readonly LocalizedText OfferWithdraw = new("Take back", "Bawiin");
     public static readonly LocalizedText OfferSentNotice = new("Offer sent. The customer will message you if they pick you.", "Na-send ang offer. Ime-message ka ng customer kapag ikaw ang napili.");
     public static readonly LocalizedText OfferWithdrawnNotice = new("Offer taken back.", "Binawi na ang offer.");
     public static readonly LocalizedText OfferFailed = new("It didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet at subukan ulit.");
@@ -325,17 +323,16 @@ public static class Copy
     public static readonly LocalizedText RequestMyOffer = new("My offer", "Offer ko");
     public static readonly LocalizedText RequestYouOffered = new("You offered {0}", "Nag-offer ka ng {0}");
     public static readonly LocalizedText RequestTimeAndStatus = new("{0} · {1}", "{0} · {1}");
-    public static readonly LocalizedText RequestStatBudget = new("budget", "budget");
-    public static readonly LocalizedText RequestStatStars = new("customer's stars", "stars ng customer");
-    public static readonly LocalizedText RequestStatPosted = new("posted", "na-post");
-    public static readonly LocalizedText RequestOffersService = new("You offer this service", "Serbisyo mo ito");
-    public static readonly LocalizedText RequestOffersServiceWhy = new("It's on your listing.", "Nasa listing mo ito.");
-    public static readonly LocalizedText RequestTheyWrote = new("What the customer wrote", "Sabi ng customer");
-    public static readonly LocalizedText RequestYourNote = new("Your note", "Mensahe mo");
-    public static readonly LocalizedText RequestTheirBudget = new("their budget", "budget nila");
-    public static readonly LocalizedText RequestTakeIt = new("Take it", "Kunin");
+    public static readonly LocalizedText RequestTheirBudget = new("Their budget", "Budget nila");
     public static readonly LocalizedText RequestWaiting = new("Waiting for the customer", "Hinihintay ang customer");
     public static readonly LocalizedText RequestChange = new("Change", "Palitan");
+    public static readonly LocalizedText RequestSendTitle = new("Send your price", "I-send ang presyo mo");
+    public static readonly LocalizedText RequestOfferedTitle = new("Your offer", "Offer mo");
+    public static readonly LocalizedText RequestTheyNeed = new("What they need", "Kailangan nila");
+    public static readonly LocalizedText RequestTakeFor = new("Take it for {0}", "Kunin sa {0}");
+    public static readonly LocalizedText RequestStatusAndNote = new("{0} · Your note: {1}", "{0} · Mensahe mo: {1}");
+    public static readonly LocalizedText RequestTakeBack = new("Take back my offer", "Bawiin ang offer ko");
+    public static readonly LocalizedText RequestSave = new("Save", "I-save");
     public static readonly LocalizedText RequestGone = new("This request is no longer open", "Sarado na ang request na ito");
     public static readonly LocalizedText RequestSeeAll = new("See requests", "Tingnan ang requests");
 

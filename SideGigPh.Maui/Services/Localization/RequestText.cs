@@ -41,6 +41,36 @@ public static class RequestText
     public static string RequestAction(this AppText text, RequestItem item) =>
         text.Get(item.HasMyOffer ? Copy.RequestMyOffer : Copy.RequestOffer);
 
-    /// <summary>The customer's average stars as the stat row's value: "4.7".</summary>
+    /// <summary>The request page's big title, what to do or what became of it: "Send your price", "Your offer", "Picked you", "Not picked".</summary>
+    public static string RequestPageTitle(this AppText text, RequestItem item) => text.Get(item.State switch
+    {
+        RequestState.New => Copy.RequestSendTitle,
+        RequestState.Offered => Copy.RequestOfferedTitle,
+        RequestState.Picked => Copy.MyOfferPicked,
+        _ => Copy.MyOfferNotPicked,
+    });
+
+    /// <summary>The summary's last line: the customer's stars when they have any, then how long ago ("4.7 · 2 hr ago").</summary>
+    public static string RequestMeta(this AppText text, JobPost post) =>
+        post.HouseholdStars is { } stars
+            ? text.Format(Copy.RequestTimeAndStatus, StarsValue(stars), text.Ago(post.CreatedAt))
+            : text.Ago(post.CreatedAt);
+
+    /// <summary>
+    /// The muted line under the worker's price: "Waiting for the customer" while open (the title already says picked or
+    /// not), then their note when they wrote one; null when there is nothing to add.
+    /// </summary>
+    public static string? RequestOfferDetail(this AppText text, RequestItem item)
+    {
+        var status = item.State == RequestState.Offered ? text.Get(Copy.RequestWaiting) : null;
+        return (status, item.MyNote) switch
+        {
+            ({ } s, { } note) => text.Format(Copy.RequestStatusAndNote, s, note),
+            (null, { } note) => note,
+            _ => status,
+        };
+    }
+
+    /// <summary>The customer's average stars: "4.7".</summary>
     public static string StarsValue(ReviewSummary stars) => stars.Average.ToString("0.0", CultureInfo.InvariantCulture);
 }

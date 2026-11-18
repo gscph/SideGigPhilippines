@@ -1,0 +1,17 @@
+<MudPaper Outlined="true" Elevation="0" Class="app-rounded px-4">
+    <MudRadioGroup T="bool" Value="OtherPrice" ValueChanged="OtherPriceChanged" Disabled="Busy">
+        <MudRadio T="bool" Value="false" Color="Color.Dark" LabelPlacement="Placement.Start" Class="app-choice-radio py-2">
+            @T.Format(Copy.RequestTakeFor, Money.Peso(BudgetPesos))
+        </MudRadio>
+        <MudDivider />
+        <MudRadio T="bool" Value="true" Color="Color.Dark" LabelPlacement="Placement.Start" Class="app-choice-radio py-2">
+            @T.Get(Copy.OfferOtherPrice)
+        </MudRadio>
+    </MudRadioGroup>
+    @if (OtherPrice)
+    {
+        <MudStack Class="pb-4">
+            <OfferFields Price="Price" PriceChanged="PriceChanged" Note="Note" NoteChanged="NoteChanged" Busy="Busy" />
+        </MudStack>
+    }
+</MudPaper>

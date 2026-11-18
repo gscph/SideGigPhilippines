@@ -180,11 +180,12 @@ changing that area.**
   done" / "Requests", never a job. The worker sees each request as a short row (`Components/JobPosts/RequestRow`: picture, service + green budget,
   place · distance, time · state, one "Offer" / "My offer" button look; rules `Services/RequestItem`, `RequestText`; in
   the feed, My offers and Pro home) that opens **its own page** (`RequestDetailPage`, `ProRoutes.Request(id)` =
-  `/professional/requests/{id}`, Airbnb-listing layout: centered title, stat row, highlight rows, photos, sticky
-  `RequestActionBar`; read from `JobBoard.FindRequestAsync`, feed then own offers, no single-post endpoint); the tab's
+  `/professional/requests/{id}`, full screen outside the tab shell, Airbnb "Review and continue" layout: a title that
+  says what to do, one card (`RequestSummary` + `DetailRow`s: your price [Change], their budget, what they need +
+  photos), `PriceChoice` radios and one pinned button (`RequestFooter`); read from `JobBoard.FindRequestAsync`, feed then own offers, no single-post endpoint); the tab's
   title has a New / My offers switch (`RequestsSwitch`). **Offers** (`016-schema-job-offers.sql`, table `JobOffers`,
-  inDrive style): on that page a worker taps "Take it" or offers another price with a short note
-  (`Components/JobPosts/OfferBox`), changes it or takes it back, one offer per worker per post; the household's card
+  inDrive style): on that page a worker picks "Take it for ₱budget" or another price with a short note
+  (`Components/JobPosts/OfferFields`, what is sent: `Services/OfferDraft`), changes it or takes it back, one offer per worker per post; the household's card
   says "See N offers" (`OffersPage`, `/posts/{id}/offers`: each worker's `ProCard`, price, distance, note, the picked
   one first, then cheapest); "Pick" asks once more, closes the post, sends the worker a first chat message and opens
   the chat (the Seeker still starts every chat). A worker sees their own offers under Requests → **My offers**
