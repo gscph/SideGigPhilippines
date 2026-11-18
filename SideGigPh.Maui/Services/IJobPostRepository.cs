@@ -11,6 +11,12 @@ public interface IJobPostRepository
     /// <summary>Posts the household's work (open at once) and answers with it. Throws when it didn't send.</summary>
     Task<JobPost> AddAsync(JobPostDraft draft);
 
+    /// <summary>
+    /// Changes this person's own open post to <paramref name="draft"/> (photos replaced by the draft's) and answers with
+    /// it. Throws when it didn't send (status 404: no longer open).
+    /// </summary>
+    Task<JobPost> UpdateAsync(long postId, JobPostDraft draft);
+
     /// <summary>This person's own posts, newest first, closed ones too. Empty when it can't be read.</summary>
     Task<IReadOnlyList<JobPost>> GetMineAsync();
 

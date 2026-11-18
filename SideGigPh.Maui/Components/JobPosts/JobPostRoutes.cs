@@ -12,6 +12,9 @@ public static class JobPostRoutes
     /// <summary>The form to post what they need done; under <see cref="Mine"/>, full screen.</summary>
     public const string New = Mine + "/new";
 
+    /// <summary>The same form, filled in, to change one of the household's open posts; full screen.</summary>
+    public static string Edit(long postId) => $"{Mine}/{postId}/edit";
+
     /// <summary>The offers on one of the household's posts; under <see cref="Mine"/> so the Post tab stays lit.</summary>
     public static string Offers(long postId) => $"{Mine}/{postId}/offers";
 

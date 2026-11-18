@@ -113,4 +113,28 @@ public class PostReviewTests
         board.KeepUnsent(Filled());
         board.TakeUnsent().Should().BeNull("nothing typed, nothing to keep: the next form is pre-filled from their last search");
     }
+
+    [Fact]
+    public void ATradeWithJobs_OpensItsJobsPage_AndOthersDoesNot()
+    {
+        PostReview.HasJobChoice("aircon").Should().BeTrue("the tap moves on to the trade's jobs");
+        PostReview.HasJobChoice(ReferenceData.OtherTradeId).Should().BeFalse("\"Others\" is its own job, picked with the trade");
+        PostReview.HasJobChoice(null).Should().BeFalse();
+    }
+
+    [Fact]
+    public void TheWhatSheet_SavesOnlyWithAJob()
+    {
+        var draft = new JobPostDraft();
+        PostReview.PickTrade(draft, "aircon");
+
+        PostReview.CanSave(draft, PostPart.What).Should().BeFalse("a trade alone can't be posted (Post stayed grey)");
+        PostReview.CanSave(draft, PostPart.Where).Should().BeTrue("the other sheets save as they are");
+
+        draft.ServiceId = "aircon-cleaning";
+        PostReview.CanSave(draft, PostPart.What).Should().BeTrue();
+
+        PostReview.PickTrade(draft, ReferenceData.OtherTradeId);
+        PostReview.CanSave(draft, PostPart.What).Should().BeTrue("\"Others\" picks its one job with the trade");
+    }
 }

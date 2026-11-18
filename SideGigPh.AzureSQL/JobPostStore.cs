@@ -89,6 +89,61 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         return new JobPostOutcome(ToDto(row, uid), null, IsNew: true);
     }
 
+    /// <summary>
+    /// The caller changes their own open post: the same rules as a new one (<see cref="AddAsync"/>), and the photos are
+    /// replaced by <see cref="NewJobPostRequest.PhotoIds"/>. The point is the phone's when it sent one, the centre of the
+    /// new town when the town changed, else the one already there. Once workers sent offers, the trade and service stay
+    /// as they were (the offers were made for that work): changing them is refused as <c>categoryId</c> / <c>serviceId</c>.
+    /// Null post with no field: not theirs, not there, or no longer open.
+    /// </summary>
+    public async Task<JobPostOutcome> UpdateAsync(string uid, long postId, NewJobPostRequest request, CancellationToken cancellationToken)
+    {
+        var row = await db.JobPosts.Include(p => p.Photos)
+            .FirstOrDefaultAsync(p => p.Id == postId && p.SeekerUid == uid && p.Status == JobPostStatuses.Open, cancellationToken);
+        if (row is null)
+        {
+            return new JobPostOutcome(null, null);
+        }
+
+        if (await InvalidFieldAsync(request, cancellationToken) is { } field)
+        {
+            return new JobPostOutcome(null, field);
+        }
+
+        if ((request.CategoryId != row.CategoryId || request.ServiceId != row.ServiceId)
+            && await db.JobOffers.AnyAsync(o => o.PostId == postId && o.Status != JobOfferStatuses.Withdrawn, cancellationToken))
+        {
+            return new JobPostOutcome(null, request.CategoryId != row.CategoryId ? "categoryId" : "serviceId");
+        }
+
+        var served = (await config.GetAsync(cancellationToken)).Config;
+        var point = GeoRules.Point(request.Latitude, request.Longitude)
+            ?? (request.CityId != row.CityId ? GeoRules.CentreOf([request.CityId]) : null);
+        row.CategoryId = request.CategoryId;
+        row.ServiceId = request.ServiceId;
+        row.Description = request.Description.Trim();
+        row.BudgetPesos = request.BudgetPesos;
+        row.BudgetMinPesos = request.BudgetMinPesos;
+        row.CityId = request.CityId;
+        row.BarangayId = ServedBarangay(served, request.CityId, request.BarangayId);
+        if (point is { } moved)
+        {
+            row.Latitude = moved.Latitude;
+            row.Longitude = moved.Longitude;
+        }
+
+        var photoIds = (request.PhotoIds ?? []).Distinct().ToList();
+        if (!row.Photos.OrderBy(p => p.Position).Select(p => p.PhotoId).SequenceEqual(photoIds))
+        {
+            db.JobPostPhotos.RemoveRange(row.Photos);
+            await db.SaveChangesAsync(cancellationToken);
+            row.Photos = [.. photoIds.Select((id, i) => new JobPostPhotoRow { PostId = row.Id, PhotoId = id, Position = (short)i })];
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return new JobPostOutcome(ToDto(row, uid), null);
+    }
+
     /// <summary>The caller's own posts, newest first (closed ones too; one the operator hid is left out).</summary>
     public async Task<List<JobPostDto>> MineAsync(string uid, CancellationToken cancellationToken)
     {

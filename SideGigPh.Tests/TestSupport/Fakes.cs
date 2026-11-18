@@ -730,6 +730,30 @@ public sealed class FakeJobPosts : IJobPostRepository
         return Task.FromResult(post);
     }
 
+    public List<(long PostId, JobPostDraft Draft)> Updated { get; } = [];
+
+    public Task<JobPost> UpdateAsync(long postId, JobPostDraft draft)
+    {
+        ThrowIfOffline();
+        var index = _mine.FindIndex(p => p.Id == postId);
+        if (index < 0 || !_mine[index].IsOpen)
+        {
+            throw new HttpRequestException("gone", null, System.Net.HttpStatusCode.NotFound);
+        }
+
+        Updated.Add((postId, draft));
+        _mine[index] = _mine[index] with
+        {
+            CategoryId = draft.CategoryId!, ServiceId = draft.ServiceId!, Description = draft.Description!.Trim(),
+            BudgetPesos = draft.BudgetPesos!.Value, BudgetMinPesos = draft.BudgetMinPesos, CityId = draft.CityId!, BarangayId = draft.BarangayId,
+            PhotoUrls = [.. draft.Photos.Select(photo => photo.Url)], PhotoIds = [.. draft.Photos.Select(photo => photo.Id)],
+        };
+        return Task.FromResult(_mine[index]);
+    }
+
+    /// <summary>Puts a post in the household's own list (as if it came from the server).</summary>
+    public void SeedMine(JobPost post) => _mine.Insert(0, post);
+
     public Task<IReadOnlyList<JobPost>> GetMineAsync() => Task.FromResult<IReadOnlyList<JobPost>>([.. _mine]);
 
     public Task CloseAsync(long postId)

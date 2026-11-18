@@ -7,7 +7,7 @@ namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
 /// The Seeker's Post tab: the button to post what they need done, then their own posts, newest first, each saying
-/// whether workers can still see it, with "Take down" on the open ones.
+/// whether workers can still see it, with "Edit" and "Take down" on the open ones.
 /// </summary>
 public partial class MyPostsPage : ComponentBase, IDisposable
 {

@@ -17,7 +17,7 @@
                 </MudStack>
             </MudStack>
 
-            <MudText Typo="Typo.body1">@Post.Description</MudText>
+            <MudText Typo="Typo.body1" Class="app-wrap-text">@Post.Description</MudText>
 
             <MudStack Spacing="1">
                 <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
@@ -52,6 +52,12 @@
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="flex-1">@T.Ago(Post.CreatedAt)</MudText>
+                @if (Post.IsOpen && Post.PickedProId is null)
+                {
+                    <MudButton Variant="Variant.Text" Size="Size.Small" Class="app-link-button" Href="@JobPostRoutes.Edit(Post.Id)">
+                        @T.Get(Copy.PostEdit)
+                    </MudButton>
+                }
                 @if (Post.IsOpen)
                 {
                     <MudButton Variant="Variant.Text" Size="Size.Small" Class="app-link-button" OnClick="@(() => OnTakeDown.InvokeAsync(Post))">

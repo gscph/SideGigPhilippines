@@ -41,6 +41,9 @@ public enum Limited
     /// <summary>A job post by a household (each one shows to every worker of that trade nearby).</summary>
     JobPost,
 
+    /// <summary>A household's open post changed (workers who see it read the new words and budget).</summary>
+    JobPostEdit,
+
     /// <summary>An offer sent, changed or taken back on a job post.</summary>
     JobOffer,
 
@@ -72,6 +75,7 @@ public sealed class CallerLimits : IDisposable
         [Limited.Profile] = (60, TimeSpan.FromHours(1)),
         [Limited.Verification] = (12, TimeSpan.FromHours(1)),
         [Limited.JobPost] = (10, TimeSpan.FromHours(1)),
+        [Limited.JobPostEdit] = (30, TimeSpan.FromHours(1)),
         [Limited.JobOffer] = (60, TimeSpan.FromHours(1)),
     };
 

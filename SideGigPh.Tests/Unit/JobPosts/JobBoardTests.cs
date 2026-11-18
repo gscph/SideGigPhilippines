@@ -351,4 +351,68 @@ public class JobBoardTests
 
         JobBoard.CanPost(draft).Should().BeTrue();
     }
+
+    private static JobPost Open(long id, int offers = 0) => new(
+        id, "construction", "construction-plumbing", "Barado ang lababo sa kusina", 800, "taytay",
+        [FakePhotoStore.Url("p1"), FakePhotoStore.Url("p2")], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null,
+        DateTimeOffset.UnixEpoch, OfferCount: offers, BudgetMinPesos: 500, BarangayId: "taytay-san-isidro", PhotoIds: ["p1", "p2"]);
+
+    [Fact]
+    public void AnEditDraft_HoldsThePostAsItIs()
+    {
+        var draft = JobBoard.EditDraft(Open(7));
+
+        draft.EditsPostId.Should().Be(7);
+        draft.ServiceId.Should().Be("construction-plumbing");
+        draft.BudgetMinPesos.Should().Be(500);
+        draft.BarangayId.Should().Be("taytay-san-isidro");
+        draft.Photos.Select(p => p.Id).Should().Equal("p1", "p2");
+        draft.WhatLocked.Should().BeFalse();
+        JobBoard.EditDraft(Open(7, offers: 2)).WhatLocked.Should().BeTrue("workers offered for this trade and service");
+    }
+
+    [Fact]
+    public async Task RemovingAPhotoOfThePost_KeepsTheStoredCopy_UntilSave()
+    {
+        var draft = JobBoard.EditDraft(Open(7));
+        await _board.AddPhotosAsync(draft, Picked(9));
+        var added = draft.Photos[^1].Id;
+
+        await _board.RemovePhotoAsync(draft, "p1");
+        await _board.RemovePhotoAsync(draft, added);
+
+        draft.Photos.Select(p => p.Id).Should().Equal("p2");
+        _photos.Deleted.Should().Equal([added], "only the photo added in this edit was never on the post");
+    }
+
+    [Fact]
+    public async Task SavingAnEdit_ChangesThePostInTheList_AndKeepsItsOfferCount()
+    {
+        _posts.SeedMine(Open(7, offers: 3));
+        await _board.LoadMineAsync();
+        var draft = JobBoard.EditDraft(_board.Mine[0]);
+        draft.BudgetPesos = 1500;
+
+        (await _board.SaveEditAsync(draft)).Should().Be(JobPostResult.Posted);
+
+        _board.Mine.Should().ContainSingle().Which.Should().Match<JobPost>(p => p.BudgetPesos == 1500 && p.OfferCount == 3);
+    }
+
+    [Fact]
+    public async Task AnEdit_ThatDoesntSend_OrFindsThePostClosed_SaysSo()
+    {
+        _posts.SeedMine(Open(7));
+        await _board.LoadMineAsync();
+        var draft = JobBoard.EditDraft(_board.Mine[0]);
+
+        _posts.Fail = true;
+        (await _board.SaveEditAsync(draft)).Should().Be(JobPostResult.Failed);
+        _posts.Fail = false;
+
+        await _board.CloseAsync(_board.Mine[0]);
+        (await _board.SaveEditAsync(draft)).Should().Be(JobPostResult.Closed);
+
+        draft.Description = "maikli";
+        (await _board.SaveEditAsync(draft)).Should().Be(JobPostResult.Incomplete);
+    }
 }

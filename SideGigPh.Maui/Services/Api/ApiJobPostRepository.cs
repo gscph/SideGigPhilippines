@@ -17,6 +17,13 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.ToModel();
     }
 
+    public async Task<JobPost> UpdateAsync(long postId, JobPostDraft draft)
+    {
+        using var response = await api.SendJsonAsync(HttpMethod.Put, $"job-posts/{postId}", draft.ToRequest(), ApiJson.Default.NewJobPostRequest);
+        await api.EnsureWrittenAsync(response, "change the job post");
+        return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.ToModel();
+    }
+
     public Task<IReadOnlyList<JobPost>> GetMineAsync() => api.ReadAsync<IReadOnlyList<JobPost>>(async () =>
         (await api.GetAsync("job-posts/mine", ApiJson.Default.ListJobPostDto) ?? []).Select(dto => dto.ToModel()).ToList(),
         [], "this person's job posts");

@@ -13,6 +13,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>); then what is
 /// wrong and up to three photos. It starts with the trade, service, town and barangay
 /// from their last search or post, so most people only type the problem and a number. Post leads back to their posts.
+/// The same form at <c>/posts/{id}/edit</c> changes an open post (<see cref="JobBoard.EditDraft"/>): filled in, "Save
+/// changes", the trade and service fixed once offers came in, and a note instead when the post closed meanwhile.
 /// </summary>
 public partial class NewPostPage : ComponentBase
 {
@@ -24,10 +26,15 @@ public partial class NewPostPage : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
+    /// <summary>The post to change (<c>/posts/{id}/edit</c>), or null for a new post.</summary>
+    [Parameter] public long? Id { get; set; }
+
     private JobPostDraft _draft = new();
+    private bool _closed; // Edit post: it isn't theirs or no longer open
     private PhotoAddResult? _photoResult;
     private PostPart? _sheet;
     private PostSnapshot? _before;
+    private bool _jobsStep; // the What sheet's second page: the picked trade's jobs
     private bool _busy;
     private bool _failed;
 
@@ -36,6 +43,20 @@ public partial class NewPostPage : ComponentBase
         if (!await Workspace.EnsureLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
+        if (Id is { } postId)
+        {
+            if (await Board.FindMineAsync(postId) is { IsOpen: true } post)
+            {
+                _draft = JobBoard.EditDraft(post);
+            }
+            else
+            {
+                _closed = true;
+            }
+
             return;
         }
 
@@ -61,9 +82,16 @@ public partial class NewPostPage : ComponentBase
         }
     }
 
+    /// <summary>Changing an open post (<see cref="Id"/>), not posting a new one.</summary>
+    private bool Editing => Id is not null;
+
     private void GoBack()
     {
-        Board.KeepUnsent(_draft);
+        if (!Editing)
+        {
+            Board.KeepUnsent(_draft); // an edit is dropped: the post itself still holds it
+        }
+
         Nav.NavigateTo(JobPostRoutes.Mine);
     }
 
@@ -76,6 +104,7 @@ public partial class NewPostPage : ComponentBase
 
         _before = PostReview.Take(_draft);
         _sheet = part;
+        _jobsStep = false;
     }
 
     /// <summary>Cancel or the close button: the answers as they were when the sheet opened.</summary>
@@ -89,7 +118,23 @@ public partial class NewPostPage : ComponentBase
         _sheet = null;
     }
 
-    private void SaveSheet() => _sheet = null;
+    private void SaveSheet()
+    {
+        if (_sheet is { } part && PostReview.CanSave(_draft, part))
+        {
+            _sheet = null;
+        }
+    }
+
+    /// <summary>A kind of work was tapped: on to its jobs (a trade without a choice, "Others", stays here).</summary>
+    private void TradePicked() => _jobsStep = PostReview.HasJobChoice(_draft.CategoryId);
+
+    /// <summary>← on the jobs page: back to the kinds of work, the picks kept (Cancel still puts everything back).</summary>
+    private void BackToTrades() => _jobsStep = false;
+
+    /// <summary>The jobs page is titled with its trade ("Construction"), every other sheet with its part.</summary>
+    private string SheetTitle(PostPart part) =>
+        _jobsStep && ReferenceData.FindTrade(_draft.CategoryId) is { } trade ? T.Get(trade.Label) : T.PostSheetTitle(part);
 
     // The phone's photo picker shows over the page; the splash covers only the upload.
     private async Task AddPhotosAsync()
@@ -124,6 +169,22 @@ public partial class NewPostPage : ComponentBase
         _failed = false;
         try
         {
+            if (Editing)
+            {
+                switch (await Busy.RunAsync(() => Board.SaveEditAsync(_draft)))
+                {
+                    case JobPostResult.Posted:
+                        Nav.NavigateTo(JobPostRoutes.Mine, replace: true);
+                        return;
+                    case JobPostResult.Closed:
+                        _closed = true;
+                        return;
+                    default:
+                        _failed = true;
+                        return;
+                }
+            }
+
             if (await Busy.RunAsync(() => Board.PostAsync(_draft)) == JobPostResult.Posted)
             {
                 await Workspace.RememberPostAsync(_draft);

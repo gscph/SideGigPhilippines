@@ -197,6 +197,13 @@
     min-width: 0;
 }
 
+/* Text people typed (a post's description, an offer's note): a long word or a run of letters with no spaces wraps
+   inside the card instead of running past its edge. */
+.app-wrap-text {
+    overflow-wrap: anywhere;
+    white-space: pre-line;
+}
+
 /* A choice row on a request's page (PriceChoice, Airbnb's "Choose when to pay"): the label on the left, the radio at
    the far right, the whole row as wide as the card. MudRadio has no full-width option. */
 .app-choice-radio,

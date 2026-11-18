@@ -15,6 +15,7 @@ namespace SideGigPh.Maui.Models;
 /// <param name="BudgetPesos">The top of the household's budget ("up to"), the price "Take it" offers.</param>
 /// <param name="BudgetMinPesos">The low end ("from"), or null when they gave only a top.</param>
 /// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked, or null (not sure).</param>
+/// <param name="PhotoIds">The stored ids of <paramref name="PhotoUrls"/>, same order (Edit post keeps them); null when unknown.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -33,7 +34,8 @@ public sealed record JobPost(
     string? PickedProId = null,
     int? BudgetMinPesos = null,
     ReviewSummary? HouseholdStars = null,
-    string? BarangayId = null);
+    string? BarangayId = null,
+    IReadOnlyList<string>? PhotoIds = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.
@@ -69,6 +71,18 @@ public sealed class JobPostDraft
 
     /// <summary>Photos of the problem already uploaded, in the order added.</summary>
     public List<WorkPhoto> Photos { get; } = [];
+
+    /// <summary>The post this draft changes (Edit post), or null for a new one.</summary>
+    public long? EditsPostId { get; set; }
+
+    /// <summary>
+    /// Photos already on the post being edited: taking one off the draft keeps the stored copy (Cancel still shows it;
+    /// only Save takes it off the post).
+    /// </summary>
+    public HashSet<string> SavedPhotoIds { get; } = [];
+
+    /// <summary>Workers already sent offers on the post being edited: its trade and service stay as they are.</summary>
+    public bool WhatLocked { get; set; }
 }
 
 /// <summary>How a worker's own offer stands.</summary>
@@ -100,6 +114,9 @@ public enum JobPostResult
 
     /// <summary>It didn't reach the server (no internet, server error): worth trying again.</summary>
     Failed,
+
+    /// <summary>Edit post: the post is no longer open (picked, taken down), so it can't change.</summary>
+    Closed,
 }
 
 /// <summary>

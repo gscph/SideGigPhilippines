@@ -1,14 +1,22 @@
 @page "/posts/new"
+@page "/posts/{Id:long}/edit"
 
 <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
     <MudStack Spacing="0" Class="full-screen">
         @if (_sheet is { } part)
         {
-            <SheetHeader OnClose="CancelSheet" Divider="false" />
+            @if (_jobsStep)
+            {
+                <SheetHeader OnBack="BackToTrades" Divider="false" />
+            }
+            else
+            {
+                <SheetHeader OnClose="CancelSheet" Divider="false" />
+            }
 
             <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
-                <MudText Typo="Typo.h4" HtmlTag="h1">@T.PostSheetTitle(part)</MudText>
-                <PostPartFields Draft="_draft" Part="part" />
+                <MudText Typo="Typo.h4" HtmlTag="h1">@SheetTitle(part)</MudText>
+                <PostPartFields Draft="_draft" Part="part" JobsStep="_jobsStep" OnTradePicked="TradePicked" OnJobPicked="StateHasChanged" />
             </MudStack>
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
@@ -16,24 +24,36 @@
                     <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" OnClick="CancelSheet">
                         @T.Get(CommonCopy.Cancel)
                     </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="SaveSheet">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(!PostReview.CanSave(_draft, part))" OnClick="SaveSheet">
                         @T.Get(Copy.Save)
                     </MudButton>
                 </MudStack>
             </MudPaper>
+        }
+        else if (_closed)
+        {
+            <SheetHeader OnClose="GoBack" Divider="false" />
+            <MudStack Class="flex-1 px-6 pt-2">
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.PostEditTitle)</MudText>
+                <MudAlert Severity="Severity.Normal" Variant="Variant.Text" role="alert">@T.Get(Copy.PostEditClosed)</MudAlert>
+            </MudStack>
         }
         else
         {
             <SheetHeader OnClose="GoBack" Divider="false" />
 
             <MudStack Spacing="5" Class="flex-1 px-6 pt-2 pb-16">
-                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.PostNewTitle)</MudText>
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Editing ? Copy.PostEditTitle : Copy.PostNewTitle)</MudText>
 
                 <MudPaper Outlined="true" Elevation="0" Class="app-rounded px-4">
                     @if (PostReview.Has(_draft, PostPart.What))
                     {
-                        <PostDraftSummary Draft="_draft" Busy="_busy" ActionLabel="@T.PostAction(_draft, PostPart.What)"
+                        <PostDraftSummary Draft="_draft" Busy="_busy" ActionLabel="@(_draft.WhatLocked ? null : T.PostAction(_draft, PostPart.What))"
                                           OnAction="@(() => OpenSheet(PostPart.What))" />
+                        @if (_draft.WhatLocked)
+                        {
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="pb-3">@T.Get(Copy.PostWhatLocked)</MudText>
+                        }
                     }
                     else
                     {
@@ -79,14 +99,14 @@
 
                 @if (_failed)
                 {
-                    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.PostFailed)</MudAlert>
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Editing ? Copy.PostSaveFailed : Copy.PostFailed)</MudAlert>
                 }
             </MudStack>
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
                            Disabled="@(_busy || !JobBoard.CanPost(_draft))" OnClick="PostAsync">
-                    @T.Get(Copy.PostSend)
+                    @T.Get(Editing ? Copy.PostSaveChanges : Copy.PostSend)
                 </MudButton>
                 @if (JobBoard.MissingHint(_draft, T) is { } missing)
                 {
