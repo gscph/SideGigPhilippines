@@ -486,12 +486,72 @@ public class OnboardingStepsTests
     }
 
     [Fact]
-    public void ProgressBar_GoesUpFromTheFirstQuestionToThePreview_AndNeverDropsBack()
+    public void ProgressBar_GoesUpFromTheFirstQuestionToTheReadyStep_AndNeverDropsBack()
     {
-        var bar = Enum.GetValues<ProStep>().Select(OnboardingSteps.ProgressOf).ToList();
+        var bar = Enum.GetValues<ProStep>().Select(OnboardingSteps.ProgressOf)
+            .Concat(Enum.GetValues<PublishStep>().Select(OnboardingSteps.ProgressOf))
+            .ToList();
 
         bar.Should().BeInAscendingOrder().And.OnlyHaveUniqueItems();
         bar[0].Should().BeGreaterThan(0);  // endowed progress
-        bar[^1].Should().Be(1);
+        bar[^1].Should().Be(1, "the Ready step that publishes is the end of the bar");
+        OnboardingSteps.ProgressOf(PublishStep.Checklist).Should().BeGreaterThan(OnboardingSteps.ProgressOf(ProStep.Preview));
     }
+
+    // --- Going live: the promises, then Ready ----------------------------------
+
+    [Fact]
+    public void Publish_InterviewLeadsToThePromises_ThenReady()
+    {
+        WithProof(FullyAnsweredDraft()).AfterInterviewPath().Should().Be(OnboardingSteps.PathOf(PublishStep.Checklist));
+        OnboardingSteps.PathOf(PublishStep.Checklist).Should().Be("/professional/publish", "every Publish link opens the promises");
+        OnboardingSteps.PathOf(PublishStep.Ready).Should().Be("/professional/publish/ready");
+    }
+
+    [Fact]
+    public void Publish_BackWalksTheSteps()
+    {
+        OnboardingSteps.BackPath(PublishStep.Ready).Should().Be("/professional/publish");
+        OnboardingSteps.BackPath(PublishStep.Checklist).Should().Be(OnboardingSteps.PathOf(ProStep.Preview));
+    }
+
+    [Theory]
+    [InlineData(PublishStep.Checklist, false)]
+    [InlineData(PublishStep.Checklist, true)]
+    [InlineData(PublishStep.Ready, true)]
+    public void Publish_ReadyWorker_SeesTheStep(PublishStep step, bool promisesTicked) =>
+        WithProof(FullyAnsweredDraft()).PublishRedirect(step, promisesTicked).Should().BeNull();
+
+    [Fact]
+    public void Publish_ReadyStepWithoutEveryPromise_GoesBackToTheChecklist() =>
+        WithProof(FullyAnsweredDraft()).PublishRedirect(PublishStep.Ready, promisesTicked: false)
+            .Should().Be("/professional/publish", "a link or a killed app never skips the promises");
+
+    [Theory]
+    [InlineData(PublishStep.Checklist)]
+    [InlineData(PublishStep.Ready)]
+    public void Publish_LiveListing_GoesHome_NeverThroughThePromisesAgain(PublishStep step)
+    {
+        var draft = WithProof(FullyAnsweredDraft());
+        draft.PublishedAt = DateTimeOffset.Now;
+
+        draft.PublishRedirect(step, promisesTicked: false).Should().Be("/professional");
+    }
+
+    [Theory]
+    [InlineData(PublishStep.Checklist)]
+    [InlineData(PublishStep.Ready)]
+    public void Publish_MissingAnswerOrProof_ReopensThatFirst(PublishStep step)
+    {
+        var noAnswer = WithProof(FullyAnsweredDraft());
+        noAnswer.CityIds.Clear();
+        noAnswer.PublishRedirect(step, promisesTicked: true).Should().Be(OnboardingSteps.ProFirstUnansweredPath);
+
+        FullyAnsweredDraft().PublishRedirect(step, promisesTicked: true).Should().Be(OnboardingSteps.PathOf(ProStep.Photo));
+    }
+
+    [Fact]
+    public void LaunchPath_WorkerKilledOnTheReadyStep_ResumesAtThePromises() =>
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
+            .Should().Be(OnboardingSteps.PathOf(PublishStep.Checklist), "the ticks live only in memory, so they are asked again");
 }

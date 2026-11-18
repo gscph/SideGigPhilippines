@@ -19,6 +19,7 @@ public static class AppImages
     public static readonly string Price = File("money");
     public static readonly string Preview = File("profile-card");
     public static readonly string Publish = File("megaphone");
+    public static readonly string Promise = File("checklist");
     public static readonly string Selfie = File("selfie");
     public static readonly string Number = File("phone");
     public static readonly string WorkPhotos = File("photos");

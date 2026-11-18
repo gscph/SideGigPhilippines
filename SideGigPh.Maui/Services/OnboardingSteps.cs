@@ -23,6 +23,16 @@ public enum ProStep
     Preview,
 }
 
+/// <summary>
+/// Going live, after the interview (<c>/professional/publish</c>, then <c>/professional/publish/ready</c>): the promises
+/// (<see cref="PublishChecklist"/>), then the card one last time and the Ready button that publishes.
+/// </summary>
+public enum PublishStep
+{
+    Checklist = 1,
+    Ready,
+}
+
 /// <summary>The Seeker interview's questions, in order; the number is the step in its URL (<c>/start/seeker/{n}</c>).</summary>
 public enum SeekerStep
 {
@@ -224,8 +234,11 @@ public static class OnboardingSteps
 
     // --- After the interview (Publish) ---------------------------------------
 
+    // One progress bar from the first question to the Ready step, so it never drops back between the parts.
+    private const int ProTotalSteps = (int)ProStep.Preview + (int)PublishStep.Ready;
+
     /// <summary>How full the progress bar is on an interview question (step 1 already shows some: endowed progress).</summary>
-    public static double ProgressOf(ProStep step) => (int)step / (double)ProStep.Preview;
+    public static double ProgressOf(ProStep step) => (int)step / (double)ProTotalSteps;
 
     /// <summary>
     /// Where the interview's Done (and launch) leads a Skilled Worker: Pro home once live, else the selfie question while
@@ -235,6 +248,29 @@ public static class OnboardingSteps
         draft.PublishedAt is not null ? ProRoutes.Home
         : !draft.HasProof ? PathOf(ProStep.Photo)
         : ProRoutes.Publish;
+
+    // --- Skilled Worker going live (promises, then Ready) ------------------
+
+    public static string PathOf(PublishStep step) => step == PublishStep.Checklist ? ProRoutes.Publish : ProRoutes.PublishReady;
+
+    /// <summary>How full the progress bar is on a Publish step: it carries on from the interview's preview; Ready is 100%.</summary>
+    public static double ProgressOf(PublishStep step) => ((int)ProStep.Preview + (int)step) / (double)ProTotalSteps;
+
+    /// <summary>Back from a Publish step: the checklist goes to the interview's preview, Ready to the checklist.</summary>
+    public static string BackPath(PublishStep step) =>
+        step == PublishStep.Checklist ? PathOf(ProStep.Preview) : PathOf(PublishStep.Checklist);
+
+    /// <summary>
+    /// Where a Publish step sends the worker instead of showing (null: show it). Live already: Pro home (a live
+    /// listing's edits never pass the promises again). A missing answer reopens the interview, a missing photo its selfie
+    /// question, and the Ready step without every promise ticked (a link, or the app killed and reopened) the checklist.
+    /// </summary>
+    public static string? PublishRedirect(this ProfessionalDraft draft, PublishStep step, bool promisesTicked) =>
+        draft.PublishedAt is not null ? ProRoutes.Home
+        : !draft.IsListingComplete ? ProFirstUnansweredPath
+        : !draft.HasProof ? draft.AfterInterviewPath()
+        : step == PublishStep.Ready && !promisesTicked ? PathOf(PublishStep.Checklist)
+        : null;
 
     // There is one area, so it is never asked: it follows from the towns (the API needs it on the listing).
     private static void SetAreaFromTowns(this ProfessionalDraft draft) => draft.AreaId = ReferenceData.AreaOf(draft.CityIds.FirstOrDefault());

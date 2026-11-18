@@ -172,8 +172,9 @@ wherever it is processed, and we choose providers that use encryption and recogn
 ### When the law requires it
 
 We may disclose data when required by law, a court order, a subpoena, or a lawful request of a government agency
-(including the NPC, DTI, PNP or NBI), or when needed to protect someone's life or safety, or to establish, exercise
-or defend legal claims.
+(including the NPC, DTI, PNP or NBI), or when needed to protect someone's life or safety, to report conduct in the
+App that may be a crime (for example threats, harassment, sexual misconduct, fraud or illegal drugs; Terms §8.3), or
+to establish, exercise or defend legal claims.
 
 ## 6. How long we keep data
 

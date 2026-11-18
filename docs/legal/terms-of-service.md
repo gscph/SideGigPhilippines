@@ -12,7 +12,10 @@
 - **Hindi namin ginagarantiya** ang galing, ugali, lisensya o kaligtasan ng kahit sinong user. Ang "verified" ay
   **phone number lang** ang ibig sabihin.
 - **Libre ang app.** Wala kaming komisyon.
-- **Bawal ang scam, bastos, peke, at ilegal.** Pwede naming tanggalin ang account na lumalabag.
+- **Patas na presyo.** Ang Skilled Worker ay hindi nag-o-overcharge, at ang offer niya ay presyong tutuparin niya:
+  bawal ang fake na murang offer na tataasan pala.
+- **Bawal ang scam, masamang salita, bastos o sexual, droga, harassment, pananakot, peke, at ilegal.** Pwede naming
+  i-block o tanggalin ang account na lumalabag, at i-report sa pulis kung kailangan.
 - **18 pataas lang** ang pwedeng gumamit.
 
 ---
@@ -98,7 +101,16 @@ work you are not legally allowed or qualified to do;
 d) you are responsible for your own **taxes** (including BIR registration and receipts where required), **SSS,
 PhilHealth and Pag-IBIG** contributions, tools, materials, insurance and safety equipment;
 
-e) you will follow all applicable laws, including safety, building and consumer protection laws.
+e) you will follow all applicable laws, including safety, building and consumer protection laws;
+
+f) you will deal honestly and respectfully with Customers: you will reply to them, do the work at the price you
+agreed, and not overcharge, cheat or abuse them;
+
+g) any price you show or offer, including an offer on a Customer's request, is a fair price you intend to honour. You
+will not offer a low price to be picked and then ask for more for the same work. A higher price is allowed only when
+the Customer agrees to a change in the work.
+
+You confirm these promises in the App before your listing is published.
 
 ## 6. Rules for Customers
 
@@ -118,8 +130,8 @@ You must not use the App to:
 
 1. post anything false, misleading, fake or copied, including fake listings, fake reviews or reviews of yourself;
 2. defraud, scam or deceive anyone, or ask for money for a job you don't intend to do;
-3. harass, threaten, bully, stalk or discriminate against anyone, or send sexual, obscene or violent content
-   (including acts punished under the **Safe Spaces Act**, Republic Act No. 11313);
+3. harass, threaten, bully, stalk or discriminate against anyone, use insulting or abusive language, or send
+   sexual, obscene or violent content (including acts punished under the **Safe Spaces Act**, Republic Act No. 11313);
 4. post anyone's personal data without their consent;
 5. offer or request anything illegal, including services that require a license you don't have, prohibited drugs,
    weapons, sexual services, or the employment of minors;
@@ -129,7 +141,8 @@ You must not use the App to:
 9. copy, scrape or collect data from the App, use bots, or interfere with the App or its security;
 10. advertise unrelated products or services, send spam, or post links to other platforms to evade these Terms.
 
-We have **zero tolerance** for objectionable content and abusive users.
+We have **zero tolerance** for objectionable content and abusive users. Tarbaho is a community: users who break
+these rules are reported and blocked, and may be reported to the police (§8.3).
 
 ## 8. Reports, blocking and removal
 
@@ -141,7 +154,9 @@ yourself right away while we look into a report. We may,
 at our discretion and without prior notice, remove content, hide a listing, or suspend or delete an account that we
 reasonably believe breaks these Terms or the law, or puts other users at risk. We will tell you why when we can.
 
-8.3 We may share information with the police, courts and government agencies as described in our Privacy Policy.
+8.3 Where conduct may be a crime (for example threats, harassment, sexual misconduct, fraud or illegal drugs), we
+may report it to the police or other authorities. We may share information with the police, courts and government
+agencies as described in our Privacy Policy.
 
 8.4 If you believe we removed your content or account by mistake, write to jcadiao1102@gmail.com within 30 days.
 

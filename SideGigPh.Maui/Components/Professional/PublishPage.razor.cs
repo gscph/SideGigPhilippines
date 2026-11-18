@@ -1,33 +1,26 @@
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
-using SideGigPh.Maui.Components.Onboarding;
-using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Going live: the pro sees their card one last time and takes a short pledge (answer
-/// customers, honest work at the posted price) before publishing. A focused full-screen
-/// step, so it uses the interview look rather than the Pro home shell.
+/// Going live, step 1 (<see cref="PublishStep.Checklist"/>): the worker ticks every promise (<see cref="PublishChecklist"/>:
+/// honest work and prices, the Terms, the community rules, fair offers) before the Ready step, which shows the card and
+/// publishes. Every "Publish" link opens here; a live listing goes home (its edits never pass the promises again). The
+/// verified-number check stays here, before the promises, as it was before the pledge. A full-screen step with the
+/// interview look; the rules are in <see cref="OnboardingSteps"/>.
 /// </summary>
 public partial class PublishPage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
-    [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
-    [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
-    [Inject] private ILogger<PublishPage> Logger { get; set; } = default!;
 
     private bool _loaded;
-    private bool _pledged;
-    private bool _busy;
-    private LocalizedText? _problem;
-    private bool _failed;
+
+    private static double Progress => OnboardingSteps.ProgressOf(PublishStep.Checklist);
 
     protected override async Task OnInitializedAsync()
     {
@@ -37,23 +30,9 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
-        if (Workspace.IsPublished)
+        if (Workspace.Draft.PublishRedirect(PublishStep.Checklist, Workspace.Commitments.AllTicked) is { } elsewhere)
         {
-            Nav.NavigateTo(ProRoutes.Home, replace: true);
-            return;
-        }
-
-        // A listing missing answers (no jobs, area or towns) goes back to the first unanswered question.
-        if (!Workspace.Draft.IsListingComplete)
-        {
-            Nav.NavigateTo(ProfessionalInterview.FirstUnansweredPath, replace: true);
-            return;
-        }
-
-        // The own photo comes first: the interview's selfie question opens while it is missing.
-        if (!Workspace.Draft.HasProof)
-        {
-            Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);
+            Nav.NavigateTo(elsewhere, replace: true);
             return;
         }
 
@@ -61,7 +40,7 @@ public partial class PublishPage : ComponentBase
         // here first). Its Back goes to the interview's preview, since home would resume right back here; "Do this later"
         // goes to Pro home, whose banner and checklist say the number is still needed to publish (no dead end when today's
         // codes are used up).
-        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProStep.Preview),
+        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.BackPath(PublishStep.Checklist),
                 laterPath: ProRoutes.Home) is { } step)
         {
             Nav.NavigateTo(step, replace: true);
@@ -71,58 +50,7 @@ public partial class PublishPage : ComponentBase
         _loaded = true;
     }
 
-    private async Task PublishAsync()
-    {
-        if (_busy)
-        {
-            return; // a second tap before the button re-rendered as disabled
-        }
+    private void Next() => Nav.NavigateTo(OnboardingSteps.PathOf(PublishStep.Ready));
 
-        _busy = true;
-        _failed = false;
-        try
-        {
-            var result = await Busy.RunAsync(Workspace.PublishAsync);
-            if (result == PublishResult.Incomplete)
-            {
-                Nav.NavigateTo(ProfessionalInterview.FirstUnansweredPath, replace: true);
-                return;
-            }
-
-            if (result == PublishResult.MissingProof)
-            {
-                Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);
-                return;
-            }
-
-            _problem = result switch
-            {
-                PublishResult.PhoneTaken => Copy.PublishPhoneTaken,
-                PublishResult.PhotoInUse => Copy.PublishPhotoInUse,
-                PublishResult.TooManyTries => Copy.PublishTooManyTries,
-                _ => null,
-            };
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "Publishing the listing failed.");
-
-            // The server answered and refused (its code is in the log above, so in the error report): not the internet.
-            _problem = ex is HttpRequestException { StatusCode: not null } ? Copy.PublishRefused : null;
-            _failed = _problem is null;
-        }
-        finally
-        {
-            _busy = false;
-        }
-
-        if (_problem is null && !_failed)
-        {
-            Analytics.Track(AppEvents.ListingPublished);
-            Nav.NavigateTo(ProRoutes.Home, replace: true);
-        }
-    }
-
-    // The interview's last question: the preview.
-    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProStep.Preview));
+    private void GoBack() => Nav.NavigateTo(OnboardingSteps.BackPath(PublishStep.Checklist));
 }

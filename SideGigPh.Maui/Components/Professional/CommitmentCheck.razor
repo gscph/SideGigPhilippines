@@ -1,0 +1,14 @@
+<MudPaper Outlined="true" Class="pa-2 app-rounded mud-width-full">
+    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start">
+        <MudIcon Icon="@Icon" Color="Color.Primary" Class="mt-2 ml-1 flex-shrink-0" aria-hidden="true" />
+        <MudStack Spacing="0" Class="flex-1">
+            <MudCheckBox T="bool" Value="Ticked" ValueChanged="TickedChanged" Color="Color.Primary" Label="@T.Get(Item.Text)" />
+            @if (Item.LinksTerms && Brand.Legal is { } legal)
+            {
+                <MudLink Href="@legal.TermsUrl" Typo="Typo.body2" Color="Color.Dark" Underline="Underline.Always" Class="ml-3 mb-2">
+                    @T.Get(Copy.CommitReadTerms)
+                </MudLink>
+            }
+        </MudStack>
+    </MudStack>
+</MudPaper>
