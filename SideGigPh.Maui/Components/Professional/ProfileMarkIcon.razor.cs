@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// The small mark at the end of a Me page row (work photos, references, badges): red when publishing needs it, green
-/// when it's enough, the verified blue when it's full, amber for a badge worth adding, gray while one is being checked.
+/// when it's enough, the verified blue when it's full, amber for work photos or a badge worth adding, gray while one is being checked.
 /// </summary>
 public partial class ProfileMarkIcon : ComponentBase
 {

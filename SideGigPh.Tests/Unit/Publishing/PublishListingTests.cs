@@ -107,15 +107,21 @@ public class PublishListingTests
         app.Profiles.Published.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task Publish_OnlyOneWorkPhoto_ReturnsMissingProof()
+    // Work photos are optional: too much friction before going live. They only help the listing be seen.
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task Publish_FewOrNoWorkPhotos_StillPublishes(int count)
     {
         var draft = TestData.ReadyDraft();
-        draft.WorkPhotoIds = [TestData.PhotoId(2)];
+        draft.WorkPhotoIds = [.. Enumerable.Range(2, count).Select(TestData.PhotoId)];
 
         var app = await FakeApp.ProAsync(draft);
 
-        (await app.Pro.PublishAsync()).Should().Be(PublishResult.MissingProof);
+        draft.HasProof.Should().BeTrue();
+        app.Pro.IsReadyToPublish.Should().BeTrue();
+        (await app.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+        app.Profiles.Published.Should().ContainSingle().Which.Listing.WorkPhotoUrls.Should().HaveCount(count);
     }
 
     [Fact]

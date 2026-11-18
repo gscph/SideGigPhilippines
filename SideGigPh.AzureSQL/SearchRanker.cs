@@ -79,9 +79,10 @@ public sealed record RankCandidate(ListingDto Listing, WorkerSignals Signals);
 /// "ranked high on reviews and replies, low on price".
 /// </summary>
 /// <param name="Trust">Points for badges an operator approved (<see cref="SearchRanker.TrustFeature"/>), on top of the 100.</param>
-public sealed record RankScore(double Reviews, double Responsiveness, double Activity, double BudgetFit, double Experience, double Trust = 0)
+/// <param name="Photos">Points for work photos on the listing (<see cref="SearchRanker.PhotosFeature"/>), on top of the 100.</param>
+public sealed record RankScore(double Reviews, double Responsiveness, double Activity, double BudgetFit, double Experience, double Trust = 0, double Photos = 0)
 {
-    public double Total => Reviews + Responsiveness + Activity + BudgetFit + Experience + Trust;
+    public double Total => Reviews + Responsiveness + Activity + BudgetFit + Experience + Trust + Photos;
 }
 
 /// <summary>Ranked results: workers who go to the Seeker's town, then workers from other served towns.</summary>
@@ -113,6 +114,10 @@ public sealed record RankedResult(IReadOnlyList<SearchHitDto> InTown, IReadOnlyL
 /// <item>Badges (up to +10 on top): ID Verified 4, TESDA Certified 3, a past project with a developer or company 3.
 /// A bonus, not a share of the 100, so a worker without badges scores exactly as before and one with them moves up:
 /// proof a person checked is the one signal a new worker can earn on day one.</item>
+/// <item>Work photos (up to +3 on top): 3 for <see cref="FullPhotoBonusAt"/> or more, half for one. Optional (a
+/// listing publishes without them), so also a bonus: a worker without photos scores exactly as before. Worth as much
+/// as a TESDA or project badge, less than an ID, because nobody checks them; capped at 2 so a worker can't climb by
+/// adding more photos, only by showing some.</item>
 /// </list>
 /// </summary>
 public static class SearchRanker
@@ -131,6 +136,10 @@ public static class SearchRanker
     public const double IdBadgeWeight = 4;
     public const double TesdaBadgeWeight = 3;
     public const double ProjectBadgeWeight = 3;
+
+    // Work photos: bonus points on top of the 100. Full at FullPhotoBonusAt photos, half for a single one.
+    public const double WorkPhotosWeight = 3;
+    public const int FullPhotoBonusAt = 2;
 
     // Reviews: stars are smoothed toward a prior (a Bayesian average) so 1 lucky 5-star can't beat 40 good reviews,
     // and the count itself earns points, on a log scale (the 5th review matters more than the 45th).
@@ -193,7 +202,8 @@ public static class SearchRanker
             Activity: (RecentActivityWeight * RecentFeature(signals, now)) + (TenureWeight * TenureFeature(signals, now)),
             BudgetFit: BudgetFitWeight * BudgetFeature(listing, request, scales),
             Experience: ExperienceWeight * ExperienceFeature(listing, scales),
-            Trust: TrustFeature(listing));
+            Trust: TrustFeature(listing),
+            Photos: PhotosFeature(listing));
     }
 
     /// <summary>
@@ -212,6 +222,10 @@ public static class SearchRanker
             + (kinds.Contains(VerificationKinds.Tesda) ? TesdaBadgeWeight : 0)
             + (kinds.Contains(VerificationKinds.Developer) ? ProjectBadgeWeight : 0);
     }
+
+    /// <summary>The bonus for work photos: none 0, one half of <see cref="WorkPhotosWeight"/>, <see cref="FullPhotoBonusAt"/> or more all of it.</summary>
+    public static double PhotosFeature(ListingDto pro) =>
+        WorkPhotosWeight * Math.Min(pro.WorkPhotos?.Count ?? 0, FullPhotoBonusAt) / FullPhotoBonusAt;
 
     /// <summary>Smoothed stars on 1–5, as 0–1.</summary>
     private static double StarsFeature(ReviewSummaryDto? reviews)

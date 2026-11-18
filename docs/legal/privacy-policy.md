@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 16, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 18, 2026
 
 ---
 
@@ -54,7 +54,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Language** (English / Taglish) and **role** (Customer / Skilled Worker) | Everyone | To show the App in your language and the right screens |
 | **Profile photo / selfie** | Skilled Workers (required), Customers (optional) | Shown on your listing or chats so the other person knows who they are dealing with |
 | **Listing details**: trade, jobs, towns you serve, years of experience, prices | Skilled Workers | Your public listing and search results |
-| **Work photos** (2–6) | Skilled Workers | Shown on your listing |
+| **Work photos** (optional, up to 6) | Skilled Workers who add them | Shown on your listing; a listing with work photos shows higher in search results |
 | **References**: name and mobile number of 1–3 people who can vouch for you | Skilled Workers | Trust check. **Never shown to Customers** (they see only how many references you have). We may contact a reference to confirm, or when a Customer reports a problem. See §3.4 |
 | **Badge proofs** (optional): a photo of a **government ID**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
 | **Job request details**: job, town, how urgent, budget | Customers | To find matching Skilled Workers and to start a chat |

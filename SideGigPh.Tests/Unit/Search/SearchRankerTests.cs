@@ -278,7 +278,8 @@ public class SearchRankerTests
             Signals(received: 200, answered: 200, replyMinutes: 0, activeDaysAgo: 0, joinedDaysAgo: 400));
 
         weights.Should().Be(100);
-        Score(best).Total.Should().BeInRange(97, 100);
+        var score = Score(best);
+        (score.Total - score.Trust - score.Photos).Should().BeInRange(97, 100, "badges and work photos are bonuses on top of the 100");
     }
 
     [Fact]
@@ -287,7 +288,7 @@ public class SearchRankerTests
         var score = Score(Candidate(Dto("Pricey Pia", rate: "5000-up")));
 
         score.BudgetFit.Should().Be(0, "far over the Seeker's budget");
-        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience + score.Trust);
+        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience + score.Trust + score.Photos);
     }
 
     [Fact]

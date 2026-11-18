@@ -4,7 +4,7 @@ using SideGigPh.Tests.TestSupport;
 namespace SideGigPh.Tests.Unit.Photos;
 
 /// <summary>
-/// Photos are part of the proof a worker needs to publish (own photo + 2 work photos), and the avatar customers see.
+/// The own photo is part of the proof a worker needs to publish and the avatar customers see; work photos are optional and help them be seen.
 /// Every way picking or uploading can go wrong must end in a clear notice (no permission, upload failed, photo
 /// belongs to someone else), never a crash or a silently missing photo.
 /// </summary>

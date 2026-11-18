@@ -14,7 +14,7 @@ public enum ProfileMark
     /// <summary>Blue: as full as it gets (all 6 work photos, all 3 references, all 3 badges).</summary>
     Full,
 
-    /// <summary>Amber: not needed to publish, but worth doing (badges only, for now).</summary>
+    /// <summary>Amber: not needed to publish, but worth doing (work photos and badges: both rank higher in search).</summary>
     Recommended,
 
     /// <summary>Gray: sent and waiting for a person to check (badges).</summary>
@@ -33,7 +33,6 @@ public enum ProfileLevel
 public enum ProfileNextStep
 {
     Photo,
-    WorkPhotos,
     References,
     Phone,
     Publish,
@@ -42,7 +41,8 @@ public enum ProfileNextStep
 /// <summary>
 /// The worker's profile as a game to finish: a mark for each part (photo, work photos, references, number, badges)
 /// and an overall level. Red parts block publishing; green is enough to be live; blue is a fully set-up profile;
-/// amber is a badge not asked for yet (badges are optional, but they rank higher in search and customers trust them).
+/// amber is optional but worth doing: work photos (fewer than <see cref="ProfessionalDraft.GoodWorkPhotos"/>) and a
+/// badge not asked for yet. Neither blocks publishing; both rank higher in search (<c>SearchRanker</c>).
 /// </summary>
 public sealed record ProfileProgress(
     bool IsPublished,
@@ -65,10 +65,12 @@ public sealed record ProfileProgress(
     public ProfileNextStep? NextStep =>
         IsPublished ? null
         : Photo == ProfileMark.Missing ? ProfileNextStep.Photo
-        : WorkPhotos == ProfileMark.Missing ? ProfileNextStep.WorkPhotos
         : References == ProfileMark.Missing ? ProfileNextStep.References
         : Phone == ProfileMark.Missing ? ProfileNextStep.Phone
         : ProfileNextStep.Publish;
+
+    /// <summary>Live, with fewer than <see cref="ProfessionalDraft.GoodWorkPhotos"/> work photos: the "be seen more" reminder shows.</summary>
+    public bool ShowWorkPhotosNudge => IsPublished && WorkPhotos == ProfileMark.Recommended;
 
     /// <summary>True while a badge can still be asked for: the amber reminder shows.</summary>
     public bool ShowBadgeNudge => Badges == ProfileMark.Recommended;
@@ -86,7 +88,9 @@ public sealed record ProfileProgress(
         return new ProfileProgress(
             isPublished,
             Photo: hasPhoto ? ProfileMark.Full : ProfileMark.Missing,
-            WorkPhotos: CountMark(workPhotoCount, ProfessionalDraft.MinWorkPhotos, ProWorkspace.MaxWorkPhotos),
+            WorkPhotos: workPhotoCount >= ProWorkspace.MaxWorkPhotos ? ProfileMark.Full
+                : workPhotoCount >= ProfessionalDraft.GoodWorkPhotos ? ProfileMark.Done
+                : ProfileMark.Recommended,
             References: CountMark(referenceCount, 1, ProfessionalDraft.MaxReferences),
             Phone: hasVerifiedPhone ? ProfileMark.Full : ProfileMark.Missing,
             Badges: approved >= BadgeCatalog.Kinds ? ProfileMark.Full

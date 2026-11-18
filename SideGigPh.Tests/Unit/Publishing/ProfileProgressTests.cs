@@ -5,7 +5,7 @@ namespace SideGigPh.Tests.Unit.Publishing;
 
 /// <summary>
 /// The worker's profile levels: red parts block publishing, green is enough to be live, blue is a fully set-up
-/// profile, amber is a badge not asked for yet. A wrong mark sends a worker to the wrong page, or hides the reminder
+/// profile, amber is optional but worth doing (work photos, a badge not asked for yet). A wrong mark sends a worker to the wrong page, or hides the reminder
 /// that would bring them more customers.
 /// </summary>
 public class ProfileProgressTests
@@ -29,7 +29,7 @@ public class ProfileProgressTests
 
         progress.Level.Should().Be(ProfileLevel.NotLive);
         progress.Photo.Should().Be(ProfileMark.Missing);
-        progress.WorkPhotos.Should().Be(ProfileMark.Missing);
+        progress.WorkPhotos.Should().Be(ProfileMark.Recommended, "work photos are optional, never red");
         progress.References.Should().Be(ProfileMark.Missing);
         progress.Phone.Should().Be(ProfileMark.Missing);
         progress.NextStep.Should().Be(ProfileNextStep.Photo);
@@ -37,10 +37,11 @@ public class ProfileProgressTests
 
     [Theory]
     [InlineData(false, 2, 1, true, ProfileNextStep.Photo)]
-    [InlineData(true, 1, 1, true, ProfileNextStep.WorkPhotos)]
+    [InlineData(true, 0, 0, true, ProfileNextStep.References)]
     [InlineData(true, 2, 0, true, ProfileNextStep.References)]
     [InlineData(true, 2, 1, false, ProfileNextStep.Phone)]
     [InlineData(true, 2, 1, true, ProfileNextStep.Publish)]
+    [InlineData(true, 0, 1, true, ProfileNextStep.Publish)] // no work photos: still ready to publish
     public void NextStep_IsTheFirstMissingRequirement(bool photo, int work, int references, bool phone, ProfileNextStep expected) =>
         Progress(photo: photo, work: work, references: references, phone: phone).NextStep.Should().Be(expected);
 
@@ -54,13 +55,21 @@ public class ProfileProgressTests
     }
 
     [Theory]
-    [InlineData(0, ProfileMark.Missing)]
-    [InlineData(1, ProfileMark.Missing)]
+    [InlineData(0, ProfileMark.Recommended)]
+    [InlineData(1, ProfileMark.Recommended)]
     [InlineData(2, ProfileMark.Done)]
     [InlineData(5, ProfileMark.Done)]
     [InlineData(6, ProfileMark.Full)]
-    public void WorkPhotos_RedUnderTwo_BlueAtSix(int count, ProfileMark expected) =>
+    public void WorkPhotos_AmberUnderTwo_NeverRed_BlueAtSix(int count, ProfileMark expected) =>
         Progress(work: count).WorkPhotos.Should().Be(expected);
+
+    [Theory]
+    [InlineData(true, 0, true)]
+    [InlineData(true, 1, true)]
+    [InlineData(true, 2, false)]
+    [InlineData(false, 0, false)] // before publishing the setup card shows the optional line instead
+    public void WorkPhotosNudge_OnlyLiveWithFewerThanTwo(bool published, int work, bool shows) =>
+        Progress(published: published, work: work).ShowWorkPhotosNudge.Should().Be(shows);
 
     [Theory]
     [InlineData(0, ProfileMark.Missing)]

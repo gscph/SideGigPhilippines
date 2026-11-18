@@ -151,7 +151,7 @@ public sealed class ProfessionalFunctions(
             logger.LogWarning("Publish by {Uid}: invalid {Field}.", caller.Uid, field);
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
                 $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
-                + $"at least {ProfessionalStore.MinWorkPhotos} workPhotoIds and {ProfessionalStore.MinReferences}-{ProfessionalStore.MaxReferences} "
+                + $"valid workPhotoIds (0-{ProfessionalStore.MaxWorkPhotos}, optional) and {ProfessionalStore.MinReferences}-{ProfessionalStore.MaxReferences} "
                 + $"references with a name and a distinct +639 number that isn't the worker's own are required). Received: {sent}");
         }
 

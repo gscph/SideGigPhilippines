@@ -182,7 +182,7 @@ public partial class ProfessionalInterview : ComponentBase
 
     /// <summary>
     /// The pro tapped Done: the brand splash (<see cref="BusyIndicator"/>, the same one as at launch) stays up while the
-    /// answers and profile are saved and their workspace is loaded behind it, then the setup opens (photo, work photos,
+    /// answers and profile are saved and their workspace is loaded behind it, then the setup opens (photo,
     /// references, Publish: <see cref="OnboardingSteps.AfterInterviewPath"/>), or Pro home once live. It waits at most
     /// <see cref="OnboardingFinish.WaitLimit"/>, and not when a save failed: the next page loads its own data anyway.
     /// </summary>

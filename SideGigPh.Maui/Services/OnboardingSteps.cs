@@ -19,11 +19,12 @@ public enum ProStep
 /// <summary>
 /// The Skilled Worker's setup after the interview, in order (<c>/start/pro/setup/{n}</c>): the proof a listing needs
 /// before Publish (<see cref="ProfessionalDraft.HasProof"/>). Publish, with its verified-number check, comes after.
+/// Work photos were once step 2 (references 3); they are optional now and added from Pro home. A phone resuming an
+/// old <c>/setup/3</c> lands on references, since <see cref="OnboardingSteps.SetupStepToShow"/> clamps to the last step.
 /// </summary>
 public enum ProSetupStep
 {
     Photo = 1,
-    WorkPhotos,
     References,
 }
 
@@ -219,11 +220,10 @@ public static class OnboardingSteps
     /// <summary>How full the progress bar is on a setup step: it carries on from the interview's preview; the last is 100%.</summary>
     public static double ProgressOf(ProSetupStep step) => ((int)ProStep.Preview + (int)step) / (double)ProTotalSteps;
 
-    /// <summary>The first proof still missing (own photo, work photos, a reference), or null when all are there.</summary>
+    /// <summary>The first proof still missing (own photo, a reference), or null when all are there. Work photos are optional.</summary>
     public static ProSetupStep? FirstUnfinished(this ProfessionalDraft draft)
     {
         if (!draft.HasProfilePhoto) return ProSetupStep.Photo;
-        if (!draft.HasEnoughWorkPhotos) return ProSetupStep.WorkPhotos;
         if (!draft.HasReference) return ProSetupStep.References;
         return null;
     }

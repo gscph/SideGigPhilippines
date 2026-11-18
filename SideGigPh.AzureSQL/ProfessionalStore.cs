@@ -23,9 +23,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
     public const int MaxWorkPhotos = 6;
 
-    /// <summary>Fewest work photos a listing can be published with (the app's <c>ProWorkspace.MinWorkPhotos</c>).</summary>
-    public const int MinWorkPhotos = 2;
-
     /// <summary>Fewest and most references a listing has (the app's <c>ProWorkspace.MinReferences</c> / <c>MaxReferences</c>).</summary>
     public const int MinReferences = 1;
     public const int MaxReferences = 3;
@@ -266,9 +263,10 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     /// <summary>
     /// The first listing field that's missing or not valid (its JSON name), or null when it can be published.
-    /// Besides the interview answers a listing needs a profile photo, at least <see cref="MinWorkPhotos"/> work
-    /// photos and <see cref="MinReferences"/> to <see cref="MaxReferences"/> references with Philippine mobile
-    /// numbers, none of them <paramref name="ownNumber"/> (the worker's own) and no number twice.
+    /// Besides the interview answers a listing needs a profile photo and <see cref="MinReferences"/> to
+    /// <see cref="MaxReferences"/> references with Philippine mobile numbers, none of them <paramref name="ownNumber"/>
+    /// (the worker's own) and no number twice. Work photos are optional (none is fine, they only rank higher in
+    /// search); any sent must be valid photo ids (duplicates are dropped and at most <see cref="MaxWorkPhotos"/> kept).
     /// </summary>
     public static string? InvalidField(PublishListingRequest request, string ownNumber) =>
         !StoreText.IsCode(request.CategoryId) ? "categoryId"
@@ -278,8 +276,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         : request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId) ? "experienceId"
         : request.RateTierId is not null && !StoreText.IsCode(request.RateTierId) ? "rateTierId"
         : !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
-        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId)
-          || request.WorkPhotoIds.Distinct().Count() < MinWorkPhotos ? "workPhotoIds"
+        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId) ? "workPhotoIds"
         : request.References is not { Count: >= MinReferences and <= MaxReferences }
           || !request.References.All(r => StoreText.Limit(r?.Name, 60) is not null && StoreText.IsMobileNumber(r!.MobileNumber) && r.MobileNumber != ownNumber)
           || request.References.Select(r => r.MobileNumber).Distinct().Count() != request.References.Count ? "references"

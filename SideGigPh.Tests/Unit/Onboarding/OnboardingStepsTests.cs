@@ -404,32 +404,31 @@ public class OnboardingStepsTests
     private static ProfessionalDraft WithProof(ProfessionalDraft draft)
     {
         draft.ProfilePhotoId = "me";
-        draft.WorkPhotoIds.AddRange(["w1", "w2"]);
         draft.References.Add(new WorkReference("Aling Nena", "+639171234567"));
         return draft;
     }
 
     [Fact]
-    public void Setup_OpensAtTheFirstMissingProof_InOrder()
+    public void Setup_OpensAtTheFirstMissingProof_InOrder_WithoutWorkPhotos()
     {
         var draft = FullyAnsweredDraft();
         draft.FirstUnfinished().Should().Be(ProSetupStep.Photo);
 
         draft.ProfilePhotoId = "me";
-        draft.FirstUnfinished().Should().Be(ProSetupStep.WorkPhotos);
-
-        draft.WorkPhotoIds.Add("w1");
-        draft.FirstUnfinished().Should().Be(ProSetupStep.WorkPhotos, "one work photo isn't enough");
-
-        draft.WorkPhotoIds.Add("w2");
-        draft.FirstUnfinished().Should().Be(ProSetupStep.References);
+        draft.FirstUnfinished().Should().Be(ProSetupStep.References, "work photos are optional, never a setup step");
 
         draft.References.Add(new WorkReference("Aling Nena", "+639171234567"));
         draft.FirstUnfinished().Should().BeNull();
+        draft.WorkPhotoIds.Should().BeEmpty();
     }
+
+    [Fact]
+    public void Setup_HasOnlySelfieThenReferences() =>
+        Enum.GetValues<ProSetupStep>().Should().Equal(ProSetupStep.Photo, ProSetupStep.References);
 
     [Theory]
     [InlineData(null, ProSetupStep.Photo)]
+    [InlineData(2, ProSetupStep.Photo)]
     [InlineData(3, ProSetupStep.Photo)]
     [InlineData(99, ProSetupStep.Photo)]
     [InlineData(-1, ProSetupStep.Photo)]
@@ -438,16 +437,31 @@ public class OnboardingStepsTests
 
     [Theory]
     [InlineData(1, ProSetupStep.Photo)]
-    [InlineData(3, ProSetupStep.References)]
+    [InlineData(2, ProSetupStep.References)]
+    [InlineData(3, ProSetupStep.References)] // an old phone's saved references step (work photos were 2)
     [InlineData(99, ProSetupStep.References)]
     public void SetupStep_AllDone_AnyStepCanBeRevisited(int requested, ProSetupStep expected) =>
         WithProof(FullyAnsweredDraft()).SetupStepToShow(requested).Should().Be(expected);
+
+    // Phones that saved the old setup URLs (/2 = work photos, /3 = references) land on a real step, never loop.
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void SetupStep_OldResumePath_WithSelfieDone_OpensReferences(int oldStep)
+    {
+        var draft = FullyAnsweredDraft();
+        draft.ProfilePhotoId = "me";
+
+        var step = draft.SetupStepToShow(oldStep);
+
+        step.Should().Be(ProSetupStep.References);
+        OnboardingSteps.NextPath(step).Should().Be("/professional/publish");
+    }
 
     [Fact]
     public void Setup_NextWalksTheStepsThenPublish()
     {
         OnboardingSteps.NextPath(ProSetupStep.Photo).Should().Be("/start/pro/setup/2");
-        OnboardingSteps.NextPath(ProSetupStep.WorkPhotos).Should().Be("/start/pro/setup/3");
         OnboardingSteps.NextPath(ProSetupStep.References).Should().Be("/professional/publish");
     }
 
@@ -455,7 +469,7 @@ public class OnboardingStepsTests
     public void Setup_BackFromTheFirstStep_IsTheInterviewPreview()
     {
         OnboardingSteps.BackPath(ProSetupStep.Photo).Should().Be(OnboardingSteps.PathOf(ProStep.Preview));
-        OnboardingSteps.BackPath(ProSetupStep.References).Should().Be("/start/pro/setup/2");
+        OnboardingSteps.BackPath(ProSetupStep.References).Should().Be("/start/pro/setup/1");
     }
 
     [Fact]

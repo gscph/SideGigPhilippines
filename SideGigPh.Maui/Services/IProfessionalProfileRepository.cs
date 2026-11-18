@@ -28,7 +28,7 @@ public interface IProfessionalProfileRepository
     /// <summary>
     /// Makes the listing searchable, or replaces the pro's earlier version of it.
     /// Enforces anti-fraud rule 1: one mobile number, one listing. <paramref name="references"/> are stored privately
-    /// with it (never shown to customers); the server needs a profile photo, 2 work photos and 1 reference.
+    /// with it (never shown to customers); the server needs a profile photo and 1 reference (work photos are optional).
     /// </summary>
     Task<PublishResult> PublishAsync(ProfessionalListing listing, IReadOnlyList<WorkReference> references);
 

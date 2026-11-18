@@ -122,16 +122,20 @@ public class ReferenceTests
     }
 
     [Fact]
-    public async Task RemoveWorkPhoto_BelowTwoOnPublishedListing_IsNotAllowed()
+    public async Task RemoveWorkPhoto_LastOnesOnPublishedListing_AreAllowedAndRepublished()
     {
+        // Work photos are optional, so a live listing may drop all of them; the live listing keeps up.
         var draft = TestData.ReadyDraft();
         draft.PublishedAt = DateTimeOffset.Now;
         var app = await FakeApp.ProAsync(draft);
 
         await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(2));
+        await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(3));
 
-        app.Pro.CanRemoveWorkPhoto.Should().BeFalse();
-        app.Pro.Draft.WorkPhotoIds.Should().HaveCount(2);
+        app.Pro.Draft.WorkPhotoIds.Should().BeEmpty();
+        app.Pro.CanRemoveWorkPhoto.Should().BeFalse("there is nothing left to remove");
+        app.Pro.IsPublished.Should().BeTrue();
+        app.Profiles.Published.Last().Listing.WorkPhotoUrls.Should().BeEmpty();
     }
 
     [Fact]

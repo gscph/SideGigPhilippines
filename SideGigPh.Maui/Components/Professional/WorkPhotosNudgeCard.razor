@@ -1,0 +1,13 @@
+<MudPaper Outlined="true" Elevation="0" Class="pa-4 border-2 mud-border-info">
+    <MudStack Spacing="2">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudImage Src="@AppImages.WorkPhotos" Alt="" Width="36" Height="36" aria-hidden="true" />
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="flex-1">@T.Get(Copy.WorkPhotosNudgeTitle)</MudText>
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.WorkPhotosNudgeText)</MudText>
+        <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true"
+                   StartIcon="@Icons.Material.Rounded.AddAPhoto" Href="@ProRoutes.Photos">
+            @T.Get(Copy.PhotosAdd)
+        </MudButton>
+    </MudStack>
+</MudPaper>

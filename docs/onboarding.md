@@ -99,7 +99,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 
 **Pro home** (Phase 1) shows the saved card and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
 
-**Not in the interview:** work photos. They are added on Pro home or from the Me tab (`/professional/me/photos`), kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
+**Not in the interview, nor in the setup:** work photos. They are optional (never needed to publish) and added on Pro home or from the Me tab (`/professional/me/photos`), where the app encourages them ("customers pick workers with photos first"; they rank higher in search). They are kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
 
 ### 2.3 The money hooks: what was proposed, with three adjustments
 
@@ -201,7 +201,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S6, plus the loader at step 7. |
 | `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
-| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo, 2 work photos (2–6), 3 references (1–3), each required, then `/professional/publish` (a Google account adds a verified number there first). Launch resumes here until the listing is live. |
+| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo, 2 references (1–3), each required, then `/professional/publish` (a Google account adds a verified number there first). No work-photo step (optional, added later). Launch resumes here until the listing is live; an old saved `/setup/3` clamps to references. |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
 | `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |

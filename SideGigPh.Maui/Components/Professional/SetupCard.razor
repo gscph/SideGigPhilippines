@@ -9,12 +9,13 @@
             }
             <SetupStep Href="@ProRoutes.Me" Done="HasPhoto"
                        Title="@T.Get(Copy.SetupPhoto)" Why="@T.Get(Copy.SetupPhotoWhy)" />
-            <SetupStep Href="@ProRoutes.Photos" Done="HasWorkPhotos"
-                       Title="@T.Get(Copy.SetupWork)" Why="@T.Format(Copy.SetupWorkWhy, Math.Min(WorkPhotoCount, ProfessionalDraft.MinWorkPhotos))" />
             <SetupStep Href="@ProRoutes.References" Done="HasReference"
                        Title="@T.Get(Copy.SetupReference)" Why="@T.Get(Copy.SetupReferenceWhy)" />
             <SetupStep Href="@AddPhoneHref" Done="HasVerifiedPhone"
                        Title="@T.Get(Copy.SetupPhone)" Why="@T.Get(HasVerifiedPhone ? Copy.SetupPhoneDone : Copy.SetupPhoneWhy)" />
+            @* Optional: never counted in the bar or needed for Publish, only a way to be seen more. *@
+            <SetupStep Href="@ProRoutes.Photos" Done="HasWorkPhotos"
+                       Title="@T.Get(Copy.SetupWork)" Why="@T.Get(Copy.SetupWorkWhy)" />
             @if (AllDone && !IsPublished)
             {
                 <MudStack Spacing="2" Class="pt-2">

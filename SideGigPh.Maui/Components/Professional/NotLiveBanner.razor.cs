@@ -6,7 +6,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// A one-line light red strip under the top bar while the listing isn't published: customers can't see the worker
-/// yet. It names the next thing publishing needs (<see cref="ProfileProgress.NextStep"/>: own photo, work photos, a
+/// yet. It names the next thing publishing needs (<see cref="ProfileProgress.NextStep"/>: own photo, a
 /// reference, the confirmed number, then Publish) and a tap opens that page. Always one line (long text is cut with "…").
 /// </summary>
 public partial class NotLiveBanner : ComponentBase
@@ -19,7 +19,6 @@ public partial class NotLiveBanner : ComponentBase
     private LocalizedText Text => Step switch
     {
         ProfileNextStep.Photo => Copy.NotLiveBannerPhoto,
-        ProfileNextStep.WorkPhotos => Copy.NotLiveBannerWork,
         ProfileNextStep.References => Copy.NotLiveBannerReference,
         ProfileNextStep.Phone => Copy.NotLiveBannerNumber,
         _ => Copy.NotLiveBannerPublish,
@@ -28,7 +27,6 @@ public partial class NotLiveBanner : ComponentBase
     private string Href => Step switch
     {
         ProfileNextStep.Photo => ProRoutes.Me, // the photo button sits on the Me page's profile card
-        ProfileNextStep.WorkPhotos => ProRoutes.Photos,
         ProfileNextStep.References => ProRoutes.References,
         ProfileNextStep.Phone => AuthRoutes.AddPhone(ProRoutes.Home, canSkip: true),
         _ => ProRoutes.Publish,

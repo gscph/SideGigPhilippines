@@ -51,7 +51,7 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
-        // Own photo, 2 work photos and a reference come first: the setup opens at the first one missing.
+        // Own photo and a reference come first: the setup opens at the first one missing.
         if (!Workspace.Draft.HasProof)
         {
             Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);
