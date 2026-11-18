@@ -47,18 +47,16 @@
 
         case ProStep.Rate:
             <InterviewStep Illustration="@AppImages.Price" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
-                           Note="@T.Format(Copy.ProRateNote, Money.Peso(ReferenceData.MinimumWage))" Progress="Progress" OnBack="GoBack"
+                           Progress="Progress" OnBack="GoBack"
                            OnNext="SaveRateAsync" CanContinue="@CanSaveRate">
-                @* <ChoiceTiles Items="ChoiceItem.From(Pricing.RateChoices(Draft.ServiceIds), T)"
-                             SelectedIds="Selected(_rateLevel)" OnPick="PickRateAsync" /> *@
                 <MudText Typo="Typo.subtitle2">@T.Get(Copy.BudgetOwnRange)</MudText>
                 <BudgetRangeFields @bind-Min="_rateFrom" @bind-Max="_rateUpTo" />
             </InterviewStep>
             break;
 
         case ProStep.Photo:
-            @* One thing to do: a selfie. The camera opens by itself the first time and the question moves on once it's saved;
-               Next shows only for a photo they already have (coming back to this question). *@
+            @* One thing to do: a selfie. The camera (and its permission prompt) opens only on a tap, after the reason is read;
+               the question moves on once it's saved. Next shows only for a photo they already have (coming back to this question). *@
             <InterviewStep Illustration="@AppImages.Selfie" Title="@T.Get(Copy.SetupPhoto)" Why="@(Draft.HasProof ? null : T.Get(Copy.SelfieWhy))" Progress="Progress"
                            OnBack="GoBack" OnNext="PhotoNext">
                 <SelfieField OnSaved="AdvanceAsync" />

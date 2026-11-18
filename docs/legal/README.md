@@ -88,7 +88,7 @@ When Google Analytics is added, add "App interactions / App activity: Analytics,
 
 | # | Risk | Status |
 |---|---|---|
-| L1 | Employment / recruitment wording (Labor Code Art. 13(b)) | **Fixed:** role screen "Find a Skilled Worker or Offer Your Services", worker tile "I offer my skills", tagline "Offer your skills…"; reports can flag "Offering a job or hiring workers"; Terms §3.4 bans employment posts |
+| L1 | Employment / recruitment wording (Labor Code Art. 13(b)) | **Fixed:** role screen "Find a skilled worker or offer your services", worker tile "I offer my skills", tagline "Offer your skills…"; reports can flag "Offering a job or hiring workers"; Terms §3.4 bans employment posts |
 | L2 | "Minimum wage" price floor (control over pay; NCR wage shown in Rizal) | **Fixed in copy:** shown as a "suggested minimum price"; the config label too. The code still names it `MinimumWage` (ids stay stable) |
 | L3 | "Why you can trust them" | **Fixed:** "What we checked" |
 | L4 | Third-party data (references) | **Removed:** references are no longer collected (Privacy Policy §3.4). Old rows stay until a later guarded script drops the `ProfessionalReferences` table (needs the owner's OK); Delete account purges them meanwhile |

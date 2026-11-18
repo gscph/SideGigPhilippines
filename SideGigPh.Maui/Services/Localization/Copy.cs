@@ -31,7 +31,7 @@ public static class Copy
     // --- Role fork --------------------------------------------------------
     // Service words, never job/hire/employment words: Tarbaho is a directory of independent workers, not an employer
     // or recruiter (Labor Code Art. 13(b); docs/legal/README.md L1).
-    public static readonly LocalizedText RoleTitle = new("Find a Skilled Worker or Offer Your Services", "Maghanap ng Skilled Worker o Mag-alok ng Serbisyo");
+    public static readonly LocalizedText RoleTitle = new("Find a skilled worker or offer your services", "Maghanap ng skilled worker o mag-alok ng serbisyo");
     public static readonly LocalizedText RoleSeeker = new("I need something done", "May ipapagawa ako");
     public static readonly LocalizedText RoleSeekerHint = new("Aircon, construction, errands, IT, repairs", "Aircon, construction, errands, IT, repair");
     public static readonly LocalizedText RoleProfessional = new("I offer my skills", "May skills akong maiaalok");
@@ -250,7 +250,7 @@ public static class Copy
 
     // --- Professional interview -------------------------------------------
     public static readonly LocalizedText ProSkillsTitle = new("What work do you do?", "Ano'ng trabaho mo?");
-    public static readonly LocalizedText ProSkillsWhy = new("Pick all that apply.", "Piliin kung san ka pinaka magaling.");
+    public static readonly LocalizedText ProSkillsWhy = new("Pick the one you do best.", "Piliin kung san ka pinaka magaling.");
     public static readonly LocalizedText ProServicesTitle = new("Which services do you offer?", "Anong mga serbisyo ang kaya mo?");
     public static readonly LocalizedText ProServicesWhy = new("Customers search for these exact services. Pick all that apply.", "Ito mismo ang hinahanap ng customer. Piliin lahat.");
     public static readonly LocalizedText ProAreasTitle = new("Which towns do you go to?", "Saang mga bayan ka pumupunta?");
@@ -259,11 +259,8 @@ public static class Copy
     public static readonly LocalizedText ProExperienceWhy = new("Customers look at this first.", "Ito ang hinahanap ng mga customer.");
     public static readonly LocalizedText ProRateTitle = new("How much do you usually charge?", "Magkano ang singil mo kada trabaho?");
     public static readonly LocalizedText ProRateWhy = new(
-        "Each service has its own price. Customers see your price for what they need, and you can still agree on the final price.",
-        "Iba-iba ang presyo kada trabaho. Makikita ng customer ang presyo mo sa trabahong kailangan nila. Pwede pa rin ninyong pag-usapan.");
-    public static readonly LocalizedText ProRateNote = new(
-        "Type the price range you usually ask. Our suggested minimum price is {0} per service, only a guide.",
-        "I-type ang range ng presyo na karaniwan mong singil. Ang suggested na pinakamababang presyo ay {0} kada trabaho, gabay lang.");
+        "Type the price range you usually ask. Customers see it, and you can still agree on the final price.",
+        "I-type ang range ng presyo na karaniwan mong singil. Makikita ito ng customer, at pwede pa rin ninyong pag-usapan ang final na presyo.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 
@@ -610,7 +607,7 @@ public static class Copy
     public static readonly LocalizedText SelfieTake = new("Take a selfie", "Mag-selfie");
     public static readonly LocalizedText SelfieRetake = new("Take another", "Mag-selfie ulit");
     public static readonly LocalizedText SelfieFromPhotos = new("Choose from your photos", "Pumili sa photos mo");
-    public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Your front camera will open.", "Mas nagtitiwala ang customer kapag may mukha. Bubukas ang front camera mo.");
+    public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Tap the button and your front camera opens.", "Mas nagtitiwala ang customer kapag may mukha. I-tap ang button para bumukas ang front camera mo.");
     public static readonly LocalizedText ProNumberWhy = new(
         "Customers see it only after they pick your offer. You add it once, with a code we text you.",
         "Makikita lang ng customer ang number mo kapag pinili ka na nila. Isang beses mo lang 'to ilalagay, may code kaming ite-text.");
