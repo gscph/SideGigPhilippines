@@ -23,6 +23,9 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     private List<JobPost> _feed = [];
     private List<MyOffer> _myOffers = [];
 
+    /// <summary>The post form closed with ✕ before Post, kept in memory (this run only) so nothing typed is lost.</summary>
+    private JobPostDraft? _unsent;
+
     /// <summary>How many feed posts the server has handed out so far: the next page starts there.</summary>
     private int _feedRead;
 
@@ -45,6 +48,20 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     public bool HasListing { get; private set; } = true;
 
     /// <summary>The first field of <paramref name="draft"/> still missing or not valid, or null when it can be posted.</summary>
+    /// <summary>True when the household typed the problem or added photos: closing the form keeps it.</summary>
+    public static bool HasWork(JobPostDraft draft) => !string.IsNullOrWhiteSpace(draft.Description) || draft.Photos.Count > 0;
+
+    /// <summary>The form was closed without posting: keep the draft when it holds the household's own work.</summary>
+    public void KeepUnsent(JobPostDraft draft) => _unsent = HasWork(draft) ? draft : null;
+
+    /// <summary>The draft kept by <see cref="KeepUnsent"/>, once (the form opens on it), or null.</summary>
+    public JobPostDraft? TakeUnsent()
+    {
+        var kept = _unsent;
+        _unsent = null;
+        return kept;
+    }
+
     public static JobPostField? FirstMissing(JobPostDraft draft) =>
         draft.CategoryId is null ? JobPostField.Trade
         : draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId) ? JobPostField.Service

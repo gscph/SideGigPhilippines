@@ -32,11 +32,14 @@
                 <MudPaper Outlined="true" Elevation="0" Class="app-rounded px-4">
                     @if (PostReview.Has(_draft, PostPart.What))
                     {
-                        <PostDraftSummary Draft="_draft" />
-                        <MudDivider />
+                        <PostDraftSummary Draft="_draft" Busy="_busy" ActionLabel="@T.PostAction(_draft, PostPart.What)"
+                                          OnAction="@(() => OpenSheet(PostPart.What))" />
                     }
-                    <DetailRow Label="@T.Get(Copy.PostRowWhat)" Value="@T.PostWhat(_draft)" Busy="_busy"
-                               ActionLabel="@T.PostAction(_draft, PostPart.What)" OnAction="@(() => OpenSheet(PostPart.What))" />
+                    else
+                    {
+                        <DetailRow Label="@T.Get(Copy.PostRowWhat)" Value="@T.PostWhat(_draft)" Busy="_busy"
+                                   ActionLabel="@T.PostAction(_draft, PostPart.What)" OnAction="@(() => OpenSheet(PostPart.What))" />
+                    }
                     <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostRowWhere)" Value="@T.PostWhere(_draft)" Busy="_busy"
                                ActionLabel="@T.PostAction(_draft, PostPart.Where)" OnAction="@(() => OpenSheet(PostPart.Where))" />

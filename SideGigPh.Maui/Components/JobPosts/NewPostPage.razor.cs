@@ -24,7 +24,7 @@ public partial class NewPostPage : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
-    private readonly JobPostDraft _draft = new();
+    private JobPostDraft _draft = new();
     private PhotoAddResult? _photoResult;
     private PostPart? _sheet;
     private PostSnapshot? _before;
@@ -36,6 +36,12 @@ public partial class NewPostPage : ComponentBase
         if (!await Workspace.EnsureLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
+        if (Board.TakeUnsent() is { } kept)
+        {
+            _draft = kept; // closed with ✕ earlier: the problem and photos come back as typed
             return;
         }
 
@@ -55,7 +61,11 @@ public partial class NewPostPage : ComponentBase
         }
     }
 
-    private void GoBack() => Nav.NavigateTo(JobPostRoutes.Mine);
+    private void GoBack()
+    {
+        Board.KeepUnsent(_draft);
+        Nav.NavigateTo(JobPostRoutes.Mine);
+    }
 
     private void OpenSheet(PostPart part)
     {

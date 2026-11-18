@@ -1,6 +1,7 @@
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.JobPosts;
 
@@ -96,5 +97,20 @@ public class PostReviewTests
         draft.BarangayId.Should().Be("angono-san-isidro");
         PostReview.PickTown(draft, "taytay");
         draft.BarangayId.Should().BeNull("San Isidro is in Angono");
+    }
+
+    [Fact]
+    public void ClosingTheForm_KeepsTypedWork_Once()
+    {
+        var board = new JobBoard(new FakeJobPosts(), new FakePhotoStore());
+        var typed = Filled();
+        typed.Description = "Hindi na malamig";
+
+        board.KeepUnsent(typed);
+        board.TakeUnsent().Should().BeSameAs(typed, "the problem they typed comes back");
+        board.TakeUnsent().Should().BeNull("only once: the next form starts fresh");
+
+        board.KeepUnsent(Filled());
+        board.TakeUnsent().Should().BeNull("nothing typed, nothing to keep: the next form is pre-filled from their last search");
     }
 }

@@ -1,22 +1,17 @@
 @switch (Part)
 {
     case PostPart.What:
-        <MudStack Spacing="2" Class="app-field-group">
-            <MudSelect T="string" Value="Draft.CategoryId" ValueChanged="PickTrade" Variant="Variant.Filled" Underline="false"
-                       Label="@T.Get(Copy.PostTrade)" Class="app-field">
-                @foreach (var trade in ReferenceData.TradeChoices)
-                {
-                    <MudSelectItem T="string" Value="@trade.Id">@T.Get(trade.Label)</MudSelectItem>
-                }
-            </MudSelect>
-            <MudSelect T="string" @bind-Value="Draft.ServiceId" Disabled="@(Draft.CategoryId is null)" Variant="Variant.Filled" Underline="false"
-                       Label="@T.Get(Copy.PostService)" Class="app-field">
-                @foreach (var service in ReferenceData.ServicesOf(Draft.CategoryId))
-                {
-                    <MudSelectItem T="string" Value="@service.Id">@T.Get(service.Label)</MudSelectItem>
-                }
-            </MudSelect>
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.PostTrade)</MudText>
+            <ChoiceTiles Items="TradeTiles" SelectedIds="@Selected(Draft.CategoryId)" Compact="true" OnPick="PickTrade" />
         </MudStack>
+        @if (Draft.CategoryId is not null && ServiceTiles.Count > 1)
+        {
+            <MudStack Spacing="3">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.PostService)</MudText>
+                <ChoiceTiles Items="ServiceTiles" SelectedIds="@Selected(Draft.ServiceId)" Compact="true" OnPick="PickService" />
+            </MudStack>
+        }
         break;
     case PostPart.Where:
         <MudStack Spacing="2" Class="app-field-group">

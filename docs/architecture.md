@@ -185,13 +185,13 @@ for Android).
   "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen), laid out like
   Airbnb's "Review and continue" (`docs/ux/airbnb-2026-11-18/airbnb-20`, `22`): the title "Post what you need done"
   (no explainer), one outlined card (`PostDraftSummary`: the first photo or the service's picture, the service and its
-  trade; then `DetailRow`s **What** (service), **Where** ("Angono · Brgy. San Isidro") and **Your budget** (green),
+  trade, with What's Change (a **What** `DetailRow` with Add only while no service is picked, so the service shows once); then `DetailRow`s **Where** ("Angono · Brgy. San Isidro") and **Your budget** (green),
   each with a gray **Change**, or **Add** while empty). A row's button opens its own full-screen sheet in the page (no
-  pop-up; `PostPartFields`: kind of work + exact service; town + barangay + "Use my location"; budget from / up to
+  pop-up; `PostPartFields`: picture tiles for the kind of work, then its services (`ChoiceTiles`, as in the interview); town + barangay + "Use my location"; budget from / up to
   with the guide), with Cancel (link, puts the answers back from a `PostSnapshot`) and Save pinned at the bottom.
   Under the card: "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
   (`JobBoard.AddPhotosAsync`); Post pinned at the bottom with what is still missing under it. Trade, service and town
-  start from their last search. Rules: `Services/PostReview`, `Services/Localization/PostReviewText`, tested in
+  start from their last search. Closing with ✕ keeps a draft with typed words or photos for the next open (`JobBoard.KeepUnsent` / `TakeUnsent`, in memory). Rules: `Services/PostReview`, `Services/Localization/PostReviewText`, tested in
   `Unit/JobPosts/PostReviewTests`.
 - **Pro side:** the **Requests** tab (`ProRoutes.Requests` = `JobPostRoutes.Feed`, `ProPostsPage`, inside
   `ProLayout`) is the feed, a page of `Paging.JobPosts` (10) at a time with `LoadMoreOnScroll`. Until the listing is
