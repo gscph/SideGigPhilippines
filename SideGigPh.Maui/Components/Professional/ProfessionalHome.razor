@@ -18,7 +18,7 @@
     @if (!Workspace.IsPublished || !Workspace.Draft.HasProof)
     {
         <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"
-                   HasReference="@Workspace.Draft.HasReference" HasVerifiedPhone="@Workspace.HasVerifiedPhone"
+                   HasVerifiedPhone="@Workspace.HasVerifiedPhone"
                    AddPhoneHref="@AddPhonePath" IsPublished="@Workspace.IsPublished" />
     }
     else if (Progress.ShowWorkPhotosNudge)

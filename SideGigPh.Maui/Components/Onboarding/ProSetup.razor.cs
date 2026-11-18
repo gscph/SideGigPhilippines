@@ -7,12 +7,11 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// The Skilled Worker's setup right after the interview, one full-screen step each: their own photo and 1–3 private
-/// references (<see cref="ProfessionalDraft.HasProof"/>), then Publish. Work photos are not asked here (too much
-/// before going live); they are optional and added later from Pro home, where they help the listing be seen. Then Publish (which asks a Google account to add
-/// a verified number first). Each step's Next waits until it is done. The photo step has one thing to do, so it asks
-/// for the camera and opens the front camera by itself the first time, and moves on as soon as the selfie is saved
-/// (a photo from the gallery works too). One URL per step; the rules (which step, where
+/// The Skilled Worker's setup right after the interview: their own photo (<see cref="ProfessionalDraft.HasProof"/>),
+/// then Publish. Work photos are not asked here (too much before going live); they are optional and added later from
+/// Pro home, where they help the listing be seen. Publish asks a Google account to add a verified number first. The
+/// photo step has one thing to do, so it asks for the camera and opens the front camera by itself the first time, and
+/// moves on as soon as the selfie is saved (a photo from the gallery works too). One URL per step; the rules (which step, where
 /// Next and Back go, where launch resumes) are in <see cref="OnboardingSteps"/>. A listing already live goes home.
 /// </summary>
 public partial class ProSetup : ComponentBase

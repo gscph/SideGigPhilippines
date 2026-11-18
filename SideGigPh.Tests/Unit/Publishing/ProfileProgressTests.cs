@@ -17,33 +17,31 @@ public class ProfileProgressTests
         bool published = false,
         bool photo = true,
         int work = 2,
-        int references = 1,
         bool phone = true,
         BadgeState[]? badges = null) =>
-        ProfileProgress.From(published, photo, work, references, phone, badges ?? NoBadges);
+        ProfileProgress.From(published, photo, work, phone, badges ?? NoBadges);
 
     [Fact]
     public void NewWorker_IsRedAndStartsWithTheirPhoto()
     {
-        var progress = Progress(photo: false, work: 0, references: 0, phone: false);
+        var progress = Progress(photo: false, work: 0, phone: false);
 
         progress.Level.Should().Be(ProfileLevel.NotLive);
         progress.Photo.Should().Be(ProfileMark.Missing);
         progress.WorkPhotos.Should().Be(ProfileMark.Recommended, "work photos are optional, never red");
-        progress.References.Should().Be(ProfileMark.Missing);
         progress.Phone.Should().Be(ProfileMark.Missing);
         progress.NextStep.Should().Be(ProfileNextStep.Photo);
     }
 
     [Theory]
-    [InlineData(false, 2, 1, true, ProfileNextStep.Photo)]
-    [InlineData(true, 0, 0, true, ProfileNextStep.References)]
-    [InlineData(true, 2, 0, true, ProfileNextStep.References)]
-    [InlineData(true, 2, 1, false, ProfileNextStep.Phone)]
-    [InlineData(true, 2, 1, true, ProfileNextStep.Publish)]
-    [InlineData(true, 0, 1, true, ProfileNextStep.Publish)] // no work photos: still ready to publish
-    public void NextStep_IsTheFirstMissingRequirement(bool photo, int work, int references, bool phone, ProfileNextStep expected) =>
-        Progress(photo: photo, work: work, references: references, phone: phone).NextStep.Should().Be(expected);
+    [InlineData(false, 2, true, ProfileNextStep.Photo)]
+    [InlineData(true, 2, false, ProfileNextStep.Phone)]
+    [InlineData(true, 0, false, ProfileNextStep.Phone)] // no work photos: never a step
+    [InlineData(true, 2, true, ProfileNextStep.Publish)]
+    [InlineData(true, 0, true, ProfileNextStep.Publish)] // no work photos: still ready to publish
+    [InlineData(true, 1, true, ProfileNextStep.Publish)]
+    public void NextStep_IsTheFirstMissingRequirement(bool photo, int work, bool phone, ProfileNextStep expected) =>
+        Progress(photo: photo, work: work, phone: phone).NextStep.Should().Be(expected);
 
     [Fact]
     public void Published_HasNoNextStepAndIsGreen()
@@ -70,14 +68,6 @@ public class ProfileProgressTests
     [InlineData(false, 0, false)] // before publishing the setup card shows the optional line instead
     public void WorkPhotosNudge_OnlyLiveWithFewerThanTwo(bool published, int work, bool shows) =>
         Progress(published: published, work: work).ShowWorkPhotosNudge.Should().Be(shows);
-
-    [Theory]
-    [InlineData(0, ProfileMark.Missing)]
-    [InlineData(1, ProfileMark.Done)]
-    [InlineData(2, ProfileMark.Done)]
-    [InlineData(3, ProfileMark.Full)]
-    public void References_RedAtZero_BlueAtThree(int count, ProfileMark expected) =>
-        Progress(references: count).References.Should().Be(expected);
 
     [Fact]
     public void NoBadges_AreRecommended()
@@ -109,20 +99,19 @@ public class ProfileProgressTests
 
     [Fact]
     public void PublishedAndEverythingFull_IsComplete() =>
-        Progress(published: true, work: 6, references: 3, badges: AllBadges).Level.Should().Be(ProfileLevel.Complete);
+        Progress(published: true, work: 6, badges: AllBadges).Level.Should().Be(ProfileLevel.Complete);
 
     [Fact]
     public void EverythingFullButNotPublished_IsStillRed() =>
-        Progress(published: false, work: 6, references: 3, badges: AllBadges).Level.Should().Be(ProfileLevel.NotLive);
+        Progress(published: false, work: 6, badges: AllBadges).Level.Should().Be(ProfileLevel.NotLive);
 
     [Theory]
-    [InlineData(5, 3, false)]
-    [InlineData(6, 2, false)]
-    [InlineData(6, 3, true)]
-    public void PublishedButOnePartShort_StaysGreen(int work, int references, bool missingBadge)
+    [InlineData(5, false)]
+    [InlineData(6, true)]
+    public void PublishedButOnePartShort_StaysGreen(int work, bool missingBadge)
     {
         BadgeState[] badges = missingBadge ? [BadgeState.Approved, BadgeState.Approved, BadgeState.None] : AllBadges;
 
-        Progress(published: true, work: work, references: references, badges: badges).Level.Should().Be(ProfileLevel.Live);
+        Progress(published: true, work: work, badges: badges).Level.Should().Be(ProfileLevel.Live);
     }
 }

@@ -7,7 +7,7 @@ namespace SideGigPh.Tests.Unit.Publishing;
 
 /// <summary>
 /// A live listing edited on the phone must reach customers. Edit listing used to save only on the phone (customers
-/// kept the old price and towns), and a photo or reference change whose re-publish failed on weak 4G was never tried
+/// kept the old price and towns), and a photo change whose re-publish failed on weak 4G was never tried
 /// again. Now an edit marks the listing out of date until a re-publish goes through.
 /// </summary>
 public class LiveListingEditTests
@@ -22,7 +22,7 @@ public class LiveListingEditTests
         var result = await app.Pro.ListingEditedAsync();
 
         result.Should().Be(PublishResult.Published);
-        app.Profiles.Published.Should().ContainSingle().Which.Listing.CityIds.Should().Equal("angono");
+        app.Profiles.Published.Should().ContainSingle().Which.CityIds.Should().Equal("angono");
         app.Store.State.Professional.ListingOutOfDate.Should().BeFalse();
     }
 
@@ -114,7 +114,7 @@ public class LiveListingEditTests
         await app.Pro.RefreshAccountAsync();
         await WaitForAsync(() => app.Profiles.Published.Count == 1);
 
-        app.Profiles.Published.Single().Listing.DisplayName.Should().Be("Juan P. Dela Cruz");
+        app.Profiles.Published.Single().DisplayName.Should().Be("Juan P. Dela Cruz");
     }
 
     [Fact]

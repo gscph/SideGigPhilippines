@@ -12,15 +12,15 @@ public class AuthRoutesTests
     [Fact]
     public void AddPhone_WithBack_CarriesBothPaths()
     {
-        AuthRoutes.AddPhone("/professional/publish", "/start/pro/setup/3")
-            .Should().Be("/verify/phone?then=%2Fprofessional%2Fpublish&back=%2Fstart%2Fpro%2Fsetup%2F3");
+        AuthRoutes.AddPhone("/professional/publish", "/start/pro/setup/1")
+            .Should().Be("/verify/phone?then=%2Fprofessional%2Fpublish&back=%2Fstart%2Fpro%2Fsetup%2F1");
     }
 
     [Fact]
     public void AddPhone_WithLater_LetsAPageThatNeedsTheNumberBeLeftForNow()
     {
-        AuthRoutes.AddPhone("/professional/publish", "/start/pro/setup/3", later: "/professional")
-            .Should().Be("/verify/phone?then=%2Fprofessional%2Fpublish&back=%2Fstart%2Fpro%2Fsetup%2F3&later=%2Fprofessional");
+        AuthRoutes.AddPhone("/professional/publish", "/start/pro/setup/1", later: "/professional")
+            .Should().Be("/verify/phone?then=%2Fprofessional%2Fpublish&back=%2Fstart%2Fpro%2Fsetup%2F1&later=%2Fprofessional");
         AuthRoutes.AddPhone(null, later: "https://example.com").Should().Be("/verify/phone", "only a path inside the app");
     }
 
@@ -44,6 +44,6 @@ public class AuthRoutesTests
     public void AddPhone_BackOutsideTheApp_IsDropped()
     {
         AuthRoutes.AddPhone(null, "https://example.com").Should().Be("/verify/phone");
-        AuthRoutes.AddPhone(null, "/start/pro/setup/3").Should().Be("/verify/phone?back=%2Fstart%2Fpro%2Fsetup%2F3");
+        AuthRoutes.AddPhone(null, "/start/pro/setup/1").Should().Be("/verify/phone?back=%2Fstart%2Fpro%2Fsetup%2F1");
     }
 }

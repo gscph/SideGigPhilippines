@@ -22,12 +22,12 @@ support and legal. **Promise:** reports, data requests and deletion-by-email are
 
 | # | Rule | Where it is done |
 |---|---|---|
-| 1 | **Delete account** in the app (Apple 5.1.1(v), Google Play) | Me → Delete account (`MePage`, `ConfirmActionCard`) → `LocalAccount.DeleteAccountAsync` → `DELETE users/me/account` (`UserStore.DeleteAccountAsync`: listing, photos, references, chats, reviews written **and received**, blocks, devices, profile; then the Firebase account through the Admin SDK, `FirebaseAccountDeleter`) → the phone deletes the Firebase account itself if the server couldn't, and signs out. Without the app: [`data-handling.md`](data-handling.md) §4 (the Play Console "Delete account URL") |
+| 1 | **Delete account** in the app (Apple 5.1.1(v), Google Play) | Me → Delete account (`MePage`, `ConfirmActionCard`) → `LocalAccount.DeleteAccountAsync` → `DELETE users/me/account` (`UserStore.DeleteAccountAsync`: listing, photos, any references stored before they were dropped, chats, reviews written **and received**, blocks, devices, profile; then the Firebase account through the Admin SDK, `FirebaseAccountDeleter`) → the phone deletes the Firebase account itself if the server couldn't, and signs out. Without the app: [`data-handling.md`](data-handling.md) §4 (the Play Console "Delete account URL") |
 | 2 | **Report and block** (Apple 1.2, Google Play user-generated content) | 🚩 on a worker's profile, on each review, and in both chat screens → `ReportPage` (`/report/{side}/{subject}/{uid}`): reason, note, "also block" (on by default), or block only. `POST reports`, `PUT blocks/{uid}` (`SafetyStore`). A block either way hides the two from each other at once: search, profile (404), Inbox, new messages (`403 blocked`) |
 | 3 | **Agree to the Terms and Privacy Policy** at sign-in | `LegalConsent` under the sign-in buttons ("By continuing, you agree to our Terms of Service and Privacy Policy", both linked) |
 | 4 | **Policy links in the app** | Me (both sides) → "Privacy and terms": the three pages |
 | 5 | **Sign in with Apple** next to Google (Apple 4.8), iOS only | `AppleSignInButton`, `FirebaseIdentityProvider.SignInWithAppleAsync`, `Platforms/iOS/Entitlements.plist` |
-| 6 | **Reference consent** (Data Privacy Act) | References → a checkbox "They agreed to be my reference and to be contacted by Tarbaho"; Add stays off until it's ticked |
+| 6 | ~~Reference consent~~ | **Gone with references** (dropped November 18, 2026): the app no longer asks for third people's details. Rows stored before then are read by nothing and purged by Delete account (Privacy Policy §3.4) |
 | 7 | **Act on reports** within 5 business days | `dbo.Reports` (query below) |
 | 8 | **Public policy pages** | The API route above |
 
@@ -91,7 +91,7 @@ When Google Analytics is added, add "App interactions / App activity: Analytics,
 | L1 | Employment / recruitment wording (Labor Code Art. 13(b)) | **Fixed:** role screen "Find a Skilled Worker or Offer Your Services", worker tile "I offer my skills", tagline "Offer your skills…"; reports can flag "Offering a job or hiring workers"; Terms §3.4 bans employment posts |
 | L2 | "Minimum wage" price floor (control over pay; NCR wage shown in Rizal) | **Fixed in copy:** shown as a "suggested minimum price"; the config label too. The code still names it `MinimumWage` (ids stay stable) |
 | L3 | "Why you can trust them" | **Fixed:** "What we checked" |
-| L4 | Third-party data (references) | **Fixed:** consent checkbox + Privacy Policy §3.4 |
+| L4 | Third-party data (references) | **Removed:** references are no longer collected (Privacy Policy §3.4). Old rows stay until a later guarded script drops the `ProfessionalReferences` table (needs the owner's OK); Delete account purges them meanwhile |
 | L5 | Internet Transactions Act (RA 11967) | Report/block and a reachable inbox cover the usual duties; counsel to confirm DTI registration |
 | L6 | Errands that handle money | Terms put it on the users; consider a safety line on the Errands trade |
 | L7 | Licensed trades (electrical, solar, refrigerants) | Terms §5(c) puts it on the worker |

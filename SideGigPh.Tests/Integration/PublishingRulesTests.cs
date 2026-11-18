@@ -1,8 +1,11 @@
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
+using System.Text.Json;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Api;
 using SideGigPh.Tests.Integration.Support;
 using SideGigPh.Tests.TestSupport;
 
@@ -10,8 +13,8 @@ namespace SideGigPh.Tests.Integration;
 
 /// <summary>
 /// The anti-fraud rules and publish checks, enforced by the server and the database even when an app is out of date
-/// or tampered with: one phone = one listing, one photo = one account, references can't be the worker's own number,
-/// and a verified phone is required.
+/// or tampered with: one phone = one listing, one photo = one account, a verified phone is required, and an app from
+/// before references were dropped still publishes.
 /// </summary>
 [Collection(ApiCollection.Name)]
 [Trait("Category", "Integration")]
@@ -23,10 +26,11 @@ public class PublishingRulesTests(ApiTestHost api)
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Nilo");
         await worker.Pro.PublishAsync();
 
-        await worker.Pro.AddReferenceAsync("Mang Jose", TestPhone.UniqueNumber()); // a live listing republishes itself
+        worker.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
+        (await worker.Pro.AddWorkPhotosAsync()).Added.Should().Be(1); // a live listing republishes itself
 
-        var listing = await new TestPhone(api, "Viewer").Get<IProfessionalProfileRepository>().GetByIdAsync(worker.Uid);
-        listing!.ReferenceCount.Should().Be(2);
+        var viewer = new TestPhone(api, "Viewer").Get<IProfessionalProfileRepository>();
+        (await viewer.GetByIdAsync(worker.Uid))!.WorkPhotoUrls.Should().HaveCount(3);
     }
 
     [IntegrationFact]
@@ -75,16 +79,36 @@ public class PublishingRulesTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task ReferenceWithOwnNumber_SentByAnOldApp_IsBadReference()
+    public async Task OldAppPublishWithReferences_IsPublished_AndTheReferencesAreNotStored()
     {
-        // An older app without the on-phone check sends it anyway: the server answers invalid-references,
-        // and today's app shows the "change your reference" message instead of a generic error.
+        // An app from before references were dropped still sends a "references" list (even one with the worker's own
+        // number, which used to be refused): the listing goes live and nothing about those people is kept.
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Pia");
-        var listing = worker.Pro.Listing;
+        var body = JsonSerializer.Serialize(worker.Pro.Listing.ToPublishRequest(), ApiJson.Default.PublishListingRequest)[..^1]
+            + $",\"references\":[{{\"name\":\"Me\",\"mobileNumber\":\"{worker.PhoneNumber}\"}}]}}";
+        var client = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
 
-        var result = await worker.Get<IProfessionalProfileRepository>().PublishAsync(listing, [new WorkReference("Me", worker.PhoneNumber!)]);
+        using var response = await client.PutAsync("professionals/me", new StringContent(body, Encoding.UTF8, "application/json"));
 
-        result.Should().Be(PublishResult.BadReference);
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await api.ReferenceRowsAsync(worker.Uid)).Should().Be(0);
+    }
+
+    [IntegrationFact]
+    public async Task OldAppReadingItsReferences_GetsAnEmptyList()
+    {
+        // An app from before references were dropped reads them to restore a live listing on a new phone and fails
+        // on a 404, so the route stays and answers an empty list, even for a worker whose old rows are still stored.
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Lea");
+        await worker.Pro.PublishAsync();
+        await api.AddOldReferenceAsync(worker.Uid, TestPhone.UniqueNumber());
+
+        using var response = await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).GetAsync("professionals/me/references");
+        using var anonymous = await api.Client().GetAsync("professionals/me/references");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await response.Content.ReadAsStringAsync()).Should().Be("[]", "stored references are never read back");
+        anonymous.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
 
     [IntegrationFact]
@@ -93,7 +117,7 @@ public class PublishingRulesTests(ApiTestHost api)
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Quin");
         worker.Identity.User = new AuthUser { Uid = worker.Uid, DisplayName = "Quin" };
 
-        var publish = () => worker.Get<IProfessionalProfileRepository>().PublishAsync(worker.Pro.Listing, worker.Pro.Draft.References);
+        var publish = () => worker.Get<IProfessionalProfileRepository>().PublishAsync(worker.Pro.Listing);
 
         (await publish.Should().ThrowAsync<HttpRequestException>()).Which.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -147,7 +171,7 @@ public class PublishingRulesTests(ApiTestHost api)
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Vic");
         var request = new PublishListingRequest("Vic", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
-            worker.Pro.Draft.ProfilePhotoId, ["not-a-photo"], [new ReferenceDto("Ref", TestPhone.UniqueNumber())]);
+            worker.Pro.Draft.ProfilePhotoId, ["not-a-photo"]);
 
         using var response = await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
 
@@ -164,7 +188,7 @@ public class PublishingRulesTests(ApiTestHost api)
         var second = await TestPhone.WorkerReadyToPublishAsync(api, "Sam");
         var stolen = first.Pro.Draft.WorkPhotoIds[0];
         var request = new PublishListingRequest("Sam", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
-            second.Pro.Draft.ProfilePhotoId, [stolen, second.Pro.Draft.WorkPhotoIds[0]], [new ReferenceDto("Ref", TestPhone.UniqueNumber())]);
+            second.Pro.Draft.ProfilePhotoId, [stolen, second.Pro.Draft.WorkPhotoIds[0]]);
 
         using var response = await api.Client(api.Tokens.For(second.Uid, second.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
 

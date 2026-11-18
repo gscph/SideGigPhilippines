@@ -76,5 +76,5 @@ public sealed class ListingRestore(
         || (state.Role == UserRole.Professional
             && state.CompletedAt is null
             && (state.ResumePath is null || state.ResumePath == OnboardingSteps.FirstPath(UserRole.Professional))
-            && state.Professional is { CategoryId: null, PublishedAt: null, ProfilePhotoId: null, WorkPhotoIds.Count: 0, References.Count: 0 });
+            && state.Professional is { CategoryId: null, PublishedAt: null, ProfilePhotoId: null, WorkPhotoIds.Count: 0 });
 }

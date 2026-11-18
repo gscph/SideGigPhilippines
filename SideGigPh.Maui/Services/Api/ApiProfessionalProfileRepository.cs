@@ -26,15 +26,9 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         api.ReadAsync(async () =>
         {
             // Not from the kept listings: those carry no photo ids, and the restore needs the server's latest.
-            if (await api.GetAsync($"professionals/{ApiClient.Escape(uid)}", ApiJson.Default.ListingDto) is not { } listing)
-            {
-                return null;
-            }
-
-            // Both or nothing: a listing restored without its references couldn't be re-published after an edit.
-            var references = await api.GetAsync("professionals/me/references", ApiJson.Default.ListReferenceDto)
-                ?? throw new HttpRequestException("The references of a live listing were not found.");
-            return listing.ToDraft(references);
+            return await api.GetAsync($"professionals/{ApiClient.Escape(uid)}", ApiJson.Default.ListingDto) is { } listing
+                ? listing.ToDraft()
+                : null;
         }, null, $"the own listing of {uid}");
 
     public Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip)
@@ -88,10 +82,10 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         }, null, $"the listing of {professionalId}");
     }
 
-    public async Task<PublishResult> PublishAsync(ProfessionalListing listing, IReadOnlyList<WorkReference> references)
+    public async Task<PublishResult> PublishAsync(ProfessionalListing listing)
     {
         using var response = await api.SendJsonAsync(HttpMethod.Put, "professionals/me",
-            listing.ToPublishRequest(references), ApiJson.Default.PublishListingRequest);
+            listing.ToPublishRequest(), ApiJson.Default.PublishListingRequest);
         Forget(listing.Id);
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
@@ -110,12 +104,6 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         if (response.StatusCode == HttpStatusCode.TooManyRequests)
         {
             return PublishResult.TooManyTries;
-        }
-
-        if (response.StatusCode == HttpStatusCode.BadRequest
-            && await ErrorOf(response) == ApiErrors.Invalid("references"))
-        {
-            return PublishResult.BadReference;
         }
 
         await api.EnsureWrittenAsync(response, "publish the listing");

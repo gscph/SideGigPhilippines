@@ -167,7 +167,7 @@ public class ServerRefusalTests(ApiTestHost api)
         {
             using var scope = api.Server.Services.CreateScope();
             var store = scope.ServiceProvider.GetRequiredService<ProfessionalStore>();
-            return await store.PublishAsync($"racer-{Guid.NewGuid():N}", number, Listing(i), CancellationToken.None);
+            return await store.PublishAsync($"racer-{Guid.NewGuid():N}", number, Listing(), CancellationToken.None);
         });
 
         var outcomes = await Task.WhenAll(attempts);
@@ -185,16 +185,15 @@ public class ServerRefusalTests(ApiTestHost api)
         using var scope = api.Server.Services.CreateScope();
         var store = scope.ServiceProvider.GetRequiredService<ProfessionalStore>();
 
-        var outcome = await store.PublishAsync("someone", TestPhone.UniqueNumber(), Listing(0) with { CityIds = [] }, CancellationToken.None);
+        var outcome = await store.PublishAsync("someone", TestPhone.UniqueNumber(), Listing() with { CityIds = [] }, CancellationToken.None);
 
         outcome.Should().Be(PublishOutcome.Invalid);
     }
 
-    private static PublishListingRequest Listing(int seed) => new(
+    private static PublishListingRequest Listing() => new(
         "Racer", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
         Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"),
-        [Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"), Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")],
-        [new ReferenceDto($"Ref {seed}", TestPhone.UniqueNumber())]);
+        [Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"), Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")]);
 
     // --- Photos -------------------------------------------------------------------
 

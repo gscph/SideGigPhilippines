@@ -43,8 +43,8 @@ API deploy (a failing test stops the deploy). Changes to only CSS, images, `.raz
 SideGigPh.Tests/
 ├── Unit/                 one piece at a time, no network or database (milliseconds each)
 │   ├── Onboarding/       the interview: which question shows, what an answer clears, where the app opens, links
-│   ├── Publishing/       publishing a listing: missing answers or proof, references, the server's own checks,
-│   │                     and that the app and server agree on the rules (2 photos, 1–3 references)
+│   ├── Publishing/       publishing a listing: missing answers or proof, the server's own checks, an old app's
+│   │                     body, and that the app and server agree on the rules (up to 6 work photos, optional)
 │   ├── Search/           search box words (tubero → plumbing), result order (town, budget, stars), card wording
 │   ├── Seeker/           the Seeker home: typing, tapping trades and towns, saved search
 │   ├── Chats/            messages, calls and the unread badge on both sides; money maths
@@ -69,7 +69,7 @@ SideGigPh.Tests/
 
 ## Reading a test
 
-Each test name says what it checks: `Publish_ReferenceHasWorkersOwnNumber_ReturnsBadReferenceWithoutSending`
+Each test name says what it checks: `Publish_MissingInterviewAnswer_ReturnsIncompleteWithoutSending`
 reads as *method · situation · expected result*. Inside, three blocks: **Arrange** (set up), **Act** (do the one
 thing), **Assert** (check). The comment above each class says why those tests matter to users.
 

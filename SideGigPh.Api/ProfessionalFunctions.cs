@@ -102,21 +102,17 @@ public sealed class ProfessionalFunctions(
     }
 
     /// <summary>
-    /// <c>GET professionals/me/references</c>: the caller's own references (private, never in <see cref="ListingDto"/>), so
-    /// a reinstalled app restores their live listing with them and later edits can re-publish it.
+    /// <c>GET professionals/me/references</c>: kept only for apps from before references were dropped. Their restore
+    /// of a live listing on a new phone reads it and fails on a 404, so it answers an empty list and reads nothing.
+    /// Remove it once no installed app calls it (<c>X-App-Version</c> in the logs).
     /// </summary>
     [Function("GetMyReferences")]
     public async Task<IActionResult> MyReferences(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "professionals/me/references")] HttpRequest request,
-        CancellationToken cancellationToken)
-    {
-        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
-        {
-            return new UnauthorizedResult();
-        }
-
-        return new OkObjectResult(await professionals.ReferencesAsync(uid, cancellationToken));
-    }
+        CancellationToken cancellationToken) =>
+        await auth.GetUidAsync(request, cancellationToken) is null
+            ? new UnauthorizedResult()
+            : new ContentResult { Content = "[]", ContentType = "application/json", StatusCode = StatusCodes.Status200OK };
 
     /// <summary>Publishes the caller's listing, or replaces it. Needs a verified phone number on the account.</summary>
     [Function("PublishProfessional")]
@@ -144,15 +140,14 @@ public sealed class ProfessionalFunctions(
             return ApiResults.BadRequest(ApiErrors.BadBody, "The body was empty (null).");
         }
 
-        if (ProfessionalStore.InvalidField(listing, caller.PhoneNumber) is { } field)
+        if (ProfessionalStore.InvalidField(listing) is { } field)
         {
             var sent = JsonSerializer.Serialize(listing, ApiJson.Default.PublishListingRequest);
-            // Only the field: the listing holds the references' names and numbers, which never go into the logs.
+            // Only the field: the listing holds the worker's name and base point, which never go into the logs.
             logger.LogWarning("Publish by {Uid}: invalid {Field}.", caller.Uid, field);
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
                 $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
-                + $"valid workPhotoIds (0-{ProfessionalStore.MaxWorkPhotos}, optional) and {ProfessionalStore.MinReferences}-{ProfessionalStore.MaxReferences} "
-                + $"references with a name and a distinct +639 number that isn't the worker's own are required). Received: {sent}");
+                + $"and valid workPhotoIds (optional, 0-{ProfessionalStore.MaxWorkPhotos}) are required). Received: {sent}");
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch

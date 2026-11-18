@@ -24,13 +24,5 @@
                 </MudStack>
             </InterviewStep>
             break;
-
-        case ProSetupStep.References:
-            <InterviewStep Illustration="@AppImages.References" Title="@T.Get(Copy.SetupReference)"
-                           Why="@T.Format(Copy.ReferencesWhy, ProfessionalDraft.MaxReferences)" Progress="Progress"
-                           OnBack="GoBack" OnNext="Next" CanContinue="@Draft.HasReference">
-                <ReferencesEditor OnChanged="StateHasChanged" />
-            </InterviewStep>
-            break;
     }
 }

@@ -11,7 +11,7 @@ public enum ProfileMark
     /// <summary>Green: enough to publish.</summary>
     Done,
 
-    /// <summary>Blue: as full as it gets (all 6 work photos, all 3 references, all 3 badges).</summary>
+    /// <summary>Blue: as full as it gets (all 6 work photos, all 3 badges).</summary>
     Full,
 
     /// <summary>Amber: not needed to publish, but worth doing (work photos and badges: both rank higher in search).</summary>
@@ -33,13 +33,12 @@ public enum ProfileLevel
 public enum ProfileNextStep
 {
     Photo,
-    References,
     Phone,
     Publish,
 }
 
 /// <summary>
-/// The worker's profile as a game to finish: a mark for each part (photo, work photos, references, number, badges)
+/// The worker's profile as a game to finish: a mark for each part (photo, work photos, number, badges)
 /// and an overall level. Red parts block publishing; green is enough to be live; blue is a fully set-up profile;
 /// amber is optional but worth doing: work photos (fewer than <see cref="ProfessionalDraft.GoodWorkPhotos"/>) and a
 /// badge not asked for yet. Neither blocks publishing; both rank higher in search (<c>SearchRanker</c>).
@@ -48,24 +47,21 @@ public sealed record ProfileProgress(
     bool IsPublished,
     ProfileMark Photo,
     ProfileMark WorkPhotos,
-    ProfileMark References,
     ProfileMark Phone,
     ProfileMark Badges,
     int WorkPhotoCount,
-    int ReferenceCount,
     int BadgeCount)
 {
     /// <summary>Red until published; blue when published and every part is full; green in between.</summary>
     public ProfileLevel Level =>
         !IsPublished ? ProfileLevel.NotLive
-        : new[] { Photo, WorkPhotos, References, Phone, Badges }.All(mark => mark == ProfileMark.Full) ? ProfileLevel.Complete
+        : new[] { Photo, WorkPhotos, Phone, Badges }.All(mark => mark == ProfileMark.Full) ? ProfileLevel.Complete
         : ProfileLevel.Live;
 
     /// <summary>What to do next to get published; null once the listing is live.</summary>
     public ProfileNextStep? NextStep =>
         IsPublished ? null
         : Photo == ProfileMark.Missing ? ProfileNextStep.Photo
-        : References == ProfileMark.Missing ? ProfileNextStep.References
         : Phone == ProfileMark.Missing ? ProfileNextStep.Phone
         : ProfileNextStep.Publish;
 
@@ -79,7 +75,6 @@ public sealed record ProfileProgress(
         bool isPublished,
         bool hasPhoto,
         int workPhotoCount,
-        int referenceCount,
         bool hasVerifiedPhone,
         IEnumerable<BadgeState> badgeStates)
     {
@@ -91,13 +86,11 @@ public sealed record ProfileProgress(
             WorkPhotos: workPhotoCount >= ProWorkspace.MaxWorkPhotos ? ProfileMark.Full
                 : workPhotoCount >= ProfessionalDraft.GoodWorkPhotos ? ProfileMark.Done
                 : ProfileMark.Recommended,
-            References: CountMark(referenceCount, 1, ProfessionalDraft.MaxReferences),
             Phone: hasVerifiedPhone ? ProfileMark.Full : ProfileMark.Missing,
             Badges: approved >= BadgeCatalog.Kinds ? ProfileMark.Full
                 : states.Count < BadgeCatalog.Kinds || states.Any(state => state is BadgeState.None or BadgeState.Rejected) ? ProfileMark.Recommended
                 : ProfileMark.Waiting,
             WorkPhotoCount: workPhotoCount,
-            ReferenceCount: referenceCount,
             BadgeCount: approved);
     }
 
@@ -106,12 +99,6 @@ public sealed record ProfileProgress(
         workspace.IsPublished,
         workspace.ProfilePhotoUrl is not null,
         workspace.WorkPhotos.Count,
-        workspace.Draft.References.Count,
         workspace.HasVerifiedPhone,
         Enum.GetValues<BadgeKind>().Select(badges.StateOf));
-
-    private static ProfileMark CountMark(int count, int needed, int max) =>
-        count >= max ? ProfileMark.Full
-        : count >= needed ? ProfileMark.Done
-        : ProfileMark.Missing;
 }

@@ -88,8 +88,8 @@ public sealed class TestPhone
     public static string UniqueNumber() => $"+639{(Base + Interlocked.Increment(ref _nextNumber)) % 1_000_000_000:D9}";
 
     /// <summary>
-    /// A Skilled Worker who finished the interview, uploaded 3 photos (own + 2 work) through the API and added a
-    /// reference: everything Publish needs. Returns the phone with Pro home loaded.
+    /// A Skilled Worker who finished the interview and uploaded 3 photos (own + 2 work) through the API: everything
+    /// Publish needs. Returns the phone with Pro home loaded.
     /// </summary>
     public static async Task<TestPhone> WorkerReadyToPublishAsync(ApiTestHost api, string name, string trade = "aircon",
         string[]? jobs = null, string[]? towns = null, string rate = "500-1000")
@@ -111,7 +111,6 @@ public sealed class TestPhone
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg(), TestImages.Jpeg()]);
         // The whole result, so a failure says why (Taken = another account has these bytes, UploadFailed = the server refused).
         (await phone.Pro.AddWorkPhotosAsync()).Should().Be(new PhotoAddResult(2, 0));
-        (await phone.Pro.AddReferenceAsync("Aling Nena", UniqueNumber())).Should().Be(ReferenceAddResult.Added);
         return phone;
     }
 

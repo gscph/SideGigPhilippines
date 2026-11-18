@@ -1,6 +1,6 @@
 # Tarbaho Terms of Service
 
-**Effective date:** November 14, 2026 · **Last updated:** November 14, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 18, 2026
 
 ---
 
@@ -33,7 +33,7 @@ use the App.
 - **Listing**: a Skilled Worker's public profile in the App.
 - **Service Agreement**: any agreement between a Customer and a Skilled Worker about a job, whether made in the
   App's chat, by phone, by SMS or in person.
-- **User Content**: anything a user puts in the App: names, photos, listings, prices, messages, reviews, references.
+- **User Content**: anything a user puts in the App: names, photos, listings, prices, messages, reviews.
 
 ## 3. What Tarbaho is, and what it is not
 
@@ -65,7 +65,7 @@ offer or look for employment, including household (kasambahay) work, regular or 
 work. We may remove any listing or chat that does.
 
 3.5 **We do not verify users beyond what we say.** "**Phone number verified**" means only that the person confirmed
-the number with an SMS code. The number of **references** is what the Skilled Worker gave us. We do **not** check
+the number with an SMS code. We do **not** check
 identity documents, criminal records, NBI or barangay clearance, licenses, TESDA certificates, skills, insurance,
 tax registration or the truth of any listing, photo or review, unless we expressly say so for a specific feature.
 
@@ -98,9 +98,7 @@ work you are not legally allowed or qualified to do;
 d) you are responsible for your own **taxes** (including BIR registration and receipts where required), **SSS,
 PhilHealth and Pag-IBIG** contributions, tools, materials, insurance and safety equipment;
 
-e) each reference you add agreed to be your reference and to be contacted by us;
-
-f) you will follow all applicable laws, including safety, building and consumer protection laws.
+e) you will follow all applicable laws, including safety, building and consumer protection laws.
 
 ## 6. Rules for Customers
 

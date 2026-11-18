@@ -131,11 +131,6 @@ public static class Copy
     public static readonly LocalizedText ProProfileTrust = new("What we checked", "Ano ang na-check namin");
     public static readonly LocalizedText TrustPhone = new("Phone number verified", "Verified ang phone number");
     public static readonly LocalizedText TrustPhoneNote = new("Checked with an SMS code.", "Na-check gamit ang SMS code.");
-    public static readonly LocalizedText TrustOneReference = new("1 reference", "May 1 reference");
-    public static readonly LocalizedText TrustReferences = new("{0} references", "May {0} references");
-    public static readonly LocalizedText TrustReferencesNote = new(
-        "People who can vouch for their work. Ask about them in chat.",
-        "Mga taong pwedeng magpatunay sa gawa nila. Itanong sa chat.");
     public static readonly LocalizedText ProProfilePhotos = new("Photos of their work", "Photos ng mga gawa nila");
     public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet.", "Wala pang review.");
     public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Hindi makita ang skilled worker");
@@ -479,9 +474,8 @@ public static class Copy
         "Mauunang makita ng malalapit na workers ang post mo. Bayan at ilang km lang ang nakikita nila, hindi ang eksaktong location mo.");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
-    // Setup checklist on Pro home: photo, a reference, a confirmed number, then the Publish button; work photos optional.
+    // Setup checklist on Pro home: photo, a confirmed number, then the Publish button; work photos optional.
     public static readonly LocalizedText NotLiveBannerPhoto = new("Not visible yet · Add a photo of you", "Di ka pa nakikita · Maglagay ng photo mo");
-    public static readonly LocalizedText NotLiveBannerReference = new("Not visible yet · Add a reference", "Di ka pa nakikita · Maglagay ng reference");
     public static readonly LocalizedText NotLiveBannerPublish = new("Not visible yet · Ready! Tap to publish", "Di ka pa nakikita · Ready na! I-tap para i-publish");
     public static readonly LocalizedText NotLiveBannerNumber = new("Not visible yet · Confirm your number to publish", "Di ka pa nakikita · I-confirm ang number para ma-publish");
     public static readonly LocalizedText SetupTitle =new("Get ready for customers", "Ihanda ang listing mo");
@@ -489,36 +483,12 @@ public static class Copy
     public static readonly LocalizedText SetupPhotoWhy = new("Customers trust a face.", "Mas nagtitiwala ang customer kapag may mukha.");
     public static readonly LocalizedText SetupWork = new("Add photos of your work", "Maglagay ng photos ng gawa mo");
     public static readonly LocalizedText SetupWorkWhy = new("Optional. Customers pick workers with photos first.", "Optional. Inuuna ng customer ang may photos.");
-    public static readonly LocalizedText SetupReference = new("Add a reference", "Maglagay ng reference");
-    public static readonly LocalizedText SetupReferenceWhy = new("Someone you worked for who can vouch for you.", "Isang pinagtrabahuhan mo na magsasabing maayos ka.");
     public static readonly LocalizedText SetupPhone = new("Confirm your number", "I-confirm ang number mo");
     public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. Customers see it only once they pick you.", "Ite-text ka namin ng code. Makikita lang ng customer kapag pinili ka.");
     public static readonly LocalizedText SetupPhoneDone = new("Confirmed with a text code.", "Na-confirm na gamit ang code sa text.");
     public static readonly LocalizedText SetupPublishReady = new("All set! Publish your listing to start finding work.", "Ready ka na! I-publish ang listing mo para magka-trabaho.");
     public static readonly LocalizedText SetupPublishButton = new("Publish and find work", "I-publish at maghanap ng trabaho");
     public static readonly LocalizedText SetupRepublishNote = new("Your listing is live, but it now needs these to stay up to date.", "Live ang listing mo, pero kailangan na ito para ma-update.");
-
-    // --- References (private, under Me) -------------------------------------
-    public static readonly LocalizedText ReferencesTitle = new("References", "Mga reference");
-    public static readonly LocalizedText ReferencesWhy = new(
-        "Someone you did work for: a past customer or boss. Add 1 to {0}. Only Tarbaho sees these, not customers. We may call to check.",
-        "Isang pinagtrabahuhan mo: dating customer o amo. 1 hanggang {0}. Tarbaho lang ang makakakita, hindi ang customer. Baka tawagan namin para i-check.");
-    public static readonly LocalizedText ReferencesCount = new("{0} of {1}", "{0} sa {1}");
-    public static readonly LocalizedText ReferencesEmpty = new("No reference yet. You need 1 to publish.", "Wala pang reference. Kailangan ng 1 para ma-publish.");
-    public static readonly LocalizedText ReferenceName = new("Their name", "Pangalan niya");
-    public static readonly LocalizedText ReferenceNumber = new("Their mobile number", "Mobile number niya");
-    public static readonly LocalizedText ReferenceAdd = new("Add reference", "I-add ang reference");
-    public static readonly LocalizedText ReferenceAddMore = new("Add more", "Magdagdag pa");
-    public static readonly LocalizedText ReferenceConsent = new(
-        "They agreed to be my reference and to be contacted by Tarbaho.",
-        "Pumayag siyang maging reference ko at na tawagan siya ng Tarbaho.");
-    public static readonly LocalizedText ReferenceRemove = new("Remove reference", "Tanggalin ang reference");
-    public static readonly LocalizedText ReferenceNoName = new("Type their name.", "I-type ang pangalan niya.");
-    public static readonly LocalizedText ReferenceBadNumber = new("That's not a mobile number. Try 0917 123 4567.", "Hindi mobile number 'yan. Halimbawa: 0917 123 4567.");
-    public static readonly LocalizedText ReferenceOwnNumber = new("That's your own number. Add someone else.", "Number mo 'yan. Ibang tao ang ilagay.");
-    public static readonly LocalizedText ReferenceDuplicate = new("That number is already on your list.", "Nasa listahan mo na ang number na 'yan.");
-    public static readonly LocalizedText ReferencesFull = new("You've added {0}, the most you can.", "Naka-{0} ka na, 'yan na ang pinakamarami.");
-    public static readonly LocalizedText ReferenceFailed = new("Couldn't save. Check your internet and try again.", "Hindi na-save. I-check ang internet mo at subukan ulit.");
 
     // --- Badges (on cards and profiles; the pro's own under Me) ---------------
     public static readonly LocalizedText BadgeId = new("ID Verified", "ID Verified");
@@ -629,14 +599,10 @@ public static class Copy
     public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
-    public static readonly LocalizedText PublishBadReference = new(
-        "One of your references has your own number. Change it to someone you worked for.",
-        "Number mo ang nasa isa sa mga reference mo. Palitan ng taong pinagtrabahuhan mo.");
     public static readonly LocalizedText ListingEditUnfinished = new(
         "Your listing edit isn't finished, so customers still see your old listing.",
         "Hindi pa tapos ang pag-edit ng listing mo, kaya luma pa rin ang nakikita ng customers.");
     public static readonly LocalizedText ListingEditFinish = new("Finish editing", "Tapusin ang pag-edit");
-    public static readonly LocalizedText PublishFixReferences = new("Fix references", "Ayusin ang reference");
     public static readonly LocalizedText PublishFailed = new("Your listing didn't publish. Check your internet and try again.", "Hindi na-publish ang listing mo. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText PublishRefused = new(
         "Your listing didn't publish. It's on our side: we got a report and will fix it. Please try again later.",

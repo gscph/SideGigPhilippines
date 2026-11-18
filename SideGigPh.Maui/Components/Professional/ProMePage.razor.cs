@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// The pro's Me tab (also the avatar in the top bar): their photo (add or change), their profile level (red, green,
-/// verified blue), Edit listing and Publish, the amber badge reminder, rows for work photos, references and badges
+/// verified blue), Edit listing and Publish, the amber badge reminder, rows for work photos and badges
 /// each with its mark (<see cref="ProfileProgress"/>), their card exactly as customers see
 /// it, then the shared <see cref="Shared.MePage"/> parts (language, Start over).
 /// </summary>
@@ -32,8 +32,6 @@ public partial class ProMePage : ComponentBase
     private string Name => Workspace.Draft.DisplayName ?? string.Empty;
 
     private string PhotosCountLabel => T.Format(Copy.PhotosCount, Workspace.WorkPhotos.Count, ProWorkspace.MaxWorkPhotos);
-
-    private string ReferencesCountLabel => T.Format(Copy.ReferencesCount, Workspace.Draft.References.Count, ProfessionalDraft.MaxReferences);
 
     private string BadgesCountLabel => T.Format(Copy.BadgesCount, Badges.ApprovedKinds, BadgeCatalog.Kinds);
 

@@ -27,7 +27,6 @@ public partial class PublishPage : ComponentBase
     private bool _pledged;
     private bool _busy;
     private LocalizedText? _problem;
-    private bool _badReference;
     private bool _failed;
 
     protected override async Task OnInitializedAsync()
@@ -51,7 +50,7 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
-        // Own photo and a reference come first: the setup opens at the first one missing.
+        // The own photo comes first: the setup opens there while it is missing.
         if (!Workspace.Draft.HasProof)
         {
             Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);
@@ -61,7 +60,7 @@ public partial class PublishPage : ComponentBase
         // The listing's number is the account's verified number (a Google sign-in adds one here first). Its Back goes
         // to the setup's last step, since home would resume right back here; "Do this later" goes to Pro home, whose
         // banner and checklist say the number is still needed to publish (no dead end when today's codes are used up).
-        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.References),
+        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.Photo),
                 laterPath: ProRoutes.Home) is { } step)
         {
             Nav.NavigateTo(step, replace: true);
@@ -79,7 +78,6 @@ public partial class PublishPage : ComponentBase
         }
 
         _busy = true;
-        _badReference = false;
         _failed = false;
         try
         {
@@ -103,7 +101,6 @@ public partial class PublishPage : ComponentBase
                 PublishResult.TooManyTries => Copy.PublishTooManyTries,
                 _ => null,
             };
-            _badReference = result == PublishResult.BadReference;
         }
         catch (Exception ex)
         {
@@ -118,13 +115,13 @@ public partial class PublishPage : ComponentBase
             _busy = false;
         }
 
-        if (_problem is null && !_badReference && !_failed)
+        if (_problem is null && !_failed)
         {
             Analytics.Track(AppEvents.ListingPublished);
             Nav.NavigateTo(ProRoutes.Home, replace: true);
         }
     }
 
-    // The step before it in the setup after the interview (references).
-    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProSetupStep.References));
+    // The step before it in the setup after the interview (work photos).
+    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProSetupStep.Photo));
 }

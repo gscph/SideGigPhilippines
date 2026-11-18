@@ -157,15 +157,30 @@ public class SavedAnswersTests
         state.Seeker.ServiceId.Should().Be("construction-electrical");
     }
 
-    // Written before photos and references existed: the new lists must start empty, not null.
+    // Written before photos existed: the new lists must start empty, not null.
     [Fact]
     public void FileWithoutNewerFields_LoadsWithEmptyLists()
     {
         var state = Load("""{ "Role": "Professional", "Professional": { "CategoryId": "aircon" } }""");
 
         state.Professional.WorkPhotoIds.Should().BeEmpty();
-        state.Professional.References.Should().BeEmpty();
         state.Professional.PublishedAt.Should().BeNull();
+    }
+
+    // Written by an app from before references were dropped: the old list is ignored, the rest still loads, and the
+    // next save leaves the third people's names and numbers out of the file.
+    [Fact]
+    public void FileWithOldReferences_LoadsTheRest_AndTheNextSaveDropsThem()
+    {
+        var state = Load("""
+            { "Role": "Professional", "Professional": { "CategoryId": "aircon", "ProfilePhotoId": "me", "WorkPhotoIds": ["w1", "w2"],
+              "References": [ { "Name": "Aling Nena", "MobileNumber": "+639181111111" } ] } }
+            """);
+
+        state.Professional.CategoryId.Should().Be("aircon");
+        state.Professional.HasProof.Should().BeTrue("own photo and 2 work photos are the whole setup now");
+        JsonSerializer.Serialize(state, OnboardingJsonContext.Default.OnboardingState)
+            .Should().NotContain("Aling Nena").And.NotContain("+639181111111");
     }
 
     // Written before recent searches and "search or post": the list starts empty, the question is unanswered.
@@ -221,7 +236,7 @@ public class SavedAnswersTests
             Language = AppLanguage.Taglish,
             Role = UserRole.Seeker,
             Seeker = new SeekerAnswers { CategoryId = "aircon", CityId = "taytay", AreaId = "rizal", BudgetId = "unsure" },
-            Professional = { References = [new WorkReference("Aling Nena", "+639181111111")] },
+            Professional = { WorkPhotoIds = ["w1", "w2"] },
         };
 
         var json = JsonSerializer.Serialize(state, OnboardingJsonContext.Default.OnboardingState);
@@ -229,6 +244,6 @@ public class SavedAnswersTests
 
         json.Should().Contain("\"Role\":\"Seeker\"").And.Contain("\"Language\":\"Taglish\"");
         back.Seeker.CityId.Should().Be("taytay");
-        back.Professional.References.Should().ContainSingle().Which.Name.Should().Be("Aling Nena");
+        back.Professional.WorkPhotoIds.Should().Equal("w1", "w2");
     }
 }

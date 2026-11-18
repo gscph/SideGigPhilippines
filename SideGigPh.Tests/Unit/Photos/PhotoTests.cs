@@ -44,7 +44,7 @@ public class PhotoTests
         await app.Pro.ChangeProfilePhotoAsync();
 
         app.Profiles.Published.Should().ContainSingle()
-            .Which.Listing.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
+            .Which.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
     }
 
     [Fact]
@@ -201,6 +201,23 @@ public class PhotoTests
         await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(99));
 
         app.Store.Saves.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task RemoveWorkPhoto_LastOnesOnPublishedListing_AreAllowedAndRepublished()
+    {
+        // Work photos are optional, so a live listing may drop all of them; the live listing keeps up.
+        var draft = TestData.ReadyDraft();
+        draft.PublishedAt = DateTimeOffset.Now;
+        var app = await FakeApp.ProAsync(draft);
+
+        await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(2));
+        await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(3));
+
+        app.Pro.Draft.WorkPhotoIds.Should().BeEmpty();
+        app.Pro.CanRemoveWorkPhoto.Should().BeFalse("there is nothing left to remove");
+        app.Pro.IsPublished.Should().BeTrue();
+        app.Profiles.Published.Last().WorkPhotoUrls.Should().BeEmpty();
     }
 
     // --- Seeker's own photo -------------------------------------------------

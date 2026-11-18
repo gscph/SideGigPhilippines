@@ -140,6 +140,32 @@ public sealed class ApiTestHost : IAsyncLifetime
         (await command.ExecuteNonQueryAsync()).Should().Be(1, "the job is completed");
     }
 
+    /// <summary>
+    /// Stores a reference for <paramref name="uid"/>'s listing straight in the database, as publishes did before the
+    /// references feature was dropped (nothing writes them any more), so Delete account's purge can be checked.
+    /// </summary>
+    public async Task AddOldReferenceAsync(string uid, string mobileNumber)
+    {
+        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
+            "INSERT INTO ProfessionalReferences (ProfessionalId, Position, Name, MobileNumber) VALUES (@uid, 0, N'Aling Nena', @number)", connection);
+        command.Parameters.AddWithValue("@uid", uid);
+        command.Parameters.AddWithValue("@number", mobileNumber);
+        (await command.ExecuteNonQueryAsync()).Should().Be(1);
+    }
+
+    /// <summary>How many reference rows the database holds for <paramref name="uid"/>.</summary>
+    public async Task<int> ReferenceRowsAsync(string uid)
+    {
+        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
+            "SELECT COUNT(*) FROM ProfessionalReferences WHERE ProfessionalId = @uid", connection);
+        command.Parameters.AddWithValue("@uid", uid);
+        return (int)(await command.ExecuteScalarAsync())!;
+    }
+
     /// <summary>A raw HTTP client to the API, signed in with <paramref name="token"/> when given.</summary>
     public HttpClient Client(string? token = null)
     {
