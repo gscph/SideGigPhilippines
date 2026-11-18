@@ -4,11 +4,18 @@
     <MudStack Spacing="0" Class="full-screen">
         @if (_sheet is { } part)
         {
-            <SheetHeader OnClose="CancelSheet" Divider="false" />
+            @if (_jobsStep)
+            {
+                <SheetHeader OnBack="BackToTrades" Divider="false" />
+            }
+            else
+            {
+                <SheetHeader OnClose="CancelSheet" Divider="false" />
+            }
 
             <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
-                <MudText Typo="Typo.h4" HtmlTag="h1">@T.PostSheetTitle(part)</MudText>
-                <PostPartFields Draft="_draft" Part="part" />
+                <MudText Typo="Typo.h4" HtmlTag="h1">@SheetTitle(part)</MudText>
+                <PostPartFields Draft="_draft" Part="part" JobsStep="_jobsStep" OnTradePicked="TradePicked" OnJobPicked="StateHasChanged" />
             </MudStack>
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
@@ -16,7 +23,7 @@
                     <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" OnClick="CancelSheet">
                         @T.Get(CommonCopy.Cancel)
                     </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="SaveSheet">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(!PostReview.CanSave(_draft, part))" OnClick="SaveSheet">
                         @T.Get(Copy.Save)
                     </MudButton>
                 </MudStack>

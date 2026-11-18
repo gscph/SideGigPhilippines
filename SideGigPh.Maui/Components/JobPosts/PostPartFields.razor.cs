@@ -6,8 +6,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
-/// The fields of one change sheet on the new post page: What (picture tiles: kind of work, then its services, like the
-/// interview and the search sheet), Where (town, barangay, "Use my
+/// The fields of one change sheet on the new post page: What (picture tiles, two pages: the kinds of work, then, on
+/// <see cref="JobsStep"/>, the picked trade's services), Where (town, barangay, "Use my
 /// location") or Your budget (from / up to, the suggested minimum price as a guide). They change <see cref="Draft"/>
 /// directly; the page keeps a <see cref="PostSnapshot"/> so Cancel puts the answers back.
 /// </summary>
@@ -19,6 +19,15 @@ public partial class PostPartFields : ComponentBase
 
     [Parameter] public PostPart Part { get; set; }
 
+    /// <summary>The What sheet's second page: the picked trade's jobs instead of the kinds of work.</summary>
+    [Parameter] public bool JobsStep { get; set; }
+
+    /// <summary>A kind of work was tapped (the page opens its jobs when it has some, <see cref="PostReview.HasJobChoice"/>).</summary>
+    [Parameter] public EventCallback OnTradePicked { get; set; }
+
+    /// <summary>A job was tapped (the page redraws, so its Save turns on).</summary>
+    [Parameter] public EventCallback OnJobPicked { get; set; }
+
     private string BudgetGuide => T.Format(Copy.BudgetFromHelp, Money.Peso(ReferenceData.MinimumWage));
 
     private bool BudgetTopTooLow => Draft.BudgetMinPesos is { } from && Draft.BudgetPesos is { } upTo && upTo < from;
@@ -29,9 +38,17 @@ public partial class PostPartFields : ComponentBase
 
     private static IReadOnlyCollection<string> Selected(string? id) => id is null ? [] : [id];
 
-    private void PickTrade(string? categoryId) => PostReview.PickTrade(Draft, categoryId);
+    private Task PickTradeAsync(string? categoryId)
+    {
+        PostReview.PickTrade(Draft, categoryId);
+        return OnTradePicked.InvokeAsync();
+    }
 
-    private void PickService(string serviceId) => Draft.ServiceId = serviceId;
+    private Task PickServiceAsync(string serviceId)
+    {
+        Draft.ServiceId = serviceId;
+        return OnJobPicked.InvokeAsync();
+    }
 
     private void PickTown(string? cityId) => PostReview.PickTown(Draft, cityId);
 }

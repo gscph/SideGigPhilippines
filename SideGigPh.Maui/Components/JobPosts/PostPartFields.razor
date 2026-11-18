@@ -1,17 +1,16 @@
 @switch (Part)
 {
+    case PostPart.What when JobsStep:
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.PostService)</MudText>
+            <ChoiceTiles Items="ServiceTiles" SelectedIds="@Selected(Draft.ServiceId)" Compact="true" OnPick="PickServiceAsync" />
+        </MudStack>
+        break;
     case PostPart.What:
         <MudStack Spacing="3">
             <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.PostTrade)</MudText>
-            <ChoiceTiles Items="TradeTiles" SelectedIds="@Selected(Draft.CategoryId)" Compact="true" OnPick="PickTrade" />
+            <ChoiceTiles Items="TradeTiles" SelectedIds="@Selected(Draft.CategoryId)" Compact="true" OnPick="PickTradeAsync" />
         </MudStack>
-        @if (Draft.CategoryId is not null && ServiceTiles.Count > 1)
-        {
-            <MudStack Spacing="3">
-                <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.PostService)</MudText>
-                <ChoiceTiles Items="ServiceTiles" SelectedIds="@Selected(Draft.ServiceId)" Compact="true" OnPick="PickService" />
-            </MudStack>
-        }
         break;
     case PostPart.Where:
         <MudStack Spacing="2" Class="app-field-group">

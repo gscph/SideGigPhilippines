@@ -187,7 +187,7 @@ for Android).
   (no explainer), one outlined card (`PostDraftSummary`: the first photo or the service's picture, the service and its
   trade, with What's Change (a **What** `DetailRow` with Add only while no service is picked, so the service shows once); then `DetailRow`s **Where** ("Angono · Brgy. San Isidro") and **Your budget** (green),
   each with a gray **Change**, or **Add** while empty). A row's button opens its own full-screen sheet in the page (no
-  pop-up; `PostPartFields`: picture tiles for the kind of work, then its services (`ChoiceTiles`, as in the interview); town + barangay + "Use my location"; budget from / up to
+  pop-up; `PostPartFields`: What is two pages: picture tiles for the kind of work, and a tap opens that trade's own page of services titled with the trade, ← back to the trades (`PostReview.HasJobChoice`; "Others" stays, it is its own job), Save greyed until a service is picked (`PostReview.CanSave`), so a trade alone never leaves Post grey; town + barangay + "Use my location"; budget from / up to
   with the guide), with Cancel (link, puts the answers back from a `PostSnapshot`) and Save pinned at the bottom.
   Under the card: "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
   (`JobBoard.AddPhotosAsync`); Post pinned at the bottom with what is still missing under it. Trade, service and town

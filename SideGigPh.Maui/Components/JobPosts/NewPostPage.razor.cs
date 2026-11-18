@@ -28,6 +28,7 @@ public partial class NewPostPage : ComponentBase
     private PhotoAddResult? _photoResult;
     private PostPart? _sheet;
     private PostSnapshot? _before;
+    private bool _jobsStep; // the What sheet's second page: the picked trade's jobs
     private bool _busy;
     private bool _failed;
 
@@ -76,6 +77,7 @@ public partial class NewPostPage : ComponentBase
 
         _before = PostReview.Take(_draft);
         _sheet = part;
+        _jobsStep = false;
     }
 
     /// <summary>Cancel or the close button: the answers as they were when the sheet opened.</summary>
@@ -89,7 +91,23 @@ public partial class NewPostPage : ComponentBase
         _sheet = null;
     }
 
-    private void SaveSheet() => _sheet = null;
+    private void SaveSheet()
+    {
+        if (_sheet is { } part && PostReview.CanSave(_draft, part))
+        {
+            _sheet = null;
+        }
+    }
+
+    /// <summary>A kind of work was tapped: on to its jobs (a trade without a choice, "Others", stays here).</summary>
+    private void TradePicked() => _jobsStep = PostReview.HasJobChoice(_draft.CategoryId);
+
+    /// <summary>← on the jobs page: back to the kinds of work, the picks kept (Cancel still puts everything back).</summary>
+    private void BackToTrades() => _jobsStep = false;
+
+    /// <summary>The jobs page is titled with its trade ("Construction"), every other sheet with its part.</summary>
+    private string SheetTitle(PostPart part) =>
+        _jobsStep && ReferenceData.FindTrade(_draft.CategoryId) is { } trade ? T.Get(trade.Label) : T.PostSheetTitle(part);
 
     // The phone's photo picker shows over the page; the splash covers only the upload.
     private async Task AddPhotosAsync()

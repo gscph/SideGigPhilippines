@@ -50,6 +50,16 @@ public static class PostReview
         _ => draft.BudgetPesos is not null,
     };
 
+    /// <summary>
+    /// The What sheet is two pages: the kinds of work, then (after a tap) that trade's jobs, with ← back to the trades.
+    /// True when <paramref name="categoryId"/> has jobs to choose from, so a tap on it opens its jobs page; "Others"
+    /// has one job, itself, picked with the trade.
+    /// </summary>
+    public static bool HasJobChoice(string? categoryId) => ReferenceData.ServicesOf(categoryId).Count > 1;
+
+    /// <summary>Save on a sheet: the What sheet only once a job is picked (a trade alone can't be posted).</summary>
+    public static bool CanSave(JobPostDraft draft, PostPart part) => part != PostPart.What || Has(draft, PostPart.What);
+
     /// <summary>Another trade has other services: the picked service is cleared. A trade with one service ("Others") picks it.</summary>
     public static void PickTrade(JobPostDraft draft, string? categoryId)
     {
