@@ -1,9 +1,7 @@
 @page "/professional"
 @layout ProLayout
 
-<MudStack Spacing="4">  
-
-    <PhotoAddNotice Result="_photoResult" />
+<MudStack Spacing="4">
 
     @if (Workspace.HasUnfinishedEdit)
     {
@@ -21,13 +19,37 @@
                    HasVerifiedPhone="@Workspace.HasVerifiedPhone"
                    AddPhoneHref="@AddPhonePath" IsPublished="@Workspace.IsPublished" />
     }
-    else if (Progress.ShowWorkPhotosNudge)
+
+    @if (Workspace.IsPublished)
     {
-        <WorkPhotosNudgeCard />
-    }
-    else if (Progress.ShowBadgeNudge)
-    {
-        <BadgeNudgeCard BadgeCount="Progress.BadgeCount" />
+        @* The pro's daily work: find a job in Requests, then talk to the customer in Inbox. *@
+        <MudStack Row="true" Spacing="3" Class="align-stretch">
+            <ProWorkTile Primary="true" Href="@JobPostRoutes.Feed" Icon="@Icons.Material.Rounded.Campaign"
+                         Label="@T.Get(Copy.ProPostsTitle)" Count="NewRequestCount" CountHasMore="Board.HasMore"
+                         Detail="@RequestsDetail" />
+            <ProWorkTile Href="@ProRoutes.Inbox" Icon="@Icons.Material.Rounded.ChatBubbleOutline"
+                         Label="@T.Get(Copy.NavInbox)" Count="Workspace.UnreadCount" Detail="@InboxDetail" />
+        </MudStack>
+
+        <HomeSection Title="@T.Get(Copy.ProPostsTitle)" Href="@JobPostRoutes.Feed">
+            @if (_requestsLoaded && Board.Feed.Count == 0)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProPostsEmpty)</MudText>
+            }
+            <MudStack Spacing="0">
+                @foreach (var post in Board.Feed.Take(3))
+                {
+                    <ProRequestRow Post="post" @key="post.Id" />
+                }
+            </MudStack>
+            @if (Board.Feed.Count > 0)
+            {
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" EndIcon="@Icons.Material.Filled.ChevronRight"
+                           Href="@JobPostRoutes.Feed">
+                    @T.Get(Copy.HomeSeeJobRequests)
+                </MudButton>
+            }
+        </HomeSection>
     }
 
     <HomeSection Title="@T.Get(Copy.SectionMessages)" Href="@ProRoutes.Inbox">
@@ -43,6 +65,19 @@
         </MudStack>
     </HomeSection>
 
+    @* Profile reminders come after the work, once the listing is live. *@
+    @if (Workspace.IsPublished && Workspace.Draft.HasProof)
+    {
+        @if (Progress.ShowWorkPhotosNudge)
+        {
+            <WorkPhotosNudgeCard />
+        }
+        else if (Progress.ShowBadgeNudge)
+        {
+            <BadgeNudgeCard BadgeCount="Progress.BadgeCount" />
+        }
+    }
+
     <HomeSection Title="@T.Get(Copy.SectionReviews)" Href="@ProRoutes.Reviews">
         @if (Workspace.Reviews.Count == 0)
         {
@@ -55,9 +90,3 @@
     </HomeSection>
 
 </MudStack>
-
-@if (Workspace.WorkPhotos.Count < ProWorkspace.MaxWorkPhotos)
-{
-    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.AddAPhoto" Class="app-fab"
-            aria-label="@T.Get(Copy.PhotosAdd)" Disabled="_busy" OnClick="AddPhotosAsync" />
-}

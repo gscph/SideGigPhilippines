@@ -8,13 +8,13 @@ namespace SideGigPh.Maui.Components.Professional;
 /// Going live, step 1 (<see cref="PublishStep.Checklist"/>): the worker ticks every promise (<see cref="PublishChecklist"/>:
 /// honest work and prices, the Terms, the community rules, fair offers) before the Ready step, which shows the card and
 /// publishes. Every "Publish" link opens here; a live listing goes home (its edits never pass the promises again). The
-/// verified-number check stays here, before the promises, as it was before the pledge. A full-screen step with the
-/// interview look; the rules are in <see cref="OnboardingSteps"/>.
+/// verified-number check is on the Ready step, not here, so a worker who tapped "Do this later" on the interview's number
+/// question isn't asked again straight away. A full-screen step with the interview look; the rules are in
+/// <see cref="OnboardingSteps"/>.
 /// </summary>
 public partial class PublishPage : ComponentBase
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
-    [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -36,17 +36,8 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
-        // The listing's number is the account's verified number (asked in the interview; a worker who put it off adds it
-        // here first). Its Back goes to the interview's preview, since home would resume right back here; "Do this later"
-        // goes to Pro home, whose banner and checklist say the number is still needed to publish (no dead end when today's
-        // codes are used up).
-        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.BackPath(PublishStep.Checklist),
-                laterPath: ProRoutes.Home) is { } step)
-        {
-            Nav.NavigateTo(step, replace: true);
-            return;
-        }
-
+        // No number check here: the interview's number question just asked, and a worker who put it off is asked once
+        // more on the Ready step, which is the one that publishes.
         _loaded = true;
     }
 
