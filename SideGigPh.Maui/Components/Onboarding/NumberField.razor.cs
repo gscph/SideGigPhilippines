@@ -10,13 +10,15 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// The worker interview's number question: the skeleton's <see cref="PhoneSignIn"/> adds an SMS-verified number to the
 /// signed-in account (a Google or Apple sign-in; a phone sign-in already has one and never sees this). "Do this later"
 /// always shows, so a code that never comes is no dead end: Publish asks again. A number that belongs to another
-/// account offers to sign in with it instead, like the skeleton's add-number page.
+/// account (often their own earlier phone sign-in) signs in to that account with the same code and carries on where a
+/// sign-in goes, keeping the answers; only where the provider can't do that does it offer "Sign in with this number".
 /// </summary>
 public partial class NumberField : ComponentBase
 {
     [Inject] private IAppAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private IAuthLanding Landing { get; set; } = default!;
 
     /// <summary>The number was verified and added to the account.</summary>
     [Parameter] public EventCallback OnLinked { get; set; }
@@ -47,6 +49,15 @@ public partial class NumberField : ComponentBase
 
     private async Task HandleLinkedAsync(AuthResult result)
     {
+        if (result is { SwitchedAccount: true, User: { } other })
+        {
+            // The code proved the number, which is another account's: that account is signed in now. Where a sign-in
+            // goes (the launch page resumes the interview, which no longer asks for the number).
+            await Account.AccountSwitchedAsync();
+            Nav.NavigateTo(other.HasName ? await Landing.GetDestinationAsync(other) : AuthRoutes.NamePath, replace: true);
+            return;
+        }
+
         if (result.IsSuccess)
         {
             await OnLinked.InvokeAsync();

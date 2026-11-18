@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MobileAppTheme.Auth;
 using MudBlazor;
 using SideGigPh.Maui.Components.Layout;
 using SideGigPh.Maui.Services;
@@ -9,7 +10,7 @@ namespace SideGigPh.Maui.Components.Professional;
 /// <summary>
 /// The Professional's pages inside the shared <see cref="AppShell"/>: tabs Home, Requests (what customers nearby posted for their trade), Inbox (with an
 /// unread badge), Reviews and Me (profile, work photos, language, Start over); the avatar opens
-/// Me too, with a green dot once published; until then a red <see cref="NotLiveBanner"/> under the top bar links to the next thing publishing needs. Loads <see cref="ProWorkspace"/> first and sends anyone who hasn't finished the
+/// Me too, with a green dot once published; until then a red <see cref="NotLiveBanner"/> under the top bar links to the next thing publishing needs. Sends anyone signed out to sign in (<see cref="SignInGate"/>), loads <see cref="ProWorkspace"/> and sends anyone who hasn't finished the
 /// Professional interview back to <c>/</c>. When the setup checklist gets finished it opens the Publish page once.
 /// </summary>
 public partial class ProLayout : LayoutComponentBase, IDisposable
@@ -18,6 +19,7 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private ProBadges Badges { get; set; } = default!;
@@ -47,6 +49,14 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     {
         Workspace.Changed += OnWorkspaceChanged;
         Account.Changed += OnWorkspaceChanged;
+        // Signed out (e.g. "Sign in with this number", then Back): sign in first, as at launch. Without this the pages
+        // loaded with nobody signed in, and the add-number link then opened the sign-in page instead.
+        if (await Gate.RedirectAsync("/") is { } signIn)
+        {
+            Nav.NavigateTo(signIn, replace: true);
+            return;
+        }
+
         if (!await Workspace.EnsureLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);
