@@ -57,9 +57,13 @@ public partial class SearchSheetPage : ComponentBase
             {
                 await Workspace.SearchForAsync(words);
             }
-            else if (sheet.NeedsTradePick(Workspace.Answers))
+            else if (sheet.NeedsJobPick(Workspace.Answers))
             {
                 await Workspace.PickCategoryAsync(sheet.CategoryId!);
+                if (sheet.ServiceId is { } serviceId)
+                {
+                    await Workspace.PickServiceAsync(serviceId);
+                }
             }
 
             if (sheet.TownId is { } townId)

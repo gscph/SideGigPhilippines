@@ -1,4 +1,4 @@
-<MudTextField T="string" @bind-Value="_text" Variant="Variant.Outlined" Margin="Margin.Dense" Class="app-pill-input app-search-pill" Immediate
+<MudTextField T="string" @bind-Value="_text" Variant="Variant.Outlined" Margin="Margin.Dense" Class="@BoxClass" Immediate
               DebounceInterval="@(Live ? 400 : 0)" OnDebounceIntervalElapsed="OnTypedAsync" OnKeyDown="OnKeyDownAsync"
               Clearable="true" OnClearButtonClick="ClearAsync"
               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Dark"

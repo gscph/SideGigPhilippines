@@ -22,8 +22,11 @@ public sealed class SearchSheet
 
     public string? CategoryId { get; private set; }
 
-    /// <summary>The job of the current search, kept while the trade stays the same and nothing new was typed.</summary>
+    /// <summary>The picked job (a tile under the trade), or null for all of the trade's jobs.</summary>
     public string? ServiceId { get; private set; }
+
+    /// <summary>The "All" tile's id among a trade's job tiles (all of the trade's jobs: <see cref="ServiceId"/> null).</summary>
+    public const string AllJobs = "all";
 
     public string? TownId { get; private set; }
 
@@ -57,16 +60,21 @@ public sealed class SearchSheet
         }
     }
 
-    /// <summary>A trade tile: all its jobs, the typed words cleared, then on to Where.</summary>
+    /// <summary>
+    /// A trade tile: all its jobs ("All" picked) and the typed words cleared; What stays open so its job tiles show. The
+    /// same tile always means the same thing, whatever was searched before.
+    /// </summary>
     public void PickTrade(string categoryId)
     {
-        if (categoryId != CategoryId)
-        {
-            ServiceId = null;
-        }
-
         CategoryId = categoryId;
+        ServiceId = null;
         Words = null;
+    }
+
+    /// <summary>A job tile under the trade (<see cref="AllJobs"/> for all of them), then on to Where.</summary>
+    public void PickJob(string jobId)
+    {
+        ServiceId = jobId == AllJobs ? null : jobId;
         Open = SearchStep.Where;
     }
 
@@ -80,11 +88,12 @@ public sealed class SearchSheet
     public void PickUrgency(string urgencyId) => UrgencyId = urgencyId;
 
     /// <summary>
-    /// On Search with no words: a different trade (or one picked over earlier typed words) is picked anew, all its jobs;
-    /// the same trade keeps the current search's job.
+    /// On Search with no words: true when the trade or job differs from the current search (or replaces words searched
+    /// before), so the page picks the trade, then the job when one was picked.
     /// </summary>
-    public bool NeedsTradePick(SeekerAnswers current) =>
-        Words is null && CategoryId is not null && (CategoryId != current.CategoryId || current.SearchText is not null);
+    public bool NeedsJobPick(SeekerAnswers current) =>
+        Words is null && CategoryId is not null
+        && (CategoryId != current.CategoryId || ServiceId != current.ServiceId || current.SearchText is not null);
 
     /// <summary>"Clear all": back to an empty search in the launch town, What open.</summary>
     public void Clear()

@@ -3,6 +3,15 @@ namespace SideGigPh.Maui.Services.Localization;
 /// <summary>The answers the search sheet's collapsed rows and the results' summary pill show (tested).</summary>
 public static class SearchSheetText
 {
+    /// <summary>A trade's job tiles in the What card: "All Aircon Technician services" first, then each job.</summary>
+    public static IReadOnlyList<ChoiceItem> JobChoices(this AppText text, string categoryId)
+    {
+        var trade = ReferenceData.FindTrade(categoryId);
+        var all = new ChoiceItem(SearchSheet.AllJobs, text.Format(Copy.SearchAllJobs, trade is null ? string.Empty : text.Get(trade.Label)),
+            AppImages.For(categoryId));
+        return [all, .. ChoiceItem.From(ReferenceData.ServicesOf(categoryId), text)];
+    }
+
     /// <summary>What they typed, else the job, else the trade, else null (nothing picked yet).</summary>
     public static string? What(this AppText text, string? words, string? categoryId, string? serviceId)
     {

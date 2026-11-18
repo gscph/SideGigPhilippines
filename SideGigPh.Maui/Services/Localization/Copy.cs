@@ -112,6 +112,7 @@ public static class Copy
     public static readonly LocalizedText SheetWhere = new("Where", "Saan");
     public static readonly LocalizedText SheetWhen = new("When", "Kailan");
     public static readonly LocalizedText SheetAddService = new("Add service", "Pumili ng serbisyo");
+    public static readonly LocalizedText SheetWhichService = new("Which service?", "Anong serbisyo?");
     public static readonly LocalizedText SheetAnyTime = new("Any time", "Kahit kailan");
     public static readonly LocalizedText SheetAnyBudget = new("Any budget", "Kahit anong budget");
     public static readonly LocalizedText SheetClearAll = new("Clear all", "I-clear lahat");

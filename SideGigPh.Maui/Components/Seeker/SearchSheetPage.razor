@@ -10,8 +10,14 @@
                 <SheetQuestion Open="@(sheet.Open == SearchStep.What)" Title="@T.Get(Copy.SheetWhatTitle)" Label="@T.Get(Copy.SheetWhat)"
                                Value="@(T.What(sheet.Words, sheet.CategoryId, sheet.ServiceId) ?? T.Get(Copy.SheetAddService))"
                                OnOpen="() => sheet.OpenStep(SearchStep.What)">
-                    <SearchBox Value="@sheet.Words" CategoryId="@sheet.CategoryId" Live="true" OnSearch="sheet.Type" />
+                    <SearchBox Value="@sheet.Words" CategoryId="@sheet.CategoryId" Live="true" Flat="true" OnSearch="sheet.Type" />
                     <CategoryRail Items="Categories" Label="@T.Get(Copy.BrowseTitle)" OnPick="sheet.PickTrade" />
+                    @if (sheet.Words is null && sheet.CategoryId is { } categoryId)
+                    {
+                        <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.SheetWhichService)</MudText>
+                        <ChoiceTiles Items="@T.JobChoices(categoryId)" SelectedIds="@Selected(sheet.ServiceId ?? SearchSheet.AllJobs)" Compact="true"
+                                     OnPick="sheet.PickJob" />
+                    }
                 </SheetQuestion>
 
                 <SheetQuestion Open="@(sheet.Open == SearchStep.Where)" Title="@T.Get(Copy.SheetWhereTitle)" Label="@T.Get(Copy.SheetWhere)"

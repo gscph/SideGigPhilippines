@@ -34,6 +34,8 @@ public class SearchSheetTests
         var sheet = SearchSheet.From(new SeekerAnswers());
 
         sheet.PickTrade("aircon");
+        sheet.Open.Should().Be(SearchStep.What, "the trade's job tiles show under it");
+        sheet.PickJob("aircon-cleaning");
         sheet.Open.Should().Be(SearchStep.Where);
         sheet.PickTown("taytay");
         sheet.Open.Should().Be(SearchStep.When);
@@ -41,7 +43,7 @@ public class SearchSheetTests
         sheet.Open.Should().Be(SearchStep.When);
         sheet.OpenStep(SearchStep.What);
         sheet.Open.Should().Be(SearchStep.What);
-        (sheet.CategoryId, sheet.TownId, sheet.UrgencyId).Should().Be(("aircon", "taytay", "today"));
+        (sheet.CategoryId, sheet.ServiceId, sheet.TownId, sheet.UrgencyId).Should().Be(("aircon", "aircon-cleaning", "taytay", "today"));
     }
 
     [Fact]
@@ -61,27 +63,41 @@ public class SearchSheetTests
     }
 
     [Fact]
-    public void SameTrade_KeepsTheJob_OtherTradeStartsOver()
+    public void ATradeTile_AlwaysMeansAllItsJobs_UntilAJobTileIsPicked()
     {
         var current = new SeekerAnswers { CategoryId = "aircon", ServiceId = "aircon-cleaning" };
+        var opened = SearchSheet.From(current);
+        opened.ServiceId.Should().Be("aircon-cleaning", "the sheet opens on the current search");
+        opened.NeedsJobPick(current).Should().BeFalse("nothing changed");
+
         var same = SearchSheet.From(current);
         same.PickTrade("aircon");
-        same.ServiceId.Should().Be("aircon-cleaning");
-        same.NeedsTradePick(current).Should().BeFalse("the same trade keeps the job searched");
+        same.ServiceId.Should().BeNull("a trade tile means all its jobs, whatever was searched before");
+        same.NeedsJobPick(current).Should().BeTrue();
 
-        var other = SearchSheet.From(current);
-        other.PickTrade("it");
-        other.ServiceId.Should().BeNull();
-        other.NeedsTradePick(current).Should().BeTrue();
+        same.PickJob("aircon-repair");
+        same.ServiceId.Should().Be("aircon-repair");
+        same.PickJob(SearchSheet.AllJobs);
+        same.ServiceId.Should().BeNull();
 
         var afterWords = new SeekerAnswers { CategoryId = "aircon", SearchText = "aircon linis" };
         var picked = SearchSheet.From(afterWords);
         picked.PickTrade("aircon");
-        picked.NeedsTradePick(afterWords).Should().BeTrue("a tapped trade replaces the words searched before");
+        picked.NeedsJobPick(afterWords).Should().BeTrue("a tapped trade replaces the words searched before");
 
         var typed = SearchSheet.From(current);
         typed.Type("tubero");
-        typed.NeedsTradePick(current).Should().BeFalse("typed words are searched as words");
+        typed.NeedsJobPick(current).Should().BeFalse("typed words are searched as words");
+    }
+
+    [Fact]
+    public void JobTiles_AllFirst_ThenTheTradesJobs()
+    {
+        var tiles = English().JobChoices("aircon");
+
+        tiles[0].Id.Should().Be(SearchSheet.AllJobs);
+        tiles[0].Label.Should().Be("All Aircon Technician services");
+        tiles.Skip(1).Select(t => t.Id).Should().Equal(ReferenceData.ServicesOf("aircon").Select(s => s.Id));
     }
 
     [Fact]
