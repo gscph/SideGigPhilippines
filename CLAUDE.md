@@ -207,7 +207,7 @@ changing that area.**
   profile reads like Airbnb's listing page (`Services/ProfileFacts`, tested): centered photo + name, one "Aircon Technician in Angono" line (the Seeker's town first), a borderless stat row (★ · services done · years), "What we checked" icon rows, "What Juan does", small work-photo thumbnails, a sideways review row with a gray "Show all N reviews" (`/pro/{id}/reviews`, `ProReviewsPage`) and a pinned bar with the green price on the left and Contact on the right (`ProfileFooter`). Search
   words are parsed in the app (`SearchText`, `SearchIntentParser`, synonyms in `TradeWords`); ranking is on the server
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of
-  the score; [`docs/search-ranking.md`](docs/search-ranking.md)).
+  the score; [`docs/search-ranking.md`](docs/search-ranking.md)). Results read like Airbnb's list: headings that say where ("9 skilled workers in Angono"), one `ResultRow` per worker (small photo; what + where with ★; name; facts joined by ·; green price; at most one gray pill; rules `Services/ResultFacts`, `ResultText`).
 - **Onboarding** ([`docs/onboarding.md`](docs/onboarding.md)): `/` = `LaunchRouter` → language → sign in (**phone
   number first for both sides**, then "or" Google, Apple on iOS; each SMS costs money, so another code to the
   same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone; the sixth digit sends the code, and a number Android confirms by itself signs in without it) → role → the interview (a worker confirms their number

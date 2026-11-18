@@ -71,10 +71,6 @@ public partial class SearchPage : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(Pricing.BudgetChoices(Request.ServiceId, Request.CategoryId, Request.BudgetId), T);
 
-    private string Summary => _result!.Total == 1
-        ? T.Get(Copy.ResultsTitleOne)
-        : T.Format(Copy.ResultsTitle, _result.Total);
-
     protected override async Task OnInitializedAsync()
     {
         // Seekers never have to add a phone number: a Google sign-in searches as it is.
