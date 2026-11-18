@@ -1,0 +1,19 @@
+<MudPaper Elevation="0" Square="true" Class="app-sticky-action py-3 border-t border-solid mud-border-lines-default">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3">
+        <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+            @if (Price is { } price)
+            {
+                <MudText Typo="Typo.h6" Color="Color.Success" Class="app-underline one-line">@price</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.Get(Copy.ProfilePriceNote)</MudText>
+            }
+            else
+            {
+                <MudText Typo="Typo.subtitle1" Class="one-line">@T.Get(Copy.RateQuote)</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.Get(Copy.ProfileAskPrice)</MudText>
+            }
+        </MudStack>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Class="flex-shrink-0" Href="@ContactHref">
+            @T.Get(Copy.ContactPro)
+        </MudButton>
+    </MudStack>
+</MudPaper>

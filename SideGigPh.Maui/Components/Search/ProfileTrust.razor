@@ -1,12 +1,10 @@
-<MudStack Spacing="2">
-    <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.ProProfileTrust)</MudText>
-    <MudPaper Outlined="true" Class="app-rounded pa-4">
-        <MudStack Spacing="3" role="list">
-            @foreach (var badge in Listing.BadgesToShow(MaxBadges).Shown)
-            {
-                <TrustRow Icon="@BadgeIcons.Of(badge.Kind)" IconColor="Color.Primary" Title="@T.Badge(badge)" Note="@T.BadgeNote(badge)" />
-            }
-            <TrustRow Icon="@Icons.Material.Filled.VerifiedUser" Title="@T.Get(Copy.TrustPhone)" Note="@T.Get(Copy.TrustPhoneNote)" />
-        </MudStack>
-    </MudPaper>
+<MudStack Spacing="4">
+    <MudText Typo="Typo.h5" HtmlTag="h2">@T.Get(Copy.ProProfileTrust)</MudText>
+    <MudStack Spacing="4" role="list">
+        @foreach (var badge in Listing.BadgesToShow(MaxBadges).Shown)
+        {
+            <TrustRow Icon="@BadgeIcons.Of(badge.Kind)" Title="@T.Badge(badge)" Note="@T.BadgeNote(badge)" />
+        }
+        <TrustRow Icon="@Icons.Material.Outlined.Smartphone" Title="@T.Get(Copy.TrustPhone)" Note="@T.Get(Copy.TrustPhoneNote)" />
+    </MudStack>
 </MudStack>

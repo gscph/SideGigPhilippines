@@ -5,8 +5,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// "Jobs they take" on the public profile: one job per line in full-size text with a check, easier to read
-/// than the small chips the dense search card uses (<c>ServiceChips</c>).
+/// "What Juan does" on the public profile: a plain list like Airbnb's "What this place offers", each service with its
+/// own small picture and its label in full-size text.
 /// </summary>
 public partial class JobList : ComponentBase
 {
@@ -14,5 +14,5 @@ public partial class JobList : ComponentBase
 
     [Parameter, EditorRequired] public ProfessionalListing Listing { get; set; } = default!;
 
-    private IReadOnlyList<string> Labels => T.JobLabels(Listing);
+    private IReadOnlyList<(string Id, string Label)> Jobs => T.Jobs(Listing);
 }

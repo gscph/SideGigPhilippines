@@ -1,0 +1,30 @@
+@page "/pro/{Id}/reviews"
+@layout SeekerLayout
+
+<MudStack Spacing="5">
+    <MudStack Row="true" AlignItems="AlignItems.Center">
+        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@SeekerRoutes.Pro(Id)" aria-label="@T.Get(CommonCopy.Back)" />
+    </MudStack>
+
+    @if (_loading)
+    {
+        @* The brand splash (BusyOverlay) covers a slow load. *@
+    }
+    else if (_reviews.Count == 0)
+    {
+        <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.ProProfileNoReviews)</MudText>
+    }
+    else
+    {
+        <RatingSummary Reviews="_reviews" />
+        <MudDivider />
+        <MudText Typo="Typo.h5" HtmlTag="h1">@CountTitle</MudText>
+        <MudStack Spacing="0">
+            @foreach (var review in _reviews)
+            {
+                <ReviewRow Review="review" ReportHref="@ReportHref(review)" @key="review.Id" />
+                <MudDivider />
+            }
+        </MudStack>
+    }
+</MudStack>

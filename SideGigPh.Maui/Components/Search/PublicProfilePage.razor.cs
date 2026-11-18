@@ -7,10 +7,10 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// A pro as a Seeker sees them after tapping a search result, top to bottom: who they are
-/// (<see cref="ProfileHero"/>), their three numbers (<see cref="ProfileStats"/>), why to trust them
-/// (<see cref="ProfileTrust"/>: badges, verified number), the jobs they take (<see cref="JobList"/>),
-/// work photos and every review. The Contact button stays pinned above the tabs and opens the Inbox thread.
+/// A worker as a Seeker sees them after tapping a search result, laid out like Airbnb's listing page, top to bottom:
+/// who and where (<see cref="ProfileHero"/>), a borderless stat row (<see cref="ProfileStatRow"/>), "What we checked"
+/// (<see cref="ProfileTrust"/>), what they do (<see cref="JobList"/>), small work photos and the reviews
+/// (<see cref="ReviewStrip"/>). The bar with the price and Contact stays pinned above the tabs (<see cref="ProfileFooter"/>).
 /// </summary>
 public partial class PublicProfilePage : ComponentBase
 {
@@ -27,8 +27,6 @@ public partial class PublicProfilePage : ComponentBase
     private IReadOnlyList<Review> _reviews = [];
     private bool _loading = true;
 
-    private ReviewSummary? Summary => _reviews.Count == 0 ? null : new ReviewSummary(_reviews.Average(r => r.Rating), _reviews.Count);
-
     protected override async Task OnParametersSetAsync()
     {
         _loading = true;
@@ -41,8 +39,4 @@ public partial class PublicProfilePage : ComponentBase
         });
         _loading = false;
     }
-
-    /// <summary>Report another person's review; none on the Seeker's own.</summary>
-    private string? ReviewReportHref(Review review) =>
-        review.SeekerId == Workspace.MyId ? null : SeekerRoutes.Report(review.SeekerId, ReportSubject.Review, SeekerRoutes.Pro(Id));
 }

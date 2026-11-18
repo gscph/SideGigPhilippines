@@ -1,0 +1,24 @@
+<MudStack Spacing="2" Class="review-peek pr-4 border-r border-solid mud-border-lines-default" role="listitem">
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+        <PersonAvatar Name="@Review.ReviewerName" Size="Size.Medium" />
+        <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+            <MudText Typo="Typo.subtitle1" Class="one-line">@Review.ReviewerName</MudText>
+            @if (ServiceLabel is { } service)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@service</MudText>
+            }
+        </MudStack>
+    </MudStack>
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="1">
+        <MudRating SelectedValue="Review.Rating" ReadOnly="true" Size="Size.Small" Color="Color.Warning" aria-label="@($"{Review.Rating}/5")" />
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@When</MudText>
+    </MudStack>
+    @if (Review.Hidden)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Format(Copy.ReviewHiddenForNow, BlindDays)</MudText>
+    }
+    else if (!string.IsNullOrWhiteSpace(Review.Comment))
+    {
+        <MudText Typo="Typo.body1" Class="four-lines">@Review.Comment</MudText>
+    }
+</MudStack>

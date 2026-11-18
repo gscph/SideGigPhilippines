@@ -1,12 +1,12 @@
-<MudStack AlignItems="AlignItems.Center" Spacing="1">
-    <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Class="profile-photo" />
-    <MudText Typo="Typo.h5" HtmlTag="h1" Align="Align.Center">@Listing.DisplayName</MudText>
-    <TradeBadge Listing="Listing" Size="Size.Medium" Justify="Justify.Center" />
-    @if (T.Towns(Listing) is { Length: > 0 } towns)
+<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="pt-2">
+    <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Class="profile-photo mb-3" />
+    <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">@Listing.DisplayName</MudText>
+    @if (TradeIn.Length > 0)
     {
-        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="1">
-            <MudIcon Icon="@Icons.Material.Filled.Place" Size="Size.Small" Color="Color.Dark" aria-hidden="true" />
-            <MudText Typo="Typo.body2">@T.Format(Copy.ProProfileGoesTo, towns)</MudText>
-        </MudStack>
+        <MudText Typo="Typo.body1" Align="Align.Center" Class="mt-1">@TradeIn</MudText>
+    }
+    @if (AlsoGoesTo is { } also)
+    {
+        <MudText Typo="Typo.body2" Align="Align.Center" Color="Color.Secondary">@also</MudText>
     }
 </MudStack>

@@ -30,12 +30,44 @@ public static class ListingText
 
     /// <summary>The jobs' labels; an "Others" job shows what the worker typed for it.</summary>
     public static IReadOnlyList<string> JobLabels(this AppText text, ProfessionalListing listing) =>
-        listing.ServiceIds
-            .Select(id => ReferenceData.IsOtherJob(id) && listing.OtherWork is { Length: > 0 } typed ? typed
-                : ReferenceData.FindService(id) is { } option ? text.Get(option.Label)
-                : null)
-            .OfType<string>()
-            .ToList();
+        text.Jobs(listing).Select(job => job.Label).ToList();
+
+    /// <summary>Each job's id (for its picture) and label; an "Others" job shows what the worker typed, an unknown id is skipped.</summary>
+    public static IReadOnlyList<(string Id, string Label)> Jobs(this AppText text, ProfessionalListing listing)
+    {
+        var jobs = new List<(string Id, string Label)>();
+        foreach (var id in listing.ServiceIds)
+        {
+            if (ReferenceData.IsOtherJob(id) && listing.OtherWork is { Length: > 0 } typed)
+            {
+                jobs.Add((id, typed));
+            }
+            else if (ReferenceData.FindService(id) is { } option)
+            {
+                jobs.Add((id, text.Get(option.Label)));
+            }
+        }
+
+        return jobs;
+    }
+
+    /// <summary>The profile's line under the name: "Aircon Technician in Angono" (the first of <paramref name="townIds"/>).</summary>
+    public static string TradeIn(this AppText text, ProfessionalListing listing, IReadOnlyList<string> townIds)
+    {
+        var trades = text.Trades(listing);
+        var town = townIds.Count > 0 && ReferenceData.Find(ReferenceData.Cities, townIds[0]) is { } city ? text.Get(city.Label) : null;
+        return (trades.Length > 0, town) switch
+        {
+            (true, { } where) => text.Format(Copy.ProfileTradeIn, trades, where),
+            (false, { } where) => where,
+            _ => trades,
+        };
+    }
+
+    /// <summary>"Also goes to Antipolo · Taytay" (the rest of <paramref name="townIds"/>), or null when there is one town.</summary>
+    public static string? AlsoGoesTo(this AppText text, IReadOnlyList<string> townIds) =>
+        townIds.Count < 2 ? null
+            : text.Format(Copy.ProfileAlsoGoesTo, string.Join(" · ", text.Labels(ReferenceData.Cities, townIds.Skip(1))));
 
     /// <summary>
     /// "₱1,000 per job" (their price for <paramref name="serviceId"/>, e.g. the job searched for), "₱755 – ₱2,500 per job"

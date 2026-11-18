@@ -133,6 +133,34 @@
     height: 3.5rem;
 }
 
+/* Small square work photos in one sideways row on the public profile: Tarbaho is not a photo product. */
+.work-thumb-small {
+    width: 6rem;
+    height: 6rem;
+    flex: 0 0 6rem;
+    border-radius: 12px !important;
+}
+
+/* One review card in the profile's sideways row (ReviewCard): most of the width, so the next one peeks in. */
+.review-peek {
+    flex: 0 0 82%;
+    max-width: 82%;
+}
+
+/* A review's words cut after four lines in the sideways row; the full text is on the reviews page. */
+.four-lines {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* The price in the profile's pinned bar, underlined like Airbnb's. */
+.app-underline {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
 /* The big photo on the profile page; MudAvatar's largest size is too small. */
 .profile-photo {
     width: 6rem !important;
