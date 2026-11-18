@@ -101,8 +101,27 @@ public class PricingTests
     [InlineData(1500, 800, false)]   // top under the bottom
     [InlineData(null, 1500, false)]
     [InlineData(800, null, false)]
+    [InlineData(10, 40, false)]      // a top under the smallest budget a post can carry
+    [InlineData(10, 50, true)]
+    [InlineData(800, 1_000_001, false)]
     public void TypedBudget_AnyAmountAboveZero_AndGoesUp(int? min, int? max, bool valid) =>
         Pricing.IsValidBudget(min, max).Should().Be(valid);
+
+    // The interview's budget fills the post form ("Post what I need"): a range Next accepted must be one the post can
+    // send, or the household lands on a form whose Post button stays grey over a budget they already gave.
+    [Theory]
+    [InlineData(1, 1)]
+    [InlineData(1, 49)]
+    [InlineData(5, 50)]
+    [InlineData(800, 1500)]
+    [InlineData(1, 1_000_000)]
+    public void TypedBudget_TheInterviewAccepts_IsOneAPostCanCarry(int min, int max)
+    {
+        if (Pricing.IsValidBudget(min, max))
+        {
+            JobPostRules.IsBudgetRange(min, max).Should().BeTrue();
+        }
+    }
 
     [Fact]
     public void TypedBudget_StartsFromTheSavedRange_ElseTheJobsLowestToAverage()

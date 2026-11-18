@@ -72,11 +72,12 @@ public static class Pricing
     }
 
     /// <summary>
-    /// A typed budget the app accepts: from more than ₱0, up to the same or more. The job's guide is only shown beside
-    /// the boxes: the household pays after the work is done, at the price the two agree on.
+    /// A typed budget the app accepts: from more than ₱0, up to the same or more, and a top a post can carry
+    /// (<see cref="JobPostRules.IsBudgetRange"/>), so "Post what I need" opens with a budget it can send. The job's guide
+    /// is only shown beside the boxes: the household pays after the work is done, at the price the two agree on.
     /// </summary>
     public static bool IsValidBudget(int? min, int? max) =>
-        min is { } from && max is { } to && from > 0 && to >= from && to <= JobPostRules.MaxBudgetPesos;
+        min is { } from && from > 0 && JobPostRules.IsBudgetRange(from, max);
 
     /// <summary>The two boxes' first values: the saved range, else the job's low to average price, else empty.</summary>
     public static (int? Min, int? Max) CustomStart(string? budgetId, string? serviceId, string? categoryId) =>
