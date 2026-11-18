@@ -107,11 +107,16 @@ public static class Copy
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng serbisyo");
 
     // --- Search results ---------------------------------------------------
-    public static readonly LocalizedText ResultsTitle = new("{0} for you", "{0} skilled worker para sa 'yo");
-    public static readonly LocalizedText ResultsTitleOne = new("1 skilled worker for you", "1 skilled worker para sa 'yo");
-    public static readonly LocalizedText ResultsInTown = new("Goes to {0}", "Pumupunta sa {0}");
-    public static readonly LocalizedText ResultsOtherTowns = new("Other towns nearby", "Taga-ibang bayan na malapit");
-    public static readonly LocalizedText ResultsWidened = new("No skilled workers in {0} yet, so here are skilled workers from nearby towns.", "Wala pang skilled worker sa {0}, kaya heto ang mga skilled worker sa kalapit na bayan.");
+    /// <summary>{0} = how many, {1} = the Seeker's town: the first group's heading.</summary>
+    public static readonly LocalizedText ResultsInTownCount = new("{0} skilled workers in {1}", "{0} skilled worker sa {1}");
+    public static readonly LocalizedText ResultsInTownOne = new("1 skilled worker in {0}", "1 skilled worker sa {0}");
+    public static readonly LocalizedText ResultsMoreNearby = new("{0} more in towns nearby", "{0} pa sa kalapit na bayan");
+    /// <summary>{0} = the Seeker's town, {1} = how many in other towns.</summary>
+    public static readonly LocalizedText ResultsOnlyNearby = new("None in {0} yet · {1} in towns nearby", "Wala pa sa {0} · {1} sa kalapit na bayan");
+    /// <summary>{0} = the trades, {1} = the town: a result's first line.</summary>
+    public static readonly LocalizedText ResultWhatWhere = new("{0} in {1}", "{0} sa {1}");
+    public static readonly LocalizedText ResultDone = new("{0} done", "{0} natapos");
+    public static readonly LocalizedText ResultPerService = new("per service", "kada serbisyo");
     /// <summary>{0} = the trade's honorific, plural in English (<see cref="Honorifics"/>).</summary>
     public static readonly LocalizedText ResultsEmpty = new("No {0} here yet… soon!", "Wala pang {0} dito… soon!");
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");

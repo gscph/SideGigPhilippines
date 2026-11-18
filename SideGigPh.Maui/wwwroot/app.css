@@ -72,6 +72,14 @@
     box-shadow: 0 0 0 3px var(--mud-palette-text-primary);
 }
 
+/* A search result's photo (ResultRow): a small rounded square, not a round avatar. */
+.result-thumb {
+    width: 4.75rem !important;
+    height: 4.75rem !important;
+    border-radius: 12px !important;
+    font-size: 1.5rem !important;
+}
+
 /* Square work-photo thumbnails (pro card strip, Photos grid). */
 .work-thumb {
     width: 100%;

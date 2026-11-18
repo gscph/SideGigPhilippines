@@ -206,7 +206,7 @@ changing that area.**
 - **Seeker side:** search → public profile `/pro/{id}` → chat with a ready first message (Send; Call only after a pick). Search
   words are parsed in the app (`SearchText`, `SearchIntentParser`, synonyms in `TradeWords`); ranking is on the server
   (`SearchRanker`, exact job only, "your town" then "nearby", a 0–100 explainable score; paid boosts are never part of
-  the score; [`docs/search-ranking.md`](docs/search-ranking.md)).
+  the score; [`docs/search-ranking.md`](docs/search-ranking.md)). Results read like Airbnb's list: headings that say where ("9 skilled workers in Angono"), one `ResultRow` per worker (small photo; what + where with ★; name; facts joined by ·; green price; at most one gray pill; rules `Services/ResultFacts`, `ResultText`).
 - **Onboarding** ([`docs/onboarding.md`](docs/onboarding.md)): `/` = `LaunchRouter` → language → sign in (**phone
   number first for both sides**, then "or" Google, Apple on iOS; each SMS costs money, so another code to the
   same number waits `SmsSendLimit.Wait` (360 s) and at most 3 a day per phone; the sixth digit sends the code, and a number Android confirms by itself signs in without it) → role → the interview (a worker confirms their number
