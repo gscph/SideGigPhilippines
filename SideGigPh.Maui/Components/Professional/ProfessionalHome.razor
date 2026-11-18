@@ -31,24 +31,24 @@
                          Label="@T.Get(Copy.NavInbox)" Count="Workspace.UnreadCount" Detail="@InboxDetail" />
         </MudStack>
 
-        <HomeSection Title="@T.Get(Copy.ProPostsTitle)" Href="@JobPostRoutes.Feed">
-            @if (_requestsLoaded && Board.Feed.Count == 0)
+        <HomeSection Title="@T.Get(Copy.SectionNewRequests)" Href="@JobPostRoutes.Feed">
+            @if (!_requestsLoaded)
+            {
+                <MudStack Spacing="2">
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="56px" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="56px" />
+                </MudStack>
+            }
+            else if (Board.Feed.Count == 0)
             {
                 <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProPostsEmpty)</MudText>
             }
-            <MudStack Spacing="0">
+            <MudStack Spacing="3">
                 @foreach (var post in Board.Feed.Take(3))
                 {
                     <ProRequestRow Post="post" @key="post.Id" />
                 }
             </MudStack>
-            @if (Board.Feed.Count > 0)
-            {
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" EndIcon="@Icons.Material.Filled.ChevronRight"
-                           Href="@JobPostRoutes.Feed">
-                    @T.Get(Copy.HomeSeeJobRequests)
-                </MudButton>
-            }
         </HomeSection>
     }
 

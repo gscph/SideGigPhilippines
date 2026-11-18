@@ -1,0 +1,10 @@
+<MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="category-icon mud-background-gray rounded-lg overflow-hidden flex-shrink-0">
+    @if (PhotoUrl is { Length: > 0 } url)
+    {
+        <MudImage Src="@url" Alt="" ObjectFit="ObjectFit.Cover" Class="mud-width-full mud-height-full" aria-hidden="true" />
+    }
+    else
+    {
+        <MudImage Src="@AppImages.PostRequest" Alt="" Width="36" Height="36" aria-hidden="true" />
+    }
+</MudStack>
