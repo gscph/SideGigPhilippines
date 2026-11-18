@@ -15,9 +15,6 @@ namespace SideGigPh.Maui.Components.Search;
 /// </summary>
 public partial class SearchPage : ComponentBase
 {
-    /// <summary>Chip id for "all of this trade's jobs".</summary>
-    private const string AllJobs = "all";
-
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private MobileAppTheme.Services.INetworkStatus Network { get; set; } = default!;
@@ -51,20 +48,6 @@ public partial class SearchPage : ComponentBase
         }
     }
 
-    private IReadOnlyList<ChoiceItem> ServiceItems
-    {
-        get
-        {
-            var category = ReferenceData.FindTrade(Request.CategoryId);
-            var services = ReferenceData.ServicesOf(category?.Id);
-            return
-            [
-                new ChoiceItem(AllJobs, T.Format(Copy.SearchAllJobs, Label(category))),
-                .. ChoiceItem.From(services, T),
-            ];
-        }
-    }
-
     // Best match or lowest price first: being over the budget never hides a worker in either.
     private IReadOnlyList<ChoiceItem> Orders =>
     [
@@ -94,12 +77,6 @@ public partial class SearchPage : ComponentBase
         await Workspace.PickCategoryAsync(categoryId);
         _unmatchedText = null;
         _suggestedCategoryIds = [];
-        await RunSearchAsync();
-    }
-
-    private async Task PickServiceAsync(string serviceId)
-    {
-        await Workspace.PickServiceAsync(serviceId == AllJobs ? null : serviceId);
         await RunSearchAsync();
     }
 

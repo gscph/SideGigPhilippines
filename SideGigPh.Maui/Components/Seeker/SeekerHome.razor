@@ -2,6 +2,7 @@
 @layout SeekerLayout
 
 <MudStack Spacing="5">
+    <MudText Typo="Typo.h4" HtmlTag="h1" Class="app-visually-hidden">@T.Get(Copy.SearchTitle)</MudText>
     <SearchPill />
 
     <CategoryRail Items="Categories" Label="@T.Get(Copy.BrowseTitle)" OnPick="PickCategoryAsync" />

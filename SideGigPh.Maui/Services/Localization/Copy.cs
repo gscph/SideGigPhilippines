@@ -86,18 +86,12 @@ public static class Copy
 
     // --- Seeker shell + home ----------------------------------------------
     public static readonly LocalizedText RecentSearches = new("Recent searches", "Mga huling hinanap");
-    public static readonly LocalizedText RecentSearchAgain = new("Search", "Hanapin");
-    public static readonly LocalizedText RecentSearchPost = new("Post", "I-post");
     public static readonly LocalizedText SectionMessages = new("Recent messages", "Recent messages");
 
     // --- Search -----------------------------------------------------------
     public static readonly LocalizedText SearchTitle = new("Find a Skilled Worker", "Maghanap ng Skilled Worker");
     /// <summary>{0} = an honorific (<see cref="Honorifics"/>), e.g. "Find a Manong…" / "Hanap ng Kuya…".</summary>
     public static readonly LocalizedText SearchPlaceholder = new("Find a {0}…", "Hanap ng {0}…");
-    public static readonly LocalizedText SearchNoMatch = new("We couldn't tell what \"{0}\" is. Pick one below.", "Hindi namin makuha kung anong trabaho ang \"{0}\". Pumili sa baba.");
-    public static readonly LocalizedText SearchPickTrade = new("Which kind of skilled worker is \"{0}\" for? Pick one below.", "Which kind of skilled worker is \"{0}\"? Pumili sa baba.");
-    public static readonly LocalizedText SearchTradesLabel =new("Kind of skilled worker", "Klase ng skilled worker");
-    public static readonly LocalizedText SearchJobsLabel = new("Service", "Serbisyo");
     public static readonly LocalizedText SearchAllJobs = new("All {0} services", "Lahat ng {0}");
     public static readonly LocalizedText FilterTown = new("Town", "Bayan");
     public static readonly LocalizedText FilterBudget = new("Budget", "Budget");
@@ -283,7 +277,6 @@ public static class Copy
     // --- Pro home shell (top bar + bottom tabs) ----------------------------
     public static readonly LocalizedText NavHome = new("Home", "Home");
     public static readonly LocalizedText NavInbox = new("Inbox", "Inbox");
-    public static readonly LocalizedText NavReviews = new("Reviews", "Reviews");
     public static readonly LocalizedText NavPosts = new("Post", "Post");
     public static readonly LocalizedText NavRequests = new("Requests", "Requests");
 
@@ -632,7 +625,6 @@ public static class Copy
     public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");
 
     // --- Profile ----------------------------------------------------------
-    public static readonly LocalizedText ProfileTitle = new("Your profile", "Profile");
     public static readonly LocalizedText ProfilePhotoAdd = new("Add your photo", "Maglagay ng photo mo");
     public static readonly LocalizedText ProfilePhotoChange = new("Change photo", "Palitan ang photo");
     public static readonly LocalizedText ProfileEdit = new("Edit listing", "Edit listing");

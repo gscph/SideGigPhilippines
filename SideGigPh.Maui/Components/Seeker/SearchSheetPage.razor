@@ -3,6 +3,7 @@
 <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
     <MudStack Spacing="0" Class="full-screen mud-background-gray">
         <SheetHeader OnClose="Close" Divider="false" />
+        <MudText Typo="Typo.h4" HtmlTag="h1" Class="app-visually-hidden">@T.Get(Copy.SearchTitle)</MudText>
 
         @if (_sheet is { } sheet)
         {
