@@ -1,0 +1,26 @@
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="0" role="list">
+    @for (var i = 0; i < Stats.Count; i++)
+    {
+        var stat = Stats[i];
+        @if (i > 0)
+        {
+            <MudDivider Vertical="true" FlexItem="true" Class="my-2" />
+        }
+        @switch (stat)
+        {
+            case ProfileStat.Stars:
+                <ProfileStatCell Value="@Average" Stars="@RoundedStars" Caption="@ReviewCount" />
+                break;
+            case ProfileStat.NoReviews:
+                <ProfileStatCell Value="@T.Get(Copy.StatNew)" Caption="@T.Get(Copy.StatNoReviews)" />
+                break;
+            case ProfileStat.ServicesDone:
+                <ProfileStatCell Value="@Done"
+                                 Caption="@T.Get(Listing.CompletedJobs == 1 ? Copy.StatServiceDone : Copy.StatServicesDone)" />
+                break;
+            case ProfileStat.Experience:
+                <ProfileStatCell Value="@(T.ExperienceLabel(Listing) ?? string.Empty)" Caption="@T.Get(Copy.StatExperience)" />
+                break;
+        }
+    }
+</MudStack>

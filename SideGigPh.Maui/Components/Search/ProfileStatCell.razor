@@ -1,0 +1,8 @@
+<MudStack AlignItems="AlignItems.Center" Spacing="0" Class="flex-1 app-min-w-0 px-2" role="listitem">
+    <MudText Typo="Typo.h6" Align="Align.Center">@Value</MudText>
+    @if (Stars is { } stars)
+    {
+        <MudRating SelectedValue="stars" ReadOnly="true" Size="Size.Small" Color="Color.Warning" aria-label="@($"{Value}/5")" />
+    }
+    <MudText Typo="Typo.caption" Align="Align.Center">@Caption</MudText>
+</MudStack>

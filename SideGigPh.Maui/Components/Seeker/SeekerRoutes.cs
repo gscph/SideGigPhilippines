@@ -25,6 +25,9 @@ public static class SeekerRoutes
     /// <summary>A pro's public profile whose Back returns to <paramref name="back"/> (a page of this app) instead of the results.</summary>
     public static string Pro(string professionalId, string back) => $"{Pro(professionalId)}?back={Uri.EscapeDataString(back)}";
 
+    /// <summary>All of a pro's reviews ("Show all" on the profile); Back returns to the profile.</summary>
+    public static string ProReviews(string professionalId) => $"{Pro(professionalId)}/reviews";
+
     /// <summary><paramref name="back"/> when it is a page of this app (starts with one slash), else the results.</summary>
     public static string BackOrSearch(string? back) =>
         back is { Length: > 1 } path && path[0] == '/' && path[1] != '/' && path[1] != '\\' ? path : Search;

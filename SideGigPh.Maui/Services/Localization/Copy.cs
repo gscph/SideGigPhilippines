@@ -117,22 +117,28 @@ public static class Copy
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");
 
     // --- A pro's public profile -------------------------------------------
-    public static readonly LocalizedText ProProfileJobs = new("Services they offer", "Mga serbisyong inaalok");
-    public static readonly LocalizedText ProProfileGoesTo = new("Goes to {0}", "Pumupunta sa {0}");
+    /// <summary>{0} = the trades, {1} = the town (the Seeker's own first): the line under the name.</summary>
+    public static readonly LocalizedText ProfileTradeIn = new("{0} in {1}", "{0} sa {1}");
+    public static readonly LocalizedText ProfileAlsoGoesTo = new("Also goes to {0}", "Pumupunta rin sa {0}");
     public static readonly LocalizedText StatNew = new("New", "Bago");
     public static readonly LocalizedText StatNoReviews = new("no reviews yet", "wala pang review");
     public static readonly LocalizedText StatOneReview = new("1 review", "1 review");
     public static readonly LocalizedText StatReviews = new("{0} reviews", "{0} reviews");
     public static readonly LocalizedText StatExperience = new("experience", "experience");
-    public static readonly LocalizedText StatPerJob = new("per service", "kada serbisyo");
-    public static readonly LocalizedText StatAskPrice = new("Ask", "Itanong");
-    public static readonly LocalizedText StatPriceDepends = new("price depends on the work", "depende sa trabaho");
+    public static readonly LocalizedText StatServicesDone = new("services done", "natapos na serbisyo");
+    public static readonly LocalizedText StatServiceDone = new("service done", "natapos na serbisyo");
+    /// <summary>{0} = the worker's first name.</summary>
+    public static readonly LocalizedText ProfileDoes = new("What {0} does", "Mga ginagawa ni {0}");
+    public static readonly LocalizedText ProfileShowAllReviews = new("Show all {0} reviews", "Tingnan lahat ng {0} review");
+    public static readonly LocalizedText ProfileShowReview = new("Show the review", "Tingnan ang review");
+    public static readonly LocalizedText ProfilePriceNote = new("per service · you agree in chat", "kada serbisyo · usapan sa chat");
+    public static readonly LocalizedText ProfileAskPrice = new("Ask in chat", "Itanong sa chat");
     // What we checked, never a promise about the worker (docs/legal/README.md L3).
     public static readonly LocalizedText ProProfileTrust = new("What we checked", "Ano ang na-check namin");
     public static readonly LocalizedText TrustPhone = new("Phone number verified", "Verified ang phone number");
     public static readonly LocalizedText TrustPhoneNote = new("Checked with an SMS code.", "Na-check gamit ang SMS code.");
     public static readonly LocalizedText ProProfilePhotos = new("Photos of their work", "Photos ng mga gawa nila");
-    public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet.", "Wala pang review.");
+    public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet", "Wala pang review");
     public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Hindi makita ang skilled worker");
     public static readonly LocalizedText ProNotFound = new("This listing isn't available anymore.", "Wala na ang listing na ito.");
     public static readonly LocalizedText ContactPro = new("Contact", "Contact");
