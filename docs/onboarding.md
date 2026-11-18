@@ -90,11 +90,11 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 
 | Step | Question | Input | "Why we ask" | On the card / payoff |
 |------|----------|-------|--------------|----------------------|
-| P1 | What work do you do? / Ano'ng trabaho mo? | Multi-select categories | "Pick all that apply." | Trade line |
+| P1 | What work do you do? / Ano'ng trabaho mo? | One trade (single pick, "Others" last) | "Pick the one you do best." | Trade line |
 | P2 | Which jobs do you take? | Multi-select of their trade's jobs (`JobPicker`: "Select all" ticks every listed job but "Others", "Remove all" clears them; `OnboardingSteps.ToggleAllJobs`) | "Customers search for these exact jobs." | Job chips |
 | P3 | Which towns do you go to? / Saang mga bayan ka pumupunta? | Multi-select Angono · Antipolo · Taytay (`TownPicker`: stacked tiles, "Select all"; sets the area), the server's default town (Angono) ticked when none is (`PreselectDefaultTown`) | "Customers in these towns see you first." | 📍 Goes to … |
 | P4 | How long have you done this work? | <1 / 1–3 / 3–10 / 10+ years | "Customers look at this first." | Experience |
-| P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Shared price scale + "Depende sa trabaho" | "Your starting price. You can still agree on the final price with the customer." | 💰 ₱500 – ₱1,000 per job |
+| P5 | **How much do you usually charge per job?** / Magkano ang singil mo kada trabaho? | Their own range in two peso boxes (From / Up to; the suggested minimum price shown once, under From) | "Type the price range you usually ask. Customers see it, and you can still agree on the final price." | 💰 ₱500 – ₱1,000 per job |
 | Preview | This is how customers will see you | Their card inside a mock search list | "Your listing, built from your answers." | "Ayos na 'to!" |
 
 **Pro home** (Phase 1) shows the saved card and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*

@@ -8,9 +8,9 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// The worker's own photo (<see cref="ProfessionalDraft.HasProof"/>) in the interview's selfie question: one thing to do,
-/// so the first time it shows without a photo it asks for the camera and opens the front camera by itself, after a short
-/// pause so the reason is read first (on Android <c>Platforms/Android/AndroidPhotoPicker</c>). "Choose from your photos"
-/// is the fallback. The splash covers only the upload, never the camera or its permission prompt. Raises
+/// so "Take a selfie" asks for the camera and opens the front camera (on Android <c>Platforms/Android/AndroidPhotoPicker</c>)
+/// only when tapped, never as the question opens, so the reason is on screen before the permission prompt.
+/// "Choose from your photos" is the fallback when the camera can't be used. The splash covers only the upload, never the camera or its permission prompt. Raises
 /// <see cref="OnSaved"/> once a photo is saved, so the question moves on by itself.
 /// </summary>
 public partial class SelfieField : ComponentBase
@@ -24,30 +24,8 @@ public partial class SelfieField : ComponentBase
     /// <summary>A photo was saved as theirs.</summary>
     [Parameter] public EventCallback OnSaved { get; set; }
 
-    /// <summary>How long the question shows before the camera opens by itself, so its reason is read before the prompt.</summary>
-    private static readonly TimeSpan ReadFirst = TimeSpan.FromMilliseconds(1200);
-
     private PhotoAddResult? _photoResult;
     private bool _busy;
-
-    // The camera opens by itself once per visit, not again after they back out of it.
-    private bool _cameraOffered;
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (!firstRender || Workspace.Draft.HasProfilePhoto || _cameraOffered)
-        {
-            return;
-        }
-
-        _cameraOffered = true;
-        await Task.Delay(ReadFirst);
-        if (!Workspace.Draft.HasProfilePhoto)
-        {
-            await TakeSelfieAsync();
-            StateHasChanged();
-        }
-    }
 
     private async Task TakeSelfieAsync()
     {
