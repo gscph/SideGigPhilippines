@@ -289,8 +289,12 @@ public static class Copy
     public static readonly LocalizedText HomePostTitle = new("Post what you need done", "I-post ang ipapagawa mo");
     public static readonly LocalizedText HomePostWhy = new("Workers near you send their price", "Ang mga malapit ang magpapadala ng presyo");
     public static readonly LocalizedText HomePostButton = new("Post", "I-post");
-    public static readonly LocalizedText PostNewTitle = new("Create a Job Posting", "Create Job Posting");
-    public static readonly LocalizedText PostNewWhy = new("Only workers of this trade near you will see it. Your exact address is never shown.", "Mga malapit na gumagawa lang nito ang makakakita. Hindi ipinapakita ang eksaktong address mo.");
+    public static readonly LocalizedText PostNewTitle = new("Post what you need done", "I-post ang kailangan mong ipagawa");
+    public static readonly LocalizedText PostRowWhat = new("What", "Ano");
+    public static readonly LocalizedText PostRowWhere = new("Where", "Saan");
+    public static readonly LocalizedText PostAdd = new("Add", "Ilagay");
+    public static readonly LocalizedText PostSheetWhat = new("What you need", "Ano ang kailangan mo");
+    public static readonly LocalizedText PostSheetWhere = new("Where it is", "Saan ito");
     public static readonly LocalizedText PostTrade = new("Kind of work", "Uri ng gawa");
     public static readonly LocalizedText PostService = new("What exactly", "Ano mismo");
     public static readonly LocalizedText PostDescription = new("Describe the problem", "Ikuwento ang problema");

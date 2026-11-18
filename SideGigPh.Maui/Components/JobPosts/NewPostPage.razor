@@ -2,92 +2,97 @@
 
 <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
     <MudStack Spacing="0" Class="full-screen">
-        <SheetHeader OnBack="GoBack" Divider="false" />
+        @if (_sheet is { } part)
+        {
+            <SheetHeader OnClose="CancelSheet" Divider="false" />
 
-        <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
-            <MudStack Spacing="1">
-                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.PostNewTitle)</MudText>
-                <MudText Typo="Typo.subtitle1" Color="Color.Secondary">@T.Get(Copy.PostNewWhy)</MudText>
+            <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.PostSheetTitle(part)</MudText>
+                <PostPartFields Draft="_draft" Part="part" />
             </MudStack>
 
-            <MudStack Spacing="2" Class="app-field-group">
-                <MudSelect T="string" Value="_draft.CategoryId" ValueChanged="PickTrade" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                           Label="@T.Get(Copy.PostTrade)" Class="app-field">
-                    @foreach (var trade in ReferenceData.TradeChoices)
-                    {
-                        <MudSelectItem T="string" Value="@trade.Id">@T.Get(trade.Label)</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudSelect T="string" @bind-Value="_draft.ServiceId" Disabled="@(_busy || _draft.CategoryId is null)" Variant="Variant.Filled" Underline="false"
-                           Label="@T.Get(Copy.PostService)" Class="app-field">
-                    @foreach (var service in ReferenceData.ServicesOf(_draft.CategoryId))
-                    {
-                        <MudSelectItem T="string" Value="@service.Id">@T.Get(service.Label)</MudSelectItem>
-                    }
-                </MudSelect>
-                <MudSelect T="string" Value="_draft.CityId" ValueChanged="PickTown" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                           Label="@T.Get(Copy.FilterTown)" Class="app-field">
-                    @foreach (var town in ReferenceData.Cities)
-                    {
-                        <MudSelectItem T="string" Value="@town.Id">@T.Get(town.Label)</MudSelectItem>
-                    }
-                </MudSelect>
-                <BarangayField TownId="@_draft.CityId" @bind-Value="_draft.BarangayId" Disabled="_busy" />
-            </MudStack>
-
-            <LocationButton IsSet="@(_draft.Point is not null)" Disabled="_busy" Why="@T.Get(Copy.PostLocationWhy)"
-                            OnFound="@(point => _draft.Point = point)" />
-
-            <MudTextField T="string" @bind-Value="_draft.Description" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                          Class="app-field" Lines="4" MaxLength="@JobBoard.MaxDescription"
-                          Label="@T.Get(Copy.PostDescription)" Placeholder="@T.Get(Copy.PostDescriptionHint)" />
-
-            <MudStack Spacing="2" Class="app-field-group">
-                <MudNumericField T="int?" @bind-Value="_draft.BudgetMinPesos" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                                 Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
-                                 Label="@T.Get(Copy.PostBudgetFrom)" HelperText="@BudgetGuide" />
-                <MudNumericField T="int?" @bind-Value="_draft.BudgetPesos" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                                 Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
-                                 Label="@T.Get(Copy.PostBudgetUpTo)" HelperText="@T.Get(Copy.PostBudgetWhy)"
-                                 Error="@BudgetTopTooLow" ErrorText="@T.Get(Copy.BudgetToError)" />
-            </MudStack>
-
-            <MudStack Spacing="2">
-                @if (_draft.Photos.Count > 0)
-                {
-                    <PhotoStrip Label="@T.Get(Copy.PostPhotosLabel)">
-                        @foreach (var photo in _draft.Photos)
-                        {
-                            <PhotoTile Url="@photo.Url" @key="photo.Id" OnRemove="() => RemovePhotoAsync(photo.Id)" />
-                        }
-                    </PhotoStrip>
-                }
-                @if (JobBoard.PhotoRoom(_draft) > 0)
-                {
-                    <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Disabled="_busy"
-                               StartIcon="@Icons.Material.Filled.AddAPhoto" OnClick="AddPhotosAsync">
-                        @T.Get(Copy.PostPhotosAdd)
+            <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" OnClick="CancelSheet">
+                        @T.Get(CommonCopy.Cancel)
                     </MudButton>
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Format(Copy.PostPhotosHint, JobBoard.MaxPhotos)</MudText>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" OnClick="SaveSheet">
+                        @T.Get(Copy.Save)
+                    </MudButton>
+                </MudStack>
+            </MudPaper>
+        }
+        else
+        {
+            <SheetHeader OnClose="GoBack" Divider="false" />
+
+            <MudStack Spacing="5" Class="flex-1 px-6 pt-2 pb-16">
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.PostNewTitle)</MudText>
+
+                <MudPaper Outlined="true" Elevation="0" Class="app-rounded px-4">
+                    @if (PostReview.Has(_draft, PostPart.What))
+                    {
+                        <PostDraftSummary Draft="_draft" Busy="_busy" ActionLabel="@T.PostAction(_draft, PostPart.What)"
+                                          OnAction="@(() => OpenSheet(PostPart.What))" />
+                    }
+                    else
+                    {
+                        <DetailRow Label="@T.Get(Copy.PostRowWhat)" Value="@T.PostWhat(_draft)" Busy="_busy"
+                                   ActionLabel="@T.PostAction(_draft, PostPart.What)" OnAction="@(() => OpenSheet(PostPart.What))" />
+                    }
+                    <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.PostRowWhere)" Value="@T.PostWhere(_draft)" Busy="_busy"
+                               ActionLabel="@T.PostAction(_draft, PostPart.Where)" OnAction="@(() => OpenSheet(PostPart.Where))" />
+                    <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.PostBudget)" Value="@PostReviewText.PostBudgetText(_draft)" ValueColor="Color.Success" Busy="_busy"
+                               ActionLabel="@T.PostAction(_draft, PostPart.Budget)" OnAction="@(() => OpenSheet(PostPart.Budget))" />
+                </MudPaper>
+
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.PostDescription)</MudText>
+                    <MudTextField T="string" @bind-Value="_draft.Description" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                                  Class="app-field" Lines="4" MaxLength="@JobBoard.MaxDescription"
+                                  Placeholder="@T.Get(Copy.PostDescriptionHint)" aria-label="@T.Get(Copy.PostDescription)" />
+                </MudStack>
+
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.PostPhotosLabel)</MudText>
+                    @if (_draft.Photos.Count > 0)
+                    {
+                        <PhotoStrip Label="@T.Get(Copy.PostPhotosLabel)">
+                            @foreach (var photo in _draft.Photos)
+                            {
+                                <PhotoTile Url="@photo.Url" @key="photo.Id" OnRemove="() => RemovePhotoAsync(photo.Id)" />
+                            }
+                        </PhotoStrip>
+                    }
+                    @if (JobBoard.PhotoRoom(_draft) > 0)
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Disabled="_busy"
+                                   StartIcon="@Icons.Material.Filled.AddAPhoto" OnClick="AddPhotosAsync">
+                            @T.Get(Copy.PostPhotosAdd)
+                        </MudButton>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Format(Copy.PostPhotosHint, JobBoard.MaxPhotos)</MudText>
+                    }
+                    <PhotoAddNotice Result="_photoResult" />
+                </MudStack>
+
+                @if (_failed)
+                {
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.PostFailed)</MudAlert>
                 }
-                <PhotoAddNotice Result="_photoResult" />
             </MudStack>
 
-            @if (_failed)
-            {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.PostFailed)</MudAlert>
-            }
-        </MudStack>
-
-        <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       Disabled="@(_busy || !JobBoard.CanPost(_draft))" OnClick="PostAsync">
-                @T.Get(Copy.PostSend)
-            </MudButton>
-            @if (JobBoard.MissingHint(_draft, T) is { } missing)
-            {
-                <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-2">@missing</MudText>
-            }
-        </MudPaper>
+            <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                           Disabled="@(_busy || !JobBoard.CanPost(_draft))" OnClick="PostAsync">
+                    @T.Get(Copy.PostSend)
+                </MudButton>
+                @if (JobBoard.MissingHint(_draft, T) is { } missing)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-2">@missing</MudText>
+                }
+            </MudPaper>
+        }
     </MudStack>
 </MudContainer>

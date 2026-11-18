@@ -170,7 +170,7 @@ changing that area.**
   (`open`/`planned`/`done`/`declined`/`hidden`) in SQL.
 - **Job posts** (`Components/JobPosts/`, `Services/JobBoard`, `JobPostStore`, `015-schema-job-posts.sql`, tables
   `JobPosts` / `JobPostPhotos`): a Seeker's **Post** tab lists their posts and opens the form (trade, service, town,
-  what is wrong, their own budget in pesos, up to 3 photos; `JobPostRules`); a worker's **Requests** tab is the feed
+  what is wrong, their own budget in pesos, up to 3 photos; `JobPostRules`; laid out like Airbnb's "Review and continue": one card of What / Where / Your budget rows, each with Change opening its own full-screen sheet with Cancel / Save, `Services/PostReview`); a worker's **Requests** tab is the feed
   (`GET job-posts/feed`): open posts of **their trade** within **their own `RadiusKm`** of their base point
   (`STDistance`; town match when a point is unknown), ordered **a service they offer first, then nearest, then
   newest**, never their own or a blocked person's. The feed needs a published listing (`HasListing`). **The

@@ -1,0 +1,12 @@
+<MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center" Class="py-4">
+    <PostThumb PhotoUrl="@Draft.Photos.FirstOrDefault()?.Url" Fallback="@AppImages.For(Draft.ServiceId)" />
+    <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+        <MudText Typo="Typo.h6">@T.PostWhat(Draft)</MudText>
+        @if (T.PostTradeUnder(Draft) is { } trade)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@trade</MudText>
+        }
+    </MudStack>
+    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="mud-background-gray flex-shrink-0" Disabled="Busy"
+               OnClick="@(() => OnAction.InvokeAsync())">@ActionLabel</MudButton>
+</MudStack>
