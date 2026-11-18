@@ -5,27 +5,22 @@ using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services;
 
-/// <summary>The Skilled Worker interview's questions, in order; the number is the step in its URL (<c>/start/pro/{n}</c>).</summary>
+/// <summary>
+/// The Skilled Worker interview's questions, in order; the number is the step in its URL (<c>/start/pro/{n}</c>).
+/// The proof a listing needs (<see cref="Photo"/>, <see cref="ProfessionalDraft.HasProof"/>) and the verified number
+/// (<see cref="Number"/>, skipped when it isn't asked: <see cref="OnboardingSteps.AsksNumber"/>) are questions too, so
+/// the preview shows the real card and its Done goes straight to Publish.
+/// </summary>
 public enum ProStep
 {
     Skills = 1,
     Services,
+    Rate,
     Towns,
     Experience,
-    Rate,
+    Photo,
+    Number,
     Preview,
-}
-
-/// <summary>
-/// The Skilled Worker's setup after the interview, in order (<c>/start/pro/setup/{n}</c>): the proof a listing needs
-/// before Publish (<see cref="ProfessionalDraft.HasProof"/>). Publish, with its verified-number check, comes after.
-/// Only the selfie is left: references were dropped and work photos are optional (added from Pro home). A phone
-/// resuming an old <c>/setup/2</c> or <c>/setup/3</c> lands on the selfie step, since
-/// <see cref="OnboardingSteps.SetupStepToShow"/> clamps to the last step; its Next (or the saved selfie) goes on to Publish.
-/// </summary>
-public enum ProSetupStep
-{
-    Photo = 1,
 }
 
 /// <summary>The Seeker interview's questions, in order; the number is the step in its URL (<c>/start/seeker/{n}</c>).</summary>
@@ -65,13 +60,13 @@ public static class OnboardingSteps
         role == UserRole.Seeker ? PathOf(SeekerStep.Category) : PathOf(ProStep.Skills);
 
     /// <summary>
-    /// Whether picking <paramref name="role"/> first asks for a verified number: only a Skilled Worker (customers reach
-    /// them on it; a Seeker never), and only while this phone may still get an SMS code today
-    /// (<paramref name="smsWaitLeft"/> from <c>SmsSendLimit.WaitLeft</c>, null when used up). The step offers
-    /// "Do this later"; Publish asks again either way.
+    /// Whether the Skilled Worker interview asks for a verified number (<see cref="ProStep.Number"/>): only with a sign-in
+    /// provider (<paramref name="hasSignIn"/>), for an account without one (a Google or Apple sign-in), and only while
+    /// this phone may still get an SMS code today (<paramref name="smsWaitLeft"/> from <c>SmsSendLimit.WaitLeft</c>, null
+    /// when used up). The step offers "Do this later"; Publish asks again either way. A Seeker is never asked.
     /// </summary>
-    public static bool AsksNumberAfterRole(UserRole role, TimeSpan? smsWaitLeft) =>
-        role == UserRole.Professional && smsWaitLeft is not null;
+    public static bool AsksNumber(bool hasSignIn, bool hasVerifiedNumber, TimeSpan? smsWaitLeft) =>
+        hasSignIn && !hasVerifiedNumber && smsWaitLeft is not null;
 
     // --- Skilled Worker ------------------------------------------------------
 
@@ -79,22 +74,29 @@ public static class OnboardingSteps
     {
         if (draft.CategoryId is null) return ProStep.Skills;
         if (draft.ServiceIds.Count == 0) return ProStep.Services;
+        if (draft.RateTierId is null) return ProStep.Rate;
         if (draft.CityIds.Count == 0) return ProStep.Towns;
         if (draft.ExperienceId is null) return ProStep.Experience;
-        if (draft.RateTierId is null) return ProStep.Rate;
+        if (!draft.HasProof) return ProStep.Photo;
         return ProStep.Preview;
     }
 
     /// <summary>
     /// The step a URL asks for, clamped to the real steps and never past the first unanswered one (e.g. a stale resume
-    /// path). The jobs question of the "Others" trade is its trade question, where they typed the work.
+    /// path). The jobs question of the "Others" trade is its trade question, where they typed the work; the number
+    /// question, when it isn't asked (<see cref="AsksNumber"/>), is the preview.
     /// </summary>
-    public static ProStep StepToShow(this ProfessionalDraft draft, int? requested)
+    public static ProStep StepToShow(this ProfessionalDraft draft, int? requested, bool asksNumber = false)
     {
         var step = (ProStep)Math.Clamp(requested ?? 1, 1, (int)ProStep.Preview);
         var firstUnanswered = draft.FirstUnanswered();
         step = step > firstUnanswered ? firstUnanswered : step;
-        return step == ProStep.Services && draft.IsOtherTrade() ? ProStep.Skills : step;
+        return step switch
+        {
+            ProStep.Services when draft.IsOtherTrade() => ProStep.Skills,
+            ProStep.Number when !asksNumber => ProStep.Preview,
+            _ => step,
+        };
     }
 
     /// <summary>The worker picked "Others" after the trades: a kind of work we don't list, typed in <see cref="ProfessionalDraft.OtherJobText"/>.</summary>
@@ -121,9 +123,17 @@ public static class OnboardingSteps
         }
     }
 
-    /// <summary>Next from a Skilled Worker question: the next one; the "Others" trade skips the jobs question.</summary>
-    public static string NextPath(this ProfessionalDraft draft, ProStep step) =>
-        PathOf(step == ProStep.Skills && draft.IsOtherTrade() ? ProStep.Towns : step + 1);
+    /// <summary>
+    /// Next from a Skilled Worker question: the next one; the "Others" trade skips the jobs question, and the number
+    /// question is skipped when it isn't asked (<see cref="AsksNumber"/>).
+    /// </summary>
+    public static string NextPath(this ProfessionalDraft draft, ProStep step, bool asksNumber = false) =>
+        PathOf(step switch
+        {
+            ProStep.Skills when draft.IsOtherTrade() => ProStep.Rate,
+            ProStep.Photo when !asksNumber => ProStep.Preview,
+            _ => step + 1,
+        });
 
     /// <summary>Ticks or unticks a job. Unticking "Others" forgets what they typed for it.</summary>
     public static void ToggleService(this ProfessionalDraft draft, string serviceId)
@@ -197,9 +207,14 @@ public static class OnboardingSteps
         draft.SetAreaFromTowns();
     }
 
-    /// <summary>Back from a Skilled Worker question, skipping the jobs question of the "Others" trade.</summary>
-    public static string BackPath(this ProfessionalDraft draft, ProStep step, bool finished) =>
-        step == ProStep.Towns && draft.IsOtherTrade() ? PathOf(ProStep.Skills) : BackPath(step, finished);
+    /// <summary>Back from a Skilled Worker question, skipping the jobs question of the "Others" trade and an unasked number question.</summary>
+    public static string BackPath(this ProfessionalDraft draft, ProStep step, bool finished, bool asksNumber = false) =>
+        step switch
+        {
+            ProStep.Rate when draft.IsOtherTrade() => PathOf(ProStep.Skills),
+            ProStep.Preview when !asksNumber => PathOf(ProStep.Photo),
+            _ => BackPath(step, finished),
+        };
 
     /// <summary>Back from a Skilled Worker question: the previous one, else Pro home (finished) or the role fork.</summary>
     public static string BackPath(ProStep step, bool finished) =>
@@ -207,52 +222,19 @@ public static class OnboardingSteps
         : finished ? ProRoutes.Home
         : RolePath;
 
-    // --- Skilled Worker setup (proof, then Publish) ---------------------------
-
-    public static string PathOf(ProSetupStep step) => $"/start/pro/setup/{(int)step}";
-
-    /// <summary>The last setup step: its Next goes to Publish.</summary>
-    private const ProSetupStep LastSetupStep = ProSetupStep.Photo;
-
-    // One progress bar from the first question to the last setup step, so it never drops back between the two parts.
-    private const int ProTotalSteps = (int)ProStep.Preview + (int)LastSetupStep;
+    // --- After the interview (Publish) ---------------------------------------
 
     /// <summary>How full the progress bar is on an interview question (step 1 already shows some: endowed progress).</summary>
-    public static double ProgressOf(ProStep step) => (int)step / (double)ProTotalSteps;
-
-    /// <summary>How full the progress bar is on a setup step: it carries on from the interview's preview; the last is 100%.</summary>
-    public static double ProgressOf(ProSetupStep step) => ((int)ProStep.Preview + (int)step) / (double)ProTotalSteps;
-
-    /// <summary>The first proof still missing (own photo), or null when all is there. Work photos are optional.</summary>
-    public static ProSetupStep? FirstUnfinished(this ProfessionalDraft draft)
-    {
-        if (!draft.HasProfilePhoto) return ProSetupStep.Photo;
-        return null;
-    }
-
-    /// <summary>The setup step a URL asks for, clamped to the real steps and never past the first unfinished one.</summary>
-    public static ProSetupStep SetupStepToShow(this ProfessionalDraft draft, int? requested)
-    {
-        var step = (ProSetupStep)Math.Clamp(requested ?? 1, 1, (int)LastSetupStep);
-        return draft.FirstUnfinished() is { } unfinished && step > unfinished ? unfinished : step;
-    }
+    public static double ProgressOf(ProStep step) => (int)step / (double)ProStep.Preview;
 
     /// <summary>
-    /// Where the interview's Done (and launch) leads a Skilled Worker: Pro home once live, else the first missing proof,
-    /// else Publish (which asks a Google account to add a verified number first).
+    /// Where the interview's Done (and launch) leads a Skilled Worker: Pro home once live, else the selfie question while
+    /// the photo is missing, else Publish (which asks for a verified number if the number question was put off).
     /// </summary>
     public static string AfterInterviewPath(this ProfessionalDraft draft) =>
         draft.PublishedAt is not null ? ProRoutes.Home
-        : draft.FirstUnfinished() is { } unfinished ? PathOf(unfinished)
+        : !draft.HasProof ? PathOf(ProStep.Photo)
         : ProRoutes.Publish;
-
-    /// <summary>Next from a setup step: the next one, Publish after the last.</summary>
-    public static string NextPath(ProSetupStep step) =>
-        step == LastSetupStep ? ProRoutes.Publish : PathOf(step + 1);
-
-    /// <summary>Back from a setup step: the previous one, the interview's preview from the first.</summary>
-    public static string BackPath(ProSetupStep step) =>
-        step == ProSetupStep.Photo ? PathOf(ProStep.Preview) : PathOf(step - 1);
 
     // There is one area, so it is never asked: it follows from the towns (the API needs it on the listing).
     private static void SetAreaFromTowns(this ProfessionalDraft draft) => draft.AreaId = ReferenceData.AreaOf(draft.CityIds.FirstOrDefault());
@@ -398,7 +380,7 @@ public static class OnboardingSteps
                 : SeekerRoutes.Home;
         }
 
-        // Not live yet: back into the setup (photos, Publish) where they left it.
+        // Not live yet: back to the selfie question or Publish, where they left it.
         return state.Professional.IsListingComplete ? state.Professional.AfterInterviewPath() : ProFirstUnansweredPath;
     }
 

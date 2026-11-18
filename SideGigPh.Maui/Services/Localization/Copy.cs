@@ -576,6 +576,9 @@ public static class Copy
     public static readonly LocalizedText SelfieRetake = new("Take another", "Mag-selfie ulit");
     public static readonly LocalizedText SelfieFromPhotos = new("Choose from your photos", "Pumili sa photos mo");
     public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Your front camera will open.", "Mas nagtitiwala ang customer kapag may mukha. Bubukas ang front camera mo.");
+    public static readonly LocalizedText ProNumberWhy = new(
+        "Customers see it only after they pick your offer. You add it once, with a code we text you.",
+        "Makikita lang ng customer ang number mo kapag pinili ka na nila. Isang beses mo lang 'to ilalagay, may code kaming ite-text.");
     public static readonly LocalizedText PhotosOpenSettings = new("Open Settings", "Buksan ang Settings");
     public static readonly LocalizedText PhotosUploadFailed = new("Couldn't upload your photo. Check your internet and try again.", "Hindi na-upload ang photo. I-check ang internet mo at subukan ulit.");
     public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");

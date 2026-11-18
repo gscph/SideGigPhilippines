@@ -20,6 +20,7 @@ public static class AppImages
     public static readonly string Preview = File("profile-card");
     public static readonly string Publish = File("megaphone");
     public static readonly string Selfie = File("selfie");
+    public static readonly string Number = File("phone");
     public static readonly string WorkPhotos = File("photos");
     public static readonly string Role = File("person");
     public static readonly string HomeRepair = File("home-repair");

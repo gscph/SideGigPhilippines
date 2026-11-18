@@ -50,17 +50,18 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
-        // The own photo comes first: the setup opens there while it is missing.
+        // The own photo comes first: the interview's selfie question opens while it is missing.
         if (!Workspace.Draft.HasProof)
         {
             Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);
             return;
         }
 
-        // The listing's number is the account's verified number (a Google sign-in adds one here first). Its Back goes
-        // to the setup's last step, since home would resume right back here; "Do this later" goes to Pro home, whose
-        // banner and checklist say the number is still needed to publish (no dead end when today's codes are used up).
-        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.Photo),
+        // The listing's number is the account's verified number (asked in the interview; a worker who put it off adds it
+        // here first). Its Back goes to the interview's preview, since home would resume right back here; "Do this later"
+        // goes to Pro home, whose banner and checklist say the number is still needed to publish (no dead end when today's
+        // codes are used up).
+        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProStep.Preview),
                 laterPath: ProRoutes.Home) is { } step)
         {
             Nav.NavigateTo(step, replace: true);
@@ -122,6 +123,6 @@ public partial class PublishPage : ComponentBase
         }
     }
 
-    // The step before it in the setup after the interview (work photos).
-    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProSetupStep.Photo));
+    // The interview's last question: the preview.
+    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProStep.Preview));
 }

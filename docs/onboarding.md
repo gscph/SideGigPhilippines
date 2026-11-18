@@ -200,8 +200,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start` | `Onboarding/LanguagePage` | English / Taglish. |
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S6, plus the loader at step 7. |
-| `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
-| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo (required), then `/professional/publish` (a Google account adds a verified number there first). No work-photo step (optional, added later). Launch resumes here until the listing is live; an old saved `/setup/2` or `/setup/3` clamps to the selfie step. |
+| `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | 1 trade, 2 jobs, 3 rate, 4 towns, 5 experience, 6 selfie (required, `SelfieField`), 7 verified number (`NumberField`, only for a Google/Apple account with no number while an SMS code can still be sent today, "Do this later" moves on), 8 preview; its Done opens `/professional/publish` (which asks for the number again if it was put off). |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
 | `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |

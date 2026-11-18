@@ -10,10 +10,8 @@ namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
 /// The fork: are you looking for someone to do a job, or looking for work?
-/// Tile ids are the <see cref="UserRole"/> names. A worker who signed in with Google or Apple confirms their mobile number
-/// first (one SMS, once; a phone sign-in already has it), then starts the interview; a customer is never asked. "Do this later" on that
-/// step, or a phone that has used up today's SMS codes, goes straight to the interview instead of a dead end, and
-/// Publish asks for the number again.
+/// Tile ids are the <see cref="UserRole"/> names. Each opens its side's interview; a worker who signed in with Google or
+/// Apple confirms their mobile number inside it (<see cref="ProStep.Number"/>), a customer is never asked.
 /// </summary>
 public partial class RolePage : ComponentBase
 {
@@ -21,8 +19,6 @@ public partial class RolePage : ComponentBase
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
-    [Inject] private SignInGate Gate { get; set; } = default!;
-    [Inject] private SmsSendLimit SmsLimit { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private OnboardingState? _state;
@@ -67,9 +63,7 @@ public partial class RolePage : ComponentBase
         // the tap never waits on it: a cold server or weak 4G used to leave this screen frozen for up to a minute.
         _ = Account.SaveProfileAsync();
         Analytics.SetAudience(role, state.Language);
-        Nav.NavigateTo(OnboardingSteps.AsksNumberAfterRole(role, SmsLimit.WaitLeft())
-            ? await Gate.RedirectAsync(path, requirePhone: true, backPath: OnboardingSteps.RolePath, canSkipPhone: true) ?? path
-            : path);
+        Nav.NavigateTo(path);
     }
 
     private void GoBack() => Nav.NavigateTo("/start");

@@ -72,16 +72,16 @@ public class OthersAnswerTests
     // --- Skilled Worker ------------------------------------------------------
 
     [Fact]
-    public void ProPickOthers_SavesItAsTradeAndJob_SoTheTownsAreNext()
+    public void ProPickOthers_SavesItAsTradeAndJob_SoTheRateIsNext()
     {
         var draft = new ProfessionalDraft();
 
         draft.PickTrade(Other);
 
         draft.ServiceIds.Should().Equal(Other);
-        draft.FirstUnanswered().Should().Be(ProStep.Towns);
-        draft.NextPath(ProStep.Skills).Should().Be(OnboardingSteps.PathOf(ProStep.Towns));
-        draft.BackPath(ProStep.Towns, finished: false).Should().Be(OnboardingSteps.PathOf(ProStep.Skills));
+        draft.FirstUnanswered().Should().Be(ProStep.Rate);
+        draft.NextPath(ProStep.Skills).Should().Be(OnboardingSteps.PathOf(ProStep.Rate));
+        draft.BackPath(ProStep.Rate, finished: false).Should().Be(OnboardingSteps.PathOf(ProStep.Skills));
         draft.StepToShow((int)ProStep.Services).Should().Be(ProStep.Skills);
     }
 
@@ -101,7 +101,7 @@ public class OthersAnswerTests
 
         state.Professional.IsListingComplete.Should().BeTrue();
         state.Professional.RateTierId.Should().Be("rate-800-1500", "a typed rate range is not an old tier");
-        OnboardingSteps.LaunchPath(state).Should().Be(OnboardingSteps.PathOf(ProSetupStep.Photo), "on to the setup, not back to the trades");
+        OnboardingSteps.LaunchPath(state).Should().Be(OnboardingSteps.PathOf(ProStep.Photo), "on to the selfie, not back to the trades");
     }
 
     [Fact]

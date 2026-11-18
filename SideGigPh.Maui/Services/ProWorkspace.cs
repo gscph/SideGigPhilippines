@@ -481,6 +481,17 @@ public sealed class ProWorkspace(
         Reviews = [];
     }
 
+    /// <summary>
+    /// For the interview's selfie question, before the interview is finished: holds the saved answers (the same ones the
+    /// interview edits) with the account and photo addresses, so <see cref="SetProfilePhotoAsync"/> works. Nothing is
+    /// marked loaded, so Pro home still waits for the finished interview (<see cref="EnsureDraftLoadedAsync"/>).
+    /// </summary>
+    public async Task LoadInterviewDraftAsync()
+    {
+        _state = await store.LoadAsync();
+        await TakeAccountAndPhotosAsync();
+    }
+
     private async Task<bool> LoadAsync()
     {
         _state = await store.LoadAsync();
@@ -489,6 +500,12 @@ public sealed class ProWorkspace(
             return false;
         }
 
+        await TakeAccountAndPhotosAsync();
+        return true;
+    }
+
+    private async Task TakeAccountAndPhotosAsync()
+    {
         var user = await identity.GetCurrentUserAsync();
         MyId = user?.Uid ?? ListingMapper.OwnListingId;
         Draft.TakeAccount(user);
@@ -500,8 +517,6 @@ public sealed class ProWorkspace(
                 _photoUrls[id] = url;
             }
         }
-
-        return true;
     }
 
     /// <summary>Puts the chat at the top of the Inbox (replacing its old row), as the server just answered.</summary>
