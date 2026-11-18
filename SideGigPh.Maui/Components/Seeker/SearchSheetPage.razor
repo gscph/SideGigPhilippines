@@ -1,0 +1,42 @@
+@page "/seeker/find"
+
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack Spacing="0" Class="full-screen mud-background-gray">
+        <SheetHeader OnClose="Close" Divider="false" />
+
+        @if (_sheet is { } sheet)
+        {
+            <MudStack Spacing="3" Class="flex-1 px-4 pb-6">
+                <SheetQuestion Open="@(sheet.Open == SearchStep.What)" Title="@T.Get(Copy.SheetWhatTitle)" Label="@T.Get(Copy.SheetWhat)"
+                               Value="@(T.What(sheet.Words, sheet.CategoryId, sheet.ServiceId) ?? T.Get(Copy.SheetAddService))"
+                               OnOpen="() => sheet.OpenStep(SearchStep.What)">
+                    <SearchBox Value="@sheet.Words" CategoryId="@sheet.CategoryId" Live="true" OnSearch="sheet.Type" />
+                    <CategoryRail Items="Categories" Label="@T.Get(Copy.BrowseTitle)" OnPick="sheet.PickTrade" />
+                </SheetQuestion>
+
+                <SheetQuestion Open="@(sheet.Open == SearchStep.Where)" Title="@T.Get(Copy.SheetWhereTitle)" Label="@T.Get(Copy.SheetWhere)"
+                               Value="@(T.Where(sheet.TownId) ?? string.Empty)" OnOpen="() => sheet.OpenStep(SearchStep.Where)">
+                    <ChoiceTiles Items="Towns" SelectedIds="@Selected(sheet.TownId)" Compact="true" OnPick="sheet.PickTown" />
+                </SheetQuestion>
+
+                <SheetQuestion Open="@(sheet.Open == SearchStep.When)" Title="@T.Get(Copy.SheetWhenTitle)" Label="@T.Get(Copy.SheetWhen)"
+                               Value="@T.When(sheet.UrgencyId)" OnOpen="() => sheet.OpenStep(SearchStep.When)">
+                    <ChoiceTiles Items="Urgencies" SelectedIds="@Selected(sheet.UrgencyId)" Compact="true" OnPick="sheet.PickUrgency" />
+                </SheetQuestion>
+            </MudStack>
+
+            <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
+                <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                    <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" Disabled="_busy"
+                               OnClick="sheet.Clear">
+                        @T.Get(Copy.SheetClearAll)
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" StartIcon="@Icons.Material.Rounded.Search"
+                               Disabled="@(_busy || !sheet.CanSearch)" OnClick="SearchAsync">
+                        @T.Get(Copy.SheetSearch)
+                    </MudButton>
+                </MudStack>
+            </MudPaper>
+        }
+    </MudStack>
+</MudContainer>

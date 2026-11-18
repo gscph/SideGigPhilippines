@@ -101,9 +101,23 @@ public static class Copy
     public static readonly LocalizedText SearchAllJobs = new("All {0} services", "Lahat ng {0}");
     public static readonly LocalizedText FilterTown = new("Town", "Bayan");
     public static readonly LocalizedText FilterBudget = new("Budget", "Budget");
-    public static readonly LocalizedText FilterWhen = new("When", "Kailan");
 
     // --- Seeker Me: their search answers, each one tap from its question ---
+    // The search sheet (SearchSheetPage), like Airbnb's: one question open at a time.
+    public static readonly LocalizedText SearchStart = new("Start your search", "Simulan ang search");
+    public static readonly LocalizedText SheetWhatTitle = new("What?", "Ano?");
+    public static readonly LocalizedText SheetWhereTitle = new("Where?", "Saan?");
+    public static readonly LocalizedText SheetWhenTitle = new("When?", "Kailan?");
+    public static readonly LocalizedText SheetWhat = new("What", "Ano");
+    public static readonly LocalizedText SheetWhere = new("Where", "Saan");
+    public static readonly LocalizedText SheetWhen = new("When", "Kailan");
+    public static readonly LocalizedText SheetAddService = new("Add service", "Pumili ng serbisyo");
+    public static readonly LocalizedText SheetAnyTime = new("Any time", "Kahit kailan");
+    public static readonly LocalizedText SheetAnyBudget = new("Any budget", "Kahit anong budget");
+    public static readonly LocalizedText SheetClearAll = new("Clear all", "I-clear lahat");
+    public static readonly LocalizedText SheetSearch = new("Search", "Search");
+    /// <summary>{0} = what, {1} = the town: the results' summary pill.</summary>
+    public static readonly LocalizedText SheetWhatWhere = new("{0} in {1}", "{0} sa {1}");
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng serbisyo");
 
     // --- Search results ---------------------------------------------------
@@ -261,7 +275,7 @@ public static class Copy
     public static readonly LocalizedText PostsEmpty = new("Nothing posted yet. Say what you need done and your budget.", "Wala ka pang post. Sabihin kung ano ang ipapagawa at magkano ang budget mo.");
     public static readonly LocalizedText PostsNew = new("Post what you need", "Mag-post ng ipapagawa");
     public static readonly LocalizedText HomePostTitle = new("Post what you need done", "I-post ang ipapagawa mo");
-    public static readonly LocalizedText HomePostWhy = new("Say your budget. Workers near you send their price.", "Sabihin ang budget mo. Ang mga malapit ang magpapadala ng presyo.");
+    public static readonly LocalizedText HomePostWhy = new("Workers near you send their price", "Ang mga malapit ang magpapadala ng presyo");
     public static readonly LocalizedText HomePostButton = new("Post", "I-post");
     public static readonly LocalizedText PostNewTitle = new("Create a Job Posting", "Create Job Posting");
     public static readonly LocalizedText PostNewWhy = new("Only workers of this trade near you will see it. Your exact address is never shown.", "Mga malapit na gumagawa lang nito ang makakakita. Hindi ipinapakita ang eksaktong address mo.");
