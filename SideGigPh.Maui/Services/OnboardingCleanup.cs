@@ -6,14 +6,13 @@ namespace SideGigPh.Maui.Services;
 /// <summary>
 /// Fits saved answers to what we offer now. Answers saved earlier can hold a town or area that is gone
 /// (<see cref="DropUnservedTowns"/>), a barangay that was retired or is not in their town (<see cref="DropUnservedBarangays"/>), a trade that moved under another (<see cref="MoveMergedTrades"/>: kept, on its new
-/// trade), a trade or job that was retired (<see cref="DropRetiredJobs"/>) or a rate on the
-/// old price scale (<see cref="DropOldRate"/>): those are dropped, so the interview asks the question again instead
-/// of showing something we no longer offer.
+/// trade) or a trade or job that was retired (<see cref="DropRetiredJobs"/>): those are dropped, so the interview asks
+/// the question again instead of showing something we no longer offer.
 /// </summary>
 public static class OnboardingCleanup
 {
     /// <summary>Every cleanup, as the saved answers load.</summary>
-    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropUnservedBarangays().MoveMergedTrades().DropRetiredJobs().DropOldRate();
+    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropUnservedBarangays().MoveMergedTrades().DropRetiredJobs();
 
     /// <summary>
     /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay
@@ -73,23 +72,6 @@ public static class OnboardingCleanup
         categoryId is not null && MergedTrades.TryGetValue(categoryId, out var target) && ReferenceData.FindTrade(target.CategoryId) is not null
             ? target
             : null;
-
-    /// <summary>
-    /// A Skilled Worker rate from before price guides (an old one-scale tier such as <c>500-1000</c>) is dropped, so the
-    /// interview asks the rate again on today's per-job prices (their own from–to range, a
-    /// <see cref="ReferenceData.RateLevels"/> point, or "depends on the job"). Seeker budgets need nothing: old tiers read as peso ranges.
-    /// </summary>
-    public static OnboardingState DropOldRate(this OnboardingState state)
-    {
-        var pro = state.Professional;
-        if (pro.RateTierId is { } rate && rate != ReferenceData.Quote && ReferenceData.Find(ReferenceData.RateLevels, rate) is null
-            && !RateRange.TryParse(rate, out _, out _))
-        {
-            pro.RateTierId = null;
-        }
-
-        return state;
-    }
 
     public static OnboardingState DropUnservedTowns(this OnboardingState state)
     {

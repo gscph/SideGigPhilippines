@@ -170,7 +170,7 @@ public class PublishingRulesTests(ApiTestHost api)
     public async Task WorkPhotoIdThatIsNotAPhoto_IsRefusedWithTheFieldName()
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Vic");
-        var request = new PublishListingRequest("Vic", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
+        var request = new PublishListingRequest("Vic", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, 800,
             worker.Pro.Draft.ProfilePhotoId, ["not-a-photo"]);
 
         using var response = await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
@@ -187,7 +187,7 @@ public class PublishingRulesTests(ApiTestHost api)
         await first.Pro.PublishAsync();
         var second = await TestPhone.WorkerReadyToPublishAsync(api, "Sam");
         var stolen = first.Pro.Draft.WorkPhotoIds[0];
-        var request = new PublishListingRequest("Sam", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
+        var request = new PublishListingRequest("Sam", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, 800,
             second.Pro.Draft.ProfilePhotoId, [stolen, second.Pro.Draft.WorkPhotoIds[0]]);
 
         using var response = await api.Client(api.Tokens.For(second.Uid, second.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);

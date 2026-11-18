@@ -73,7 +73,6 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             pro.Property(p => p.CategoryId).HasMaxLength(40);
             pro.Property(p => p.AreaId).HasMaxLength(40);
             pro.Property(p => p.ExperienceId).HasMaxLength(40);
-            pro.Property(p => p.RateTierId).HasMaxLength(40);
             pro.Property(p => p.OtherWorkText).HasMaxLength(OtherWork.MaxText).IsUnicode(); // 017
             pro.Property(p => p.ProfilePhotoId).HasMaxLength(64).IsFixedLength();
             pro.HasIndex(p => p.MobileNumber).IsUnique().HasDatabaseName(Constraints.ProfessionalMobileNumber);

@@ -7,8 +7,8 @@ namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
 /// One search result, laid out like Airbnb's list card but with a small photo: "Aircon Technician in Angono" with ★ on
-/// the right, the name muted, facts joined by · (<see cref="ResultText.FactsLine"/>), the price in money green, and at
-/// most one gray pill ("Fits your budget"). The whole row opens the worker's profile.
+/// the right, the name muted, facts joined by · (<see cref="ResultText.FactsLine"/>), the average price in money green,
+/// and at most one gray pill ("Fits your budget" or "Above your budget": over the budget only ranks lower, never hides). The whole row opens the worker's profile.
 /// </summary>
 public partial class ResultRow : ComponentBase
 {
@@ -16,7 +16,7 @@ public partial class ResultRow : ComponentBase
 
     [Parameter, EditorRequired] public SearchHit Hit { get; set; } = default!;
 
-    /// <summary>The search's town and job: the town names the "where", the job picks the price.</summary>
+    /// <summary>The search's town: it names the "where".</summary>
     [Parameter, EditorRequired] public SearchRequest Request { get; set; } = default!;
 
     private string WhatAndWhere => T.WhatAndWhere(Hit.Pro, Request.CityId);
@@ -25,5 +25,7 @@ public partial class ResultRow : ComponentBase
 
     private string? Facts => T.FactsLine(Hit.Pro);
 
-    private string? Price => T.RateLabel(Hit.Pro, Request.ServiceId);
+    private string? Price => Hit.Pro.RateLabel();
+
+    private LocalizedText? BudgetPill => Hit.FitsBudget ? Copy.FitsBudget : Hit.AboveBudget ? Copy.AboveBudget : null;
 }

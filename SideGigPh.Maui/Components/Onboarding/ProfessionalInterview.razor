@@ -49,8 +49,7 @@
             <InterviewStep Illustration="@AppImages.Price" Title="@T.Get(Copy.ProRateTitle)" Why="@T.Get(Copy.ProRateWhy)"
                            Progress="Progress" OnBack="GoBack"
                            OnNext="SaveRateAsync" CanContinue="@CanSaveRate">
-                <MudText Typo="Typo.subtitle2">@T.Get(Copy.BudgetOwnRange)</MudText>
-                <BudgetRangeFields @bind-Min="_rateFrom" @bind-Max="_rateUpTo" />
+                <RatePriceField @bind-Value="_rate" ServiceIds="Draft.ServiceIds" />
             </InterviewStep>
             break;
 

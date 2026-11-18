@@ -15,8 +15,9 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// already has one or today's codes are used up (<see cref="OnboardingSteps.AsksNumber"/>); its "Do this later" moves on
 /// and Publish asks again. "Others" after the trades lets a worker type a kind of work we don't list: it is saved as their trade and
 /// job (the jobs question is skipped), sent for analytics and matched with households who typed something similar, so
-/// nobody is stuck on the trade question. The rate is their own range in two peso boxes ("From" / "Up to", starting from
-/// <see cref="Pricing.RateStart"/>), with the suggested minimum price shown once, under "From", as a guide. The answers build the listing card the pro sees at the end; its name and number come
+/// nobody is stuck on the trade question. The price is one peso box, their average price per service
+/// (<see cref="RatePriceField"/>: only a guide for customers, with what others charge for their jobs). The answers
+/// build the listing card the pro sees at the end; its name and number come
 /// from the account (<see cref="ListingMapper.TakeAccount"/>), so they are never asked here.
 /// One URL per step; answers are saved whenever the user moves forward. The rules (which step, what an
 /// answer clears, where Back goes) are in <see cref="OnboardingSteps"/>.
@@ -59,11 +60,10 @@ public partial class ProfessionalInterview : ComponentBase
     private bool _pickedOtherTrade;
     private string? _otherTradeText;
 
-    // The rate's two boxes, saved as their range on Next.
-    private int? _rateFrom;
-    private int? _rateUpTo;
+    // The price box, saved on Next.
+    private int? _rate;
 
-    private bool CanSaveRate => RateRange.IsValid(_rateFrom, _rateUpTo);
+    private bool CanSaveRate => WorkerPrice.IsValid(_rate);
 
     // Next only for a photo they already had; a new one moves on by itself.
     private EventCallback PhotoNext => Draft.HasProof ? EventCallback.Factory.Create(this, AdvanceAsync) : default;
@@ -104,7 +104,7 @@ public partial class ProfessionalInterview : ComponentBase
         }
         _pickedOtherTrade = Draft.IsOtherTrade();
         _otherTradeText = _pickedOtherTrade ? Draft.OtherJobText : null;
-        (_rateFrom, _rateUpTo) = Pricing.RateStart(Draft.RateTierId, Draft.ServiceIds);
+        _rate = Draft.RatePesos;
     }
 
     private Task PickSkillAsync(string categoryId)
@@ -152,7 +152,7 @@ public partial class ProfessionalInterview : ComponentBase
 
     private Task SaveRateAsync()
     {
-        Draft.RateTierId = RateRange.Format(_rateFrom!.Value, _rateUpTo!.Value);
+        Draft.RatePesos = _rate;
         return AdvanceAsync();
     }
 

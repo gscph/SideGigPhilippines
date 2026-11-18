@@ -85,7 +85,7 @@ public class PublishListingTests
     public async Task Publish_MissingInterviewAnswer_ReturnsIncompleteWithoutSending()
     {
         var draft = TestData.ReadyDraft();
-        draft.RateTierId = null; // e.g. the rate question was skipped
+        draft.RatePesos = null; // e.g. the rate question was skipped
 
         var app = await FakeApp.ProAsync(draft);
         var result = await app.Pro.PublishAsync();

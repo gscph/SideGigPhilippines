@@ -28,7 +28,7 @@ public class SavedAnswersTests
             "AreaId": "metro-manila",
             "CityIds": ["makati", "taytay", "pasig"],
             "ExperienceId": "1-3",
-            "RateTierId": "500-1000",
+            "RatePesos": 800,
             "DisplayName": "Juan",
             "MobileNumber": "+639171234567"
           },

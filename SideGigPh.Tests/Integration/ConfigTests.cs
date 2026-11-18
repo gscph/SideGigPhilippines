@@ -44,7 +44,6 @@ public class ConfigTests(ApiTestHost api)
         }
 
         Ids(config.Cities).Should().Contain(Ids(builtIn.Cities), because);
-        Ids(config.PriceTiers).Should().Contain(Ids(builtIn.PriceTiers), because);
         Ids(config.Experience).Should().Contain(Ids(builtIn.Experience), because);
         Ids(config.Urgencies).Should().Contain(Ids(builtIn.Urgencies), because);
         Ids(config.IncomeGoals).Should().Contain(Ids(builtIn.IncomeGoals), because);

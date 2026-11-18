@@ -1,7 +1,7 @@
 /* =====================================================================================
    SideGigPh: the app's config, the answer lists that are fine to be a few hours stale:
      - the trades (dbo.Categories) and their jobs (dbo.Services),
-     - towns, the launch's default town, price tiers, experience, urgency and income goals (dbo.ConfigOptions),
+     - towns, the launch's default town, experience, urgency and income goals (dbo.ConfigOptions),
      - the barangays we serve in each town (dbo.Barangays; needs 021-schema-barangays.sql first).
    REQUIRED data, not a sample: the app reads it all in one GET config when it opens.
 
@@ -16,11 +16,10 @@
        To stop offering a trade, keep its rows here with IsActive = 0 (see home_massage).
      - Each trade's jobs are ordered most-requested first and end with "Others / Wala sa nabanggit"
        (the -other job). What people type after picking it goes to dbo.OtherJobNotes.
-     - Every active job has a price guide (PriceMin <= PriceAverage <= PriceHigh, pesos, labor only), and
-       PriceMin is never below the 'minimum-wage' amount. Needs 008-schema-service-prices.sql first.
-     - Price tiers stay for app versions before price guides (their budgets and rates); don't retire them.
-     - The app's code depends on some ids: price tiers cheapest first (budget vs rate), experience
-       '10-plus', urgencies 'today' / 'this-week' / 'canvassing'. Don't retire those.
+     - Every active job has a price guide (PriceMin <= PriceAverage <= PriceHigh, pesos, labor only): only a guide
+       shown to workers setting their price and households setting a budget. Needs 008-schema-service-prices.sql first.
+     - The app's code depends on some ids: experience '10-plus', urgencies 'today' / 'this-week' / 'canvassing'.
+       Don't retire those.
      - English first, then everyday Taglish (local words where people use them: Tubero, Karpintero…).
    The app ships a copy of this (SideGigPh.Maui/Services/ReferenceData.cs, BuiltInConfig) only for its very first
    launch offline. Labels, order, prices and new trades here need no app change; just never remove an id the copy has.
@@ -72,10 +71,9 @@ DECLARE @Services TABLE
     PriceHigh     int            NULL
 );
 
--- The last three numbers: what the job usually costs in pesos (labor only): the lowest fair price (never below the
--- minimum wage, 'minimum-wage' below), the average, and above average. Skilled Workers pick one as their rate;
--- Seekers pick a budget range built from them. Sources (Nov 2026): NCR Wage Order NCR-28 (PHP 755 a day) and
--- published Metro Manila / Rizal service rates; Rizal labor runs a little under Manila's.
+-- The last three numbers: what the job usually costs in pesos (labor only): low, average and high. Only a guide:
+-- Skilled Workers see it when they type their own average price; Seekers pick a budget range built from it.
+-- Sources (Nov 2026): published Metro Manila / Rizal service rates; Rizal labor runs a little under Manila's.
 INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive, PriceMin, PriceAverage, PriceHigh) VALUES
 ('aircon-cleaning',          'aircon',         N'Aircon cleaning',                           N'Pa-linis ng aircon',                         N'🧽', 1, 1,   755,  1000,  1500),
 ('aircon-repair',            'aircon',         N'Aircon not cooling / repair',               N'Hindi lumalamig / pa-repair ng aircon',      N'🌡️', 2, 1,   755,  1500,  2500),
@@ -200,17 +198,6 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 -- The launch's default town: pre-selected wherever a person picks a town (the others stay selectable). One row; its
 -- Id is the town ('towns' above). To change it, change the Id: the old row is retired by the MERGE below.
 ('default-town', 'angono',     N'Angono',                  N'Angono',                  NULL,     0, 1, 1),
--- The old one price scale, CHEAPEST FIRST, read only for budgets and rates from app versions before price guides
--- (newer apps price each job, above). Amount = a typical job price.
-('price-tiers',  'under-500',  N'Below ₱500',              N'Mas mababa sa ₱500',      NULL,   400, 1, 1),
-('price-tiers',  '500-1000',   N'₱500 – ₱1,000',           N'₱500 – ₱1,000',           NULL,   750, 2, 1),
-('price-tiers',  '1000-2000',  N'₱1,000 – ₱2,000',         N'₱1,000 – ₱2,000',         NULL,  1500, 3, 1),
-('price-tiers',  '2000-5000',  N'₱2,000 – ₱5,000',         N'₱2,000 – ₱5,000',         NULL,  3500, 4, 1),
-('price-tiers',  '5000-up',    N'₱5,000 and up',           N'₱5,000 pataas',           NULL,  5000, 5, 1),
--- The suggested minimum price per job, set from the NCR daily minimum wage (Wage Order NCR-28, from 26 Sept 2026): no job's
--- lowest price goes under it. Shown to users only as a SUGGESTED price, never as a wage: workers are independent and set
--- their own prices (docs/legal/README.md L2). The id stays 'minimum-wage' / 'ncr' (ids are stable).
-('minimum-wage', 'ncr',        N'Suggested minimum price (per job)', N'Suggested na pinakamababang presyo (kada trabaho)', NULL, 755, 1, 1),
 ('experience',   'under-1',    N'Less than 1 year',        N'Wala pang 1 taon',        N'🌱',    0, 1, 1),
 ('experience',   '1-3',        N'1–3 years',               N'1–3 taon',                N'🧰',    0, 2, 1),
 ('experience',   '3-10',       N'3–10 years',              N'3–10 taon',               N'🛠️',    0, 3, 1),

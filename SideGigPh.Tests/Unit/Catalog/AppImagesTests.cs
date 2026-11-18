@@ -18,11 +18,9 @@ public class AppImagesTests
             .Concat(BuiltIn.ServicesByCategory.Values.SelectMany(services => services))
             .Concat(BuiltIn.Experience)
             .Concat(BuiltIn.Urgencies)
-            .Concat(ReferenceData.RateLevels)
             .Concat(ReferenceData.TradeChoices)
             .Concat(ReferenceData.FindByChoices)
-            .Append(ReferenceData.UnsureOption)
-            .Append(ReferenceData.QuoteOption);
+            .Append(ReferenceData.UnsureOption);
 
     [Fact]
     public void EveryTradeJobAndAnswer_HasItsOwnPicture_OthersGetThePlus()

@@ -23,7 +23,7 @@ public class WireContractTests
         JsonSerializer.Deserialize(JsonSerializer.Serialize(value, type), type)!;
 
     private static ListingDto Listing() => new(
-        "pro-1", "Maria", "+639171234567", "plumbing", "rizal", ["plumbing-clog"], ["antipolo"], "1-3", "under-500",
+        "pro-1", "Maria", "+639171234567", "plumbing", "rizal", ["plumbing-clog"], ["antipolo"], "1-3", 1200,
         new PhotoDto("p1", "https://x/p1.jpg"), [new PhotoDto("w1", "https://x/w1.jpg")], new ReviewSummaryDto(4.5, 3));
 
     private static ChatDto Chat() => new(
@@ -36,16 +36,16 @@ public class WireContractTests
     public void ListingDto_FieldNamesNeverChange() =>
         FieldNames(Listing(), ApiJson.Default.ListingDto).Should().Equal(
             "id", "displayName", "mobileNumber", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId",
-            "rateTierId", "profilePhoto", "workPhotos", "reviews", "badges", "otherWork", "completedJobs");
+            "ratePesos", "profilePhoto", "workPhotos", "reviews", "badges", "otherWork", "completedJobs");
 
     // "references" was removed on purpose when references were dropped: an older app that still sends it is read
     // with the field ignored (ServerListingRulesTests.OldAppBody_WithReferences_ReadsAndIsAccepted).
     [Fact]
     public void PublishListingRequest_FieldNamesNeverChange() =>
         FieldNames(
-            new PublishListingRequest("Juan", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", "quote", "p1", ["w1", "w2"]),
+            new PublishListingRequest("Juan", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", 1200, "p1", ["w1", "w2"]),
             ApiJson.Default.PublishListingRequest).Should().Equal(
-            "displayName", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId", "rateTierId", "profilePhotoId",
+            "displayName", "categoryId", "areaId", "serviceIds", "cityIds", "experienceId", "ratePesos", "profilePhotoId",
             "workPhotoIds", "latitude", "longitude", "radiusKm", "otherWork");
 
     [Fact]
@@ -90,11 +90,11 @@ public class WireContractTests
         var service = new ServiceDto("aircon-cleaning", "Aircon cleaning", "Pa-linis ng aircon", "🧽", price);
         var category = new CategoryDto("aircon", "Aircon Technician", "Aircon Technician", "❄️", "Cleaning", "Linis", [service]);
 
-        var option = new OptionDto("under-500", "Under ₱500", "Below ₱500", null, 400);
+        var option = new OptionDto("3-10", "3–10 years", "3–10 taon", null, 0);
 
         var barangay = new BarangayDto("angono-san-isidro", "angono", "San Isidro", "San Isidro");
-        FieldNames(new ConfigDto([category], [option], [option], [option], [option], [option], 755, "angono", [barangay]), ApiJson.Default.ConfigDto)
-            .Should().Equal("catalog", "towns", "priceTiers", "experience", "urgencies", "incomeGoals", "minimumWage", "defaultTownId", "barangays");
+        FieldNames(new ConfigDto([category], [option], [option], [option], [option], "angono", [barangay]), ApiJson.Default.ConfigDto)
+            .Should().Equal("catalog", "towns", "experience", "urgencies", "incomeGoals", "defaultTownId", "barangays");
         FieldNames(barangay, ApiJson.Default.BarangayDto).Should().Equal("id", "townId", "english", "taglish");
         FieldNames(option, ApiJson.Default.OptionDto).Should().Equal("id", "english", "taglish", "icon", "amount");
         FieldNames(category, ApiJson.Default.CategoryDto).Should().Equal("id", "english", "taglish", "icon", "hintEnglish", "hintTaglish", "services");
@@ -244,7 +244,7 @@ public class WireContractTests
     {
         const string json = """
             {"id":"p","displayName":"Maria","mobileNumber":"+639171234567","categoryId":"aircon","areaId":"rizal",
-             "serviceIds":["aircon-cleaning"],"cityIds":["taytay"],"experienceId":null,"rateTierId":null,
+             "serviceIds":["aircon-cleaning"],"cityIds":["taytay"],"experienceId":null,"ratePesos":800,
              "profilePhoto":null,"workPhotos":[]}
             """;
 

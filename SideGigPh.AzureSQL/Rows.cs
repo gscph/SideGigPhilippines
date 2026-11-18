@@ -26,7 +26,9 @@ public sealed class ProfessionalRow
     public required string CategoryId { get; set; }
     public required string AreaId { get; set; }
     public string? ExperienceId { get; set; }
-    public string? RateTierId { get; set; }
+
+    /// <summary>The worker's average price per service, in pesos (<c>023-schema-worker-price.sql</c>).</summary>
+    public int RatePesos { get; set; }
 
     /// <summary>What the worker typed under "Others" (<c>017-schema-others-and-ranges.sql</c>), matched in search.</summary>
     public string? OtherWorkText { get; set; }
@@ -204,7 +206,7 @@ public sealed class ErrorReportRow
     public DateTimeOffset ReceivedAt { get; set; }
 }
 
-/// <summary>One answer in a config list (<c>ConfigOptions</c>): a town, price tier, experience, urgency or income goal.</summary>
+/// <summary>One answer in a config list (<c>ConfigOptions</c>): a town, the default town, experience, urgency or income goal.</summary>
 public sealed class ConfigOptionRow
 {
     public required string ListId { get; set; }

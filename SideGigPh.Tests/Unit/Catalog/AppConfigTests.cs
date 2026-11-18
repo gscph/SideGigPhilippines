@@ -239,12 +239,10 @@ public class AppConfigTests
         read.Value.ServicesByCategory.Keys.Should().BeEquivalentTo(builtIn.ServicesByCategory.Keys);
         read.Value.ServicesByCategory["aircon"].Should().Equal(builtIn.ServicesByCategory["aircon"]);
         read.Value.Cities.Should().Equal(builtIn.Cities);
-        read.Value.PriceTiers.Should().Equal(builtIn.PriceTiers);
         read.Value.Experience.Should().Equal(builtIn.Experience);
         read.Value.Urgencies.Should().Equal(builtIn.Urgencies);
         read.Value.IncomeGoals.Should().Equal(builtIn.IncomeGoals);
         read.Value.Prices.Should().BeEquivalentTo(builtIn.Prices);
-        read.Value.MinimumWage.Should().Be(builtIn.MinimumWage);
     }
 
     [Fact]
@@ -254,7 +252,6 @@ public class AppConfigTests
             new Stamped<AppConfig>(ReferenceData.BuiltInConfig, Now, "\"v1\""), AppConfigJsonContext.Default.StampedAppConfig);
         var old = System.Text.Json.Nodes.JsonNode.Parse(json)!;
         old["Value"]!.AsObject().Remove("Prices");
-        old["Value"]!.AsObject().Remove("MinimumWage");
 
         var read = System.Text.Json.JsonSerializer.Deserialize(old.ToJsonString(), AppConfigJsonContext.Default.StampedAppConfig)!;
 
@@ -281,17 +278,15 @@ public class AppConfigTests
         ReferenceData.CanUse(builtIn with { ServicesByCategory = new Dictionary<string, IReadOnlyList<CatalogOption>>() })
             .Should().BeFalse("a trade without jobs");
         ReferenceData.CanUse(builtIn with { Cities = [] }).Should().BeFalse();
-        ReferenceData.CanUse(builtIn with { PriceTiers = [] }).Should().BeFalse();
         ReferenceData.CanUse(builtIn with { IncomeGoals = [] }).Should().BeFalse();
         ReferenceData.CanUse(builtIn with { Experience = builtIn.Experience.Where(e => e.Id != ReferenceData.TopExperienceId).ToList() })
             .Should().BeFalse("the code highlights the top experience id");
         ReferenceData.CanUse(builtIn with { Urgencies = builtIn.Urgencies.Skip(1).ToList() })
             .Should().BeFalse("the code words the first message from the urgency ids");
-        ReferenceData.CanUse(builtIn with { MinimumWage = 0 }).Should().BeFalse("job prices are checked against the minimum wage");
         ReferenceData.CanUse(builtIn with { Prices = builtIn.Prices.Where(p => p.Key != "aircon-cleaning").ToDictionary() })
             .Should().BeFalse("a job without a price guide");
-        ReferenceData.CanUse(builtIn with { Prices = WithPrice("aircon-cleaning", new PriceGuide(500, 1000, 1500)) })
-            .Should().BeFalse("a job's lowest price is never under the minimum wage");
+        ReferenceData.CanUse(builtIn with { Prices = WithPrice("aircon-cleaning", new PriceGuide(0, 1000, 1500)) })
+            .Should().BeFalse("a guide starts above ₱0");
         ReferenceData.CanUse(builtIn with { Prices = WithPrice("aircon-cleaning", new PriceGuide(800, 1500, 1000)) })
             .Should().BeFalse("prices go up: lowest, average, above average");
         ReferenceData.CanUse(OneTrade(ReferenceData.OtherTradeId)).Should().BeFalse("\"other\" is the Others tile after the trades");
@@ -301,14 +296,13 @@ public class AppConfigTests
     }
 
     [Fact]
-    public void BuiltInPrices_NeverUnderTheMinimumWage_AndGoUp()
+    public void BuiltInPrices_AboveZero_AndGoUp()
     {
         var config = ReferenceData.BuiltInConfig;
-        config.MinimumWage.Should().Be(755, "the NCR daily minimum wage (Wage Order NCR-28)");
         foreach (var service in config.ServicesByCategory.Values.SelectMany(s => s))
         {
             var price = config.Prices[service.Id];
-            price.Min.Should().BeGreaterThanOrEqualTo(config.MinimumWage, service.Id);
+            price.Min.Should().BePositive(service.Id);
             price.Average.Should().BeGreaterThanOrEqualTo(price.Min, service.Id);
             price.High.Should().BeGreaterThanOrEqualTo(price.Average, service.Id);
         }
@@ -375,11 +369,9 @@ public class AppConfigTests
                 new CategoryDto("welder", "Welder", "Welder", null, null, null, [new ServiceDto("welder-other", "Others", "Wala sa nabanggit", null)]),
             ],
             [new OptionDto("taytay", "Taytay", "Taytay", null, 0)],
-            [new OptionDto("under-500", "Under ₱500", "Below ₱500", null, 400), new OptionDto("500-1000", "₱500–1,000", "₱500–1,000", null, 750)],
             [new OptionDto(ReferenceData.TopExperienceId, "10+ years", "10+ taon", null, 0)],
             [new OptionDto(ReferenceData.UrgencyToday, "Today", "Ngayon", null, 0)],
-            [new OptionDto("10000", "₱10,000", "₱10,000", null, 10000)],
-            MinimumWage: 755);
+            [new OptionDto("10000", "₱10,000", "₱10,000", null, 10000)]);
 
         var config = dto.ToModel();
 
@@ -391,11 +383,9 @@ public class AppConfigTests
         config.Cities.Should().Equal(new CatalogOption("taytay", new("Taytay", "Taytay")));
         config.Categories[0].Icon.Should().Be(AppImages.For("plumbing"), "pictures are the app's own, by id, not the server's emoji");
         config.ServicesByCategory["plumbing"].Select(s => s.Icon).Should().Equal(AppImages.For("plumbing-clog"), AppImages.More);
-        config.PriceTiers.Select(p => (p.Id, p.Amount)).Should().Equal(("under-500", 400), ("500-1000", 750));
         config.IncomeGoals.Single().Amount.Should().Be(10000);
         config.Prices.Should().BeEquivalentTo(new Dictionary<string, PriceGuide> { ["plumbing-clog"] = new(755, 1000, 1800) },
             "a job the server sends without a price (an older server) has no guide");
-        config.MinimumWage.Should().Be(755);
         config.Experience.Single().Id.Should().Be(ReferenceData.TopExperienceId);
         config.Urgencies.Single().Id.Should().Be(ReferenceData.UrgencyToday);
         new OtherJobNote("welder", UserRole.Professional, "x").ToRequest().Side.Should().Be(Wire.Professional);

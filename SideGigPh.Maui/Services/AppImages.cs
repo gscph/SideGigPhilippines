@@ -38,10 +38,8 @@ public static class AppImages
     public static readonly string Home = File("home");
     public static readonly string More = File("more");
     public static readonly string Unsure = File("unsure");
-    public static readonly string Quote = File("chat");
+    public static readonly string Chat = File("chat");
     public static readonly string Custom = File("edit");
-    public static readonly string LowPrice = File("tag");
-    public static readonly string HighPrice = File("trend");
     public static readonly string Scam = File("alert");
     public static readonly string Harassment = File("chat-alert");
     public static readonly string Fake = File("fake-id");
@@ -116,10 +114,5 @@ public static class AppImages
         ["today"] = "bolt",
         ["this-week"] = "calendar",
         ["canvassing"] = "search",
-
-        // A worker's rate
-        ["minimum"] = "tag",
-        ["average"] = "money",
-        ["above-average"] = "trend",
     };
 }

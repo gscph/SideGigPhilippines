@@ -65,7 +65,7 @@ public class JobPostTests(ApiTestHost api)
         var client = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
         var listing = (await client.GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!;
         var request = new PublishListingRequest(listing.DisplayName, listing.CategoryId, listing.AreaId, listing.ServiceIds, listing.CityIds,
-            listing.ExperienceId, listing.RateTierId, listing.ProfilePhoto!.Id, [.. listing.WorkPhotos.Select(p => p.Id)],
+            listing.ExperienceId, listing.RatePesos, listing.ProfilePhoto!.Id, [.. listing.WorkPhotos.Select(p => p.Id)],
             point.Latitude, point.Longitude, radiusKm);
         (await client.PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest)).StatusCode.Should().Be(HttpStatusCode.OK);
     }

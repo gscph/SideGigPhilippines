@@ -5,10 +5,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// A price range in two peso boxes ("From" / "Up to"): the Seeker's budget, the Skilled Worker's rate and a job post's
-/// budget. "Up to" can't be under "From"; the suggested minimum price shows under "From" as a guide only, never a rule
-/// (the household pays after the work, at the price both agree on). The page keeps Next off until the range holds
-/// (<see cref="Pricing.IsValidBudget"/>).
+/// A Seeker's budget in two peso boxes ("From" / "Up to"). "Up to" can't be under "From"; any guide shown is only a
+/// guide, never a rule (the household pays after the work, at the price both agree on). The page keeps Next off until
+/// the range holds (<see cref="Pricing.IsValidBudget"/>).
 /// </summary>
 public partial class BudgetRangeFields : ComponentBase
 {
@@ -22,10 +21,8 @@ public partial class BudgetRangeFields : ComponentBase
 
     [Parameter] public EventCallback<int?> MaxChanged { get; set; }
 
-    /// <summary>The line under "From"; the suggested minimum price when not set.</summary>
+    /// <summary>An optional line under "From", e.g. the job's usual price (<see cref="Pricing.GuideNote"/>).</summary>
     [Parameter] public string? Help { get; set; }
-
-    private string GuideHelp => T.Format(Copy.BudgetFromHelp, Money.Peso(ReferenceData.MinimumWage));
 
     private bool MaxTooLow => Min is { } from && Max is { } to && to < from;
 }

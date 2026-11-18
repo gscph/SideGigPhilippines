@@ -63,20 +63,17 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
             "S6 Joined 1 Year Ago", "S6 Joined 3 Months Ago", "S6 Joined 3 Days Ago");
 
     [IntegrationFact]
-    public async Task S7_InBudgetFirst_ALittleOverBeforeQuote_FarOverLast_OldTiersStillRead()
+    public async Task S7_CheaperFirst_OverTheBudgetLower_NobodyHidden()
     {
-        // Inverter or battery check: ₱1,000 lowest, ₱2,000 average, ₱3,500 above average. Old tiers: ₱750 and ₱5,000.
-        (await InTown("solar_cleaning", "solar-inverter")).Should().Equal(
-            "S7 Average Price", "S7 Lowest Price", "S7 Old App, Cheap Tier",   // ₱1,000–₱2,000 (Tipid): all fit (A–Z)
-            "S7 Depends on the Job", "S7 Above Average", "S7 Old App, Top Tier");
-        (await InTown("solar_cleaning", "solar-inverter", budget: "2000-3500")).Should().Equal(
-            "S7 Above Average", "S7 Average Price", "S7 Lowest Price", "S7 Old App, Cheap Tier",
-            "S7 Old App, Top Tier", "S7 Depends on the Job");                    // ₱5,000 is 43% over: still beats no price
-        (await InTown("solar_cleaning", "solar-inverter", budget: "1000-1500")).Should().Equal(
-            "S7 Lowest Price", "S7 Old App, Cheap Tier", "S7 Average Price",
-            "S7 Depends on the Job", "S7 Above Average", "S7 Old App, Top Tier"); // the last two are far over: no points (A–Z)
-        (await InTown("solar_cleaning", "solar-inverter", budget: "unsure")).Should().Equal(
-            "S7 Above Average", "S7 Average Price", "S7 Depends on the Job", "S7 Lowest Price", "S7 Old App, Cheap Tier", "S7 Old App, Top Tier");
+        // Inverter or battery check: guide ₱1,000 low, ₱2,000 average, ₱3,500 high; Tipid budget ₱1,000–₱2,000.
+        string[] cheapestFirst =
+        [
+            "S7 ₱1,000", "S7 ₱1,500", "S7 ₱2,000 (budget top)",     // in budget: cheaper earns more
+            "S7 ₱2,500 (25% over)", "S7 ₱3,000 (50% over)", "S7 ₱4,000 (double)", // over: lower, still shown
+        ];
+        (await InTown("solar_cleaning", "solar-inverter")).Should().Equal(cheapestFirst);
+        (await InTown("solar_cleaning", "solar-inverter", budget: "1000-1500")).Should().Equal(cheapestFirst, "far over scores 0 but still shows");
+        (await InTown("solar_cleaning", "solar-inverter", budget: "unsure")).Should().Equal(cheapestFirst, "no budget: measured against the guide");
     }
 
     [IntegrationFact]
@@ -89,19 +86,20 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     {
         var all = await Search("aircon", "aircon-cleaning");
         Names(all, inTown: true).Should().Equal(
-            "S9 Mang Jun Aircon",            // ≈96: great at everything
-            "S9 Mahal Aircon (top price)",   // ≈85: ₱1,500 is 50% over the ₱1,000 top (10 of 20) but 20 great reviews, fast, 10+ years
-            "S9 Kuya Ben Cool",              // ≈81: lowest price, good reviews, replies most chats
-            "S9 Tulog Aircon (inactive)",    // ≈69: 30 good reviews and 10+ years outweigh 45 days away and 10 ignored chats
-            "S9 Quote Aircon",               // ≈66
-            "S9 Bagong Aircon Tech",         // ≈63: new, fits budget, neutral priors
-            "S9 RJ Aircon (2 reviews)");     // ≈62: above-average price, little experience
+            "S9 Mang Jun Aircon",            // great at everything
+            "S9 Mahal Aircon (top price)",   // ₱1,500 is 50% over the ₱1,000 top (7 of 20) but 20 great reviews, fast, 10+ years
+            "S9 Kuya Ben Cool",              // lowest price, good reviews, replies most chats
+            "S9 Sakto Aircon (a bit over)",  // ₱1,200 is 20% over the top: a little lower, still high on 3-10 years
+            "S9 Tulog Aircon (inactive)",    // 30 good reviews and 10+ years outweigh 45 days away and 10 ignored chats
+            "S9 RJ Aircon (2 reviews)",      // 50% over the top, but 2 reviews beat none
+            "S9 Bagong Aircon Tech");        // new: fits budget, neutral priors, under a year
         Names(all, inTown: false).Should().Equal("S9 Antipolo Aircon Pro", "S9 Angono Aircon");
 
         var firstPage = await Search("aircon", "aircon-cleaning", take: Paging.Search);
         firstPage.Hits.Should().HaveCount(4);
         (firstPage.InTownCount, firstPage.OtherTownsCount).Should().Be((7, 2));
-        (await InTown("aircon", "aircon-install")).Should().Equal("S9 Install Lang", "S9 Mahal Aircon (top price)");
+        (await InTown("aircon", "aircon-install")).Should().Equal(
+            "S9 Mahal Aircon (top price)", "S9 Install Lang"); // both fit the ₱2,500–₱3,500 budget: the cheaper first
     }
 
     [Theory]

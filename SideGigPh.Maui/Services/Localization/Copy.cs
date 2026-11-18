@@ -67,12 +67,12 @@ public static class Copy
     public static readonly LocalizedText BudgetHigh = new("For bigger or harder work", "Para sa mas malaki o mahirap na trabaho");
     public static readonly LocalizedText BudgetOwnRange = new("Type your own range", "I-type ang sarili mong presyo");
     public static readonly LocalizedText BudgetRange = new("{0} – {1}", "{0} – {1}");
-    public static readonly LocalizedText BudgetUpTo = new("Up to {0}", "Hanggang {0}");
     public static readonly LocalizedText BudgetAndUp = new("{0} and up", "{0} pataas");
+    public static readonly LocalizedText BudgetUpTo = new("Up to {0}", "Hanggang {0}");
     public static readonly LocalizedText BudgetFromLabel = new("From (₱)", "Mula (₱)");
     public static readonly LocalizedText BudgetToLabel = new("Up to (₱)", "Hanggang (₱)");
-    // A suggested price, never "minimum wage": workers are independent and set their own prices (docs/legal/README.md L2).
-    public static readonly LocalizedText BudgetFromHelp = new("Suggested minimum price: {0}. Only a guide.", "Suggested na pinakamababang presyo: {0}. Gabay lang ito.");
+    // The job's price guide under a budget box: only a guide, never a rule (workers set their own prices). {0}–{1} = pesos.
+    public static readonly LocalizedText PriceGuideNote = new("Usual price: {0} – {1}. Only a guide.", "Karaniwang presyo: {0} – {1}. Gabay lang ito.");
     public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat pareho o mas mataas sa unang halaga");
 
     // "Others" after the trades: kinds of work we don't list yet. The text is matched with the other side's (search).
@@ -101,6 +101,9 @@ public static class Copy
     public static readonly LocalizedText SearchAllJobs = new("All {0} services", "Lahat ng {0}");
     public static readonly LocalizedText FilterTown = new("Town", "Bayan");
     public static readonly LocalizedText FilterBudget = new("Budget", "Budget");
+    public static readonly LocalizedText FilterSort = new("Sort", "Ayos");
+    public static readonly LocalizedText SortBestMatch = new("Best match", "Pinakaangkop");
+    public static readonly LocalizedText SortLowestPrice = new("Lowest price", "Pinakamura");
 
     // --- Seeker Me: their search answers, each one tap from its question ---
     // The search sheet (SearchSheetPage), like Airbnb's: one question open at a time.
@@ -131,10 +134,11 @@ public static class Copy
     /// <summary>{0} = the trades, {1} = the town: a result's first line.</summary>
     public static readonly LocalizedText ResultWhatWhere = new("{0} in {1}", "{0} sa {1}");
     public static readonly LocalizedText ResultDone = new("{0} done", "{0} natapos");
-    public static readonly LocalizedText ResultPerService = new("per service", "kada serbisyo");
+    public static readonly LocalizedText ResultPerService = new("avg per service", "karaniwan kada serbisyo");
     /// <summary>{0} = the trade's honorific, plural in English (<see cref="Honorifics"/>).</summary>
     public static readonly LocalizedText ResultsEmpty = new("No {0} here yet… soon!", "Wala pang {0} dito… soon!");
     public static readonly LocalizedText FitsBudget = new("Fits your budget", "Pasok sa budget mo");
+    public static readonly LocalizedText AboveBudget = new("Above your budget", "Lampas sa budget mo");
 
     // --- A pro's public profile -------------------------------------------
     /// <summary>{0} = the trades, {1} = the town (the Seeker's own first): the line under the name.</summary>
@@ -151,8 +155,7 @@ public static class Copy
     public static readonly LocalizedText ProfileDoes = new("What {0} does", "Mga ginagawa ni {0}");
     public static readonly LocalizedText ProfileShowAllReviews = new("Show all {0} reviews", "Tingnan lahat ng {0} review");
     public static readonly LocalizedText ProfileShowReview = new("Show the review", "Tingnan ang review");
-    public static readonly LocalizedText ProfilePriceNote = new("per service · you agree in chat", "kada serbisyo · usapan sa chat");
-    public static readonly LocalizedText ProfileAskPrice = new("Ask in chat", "Itanong sa chat");
+    public static readonly LocalizedText ProfilePriceNote = new("avg per service · only a guide", "karaniwan kada serbisyo · gabay lang");
     // What we checked, never a promise about the worker (docs/legal/README.md L3).
     public static readonly LocalizedText ProProfileTrust = new("What we checked", "Ano ang na-check namin");
     public static readonly LocalizedText TrustPhone = new("Phone number verified", "Verified ang phone number");
@@ -243,8 +246,8 @@ public static class Copy
         "Hi po! Nakita ko kayo sa Tarbaho. Kailangan ko po: {0}, dito sa {1}. Magkano po ang singil ninyo?");
 
     // --- Pro card ---------------------------------------------------------
-    public static readonly LocalizedText RatePerJob = new("{0} per service", "{0} kada serbisyo");
-    public static readonly LocalizedText RateQuote = new("Price depends on the work", "Depende sa trabaho ang presyo");
+    public static readonly LocalizedText RatePerJob = new("{0} average per service", "{0} karaniwang singil kada serbisyo");
+    public static readonly LocalizedText RateNotSet = new("No price yet", "Wala pang presyo");
     public static readonly LocalizedText ExperienceFact = new("Exp: {0}", "Exp: {0}");
     public static readonly LocalizedText ServesFact = new("Location: {0}", "Location: {0}");
 
@@ -257,10 +260,17 @@ public static class Copy
     public static readonly LocalizedText ProAreasWhy = new("Customers in these towns see you first.", "Ikaw ang unang makikita ng customer sa mga bayang ito.");
     public static readonly LocalizedText ProExperienceTitle = new("How long have you done this work?", "Gano na katagal ang experience mo?");
     public static readonly LocalizedText ProExperienceWhy = new("Customers look at this first.", "Ito ang hinahanap ng mga customer.");
-    public static readonly LocalizedText ProRateTitle = new("How much do you usually charge?", "Magkano ang singil mo kada trabaho?");
-    public static readonly LocalizedText ProRateWhy = new(
-        "Type the price range you usually ask. Customers see it, and you can still agree on the final price.",
-        "I-type ang range ng presyo na karaniwan mong singil. Makikita ito ng customer, at pwede pa rin ninyong pag-usapan ang final na presyo.");
+    public static readonly LocalizedText ProRateTitle = new("What's your usual price per service?", "Magkano ang karaniwang singil mo kada serbisyo?");
+    public static readonly LocalizedText ProRateWhy = new("Type one amount. Customers see it first.", "Isang halaga lang. Ito ang unang makikita ng customer.");
+    public static readonly LocalizedText RateFieldLabel = new("Your average price (₱)", "Karaniwang presyo mo (₱)");
+    public static readonly LocalizedText RateNote = new(
+        "This is your average price. It's only a guide for customers, not the final amount they pay you. You agree on the price before the work.",
+        "Ito ang karaniwang presyo mo. Gabay lang ito sa customer, hindi ang final na babayaran sa'yo. Pag-uusapan ninyo ang presyo bago ang trabaho.");
+    public static readonly LocalizedText RateGuideTitle = new("What others charge for this:", "Singil ng iba para dito:");
+    public static readonly LocalizedText RateGuideLow = new("Low {0}", "Mababa {0}");
+    public static readonly LocalizedText RateGuideAverage = new("Average {0}", "Karaniwan {0}");
+    public static readonly LocalizedText RateGuideHigh = new("High {0}", "Mataas {0}");
+    public static readonly LocalizedText RateGuideTap = new("Tap one to use it, or type your own.", "I-tap para gamitin, o i-type ang sa'yo.");
 
     // Goal payoff. {0} = jobs per week, {1} = typical price per job.
 

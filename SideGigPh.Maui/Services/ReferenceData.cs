@@ -19,9 +19,6 @@ public static class ReferenceData
     /// <summary>Seeker budget answer: "not sure yet".</summary>
     public const string Unsure = "unsure";
 
-    /// <summary>Professional rate answer: "depends on the job".</summary>
-    public const string Quote = "quote";
-
     /// <summary>
     /// The "Others / Wala sa nabanggit" tile after the trades in both interviews: someone whose kind of work we don't
     /// offer types it, and it is sent for analytics (<c>OtherJobNotes</c> with this as the trade). Never saved as a trade.
@@ -50,18 +47,8 @@ public static class ReferenceData
 
     private static readonly LocalizedText OtherJob = new("Others", "Wala sa nabanggit");
 
-    // The answers that live with the code: "no budget", "no set price", and the three rates a worker can charge
-    // (a point of each job's price guide, PriceLevels in SideGigPh.Contracts, shared with the server's ranking).
+    // The answer that lives with the code: "no budget".
     public static readonly CatalogOption UnsureOption = new(Unsure, new("Not sure yet", "Di ko pa alam"), AppImages.Unsure);
-    public static readonly CatalogOption QuoteOption = new(Quote, new("Depends on the work", "Depende sa trabaho"), AppImages.Quote);
-
-    /// <summary>The rates a Skilled Worker can pick, cheapest first: each job's lowest, average or above-average price.</summary>
-    public static IReadOnlyList<CatalogOption> RateLevels { get; } =
-    [
-        new(PriceLevels.Minimum, new("Minimum price", "Pinakamababang presyo"), AppImages.For(PriceLevels.Minimum)),
-        new(PriceLevels.Average, new("Average price", "Karaniwang presyo"), AppImages.For(PriceLevels.Average)),
-        new(PriceLevels.AboveAverage, new("Above average", "Mas mataas sa karaniwan"), AppImages.For(PriceLevels.AboveAverage)),
-    ];
 
     /// <summary>
     /// How a household wants to find a worker, the Seeker interview's last question. Lives with the code (it picks a
@@ -112,18 +99,8 @@ public static class ReferenceData
     /// <summary>The trades + "Others", the tiles of both interviews' trade question.</summary>
     public static IReadOnlyList<CatalogOption> TradeChoices => Current.TradeChoices;
 
-    /// <summary>
-    /// The old one-scale price tiers, cheapest first, kept only to read listings and budgets saved by app versions
-    /// before price guides. <see cref="CatalogOption.Amount"/> is a typical job price inside the tier. New answers use
-    /// <see cref="Prices"/> (<see cref="Pricing"/>).
-    /// </summary>
-    public static IReadOnlyList<CatalogOption> PriceTiers => Current.Config.PriceTiers;
-
     /// <summary>Each job's price guide, by job id. Read through <see cref="Pricing"/>.</summary>
     public static IReadOnlyDictionary<string, PriceGuide> Prices => Current.Config.Prices;
-
-    /// <summary>The NCR daily minimum wage (pesos): no job's lowest price and no Seeker budget goes under it.</summary>
-    public static int MinimumWage => Current.Config.MinimumWage;
 
     /// <summary>Monthly earnings goals. <see cref="CatalogOption.Amount"/> is pesos per month.</summary>
     public static IReadOnlyList<CatalogOption> IncomeGoals => Current.Config.IncomeGoals;
@@ -141,8 +118,8 @@ public static class ReferenceData
     }
 
     /// <summary>
-    /// A config the app can run on: every list has answers, every trade has jobs and every job a price guide (lowest at
-    /// or above the minimum wage, then average, then above average), no trade takes the "Others" tile's id, and the ids
+    /// A config the app can run on: every list has answers, every trade has jobs and every job a price guide (more than
+    /// ₱0, low to average to high), no trade takes the "Others" tile's id, and the ids
     /// the code depends on (<see cref="TopExperienceId"/>, the urgencies) are there, and every picture is one of the
     /// app's (<see cref="AppImages"/>). Anything else (e.g. a copy saved before price guides, or with emoji for
     /// pictures) is never used or saved.
@@ -152,16 +129,15 @@ public static class ReferenceData
         && config.Categories.Count > 0
         && config.Categories.All(category => category.Id != OtherTradeId
             && config.ServicesByCategory.TryGetValue(category.Id, out var services) && services.Count > 0
-            && services.All(service => config.Prices.TryGetValue(service.Id, out var price) && IsSound(price, config.MinimumWage)))
-        && config.MinimumWage > 0
-        && config.Cities.Count > 0 && config.PriceTiers.Count > 0 && config.IncomeGoals.Count > 0
+            && services.All(service => config.Prices.TryGetValue(service.Id, out var price) && IsSound(price)))
+        && config.Cities.Count > 0 && config.IncomeGoals.Count > 0
         && Find(config.Experience, TopExperienceId) is not null
         && new[] { UrgencyToday, UrgencyThisWeek, UrgencyCanvassing }.All(id => Find(config.Urgencies, id) is not null)
         && config.Categories.Concat(config.ServicesByCategory.Values.SelectMany(services => services))
             .Concat(config.Experience).Concat(config.Urgencies).All(option => AppImages.IsImage(option.Icon));
 
-    private static bool IsSound(PriceGuide price, int minimumWage) =>
-        price.Min >= minimumWage && price.Min <= price.Average && price.Average <= price.High;
+    private static bool IsSound(PriceGuide price) =>
+        price.Min > 0 && price.Min <= price.Average && price.Average <= price.High;
 
     /// <summary>
     /// A trade's jobs, or none for a trade that isn't offered (retired). The "Others" trade (<see cref="OtherTradeId"/>)
@@ -185,9 +161,8 @@ public static class ReferenceData
     // SideGigPh.AzureSQL/Sql/004-config.sql as it was when this app was built, used on the very first launch before
     // the server's config loads. Ids are stored in saved answers, listings and chats: never rename them, only their
     // labels. Within each trade, jobs are listed most-requested first, and every trade ends with "Others" so nobody
-    // is forced into a wrong pick. Towns are A–Z; price tiers cheapest first; prices are pesos, labor only (lowest,
-    // average, above average; the lowest never under the NCR minimum wage, Wage Order NCR-28). It may lag behind
-    // 004-config.sql; every id here must still exist there (an integration test checks).
+    // is forced into a wrong pick. Towns are A–Z; prices are pesos, labor only (low, average, high; only a guide). It
+    // may lag behind 004-config.sql; every id here must still exist there (an integration test checks).
     public static AppConfig BuiltInConfig { get; } = new(
     [
         new("aircon", new("Aircon Technician", "Aircon Technician"), AppImages.For("aircon"), new("Cleaning, repair, installation", "Linis, repair, pakabit")),
@@ -266,14 +241,6 @@ public static class ReferenceData
         Town("antipolo", "Antipolo"),
         Town("taytay", "Taytay"),
     ],
-    PriceTiers:
-    [
-        new("under-500", new("Below ₱500", "Mas mababa sa ₱500"), Amount: 400),
-        new("500-1000", new("₱500 – ₱1,000", "₱500 – ₱1,000"), Amount: 750),
-        new("1000-2000", new("₱1,000 – ₱2,000", "₱1,000 – ₱2,000"), Amount: 1500),
-        new("2000-5000", new("₱2,000 – ₱5,000", "₱2,000 – ₱5,000"), Amount: 3500),
-        new("5000-up", new("₱5,000 and up", "₱5,000 pataas"), Amount: 5000),
-    ],
     Experience:
     [
         new("under-1", new("Less than 1 year", "Wala pang 1 taon"), AppImages.For("under-1")),
@@ -339,7 +306,6 @@ public static class ReferenceData
         ["solar-inverter"] = new(1000, 2000, 3500),
         ["solar-other"] = new(1000, 2000, 3500),
     },
-    MinimumWage: 755,
     DefaultTownId: "angono",
     BarangaysByTown: new Dictionary<string, IReadOnlyList<CatalogOption>>
     {

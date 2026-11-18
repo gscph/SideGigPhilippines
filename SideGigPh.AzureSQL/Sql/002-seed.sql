@@ -54,48 +54,48 @@ DECLARE @Pros TABLE
     CategoryId    varchar(40)   NOT NULL,
     AreaId        varchar(40)   NOT NULL,
     ExperienceId  varchar(40)   NOT NULL,
-    RateTierId    varchar(40)   NOT NULL,
+    RatePesos     int           NOT NULL,
     Language      varchar(10)   NOT NULL,
     ServiceIds    varchar(400)  NOT NULL,  -- comma-separated ReferenceData ids
     CityIds       varchar(400)  NOT NULL
 );
 
-INSERT INTO @Pros (Num, Name, CategoryId, AreaId, ExperienceId, RateTierId, Language, ServiceIds, CityIds) VALUES
+INSERT INTO @Pros (Num, Name, CategoryId, AreaId, ExperienceId, RatePesos, Language, ServiceIds, CityIds) VALUES
 -- Rizal
-( 1, N'Mang Jun Aircon Services',     'aircon',         'rizal',        '10-plus',  '500-1000',  'taglish', 'aircon-cleaning,aircon-repair,aircon-install,aircon-freon',              'taytay,angono'),
-( 2, N'Kuya Ben Cool Aircon',         'aircon',         'rizal',        '3-10',     'under-500', 'taglish', 'aircon-cleaning,aircon-leak,aircon-repair',                            'antipolo,taytay'),
-( 3, N'RJ Aircon & Ref',              'aircon',         'rizal',        '1-3',      '1000-2000', 'english', 'aircon-install,aircon-repair,aircon-freon',                            'binangonan,angono'),
-( 4, N'Tatay Ramon Tubero',           'construction',   'rizal',        '10-plus',  '500-1000',  'taglish', 'construction-plumbing',                                                'taytay,antipolo'),
-( 5, N'AquaFix Plumbing',             'construction',   'rizal',        '3-10',     '1000-2000', 'english', 'construction-plumbing',                                                'binangonan,angono'),
-( 6, N'Edwin Electrical Works',       'construction',   'rizal',        '3-10',     '500-1000',  'taglish', 'construction-electrical',                                                'taytay,angono,binangonan'),
-( 7, N'Rodel Electrician',            'construction',   'rizal',        '1-3',      'under-500', 'taglish', 'construction-electrical',                                                'antipolo'),
-( 8, N'Mang Carding Karpintero',      'construction',   'rizal',        '10-plus',  '1000-2000', 'taglish', 'construction-carpentry',                                                 'taytay,antipolo'),
-( 9, N'Jomar Woodworks',              'construction',   'rizal',        '3-10',     '2000-5000', 'english', 'construction-carpentry',                                                 'binangonan'),
-(10, N'Bubong Masters Rizal',         'construction',   'rizal',        '10-plus',  '2000-5000', 'taglish', 'construction-roofing',                                                 'antipolo,taytay,angono'),
-(11, N'Nonoy Welding Shop',           'construction',   'rizal',        '3-10',     '1000-2000', 'taglish', 'construction-welding',                                                 'taytay,angono'),
-(12, N'Mang Pido Tiles & Semento',    'construction',   'rizal',        '10-plus',  '2000-5000', 'taglish', 'construction-tiles,construction-masonry',                                'binangonan,angono'),
-(13, N'Ate Liza PasaBuy',             'errand_runner',  'rizal',        '1-3',      'under-500', 'taglish', 'errand-grocery,errand-bills,errand-pasabuy,errand-parcel',             'taytay,antipolo'),
-(14, N'SunClean Solar Services',      'solar_cleaning', 'rizal',        '1-3',      '1000-2000', 'english', 'solar-cleaning,solar-checkup,solar-inverter',                          'antipolo,binangonan'),
-(15, N'Mang Tonyo Auto Repair',       'car_mechanic',   'rizal',        '10-plus',  '500-1000',  'taglish', 'mechanic-engine,mechanic-suspension,mechanic-electronics',              'angono,binangonan,taytay'),
+( 1, N'Mang Jun Aircon Services',     'aircon',         'rizal',        '10-plus',  800,         'taglish', 'aircon-cleaning,aircon-repair,aircon-install,aircon-freon',              'taytay,angono'),
+( 2, N'Kuya Ben Cool Aircon',         'aircon',         'rizal',        '3-10',     450,         'taglish', 'aircon-cleaning,aircon-leak,aircon-repair',                            'antipolo,taytay'),
+( 3, N'RJ Aircon & Ref',              'aircon',         'rizal',        '1-3',      1500,        'english', 'aircon-install,aircon-repair,aircon-freon',                            'binangonan,angono'),
+( 4, N'Tatay Ramon Tubero',           'construction',   'rizal',        '10-plus',  800,         'taglish', 'construction-plumbing',                                                'taytay,antipolo'),
+( 5, N'AquaFix Plumbing',             'construction',   'rizal',        '3-10',     1500,        'english', 'construction-plumbing',                                                'binangonan,angono'),
+( 6, N'Edwin Electrical Works',       'construction',   'rizal',        '3-10',     800,         'taglish', 'construction-electrical',                                                'taytay,angono,binangonan'),
+( 7, N'Rodel Electrician',            'construction',   'rizal',        '1-3',      450,         'taglish', 'construction-electrical',                                                'antipolo'),
+( 8, N'Mang Carding Karpintero',      'construction',   'rizal',        '10-plus',  1500,        'taglish', 'construction-carpentry',                                                 'taytay,antipolo'),
+( 9, N'Jomar Woodworks',              'construction',   'rizal',        '3-10',     3000,        'english', 'construction-carpentry',                                                 'binangonan'),
+(10, N'Bubong Masters Rizal',         'construction',   'rizal',        '10-plus',  3000,        'taglish', 'construction-roofing',                                                 'antipolo,taytay,angono'),
+(11, N'Nonoy Welding Shop',           'construction',   'rizal',        '3-10',     1500,        'taglish', 'construction-welding',                                                 'taytay,angono'),
+(12, N'Mang Pido Tiles & Semento',    'construction',   'rizal',        '10-plus',  3000,        'taglish', 'construction-tiles,construction-masonry',                                'binangonan,angono'),
+(13, N'Ate Liza PasaBuy',             'errand_runner',  'rizal',        '1-3',      450,         'taglish', 'errand-grocery,errand-bills,errand-pasabuy,errand-parcel',             'taytay,antipolo'),
+(14, N'SunClean Solar Services',      'solar_cleaning', 'rizal',        '1-3',      1500,        'english', 'solar-cleaning,solar-checkup,solar-inverter',                          'antipolo,binangonan'),
+(15, N'Mang Tonyo Auto Repair',       'car_mechanic',   'rizal',        '10-plus',  800,         'taglish', 'mechanic-engine,mechanic-suspension,mechanic-electronics',              'angono,binangonan,taytay'),
 -- Metro Manila
-(16, N'QC Aircon Doctors',            'aircon',         'metro-manila', '3-10',     '500-1000',  'english', 'aircon-cleaning,aircon-repair,aircon-freon',                           'quezon-city,marikina,san-juan'),
-(17, N'Pasig Tubero Express',         'construction',   'metro-manila', '10-plus',  '1000-2000', 'taglish', 'construction-plumbing',                                                'pasig,mandaluyong,makati'),
-(22, N'Makati Roof & Gutter Pros',    'construction',   'metro-manila', '3-10',     '2000-5000', 'english', 'construction-roofing',                                                 'makati,taguig,pasay'),
-(23, N'Caloocan Welding Works',       'construction',   'metro-manila', '10-plus',  '1000-2000', 'taglish', 'construction-welding',                                                 'caloocan,malabon,valenzuela,navotas'),
-(24, N'Kuya Dodong Tiles',            'construction',   'metro-manila', '10-plus',  '2000-5000', 'taglish', 'construction-tiles,construction-masonry',                                'quezon-city,marikina'),
-(25, N'Ate Joy Errands Manila',       'errand_runner',  'metro-manila', '1-3',      'under-500', 'taglish', 'errand-bills,errand-documents,errand-pasabuy,errand-grocery',          'manila,san-juan,mandaluyong'),
-(26, N'BrightPanel Solar Care',       'solar_cleaning', 'metro-manila', '3-10',     '1000-2000', 'english', 'solar-cleaning,solar-checkup',                                         'paranaque,las-pinas,muntinlupa'),
-(27, N'Mang Lito Karpintero QC',      'construction',   'metro-manila', '10-plus',  '500-1000',  'taglish', 'construction-carpentry',                                                 'quezon-city,caloocan'),
-(28, N'Taguig Aircon Pros',           'aircon',         'metro-manila', '1-3',      'quote',     'english', 'aircon-cleaning,aircon-pms,aircon-relocate,aircon-install',            'taguig,pateros,pasig,makati'),
-(31, N'Bagong Simula Mekaniko',       'car_mechanic',   'metro-manila', 'under-1',  'under-500', 'taglish', 'mechanic-engine,mechanic-suspension', 'pasig,marikina'),
+(16, N'QC Aircon Doctors',            'aircon',         'metro-manila', '3-10',     800,         'english', 'aircon-cleaning,aircon-repair,aircon-freon',                           'quezon-city,marikina,san-juan'),
+(17, N'Pasig Tubero Express',         'construction',   'metro-manila', '10-plus',  1500,        'taglish', 'construction-plumbing',                                                'pasig,mandaluyong,makati'),
+(22, N'Makati Roof & Gutter Pros',    'construction',   'metro-manila', '3-10',     3000,        'english', 'construction-roofing',                                                 'makati,taguig,pasay'),
+(23, N'Caloocan Welding Works',       'construction',   'metro-manila', '10-plus',  1500,        'taglish', 'construction-welding',                                                 'caloocan,malabon,valenzuela,navotas'),
+(24, N'Kuya Dodong Tiles',            'construction',   'metro-manila', '10-plus',  3000,        'taglish', 'construction-tiles,construction-masonry',                                'quezon-city,marikina'),
+(25, N'Ate Joy Errands Manila',       'errand_runner',  'metro-manila', '1-3',      450,         'taglish', 'errand-bills,errand-documents,errand-pasabuy,errand-grocery',          'manila,san-juan,mandaluyong'),
+(26, N'BrightPanel Solar Care',       'solar_cleaning', 'metro-manila', '3-10',     1500,        'english', 'solar-cleaning,solar-checkup',                                         'paranaque,las-pinas,muntinlupa'),
+(27, N'Mang Lito Karpintero QC',      'construction',   'metro-manila', '10-plus',  800,         'taglish', 'construction-carpentry',                                                 'quezon-city,caloocan'),
+(28, N'Taguig Aircon Pros',           'aircon',         'metro-manila', '1-3',      1000,        'english', 'aircon-cleaning,aircon-pms,aircon-relocate,aircon-install',            'taguig,pateros,pasig,makati'),
+(31, N'Bagong Simula Mekaniko',       'car_mechanic',   'metro-manila', 'under-1',  450,         'taglish', 'mechanic-engine,mechanic-suspension', 'pasig,marikina'),
 -- Laguna
-(18, N'Nuvali Home Aircon',           'aircon',         'laguna',       '3-10',     '1000-2000', 'english', 'aircon-cleaning,aircon-install,aircon-repair',                         'santa-rosa,calamba,cabuyao'),
-(19, N'Sta. Rosa Electrical',         'construction',   'laguna',       '1-3',      '500-1000',  'taglish', 'construction-electrical',                                                'santa-rosa,binan,san-pedro'),
-(29, N'Calamba Tubero 24/7',          'construction',   'laguna',       '3-10',     '1000-2000', 'taglish', 'construction-plumbing',                                                'calamba,los-banos,cabuyao'),
+(18, N'Nuvali Home Aircon',           'aircon',         'laguna',       '3-10',     1500,        'english', 'aircon-cleaning,aircon-install,aircon-repair',                         'santa-rosa,calamba,cabuyao'),
+(19, N'Sta. Rosa Electrical',         'construction',   'laguna',       '1-3',      800,         'taglish', 'construction-electrical',                                                'santa-rosa,binan,san-pedro'),
+(29, N'Calamba Tubero 24/7',          'construction',   'laguna',       '3-10',     1500,        'taglish', 'construction-plumbing',                                                'calamba,los-banos,cabuyao'),
 -- Cavite
-(20, N'Bacoor Plumbing Masters',      'construction',   'cavite',       '3-10',     '500-1000',  'taglish', 'construction-plumbing',                                                'bacoor,imus,kawit'),
-(21, N'Imus Auto Electrical',         'car_mechanic',   'cavite',       '1-3',      '500-1000',  'taglish', 'mechanic-electronics,mechanic-engine', 'imus,dasmarinas,general-trias'),
-(30, N'Dasma Electrician',            'construction',   'cavite',       '3-10',     '2000-5000', 'english', 'construction-electrical',                                                'dasmarinas,silang,tagaytay,carmona');
+(20, N'Bacoor Plumbing Masters',      'construction',   'cavite',       '3-10',     800,         'taglish', 'construction-plumbing',                                                'bacoor,imus,kawit'),
+(21, N'Imus Auto Electrical',         'car_mechanic',   'cavite',       '1-3',      800,         'taglish', 'mechanic-electronics,mechanic-engine', 'imus,dasmarinas,general-trias'),
+(30, N'Dasma Electrician',            'construction',   'cavite',       '3-10',     3000,        'english', 'construction-electrical',                                                'dasmarinas,silang,tagaytay,carmona');
 
 DECLARE @ProIds TABLE (Num int NOT NULL PRIMARY KEY, Id varchar(128) NOT NULL, Mobile varchar(16) NOT NULL);
 INSERT INTO @ProIds (Num, Id, Mobile)
@@ -107,8 +107,8 @@ SELECT i.Id, p.Name, i.Mobile, NULL, p.Language, 'professional', '20000',
        DATEADD(day, -(p.Num * 2 + 10), @now), @now
 FROM @Pros AS p JOIN @ProIds AS i ON i.Num = p.Num;
 
-INSERT INTO dbo.Professionals (Id, DisplayName, MobileNumber, CategoryId, AreaId, ExperienceId, RateTierId, ProfilePhotoId, PublishedAt, UpdatedAt)
-SELECT i.Id, p.Name, i.Mobile, p.CategoryId, p.AreaId, p.ExperienceId, p.RateTierId, NULL,
+INSERT INTO dbo.Professionals (Id, DisplayName, MobileNumber, CategoryId, AreaId, ExperienceId, RatePesos, ProfilePhotoId, PublishedAt, UpdatedAt)
+SELECT i.Id, p.Name, i.Mobile, p.CategoryId, p.AreaId, p.ExperienceId, p.RatePesos, NULL,
        DATEADD(day, -(p.Num * 2 + 5), @now), DATEADD(day, -p.Num, @now)
 FROM @Pros AS p JOIN @ProIds AS i ON i.Num = p.Num;
 

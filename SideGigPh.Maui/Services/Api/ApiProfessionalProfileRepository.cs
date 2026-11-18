@@ -36,6 +36,7 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
         var path = $"search/professionals?categoryId={ApiClient.Escape(query.CategoryId)}"
             + Param("areaId", query.AreaId) + Param("serviceId", query.ServiceId)
             + Param("cityId", query.CityId) + Param("budgetId", query.BudgetId) + Param("otherText", query.OtherText)
+            + Param("sort", query.Order == SearchOrder.LowestPrice ? SearchSort.LowestPrice : null)
             + $"&skip={skip}&take={Paging.Search}";
         if (_searches.TryGet(path, out var cached))
         {

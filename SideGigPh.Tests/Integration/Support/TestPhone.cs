@@ -92,7 +92,7 @@ public sealed class TestPhone
     /// Publish needs. Returns the phone with Pro home loaded.
     /// </summary>
     public static async Task<TestPhone> WorkerReadyToPublishAsync(ApiTestHost api, string name, string trade = "aircon",
-        string[]? jobs = null, string[]? towns = null, string rate = "500-1000")
+        string[]? jobs = null, string[]? towns = null, int rate = 800)
     {
         var draft = new ProfessionalDraft
         {
@@ -101,7 +101,7 @@ public sealed class TestPhone
             CityIds = [.. towns ?? ["taytay"]],
             AreaId = ReferenceData.ServiceAreaId,
             ExperienceId = "3-10",
-            RateTierId = rate,
+            RatePesos = rate,
         };
         var phone = new TestPhone(api, name, state: TestData.FinishedPro(draft));
         (await phone.Pro.EnsureLoadedAsync()).Should().BeTrue();

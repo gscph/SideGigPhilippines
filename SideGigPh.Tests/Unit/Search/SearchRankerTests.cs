@@ -8,8 +8,8 @@ namespace SideGigPh.Tests.Unit.Search;
 /// <summary>
 /// The order of search results decides which worker gets the customer. These tests pin down the promises the app
 /// makes: only workers who do the job you asked for, workers who go to your town first, then a score out of 100 from
-/// reviews (many good reviews beat one lucky review), how well they answer chats, how active they are, budget fit and
-/// experience, with fair starting points for new workers.
+/// reviews (many good reviews beat one lucky review), how well they answer chats, how active they are, price fit
+/// (cheaper is higher; over the budget is lower but never hidden) and experience, with fair starting points for new workers.
 /// </summary>
 public class SearchRankerTests
 {
@@ -67,56 +67,59 @@ public class SearchRankerTests
     }
 
     [Fact]
-    public void Rank_WorkerInYourBudget_BeatsWorkerOverIt()
+    public void Rank_WorkerInYourBudget_BeatsWorkerOverIt_ButBothShow()
     {
-        var pros = new ListingDto[] { Dto("Pricey Pia", rate: "2000-5000"), Dto("Budget Ben", rate: "under-500") };
+        var pros = new ListingDto[] { Dto("Pricey Pia", rate: 3500), Dto("Budget Ben", rate: 450) };
 
         var result = Rank(pros, Request(budget: "500-1000"));
 
         Names(result.InTown).Should().Equal("Budget Ben", "Pricey Pia");
-        result.InTown[0].FitsBudget.Should().BeTrue();
-        result.InTown[1].FitsBudget.Should().BeFalse();
+        (result.InTown[0].FitsBudget, result.InTown[0].AboveBudget).Should().Be((true, false));
+        (result.InTown[1].FitsBudget, result.InTown[1].AboveBudget).Should().Be((false, true), "over the budget is marked, never hidden");
     }
 
-    // Aircon cleaning's guide: ₱755 / ₱1,000 / ₱1,500. A Seeker budget of ₱755–₱1,000 fits the minimum and average rates.
+    // A Seeker budget of ₱755–₱1,000: the top (₱1,000) is what each price is measured against.
     [Fact]
-    public void Rank_PriceIsTheJobsGuideAtTheWorkersRate_ComparedWithTheTopOfTheBudget()
+    public void Rank_CheaperRanksHigher_OverTheBudgetLower_FarOverLowest()
     {
-        var pros = new ListingDto[]
-        {
-            Dto("Above Abe", rate: PriceLevels.AboveAverage),
-            Dto("Average Ava", rate: PriceLevels.Average),
-            Dto("Minimum Mia", rate: PriceLevels.Minimum),
-        };
+        var pros = new ListingDto[] { Dto("Far Fred", rate: 2500), Dto("Over Olga", rate: 1500), Dto("Top Tina", rate: 1000), Dto("Low Lara", rate: 500) };
 
         var result = Rank(pros, Request(budget: "755-1000"));
 
-        result.InTown.Where(h => h.FitsBudget).Select(h => h.Listing.DisplayName).Should().BeEquivalentTo("Average Ava", "Minimum Mia");
-        Names(result.InTown).Last().Should().Be("Above Abe");
-        Score(Candidate(pros[0]), Request(budget: "755-1000")).BudgetFit
-            .Should().BeApproximately(SearchRanker.BudgetFitWeight * 0.5, 0.001, "₱1,500 is 50% over a ₱1,000 top: half the fit left");
-        Score(Candidate(pros[0]), Request(budget: "500-750")).BudgetFit
-            .Should().Be(0, "₱1,500 is double a ₱750 top: no fit left");
+        Names(result.InTown).Should().Equal("Low Lara", "Top Tina", "Over Olga", "Far Fred");
+        PriceFit(500).Should().BeApproximately(SearchRanker.PriceFitWeight * 0.85, 0.001, "half the top: 0.3 × 0.5 of the fit given up");
+        PriceFit(1000).Should().BeApproximately(SearchRanker.PriceFitWeight * 0.7, 0.001, "at the top");
+        PriceFit(1500).Should().BeApproximately(SearchRanker.PriceFitWeight * 0.35, 0.001, "50% over: half of what is left");
+        PriceFit(2000).Should().Be(0, "double the top: no fit left, but still listed");
+
+        static double PriceFit(int rate) => Score(Candidate(Dto("P", rate: rate)), Request(budget: "755-1000")).PriceFit;
     }
 
     [Fact]
-    public void Rank_SameRate_DifferentJob_DifferentPrice()
+    public void Rank_LowestPriceSort_CheapestFirst_TheScoreBreaksTies()
     {
-        var pro = Dto("Ana", services: ["aircon-cleaning", "aircon-install"], rate: PriceLevels.Minimum);
+        var pros = new[]
+        {
+            Candidate(Dto("Star Sol", rate: 1000, experience: "10-plus", reviews: new ReviewSummary(5, 40))),
+            Candidate(Dto("Cheap Cora", rate: 700)),
+            Candidate(Dto("Cheap Star", rate: 700, reviews: new ReviewSummary(5, 40))),
+        };
 
-        Rank([pro], Request(service: "aircon-cleaning", budget: "755-1000")).InTown.Single().FitsBudget.Should().BeTrue();
-        Rank([pro], Request(service: "aircon-install", budget: "755-1000")).InTown.Single().FitsBudget
-            .Should().BeFalse("installation starts at ₱2,500");
+        Names(Rank(pros, Request() with { Sort = SearchSort.LowestPrice }).InTown).Should().Equal("Cheap Star", "Cheap Cora", "Star Sol");
+        Names(Rank(pros, Request()).InTown).First().Should().Be("Star Sol", "best match still weighs everything");
     }
 
     [Fact]
-    public void Rank_OpenTopBudget_EveryPriceFits_OldAndNewSeekersAlike()
+    public void Rank_OpenTopBudget_EveryPriceFits_CheaperStillHigher()
     {
-        var pricey = Candidate(Dto("Pricey Pia", rate: PriceLevels.AboveAverage));
+        var pricey = Candidate(Dto("Pricey Pia", rate: 5000));
+        var cheap = Candidate(Dto("Cheap Cora", rate: 750));
 
-        Score(pricey, Request(budget: "1500-up")).BudgetFit.Should().Be(SearchRanker.BudgetFitWeight);
-        Score(pricey, Request(budget: "5000-up")).BudgetFit.Should().Be(SearchRanker.BudgetFitWeight, "an old app's top tier");
-        Rank([pricey.Listing], Request(budget: "1500-up")).InTown.Single().FitsBudget.Should().BeTrue();
+        Score(pricey, Request(budget: "1500-up")).PriceFit.Should().BeApproximately(SearchRanker.PriceFitWeight * 0.7, 0.001,
+            "no top: being over the guide only loses the cheaper-is-better part");
+        Score(cheap, Request(budget: "1500-up")).PriceFit.Should().BeGreaterThan(Score(pricey, Request(budget: "1500-up")).PriceFit);
+        var hit = Rank([pricey.Listing], Request(budget: "1500-up")).InTown.Single();
+        (hit.FitsBudget, hit.AboveBudget).Should().Be((true, false));
     }
 
     [Fact]
@@ -190,20 +193,15 @@ public class SearchRankerTests
     }
 
     [Fact]
-    public void Rank_NoBudgetGiven_DoesNotPenaliseAnyPrice()
+    public void Rank_NoBudgetGiven_ComparesWithTheJobsGuide_CheaperHigher_NoOneSinks()
     {
-        var pros = new[] { Candidate(Dto("Pricey Pia", rate: "5000-up")), Candidate(Dto("Quote Quin", rate: "quote")) };
+        // Aircon cleaning's guide: ₱755 / ₱1,000 / ₱1,500 (high = the reference).
+        double Fit(int rate) => Score(Candidate(Dto("P", rate: rate)), Request(budget: "unsure")).PriceFit;
 
-        pros.Select(p => Score(p, Request(budget: "unsure")).BudgetFit).Distinct()
-            .Should().ContainSingle("without a budget, price doesn't change the order");
-    }
-
-    [Fact]
-    public void Rank_QuoteOnly_SitsBetweenInBudgetAndOverBudget()
-    {
-        var pros = new ListingDto[] { Dto("Over Olga", rate: "5000-up"), Dto("Quote Quin", rate: "quote"), Dto("Fits Fe", rate: "under-500") };
-
-        Names(Rank(pros, Request(budget: "500-1000")).InTown).Should().Equal("Fits Fe", "Quote Quin", "Over Olga");
+        Fit(750).Should().BeApproximately(SearchRanker.PriceFitWeight * 0.85, 0.001);
+        Fit(1500).Should().BeApproximately(SearchRanker.PriceFitWeight * 0.7, 0.001);
+        Fit(5000).Should().Be(Fit(1500), "without a budget, a price over the guide isn't pushed down further");
+        Rank([Dto("Pricey Pia", rate: 5000)], Request(budget: "unsure")).InTown.Single().AboveBudget.Should().BeFalse("no budget, nothing to be over");
     }
 
     [Fact]
@@ -272,9 +270,9 @@ public class SearchRankerTests
     {
         var weights = SearchRanker.ReviewStarsWeight + SearchRanker.ReviewCountWeight + SearchRanker.ReplyRateWeight
             + SearchRanker.ReplySpeedWeight + SearchRanker.RecentActivityWeight + SearchRanker.TenureWeight
-            + SearchRanker.BudgetFitWeight + SearchRanker.ExperienceWeight;
+            + SearchRanker.PriceFitWeight + SearchRanker.ExperienceWeight;
         var best = Candidate(
-            Dto("Best Bea", rate: "under-500", experience: "10-plus", reviews: new ReviewSummary(5, 200)),
+            Dto("Best Bea", rate: 100, experience: "10-plus", reviews: new ReviewSummary(5, 200)),
             Signals(received: 200, answered: 200, replyMinutes: 0, activeDaysAgo: 0, joinedDaysAgo: 400));
 
         weights.Should().Be(100);
@@ -285,10 +283,10 @@ public class SearchRankerTests
     [Fact]
     public void Score_ExplainsEachPart()
     {
-        var score = Score(Candidate(Dto("Pricey Pia", rate: "5000-up")));
+        var score = Score(Candidate(Dto("Pricey Pia", rate: 5000)));
 
-        score.BudgetFit.Should().Be(0, "far over the Seeker's budget");
-        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience + score.Trust + score.Photos);
+        score.PriceFit.Should().Be(0, "far over the Seeker's budget");
+        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.PriceFit + score.Experience + score.Trust + score.Photos);
     }
 
     [Fact]
@@ -322,13 +320,5 @@ public class SearchRankerTests
         var result = Rank(pros, Request() with { OtherText = "linis" });
 
         Names(result.InTown).Should().Equal("Ace", "Ben");
-    }
-
-    [Fact]
-    public void Price_OfAWorkersOwnRange_IsItsLowEnd()
-    {
-        var pro = Dto("Range Rita", rate: RateRange.Format(900, 2000));
-
-        Scales.PriceOf(pro, "aircon-cleaning").Should().Be(900);
     }
 }

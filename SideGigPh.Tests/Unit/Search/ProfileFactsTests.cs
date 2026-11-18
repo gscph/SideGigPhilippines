@@ -26,7 +26,7 @@ public class ProfileFactsTests
         ServiceIds = ["aircon-cleaning"],
         CityIds = cities ?? ["taytay", "angono"],
         ExperienceId = experience,
-        RateTierId = "500-1000",
+        RatePesos = 800,
         MobileNumber = string.Empty,
         CompletedJobs = completedJobs,
     };

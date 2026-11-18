@@ -127,7 +127,7 @@ public class SeekerSearchTests
         app.Store.Saves.Should().Be(2);
     }
 
-    private static SearchHit Hit(string name) => new(TestData.Listing(name), null, true, true, true);
+    private static SearchHit Hit(string name) => new(TestData.Listing(name), null, true, true, true, false);
 
     [Fact]
     public async Task PickUrgency_IsSaved_AndWordsTheFirstMessage()

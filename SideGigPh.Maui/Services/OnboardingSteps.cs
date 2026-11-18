@@ -84,7 +84,7 @@ public static class OnboardingSteps
     {
         if (draft.CategoryId is null) return ProStep.Skills;
         if (draft.ServiceIds.Count == 0) return ProStep.Services;
-        if (draft.RateTierId is null) return ProStep.Rate;
+        if (draft.RatePesos is null) return ProStep.Rate;
         if (draft.CityIds.Count == 0) return ProStep.Towns;
         if (draft.ExperienceId is null) return ProStep.Experience;
         if (!draft.HasProof) return ProStep.Photo;

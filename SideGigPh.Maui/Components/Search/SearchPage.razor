@@ -7,6 +7,8 @@
     <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
         <FilterMenu Icon="@Icons.Material.Filled.Payments" Label="@T.Get(Copy.FilterBudget)" Options="Budgets"
                     SelectedId="@Request.BudgetId" OnPick="PickBudgetAsync" />
+        <FilterMenu Icon="@Icons.Material.Filled.Sort" Label="@T.Get(Copy.FilterSort)" Options="Orders"
+                    SelectedId="@Request.Order.ToString()" OnPick="PickOrderAsync" />
     </MudStack>
 
     @if (Request.CategoryId is null || _unmatchedText is not null)

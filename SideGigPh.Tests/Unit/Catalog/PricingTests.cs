@@ -8,45 +8,42 @@ using SideGigPh.Tests.TestSupport;
 namespace SideGigPh.Tests.Unit.Catalog;
 
 /// <summary>
-/// Every job has a price guide (lowest, average, above average; the lowest never under the minimum wage). A Skilled
-/// Worker's rate is one of those points, so their price follows the job; a Seeker's budget is a peso range built from
-/// the job's guide or typed. Listings and budgets from app versions before price guides must still read.
-/// Built-in guide used here: aircon cleaning ₱755 / ₱1,000 / ₱1,500, aircon installation ₱2,500 / ₱3,500 / ₱5,000.
+/// Every job has a price guide (low, average, high), only ever a guide. A Skilled Worker types one price, their average
+/// per service, and sees the guide over their jobs beside the box; a Seeker's budget is a peso range built from the
+/// job's guide or typed. Built-in guide used here: aircon cleaning ₱755 / ₱1,000 / ₱1,500, aircon installation
+/// ₱2,500 / ₱3,500 / ₱5,000.
 /// </summary>
 public class PricingTests
 {
-    // --- Skilled Worker rate ---------------------------------------------------
+    // --- Skilled Worker price ----------------------------------------------------
 
     [Fact]
-    public void Rate_IsThePointOfEachJobsGuide()
+    public void WorkerPrice_IsOneAmountAboveZero()
     {
-        Pricing.PriceAt(PriceLevels.Minimum, "aircon-cleaning").Should().Be(755);
-        Pricing.PriceAt(PriceLevels.Average, "aircon-cleaning").Should().Be(1000);
-        Pricing.PriceAt(PriceLevels.AboveAverage, "aircon-install").Should().Be(5000);
-        Pricing.PriceAt(ReferenceData.Quote, "aircon-cleaning").Should().BeNull("the price depends on the job");
+        WorkerPrice.IsValid(1200).Should().BeTrue();
+        WorkerPrice.IsValid(1).Should().BeTrue("any price above ₱0: the guide is only a guide");
+        WorkerPrice.IsValid(0).Should().BeFalse();
+        WorkerPrice.IsValid(null).Should().BeFalse();
+        WorkerPrice.IsValid(WorkerPrice.MaxPesos + 1).Should().BeFalse();
     }
 
     [Fact]
-    public void RateTiles_ShowEachLevelsPricesForTheWorkersJobs()
+    public void GuideBesideThePriceBox_IsOverTheWorkersJobs_NoneForAnOthersJob()
     {
-        var tiles = Pricing.RateChoices(["aircon-cleaning", "aircon-install"]);
-
-        tiles.Select(t => t.Id).Should().Equal(PriceLevels.Minimum, PriceLevels.Average, PriceLevels.AboveAverage, ReferenceData.Quote);
-        tiles[0].Hint.Should().Be(new LocalizedText("₱755 – ₱2,500 per service", "₱755 – ₱2,500 kada serbisyo"));
-        Pricing.RateChoices(["aircon-cleaning"])[1].Hint!.English.Should().Be("₱1,000 per service");
+        Pricing.GuideOver(["aircon-cleaning", "aircon-install"]).Should().Be(new PriceGuide(755, 2250, 3250),
+            "the lowest low, then the averages and highs on average (to the nearest ₱50)");
+        Pricing.GuideOver(["aircon-cleaning"]).Should().Be(new PriceGuide(755, 1000, 1500));
+        Pricing.GuideOver([ReferenceData.OtherTradeId]).Should().BeNull();
     }
 
     [Fact]
-    public void ListingPrice_IsForTheJobSearched_ElseOverAllTheirJobs()
+    public void ListingPrice_IsTheirAveragePrice()
     {
         var text = new AppText();
-        var listing = TestData.Listing("Ana", services: ["aircon-cleaning", "aircon-install"], rate: PriceLevels.Average);
 
-        text.Rate(listing, "aircon-install").Should().Be("₱3,500 per service");
-        text.Rate(listing).Should().Be("₱1,000 – ₱3,500 per service");
-        text.RateLabel(listing, "plumbing-clog").Should().Be("₱1,000 – ₱3,500", "a job they don't list falls back to all their jobs");
-        text.Rate(TestData.Listing("Old", rate: "500-1000")).Should().Be("₱500 – ₱1,000 per service", "an old listing shows its tier");
-        text.Rate(TestData.Listing("Quin", rate: ReferenceData.Quote)).Should().Be(text.Get(Copy.RateQuote));
+        text.Rate(TestData.Listing("Ana", rate: 1200)).Should().Be("₱1,200 average per service");
+        TestData.Listing("Ana", rate: 1200).RateLabel().Should().Be("₱1,200");
+        text.Rate(TestData.Listing("Draft", rate: null)).Should().Be(text.Get(Copy.RateNotSet));
     }
 
     // --- Seeker budget ---------------------------------------------------------
@@ -62,7 +59,7 @@ public class PricingTests
     }
 
     [Fact]
-    public void BudgetChoices_KeepATypedOrOldBudget_SoItShowsAsPicked()
+    public void BudgetChoices_KeepATypedBudget_SoItShowsAsPicked()
     {
         Pricing.BudgetChoices("aircon-cleaning", "aircon", "900-1300").Select(c => c.Id)
             .Should().Equal("755-1000", "1000-1500", "1500-up", "900-1300", ReferenceData.Unsure);
@@ -83,8 +80,7 @@ public class PricingTests
     [Theory]
     [InlineData("800-1500", "₱800 – ₱1,500")]
     [InlineData("1500-up", "₱1,500 and up")]
-    [InlineData("under-500", "Up to ₱500")]
-    [InlineData("500-1000", "₱500 – ₱1,000")]
+    [InlineData("under-1500", "Up to ₱1,500")]
     [InlineData("unsure", "Not sure yet")]
     public void BudgetLabel_ReadsEveryBudgetId(string id, string english) =>
         Pricing.BudgetLabel(id)!.English.Should().Be(english);
@@ -95,13 +91,12 @@ public class PricingTests
     [InlineData("cheap")]
     [InlineData("1500-800")]
     [InlineData("-up")]
-    [InlineData("under-x")]
     public void BudgetLabel_NoneForWhatDoesntRead(string? id) => Pricing.BudgetLabel(id).Should().BeNull();
 
     [Theory]
     [InlineData(755, 755, true)]
     [InlineData(800, 1500, true)]
-    [InlineData(300, 1500, true)]    // under the suggested minimum price: it is only a guide
+    [InlineData(300, 1500, true)]    // under the job's guide: it is only a guide
     [InlineData(0, 1500, false)]     // a budget starts above ₱0
     [InlineData(1500, 800, false)]   // top under the bottom
     [InlineData(null, 1500, false)]
@@ -113,23 +108,18 @@ public class PricingTests
     public void TypedBudget_StartsFromTheSavedRange_ElseTheJobsLowestToAverage()
     {
         Pricing.CustomStart("900-1300", "aircon-cleaning", "aircon").Should().Be((900, 1300));
-        Pricing.CustomStart("under-500", "aircon-cleaning", "aircon").Should().Be((755, 1000), "under the minimum wage isn't offered again");
         Pricing.CustomStart(null, "aircon-cleaning", "aircon").Should().Be((755, 1000));
-        Pricing.CustomStart(null, null, null).Should().Be((755, 755));
+        Pricing.CustomStart(null, null, null).Should().Be(((int?)null, (int?)null), "no guide: the boxes start empty");
     }
-
-    // --- Server ranking reads the same prices ------------------------------------
 
     [Fact]
-    public void ServerPrice_IsTheGuideAtTheRate_ForTheJobSearched_OrTheirCheapestJob()
+    public void BudgetGuideNote_IsTheJobsUsualPrices()
     {
-        var pro = TestData.Dto("Ana", services: ["aircon-cleaning", "aircon-install"], rate: PriceLevels.Average);
-
-        TestData.Scales.PriceOf(pro, "aircon-install").Should().Be(3500);
-        TestData.Scales.PriceOf(pro, null).Should().Be(1000);
-        TestData.Scales.PriceOf(pro with { RateTierId = "2000-5000" }, "aircon-cleaning").Should().Be(3500, "an old tier's typical price");
-        TestData.Scales.PriceOf(pro with { RateTierId = ReferenceData.Quote }, "aircon-cleaning").Should().BeNull();
+        Pricing.GuideNote("aircon-cleaning", "aircon")!.English.Should().Be("Usual price: ₱755 – ₱1,500. Only a guide.");
+        Pricing.GuideNote(null, null).Should().BeNull();
     }
+
+    // --- Server ranking reads the same guides ---------------------------------------
 
     [Fact]
     public void ServerScales_FromTheConfig_MatchTheApp()
@@ -137,47 +127,15 @@ public class PricingTests
         var dto = new ConfigDto(
             [new CategoryDto("aircon", "Aircon", "Aircon", null, null, null, [new ServiceDto("aircon-cleaning", "A", "A", null, new PriceGuideDto(755, 1000, 1500))])],
             [new OptionDto("taytay", "Taytay", "Taytay", null, 0)],
-            [new OptionDto("500-1000", "x", "x", null, 750)],
             [new OptionDto("10-plus", "x", "x", null, 0)],
             [],
-            [],
-            755);
+            []);
 
         var scales = RankScales.From(dto);
 
         scales.Prices["aircon-cleaning"].Should().Be(new PriceGuideDto(755, 1000, 1500));
-        scales.TierPrices["500-1000"].Should().Be(750);
+        scales.ExperienceIds.Should().Equal("10-plus");
         scales.TownIds.Should().Equal("taytay");
-    }
-
-    [Fact]
-    public void Rate_OwnRange_ReadsAsTyped_AndStartsTheBoxes()
-    {
-        var rate = RateRange.Format(900, 2000);
-
-        Pricing.RateRange(rate, ["aircon-cleaning"]).Should().Be((900, 2000));
-        Pricing.RateStart(rate, ["aircon-cleaning"]).Should().Be((900, 2000));
-    }
-
-    [Fact]
-    public void RateStart_WithoutARange_IsTheGuidesAverage_ElseTheSuggestedMinimum()
-    {
-        var average = Pricing.RateRange(PriceLevels.Average, ["aircon-cleaning"])!.Value;
-
-        Pricing.RateStart(null, ["aircon-cleaning"]).Should().Be(average);
-        Pricing.RateStart(null, [ReferenceData.OtherTradeId]).Should().Be((ReferenceData.MinimumWage, ReferenceData.MinimumWage));
-    }
-
-    [Theory]
-    [InlineData("rate-800-1500", true, 800, 1500)]
-    [InlineData("800-1500", false, 0, 0)]     // an old price tier, not a worker's range
-    [InlineData("average", false, 0, 0)]
-    [InlineData("rate-1500-800", false, 0, 0)]
-    [InlineData("rate-800-up", false, 0, 0)]  // a rate range needs a top
-    public void RateRange_ReadsOnlyAWorkersOwnRange(string id, bool reads, int from, int upTo)
-    {
-        RateRange.TryParse(id, out var f, out var u).Should().Be(reads);
-        (f, u).Should().Be((from, upTo));
     }
 
     [Fact]

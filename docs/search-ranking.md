@@ -35,8 +35,12 @@ Each part is a 0–1 feature multiplied by a weight. The weights add up to 100 a
 | **Responsiveness**: reply speed | 8 | Each answered chat scores 1 / (1 + minutes to first reply / 60), so a reply after an hour earns half; reply times are capped at 1 day. An unanswered chat scores 0, so never replying can't beat replying late. Smoothed like the reply rate, as if the worker already had 3 chats answered in an hour. |
 | **Activity**: recent | 14 | 0.5^(days since last active / 7): halves every week away. Last active = last opened their Inbox (`Users.LastActiveAt`, stamped at most hourly) or last edited the listing, whichever is later. |
 | **Activity**: tenure | 6 | Days since the account was made / 180, full at 6 months. Small on purpose, so new workers aren't buried. |
-| **Budget fit** | 20 | The worker's price for the searched job (that job's price guide at their rate: minimum, average or above average; their cheapest job when the whole trade is searched) against the top of the Seeker's range: at or under = 1, "depends on the job" = 0.4, over loses fit in step with how far over (50% over = 0.5, double = 0). No budget, or a range with no top = 1 for everyone. Listings and budgets from app versions before price guides read as their old tier's typical price and range. |
+| **Price fit** | 20 | The worker's one price (`RatePesos`, their average per service) against a reference: the top of the Seeker's budget, else (no budget, or a range with no top) the searched job's guide High (the highest High over their jobs when the whole trade is searched). Cheaper earns more: 1 at ₱0 down to 0.7 at the reference. Over a budget's top it falls in step with how far over (25% over = 0.525, 50% over = 0.35, double = 0); over the guide alone it stays at 0.7. **Price never hides a worker**: being over the budget only scores lower, and the row shows "Above your budget". |
 | **Experience** | 10 | Position on the experience scale (0 = least, 1 = 10+ years). |
+
+**Sort: Lowest price.** The results' Sort menu (Best match / Lowest price) sends `sort=price`: the server orders by
+`RatePesos` first, cheapest first, then the usual order (matched "Others" words, score, name). Best match is the
+score above. Both keep the "your town" then "nearby" groups.
 
 ### Badges: up to +10 on top
 

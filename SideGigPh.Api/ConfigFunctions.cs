@@ -10,7 +10,7 @@ namespace SideGigPh.Api;
 public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteStore notes, CallerLimits limits)
 {
     /// <summary>
-    /// <c>GET config</c>: the trades and jobs, towns, price tiers, experience, urgency and income goals. Public reference
+    /// <c>GET config</c>: the trades and jobs, towns, experience, urgency and income goals. Public reference
     /// data, so no sign-in is needed (the app loads it when it opens, before the account is ready). Cached
     /// <see cref="ConfigStore.ConfigFor"/> here and, through <c>Cache-Control</c>, by any HTTP cache on the way. Each answer
     /// carries its version as an <c>ETag</c>; a phone that sends it back (<c>If-None-Match</c>) and still has the latest

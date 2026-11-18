@@ -191,7 +191,7 @@ public class ServerRefusalTests(ApiTestHost api)
     }
 
     private static PublishListingRequest Listing() => new(
-        "Racer", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
+        "Racer", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, 800,
         Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"),
         [Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N"), Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N")]);
 
