@@ -10,7 +10,7 @@
         }
         @if (!string.IsNullOrWhiteSpace(Offer.Note))
         {
-            <MudText Typo="Typo.body2">“@Offer.Note”</MudText>
+            <MudText Typo="Typo.body2" Class="app-wrap-text">“@Offer.Note”</MudText>
         }
         <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Ago(Offer.CreatedAt)</MudText>
     </MudStack>

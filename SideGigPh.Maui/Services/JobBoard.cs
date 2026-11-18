@@ -180,10 +180,13 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         return new PhotoAddResult(added, duplicates, problem);
     }
 
-    /// <summary>Takes a photo off <paramref name="draft"/> and deletes the stored copy (it was only ever on this draft).</summary>
+    /// <summary>
+    /// Takes a photo off <paramref name="draft"/> and deletes the stored copy when it was only ever on this draft (a photo
+    /// of the post being edited stays stored: the post still shows it until Save).
+    /// </summary>
     public async Task RemovePhotoAsync(JobPostDraft draft, string photoId)
     {
-        if (draft.Photos.RemoveAll(photo => photo.Id == photoId) > 0)
+        if (draft.Photos.RemoveAll(photo => photo.Id == photoId) > 0 && !draft.SavedPhotoIds.Contains(photoId))
         {
             try
             {
@@ -211,6 +214,68 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             _mine.Insert(0, post);
             Changed?.Invoke();
             return JobPostResult.Posted;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
+            return JobPostResult.Failed;
+        }
+    }
+
+    /// <summary>
+    /// Edit post: a draft holding <paramref name="post"/> as it is now. Its photos are marked saved (taking one off
+    /// doesn't delete it until Save), and once workers sent offers its trade and service stay (<see cref="JobPostDraft.WhatLocked"/>).
+    /// </summary>
+    public static JobPostDraft EditDraft(JobPost post)
+    {
+        var draft = new JobPostDraft
+        {
+            EditsPostId = post.Id,
+            CategoryId = post.CategoryId,
+            ServiceId = post.ServiceId,
+            Description = post.Description,
+            BudgetPesos = post.BudgetPesos,
+            BudgetMinPesos = post.BudgetMinPesos,
+            CityId = post.CityId,
+            BarangayId = post.BarangayId,
+            WhatLocked = post.OfferCount > 0,
+        };
+        foreach (var (id, url) in (post.PhotoIds ?? []).Zip(post.PhotoUrls))
+        {
+            draft.Photos.Add(new WorkPhoto(id, url));
+            draft.SavedPhotoIds.Add(id);
+        }
+
+        return draft;
+    }
+
+    /// <summary>
+    /// Saves an Edit post draft (<see cref="JobPostDraft.EditsPostId"/>) and puts the changed post in its place in the
+    /// household's list. Never throws; <see cref="JobPostResult.Closed"/> when the post is no longer open.
+    /// </summary>
+    public async Task<JobPostResult> SaveEditAsync(JobPostDraft draft)
+    {
+        if (draft.EditsPostId is not { } postId || !CanPost(draft))
+        {
+            return JobPostResult.Incomplete;
+        }
+
+        try
+        {
+            var saved = await posts.UpdateAsync(postId, draft);
+            var index = _mine.FindIndex(p => p.Id == postId);
+            if (index >= 0)
+            {
+                // The edit answer doesn't count offers: keep what the list knew.
+                _mine[index] = saved with { OfferCount = _mine[index].OfferCount, PickedProId = _mine[index].PickedProId };
+            }
+
+            Changed?.Invoke();
+            return JobPostResult.Posted;
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            await LoadMineAsync();
+            return JobPostResult.Closed;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {

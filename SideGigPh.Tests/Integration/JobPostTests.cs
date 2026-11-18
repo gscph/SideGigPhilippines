@@ -308,4 +308,84 @@ public class JobPostTests(ApiTestHost api)
         (await PostWith(null, "Sira ang inidoro sa itaas")).Should().BeNull();
         (await PostWith("taytay-san-isidro", "Barado ang drain sa labas")).Should().Be("taytay-san-isidro");
     }
+
+    [IntegrationFact]
+    public async Task AHousehold_EditsItsOpenPost_AndWorkersSeeTheChange()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Nagbago");
+        var plumber = await PlumberAsync(api, "Tubero");
+        var board = household.Get<JobBoard>();
+        var first = Draft(tag);
+        await board.AddPhotosAsync(first, new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg(), TestImages.Jpeg()]));
+        var posted = await PostAsync(household, first);
+
+        var edit = JobBoard.EditDraft((await board.FindMineAsync(posted.Id))!);
+        edit.WhatLocked.Should().BeFalse("no offers yet");
+        edit.Photos.Select(p => p.Id).Should().Equal(first.Photos.Select(p => p.Id), "the post's photos come back with their ids");
+        await board.RemovePhotoAsync(edit, edit.Photos[0].Id);
+        edit.ServiceId = "construction-tiles";
+        edit.Description = $"Pati tiles sa CR, natanggal na {tag}";
+        edit.BudgetMinPesos = 1000;
+        edit.BudgetPesos = 2500;
+
+        (await board.SaveEditAsync(edit)).Should().Be(JobPostResult.Posted);
+
+        var mine = board.Mine.Single(p => p.Id == posted.Id);
+        mine.ServiceId.Should().Be("construction-tiles");
+        mine.BudgetPesos.Should().Be(2500);
+        mine.PhotoIds.Should().Equal(first.Photos[1].Id);
+        var seen = (await FeedAsync(plumber, tag)).Should().ContainSingle().Subject;
+        seen.Id.Should().Be(posted.Id, "an edit changes the post, it doesn't make another");
+        seen.Description.Should().StartWith("Pati tiles");
+        seen.BudgetMinPesos.Should().Be(1000);
+        seen.PhotoUrls.Should().ContainSingle();
+    }
+
+    [IntegrationFact]
+    public async Task OnceOffersCame_TheTradeAndServiceStay_ButTheRestCanChange()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "May offer");
+        var plumber = await PlumberAsync(api, "Tubero");
+        var posted = await PostAsync(household, Draft(tag));
+        var seen = (await FeedAsync(plumber, tag)).Should().ContainSingle().Subject;
+        (await plumber.Get<JobBoard>().SendOfferAsync(seen, 900, null)).Should().Be(OfferResult.Done);
+
+        var board = household.Get<JobBoard>();
+        await board.LoadMineAsync();
+        var edit = JobBoard.EditDraft(board.Mine.Single(p => p.Id == posted.Id));
+        edit.WhatLocked.Should().BeTrue("a worker already offered for this work");
+
+        var client = api.Client(api.Tokens.For(household.Uid));
+        var moved = Draft(tag, service: "construction-tiles");
+        using (var refused = await client.PutAsJsonAsync($"job-posts/{posted.Id}", new NewJobPostRequest(
+            moved.CategoryId!, moved.ServiceId!, moved.Description!, 800, "taytay"), ApiJson.Default.NewJobPostRequest))
+        {
+            refused.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await refused.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.Invalid("serviceId"));
+        }
+
+        edit.BudgetPesos = 1200;
+        (await board.SaveEditAsync(edit)).Should().Be(JobPostResult.Posted);
+        board.Mine.Single(p => p.Id == posted.Id).OfferCount.Should().Be(1, "the offers stay with the post");
+    }
+
+    [IntegrationFact]
+    public async Task OnlyTheHousehold_EditsItsPost_AndOnlyWhileItIsOpen()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Akin");
+        var stranger = await TestPhone.SeekerAsync(api, "Iba");
+        var posted = await PostAsync(household, Draft(tag));
+        var body = new NewJobPostRequest("construction", "construction-plumbing", $"Hindi ko ito post {tag}", 800, "taytay");
+
+        (await api.Client(api.Tokens.For(stranger.Uid)).PutAsJsonAsync($"job-posts/{posted.Id}", body, ApiJson.Default.NewJobPostRequest))
+            .StatusCode.Should().Be(HttpStatusCode.NotFound, "someone else's post");
+
+        var board = household.Get<JobBoard>();
+        var edit = JobBoard.EditDraft(posted);
+        (await board.CloseAsync(posted)).Should().BeTrue();
+        (await board.SaveEditAsync(edit)).Should().Be(JobPostResult.Closed, "a post taken down can't change");
+    }
 }

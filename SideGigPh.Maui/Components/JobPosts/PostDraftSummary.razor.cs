@@ -17,7 +17,8 @@ public partial class PostDraftSummary : ComponentBase
     [Parameter, EditorRequired] public JobPostDraft Draft { get; set; } = default!;
 
     /// <summary>The gray button on the right ("Change"), which opens the What sheet.</summary>
-    [Parameter, EditorRequired] public string ActionLabel { get; set; } = string.Empty;
+    /// <summary>The button's words; empty: no button (Edit post once offers came in).</summary>
+    [Parameter] public string? ActionLabel { get; set; }
 
     [Parameter] public EventCallback OnAction { get; set; }
 

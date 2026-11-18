@@ -7,6 +7,9 @@
             <MudText Typo="Typo.body2" Color="Color.Secondary">@trade</MudText>
         }
     </MudStack>
-    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="mud-background-gray flex-shrink-0" Disabled="Busy"
-               OnClick="@(() => OnAction.InvokeAsync())">@ActionLabel</MudButton>
+    @if (!string.IsNullOrEmpty(ActionLabel))
+    {
+        <MudButton Variant="Variant.Text" Color="Color.Dark" Class="mud-background-gray flex-shrink-0" Disabled="Busy"
+                   OnClick="@(() => OnAction.InvokeAsync())">@ActionLabel</MudButton>
+    }
 </MudStack>

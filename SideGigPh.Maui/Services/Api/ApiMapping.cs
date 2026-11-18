@@ -69,7 +69,8 @@ internal static partial class ApiMapping
         dto.PickedProId,
         dto.BudgetMinPesos,
         dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null,
-        dto.BarangayId);
+        dto.BarangayId,
+        [.. dto.Photos.Select(photo => photo.Id)]);
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
         new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating,

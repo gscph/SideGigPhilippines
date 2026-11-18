@@ -319,6 +319,12 @@ public static class Copy
     public static readonly LocalizedText PostShowing = new("Workers can see it", "Nakikita ng mga gagawa");
     public static readonly LocalizedText PostTakenDown = new("Taken down", "Tinanggal na");
     public static readonly LocalizedText PostTakeDown = new("Take down", "Tanggalin");
+    public static readonly LocalizedText PostEdit = new("Edit", "I-edit");
+    public static readonly LocalizedText PostEditTitle = new("Change your post", "Baguhin ang post mo");
+    public static readonly LocalizedText PostSaveChanges = new("Save changes", "I-save");
+    public static readonly LocalizedText PostSaveFailed = new("It didn't save. Check your internet and try again.", "Hindi na-save. I-check ang internet at subukan ulit.");
+    public static readonly LocalizedText PostEditClosed = new("This post is closed now, so it can't change.", "Sarado na ang post na ito, kaya hindi na mababago.");
+    public static readonly LocalizedText PostWhatLocked = new("Workers already sent offers for this, so it stays.", "May nag-offer na para dito, kaya hindi na ito mapapalitan.");
     public static readonly LocalizedText PostTakeDownFailed = new("It wasn't taken down. Check your internet and try again.", "Hindi natanggal. I-check ang internet at subukan ulit.");
     public static readonly LocalizedText PostBudgetFact = new("Budget {0}", "Budget {0}");
     public static readonly LocalizedText PostDistance = new("{0} · {1} km away", "{0} · {1} km ang layo");

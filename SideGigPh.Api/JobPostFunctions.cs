@@ -49,6 +49,45 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         return new OkObjectResult(saved);
     }
 
+    /// <summary>
+    /// <c>PUT job-posts/{id}</c>: the caller changes their own open post (<see cref="NewJobPostRequest"/>, the whole post).
+    /// Answers with it; <c>404</c> when it isn't theirs or is no longer open. Workers aren't alerted again.
+    /// </summary>
+    [Function("UpdateJobPost")]
+    public async Task<IActionResult> Update(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "job-posts/{id}")] HttpRequest request,
+        string id,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.JobPostEdit, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        if (!long.TryParse(id, out var postId))
+        {
+            return new NotFoundResult();
+        }
+
+        if (await ApiResults.ReadAsync<NewJobPostRequest>(request, cancellationToken) is not { } post)
+        {
+            return ApiResults.BadRequest();
+        }
+
+        var outcome = await posts.UpdateAsync(uid, postId, post, cancellationToken);
+        return outcome switch
+        {
+            { Post: { } saved } => new OkObjectResult(saved),
+            { InvalidField: { } field } => ApiResults.BadRequest(ApiErrors.Invalid(field)),
+            _ => new NotFoundResult(),
+        };
+    }
+
     /// <summary><c>GET job-posts/mine</c>: the caller's own posts, newest first.</summary>
     [Function("GetMyJobPosts")]
     public async Task<IActionResult> Mine(

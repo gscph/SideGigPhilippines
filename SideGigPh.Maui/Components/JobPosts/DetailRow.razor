@@ -3,7 +3,7 @@
         <MudText Typo="Typo.subtitle1">@Label</MudText>
         @if (!string.IsNullOrWhiteSpace(Value))
         {
-            <MudText Typo="Typo.body1" Color="ValueColor">@Value</MudText>
+            <MudText Typo="Typo.body1" Color="ValueColor" Class="app-wrap-text">@Value</MudText>
         }
         @if (!string.IsNullOrWhiteSpace(Detail))
         {
