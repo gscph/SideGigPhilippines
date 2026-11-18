@@ -147,6 +147,15 @@
     max-width: 82%;
 }
 
+/* The profile's sideways rows (reviews, work photos) scroll by swipe without a gray scrollbar. */
+.scroll-row {
+    scrollbar-width: none;
+}
+
+.scroll-row::-webkit-scrollbar {
+    display: none;
+}
+
 /* A review's words cut after four lines in the sideways row; the full text is on the reviews page. */
 .four-lines {
     display: -webkit-box;

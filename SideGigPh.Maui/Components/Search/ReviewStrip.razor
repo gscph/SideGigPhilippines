@@ -9,7 +9,7 @@
             <MudIcon Icon="@Icons.Material.Rounded.Star" Color="Color.Warning" aria-hidden="true" />
             <MudText Typo="Typo.h5" HtmlTag="h2">@Heading</MudText>
         </MudStack>
-        <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Start" Class="overflow-x-auto flex-nowrap" role="list">
+        <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Start" Class="overflow-x-auto flex-nowrap scroll-row" role="list">
             @foreach (var review in InRow)
             {
                 <ReviewCard Review="review" @key="review.Id" />

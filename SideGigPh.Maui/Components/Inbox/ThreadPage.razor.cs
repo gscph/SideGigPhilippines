@@ -8,7 +8,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Inbox;
 
 /// <summary>
-/// The Seeker's chat with one skilled worker, where Contact lands. The first message is already
+/// The Seeker's chat with one skilled worker, where Contact lands: full screen outside the tabs, the message box pinned
+/// at the bottom (an empty chat too, so the ready first message sits above the keyboard, not mid-screen). The first message is already
 /// written from their search (job, town, how soon), so starting is one tap on Send. Call opens
 /// the dialer and is logged in the chat. The worker's replies appear here as they arrive.
 /// </summary>
@@ -22,6 +23,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private AppVisibility Visibility { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -50,6 +52,12 @@ public partial class ThreadPage : ComponentBase, IDisposable
     {
         _loading = true;
         _error = null;
+        if (!await Workspace.EnsureLoadedAsync())
+        {
+            Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
         _jobWatch?.Dispose();
         _watch?.Dispose();
         await Busy.RunAsync(LoadAsync);

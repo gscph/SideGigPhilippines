@@ -1,7 +1,8 @@
 @page "/inbox/{Id}"
-@layout SeekerLayout
 
-<MudStack Spacing="4">
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+<MudStack Spacing="0" Class="full-screen">
+<MudStack Spacing="4" Class="flex-1 px-4 pt-2 pb-4">
     @if (_pro is not null)
     {
         <ChatHeader BackHref="@SeekerRoutes.Inbox" Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Detail="@T.Trades(_pro)"
@@ -81,6 +82,12 @@
             </MudButton>
         }
 
-        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" Error="@_error" />
     }
 </MudStack>
+
+    @if (!_loading && _pro is not null)
+    {
+        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" Error="@_error" FullScreen="true" />
+    }
+</MudStack>
+</MudContainer>

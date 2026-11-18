@@ -1,4 +1,4 @@
-<MudPaper Elevation="0" Square="true" Class="app-sticky-action py-3 border-t border-solid mud-border-lines-default">
+<MudPaper Elevation="0" Square="true" Class="sticky-footer px-6 py-3 border-t border-solid mud-border-lines-default">
     <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3">
         <MudStack Spacing="0" Class="flex-1 app-min-w-0">
             @if (Price is { } price)
@@ -8,7 +8,7 @@
             }
             else
             {
-                <MudText Typo="Typo.subtitle1" Class="one-line">@T.Get(Copy.RateQuote)</MudText>
+                <MudText Typo="Typo.body1" Class="one-line">@T.Get(Copy.RateQuote)</MudText>
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@T.Get(Copy.ProfileAskPrice)</MudText>
             }
         </MudStack>

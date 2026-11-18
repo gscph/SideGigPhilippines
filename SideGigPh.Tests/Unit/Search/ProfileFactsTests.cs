@@ -88,6 +88,9 @@ public class ProfileFactsTests
     [InlineData("  Ana  ", "Ana")]
     [InlineData("Ma. Teresa Santos", "Ma. Teresa")]
     [InlineData("", "")]
+    [InlineData("S9 Quote Aircon", "S9 Quote Aircon")]
+    [InlineData("juan dela cruz", "juan dela cruz")]
+    [InlineData("JR's  Aircon", "JR's Aircon")]
     public void FirstName_ForTheHeadings(string displayName, string expected) =>
         ProfileFacts.FirstName(displayName).Should().Be(expected);
 

@@ -56,17 +56,25 @@ public static class ProfileFacts
         return towns;
     }
 
-    /// <summary>"Juan" from "Juan Dela Cruz"; an abbreviated first name keeps the next word ("Ma. Teresa").</summary>
+    /// <summary>
+    /// "Juan" from "Juan Dela Cruz"; an abbreviated first name keeps the next word ("Ma. Teresa"). A business name
+    /// ("S9 Quote Aircon": its first word is not a plain name) stays whole.
+    /// </summary>
     public static string FirstName(string displayName)
     {
         var words = displayName.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         return words switch
         {
             [] => displayName.Trim(),
+            [var first, ..] when !IsPlainName(first) => string.Join(' ', words),
             [var first, var second, ..] when first.EndsWith('.') => $"{first} {second}",
             [var first, ..] => first,
         };
     }
+
+    // A person's first name: letters only (an initial's dot or a hyphen allowed), starting with a capital.
+    private static bool IsPlainName(string word) =>
+        char.IsUpper(word[0]) && word.All(c => char.IsLetter(c) || c is '.' or '-');
 
     /// <summary>Average stars and count, or null with no reviews ("New").</summary>
     public static ReviewSummary? Summary(IReadOnlyList<Review> reviews) =>

@@ -10,13 +10,14 @@ namespace SideGigPh.Maui.Components.Search;
 /// A worker as a Seeker sees them after tapping a search result, laid out like Airbnb's listing page, top to bottom:
 /// who and where (<see cref="ProfileHero"/>), a borderless stat row (<see cref="ProfileStatRow"/>), "What we checked"
 /// (<see cref="ProfileTrust"/>), what they do (<see cref="JobList"/>), small work photos and the reviews
-/// (<see cref="ReviewStrip"/>). The bar with the price and Contact stays pinned above the tabs (<see cref="ProfileFooter"/>).
+/// (<see cref="ReviewStrip"/>). Full screen outside the tabs, like Airbnb's listing (back arrow and 🚩 at the top); the bar with the price and Contact stays pinned at the bottom (<see cref="ProfileFooter"/>).
 /// </summary>
 public partial class PublicProfilePage : ComponentBase
 {
     [Inject] private SeekerWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -30,6 +31,12 @@ public partial class PublicProfilePage : ComponentBase
     protected override async Task OnParametersSetAsync()
     {
         _loading = true;
+        if (!await Workspace.EnsureLoadedAsync())
+        {
+            Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
         // Side by side: the listing usually comes from the search just made, the reviews from the server.
         await Busy.RunAsync(async () =>
         {
@@ -39,4 +46,6 @@ public partial class PublicProfilePage : ComponentBase
         });
         _loading = false;
     }
+
+    private void GoBack() => Nav.NavigateTo(SeekerRoutes.BackOrSearch(Back));
 }
