@@ -47,6 +47,9 @@ public sealed class ProWorkspace(
 
     public bool IsPublished => Draft.PublishedAt is not null;
 
+    /// <summary>The Publish checklist's ticks in this run of the app (never saved; cleared by <see cref="Forget"/>).</summary>
+    public PublishCommitments Commitments { get; } = new();
+
     public string? ProfilePhotoUrl => Url(Draft.ProfilePhotoId);
 
     /// <summary>Work photos with their image sources, newest first.</summary>
@@ -280,7 +283,7 @@ public sealed class ProWorkspace(
         }
     }
 
-    /// <summary>The pro took the pledge: make the listing searchable, if it has every interview answer and the setup checklist is done.</summary>
+    /// <summary>The pro ticked every promise and tapped Ready: make the listing searchable, if it has every interview answer and the setup checklist is done.</summary>
     public async Task<PublishResult> PublishAsync()
     {
         if (!Draft.IsListingComplete)
@@ -474,6 +477,7 @@ public sealed class ProWorkspace(
         _activity = null;
         _refreshedAt = DateTimeOffset.MinValue;
         _publishPrompted = false;
+        Commitments.Clear();
         MyId = ListingMapper.OwnListingId;
         _photoUrls.Clear();
         Chats = [];

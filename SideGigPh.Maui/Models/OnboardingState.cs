@@ -123,7 +123,7 @@ public sealed class ProfessionalDraft
     public GeoPoint? BasePoint =>
         BaseLatitude is { } latitude && BaseLongitude is { } longitude ? new GeoPoint(latitude, longitude) : null;
 
-    /// <summary>Set when the pro took the pledge and published the listing.</summary>
+    /// <summary>Set when the pro ticked the Publish promises and published the listing.</summary>
     public DateTimeOffset? PublishedAt { get; set; }
 
     /// <summary>

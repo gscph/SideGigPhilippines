@@ -11,7 +11,13 @@ public static class ProRoutes
     /// <summary>What customers nearby posted for the pro's trade (the Requests tab).</summary>
     public const string Requests = JobPosts.JobPostRoutes.Feed;
     public const string Reviews = "/professional/reviews";
+
+    /// <summary>Going live, step 1: the promises (<c>PublishPage</c>). Every "Publish" link opens here.</summary>
     public const string Publish = "/professional/publish";
+
+    /// <summary>Going live, step 2: the card one last time and the Ready button that publishes (<c>PublishReadyPage</c>).</summary>
+    public const string PublishReady = Publish + "/ready";
+
     public const string Me = "/professional/me";
 
     /// <summary>Work photos, opened from the Me page; under <see cref="Me"/> so the Me tab stays lit.</summary>
