@@ -44,9 +44,10 @@ public partial class PublishReadyPage : ComponentBase
             return;
         }
 
-        // The checklist already asked for the verified number; asked again in case it was skipped since. Its Back and
-        // "Do this later" go where the checklist's do.
-        if (await Gate.RedirectAsync(ProRoutes.PublishReady, requirePhone: true, OnboardingSteps.BackPath(PublishStep.Checklist),
+        // The listing's number is the account's verified number (asked in the interview; a worker who put it off adds it
+        // here, the step that publishes). Its Back goes to the checklist; "Do this later" goes to Pro home, whose banner
+        // and checklist say the number is still needed to publish (no dead end when today's codes are used up).
+        if (await Gate.RedirectAsync(ProRoutes.PublishReady, requirePhone: true, OnboardingSteps.PathOf(PublishStep.Checklist),
                 laterPath: ProRoutes.Home) is { } step)
         {
             Nav.NavigateTo(step, replace: true);

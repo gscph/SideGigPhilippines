@@ -9,8 +9,11 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// Professional (Skilled Worker) interview: trades → jobs → towns → experience → rate →
-/// preview. "Others" after the trades lets a worker type a kind of work we don't list: it is saved as their trade and
+/// Professional (Skilled Worker) interview: trades → jobs → rate → towns → experience → selfie → number → preview,
+/// then Publish. The selfie (<see cref="SelfieField"/>) is the proof a listing needs; the number question
+/// (<see cref="NumberField"/>) adds an SMS-verified number to a Google or Apple account and is skipped when the account
+/// already has one or today's codes are used up (<see cref="OnboardingSteps.AsksNumber"/>); its "Do this later" moves on
+/// and Publish asks again. "Others" after the trades lets a worker type a kind of work we don't list: it is saved as their trade and
 /// job (the jobs question is skipped), sent for analytics and matched with households who typed something similar, so
 /// nobody is stuck on the trade question. The rate is their own range in two peso boxes ("From" / "Up to"); the guide's
 /// points (minimum, average, above average, each tile showing its prices for their jobs: <see cref="Pricing.RateChoices"/>)
@@ -30,6 +33,7 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private TimeProvider Clock { get; set; } = default!;
+    [Inject] private SmsSendLimit SmsLimit { get; set; } = default!;
     [Inject] private ILogger<ProfessionalInterview> Logger { get; set; } = default!;
 
     /// <summary>
@@ -43,6 +47,11 @@ public partial class ProfessionalInterview : ComponentBase
     private OnboardingState? _state;
     private ProStep _step = ProStep.Skills;
     private bool _finishing;
+
+    // Whether the number question is asked (OnboardingSteps.AsksNumber), and whether its code box is showing.
+    private bool _asksNumber;
+    private bool _codeSent;
+    private NumberField? _number;
 
     // The "Others" text already sent, so going back and forward doesn't send it twice.
     private string? _notedOtherJob;
@@ -58,6 +67,9 @@ public partial class ProfessionalInterview : ComponentBase
 
     private bool CanSaveRate => RateRange.IsValid(_rateFrom, _rateUpTo);
 
+    // Next only for a photo they already had; a new one moves on by itself.
+    private EventCallback PhotoNext => Draft.HasProof ? EventCallback.Factory.Create(this, AdvanceAsync) : default;
+
     private EventCallback OtherTradeNext => _pickedOtherTrade ? EventCallback.Factory.Create(this, PickOtherTradeAsync) : default;
 
     private ProfessionalDraft Draft => _state!.Professional;
@@ -70,9 +82,14 @@ public partial class ProfessionalInterview : ComponentBase
         _state = await Store.LoadAsync();
         _notedOtherJob = Draft.OtherJobText?.Trim();
 
-        // The preview card shows the account's name and number.
-        Draft.TakeAccount(await Identity.GetCurrentUserAsync());
+        // The selfie question saves through the workspace, which holds these same answers; it also puts the account's
+        // name and number on them for the preview card.
+        await Workspace.LoadInterviewDraftAsync();
+        _asksNumber = AsksNumber();
     }
+
+    private bool AsksNumber() =>
+        OnboardingSteps.AsksNumber(Identity.Methods != AuthMethods.None, Workspace.HasVerifiedPhone, SmsLimit.WaitLeft());
 
     protected override void OnParametersSet()
     {
@@ -81,7 +98,8 @@ public partial class ProfessionalInterview : ComponentBase
             return;
         }
 
-        _step = Draft.StepToShow(Step);
+        _step = Draft.StepToShow(Step, _asksNumber);
+        _codeSent = false;
         if (_step == ProStep.Towns)
         {
             Draft.PreselectDefaultTown();  // the launch's town starts ticked; the others stay tickable
@@ -170,7 +188,7 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         var state = _state!;
-        var path = Draft.NextPath(_step);
+        var path = Draft.NextPath(_step, _asksNumber);
         if (state.CompletedAt is null)
         {
             state.ResumePath = path;
@@ -209,7 +227,26 @@ public partial class ProfessionalInterview : ComponentBase
         await Workspace.ListingEditedAsync(); // Edit listing on a live listing: customers see the new answers.
     }
 
-    private void GoBack() => Nav.NavigateTo(Draft.BackPath(_step, finished: _state!.CompletedAt is not null));
+    private void GoBack() => Nav.NavigateTo(Draft.BackPath(_step, finished: _state!.CompletedAt is not null, _asksNumber));
+
+    private void CodeSent(string? number) => _codeSent = number is not null;
+
+    // Back on the code box returns to the number box; on the number box, to the selfie.
+    private async Task NumberBackAsync()
+    {
+        if (_number is null || !await _number.BackAsync())
+        {
+            GoBack();
+        }
+    }
+
+    // The number is on the account now: the preview card shows it, and Back from the preview skips the question.
+    private async Task NumberLinkedAsync()
+    {
+        Draft.TakeAccount(await Identity.GetCurrentUserAsync());
+        _asksNumber = false;
+        await AdvanceAsync();
+    }
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };

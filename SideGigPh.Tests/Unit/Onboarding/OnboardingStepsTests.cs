@@ -21,22 +21,35 @@ public class OnboardingStepsTests
         RateTierId = "quote",
     };
 
+    private static ProfessionalDraft WithProof(ProfessionalDraft draft)
+    {
+        draft.ProfilePhotoId = "me";
+        return draft;
+    }
+
     // --- Skilled Worker interview -----------------------------------------
 
     public static TheoryData<string, ProStep> ProMissingAnswers => new()
     {
         { "trade", ProStep.Skills },
         { "jobs", ProStep.Services },
+        { "rate", ProStep.Rate },
         { "towns", ProStep.Towns },
         { "experience", ProStep.Experience },
-        { "rate", ProStep.Rate },
+        { "photo", ProStep.Photo },
     };
+
+    [Fact]
+    public void ProSteps_AreInTheirOrder() =>
+        Enum.GetValues<ProStep>().Should().Equal(
+            ProStep.Skills, ProStep.Services, ProStep.Rate, ProStep.Towns, ProStep.Experience,
+            ProStep.Photo, ProStep.Number, ProStep.Preview);
 
     [Theory]
     [MemberData(nameof(ProMissingAnswers))]
     public void ProFirstUnanswered_IsTheFirstMissingQuestion(string missing, ProStep expected)
     {
-        var draft = FullyAnsweredDraft();
+        var draft = WithProof(FullyAnsweredDraft());
         switch (missing)
         {
             case "trade": draft.CategoryId = null; break;
@@ -44,32 +57,80 @@ public class OnboardingStepsTests
             case "towns": draft.CityIds.Clear(); break;
             case "experience": draft.ExperienceId = null; break;
             case "rate": draft.RateTierId = null; break;
+            case "photo": draft.ProfilePhotoId = null; break;
         }
 
         draft.FirstUnanswered().Should().Be(expected);
     }
 
     [Fact]
-    public void ProFirstUnanswered_AllAnswered_IsThePreview() =>
-        FullyAnsweredDraft().FirstUnanswered().Should().Be(ProStep.Preview);
+    public void ProFirstUnanswered_AllAnsweredWithASelfie_IsThePreview() =>
+        WithProof(FullyAnsweredDraft()).FirstUnanswered().Should().Be(ProStep.Preview);
+
+    [Fact]
+    public void ProFirstUnanswered_NoSelfie_IsThePhotoQuestion() =>
+        FullyAnsweredDraft().FirstUnanswered().Should().Be(ProStep.Photo, "the preview shows the real card, so the photo comes first");
 
     [Theory]
     [InlineData(null, ProStep.Skills)]
     [InlineData(-5, ProStep.Skills)]   // nonsense in the URL
-    [InlineData(3, ProStep.Towns)]
+    [InlineData(3, ProStep.Rate)]
+    [InlineData(4, ProStep.Towns)]
     [InlineData(99, ProStep.Preview)]  // past the end
     public void ProStepToShow_FullyAnswered_ShowsTheAskedStepWithinRange(int? requested, ProStep expected) =>
-        FullyAnsweredDraft().StepToShow(requested).Should().Be(expected);
+        WithProof(FullyAnsweredDraft()).StepToShow(requested).Should().Be(expected);
 
     [Fact]
     public void ProStepToShow_NeverSkipsAnUnansweredQuestion()
     {
-        // A stale resume path asks for the rate, but the towns were never picked.
-        var draft = FullyAnsweredDraft();
+        // A stale resume path asks for the experience, but the towns were never picked.
+        var draft = WithProof(FullyAnsweredDraft());
         draft.CityIds.Clear();
 
-        draft.StepToShow((int)ProStep.Rate).Should().Be(ProStep.Towns);
+        draft.StepToShow((int)ProStep.Experience).Should().Be(ProStep.Towns);
     }
+
+    [Fact]
+    public void ProStepToShow_NoSelfie_NeverOpensTheNumberOrPreview()
+    {
+        var draft = FullyAnsweredDraft();
+
+        draft.StepToShow((int)ProStep.Number, asksNumber: true).Should().Be(ProStep.Photo);
+        draft.StepToShow((int)ProStep.Preview).Should().Be(ProStep.Photo);
+    }
+
+    [Theory]
+    [InlineData(true, ProStep.Number)]
+    [InlineData(false, ProStep.Preview)]
+    public void ProNumberQuestion_ShowsOnlyWhenAsked(bool asksNumber, ProStep expected) =>
+        WithProof(FullyAnsweredDraft()).StepToShow((int)ProStep.Number, asksNumber).Should().Be(expected);
+
+    [Theory]
+    [InlineData(true, "/start/pro/7")]
+    [InlineData(false, "/start/pro/8")]
+    public void ProNextFromTheSelfie_IsTheNumber_OrThePreviewWhenItIsNotAsked(bool asksNumber, string expected) =>
+        WithProof(FullyAnsweredDraft()).NextPath(ProStep.Photo, asksNumber).Should().Be(expected);
+
+    [Theory]
+    [InlineData(true, "/start/pro/7")]
+    [InlineData(false, "/start/pro/6")]
+    public void ProBackFromThePreview_IsTheNumber_OrTheSelfieWhenItIsNotAsked(bool asksNumber, string expected) =>
+        WithProof(FullyAnsweredDraft()).BackPath(ProStep.Preview, finished: false, asksNumber).Should().Be(expected);
+
+    [Fact]
+    public void ProNextFromTheNumber_IsThePreview() =>
+        WithProof(FullyAnsweredDraft()).NextPath(ProStep.Number, asksNumber: true).Should().Be("/start/pro/8");
+
+    [Theory]
+    [InlineData(true, false, 0, true)]      // a Google account, a code can be sent now
+    [InlineData(true, false, 200, true)]    // a code can be sent after a wait
+    [InlineData(true, true, 0, false)]      // a phone sign-in already has a verified number
+    [InlineData(true, false, null, false)]  // today's codes are used up: Publish asks later
+    [InlineData(false, false, 0, false)]    // no sign-in provider
+    public void AsksNumber_OnlyAnAccountWithoutANumber_WhileACodeCanStillBeSentToday(
+        bool hasSignIn, bool hasNumber, int? waitSeconds, bool asks) =>
+        OnboardingSteps.AsksNumber(hasSignIn, hasNumber, waitSeconds is { } s ? TimeSpan.FromSeconds(s) : null)
+            .Should().Be(asks);
 
     [Fact]
     public void PickTrade_DifferentTrade_ClearsTheJobsOfTheOldTrade()
@@ -164,7 +225,7 @@ public class OnboardingStepsTests
     }
 
     [Theory]
-    [InlineData(ProStep.Towns, false, "/start/pro/2")]
+    [InlineData(ProStep.Towns, false, "/start/pro/3")]
     [InlineData(ProStep.Skills, false, OnboardingSteps.RolePath)]
     [InlineData(ProStep.Skills, true, "/professional")]
     public void ProBackPath_GoesToThePreviousQuestion_OrOutOfTheInterview(ProStep step, bool finished, string expected) =>
@@ -392,74 +453,18 @@ public class OnboardingStepsTests
     [Fact]
     public void LaunchPath_FinishedWorkerNotLive_ResumesTheSetup() =>
         OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = FullyAnsweredDraft() })
-            .Should().Be("/start/pro/setup/1");
+            .Should().Be("/start/pro/6");
 
     [Fact]
     public void LaunchPath_FinishedWorkerWithProofNotLive_OpensPublish() =>
         OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
             .Should().Be("/professional/publish");
 
-    // --- Skilled Worker setup (proof, then Publish) -------------------------
-
-    private static ProfessionalDraft WithProof(ProfessionalDraft draft)
-    {
-        draft.ProfilePhotoId = "me";
-        return draft;
-    }
-
     [Fact]
-    public void Setup_OpensAtTheFirstMissingProof_WithoutWorkPhotos()
+    public void AfterInterview_GoesToTheSelfie_ThenPublish_ThenHomeOnceLive()
     {
         var draft = FullyAnsweredDraft();
-        draft.FirstUnfinished().Should().Be(ProSetupStep.Photo);
-
-        draft.ProfilePhotoId = "me";
-        draft.FirstUnfinished().Should().BeNull("the selfie is the whole setup: work photos are optional, never a setup step");
-        draft.WorkPhotoIds.Should().BeEmpty();
-        draft.AfterInterviewPath().Should().Be("/professional/publish");
-    }
-
-    [Fact]
-    public void Setup_HasOnlyTheSelfie() =>
-        Enum.GetValues<ProSetupStep>().Should().Equal(ProSetupStep.Photo);
-
-    [Theory]
-    [InlineData(null, ProSetupStep.Photo)]
-    [InlineData(2, ProSetupStep.Photo)]
-    [InlineData(3, ProSetupStep.Photo)]
-    [InlineData(99, ProSetupStep.Photo)]
-    [InlineData(-1, ProSetupStep.Photo)]
-    public void SetupStep_NeverSkipsAMissingProof(int? requested, ProSetupStep expected) =>
-        FullyAnsweredDraft().SetupStepToShow(requested).Should().Be(expected);
-
-    // Phones that saved the old setup URLs (/2 = work photos, /3 = references) land on a real step, never loop:
-    // the selfie step, whose Next goes on to Publish.
-    [Theory]
-    [InlineData(1)]
-    [InlineData(2)]
-    [InlineData(3)]
-    [InlineData(99)]
-    public void SetupStep_OldResumePath_WithSelfieDone_OpensTheSelfieStep_ThenPublish(int requested)
-    {
-        var step = WithProof(FullyAnsweredDraft()).SetupStepToShow(requested);
-
-        step.Should().Be(ProSetupStep.Photo);
-        OnboardingSteps.NextPath(step).Should().Be("/professional/publish");
-    }
-
-    [Fact]
-    public void Setup_NextFromTheSelfie_IsPublish() =>
-        OnboardingSteps.NextPath(ProSetupStep.Photo).Should().Be("/professional/publish");
-
-    [Fact]
-    public void Setup_BackFromTheFirstStep_IsTheInterviewPreview() =>
-        OnboardingSteps.BackPath(ProSetupStep.Photo).Should().Be(OnboardingSteps.PathOf(ProStep.Preview));
-
-    [Fact]
-    public void AfterInterview_GoesToSetup_ThenPublish_ThenHomeOnceLive()
-    {
-        var draft = FullyAnsweredDraft();
-        draft.AfterInterviewPath().Should().Be("/start/pro/setup/1");
+        draft.AfterInterviewPath().Should().Be("/start/pro/6");
 
         WithProof(draft);
         draft.AfterInterviewPath().Should().Be("/professional/publish");
@@ -480,36 +485,25 @@ public class OnboardingStepsTests
         OnboardingSteps.FirstPath(UserRole.Professional).Should().Be("/start/pro/1");
     }
 
-    [Theory]
-    [InlineData(UserRole.Professional, 0, true)]
-    [InlineData(UserRole.Professional, 200, true)]
-    [InlineData(UserRole.Professional, null, false)]
-    [InlineData(UserRole.Seeker, 0, false)]
-    public void AsksNumberAfterRole_OnlyWorkersWhileACodeCanStillBeSentToday(UserRole role, int? waitSeconds, bool asks) =>
-        OnboardingSteps.AsksNumberAfterRole(role, waitSeconds is { } s ? TimeSpan.FromSeconds(s) : null)
-            .Should().Be(asks);
-
     [Fact]
     public void ProgressBar_GoesUpFromTheFirstQuestionToTheReadyStep_AndNeverDropsBack()
     {
         var bar = Enum.GetValues<ProStep>().Select(OnboardingSteps.ProgressOf)
-            .Concat(Enum.GetValues<ProSetupStep>().Select(OnboardingSteps.ProgressOf))
             .Concat(Enum.GetValues<PublishStep>().Select(OnboardingSteps.ProgressOf))
             .ToList();
 
         bar.Should().BeInAscendingOrder().And.OnlyHaveUniqueItems();
         bar[0].Should().BeGreaterThan(0);  // endowed progress
         bar[^1].Should().Be(1, "the Ready step that publishes is the end of the bar");
-        OnboardingSteps.ProgressOf(ProSetupStep.Photo).Should().BeGreaterThan(OnboardingSteps.ProgressOf(ProStep.Preview));
-        OnboardingSteps.ProgressOf(PublishStep.Checklist).Should().BeGreaterThan(OnboardingSteps.ProgressOf(ProSetupStep.Photo));
+        OnboardingSteps.ProgressOf(PublishStep.Checklist).Should().BeGreaterThan(OnboardingSteps.ProgressOf(ProStep.Preview));
     }
 
     // --- Going live: the promises, then Ready ----------------------------------
 
     [Fact]
-    public void Publish_LastSetupStepLeadsToThePromises_ThenReady()
+    public void Publish_InterviewLeadsToThePromises_ThenReady()
     {
-        OnboardingSteps.NextPath(ProSetupStep.Photo).Should().Be(OnboardingSteps.PathOf(PublishStep.Checklist));
+        WithProof(FullyAnsweredDraft()).AfterInterviewPath().Should().Be(OnboardingSteps.PathOf(PublishStep.Checklist));
         OnboardingSteps.PathOf(PublishStep.Checklist).Should().Be("/professional/publish", "every Publish link opens the promises");
         OnboardingSteps.PathOf(PublishStep.Ready).Should().Be("/professional/publish/ready");
     }
@@ -518,7 +512,7 @@ public class OnboardingStepsTests
     public void Publish_BackWalksTheSteps()
     {
         OnboardingSteps.BackPath(PublishStep.Ready).Should().Be("/professional/publish");
-        OnboardingSteps.BackPath(PublishStep.Checklist).Should().Be(OnboardingSteps.PathOf(ProSetupStep.Photo));
+        OnboardingSteps.BackPath(PublishStep.Checklist).Should().Be(OnboardingSteps.PathOf(ProStep.Preview));
     }
 
     [Theory]
@@ -553,7 +547,7 @@ public class OnboardingStepsTests
         noAnswer.CityIds.Clear();
         noAnswer.PublishRedirect(step, promisesTicked: true).Should().Be(OnboardingSteps.ProFirstUnansweredPath);
 
-        FullyAnsweredDraft().PublishRedirect(step, promisesTicked: true).Should().Be(OnboardingSteps.PathOf(ProSetupStep.Photo));
+        FullyAnsweredDraft().PublishRedirect(step, promisesTicked: true).Should().Be(OnboardingSteps.PathOf(ProStep.Photo));
     }
 
     [Fact]

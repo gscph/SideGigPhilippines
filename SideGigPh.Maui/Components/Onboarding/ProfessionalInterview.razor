@@ -56,10 +56,26 @@
             </InterviewStep>
             break;
 
+        case ProStep.Photo:
+            @* One thing to do: a selfie. The camera opens by itself the first time and the question moves on once it's saved;
+               Next shows only for a photo they already have (coming back to this question). *@
+            <InterviewStep Illustration="@AppImages.Selfie" Title="@T.Get(Copy.SetupPhoto)" Why="@(Draft.HasProof ? null : T.Get(Copy.SelfieWhy))" Progress="Progress"
+                           OnBack="GoBack" OnNext="PhotoNext">
+                <SelfieField OnSaved="AdvanceAsync" />
+            </InterviewStep>
+            break;
+
+        case ProStep.Number:
+            <InterviewStep Illustration="@AppImages.Number" Title="@T.Get(_codeSent ? CommonCopy.AuthCodeTitle : CommonCopy.AuthPhoneTitle)"
+                           Why="@(_codeSent ? null : T.Get(Copy.ProNumberWhy))" Progress="Progress" OnBack="NumberBackAsync">
+                <NumberField @ref="_number" OnLinked="NumberLinkedAsync" OnLater="AdvanceAsync" SentToChanged="CodeSent" />
+            </InterviewStep>
+            break;
+
         case ProStep.Preview:
             <InterviewStep Illustration="@AppImages.Preview" Title="@T.Get(Copy.ProPreviewTitle)" Why="@T.Get(Copy.ProPreviewWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="FinishAsync" NextLabel="@T.Get(Copy.ProPreviewConfirm)">
-                <ListingPreview Listing="Draft.ToListing()" />
+                <ListingPreview Listing="Workspace.Listing" />
             </InterviewStep>
             break;
     }

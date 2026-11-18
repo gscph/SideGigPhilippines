@@ -99,7 +99,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 
 **Pro home** (Phase 1) shows the saved card and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
 
-**Not in the interview, nor in the setup:** work photos. They are optional (never needed to publish) and added on Pro home or from the Me tab (`/professional/me/photos`), where the app encourages them ("customers pick workers with photos first"; they rank higher in search). They are kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
+**Not in the interview:** work photos. They are optional (never needed to publish) and added on Pro home or from the Me tab (`/professional/me/photos`), where the app encourages them ("customers pick workers with photos first"; they rank higher in search). They are kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
 
 ### 2.3 The money hooks: what was proposed, with three adjustments
 
@@ -187,7 +187,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 3. Show a "Why we ask" line whenever the reason isn't obvious.
 4. **Save whenever the user moves forward** (a single tap, or Next). A killed app resumes at the step they were on.
 5. **Each step has its own URL** (`/start/seeker/3`), so Android hardware back walks the steps. The on-screen back button does the same.
-6. The progress bar starts partly filled (Endowed Progress). It has no "n of N" text. A Skilled Worker has one bar from the first question to the last setup step (`OnboardingSteps.ProgressOf`), so it never drops back when the interview hands over to the setup.
+6. The progress bar starts partly filled (Endowed Progress). It has no "n of N" text. A Skilled Worker has one bar from the first question to Publish's Ready step (`OnboardingSteps.ProgressOf`), so it never drops back when the interview hands over to Publish.
 7. The same components as the real product: the preview card *is* the search-result card.
 8. Mobile-first, MudBlazor components with theme colors only (`AppTheme`), and every string is bilingual (§5).
 
@@ -200,8 +200,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/start` | `Onboarding/LanguagePage` | English / Taglish. |
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S6, plus the loader at step 7. |
-| `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | P1–P6 (P3a is its own step), plus the preview at step 8. |
-| `/start/pro/setup/{step?}` | `Onboarding/ProSetup` | Right after the preview's Done: 1 own photo (required), then `/professional/publish` (a Google account adds a verified number there first). No work-photo step (optional, added later). Launch resumes here until the listing is live; an old saved `/setup/2` or `/setup/3` clamps to the selfie step. |
+| `/start/pro/{step?}` | `Onboarding/ProfessionalInterview` | 1 trade, 2 jobs, 3 rate, 4 towns, 5 experience, 6 selfie (required, `SelfieField`), 7 verified number (`NumberField`, only for a Google/Apple account with no number while an SMS code can still be sent today, "Do this later" moves on), 8 preview; its Done opens `/professional/publish` (which asks for the number again if it was put off). |
 | `/seeker` | `Seeker/SeekerHome` | Seeker home in the shared `AppShell` (top bar + tabs Home, Inbox, Me): dense search box, town menu, trade icon rail, last search, recent messages. |
 | `/seeker/search` | `Search/SearchPage` | Free-text or tapped search, job chips, town/budget filters; ranked results grouped by town. The Seeker interview lands here. |
 | `/pro/{id}` | `Search/PublicProfilePage` | A pro's public profile with a pinned Contact button. |
