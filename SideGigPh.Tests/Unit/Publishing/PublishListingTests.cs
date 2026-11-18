@@ -106,22 +106,30 @@ public class PublishListingTests
         app.Profiles.Published.Should().BeEmpty();
     }
 
-    [Fact]
-    public async Task Publish_OnlyOneWorkPhoto_ReturnsMissingProof()
+    // Work photos are optional: too much friction before going live. They only help the listing be seen.
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    public async Task Publish_FewOrNoWorkPhotos_StillPublishes(int count)
     {
         var draft = TestData.ReadyDraft();
-        draft.WorkPhotoIds = [TestData.PhotoId(2)];
+        draft.WorkPhotoIds = [.. Enumerable.Range(2, count).Select(TestData.PhotoId)];
 
         var app = await FakeApp.ProAsync(draft);
 
-        (await app.Pro.PublishAsync()).Should().Be(PublishResult.MissingProof);
+        draft.HasProof.Should().BeTrue();
+        app.Pro.IsReadyToPublish.Should().BeTrue();
+        (await app.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+        app.Profiles.Published.Should().ContainSingle().Which.WorkPhotoUrls.Should().HaveCount(count);
     }
 
     [Fact]
-    public async Task Publish_PhotoAndTwoWorkPhotos_IsEnoughProof()
+    public async Task Publish_OwnPhotoAlone_IsEnoughProof()
     {
-        // References were dropped: own photo and 2 work photos are the whole setup checklist.
-        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        // References were dropped and work photos are optional: the own photo is the whole setup checklist.
+        var draft = TestData.ReadyDraft();
+        draft.WorkPhotoIds = [];
+        var app = await FakeApp.ProAsync(draft);
 
         app.Pro.Draft.HasProof.Should().BeTrue();
         (await app.Pro.PublishAsync()).Should().Be(PublishResult.Published);

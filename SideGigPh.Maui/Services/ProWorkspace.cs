@@ -268,8 +268,8 @@ public sealed class ProWorkspace(
         return new PhotoAddResult(added, duplicates, problem);
     }
 
-    /// <summary>A published listing keeps at least <see cref="ProfessionalDraft.MinWorkPhotos"/> work photos.</summary>
-    public bool CanRemoveWorkPhoto => !IsPublished || Draft.WorkPhotoIds.Count > ProfessionalDraft.MinWorkPhotos;
+    /// <summary>Work photos are optional, so any of them can be removed, even the last one of a published listing.</summary>
+    public bool CanRemoveWorkPhoto => Draft.WorkPhotoIds.Count > 0;
 
     public async Task RemoveWorkPhotoAsync(string photoId)
     {

@@ -144,15 +144,16 @@ public sealed class ProfessionalDraft
 
     public bool HasProfilePhoto => ProfilePhotoId is not null;
 
-    /// <summary>At least <see cref="MinWorkPhotos"/> work photos.</summary>
-    public bool HasEnoughWorkPhotos => WorkPhotoIds.Count >= MinWorkPhotos;
+    /// <summary>
+    /// The setup checklist is done: own photo (the API refuses a listing without it). Together with
+    /// <see cref="IsListingComplete"/> the listing can be published. Work photos are optional: they never block
+    /// publishing, they only help the listing be seen (a search bonus, <see cref="GoodWorkPhotos"/>).
+    /// </summary>
+    public bool HasProof => HasProfilePhoto;
 
     /// <summary>
-    /// The setup checklist is done: own photo and at least 2 work photos (the API refuses a listing without them).
-    /// Together with <see cref="IsListingComplete"/> the listing can be published.
+    /// Work photos that earn the full search bonus (the API's <c>SearchRanker.FullPhotoBonusAt</c>); fewer still help.
+    /// A guide for the "be seen more" item, never a requirement.
     /// </summary>
-    public bool HasProof => HasProfilePhoto && HasEnoughWorkPhotos;
-
-    /// <summary>Fewest work photos a listing can be published with (the API's <c>ProfessionalStore.MinWorkPhotos</c>).</summary>
-    public const int MinWorkPhotos = 2;
+    public const int GoodWorkPhotos = 2;
 }

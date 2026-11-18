@@ -27,7 +27,7 @@ public interface IProfessionalProfileRepository
 
     /// <summary>
     /// Makes the listing searchable, or replaces the pro's earlier version of it.
-    /// Enforces anti-fraud rule 1: one mobile number, one listing. The server needs a profile photo and 2 work photos.
+    /// Enforces anti-fraud rule 1: one mobile number, one listing. The server needs a profile photo (work photos are optional).
     /// </summary>
     Task<PublishResult> PublishAsync(ProfessionalListing listing);
 

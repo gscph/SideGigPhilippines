@@ -23,9 +23,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
     public const int MaxWorkPhotos = 6;
 
-    /// <summary>Fewest work photos a listing can be published with (the app's <c>ProWorkspace.MinWorkPhotos</c>).</summary>
-    public const int MinWorkPhotos = 2;
-
     /// <summary>
     /// The most jobs or towns one listing may send: far more than any trade has jobs or we serve towns, so a client
     /// can't make one publish insert thousands of rows.
@@ -247,7 +244,8 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     /// <summary>
     /// The first listing field that's missing or not valid (its JSON name), or null when it can be published.
-    /// Besides the interview answers a listing needs a profile photo and at least <see cref="MinWorkPhotos"/> work photos.
+    /// Besides the interview answers a listing needs a profile photo. Work photos are optional (none is fine, they only
+    /// rank higher in search); any sent must be valid photo ids (duplicates are dropped and at most <see cref="MaxWorkPhotos"/> kept).
     /// </summary>
     public static string? InvalidField(PublishListingRequest request) =>
         !StoreText.IsCode(request.CategoryId) ? "categoryId"
@@ -257,8 +255,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         : request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId) ? "experienceId"
         : request.RateTierId is not null && !StoreText.IsCode(request.RateTierId) ? "rateTierId"
         : !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
-        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId)
-          || request.WorkPhotoIds.Distinct().Count() < MinWorkPhotos ? "workPhotoIds"
+        : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId) ? "workPhotoIds"
         : (request.Latitude is not null || request.Longitude is not null) && GeoRules.Point(request.Latitude, request.Longitude) is null ? "latitude"
         : request.RadiusKm is not null && !GeoRules.IsRadius(request.RadiusKm) ? "radiusKm"
         : null;

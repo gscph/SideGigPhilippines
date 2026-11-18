@@ -22,7 +22,7 @@ Big marketplaces (Airbnb, Thumbtack, Yelp, Google Local Services) split search i
 | **Job** | Only workers who list the exact job (`ServiceId`). If nobody lists it, there are no results. There's no fallback to the whole trade (`SearchPageDto.ServiceFallback` is always `false` and stays in the contract only for older apps). |
 | **Town** (forgiving) | Workers who go to the Seeker's town make up the first group, `InTown`. Workers from other towns we serve come after as "Other towns nearby". Workers who only go to towns we don't serve are left out. A great worker from a nearby town never jumps above a worker from the Seeker's own town. |
 
-## 2. The score (0–100, plus up to 10 for badges, within each group)
+## 2. The score (0–100, plus up to 10 for badges and 3 for work photos, within each group)
 
 Each part is a 0–1 feature multiplied by a weight. The weights add up to 100 and are named constants in `SearchRanker`.
 `SearchRanker.Score` returns a `RankScore` with each part, so any ranking can be explained.
@@ -54,10 +54,25 @@ is the one signal a brand-new worker can earn on day one. Seekers see the same b
 (`BadgeChips`) and under "What we checked" on the profile, so the order can be read off the screen. Approving a
 badge clears the 30 s search cache.
 
+### Work photos: up to +3 on top
+
+| Work photos on the listing | Bonus |
+|---|---|
+| none | 0 |
+| 1 | 1.5 |
+| 2 or more (`SearchRanker.FullPhotoBonusAt`) | 3 |
+
+`RankScore.Photos` (`SearchRanker.PhotosFeature`, `WorkPhotosWeight` 3). Publishing doesn't need work photos (too
+much friction before going live), but customers pick workers who show their work first, so a listing with photos
+moves up. Like badges it is a **bonus on top of the 100**: a worker without photos scores exactly as before. It is
+worth as much as a TESDA or project badge and less than an ID because nobody checks the photos, and it is capped at
+2 so a worker climbs by showing some work, not by piling photos up. Between two otherwise equal workers the one with
+photos comes first. The sample workers in `006-seed-search-ranking.sql` have no photos, so its orders don't change.
+
 **Why these weights.** They follow the order you suggested (reviews, then responsiveness, then activity), with the
 40% meant for boosts moved out of the score (see below). The slot you left open went to budget fit and experience:
 money is the hook for both sides (the "Pasok sa budget" badge), and experience is something Seekers see on every
-card. Photos no longer score because every published listing must have them.
+card. Work photos are optional, so they score again, as a bonus on top (above), not a share of the 100.
 
 **Cold start.** Every behavioural feature starts from a neutral prior instead of zero. A brand-new worker lands
 in the middle of the list, above a worker who ignores most chats and below a proven one, so newcomers can win

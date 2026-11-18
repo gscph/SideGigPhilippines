@@ -21,6 +21,10 @@
                    HasVerifiedPhone="@Workspace.HasVerifiedPhone"
                    AddPhoneHref="@AddPhonePath" IsPublished="@Workspace.IsPublished" />
     }
+    else if (Progress.ShowWorkPhotosNudge)
+    {
+        <WorkPhotosNudgeCard />
+    }
     else if (Progress.ShowBadgeNudge)
     {
         <BadgeNudgeCard BadgeCount="Progress.BadgeCount" />

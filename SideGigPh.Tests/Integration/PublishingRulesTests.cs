@@ -134,6 +134,51 @@ public class PublishingRulesTests(ApiTestHost api)
         (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be("invalid-serviceIds");
     }
 
+    // Work photos are optional: a worker goes live with none, phone -> API -> database and back.
+    [IntegrationFact]
+    public async Task ListingWithoutWorkPhotos_IsPublished()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Tonyo");
+        foreach (var id in worker.Pro.Draft.WorkPhotoIds.ToList())
+        {
+            await worker.Pro.RemoveWorkPhotoAsync(id);
+        }
+
+        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+
+        var listing = await new TestPhone(api, "Viewer").Get<IProfessionalProfileRepository>().GetByIdAsync(worker.Uid);
+        listing!.WorkPhotoUrls.Should().BeEmpty();
+    }
+
+    [IntegrationFact]
+    public async Task LiveListing_RemovingEveryWorkPhoto_StaysLive()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Udong");
+        await worker.Pro.PublishAsync();
+
+        foreach (var id in worker.Pro.Draft.WorkPhotoIds.ToList())
+        {
+            await worker.Pro.RemoveWorkPhotoAsync(id); // a live listing republishes itself
+        }
+
+        worker.Pro.Draft.ListingOutOfDate.Should().BeFalse("the server took the listing with no work photos");
+        var listing = await new TestPhone(api, "Viewer").Get<IProfessionalProfileRepository>().GetByIdAsync(worker.Uid);
+        listing!.WorkPhotoUrls.Should().BeEmpty();
+    }
+
+    [IntegrationFact]
+    public async Task WorkPhotoIdThatIsNotAPhoto_IsRefusedWithTheFieldName()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Vic");
+        var request = new PublishListingRequest("Vic", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, null,
+            worker.Pro.Draft.ProfilePhotoId, ["not-a-photo"]);
+
+        using var response = await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be("invalid-workPhotoIds");
+    }
+
     [IntegrationFact]
     public async Task WorkPhotoOfAnotherListing_IsPhotoInUse()
     {

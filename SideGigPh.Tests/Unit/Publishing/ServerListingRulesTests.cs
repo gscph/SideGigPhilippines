@@ -9,7 +9,7 @@ namespace SideGigPh.Tests.Unit.Publishing;
 /// <summary>
 /// The server's last check before a listing goes live (<see cref="ProfessionalStore.InvalidField"/>). It answers
 /// <c>400 invalid-{field}</c>, so a rule that is too strict blocks real workers, and one that is too loose lets fake
-/// listings in. The last tests make sure the app and the server agree on the numbers (2 to 6 work photos).
+/// listings in. The last tests make sure the app and the server agree on the numbers (up to 6 work photos, optional).
 /// </summary>
 public class ServerListingRulesTests
 {
@@ -42,14 +42,28 @@ public class ServerListingRulesTests
         ProfessionalStore.InvalidField(request!).Should().BeNull();
     }
 
+    // Work photos are optional: a worker publishes with none and adds them later to be seen more.
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(6)]
+    public void InvalidField_AnyNumberOfWorkPhotosUpToSix_IsAccepted(int count) =>
+        ProfessionalStore.InvalidField(Valid() with { WorkPhotoIds = [.. Enumerable.Range(2, count).Select(TestData.PhotoId)] })
+            .Should().BeNull();
+
     [Fact]
-    public void InvalidField_OneWorkPhoto_IsWorkPhotoIds() =>
-        ProfessionalStore.InvalidField(Valid() with { WorkPhotoIds = [TestData.PhotoId(2)] })
+    public void InvalidField_SameWorkPhotoTwice_IsAccepted_TheCopyIsDropped() =>
+        ProfessionalStore.InvalidField(Valid() with { WorkPhotoIds = [TestData.PhotoId(2), TestData.PhotoId(2)] })
+            .Should().BeNull();
+
+    [Fact]
+    public void InvalidField_WorkPhotoIdNotAPhoto_IsWorkPhotoIds() =>
+        ProfessionalStore.InvalidField(Valid() with { WorkPhotoIds = [TestData.PhotoId(2), "../not-a-photo"] })
             .Should().Be("workPhotoIds");
 
     [Fact]
-    public void InvalidField_SameWorkPhotoTwice_IsWorkPhotoIds() =>
-        ProfessionalStore.InvalidField(Valid() with { WorkPhotoIds = [TestData.PhotoId(2), TestData.PhotoId(2)] })
+    public void InvalidField_WorkPhotoIdsMissing_IsWorkPhotoIds() =>
+        ProfessionalStore.InvalidField(Valid() with { WorkPhotoIds = null! })
             .Should().Be("workPhotoIds");
 
     [Fact]
@@ -72,7 +86,7 @@ public class ServerListingRulesTests
     [Fact]
     public void ProofRules_AppAndServerAgree()
     {
-        ProfessionalDraft.MinWorkPhotos.Should().Be(ProfessionalStore.MinWorkPhotos);
+        ProfessionalDraft.GoodWorkPhotos.Should().Be(SearchRanker.FullPhotoBonusAt, "the \"be seen more\" item is done when the bonus is full");
         Maui.Services.ProWorkspace.MaxWorkPhotos.Should().Be(ProfessionalStore.MaxWorkPhotos);
     }
 

@@ -4,7 +4,7 @@ using SideGigPh.Tests.TestSupport;
 namespace SideGigPh.Tests.Unit.Photos;
 
 /// <summary>
-/// Photos are part of the proof a worker needs to publish (own photo + 2 work photos), and the avatar customers see.
+/// The own photo is part of the proof a worker needs to publish and the avatar customers see; work photos are optional and help them be seen.
 /// Every way picking or uploading can go wrong must end in a clear notice (no permission, upload failed, photo
 /// belongs to someone else), never a crash or a silently missing photo.
 /// </summary>
@@ -204,16 +204,20 @@ public class PhotoTests
     }
 
     [Fact]
-    public async Task RemoveWorkPhoto_BelowTwoOnPublishedListing_IsNotAllowed()
+    public async Task RemoveWorkPhoto_LastOnesOnPublishedListing_AreAllowedAndRepublished()
     {
+        // Work photos are optional, so a live listing may drop all of them; the live listing keeps up.
         var draft = TestData.ReadyDraft();
         draft.PublishedAt = DateTimeOffset.Now;
         var app = await FakeApp.ProAsync(draft);
 
         await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(2));
+        await app.Pro.RemoveWorkPhotoAsync(TestData.PhotoId(3));
 
-        app.Pro.CanRemoveWorkPhoto.Should().BeFalse();
-        app.Pro.Draft.WorkPhotoIds.Should().HaveCount(2);
+        app.Pro.Draft.WorkPhotoIds.Should().BeEmpty();
+        app.Pro.CanRemoveWorkPhoto.Should().BeFalse("there is nothing left to remove");
+        app.Pro.IsPublished.Should().BeTrue();
+        app.Profiles.Published.Last().WorkPhotoUrls.Should().BeEmpty();
     }
 
     // --- Seeker's own photo -------------------------------------------------

@@ -474,16 +474,15 @@ public static class Copy
         "Mauunang makita ng malalapit na workers ang post mo. Bayan at ilang km lang ang nakikita nila, hindi ang eksaktong location mo.");
     public static readonly LocalizedText SectionReviews = new("Latest reviews", "Mga bagong review");
 
-    // Setup checklist on Pro home: photo, 2 work photos, a confirmed number, then the Publish button.
+    // Setup checklist on Pro home: photo, a confirmed number, then the Publish button; work photos optional.
     public static readonly LocalizedText NotLiveBannerPhoto = new("Not visible yet · Add a photo of you", "Di ka pa nakikita · Maglagay ng photo mo");
-    public static readonly LocalizedText NotLiveBannerWork = new("Not visible yet · Add photos of your work", "Di ka pa nakikita · Maglagay ng photos ng gawa mo");
     public static readonly LocalizedText NotLiveBannerPublish = new("Not visible yet · Ready! Tap to publish", "Di ka pa nakikita · Ready na! I-tap para i-publish");
     public static readonly LocalizedText NotLiveBannerNumber = new("Not visible yet · Confirm your number to publish", "Di ka pa nakikita · I-confirm ang number para ma-publish");
     public static readonly LocalizedText SetupTitle =new("Get ready for customers", "Ihanda ang listing mo");
     public static readonly LocalizedText SetupPhoto = new("Add a photo of you", "Maglagay ng photo mo");
     public static readonly LocalizedText SetupPhotoWhy = new("Customers trust a face.", "Mas nagtitiwala ang customer kapag may mukha.");
-    public static readonly LocalizedText SetupWork = new("Add at least 2 photos of your work", "Maglagay ng 2 o higit pang photos ng gawa mo");
-    public static readonly LocalizedText SetupWorkWhy = new("Show your best work. {0} of 2 added.", "Ipakita ang pinakamagandang gawa mo. {0} sa 2 na.");
+    public static readonly LocalizedText SetupWork = new("Add photos of your work", "Maglagay ng photos ng gawa mo");
+    public static readonly LocalizedText SetupWorkWhy = new("Optional. Customers pick workers with photos first.", "Optional. Inuuna ng customer ang may photos.");
     public static readonly LocalizedText SetupPhone = new("Confirm your number", "I-confirm ang number mo");
     public static readonly LocalizedText SetupPhoneWhy = new("We text you a code. Customers see it only once they pick you.", "Ite-text ka namin ng code. Makikita lang ng customer kapag pinili ka.");
     public static readonly LocalizedText SetupPhoneDone = new("Confirmed with a text code.", "Na-confirm na gamit ang code sa text.");
@@ -505,6 +504,8 @@ public static class Copy
         "Customers pick workers they can trust. Each badge shows on your listing and moves you up in search. It's free.",
         "Pinipili ng customer ang mapagkakatiwalaan. Lalabas ang bawat badge sa listing mo at aangat ka sa search. Libre ito.");
     public static readonly LocalizedText BadgesCount = new("{0} of {1}", "{0} sa {1}");
+    public static readonly LocalizedText WorkPhotosNudgeTitle = new("Be seen more: add work photos", "Mas makikita ka: maglagay ng photos ng gawa mo");
+    public static readonly LocalizedText WorkPhotosNudgeText = new("Customers pick workers with photos first, and you show higher in search.", "Inuuna ng customer ang may photos, at mas mataas ka sa search.");
     public static readonly LocalizedText BadgeNudgeTitle = new("Get more customers with badges", "Dumami ang customer gamit ang badges");
     public static readonly LocalizedText BadgeNudgeText = new("Workers with an ID, TESDA or past-project badge show higher in search, and customers trust them more.", "Mas mataas ka sa search kapag may ID, TESDA o past project badge ka, at mas nagtitiwala ang customer.");
     public static readonly LocalizedText BadgeNudgeButton = new("Add a badge", "Maglagay ng badge");
@@ -562,7 +563,7 @@ public static class Copy
     // --- Photos -----------------------------------------------------------
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
     public static readonly LocalizedText PhotosCount = new("{0} of {1} photos", "{0} sa {1} photos");
-    public static readonly LocalizedText PhotosWhy = new("Customers see these on your listing. At least {0}, up to {1} photos.", "Makikita ito ng customer sa listing mo. {0} o higit pa, hanggang {1} photos.");
+    public static readonly LocalizedText PhotosWhy = new("Add photos of your work. Customers pick workers with photos first. Up to {0} photos.", "Maglagay ng photos ng gawa mo. Inuuna ng customer ang may photos. Hanggang {0} photos.");
     public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they message you.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago mag-message.");
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");

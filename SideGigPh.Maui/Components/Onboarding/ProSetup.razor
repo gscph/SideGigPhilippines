@@ -24,13 +24,5 @@
                 </MudStack>
             </InterviewStep>
             break;
-
-        case ProSetupStep.WorkPhotos:
-            <InterviewStep Illustration="@AppImages.WorkPhotos" Title="@T.Get(Copy.SetupWork)"
-                           Why="@T.Format(Copy.PhotosWhy, ProfessionalDraft.MinWorkPhotos, ProWorkspace.MaxWorkPhotos)" Progress="Progress"
-                           OnBack="GoBack" OnNext="Next" CanContinue="@Draft.HasEnoughWorkPhotos">
-                <WorkPhotosEditor OnChanged="StateHasChanged" />
-            </InterviewStep>
-            break;
     }
 }

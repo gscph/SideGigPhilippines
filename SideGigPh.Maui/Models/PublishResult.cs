@@ -12,7 +12,7 @@ public enum PublishResult
     Incomplete,
 
     /// <summary>
-    /// Not sent: the setup checklist isn't done (own photo, 2 work photos;
+    /// Not sent: the setup checklist isn't done (own photo;
     /// <see cref="ProfessionalDraft.HasProof"/>).
     /// </summary>
     MissingProof,

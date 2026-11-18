@@ -44,7 +44,7 @@ SideGigPh.Tests/
 ├── Unit/                 one piece at a time, no network or database (milliseconds each)
 │   ├── Onboarding/       the interview: which question shows, what an answer clears, where the app opens, links
 │   ├── Publishing/       publishing a listing: missing answers or proof, the server's own checks, an old app's
-│   │                     body, and that the app and server agree on the rules (2–6 work photos)
+│   │                     body, and that the app and server agree on the rules (up to 6 work photos, optional)
 │   ├── Search/           search box words (tubero → plumbing), result order (town, budget, stars), card wording
 │   ├── Seeker/           the Seeker home: typing, tapping trades and towns, saved search
 │   ├── Chats/            messages, calls and the unread badge on both sides; money maths

@@ -50,7 +50,7 @@ public partial class PublishPage : ComponentBase
             return;
         }
 
-        // Own photo and 2 work photos come first: the setup opens at the first one missing.
+        // The own photo comes first: the setup opens there while it is missing.
         if (!Workspace.Draft.HasProof)
         {
             Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);
@@ -60,7 +60,7 @@ public partial class PublishPage : ComponentBase
         // The listing's number is the account's verified number (a Google sign-in adds one here first). Its Back goes
         // to the setup's last step, since home would resume right back here; "Do this later" goes to Pro home, whose
         // banner and checklist say the number is still needed to publish (no dead end when today's codes are used up).
-        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.WorkPhotos),
+        if (await Gate.RedirectAsync(ProRoutes.Publish, requirePhone: true, OnboardingSteps.PathOf(ProSetupStep.Photo),
                 laterPath: ProRoutes.Home) is { } step)
         {
             Nav.NavigateTo(step, replace: true);
@@ -123,5 +123,5 @@ public partial class PublishPage : ComponentBase
     }
 
     // The step before it in the setup after the interview (work photos).
-    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProSetupStep.WorkPhotos));
+    private void GoBack() => Nav.NavigateTo(OnboardingSteps.PathOf(ProSetupStep.Photo));
 }

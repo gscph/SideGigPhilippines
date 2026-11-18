@@ -131,7 +131,7 @@ public sealed record ListingDto(
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
 /// number, both taken from the sign-in token, never from here. Work photos are newest first. Publishing needs a
-/// profile photo and at least 2 work photos. An older app may still send a <c>references</c> list: it is ignored.
+/// profile photo (work photos are optional, 0–6). An older app may still send a <c>references</c> list: it is ignored.
 /// <paramref name="Latitude"/> / <paramref name="Longitude"/> are the worker's base point and <paramref name="RadiusKm"/>
 /// how far they travel (1–50): all optional and private (never in <see cref="ListingDto"/>). Left out, the server keeps
 /// what it has, or starts from the middle of the listing's towns and 10 km.

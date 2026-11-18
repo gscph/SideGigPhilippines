@@ -5,8 +5,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Pro home checklist: own photo, at least 2 work photos and a number confirmed with an SMS code.
-/// Once all three are ticked a Publish button shows under them (the layout also opens Publish once by itself).
+/// Pro home checklist: own photo and a number confirmed with an SMS code. Once both are ticked a Publish button
+/// shows under them. Work photos sit last as an optional line ("be seen more"): they never count toward the bar or
+/// Publish (the layout also opens Publish once by itself).
 /// The finished interview counts as the first step, so the bar never starts empty. A listing published before
 /// these were required sees it too (without the button) until they're done.
 /// </summary>
@@ -25,12 +26,12 @@ public partial class SetupCard : ComponentBase
 
     [Parameter] public bool IsPublished { get; set; }
 
-    private bool HasWorkPhotos => WorkPhotoCount >= ProfessionalDraft.MinWorkPhotos;
+    private bool HasWorkPhotos => WorkPhotoCount >= ProfessionalDraft.GoodWorkPhotos;
 
-    private bool AllDone => HasPhoto && HasWorkPhotos && HasVerifiedPhone;
+    private bool AllDone => HasPhoto && HasVerifiedPhone;
 
-    // Steps: interview (done), photo, work photos, number, publish.
+    // Steps: interview (done), photo, number, publish. Work photos are optional and not counted.
     private double Percent =>
-        (1 + (HasPhoto ? 1 : 0) + (HasWorkPhotos ? 1 : 0) + (HasVerifiedPhone ? 1 : 0) + (IsPublished ? 1 : 0))
-        * 100.0 / 5;
+        (1 + (HasPhoto ? 1 : 0) + (HasVerifiedPhone ? 1 : 0) + (IsPublished ? 1 : 0))
+        * 100.0 / 4;
 }

@@ -147,7 +147,7 @@ public sealed class ProfessionalFunctions(
             logger.LogWarning("Publish by {Uid}: invalid {Field}.", caller.Uid, field);
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
                 $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
-                + $"and at least {ProfessionalStore.MinWorkPhotos} workPhotoIds are required). Received: {sent}");
+                + $"and valid workPhotoIds (optional, 0-{ProfessionalStore.MaxWorkPhotos}) are required). Received: {sent}");
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch
