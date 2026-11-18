@@ -43,10 +43,10 @@
             {
                 <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProPostsEmpty)</MudText>
             }
-            <MudStack Spacing="3">
+            <MudStack Spacing="0">
                 @foreach (var post in Board.Feed.Take(3))
                 {
-                    <ProRequestRow Post="post" @key="post.Id" />
+                    <RequestRow Item="@RequestItem.From(post)" @key="post.Id" />
                 }
             </MudStack>
         </HomeSection>

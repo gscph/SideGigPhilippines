@@ -10,6 +10,9 @@ public static class ProRoutes
 
     /// <summary>What customers nearby posted for the pro's trade (the Requests tab).</summary>
     public const string Requests = JobPosts.JobPostRoutes.Feed;
+
+    /// <summary>One request's own page, from its short row; under <see cref="Requests"/> so the tab stays lit.</summary>
+    public static string Request(long postId) => JobPosts.JobPostRoutes.Request(postId);
     public const string Reviews = "/professional/reviews";
 
     /// <summary>Going live, step 1: the promises (<c>PublishPage</c>). Every "Publish" link opens here.</summary>

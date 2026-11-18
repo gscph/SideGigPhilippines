@@ -130,6 +130,3 @@ public enum OfferResult
     /// <summary>It didn't reach the server (no internet, server error): worth trying again.</summary>
     Failed,
 }
-
-/// <summary>A worker's offer as the card sends it up: the post, the price (the budget or their own) and an optional note.</summary>
-public sealed record OfferDraft(JobPost Post, int PricePesos, string? Note);

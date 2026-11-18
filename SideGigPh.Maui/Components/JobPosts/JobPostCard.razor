@@ -10,24 +10,11 @@
                         {
                             <MudChip T="string" Color="Color.Primary" Variant="Variant.Text" Size="Size.Small" Class="ma-0">@TradeLabel</MudChip>
                         }
-                        @if (ForWorker && Post.OffersService)
-                        {
-                            <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Size="Size.Small"
-                                     Icon="@Icons.Material.Filled.Check" Class="ma-0">@T.Get(Copy.PostOffersService)</MudChip>
-                        }
-                        @if (!ForWorker)
-                        {
-                            <MudChip T="string" Color="@(Post.IsOpen || Post.PickedProId is not null ? Color.Success : Color.Default)" Variant="Variant.Text" Size="Size.Small" Class="ma-0">
-                                @T.Get(Status)
-                            </MudChip>
-                        }
+                        <MudChip T="string" Color="@(Post.IsOpen || Post.PickedProId is not null ? Color.Success : Color.Default)" Variant="Variant.Text" Size="Size.Small" Class="ma-0">
+                            @T.Get(Status)
+                        </MudChip>
                     </MudStack>
                 </MudStack>
-                @if (ForWorker)
-                {
-                    <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Size="Size.Small" Color="Color.Secondary"
-                                   OnClick="@(() => OnReport.InvokeAsync(Post))" aria-label="@T.Get(Copy.PostReport)" />
-                }
             </MudStack>
 
             <MudText Typo="Typo.body1">@Post.Description</MudText>
@@ -35,11 +22,7 @@
             <MudStack Spacing="1">
                 <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
                              Text="@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(Post))" />
-                <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@Where" />
-                @if (ForWorker && Post.HouseholdStars is { } stars)
-                {
-                    <ProCardFact Icon="@Icons.Material.Filled.Star" IconColor="Color.Warning" Text="@T.Format(Copy.HouseholdStarsFact, T.Stars(stars))" />
-                }
+                <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@T.Place(Post.CityId, Post.BarangayId)" />
             </MudStack>
 
             @if (Post.PhotoUrls.Count > 0)
@@ -52,18 +35,14 @@
                 </PhotoStrip>
             }
 
-            @if (ForWorker && SendOffer is not null)
-            {
-                <OfferBox Post="Post" Busy="Busy" Send="SendOffer" OnWithdraw="@(() => OnWithdrawOffer.InvokeAsync(Post))" />
-            }
-            else if (!ForWorker && Post.PickedProId is { } picked)
+            @if (Post.PickedProId is { } picked)
             {
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" StartIcon="@Icons.Material.Rounded.ChatBubbleOutline"
                            Href="@SeekerRoutes.Thread(picked)">
                     @T.Get(Copy.PostOpenChat)
                 </MudButton>
             }
-            else if (!ForWorker && Post.IsOpen)
+            else if (Post.IsOpen)
             {
                 <MudButton Variant="@(Post.OfferCount > 0 ? Variant.Filled : Variant.Outlined)" Color="@(Post.OfferCount > 0 ? Color.Primary : Color.Dark)"
                            FullWidth="true" Href="@JobPostRoutes.Offers(Post.Id)">
@@ -73,7 +52,7 @@
 
             <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="flex-1">@T.Ago(Post.CreatedAt)</MudText>
-                @if (!ForWorker && Post.IsOpen)
+                @if (Post.IsOpen)
                 {
                     <MudButton Variant="Variant.Text" Size="Size.Small" Class="app-link-button" OnClick="@(() => OnTakeDown.InvokeAsync(Post))">
                         @T.Get(Copy.PostTakeDown)

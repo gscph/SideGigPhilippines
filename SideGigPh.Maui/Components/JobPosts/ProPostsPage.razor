@@ -3,25 +3,15 @@
 @layout ProLayout
 
 <MudStack Spacing="3">
-    <MudStack Spacing="1">
-        <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.ProPostsTitle)</MudText>
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.ProPostsWhy)</MudText>
-        <MudButton Variant="Variant.Text" Class="app-link-button align-self-start" StartIcon="@Icons.Material.Rounded.LocalOffer"
-                   Href="@JobPostRoutes.MyOffers">
-            @T.Get(Copy.MyOffersLink)
-        </MudButton>
-    </MudStack>
-
-    @if (_notice is not null)
-    {
-        <MudAlert Severity="@(_noticeIsError ? Severity.Error : Severity.Success)" Variant="Variant.Text" Dense="true" role="status">@T.Get(_notice)</MudAlert>
-    }
+    <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.ProPostsTitle)</MudText>
+    <RequestsSwitch Current="@JobPostRoutes.Feed" />
 
     @if (!_loaded)
     {
         <MudStack Spacing="3">
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
         </MudStack>
     }
     else if (!Board.HasListing)
@@ -34,11 +24,11 @@
     }
     else
     {
-        <MudStack Spacing="3">
+        <MudStack Spacing="0">
             @foreach (var post in Board.Feed)
             {
-                <JobPostCard @key="post.Id" Post="post" ForWorker="true" OnReport="ReportAsync"
-                             SendOffer="SendOfferAsync" OnWithdrawOffer="WithdrawOfferAsync" Busy="_busy" />
+                <RequestRow @key="post.Id" Item="@RequestItem.From(post)" />
+                <MudDivider @key="@($"d{post.Id}")" />
             }
         </MudStack>
         <LoadMoreOnScroll HasMore="Board.HasMore" OnLoadMore="Board.LoadMoreFeedAsync" />

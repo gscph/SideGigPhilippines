@@ -7,12 +7,11 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
-/// One job post as a raised card that opens like Seeker home's "Post what you need done": the household's first photo
-/// (else the megaphone, <see cref="Shared.PostThumb"/>), the service and trade, what is wrong, the budget (green, like all money), the town and barangay
-/// when given (for a worker also how far, in whole kilometres), its photos and how long ago it was posted. For its household
-/// (<see cref="ForWorker"/> false) it says whether workers can still see it and offers "Take down"; for a worker it
-/// marks a service they offer and has a flag to report a fake post. Offers: the household gets "See N offers" on an
-/// open post and "Open chat" once they picked a worker; the worker answers under the card (<see cref="OfferBox"/>).
+/// One of the household's own posts (the Seeker's Post tab) as a raised card that opens like Seeker home's "Post what
+/// you need done": the first photo (else the megaphone, <see cref="Shared.PostThumb"/>), the service and trade, what is
+/// wrong, the budget (green, like all money), the town and barangay when given, its photos and how long ago it was
+/// posted. It says whether workers can still see it and offers "Take down"; "See N offers" on an open post and "Open
+/// chat" once they picked a worker. Workers see posts as short rows instead (<see cref="RequestRow"/>).
 /// </summary>
 public partial class JobPostCard : ComponentBase
 {
@@ -20,23 +19,8 @@ public partial class JobPostCard : ComponentBase
 
     [Parameter, EditorRequired] public JobPost Post { get; set; } = default!;
 
-    /// <summary>Shown in a worker's feed (distance, "You offer this", report) instead of the household's own list.</summary>
-    [Parameter] public bool ForWorker { get; set; }
-
     /// <summary>The household tapped "Take down".</summary>
     [Parameter] public EventCallback<JobPost> OnTakeDown { get; set; }
-
-    /// <summary>A worker tapped the report flag.</summary>
-    [Parameter] public EventCallback<JobPost> OnReport { get; set; }
-
-    /// <summary>For a worker: sends their offer (true when it went through). Without it the card has no offer buttons.</summary>
-    [Parameter] public Func<OfferDraft, Task<bool>>? SendOffer { get; set; }
-
-    /// <summary>A worker tapped "Take back" on their offer.</summary>
-    [Parameter] public EventCallback<JobPost> OnWithdrawOffer { get; set; }
-
-    /// <summary>The page is sending: the offer buttons wait.</summary>
-    [Parameter] public bool Busy { get; set; }
 
     private LocalizedText Status =>
         Post.PickedProId is not null ? Copy.PostPicked : Post.IsOpen ? Copy.PostShowing : Copy.PostTakenDown;
@@ -54,9 +38,4 @@ public partial class JobPostCard : ComponentBase
     /// <summary>The trade's name, or null for a trade we no longer offer.</summary>
     private string? TradeLabel =>
         ReferenceData.FindTrade(Post.CategoryId) is { } trade ? T.Get(trade.Label) : null;
-
-    // "Angono · Brgy. San Isidro" when the household picked a barangay, else the town.
-    private string Town => T.Place(Post.CityId, Post.BarangayId);
-
-    private string Where => ForWorker && Post.DistanceKm is { } km ? T.Format(Copy.PostDistance, Town, km) : Town;
 }

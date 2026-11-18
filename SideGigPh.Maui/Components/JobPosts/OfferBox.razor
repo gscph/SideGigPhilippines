@@ -1,37 +1,14 @@
-@if (_editing)
-{
-    <MudStack Spacing="2">
-        <MudNumericField T="int?" @bind-Value="_price" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
-                         Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
-                         Label="@T.Get(Copy.OfferYourPrice)" />
-        <MudTextField T="string" @bind-Value="_note" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
-                      Class="app-field" Lines="2" MaxLength="@JobBoard.MaxOfferNote"
-                      Label="@T.Get(Copy.OfferNote)" Placeholder="@T.Get(Copy.OfferNoteHint)" />
-        <MudStack Row="true" Spacing="2" Justify="Justify.FlexEnd">
-            <MudButton Variant="Variant.Text" Color="Color.Dark" Disabled="Busy" OnClick="Cancel">@T.Get(CommonCopy.Cancel)</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(Busy || !JobBoard.CanOffer(_price, _note))" OnClick="SendTypedAsync">
-                @T.Get(Copy.OfferSend)
-            </MudButton>
-        </MudStack>
-    </MudStack>
-}
-else if (Post.MyOfferPesos is { } mine)
-{
-    <MudStack Spacing="1">
-        <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true" Text="@T.Format(Copy.OfferMine, Money.Peso(mine))" />
-        <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.OfferWaiting)</MudText>
-        <MudStack Row="true" Spacing="2">
-            <MudButton Variant="Variant.Text" Size="Size.Small" Class="app-link-button" Disabled="Busy" OnClick="Edit">@T.Get(Copy.OfferChange)</MudButton>
-            <MudButton Variant="Variant.Text" Size="Size.Small" Class="app-link-button" Disabled="Busy" OnClick="OnWithdraw">@T.Get(Copy.OfferWithdraw)</MudButton>
-        </MudStack>
-    </MudStack>
-}
-else
-{
-    <MudStack Spacing="2">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="Busy" OnClick="TakeBudgetAsync">
-            @T.Format(Copy.OfferTakeBudget, Money.Peso(Post.BudgetPesos))
+<MudStack Spacing="2">
+    <MudNumericField T="int?" @bind-Value="_price" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
+                     Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
+                     Label="@T.Get(Copy.OfferYourPrice)" />
+    <MudTextField T="string" @bind-Value="_note" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
+                  Class="app-field" Lines="2" MaxLength="@JobBoard.MaxOfferNote"
+                  Label="@T.Get(Copy.OfferNote)" Placeholder="@T.Get(Copy.OfferNoteHint)" />
+    <MudStack Row="true" Spacing="2" Justify="Justify.FlexEnd">
+        <MudButton Variant="Variant.Text" Color="Color.Dark" Disabled="Busy" OnClick="OnCancel">@T.Get(CommonCopy.Cancel)</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(Busy || !JobBoard.CanOffer(_price, _note))" OnClick="SendTypedAsync">
+            @T.Get(Copy.OfferSend)
         </MudButton>
-        <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Disabled="Busy" OnClick="Edit">@T.Get(Copy.OfferOtherPrice)</MudButton>
     </MudStack>
-}
+</MudStack>

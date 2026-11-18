@@ -177,8 +177,13 @@ changing that area.**
   household's point is private:** it is stored (the phone's, else the town's centre) and only a town and a distance
   in whole kilometres, never under 1, are sent (`JobPostStore.DistanceKm`). A 🚩 on a post goes to the operator's
   `Reports` queue (`job-post:{id}`); the operator hides it with `Status = 'hidden'`. Copy calls it "what you need
-  done" / "Requests", never a job. **Offers** (`016-schema-job-offers.sql`, table `JobOffers`, inDrive style): under
-  each card in the feed a worker taps "Take it for ₱budget" or offers another price with a short note
+  done" / "Requests", never a job. The worker sees each request as a short row (`Components/JobPosts/RequestRow`: picture, service + green budget,
+  place · distance, time · state, one "Offer" / "My offer" button look; rules `Services/RequestItem`, `RequestText`; in
+  the feed, My offers and Pro home) that opens **its own page** (`RequestDetailPage`, `ProRoutes.Request(id)` =
+  `/professional/requests/{id}`, Airbnb-listing layout: centered title, stat row, highlight rows, photos, sticky
+  `RequestActionBar`; read from `JobBoard.FindRequestAsync`, feed then own offers, no single-post endpoint); the tab's
+  title has a New / My offers switch (`RequestsSwitch`). **Offers** (`016-schema-job-offers.sql`, table `JobOffers`,
+  inDrive style): on that page a worker taps "Take it" or offers another price with a short note
   (`Components/JobPosts/OfferBox`), changes it or takes it back, one offer per worker per post; the household's card
   says "See N offers" (`OffersPage`, `/posts/{id}/offers`: each worker's `ProCard`, price, distance, note, the picked
   one first, then cheapest); "Pick" asks once more, closes the post, sends the worker a first chat message and opens
