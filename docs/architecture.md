@@ -182,9 +182,17 @@ for Android).
   nearby see it. Tarbaho stays a directory: the budget is the household's own number, nothing is paid in the app.
 - **Seeker side:** the **Post** tab (`SeekerRoutes.Posts` = `JobPostRoutes.Mine`, `Components/JobPosts/MyPostsPage`,
   inside `SeekerLayout`) lists their posts, newest first, each saying whether workers can still see it, with
-  "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen): kind of work,
-  the exact service, town (all three start from their last search), the problem in their words (10–600 letters),
-  their budget in pesos and up to 3 photos, uploaded as they are picked (`JobBoard.AddPhotosAsync`).
+  "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen), laid out like
+  Airbnb's "Review and continue" (`docs/ux/airbnb-2026-11-18/airbnb-20`, `22`): the title "Post what you need done"
+  (no explainer), one outlined card (`PostDraftSummary`: the first photo or the service's picture, the service and its
+  trade; then `DetailRow`s **What** (service), **Where** ("Angono · Brgy. San Isidro") and **Your budget** (green),
+  each with a gray **Change**, or **Add** while empty). A row's button opens its own full-screen sheet in the page (no
+  pop-up; `PostPartFields`: kind of work + exact service; town + barangay + "Use my location"; budget from / up to
+  with the guide), with Cancel (link, puts the answers back from a `PostSnapshot`) and Save pinned at the bottom.
+  Under the card: "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
+  (`JobBoard.AddPhotosAsync`); Post pinned at the bottom with what is still missing under it. Trade, service and town
+  start from their last search. Rules: `Services/PostReview`, `Services/Localization/PostReviewText`, tested in
+  `Unit/JobPosts/PostReviewTests`.
 - **Pro side:** the **Requests** tab (`ProRoutes.Requests` = `JobPostRoutes.Feed`, `ProPostsPage`, inside
   `ProLayout`) is the feed, a page of `Paging.JobPosts` (10) at a time with `LoadMoreOnScroll`. Until the listing is
   published it says to publish first: the server matches posts to the published listing (trade, services, base

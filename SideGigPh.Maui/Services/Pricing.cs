@@ -123,10 +123,13 @@ public static class Pricing
         : (ReferenceData.MinimumWage, ReferenceData.MinimumWage);
 
     /// <summary>A job post's budget: "₱800 – ₱1,500" with a low end, "₱1,500" with only a top.</summary>
-    public static string PostBudget(JobPost post) =>
-        post.BudgetMinPesos is { } from && from != post.BudgetPesos
-            ? string.Format(Copy.BudgetRange.English, Money.Peso(from), Money.Peso(post.BudgetPesos))
-            : Money.Peso(post.BudgetPesos);
+    public static string PostBudget(JobPost post) => PostBudget(post.BudgetMinPesos, post.BudgetPesos);
+
+    /// <summary>A budget from–up to: "₱800 – ₱1,500" with a low end, "₱1,500" with only a top.</summary>
+    public static string PostBudget(int? fromPesos, int upToPesos) =>
+        fromPesos is { } from && from != upToPesos
+            ? string.Format(Copy.BudgetRange.English, Money.Peso(from), Money.Peso(upToPesos))
+            : Money.Peso(upToPesos);
 
     /// <summary>"₱1,000" for one price, "₱755 – ₱2,500" for a spread.</summary>
     public static LocalizedText PriceText((int Low, int High) range) =>

@@ -1,0 +1,45 @@
+@switch (Part)
+{
+    case PostPart.What:
+        <MudStack Spacing="2" Class="app-field-group">
+            <MudSelect T="string" Value="Draft.CategoryId" ValueChanged="PickTrade" Variant="Variant.Filled" Underline="false"
+                       Label="@T.Get(Copy.PostTrade)" Class="app-field">
+                @foreach (var trade in ReferenceData.TradeChoices)
+                {
+                    <MudSelectItem T="string" Value="@trade.Id">@T.Get(trade.Label)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect T="string" @bind-Value="Draft.ServiceId" Disabled="@(Draft.CategoryId is null)" Variant="Variant.Filled" Underline="false"
+                       Label="@T.Get(Copy.PostService)" Class="app-field">
+                @foreach (var service in ReferenceData.ServicesOf(Draft.CategoryId))
+                {
+                    <MudSelectItem T="string" Value="@service.Id">@T.Get(service.Label)</MudSelectItem>
+                }
+            </MudSelect>
+        </MudStack>
+        break;
+    case PostPart.Where:
+        <MudStack Spacing="2" Class="app-field-group">
+            <MudSelect T="string" Value="Draft.CityId" ValueChanged="PickTown" Variant="Variant.Filled" Underline="false"
+                       Label="@T.Get(Copy.FilterTown)" Class="app-field">
+                @foreach (var town in ReferenceData.Cities)
+                {
+                    <MudSelectItem T="string" Value="@town.Id">@T.Get(town.Label)</MudSelectItem>
+                }
+            </MudSelect>
+            <BarangayField TownId="@Draft.CityId" @bind-Value="Draft.BarangayId" />
+        </MudStack>
+        <LocationButton IsSet="@(Draft.Point is not null)" Why="@T.Get(Copy.PostLocationWhy)" OnFound="@(point => Draft.Point = point)" />
+        break;
+    default:
+        <MudStack Spacing="2" Class="app-field-group">
+            <MudNumericField T="int?" @bind-Value="Draft.BudgetMinPesos" Immediate="true" Variant="Variant.Filled" Underline="false"
+                             Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
+                             Label="@T.Get(Copy.PostBudgetFrom)" HelperText="@BudgetGuide" />
+            <MudNumericField T="int?" @bind-Value="Draft.BudgetPesos" Immediate="true" Variant="Variant.Filled" Underline="false"
+                             Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
+                             Label="@T.Get(Copy.PostBudgetUpTo)" HelperText="@T.Get(Copy.PostBudgetWhy)"
+                             Error="@BudgetTopTooLow" ErrorText="@T.Get(Copy.BudgetToError)" />
+        </MudStack>
+        break;
+}

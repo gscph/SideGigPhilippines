@@ -7,10 +7,11 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
-/// The form to post what a household needs done, full screen outside the tab shell: kind of work, the exact
-/// service ("Others" too: the description says what it is), town (the launch's default town when they have none) and
-/// optionally its barangay, what is wrong, their budget from–to (the suggested
-/// minimum price shows as a guide only) and up to three photos. It starts with the trade, service, town and barangay
+/// The form to post what a household needs done, full screen outside the tab shell, laid out like Airbnb's "Review and
+/// continue": one card with What (kind of work + exact service, "Others" too), Where (town, the launch's default town
+/// when they have none, optional barangay and "Use my location") and Your budget (from–to, the suggested minimum price
+/// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>); then what is
+/// wrong and up to three photos. It starts with the trade, service, town and barangay
 /// from their last search or post, so most people only type the problem and a number. Post leads back to their posts.
 /// </summary>
 public partial class NewPostPage : ComponentBase
@@ -25,6 +26,8 @@ public partial class NewPostPage : ComponentBase
 
     private readonly JobPostDraft _draft = new();
     private PhotoAddResult? _photoResult;
+    private PostPart? _sheet;
+    private PostSnapshot? _before;
     private bool _busy;
     private bool _failed;
 
@@ -54,26 +57,29 @@ public partial class NewPostPage : ComponentBase
 
     private void GoBack() => Nav.NavigateTo(JobPostRoutes.Mine);
 
-    private string BudgetGuide => T.Format(Copy.BudgetFromHelp, Money.Peso(ReferenceData.MinimumWage));
-
-    private bool BudgetTopTooLow => _draft.BudgetMinPesos is { } from && _draft.BudgetPesos is { } upTo && upTo < from;
-
-    /// <summary>Another trade has other services: the picked service is cleared. A trade with one service ("Others") picks it.</summary>
-    private void PickTrade(string? categoryId)
+    private void OpenSheet(PostPart part)
     {
-        if (_draft.CategoryId != categoryId)
+        if (_busy)
         {
-            _draft.CategoryId = categoryId;
-            _draft.ServiceId = ReferenceData.ServicesOf(categoryId) is [var only] ? only.Id : null;
+            return;
         }
+
+        _before = PostReview.Take(_draft);
+        _sheet = part;
     }
 
-    /// <summary>Another town has other barangays: the picked one is cleared.</summary>
-    private void PickTown(string? cityId)
+    /// <summary>Cancel or the close button: the answers as they were when the sheet opened.</summary>
+    private void CancelSheet()
     {
-        _draft.CityId = cityId;
-        _draft.BarangayId = ReferenceData.FindBarangay(cityId, _draft.BarangayId)?.Id;
+        if (_before is not null)
+        {
+            PostReview.Restore(_draft, _before);
+        }
+
+        _sheet = null;
     }
+
+    private void SaveSheet() => _sheet = null;
 
     // The phone's photo picker shows over the page; the splash covers only the upload.
     private async Task AddPhotosAsync()
