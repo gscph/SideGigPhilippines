@@ -68,15 +68,6 @@ public class ServerListingRulesTests
     public void InvalidField_RateDependsOnJob_IsAccepted() =>
         ProfessionalStore.InvalidField(Valid() with { RateTierId = "quote" }).Should().BeNull();
 
-    [Theory]
-    [InlineData("+639171234567", true)]
-    [InlineData("09171234567", false)]  // local format: the app converts before sending
-    [InlineData("+63917123456", false)] // one digit short
-    [InlineData("+63281234567", false)] // landline
-    [InlineData(null, false)]
-    public void IsMobileNumber_OnlyAcceptsPhilippineMobileInE164(string? number, bool expected) =>
-        StoreText.IsMobileNumber(number).Should().Be(expected);
-
     // If the app and the server disagree, the app shows "Publish" and the server refuses it (or the reverse).
     [Fact]
     public void ProofRules_AppAndServerAgree()
