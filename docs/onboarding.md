@@ -209,7 +209,8 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 | `/me` · `/me/reviews` · `/me/reviews/rate/{id}` | `Seeker/*Page` | The Me tab (`SeekerMePage`: name, Your reviews link, language, Start over), the Seeker's reviews and pros to rate, and writing a review. |
 | `/professional` | `Professional/ProfessionalHome` | Pro home in the shared `AppShell` (via `ProLayout`): setup checklist, recent inquiries, latest reviews, the goal. |
 | `/professional/inquiries` · `/reviews` · `/me` · `/me/photos` | `Professional/*Page` | The other tabs. Me (`ProMePage`, also the avatar) has the photo, listing, work photos, language and Start over. |
-| `/professional/publish` | `Professional/PublishPage` | Card + pledge, then publish (one number, one listing). |
+| `/professional/publish` | `Professional/PublishPage` | Going live, step 1: **the promises** (`PublishChecklist`): honest work and prices, the Terms (linked), the community rules (reported, blocked, maybe the police), fair offers. Each its own checkbox, none ticked at first; Next only when all are ticked. Every "Publish" link opens here; a live listing goes home. A Google account adds its verified number here first. |
+| `/professional/publish/ready` | `Professional/PublishReadyPage` | Going live, step 2: the card one last time and one button, **Ready** ("Game!" in Taglish), which publishes (one number, one listing). Back keeps the ticks. Without every promise ticked in this run of the app (a link, the app killed and reopened), it goes to step 1. |
 | `/verify` | `Auth/AuthPage` (skeleton) | Sign in: phone + SMS code, Google below. Shown by `LaunchRouter` to anyone not signed in. |
 | `/verify/name` | `Auth/NamePage` (skeleton) | First + last name, once, after a phone sign-in. |
 | `/verify/phone` | `Auth/AddPhonePage` (skeleton) | Adds a verified number to a Google account, before Publish (never asked of Seekers). |

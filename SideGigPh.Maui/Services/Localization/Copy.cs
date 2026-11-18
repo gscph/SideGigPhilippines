@@ -593,10 +593,26 @@ public static class Copy
         "Kapag nagka-problema ang app, magpapadala ito ng technical report para maayos namin. Walang kasamang messages, pangalan o number mo.");
     public static readonly LocalizedText ProfileSince = new("On Tarbaho since {0}", "Nasa Tarbaho mula {0}");
 
-    // --- Publish ----------------------------------------------------------
-    public static readonly LocalizedText PublishTitle = new("Ready to publish?", "Ready na bang i-publish?");
+    // --- Publish: the promises (PublishChecklist), then the Ready step with the card ---------
+    // Service words only: never job / hire / employment (Tarbaho is a directory, not an employer).
+    public static readonly LocalizedText CommitTitle = new("Your promise to customers", "Ang pangako mo sa customer");
+    public static readonly LocalizedText CommitWhy = new("Tick each one to go on. Customers trust workers who keep these.", "I-tick lahat para tumuloy. Mas tiwala ang customer sa tumutupad dito.");
+    public static readonly LocalizedText CommitHonest = new(
+        "I'll be honest about my work. I'll reply to customers and work at the price I set. I won't overcharge, cheat or abuse anyone.",
+        "Tapat ako sa gawa ko. Sasagutin ko ang customer at gagawa ako sa presyong nilagay ko. Hindi ako mag-o-overcharge, mandaraya o mang-aabuso.");
+    public static readonly LocalizedText CommitTerms = new("I agree to Tarbaho's Terms and Conditions.", "Sang-ayon ako sa Terms and Conditions ng Tarbaho.");
+    public static readonly LocalizedText CommitReadTerms = new("Read the Terms", "Basahin ang Terms");
+    public static readonly LocalizedText CommitCommunity = new(
+        "Tarbaho is a community: no bad words, nothing sexual, no drugs, no harassment or threats. People who break this are reported and blocked, and may be reported to the police.",
+        "Community ang Tarbaho: bawal ang masamang salita, bastos o sexual, droga, harassment o pananakot. Ang lalabag ay ire-report at iba-block, at puwedeng i-report sa pulis.");
+    public static readonly LocalizedText CommitFairOffers = new(
+        "When I send an offer on a customer's request, it's a fair price I will really keep. No fake low price, then charging more.",
+        "Kapag nag-offer ako sa request ng customer, patas na presyo ito na tutuparin ko. Walang fake na murang presyo na tataasan ko pala.");
+    public static readonly LocalizedText PublishTitle = new("This is what customers will see", "Ito ang makikita ng customer");
     public static readonly LocalizedText PublishWhy = new("Customers in your towns will see this and message you here in the app. Your number stays private until they pick you.", "Makikita ito ng customer sa mga bayan mo at ime-message ka nila dito sa app. Private ang number mo hanggang piliin ka nila.");
-    public static readonly LocalizedText PublishPledge = new("I'll answer customers and do honest work at the price I posted.", "Sasagutin ko ang customer at tapat akong gagawa sa presyong nilagay ko.");
+
+    /// <summary>The Ready step's one-word button: it publishes the listing ("I'm ready for work").</summary>
+    public static readonly LocalizedText PublishReady = new("Ready", "Game!");
     public static readonly LocalizedText PublishConfirm = new("Publish", "Publish");
     public static readonly LocalizedText PublishPhoneTaken = new("This number already has a listing. One number, one listing.", "May listing na ang number na ito. Isang number, isang listing lang.");
     public static readonly LocalizedText ListingEditUnfinished = new(
