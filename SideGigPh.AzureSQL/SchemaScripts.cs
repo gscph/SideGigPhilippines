@@ -26,5 +26,6 @@ public static class SchemaScripts
         "020-schema-construction-roofing",
         "021-schema-barangays",
         "022-schema-construction-trades",
+        "023-schema-worker-price",
     ];
 }

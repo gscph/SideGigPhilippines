@@ -9,17 +9,16 @@
      S4 Errands          responsiveness: reply rate + reply speed
      S5 Tile setting     activity: last opened the app
      S6 Car Mechanic     tenure: how long on the app
-     S7 Roofing          budget fit (the three rates, "depends on the job", and two listings from old app versions)
+     S7 Solar inverter   price fit: cheaper first, over the budget lower (never hidden)
      S8 Solar            experience
      S9 Aircon           everything together, with paging (4 per page) and the nearby group
-   The ordinary worker (unless a scenario changes it): Taytay, the job's AVERAGE price (rate 'average', from the
-   job's price guide in dbo.Services), 1–3 years, no reviews, no chats, joined 90 days ago, last active yesterday.
+   The ordinary worker (unless a scenario changes it): Taytay, the job's AVERAGE price (from the job's price guide
+   in dbo.Services), 1–3 years, no reviews, no chats, joined 90 days ago, last active yesterday.
    Names start with their scenario ("S4 …") so you can see at a glance which test a card belongs to.
 
-   Rates are what the app saves now: a price level of each job's guide ('minimum', 'average', 'above-average')
-   or 'quote' (depends on the job). Only S7's two "Old App" workers keep an old price tier id ('500-1000',
-   '5000-up'), the way listings published before price guides still look. The sample chats carry the budget a
-   Seeker gets first for the job: the "Tipid" range, the job's lowest to average price ("755-1000").
+   Price: the worker's average price per service in pesos (dbo.Professionals.RatePesos), what the app saves. The
+   sample chats carry the budget a Seeker gets first for the job: the "Tipid" range, the job's lowest to average
+   price ("755-1000").
 
    SEED TAG: every id starts 'seed-s2-' (the older sample data used 'seed-s1-'). Only those rows are
    touched; real users and their listings never are.
@@ -80,8 +79,7 @@ INSERT INTO @Budgets (ServiceId, BudgetId)
 EXEC (N'SELECT Id, CONCAT(PriceMin, ''-'', PriceAverage) FROM dbo.Services WHERE IsActive = 1 AND PriceMin IS NOT NULL;');
 
 /* ---------- The workers ----------
-   Rate: 'minimum' / 'average' / 'above-average' = that point of each listed job's price guide, 'quote' = depends
-   on the job; '500-1000' / '5000-up' = an old price tier (a listing from before price guides).
+   Price: pesos per service (the ordinary worker: their job's average guide price).
    Reviews: how many 5/4/3/2/1-star reviews. Chats (all started 2–20 days ago unless "Fresh"):
      Answered  the worker replied in the chat after ReplyMinutes
      Ignored   the Seeker wrote, the worker never replied
@@ -96,7 +94,7 @@ DECLARE @Pros TABLE
     ServiceIds    varchar(200)  NOT NULL,
     CityIds       varchar(200)  NOT NULL,
     ExperienceId  varchar(40)   NOT NULL,
-    RateTierId    varchar(40)   NOT NULL,
+    RatePesos     int           NOT NULL,
     JoinedDays    int           NOT NULL,
     ActiveDays    int           NOT NULL,
     R5 int NOT NULL, R4 int NOT NULL, R3 int NOT NULL, R2 int NOT NULL, R1 int NOT NULL,
@@ -108,61 +106,61 @@ DECLARE @Pros TABLE
 );
 
 INSERT INTO @Pros VALUES
---  #  code             name                                  trade             jobs                                    towns              exp        rate             joined active  5  4  3  2  1  ans  min  ign call fresh
+--  #  code            name                                  trade             jobs                                    towns              exp        price  joined active  5  4  3  2  1  ans  min  ign call fresh
 -- S1 Construction: only workers who list the job
-( 1, 's1-tubero',    N'S1 Tubero Specialist',              'construction',   'construction-plumbing',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 2, 's1-welder',    N'S1 Welder Specialist',              'construction',   'construction-welding',                 'taytay',          '10-plus', 'minimum',       400,  0,  20, 0, 0, 0, 0, 10,  10,  0,  0,  0),
-( 3, 's1-both',      N'S1 Tubero at Welder',               'construction',   'construction-plumbing,construction-welding', 'taytay',    '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 1, 's1-tubero',    N'S1 Tubero Specialist',              'construction',   'construction-plumbing',                'taytay',          '1-3',      1200,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 2, 's1-welder',    N'S1 Welder Specialist',              'construction',   'construction-welding',                 'taytay',          '10-plus',   755,   400,  0,  20, 0, 0, 0, 0, 10,  10,  0,  0,  0),
+( 3, 's1-both',      N'S1 Tubero at Welder',               'construction',   'construction-plumbing,construction-welding', 'taytay',          '1-3',      1200,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S2 Construction, electrical: town groups
-( 4, 's2-taytay',    N'S2 Taytay Baguhan',                 'construction',   'construction-electrical',              'taytay',          'under-1', 'average',        10, 20,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 5, 's2-multi',     N'S2 Taytay at Antipolo',             'construction',   'construction-electrical',              'taytay,antipolo', '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 6, 's2-antipolo',  N'S2 Antipolo Star',                  'construction',   'construction-electrical',              'antipolo',        '10-plus', 'average',       400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
-( 7, 's2-angono',    N'S2 Angono Kuryente',                'construction',   'construction-electrical',              'angono',          '3-10',    'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-( 8, 's2-unserved',  N'S2 Binangonan Lang',                'construction',   'construction-electrical',              'binangonan',      '10-plus', 'average',       400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
+( 4, 's2-taytay',    N'S2 Taytay Baguhan',                 'construction',   'construction-electrical',              'taytay',          'under-1',  1200,    10, 20,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 5, 's2-multi',     N'S2 Taytay at Antipolo',             'construction',   'construction-electrical',              'taytay,antipolo', '1-3',      1200,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 6, 's2-antipolo',  N'S2 Antipolo Star',                  'construction',   'construction-electrical',              'antipolo',        '10-plus',  1200,   400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
+( 7, 's2-angono',    N'S2 Angono Kuryente',                'construction',   'construction-electrical',              'angono',          '3-10',     1200,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+( 8, 's2-unserved',  N'S2 Binangonan Lang',                'construction',   'construction-electrical',              'binangonan',      '10-plus',  1200,   400,  0,  30, 0, 0, 0, 0, 12,  10,  0,  0,  0),
 -- S3 Construction, carpentry: reviews
-( 9, 's3-steady',    N'S3 Steady 4.8 (40 reviews)',        'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,  32, 8, 0, 0, 0,  0,   0,  0,  0,  0),
-(10, 's3-lucky',     N'S3 Lucky 5.0 (1 review)',           'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,   1, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(11, 's3-new',       N'S3 Bago (no reviews)',              'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(12, 's3-poor',      N'S3 Poor 2.0 (10 reviews)',          'construction',   'construction-carpentry',               'taytay',          '1-3',     'average',        90,  1,   0, 0, 0,10, 0,  0,   0,  0,  0,  0),
+( 9, 's3-steady',    N'S3 Steady 4.8 (40 reviews)',        'construction',   'construction-carpentry',               'taytay',          '1-3',      1200,    90,  1,  32, 8, 0, 0, 0,  0,   0,  0,  0,  0),
+(10, 's3-lucky',     N'S3 Lucky 5.0 (1 review)',           'construction',   'construction-carpentry',               'taytay',          '1-3',      1200,    90,  1,   1, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(11, 's3-new',       N'S3 Bago (no reviews)',              'construction',   'construction-carpentry',               'taytay',          '1-3',      1200,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(12, 's3-poor',      N'S3 Poor 2.0 (10 reviews)',          'construction',   'construction-carpentry',               'taytay',          '1-3',      1200,    90,  1,   0, 0, 0,10, 0,  0,   0,  0,  0,  0),
 -- S4 Errands: responsiveness
-(13, 's4-fast',      N'S4 Mabilis Sumagot (10 min)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10,  10,  0,  0,  0),
-(14, 's4-slow',      N'S4 Matagal Sumagot (5 hrs)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0, 10, 300,  0,  0,  0),
-(15, 's4-new',       N'S4 Bago (no chats yet)',            'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(16, 's4-calls',     N'S4 Tawag Lang (calls only)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  5,  0),
-(17, 's4-fresh',     N'S4 Kaka-message (2 hrs ago)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  3),
-(18, 's4-ghost',     N'S4 Hindi Sumasagot (1 of 10)',      'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  1,  60,  9,  0,  0),
+(13, 's4-fast',      N'S4 Mabilis Sumagot (10 min)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0, 10,  10,  0,  0,  0),
+(14, 's4-slow',      N'S4 Matagal Sumagot (5 hrs)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0, 10, 300,  0,  0,  0),
+(15, 's4-new',       N'S4 Bago (no chats yet)',            'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(16, 's4-calls',     N'S4 Tawag Lang (calls only)',        'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  5,  0),
+(17, 's4-fresh',     N'S4 Kaka-message (2 hrs ago)',       'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  3),
+(18, 's4-ghost',     N'S4 Hindi Sumasagot (1 of 10)',      'errand_runner',  'errand-house-cleaning',                'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  1,  60,  9,  0,  0),
 -- S5 Construction, tile setting: last active (all joined 120 days ago)
-(19, 's5-today',     N'S5 Active Today',                   'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(20, 's5-week',      N'S5 Active 1 Week Ago',              'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120,  7,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(21, 's5-month',     N'S5 Active 1 Month Ago',             'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120, 30,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(22, 's5-quarter',   N'S5 Active 3 Months Ago',            'construction',   'construction-tiles',                   'taytay',          '1-3',     'average',       120, 90,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(19, 's5-today',     N'S5 Active Today',                   'construction',   'construction-tiles',                   'taytay',          '1-3',      2000,   120,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(20, 's5-week',      N'S5 Active 1 Week Ago',              'construction',   'construction-tiles',                   'taytay',          '1-3',      2000,   120,  7,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(21, 's5-month',     N'S5 Active 1 Month Ago',             'construction',   'construction-tiles',                   'taytay',          '1-3',      2000,   120, 30,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(22, 's5-quarter',   N'S5 Active 3 Months Ago',            'construction',   'construction-tiles',                   'taytay',          '1-3',      2000,   120, 90,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S6 Car Mechanic: tenure (all active today)
-(23, 's6-year',      N'S6 Joined 1 Year Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',       365,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(24, 's6-quarter',   N'S6 Joined 3 Months Ago',            'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',        90,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(25, 's6-new',       N'S6 Joined 3 Days Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',     'average',         3,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
--- S7 Roofing: budget fit (Roof leak repair guide: ₱1,000 lowest, ₱2,000 average, ₱3,500 above average)
-(26, 's7-minimum',   N'S7 Lowest Price',                   'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'minimum',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(27, 's7-average',   N'S7 Average Price',                  'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(28, 's7-above',     N'S7 Above Average',                  'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'above-average',  90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(29, 's7-quote',     N'S7 Depends on the Job',             'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     'quote',          90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(30, 's7-old-cheap', N'S7 Old App, Cheap Tier',            'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     '500-1000',       90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(31, 's7-old-top',   N'S7 Old App, Top Tier',              'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',     '5000-up',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(23, 's6-year',      N'S6 Joined 1 Year Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',      3000,   365,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(24, 's6-quarter',   N'S6 Joined 3 Months Ago',            'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',      3000,    90,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(25, 's6-new',       N'S6 Joined 3 Days Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',      3000,     3,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+-- S7 Solar inverter: price fit (guide ₱1,000 low, ₱2,000 average, ₱3,500 high; Tipid budget ₱1,000–₱2,000)
+(26, 's7-1000',      N'S7 ₱1,000',                         'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(27, 's7-1500',      N'S7 ₱1,500',                         'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      1500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(28, 's7-2000',      N'S7 ₱2,000 (budget top)',            'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(29, 's7-2500',      N'S7 ₱2,500 (25% over)',              'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(30, 's7-3000',      N'S7 ₱3,000 (50% over)',              'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      3000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(31, 's7-4000',      N'S7 ₱4,000 (double)',                'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      4000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S8 Solar: experience
-(32, 's8-10plus',    N'S8 10+ Years',                      'solar_cleaning', 'solar-cleaning',                       'taytay',          '10-plus', 'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(33, 's8-3to10',     N'S8 3 to 10 Years',                  'solar_cleaning', 'solar-cleaning',                       'taytay',          '3-10',    'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(34, 's8-1to3',      N'S8 1 to 3 Years',                   'solar_cleaning', 'solar-cleaning',                       'taytay',          '1-3',     'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(35, 's8-under1',    N'S8 Under 1 Year',                   'solar_cleaning', 'solar-cleaning',                       'taytay',          'under-1', 'average',        90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(32, 's8-10plus',    N'S8 10+ Years',                      'solar_cleaning', 'solar-cleaning',                       'taytay',          '10-plus',  2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(33, 's8-3to10',     N'S8 3 to 10 Years',                  'solar_cleaning', 'solar-cleaning',                       'taytay',          '3-10',     2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(34, 's8-1to3',      N'S8 1 to 3 Years',                   'solar_cleaning', 'solar-cleaning',                       'taytay',          '1-3',      2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(35, 's8-under1',    N'S8 Under 1 Year',                   'solar_cleaning', 'solar-cleaning',                       'taytay',          'under-1',  2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S9 Aircon: real-looking mix (Aircon cleaning guide: ₱755 lowest, ₱1,000 average, ₱1,500 above average)
-(36, 's9-mangjun',   N'S9 Mang Jun Aircon',                'aircon',         'aircon-cleaning,aircon-repair',        'taytay',          '10-plus', 'average',       400,  0,  22, 3, 0, 0, 0,  8,  15,  0,  0,  0),
-(37, 's9-kuyaben',   N'S9 Kuya Ben Cool',                  'aircon',         'aircon-cleaning,aircon-leak',          'taytay,antipolo', '3-10',    'minimum',       200,  2,   8, 3, 1, 0, 0,  6, 120,  2,  0,  0),
-(38, 's9-rj',        N'S9 RJ Aircon (2 reviews)',          'aircon',         'aircon-cleaning',                      'taytay',          '1-3',     'above-average',  30,  0,   2, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(39, 's9-bago',      N'S9 Bagong Aircon Tech',             'aircon',         'aircon-cleaning',                      'taytay',          'under-1', 'average',         5,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(40, 's9-tulog',     N'S9 Tulog Aircon (inactive)',        'aircon',         'aircon-cleaning,aircon-freon',         'taytay',          '10-plus', 'average',       500, 45,  21, 9, 0, 0, 0,  2,  90, 10,  0,  0),
-(41, 's9-mahal',     N'S9 Mahal Aircon (top price)',       'aircon',         'aircon-cleaning,aircon-install',       'taytay',          '10-plus', 'above-average', 300,  0,  18, 2, 0, 0, 0,  8,  10,  0,  0,  0),
-(42, 's9-quote',     N'S9 Quote Aircon',                   'aircon',         'aircon-cleaning',                      'angono,taytay',   '3-10',    'quote',         150,  3,   3, 2, 0, 0, 0,  4,  60,  1,  0,  0),
-(43, 's9-antipolo',  N'S9 Antipolo Aircon Pro',            'aircon',         'aircon-cleaning',                      'antipolo',        '10-plus', 'average',       450,  0,  38, 2, 0, 0, 0, 12,   5,  0,  0,  0),
-(44, 's9-angono',    N'S9 Angono Aircon',                  'aircon',         'aircon-cleaning',                      'angono',          '1-3',     'minimum',        60,  4,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(45, 's9-install',   N'S9 Install Lang',                   'aircon',         'aircon-install',                       'taytay',          '10-plus', 'average',       400,  0,  25, 0, 0, 0, 0,  8,  10,  0,  0,  0);
+(36, 's9-mangjun',   N'S9 Mang Jun Aircon',                'aircon',         'aircon-cleaning,aircon-repair',        'taytay',          '10-plus',  1000,   400,  0,  22, 3, 0, 0, 0,  8,  15,  0,  0,  0),
+(37, 's9-kuyaben',   N'S9 Kuya Ben Cool',                  'aircon',         'aircon-cleaning,aircon-leak',          'taytay,antipolo', '3-10',      755,   200,  2,   8, 3, 1, 0, 0,  6, 120,  2,  0,  0),
+(38, 's9-rj',        N'S9 RJ Aircon (2 reviews)',          'aircon',         'aircon-cleaning',                      'taytay',          '1-3',      1500,    30,  0,   2, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(39, 's9-bago',      N'S9 Bagong Aircon Tech',             'aircon',         'aircon-cleaning',                      'taytay',          'under-1',  1000,     5,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(40, 's9-tulog',     N'S9 Tulog Aircon (inactive)',        'aircon',         'aircon-cleaning,aircon-freon',         'taytay',          '10-plus',  1000,   500, 45,  21, 9, 0, 0, 0,  2,  90, 10,  0,  0),
+(41, 's9-mahal',     N'S9 Mahal Aircon (top price)',       'aircon',         'aircon-cleaning,aircon-install',       'taytay',          '10-plus',  1500,   300,  0,  18, 2, 0, 0, 0,  8,  10,  0,  0,  0),
+(42, 's9-sakto',     N'S9 Sakto Aircon (a bit over)',      'aircon',         'aircon-cleaning',                      'angono,taytay',   '3-10',     1200,   150,  3,   3, 2, 0, 0, 0,  4,  60,  1,  0,  0),
+(43, 's9-antipolo',  N'S9 Antipolo Aircon Pro',            'aircon',         'aircon-cleaning',                      'antipolo',        '10-plus',  1000,   450,  0,  38, 2, 0, 0, 0, 12,   5,  0,  0,  0),
+(44, 's9-angono',    N'S9 Angono Aircon',                  'aircon',         'aircon-cleaning',                      'angono',          '1-3',       755,    60,  4,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(45, 's9-install',   N'S9 Install Lang',                   'aircon',         'aircon-install',                       'taytay',          '10-plus',  3500,   400,  0,  25, 0, 0, 0, 0,  8,  10,  0,  0,  0);
 
 -- Every sample job must be an active, priced job in the config (004-config.sql), or the scenarios mean nothing.
 IF EXISTS (SELECT 1 FROM @Pros p CROSS APPLY STRING_SPLIT(p.ServiceIds, ',') s
@@ -179,8 +177,8 @@ SELECT i.Id, p.Name, i.Mobile, NULL, 'taglish', 'professional', NULL, NULL,
 FROM @Pros p JOIN @Ids i ON i.Num = p.Num;
 
 -- UpdatedAt = when they joined, so "last active" is LastActiveAt above (ranking takes the later of the two).
-INSERT INTO dbo.Professionals (Id, DisplayName, MobileNumber, CategoryId, AreaId, ExperienceId, RateTierId, ProfilePhotoId, PublishedAt, UpdatedAt)
-SELECT i.Id, p.Name, i.Mobile, p.CategoryId, 'rizal', p.ExperienceId, p.RateTierId, NULL,
+INSERT INTO dbo.Professionals (Id, DisplayName, MobileNumber, CategoryId, AreaId, ExperienceId, RatePesos, ProfilePhotoId, PublishedAt, UpdatedAt)
+SELECT i.Id, p.Name, i.Mobile, p.CategoryId, 'rizal', p.ExperienceId, p.RatePesos, NULL,
        DATEADD(day, -p.JoinedDays, @now), DATEADD(day, -p.JoinedDays, @now)
 FROM @Pros p JOIN @Ids i ON i.Num = p.Num;
 

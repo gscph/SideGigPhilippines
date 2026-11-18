@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// <summary>
 /// The fields of one change sheet on the new post page: What (picture tiles, two pages: the kinds of work, then, on
 /// <see cref="JobsStep"/>, the picked trade's services), Where (town, barangay, "Use my
-/// location") or Your budget (from / up to, the suggested minimum price as a guide). They change <see cref="Draft"/>
+/// location") or Your budget (from / up to, the job's usual price as a guide). They change <see cref="Draft"/>
 /// directly; the page keeps a <see cref="PostSnapshot"/> so Cancel puts the answers back.
 /// </summary>
 public partial class PostPartFields : ComponentBase
@@ -28,7 +28,7 @@ public partial class PostPartFields : ComponentBase
     /// <summary>A job was tapped (the page redraws, so its Save turns on).</summary>
     [Parameter] public EventCallback OnJobPicked { get; set; }
 
-    private string BudgetGuide => T.Format(Copy.BudgetFromHelp, Money.Peso(ReferenceData.MinimumWage));
+    private string? BudgetGuide => Pricing.GuideNote(Draft.ServiceId, Draft.CategoryId) is { } note ? T.Get(note) : null;
 
     private bool BudgetTopTooLow => Draft.BudgetMinPesos is { } from && Draft.BudgetPesos is { } upTo && upTo < from;
 

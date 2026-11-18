@@ -24,7 +24,7 @@ public static class RecentSearches
         }
     }
 
-    /// <summary>A posted request goes to the top, with its budget as a range ("up to" alone reads "under-…").</summary>
+    /// <summary>A posted request goes to the top, with its budget as a range ("up to" alone reads "under-…", BudgetRange).</summary>
     public static void RememberPost(this SeekerAnswers answers, JobPostDraft post)
     {
         if (post.CategoryId is not { } categoryId)
@@ -33,8 +33,7 @@ public static class RecentSearches
         }
 
         var budget = post.BudgetPesos is not { } upTo ? null
-            : post.BudgetMinPesos is { } from and > 0 ? BudgetRange.Format(from, upTo)
-            : $"under-{upTo}";
+            : BudgetRange.Format(post.BudgetMinPesos ?? 0, upTo);
         var other = categoryId == ReferenceData.OtherTradeId ? post.Description : null;
         answers.Remember(new RecentSearch(categoryId, post.ServiceId, OtherTextOf(post.ServiceId, other), post.CityId, budget));
 

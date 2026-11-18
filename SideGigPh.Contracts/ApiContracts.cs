@@ -108,8 +108,8 @@ public sealed record PhotoDto(string Id, string Url);
 
 /// <summary>
 /// A published Skilled Worker listing (<c>GET professionals</c>, <c>GET professionals/{id}</c>), with its stars
-/// (null with no reviews yet), so search ranks in one request. (<c>referenceCount</c> was dropped with the
-/// references feature: an older app reads it as 0 and hides its references row.)
+/// (null with no reviews yet), so search ranks in one request. <c>RatePesos</c>: the worker's average price per
+/// service (<see cref="WorkerPrice"/>).
 /// </summary>
 public sealed record ListingDto(
     string Id,
@@ -120,7 +120,7 @@ public sealed record ListingDto(
     IReadOnlyList<string> ServiceIds,
     IReadOnlyList<string> CityIds,
     string? ExperienceId,
-    string? RateTierId,
+    int RatePesos,
     PhotoDto? ProfilePhoto,
     IReadOnlyList<PhotoDto> WorkPhotos,
     ReviewSummaryDto? Reviews = null,
@@ -143,7 +143,7 @@ public sealed record PublishListingRequest(
     IReadOnlyList<string> ServiceIds,
     IReadOnlyList<string> CityIds,
     string? ExperienceId,
-    string? RateTierId,
+    int? RatePesos,
     string? ProfilePhotoId,
     IReadOnlyList<string> WorkPhotoIds,
     double? Latitude = null,
@@ -295,10 +295,6 @@ public static class PushData
 /// The app's config (<c>GET config</c>): every answer list that is fine to be a few hours stale, loaded once when the
 /// app opens and kept on the phone for <c>ConfigFor</c>. All lists are in display order and leave out retired rows.
 /// <paramref name="Catalog"/>: the trades, each with its jobs most-requested first and "Others" last.
-/// <paramref name="PriceTiers"/>: cheapest first, the one price scale of app versions before price guides (their budgets and
-/// rates are still read). Newer apps price each job from its <see cref="ServiceDto.Price"/>.
-/// <paramref name="MinimumWage"/>: the NCR daily minimum wage in pesos; no job's lowest price, and no Seeker budget, is under it
-/// (0 from a server before price guides).
 /// <paramref name="DefaultTownId"/>: the launch's town, pre-selected wherever a person picks a town (a <paramref name="Towns"/>
 /// id; null from a server before it, or when none is set). <paramref name="Barangays"/>: the barangays we serve, each in
 /// one of <paramref name="Towns"/>, in display order (null from a server before them). Both are only defaults and
@@ -307,19 +303,17 @@ public static class PushData
 public sealed record ConfigDto(
     List<CategoryDto> Catalog,
     List<OptionDto> Towns,
-    List<OptionDto> PriceTiers,
     List<OptionDto> Experience,
     List<OptionDto> Urgencies,
     List<OptionDto> IncomeGoals,
-    int MinimumWage = 0,
     string? DefaultTownId = null,
     List<BarangayDto>? Barangays = null);
 
 /// <summary>A barangay we serve: <c>angono-san-isidro</c> "San Isidro" in the town <c>angono</c> (the app adds "Brgy.").</summary>
 public sealed record BarangayDto(string Id, string TownId, string English, string Taglish);
 
-/// <summary>One answer in a config list: <c>taytay</c> "Taytay", <c>500-1000</c> "₱500 – ₱1,000" (Amount 750)…</summary>
-/// <param name="Amount">Pesos for price tiers (a typical job) and income goals (per month); 0 otherwise.</param>
+/// <summary>One answer in a config list: <c>taytay</c> "Taytay", <c>3-10</c> "3–10 years"…</summary>
+/// <param name="Amount">Pesos for income goals (per month); 0 otherwise.</param>
 public sealed record OptionDto(string Id, string English, string Taglish, string? Icon, int Amount);
 
 /// <summary>A trade: <c>aircon</c>, "Aircon Technician", ❄️, with its jobs.</summary>
@@ -339,63 +333,32 @@ public sealed record CategoryDto(
 public sealed record ServiceDto(string Id, string English, string Taglish, string? Icon, PriceGuideDto? Price = null);
 
 /// <summary>
-/// What a job usually costs, in pesos (labor only): the lowest fair price (never under the minimum wage), the average,
-/// and above average. A Skilled Worker's rate is one of the three (<see cref="PriceLevels"/>).
+/// What a job usually costs, in pesos (labor only): the low, average and high prices people pay. Only a guide: workers
+/// set their own price (<see cref="WorkerPrice"/>) and Seekers their own budget.
 /// </summary>
-public sealed record PriceGuideDto(int Min, int Average, int High)
-{
-    /// <summary>The price at a <see cref="PriceLevels"/> id, or null for another id ("quote", an old price tier).</summary>
-    public int? At(string? level) => level switch
-    {
-        PriceLevels.Minimum => Min,
-        PriceLevels.Average => Average,
-        PriceLevels.AboveAverage => High,
-        _ => null,
-    };
-}
+public sealed record PriceGuideDto(int Min, int Average, int High);
 
 /// <summary>
-/// A Skilled Worker's rate (<c>ListingDto.RateTierId</c>): which point of each job's <see cref="PriceGuideDto"/> they charge.
-/// Listings from app versions before price guides carry an old price tier id instead (<c>500-1000</c>…), or <c>quote</c>.
+/// A Skilled Worker's price (<c>ListingDto.RatePesos</c>): their average price per service, in pesos. Only a guide
+/// for customers: the final price is what the two agree on before the work.
 /// </summary>
-public static class PriceLevels
+public static class WorkerPrice
 {
-    public const string Minimum = "minimum";
-    public const string Average = "average";
-    public const string AboveAverage = "above-average";
+    /// <summary>The highest price a worker may save.</summary>
+    public const int MaxPesos = 1_000_000;
 
-    public static bool IsLevel(string? id) => id is Minimum or Average or AboveAverage;
+    /// <summary>A price a worker may save: more than ₱0, at most <see cref="MaxPesos"/>.</summary>
+    public static bool IsValid(int? pesos) => pesos is > 0 and <= MaxPesos;
 }
 
-/// <summary>
-/// A Skilled Worker's own price range as it travels in <c>RateTierId</c>: <c>"rate-800-1500"</c> ("from ₱800 to ₱1,500"
-/// per job). The prefix keeps it apart from the old price tiers (<c>500-1000</c>). The guide's levels
-/// (<see cref="PriceLevels"/>) are only benchmarks the worker can start from.
-/// </summary>
-public static class RateRange
+/// <summary>How a Seeker orders search results (<c>sort</c> on <c>GET search/professionals</c>).</summary>
+public static class SearchSort
 {
-    private const string Prefix = "rate-";
+    /// <summary>The ranked score (the default).</summary>
+    public const string BestMatch = "best";
 
-    public static string Format(int from, int upTo) => $"{Prefix}{from}-{upTo}";
-
-    /// <summary>Reads a rate range; false for a level, "quote", an old tier or a malformed id.</summary>
-    public static bool TryParse(string? id, out int from, out int upTo)
-    {
-        from = 0;
-        upTo = 0;
-        if (id is null || !id.StartsWith(Prefix, StringComparison.Ordinal)
-            || !BudgetRange.TryParse(id[Prefix.Length..], out from, out var top) || top is not { } max)
-        {
-            from = 0;
-            return false;
-        }
-
-        upTo = max;
-        return true;
-    }
-
-    /// <summary>A range a worker may save: from more than ₱0, up to the same or more (the minimum wage is only a guide).</summary>
-    public static bool IsValid(int? from, int? upTo) => from is > 0 && upTo is { } top && top >= from && top <= 1_000_000;
+    /// <summary>Cheapest worker first, the score breaking ties.</summary>
+    public const string LowestPrice = "price";
 }
 
 /// <summary>
@@ -419,16 +382,16 @@ public static class OtherWork
 
 /// <summary>
 /// A Seeker's budget as it travels (<c>budgetId</c> on search, <c>ChatDto.BudgetId</c>): a peso range
-/// <c>"800-1500"</c>, open-ended <c>"1500-up"</c>, or <c>"under-500"</c>. The price tiers of older app versions are written
-/// the same way (<c>500-1000</c>, <c>5000-up</c>), so they read as ranges too. Anything else (<c>unsure</c>) is no budget.
+/// <c>"800-1500"</c>, open-ended <c>"1500-up"</c>, or "up to" <c>"under-500"</c> (a post's budget with no "from").
+/// Anything else (<c>unsure</c>) is no budget.
 /// </summary>
 public static class BudgetRange
 {
     private const string Up = "-up";
     private const string Under = "under-";
 
-    /// <summary><c>"800-1500"</c>, or <c>"800-up"</c> with no top.</summary>
-    public static string Format(int min, int? max) => max is { } top ? $"{min}-{top}" : $"{min}{Up}";
+    /// <summary><c>"800-1500"</c>, <c>"800-up"</c> with no top, or <c>"under-1500"</c> with no bottom (0).</summary>
+    public static string Format(int min, int? max) => max is { } top ? min > 0 ? $"{min}-{top}" : $"{Under}{top}" : $"{min}{Up}";
 
     /// <summary>Reads a budget id; false for "not sure", an empty or a malformed one.</summary>
     public static bool TryParse(string? id, out int min, out int? max)
@@ -496,8 +459,12 @@ public static class Paging
     public const int JobPosts = 10;
 }
 
-/// <summary>One worker in ranked search results, with why they ranked where they did.</summary>
-public sealed record SearchHitDto(ListingDto Listing, bool OffersService, bool ServesTown, bool FitsBudget);
+/// <summary>
+/// One worker in ranked search results, with why they ranked where they did. <paramref name="FitsBudget"/> /
+/// <paramref name="AboveBudget"/>: their price is within / over the top of the Seeker's budget (both false with no
+/// budget). Being over never hides a worker, it only lowers their score.
+/// </summary>
+public sealed record SearchHitDto(ListingDto Listing, bool OffersService, bool ServesTown, bool FitsBudget, bool AboveBudget);
 
 /// <summary>
 /// <c>GET search/professionals</c>: one page of results, ranked on the server. <paramref name="Hits"/> run in ranked

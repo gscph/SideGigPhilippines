@@ -20,14 +20,14 @@ public class PagingTests(ApiTestHost api)
     public async Task Search_ComesAPageAtATime_InRankedOrder_UntilEveryoneIsShown()
     {
         // Errand runners only in this test, so other tests' workers don't change the count.
-        var cheap = await PublishErrandRunnerAsync("Abe", "taytay", "under-500");
+        var cheap = await PublishErrandRunnerAsync("Abe", "taytay", 450);
         var local = new List<TestPhone> { cheap };
         foreach (var name in new[] { "Bert", "Cesar", "Dado" })
         {
-            local.Add(await PublishErrandRunnerAsync(name, "taytay", "2000-5000"));
+            local.Add(await PublishErrandRunnerAsync(name, "taytay", 3000));
         }
 
-        var nearby = await PublishErrandRunnerAsync("Eddie", "antipolo", "under-500");
+        var nearby = await PublishErrandRunnerAsync("Eddie", "antipolo", 450);
         var answers = SideGigPh.Tests.TestSupport.TestData.AirconCleaningInTaytay();
         answers.CategoryId = "errand_runner";
         answers.ServiceId = "errand-grocery";
@@ -167,7 +167,7 @@ public class PagingTests(ApiTestHost api)
         noTrade.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    private async Task<TestPhone> PublishErrandRunnerAsync(string name, string town, string rate)
+    private async Task<TestPhone> PublishErrandRunnerAsync(string name, string town, int rate)
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: "errand_runner", jobs: ["errand-grocery"], towns: [town], rate: rate);
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);

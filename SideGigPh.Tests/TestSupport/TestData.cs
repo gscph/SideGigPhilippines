@@ -26,7 +26,7 @@ public static class TestData
         AreaId = ReferenceData.ServiceAreaId,
         CityIds = ["taytay", "angono"],
         ExperienceId = "3-10",
-        RateTierId = "500-1000",
+        RatePesos = 800,
         ProfilePhotoId = PhotoId(1),
         WorkPhotoIds = [PhotoId(2), PhotoId(3)],
     };
@@ -80,7 +80,7 @@ public static class TestData
         string name,
         string[]? cities = null,
         string[]? services = null,
-        string? rate = "500-1000",
+        int rate = 800,
         string? experience = "1-3",
         ReviewSummary? reviews = null,
         bool photo = true) => new(
@@ -100,7 +100,6 @@ public static class TestData
     /// <summary>The server's ranking scales, from the app's built-in config (the same lists as <c>004-config.sql</c>).</summary>
     public static RankScales Scales => new(
         ReferenceData.Prices.ToDictionary(p => p.Key, p => new PriceGuideDto(p.Value.Min, p.Value.Average, p.Value.High)),
-        ReferenceData.PriceTiers.ToDictionary(t => t.Id, t => t.Amount),
         [.. ReferenceData.Experience.Select(e => e.Id)],
         ReferenceData.Cities.Select(c => c.Id).ToHashSet());
 
@@ -124,7 +123,7 @@ public static class TestData
         string name,
         string[]? cities = null,
         string[]? services = null,
-        string? rate = "500-1000",
+        int? rate = 800,
         string? experience = "1-3",
         ReviewSummary? reviews = null,
         bool photo = true) => new()
@@ -135,7 +134,7 @@ public static class TestData
         ServiceIds = services ?? ["aircon-cleaning"],
         CityIds = cities ?? ["taytay"],
         ExperienceId = experience,
-        RateTierId = rate,
+        RatePesos = rate,
         MobileNumber = WorkerNumber,
         PhotoUrl = photo ? "https://example/p.jpg" : null,
         WorkPhotoUrls = photo ? ["https://example/w.jpg"] : [],

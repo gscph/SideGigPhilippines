@@ -46,10 +46,12 @@ public sealed class SeekerAnswers
     public string? UrgencyId { get; set; }
 
     /// <summary>
-    /// A peso range (<c>BudgetRange</c>: <c>"800-1500"</c>, <c>"1500-up"</c>; an old price tier id reads the same way), or
-    /// <c>ReferenceData.Unsure</c>.
+    /// A peso range (<c>BudgetRange</c>: <c>"800-1500"</c>, <c>"1500-up"</c>), or <c>ReferenceData.Unsure</c>.
     /// </summary>
     public string? BudgetId { get; set; }
+
+    /// <summary>How they order search results (best match or lowest price first), kept like the rest of the search.</summary>
+    public SearchOrder SearchOrder { get; set; }
 
     /// <summary>
     /// How they want to find a worker, asked last (<c>ReferenceData.FindByChoices</c>): <c>"search"</c> opens the results,
@@ -92,11 +94,8 @@ public sealed class ProfessionalDraft
 
     public string? ExperienceId { get; set; }
 
-    /// <summary>
-    /// Which point of each job's price guide they charge (<c>ReferenceData.RateLevels</c>: minimum, average, above
-    /// average), or <c>ReferenceData.Quote</c>. Answers saved before price guides held an old tier id, dropped on load.
-    /// </summary>
-    public string? RateTierId { get; set; }
+    /// <summary>Their average price per service, in pesos (<c>WorkerPrice</c>): only a guide for customers.</summary>
+    public int? RatePesos { get; set; }
 
     public string? DisplayName { get; set; }
 
@@ -134,13 +133,13 @@ public sealed class ProfessionalDraft
     public bool ListingOutOfDate { get; set; }
 
     /// <summary>
-    /// Has every answer the listing shows: trade, at least one job, area, at least one town, experience and rate.
+    /// Has every answer the listing shows: trade, at least one job, area, at least one town, experience and price.
     /// Only then can it be published (the API refuses a listing without trade, area, jobs and towns).
     /// </summary>
     public bool IsListingComplete =>
         CategoryId is not null && ServiceIds.Count > 0
         && AreaId is not null && CityIds.Count > 0
-        && ExperienceId is not null && RateTierId is not null;
+        && ExperienceId is not null && RatePesos is not null;
 
     public bool HasProfilePhoto => ProfilePhotoId is not null;
 

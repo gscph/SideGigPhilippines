@@ -25,7 +25,7 @@ public sealed class ProfessionalSearch(IProfessionalProfileRepository profiles)
 
         var query = new ProfessionalSearchQuery(
             categoryId, ReferenceData.AreaOf(request.CityId), request.ServiceId, request.CityId, request.BudgetId,
-            OtherTextFor(request));
+            OtherTextFor(request), request.Order);
         var page = await profiles.SearchAsync(query, shown.Count);
 
         // A page that didn't load (offline) leaves what is shown; scrolling again tries again.

@@ -64,7 +64,7 @@ public class ApiMappingTests
     public void ListingDto_ToModel_KeepsStarsAndPhotos()
     {
         var dto = new ListingDto(
-            "pro-1", "Maria", "+639171234567", "plumbing", "rizal", ["plumbing-clog"], ["antipolo"], "1-3", "under-500",
+            "pro-1", "Maria", "+639171234567", "plumbing", "rizal", ["plumbing-clog"], ["antipolo"], "1-3", 450,
             new PhotoDto(TestData.PhotoId(1), "https://x/p.jpg"),
             [new PhotoDto(TestData.PhotoId(2), "https://x/w.jpg")],
             new ReviewSummaryDto(4.5, 12));

@@ -20,13 +20,9 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
     public static class Lists
     {
         public const string Towns = "towns";
-        public const string PriceTiers = "price-tiers";
         public const string Experience = "experience";
         public const string Urgencies = "urgencies";
         public const string IncomeGoals = "income-goals";
-
-        /// <summary>One row: the NCR daily minimum wage (its Amount), the floor of every job's price.</summary>
-        public const string MinimumWage = "minimum-wage";
 
         /// <summary>One row: its Id is the launch's town (a <see cref="Towns"/> id), pre-selected wherever a town is picked.</summary>
         public const string DefaultTown = "default-town";
@@ -76,11 +72,9 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
                     services[c.Id].Select(s => new ServiceDto(s.Id, s.LabelEnglish, s.LabelTaglish, s.Icon, Price(s))).ToList()))
                 .ToList(),
             towns,
-            List(Lists.PriceTiers),
             List(Lists.Experience),
             List(Lists.Urgencies),
             List(Lists.IncomeGoals),
-            options[Lists.MinimumWage].Select(o => o.Amount).FirstOrDefault(),
             // Only a town we serve can be the default; barangays of a town we don't serve are left out.
             options[Lists.DefaultTown].Select(o => o.Id).FirstOrDefault(id => towns.Any(t => t.Id == id)),
             [.. barangays.Where(b => towns.Any(t => t.Id == b.TownId))]);

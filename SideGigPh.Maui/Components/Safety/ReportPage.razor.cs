@@ -45,7 +45,7 @@ public partial class ReportPage : ComponentBase
         (ReportReason.Fake, Copy.ReportFake, AppImages.Fake),
         (ReportReason.Inappropriate, Copy.ReportInappropriate, AppImages.Blocked),
         (ReportReason.Employment, Copy.ReportEmployment, AppImages.Employment),
-        (ReportReason.Other, Copy.ReportOther, AppImages.Quote),
+        (ReportReason.Other, Copy.ReportOther, AppImages.Chat),
     ];
 
     private string? _reason;

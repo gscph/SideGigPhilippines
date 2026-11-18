@@ -145,7 +145,7 @@ internal static partial class ApiMapping
         ServiceIds = dto.ServiceIds,
         CityIds = dto.CityIds,
         ExperienceId = dto.ExperienceId,
-        RateTierId = dto.RateTierId,
+        RatePesos = dto.RatePesos,
         OtherWork = dto.OtherWork,
         MobileNumber = dto.MobileNumber,
         PhotoUrl = dto.ProfilePhoto?.Url,
@@ -167,7 +167,7 @@ internal static partial class ApiMapping
         AreaId = dto.AreaId,
         CityIds = [.. dto.CityIds],
         ExperienceId = dto.ExperienceId,
-        RateTierId = dto.RateTierId,
+        RatePesos = dto.RatePesos,
         ProfilePhotoId = dto.ProfilePhoto?.Id,
         WorkPhotoIds = [.. dto.WorkPhotos.Select(photo => photo.Id)],
     };
@@ -257,7 +257,7 @@ internal static partial class ApiMapping
         var hits = page.Hits.Select((hit, i) =>
         {
             var pro = hit.Listing.ToModel();
-            return (Place: skip + i, Hit: new SearchHit(pro, pro.Reviews, hit.OffersService, hit.ServesTown, hit.FitsBudget));
+            return (Place: skip + i, Hit: new SearchHit(pro, pro.Reviews, hit.OffersService, hit.ServesTown, hit.FitsBudget, hit.AboveBudget));
         }).ToList();
         return new SearchResult(
             [.. hits.Where(h => h.Place < page.InTownCount).Select(h => h.Hit)],
@@ -277,7 +277,7 @@ internal static partial class ApiMapping
         listing.ServiceIds,
         listing.CityIds,
         listing.ExperienceId,
-        listing.RateTierId,
+        listing.RatePesos,
         PhotoId(listing.PhotoUrl),
         listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
         listing.BasePoint?.Latitude,
@@ -342,14 +342,12 @@ internal static partial class ApiMapping
             c => c.Id,
             c => (IReadOnlyList<CatalogOption>)c.Services.Select(s => new CatalogOption(s.Id, new(s.English, s.Taglish), AppImages.For(s.Id))).ToList()),
         Options(dto.Towns),
-        Options(dto.PriceTiers),
         Options(dto.Experience),
         Options(dto.Urgencies),
         Options(dto.IncomeGoals),
         dto.Catalog.SelectMany(c => c.Services)
             .Where(s => s.Price is not null)
             .ToDictionary(s => s.Id, s => new PriceGuide(s.Price!.Min, s.Price.Average, s.Price.High)),
-        dto.MinimumWage,
         dto.DefaultTownId,
         // A server before barangays sends none (null): no town has a list then.
         dto.Barangays?.GroupBy(b => b.TownId).ToDictionary(

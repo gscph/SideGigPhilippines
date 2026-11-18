@@ -3,7 +3,7 @@
     {
         <ProCardFact Icon="@Icons.Material.Filled.Star" IconColor="Color.Warning" Text="@T.Stars(Reviews)" />
     }
-    <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Text="@T.Rate(Listing, ServiceId)" />
+    <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Text="@T.Rate(Listing)" />
     @if (Listing.CompletedJobs > 0)
     {
         <ProCardFact Icon="@Icons.Material.Filled.Verified" IconColor="Color.Success" Text="@T.Format(Copy.CompletedFact, Listing.CompletedJobs)" />

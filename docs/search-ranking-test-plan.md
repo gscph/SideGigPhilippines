@@ -79,20 +79,18 @@ Expect: **S5 Active Today** → **1 Week Ago** → **1 Month Ago** → **3 Month
 ### S6 Tenure (Car Mechanic)
 Expect: **S6 Joined 1 Year Ago** → **3 Months Ago** → **3 Days Ago**. All three were active today. Tenure is a small part (6 of 100 points), so it only decides ties like this one.
 
-### S7 Budget (Solar inverter check)
-Roof leak repair costs ₱1,000 (lowest), ₱2,000 (average) or ₱3,500 (above average). Four workers use the rates the
-app offers now; the two "Old App" workers still carry a price tier from app versions before price guides
-(₱500–1,000 reads as ₱750, ₱5,000 and up as ₱5,000).
+### S7 Price (Solar inverter check)
+An inverter or battery check costs ₱1,000 (lowest), ₱2,000 (average) or ₱3,500 (above average). Six workers ask
+₱1,000, ₱1,500, ₱2,000 (the top of the first budget), ₱2,500 (25% over), ₱3,000 (50% over) and ₱4,000 (double).
 
 | Budget chip | Expect |
 |---|---|
-| ₱1,000–₱2,000 (first choice) | **S7 Average Price**, **S7 Lowest Price**, **S7 Old App, Cheap Tier** (all fit: green "Fits your budget" chip, A–Z) → **S7 Depends on the Job** → **S7 Above Average** → **S7 Old App, Top Tier** |
-| ₱2,000–₱3,500 (second choice) | **S7 Above Average**, **S7 Average Price**, **S7 Lowest Price**, **S7 Old App, Cheap Tier** (all fit) → **S7 Old App, Top Tier** → **S7 Depends on the Job** |
-| Typed ₱1,000–₱1,500 (the "custom" tile) | **S7 Lowest Price**, **S7 Old App, Cheap Tier** → **S7 Average Price** → **S7 Depends on the Job** → **S7 Above Average**, **S7 Old App, Top Tier** |
-| Not sure | All six A–Z: price doesn't change the order, and no "Fits your budget" chips |
+| ₱1,000–₱2,000 (first choice) | **S7 ₱1,000** → **₱1,500** → **₱2,000** (green "Pasok sa budget" pills) → **₱2,500** → **₱3,000** → **₱4,000** (gray "Above your budget" pills) |
+| Typed ₱1,000–₱1,500 (the "custom" tile) | Same order: ₱3,000 and ₱4,000 are double or more over and score 0 for price, but they still show |
+| Not sure | Same order, no pills: each price is measured against the guide's ₱3,500 |
+| Sort → Lowest price | Same order (cheapest first) whatever the budget |
 
-Proves: in budget first. A price a little over the top of the budget keeps some points and stays ahead of "Depends
-on the job"; double the budget or more earns none. Listings from old app versions are priced and ranked too.
+Proves: cheaper first, over the budget lower, **nobody hidden for price**.
 
 ### S8 Experience (Solar)
 Expect: **S8 10+ Years** (purple award icon) → **3 to 10** → **1 to 3** → **Under 1 Year**.
@@ -105,15 +103,15 @@ Expect: **S8 10+ Years** (purple award icon) → **3 to 10** → **1 to 3** → 
 | 1 | S9 Mang Jun Aircon | Strong on everything |
 | 2 | S9 Mahal Aircon (top price) | Above-average price (₱1,500, half over budget), but 20 great reviews, fast replies, 10+ years |
 | 3 | S9 Kuya Ben Cool | Lowest price, good reviews, answers most chats (also goes to Antipolo) |
-| 4 | S9 Tulog Aircon (inactive) | 30 good reviews and 10+ years outweigh 45 days away and 10 of 12 chats ignored |
-| 5 | S9 Quote Aircon | "Depends on the job" |
-| 6 | S9 Bagong Aircon Tech | New: fits budget, neutral starting points |
-| 7 | S9 RJ Aircon (2 reviews) | Above-average price, little experience |
+| 4 | S9 Sakto Aircon (a bit over) | ₱1,200, 20% over the budget: a little lower, "Above your budget" pill (also goes to Angono) |
+| 5 | S9 Tulog Aircon (inactive) | 30 good reviews and 10+ years outweigh 45 days away and 10 of 12 chats ignored |
+| 6 | S9 RJ Aircon (2 reviews) | Above-average price (50% over), but 2 reviews |
+| 7 | S9 Bagong Aircon Tech | New: fits budget, neutral starting points, under a year |
 | nearby | S9 Antipolo Aircon Pro, S9 Angono Aircon | Other towns |
 
 - **Paging:** the first screen loads 4. Scroll to the end and the next 4 load, then the last one. Nobody shows twice
   and the group titles count all 7 + 2 from the start.
-- `pakabit aircon` (installation): **S9 Install Lang**, then **S9 Mahal Aircon**. *Install Lang* never shows for cleaning.
+- `pakabit aircon` (installation): **S9 Mahal Aircon** (₱1,500), then **S9 Install Lang** (₱3,500): both fit the ₱2,500–₱3,500 budget, the cheaper first. *Install Lang* never shows for cleaning.
 - **Look at rows 2 and 4.** This is where the weights are judged. Reviews and experience currently outweigh price
   and responsiveness. If an expensive or unresponsive worker this high feels wrong, the weights need tuning
   (see the end of this page).

@@ -184,5 +184,5 @@ public class LaunchTownTests
     private static ConfigDto ReferenceDataDto(string? defaultTown, List<BarangayDto>? barangays) => new(
         [new CategoryDto("aircon", "Aircon", "Aircon", null, null, null, [new ServiceDto("aircon-other", "Others", "Wala sa nabanggit", null)])],
         [new OptionDto("angono", "Angono", "Angono", null, 0), new OptionDto("taytay", "Taytay", "Taytay", null, 0)],
-        [], [], [], [], 755, defaultTown, barangays);
+        [], [], [], defaultTown, barangays);
 }

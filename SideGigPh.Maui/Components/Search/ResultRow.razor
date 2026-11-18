@@ -26,12 +26,12 @@
             }
             else
             {
-                <MudText Typo="Typo.subtitle1" Class="mt-1">@T.Get(Copy.RateQuote)</MudText>
+                <MudText Typo="Typo.subtitle1" Class="mt-1">@T.Get(Copy.RateNotSet)</MudText>
             }
-            @if (Hit.FitsBudget)
+            @if (BudgetPill is { } pill)
             {
                 <MudChip T="string" Variant="Variant.Filled" Color="Color.Default" Size="Size.Small" Class="ma-0 mt-2 align-self-start">
-                    @T.Get(Copy.FitsBudget)
+                    @T.Get(pill)
                 </MudChip>
             }
         </MudStack>

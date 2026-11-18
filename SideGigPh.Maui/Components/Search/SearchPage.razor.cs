@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
 /// Search results (under the Home tab, opened from the home search box or a trade icon). The Seeker types what they need in their own words or taps a trade, narrows
-/// to a job, and sets town, budget and when they need it (which only words their first message: results stay the same). Results come ranked by the server, 4 at a time (more as they scroll): pros who go
+/// to a job, and sets town, budget, the order (best match or lowest price) and when they need it (which only words their first message: results stay the same). Results come ranked by the server, 4 at a time (more as they scroll): pros who go
 /// to their town first, then other towns, each best-fit first. Tapping a pro opens their profile.
 /// Every change is saved, so the search is still here after Back or a restart.
 /// </summary>
@@ -65,6 +65,13 @@ public partial class SearchPage : ComponentBase
         }
     }
 
+    // Best match or lowest price first: being over the budget never hides a worker in either.
+    private IReadOnlyList<ChoiceItem> Orders =>
+    [
+        new ChoiceItem(nameof(SearchOrder.BestMatch), T.Get(Copy.SortBestMatch)),
+        new ChoiceItem(nameof(SearchOrder.LowestPrice), T.Get(Copy.SortLowestPrice)),
+    ];
+
     private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(Pricing.BudgetChoices(Request.ServiceId, Request.CategoryId, Request.BudgetId), T);
 
     protected override async Task OnInitializedAsync()
@@ -93,6 +100,12 @@ public partial class SearchPage : ComponentBase
     private async Task PickServiceAsync(string serviceId)
     {
         await Workspace.PickServiceAsync(serviceId == AllJobs ? null : serviceId);
+        await RunSearchAsync();
+    }
+
+    private async Task PickOrderAsync(string orderId)
+    {
+        await Workspace.PickOrderAsync(Enum.Parse<SearchOrder>(orderId));
         await RunSearchAsync();
     }
 

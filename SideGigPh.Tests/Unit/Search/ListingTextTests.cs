@@ -17,7 +17,7 @@ public class ListingTextTests
         return text;
     }
 
-    private static readonly ProfessionalListing Card = TestData.Listing("Ana", cities: ["taytay", "angono"], services: ["aircon-cleaning", "nope"], rate: "500-1000", experience: "10-plus");
+    private static readonly ProfessionalListing Card = TestData.Listing("Ana", cities: ["taytay", "angono"], services: ["aircon-cleaning", "nope"], rate: 1200, experience: "10-plus");
 
     [Fact]
     public void CardFacts_ReadNaturally()
@@ -28,8 +28,8 @@ public class ListingTextTests
         Card.TradeOptions().Select(trade => trade.Id).Should().Equal("aircon"); // the trade badge
         text.Towns(Card).Should().Be("Taytay, Angono");
         text.JobLabels(Card).Should().Equal("Aircon cleaning"); // an unknown job id is skipped, not shown blank
-        text.Rate(Card).Should().Be("₱500 – ₱1,000 per service");
-        text.RateLabel(Card).Should().Be("₱500 – ₱1,000");
+        text.Rate(Card).Should().Be("₱1,200 average per service");
+        Card.RateLabel().Should().Be("₱1,200");
         text.Experience(Card).Should().Be("Exp: 10+ years");
         text.ExperienceLabel(Card).Should().Be("10+ years");
         Card.IsSeasoned().Should().BeTrue("10+ years is highlighted");
@@ -37,13 +37,13 @@ public class ListingTextTests
     }
 
     [Fact]
-    public void CardFacts_QuoteAndNoExperience()
+    public void CardFacts_NoPriceYetAndNoExperience()
     {
         var text = English();
-        var listing = TestData.Listing("Ben", rate: "quote", experience: null);
+        var listing = TestData.Listing("Ben", rate: null, experience: null);
 
-        text.Rate(listing).Should().Be("Price depends on the work");
-        text.RateLabel(listing).Should().BeNull();
+        text.Rate(listing).Should().Be("No price yet");
+        listing.RateLabel().Should().BeNull();
         text.Experience(listing).Should().BeNull();
         text.ExperienceLabel(listing).Should().BeNull();
         listing.IsSeasoned().Should().BeFalse();

@@ -14,7 +14,7 @@ namespace SideGigPh.Tests.Unit.Search;
 public class SearchResultPagingTests
 {
     private static SearchHitDto HitDto(string name, bool inTown = true) =>
-        new(Dto(name, cities: [inTown ? "taytay" : "antipolo"]), true, inTown, true);
+        new(Dto(name, cities: [inTown ? "taytay" : "antipolo"]), true, inTown, true, false);
 
     private static readonly RankedResult Ranked = new(
         [HitDto("Town 1"), HitDto("Town 2"), HitDto("Town 3")],

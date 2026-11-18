@@ -18,7 +18,7 @@ public class OnboardingStepsTests
         CityIds = ["taytay"],
         AreaId = "rizal",
         ExperienceId = "1-3",
-        RateTierId = "quote",
+        RatePesos = 1000,
     };
 
     private static ProfessionalDraft WithProof(ProfessionalDraft draft)
@@ -56,7 +56,7 @@ public class OnboardingStepsTests
             case "jobs": draft.ServiceIds.Clear(); break;
             case "towns": draft.CityIds.Clear(); break;
             case "experience": draft.ExperienceId = null; break;
-            case "rate": draft.RateTierId = null; break;
+            case "rate": draft.RatePesos = null; break;
             case "photo": draft.ProfilePhotoId = null; break;
         }
 

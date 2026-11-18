@@ -1,0 +1,26 @@
+<MudStack Spacing="3">
+    <MudNumericField T="int?" Value="@Value" ValueChanged="ValueChanged" Immediate="true" HideSpinButtons="true"
+                     Variant="Variant.Filled" Underline="false" Class="app-field" InputMode="InputMode.numeric"
+                     Label="@T.Get(Copy.RateFieldLabel)" />
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+        <MudIcon Icon="@Icons.Material.Outlined.Info" Size="Size.Small" Color="Color.Secondary" aria-hidden="true" />
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.RateNote)</MudText>
+    </MudStack>
+    @if (Guide is { } guide)
+    {
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.body2">@T.Get(Copy.RateGuideTitle)</MudText>
+            <MudStack Row="true" Spacing="0" Wrap="Wrap.Wrap">
+                @foreach (var (label, pesos) in GuideChoices(guide))
+                {
+                    <MudChip T="string" Variant="@(Value == pesos ? Variant.Filled : Variant.Outlined)"
+                             Color="@(Value == pesos ? Color.Primary : Color.Default)"
+                             OnClick="@(() => ValueChanged.InvokeAsync(pesos))">
+                        @T.Format(label, Money.Peso(pesos))
+                    </MudChip>
+                }
+            </MudStack>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.RateGuideTap)</MudText>
+        </MudStack>
+    }
+</MudStack>

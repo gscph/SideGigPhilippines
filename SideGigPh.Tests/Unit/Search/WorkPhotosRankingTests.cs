@@ -33,7 +33,7 @@ public class WorkPhotosRankingTests
         var with = Score(WithPhotos("Shown", 3));
 
         with.Photos.Should().Be(SearchRanker.WorkPhotosWeight);
-        (with.Total - with.Photos).Should().Be(without.Total, "a bonus: nothing else in the score changes");
+        (with.Total - with.Photos).Should().BeApproximately(without.Total, 1e-9, "a bonus: nothing else in the score changes");
     }
 
     [Fact]
@@ -42,7 +42,7 @@ public class WorkPhotosRankingTests
         var score = Score(WithPhotos("Plain", 0));
 
         score.Photos.Should().Be(0);
-        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.BudgetFit + score.Experience + score.Trust);
+        score.Total.Should().Be(score.Reviews + score.Responsiveness + score.Activity + score.PriceFit + score.Experience + score.Trust);
     }
 
     [Fact]

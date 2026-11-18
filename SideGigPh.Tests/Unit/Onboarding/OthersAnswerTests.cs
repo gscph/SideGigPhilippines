@@ -92,7 +92,7 @@ public class OthersAnswerTests
         {
             Role = UserRole.Professional,
             CompletedAt = DateTimeOffset.Now,
-            Professional = { CityIds = ["taytay"], AreaId = "rizal", ExperienceId = "1-3", RateTierId = RateRange.Format(800, 1500) },
+            Professional = { CityIds = ["taytay"], AreaId = "rizal", ExperienceId = "1-3", RatePesos = 1200 },
         };
         state.Professional.PickTrade(Other);
         state.Professional.OtherJobText = "Plaster ng kisame";
@@ -100,7 +100,7 @@ public class OthersAnswerTests
         state.FitToCatalog();
 
         state.Professional.IsListingComplete.Should().BeTrue();
-        state.Professional.RateTierId.Should().Be("rate-800-1500", "a typed rate range is not an old tier");
+        state.Professional.RatePesos.Should().Be(1200);
         OnboardingSteps.LaunchPath(state).Should().Be(OnboardingSteps.PathOf(ProStep.Photo), "on to the selfie, not back to the trades");
     }
 

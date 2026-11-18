@@ -2,7 +2,20 @@ namespace SideGigPh.Maui.Models;
 
 /// <summary>What a Seeker is looking for, as ids from <c>ReferenceData</c>. Free text is resolved to these first.</summary>
 /// <param name="OtherText">What the Seeker typed under "Others": workers who typed something similar come first.</param>
-public sealed record SearchRequest(string? CategoryId, string? ServiceId, string? CityId, string? BudgetId, string? OtherText = null);
+/// <param name="Order">How results are ordered: best match (the server's score) or lowest price first.</param>
+public sealed record SearchRequest(
+    string? CategoryId, string? ServiceId, string? CityId, string? BudgetId, string? OtherText = null,
+    SearchOrder Order = SearchOrder.BestMatch);
+
+/// <summary>How a Seeker orders search results. Being over their budget never hides a worker, in either order.</summary>
+public enum SearchOrder
+{
+    /// <summary>The server's ranked score: reviews, replies, activity, price fit, experience, badges, photos.</summary>
+    BestMatch,
+
+    /// <summary>Cheapest average price first, the score breaking ties.</summary>
+    LowestPrice,
+}
 
 /// <summary>
 /// How free text like "tubero barado" was understood: the best category, a specific job when
@@ -21,7 +34,8 @@ public sealed record SearchHit(
     ReviewSummary? Reviews,
     bool OffersService,
     bool ServesTown,
-    bool FitsBudget);
+    bool FitsBudget,
+    bool AboveBudget);
 
 /// <summary>
 /// Ranked results loaded so far: pros who go to the Seeker's town first, then pros from other towns. They come a page

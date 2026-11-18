@@ -21,7 +21,7 @@ public class ApiAdapterTests
     private static string Json<T>(T value, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> type) => JsonSerializer.Serialize(value, type);
 
     private static ListingDto ListingDto(string id = "pro-1") => new(
-        id, "Maria", "+639171234567", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", "under-500", null, [], null);
+        id, "Maria", "+639171234567", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", 450, null, [], null);
 
     private static string Error(string code) => Json(new ApiError(code), ApiJson.Default.ApiError);
 
@@ -34,7 +34,7 @@ public class ApiAdapterTests
     private static string Page(params SearchHitDto[] hits) =>
         Json(new SearchPageDto([.. hits], hits.Count(h => h.ServesTown), hits.Count(h => !h.ServesTown), false), ApiJson.Default.SearchPageDto);
 
-    private static SearchHitDto Hit(string id = "pro-1", bool inTown = true) => new(ListingDto(id), true, inTown, true);
+    private static SearchHitDto Hit(string id = "pro-1", bool inTown = true) => new(ListingDto(id), true, inTown, true, false);
 
     [Fact]
     public async Task Search_SendsTheTokenAndTheWholeSearch_AndReadsOnePage()
@@ -49,6 +49,19 @@ public class ApiAdapterTests
         page.Count.Should().Be(2);
         page.Total.Should().Be(2);
         server.Requests.Single().Token.Should().Be($"token-for-{TestData.WorkerUid}");
+    }
+
+    [Fact]
+    public async Task Search_LowestPriceFirst_SendsTheSort_AndAboveBudgetComesBack()
+    {
+        var server = new StubServer();
+        server.Answer("GET search/professionals?categoryId=aircon&sort=price&skip=0&take=4", HttpStatusCode.OK,
+            Page(new SearchHitDto(ListingDto(), true, true, false, AboveBudget: true)));
+        var repo = new ApiProfessionalProfileRepository(server.Client());
+
+        var page = await repo.SearchAsync(new ProfessionalSearchQuery("aircon", null, null, null, null, Order: SearchOrder.LowestPrice), skip: 0);
+
+        page.InTown.Single().AboveBudget.Should().BeTrue("over the budget still shows, only lower");
     }
 
     [Fact]
@@ -149,7 +162,7 @@ public class ApiAdapterTests
         draft.ServiceIds.Should().Equal("aircon-cleaning");
         draft.CityIds.Should().Equal("taytay");
         draft.ExperienceId.Should().Be("1-3");
-        draft.RateTierId.Should().Be("under-500");
+        draft.RatePesos.Should().Be(450);
         draft.ProfilePhotoId.Should().Be("p1");
         draft.WorkPhotoIds.Should().Equal("w2", "w1");
         draft.PublishedAt.Should().BeNull("the restore decides that, not the adapter");

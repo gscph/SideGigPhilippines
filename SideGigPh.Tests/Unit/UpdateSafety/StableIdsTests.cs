@@ -48,30 +48,16 @@ public class StableIdsTests
     public void EveryTown_BelongsToTheServiceArea() =>
         ReferenceData.Cities.Should().OnlyContain(c => ReferenceData.AreaOf(c.Id) == ReferenceData.ServiceAreaId);
 
-    // Old app versions still send these as budgets and rates, and they read as peso ranges (BudgetRange).
-    [Fact]
-    public void PriceTierIds_NeverChange_CheapestFirst()
-    {
-        ReferenceData.PriceTiers.Select(p => p.Id).Should().Equal("under-500", "500-1000", "1000-2000", "2000-5000", "5000-up");
-        ReferenceData.PriceTiers.Select(p => p.Amount).Should().BeInAscendingOrder();
-    }
-
     [Fact]
     public void OtherAnswerIds_NeverChange()
     {
         ReferenceData.Unsure.Should().Be("unsure");
-        ReferenceData.Quote.Should().Be("quote");
         ReferenceData.Experience.Select(e => e.Id).Should().Equal("under-1", "1-3", "3-10", "10-plus");
         ReferenceData.TopExperienceId.Should().Be("10-plus");
         ReferenceData.Urgencies.Select(u => u.Id).Should().Equal("today", "this-week", "canvassing");
         ReferenceData.IncomeGoals.Select(g => g.Id).Should().Equal("5000", "10000", "20000", "30000-up");
         ReferenceData.OtherTradeId.Should().Be("other");
     }
-
-    // Saved in drafts and listings (RateTierId) and read by the server's ranking (PriceLevels in SideGigPh.Contracts).
-    [Fact]
-    public void RateLevelIds_NeverChange_CheapestFirst() =>
-        ReferenceData.RateLevels.Select(r => r.Id).Should().Equal("minimum", "average", "above-average");
 
     // Budgets travel as text in chats and search ("800-1500"); old price tiers must keep reading as ranges.
     [Theory]

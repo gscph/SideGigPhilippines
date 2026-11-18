@@ -10,7 +10,7 @@ namespace SideGigPh.Tests.Integration;
 
 /// <summary>
 /// "Others" end to end (app → API → SQL Server): a worker and a household whose work we don't list both get into the
-/// app, and find each other by what they typed. Also the from–to prices: a worker's own rate range and a job post's
+/// app, and find each other by what they typed. Also the prices: a worker's own average price and a job post's
 /// budget "from" are stored and come back.
 /// </summary>
 [Collection(ApiCollection.Name)]
@@ -21,7 +21,7 @@ public class OthersTests(ApiTestHost api)
 
     private static string Tag() => $"zq{Guid.NewGuid():N}"[..10];
 
-    private static async Task<TestPhone> OthersWorkerAsync(ApiTestHost api, string name, string typed, string rate = "quote")
+    private static async Task<TestPhone> OthersWorkerAsync(ApiTestHost api, string name, string typed, int rate = 1000)
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, name, trade: Other, jobs: [Other], rate: rate);
         worker.Pro.Draft.OtherJobText = typed;
@@ -47,14 +47,14 @@ public class OthersTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task AWorkersOwnRateRange_IsStoredAndComesBack()
+    public async Task AWorkersOwnPrice_IsStoredAndComesBack()
     {
-        var worker = await OthersWorkerAsync(api, "Range", "Ayos ng gate", rate: RateRange.Format(900, 2000));
+        var worker = await OthersWorkerAsync(api, "Price", "Ayos ng gate", rate: 1450);
 
         var listing = await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber))
             .GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto);
 
-        listing!.RateTierId.Should().Be("rate-900-2000");
+        listing!.RatePesos.Should().Be(1450);
         listing.CategoryId.Should().Be(Other);
     }
 

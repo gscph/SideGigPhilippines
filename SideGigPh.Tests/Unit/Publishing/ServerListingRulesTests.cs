@@ -20,7 +20,7 @@ public class ServerListingRulesTests
         ServiceIds: ["aircon-cleaning"],
         CityIds: ["taytay"],
         ExperienceId: "3-10",
-        RateTierId: "500-1000",
+        RatePesos: 800,
         ProfilePhotoId: TestData.PhotoId(1),
         WorkPhotoIds: [TestData.PhotoId(2), TestData.PhotoId(3)]);
 
@@ -79,8 +79,12 @@ public class ServerListingRulesTests
         ProfessionalStore.InvalidField(Valid() with { ServiceIds = [] }).Should().Be("serviceIds");
 
     [Fact]
-    public void InvalidField_RateDependsOnJob_IsAccepted() =>
-        ProfessionalStore.InvalidField(Valid() with { RateTierId = "quote" }).Should().BeNull();
+    public void InvalidField_NoOrZeroPrice_IsRatePesos()
+    {
+        ProfessionalStore.InvalidField(Valid() with { RatePesos = null }).Should().Be("ratePesos");
+        ProfessionalStore.InvalidField(Valid() with { RatePesos = 0 }).Should().Be("ratePesos");
+        ProfessionalStore.InvalidField(Valid() with { RatePesos = 1 }).Should().BeNull("any price above ₱0: the guide is only a guide");
+    }
 
     // If the app and the server disagree, the app shows "Publish" and the server refuses it (or the reverse).
     [Fact]
@@ -98,8 +102,6 @@ public class ServerListingRulesTests
             .Concat(Maui.Services.ReferenceData.ServicesByCategory.Values.SelectMany(s => s))
             .Concat(Maui.Services.ReferenceData.Cities)
             .Concat(Maui.Services.ReferenceData.Experience)
-            .Concat(Maui.Services.ReferenceData.RateLevels)
-            .Append(Maui.Services.ReferenceData.QuoteOption)
             .Select(option => option.Id)
             .Append(Maui.Services.ReferenceData.ServiceAreaId);
 

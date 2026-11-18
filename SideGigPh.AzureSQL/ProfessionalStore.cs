@@ -204,7 +204,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 row.CategoryId = request.CategoryId;
                 row.AreaId = request.AreaId;
                 row.ExperienceId = request.ExperienceId;
-                row.RateTierId = request.RateTierId;
+                row.RatePesos = request.RatePesos!.Value;
                 row.OtherWorkText = services.Any(OtherWork.IsOther) ? StoreText.Limit(request.OtherWork, OtherWork.MaxText) : null;
                 row.ProfilePhotoId = request.ProfilePhotoId;
                 row.UpdatedAt = now;
@@ -253,7 +253,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         : request.ServiceIds is not { Count: > 0 and <= MaxListed } || !request.ServiceIds.All(StoreText.IsCode) ? "serviceIds"
         : request.CityIds is not { Count: > 0 and <= MaxListed } || !request.CityIds.All(StoreText.IsCode) ? "cityIds"
         : request.ExperienceId is not null && !StoreText.IsCode(request.ExperienceId) ? "experienceId"
-        : request.RateTierId is not null && !StoreText.IsCode(request.RateTierId) ? "rateTierId"
+        : !WorkerPrice.IsValid(request.RatePesos) ? "ratePesos"
         : !StoreText.IsPhotoId(request.ProfilePhotoId) ? "profilePhotoId"
         : request.WorkPhotoIds is null || !request.WorkPhotoIds.All(StoreText.IsPhotoId) ? "workPhotoIds"
         : (request.Latitude is not null || request.Longitude is not null) && GeoRules.Point(request.Latitude, request.Longitude) is null ? "latitude"
@@ -333,7 +333,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         p.Services.Select(s => s.ServiceId).ToList(),
         p.Cities.Select(c => c.CityId).ToList(),
         p.ExperienceId,
-        p.RateTierId,
+        p.RatePesos,
         p.ProfilePhotoId is { } photoId ? new PhotoDto(photoId, photoLinks.For(photoId)) : null,
         p.WorkPhotos.OrderBy(w => w.Position).Select(w => new PhotoDto(w.PhotoId, photoLinks.For(w.PhotoId))).ToList(),
         reviews,

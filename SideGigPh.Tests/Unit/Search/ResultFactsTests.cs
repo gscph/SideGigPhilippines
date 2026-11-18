@@ -25,7 +25,7 @@ public class ResultFactsTests
         ServiceIds = ["aircon-cleaning"],
         CityIds = cities ?? ["taytay", "angono"],
         ExperienceId = experience,
-        RateTierId = "500-1000",
+        RatePesos = 800,
         MobileNumber = string.Empty,
         CompletedJobs = done,
         Badges = badge ? [new Badge(BadgeKind.Id)] : [],
