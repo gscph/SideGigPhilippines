@@ -3,7 +3,7 @@
         <PersonAvatar Name="@Hit.Pro.DisplayName" PhotoUrl="@Hit.Pro.PhotoUrl" Class="result-thumb flex-shrink-0" />
         <MudStack Spacing="0" Class="flex-1 app-min-w-0">
             <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.subtitle1" HtmlTag="h3" Class="one-line flex-1 app-min-w-0">@WhatAndWhere</MudText>
+                <MudText Typo="Typo.subtitle1" HtmlTag="h3" Class="one-line flex-1 app-min-w-0">@Hit.Pro.DisplayName</MudText>
                 <MudStack Row="true" Spacing="0" AlignItems="AlignItems.Center" Class="flex-shrink-0">
                     @if (Hit.Reviews is { Count: > 0 })
                     {
@@ -12,7 +12,7 @@
                     <MudText Typo="Typo.body2">@Stars</MudText>
                 </MudStack>
             </MudStack>
-            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@Hit.Pro.DisplayName</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@WhatAndWhere</MudText>
             @if (Facts is { } facts)
             {
                 <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@facts</MudText>
@@ -26,7 +26,7 @@
             }
             else
             {
-                <MudText Typo="Typo.subtitle1" Class="mt-1">@T.Get(Copy.RateQuote)</MudText>
+                <MudText Typo="Typo.body1" Class="mt-1">@T.Get(Copy.RateQuote)</MudText>
             }
             @if (Hit.FitsBudget)
             {

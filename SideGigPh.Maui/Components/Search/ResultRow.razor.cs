@@ -6,8 +6,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// One search result, laid out like Airbnb's list card but with a small photo: "Aircon Technician in Angono" with ★ on
-/// the right, the name muted, facts joined by · (<see cref="ResultText.FactsLine"/>), the price in money green, and at
+/// One search result, laid out like Airbnb's list card but with a small photo: the worker's name with ★ on the right,
+/// "Aircon Technician in Angono" muted, facts joined by · (<see cref="ResultText.FactsLine"/>), the price in money green, and at
 /// most one gray pill ("Fits your budget"). The whole row opens the worker's profile.
 /// </summary>
 public partial class ResultRow : ComponentBase
