@@ -1,0 +1,19 @@
+@if (Open)
+{
+    <MudPaper Outlined="true" Elevation="0" Class="app-rounded app-raised pa-5">
+        <MudStack Spacing="4">
+            <MudText Typo="Typo.h5" HtmlTag="h1">@Title</MudText>
+            @ChildContent
+        </MudStack>
+    </MudPaper>
+}
+else
+{
+    <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Class="app-rounded app-row-button px-5 py-4 mud-background"
+               OnClick="() => OnOpen.InvokeAsync()">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3" Class="mud-width-full">
+            <MudText Typo="Typo.body1" Color="Color.Secondary">@Label</MudText>
+            <MudText Typo="Typo.subtitle1" Class="one-line">@Value</MudText>
+        </MudStack>
+    </MudButton>
+}

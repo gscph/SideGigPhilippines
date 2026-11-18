@@ -1,14 +1,18 @@
-<MudStack Row="true" AlignItems="AlignItems.Start" Spacing="3" Class="py-2">
-    <MudIcon Icon="@Icons.Material.Filled.History" Color="Color.Dark" Class="mt-1" aria-hidden="true" />
-    <MudStack Spacing="2" Class="flex-1 app-min-w-0">
-        <MudText Typo="Typo.subtitle1" Class="two-lines">@Summary</MudText>
-        <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
-            <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="rounded-pill px-4"
-                       StartIcon="@Icons.Material.Rounded.Search" OnClick="() => OnSearch.InvokeAsync(Search)">               
-            </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Class="rounded-pill px-4"
-                       StartIcon="@Icons.Material.Rounded.Add" OnClick="() => OnPost.InvokeAsync(Search)">
-            </MudButton>
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="py-2 border-b border-solid mud-border-lines-default">
+    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="flex-1 app-min-w-0 justify-start pa-0 app-row-button"
+               OnClick="() => OnSearch.InvokeAsync(Search)">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Class="mud-width-full app-min-w-0">
+            <MudIcon Icon="@Icons.Material.Rounded.History" Color="Color.Dark" aria-hidden="true" />
+            <MudStack Spacing="0" AlignItems="AlignItems.Start" Class="flex-1 app-min-w-0">
+                <MudText Typo="Typo.subtitle1" Class="one-line">@Job</MudText>
+                @if (Town.Length > 0)
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@Town</MudText>
+                }
+            </MudStack>
         </MudStack>
-    </MudStack>
+    </MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button flex-shrink-0" OnClick="() => OnPost.InvokeAsync(Search)">
+        @T.Get(Copy.HomePostButton)
+    </MudButton>
 </MudStack>

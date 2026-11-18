@@ -19,6 +19,11 @@ public partial class SearchBox : ComponentBase
 
     [Parameter] public bool Live { get; set; }
 
+    /// <summary>Inside a card (the search sheet): a plain outlined pill, without the raised look of Home's box.</summary>
+    [Parameter] public bool Flat { get; set; }
+
+    private string BoxClass => Flat ? "app-pill-input" : "app-pill-input app-search-pill";
+
     /// <summary>The trade being searched, if any: picks the placeholder's honorific.</summary>
     [Parameter] public string? CategoryId { get; set; }
 

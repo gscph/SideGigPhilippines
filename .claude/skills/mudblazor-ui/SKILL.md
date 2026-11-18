@@ -54,6 +54,7 @@ Useful built-in utility classes (verified): `pa-*`/`px-*`/`py-*`/`ma-0`, `flex-1
    - SideGigPh-only → `SideGigPh.Maui/wwwroot/app.css`. Current: `own-listing`, `work-thumb` (square photo), `photo-remove`, `category-rail` / `category-rail-item` / `category-icon`, `profile-photo` (6rem avatar), `work-thumb-small` (6rem photo in a sideways row), `review-peek` + `four-lines` (sideways review cards), `app-underline` (the profile bar's price).
 3. **Never add a `.razor.css` file.** Scoped CSS only tags elements written directly in that file, and here every element is rendered by a MudBlazor component, so scoped rules never match.
 4. CSS colors come only from theme variables: `var(--mud-palette-primary)`, `rgba(var(--mud-palette-primary-rgb), .08)`, `var(--mud-palette-lines-default)`, `var(--mud-palette-background-gray)`. No hex.
+5. Seeker search gaps in `app.css`: `category-rail` lays the trade tiles three across, and `app-row-button` is a whole-row text button with its content at the left (`RecentSearchRow`).
 
 ## Theme
 

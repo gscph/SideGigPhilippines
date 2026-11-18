@@ -10,6 +10,9 @@ public static class SeekerRoutes
     public const string Search = Home + "/search";
     public const string Inbox = "/inbox";
 
+    /// <summary>The full-screen search sheet (What? / Where? / When?), outside the tabs; Close returns to <paramref name="back"/>.</summary>
+    public static string Find(string back) => $"{Home}/find?back={Uri.EscapeDataString(back)}";
+
     /// <summary>The Seeker's own job posts (the Post tab).</summary>
     public const string Posts = JobPosts.JobPostRoutes.Mine;
     /// <summary>The Seeker's reviews, opened from the Me page; under <see cref="Me"/> so Me stays lit.</summary>
@@ -31,6 +34,9 @@ public static class SeekerRoutes
     /// <summary><paramref name="back"/> when it is a page of this app (starts with one slash), else the results.</summary>
     public static string BackOrSearch(string? back) =>
         back is { Length: > 1 } path && path[0] == '/' && path[1] != '/' && path[1] != '\\' ? path : Search;
+
+    /// <summary><paramref name="back"/> when it is a page of this app, else Seeker home.</summary>
+    public static string BackOrHome(string? back) => BackOrSearch(back) is var path && path == Search && back != Search ? Home : path;
 
     /// <summary>The Inbox thread with a pro, where Contact lands.</summary>
     public static string Thread(string professionalId) => $"/inbox/{Uri.EscapeDataString(professionalId)}";

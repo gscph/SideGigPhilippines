@@ -65,10 +65,6 @@ public partial class SearchPage : ComponentBase
         }
     }
 
-    private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
-
-    private IReadOnlyList<ChoiceItem> Urgencies => ChoiceItem.From(ReferenceData.Urgencies, T);
-
     private IReadOnlyList<ChoiceItem> Budgets => ChoiceItem.From(Pricing.BudgetChoices(Request.ServiceId, Request.CategoryId, Request.BudgetId), T);
 
     protected override async Task OnInitializedAsync()
@@ -86,14 +82,6 @@ public partial class SearchPage : ComponentBase
         await RunSearchAsync();
     }
 
-    private async Task SearchForAsync(string words)
-    {
-        var intent = await Workspace.SearchForAsync(words);
-        _unmatchedText = intent.Matched || string.IsNullOrWhiteSpace(words) ? null : words.Trim();
-        _suggestedCategoryIds = intent.OtherCategoryIds;
-        await RunSearchAsync();
-    }
-
     private async Task PickCategoryAsync(string categoryId)
     {
         await Workspace.PickCategoryAsync(categoryId);
@@ -107,15 +95,6 @@ public partial class SearchPage : ComponentBase
         await Workspace.PickServiceAsync(serviceId == AllJobs ? null : serviceId);
         await RunSearchAsync();
     }
-
-    private async Task PickTownAsync(string cityId)
-    {
-        await Workspace.PickTownAsync(cityId);
-        await RunSearchAsync();
-    }
-
-    /// <summary>When they need it: saved for the first message to a worker; the ranking doesn't use it, so no new search.</summary>
-    private Task PickUrgencyAsync(string urgencyId) => Workspace.PickUrgencyAsync(urgencyId);
 
     private async Task PickBudgetAsync(string budgetId)
     {

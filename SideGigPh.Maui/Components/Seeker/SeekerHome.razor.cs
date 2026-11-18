@@ -7,12 +7,11 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Seeker;
 
 /// <summary>
-/// Seeker home, DoorDash/Grab style: "What do you need done?" with a dense search box, the town
-/// menu under it, every trade as an icon in a sideways-scrolling rail, the card to post what they need done
-/// (<see cref="PostRequestCard"/>, so posting is seen on landing, not only on the Post tab), then their recent
-/// searches (kept on the phone, <see cref="RecentSearches"/>; each searches again or opens the post form filled with it),
-/// recent messages and pros waiting for a rating. Searching or tapping a trade opens the Search
-/// tab with that search; changing the town updates the saved search.
+/// Seeker home, like Airbnb's Explore: one "Start your search" pill (<see cref="SearchPill"/>, opens the search sheet),
+/// every trade as a tile three across, the row to post what they need done (<see cref="PostRequestCard"/>, so posting is
+/// seen on landing, not only on the Post tab), then their recent searches (kept on the phone, <see cref="RecentSearches"/>;
+/// a tap searches again, "Post" opens the post form filled with it), recent messages and pros waiting for a rating.
+/// Tapping a trade opens the results for it.
 /// </summary>
 public partial class SeekerHome : ComponentBase
 {
@@ -22,20 +21,7 @@ public partial class SeekerHome : ComponentBase
 
     private IReadOnlyList<ChoiceItem> Categories => ChoiceItem.From(ReferenceData.Categories, T);
 
-    private IReadOnlyList<ChoiceItem> Towns => T.TownChoices();
-
     protected override Task OnInitializedAsync() => Workspace.RefreshIfStaleAsync();
-
-    private async Task SearchAsync(string words)
-    {
-        if (string.IsNullOrWhiteSpace(words))
-        {
-            return;
-        }
-
-        await Workspace.SearchForAsync(words);
-        Nav.NavigateTo(SeekerRoutes.Search);
-    }
 
     private async Task SearchAgainAsync(RecentSearch recent)
     {
