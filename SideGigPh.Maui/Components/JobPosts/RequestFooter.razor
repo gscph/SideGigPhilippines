@@ -1,0 +1,31 @@
+@using SideGigPh.Maui.Components.Professional
+@if (HasButtons)
+{
+    <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
+        @if (Editing)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" Disabled="Busy" OnClick="@(() => OnCancel.InvokeAsync())">
+                    @T.Get(CommonCopy.Cancel)
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(Busy || !CanSend)" OnClick="@(() => OnSend.InvokeAsync())">
+                    @T.Get(Copy.RequestSave)
+                </MudButton>
+            </MudStack>
+        }
+        else if (Item.State == RequestState.New)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Disabled="@(Busy || !CanSend)"
+                       OnClick="@(() => OnSend.InvokeAsync())">
+                @T.Get(Copy.OfferSend)
+            </MudButton>
+        }
+        else if (Item is { State: RequestState.Picked, ChatId: { } chatId })
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       StartIcon="@Icons.Material.Rounded.ChatBubbleOutline" Href="@ProRoutes.Chat(chatId)">
+                @T.Get(Copy.PostOpenChat)
+            </MudButton>
+        }
+    </MudPaper>
+}

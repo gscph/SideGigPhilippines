@@ -139,6 +139,51 @@ public class RequestRowsTests
     }
 
     [Fact]
+    public void ThePagesTitle_SaysWhatToDoOrWhatBecameOfIt()
+    {
+        _text.RequestPageTitle(RequestItem.From(Post(1))).Should().Be("Send your price");
+        _text.RequestPageTitle(RequestItem.From(Mine(1, MyOfferState.Waiting))).Should().Be("Your offer");
+        _text.RequestPageTitle(RequestItem.From(Mine(1, MyOfferState.Picked))).Should().Be("Picked you");
+        _text.RequestPageTitle(RequestItem.From(Mine(1, MyOfferState.NotPicked))).Should().Be("Not picked");
+    }
+
+    [Fact]
+    public void TheSummarysLastLine_LeadsWithTheCustomersStarsOnlyWhenThereAreAny()
+    {
+        _text.RequestMeta(Post(1)).Should().Be("5 min ago");
+        _text.RequestMeta(Post(1) with { HouseholdStars = new ReviewSummary(4.66, 3) }).Should().Be("4.7 · 5 min ago");
+    }
+
+    [Fact]
+    public void ThePriceRowsMutedLine_SaysWaitingWhileOpen_ThenTheWorkersNote()
+    {
+        _text.RequestOfferDetail(RequestItem.From(Mine(1, MyOfferState.Waiting))).Should().Be("Waiting for the customer");
+        _text.RequestOfferDetail(RequestItem.From(Mine(1, MyOfferState.Waiting, note: "Kaya ko bukas")))
+            .Should().Be("Waiting for the customer · Your note: Kaya ko bukas");
+        _text.RequestOfferDetail(RequestItem.From(Mine(1, MyOfferState.Picked))).Should().BeNull("the title already says picked");
+        _text.RequestOfferDetail(RequestItem.From(Mine(1, MyOfferState.NotPicked, note: "Kaya ko bukas"))).Should().Be("Kaya ko bukas");
+    }
+
+    [Fact]
+    public void TakingIt_SendsTheBudgetWithNoNote_WhateverWasTyped()
+    {
+        var draft = OfferDraft.Of(1500, otherPrice: false, typedPesos: 900, typedNote: "Mas mura");
+
+        draft.Should().Be(new OfferDraft(1500, null, IsValid: true));
+    }
+
+    [Fact]
+    public void AnotherPrice_SendsWhatWasTyped_AndNeedsAPrice()
+    {
+        OfferDraft.Of(1500, otherPrice: true, typedPesos: 900, typedNote: "  Kaya ko bukas  ")
+            .Should().Be(new OfferDraft(900, "Kaya ko bukas", IsValid: true));
+        OfferDraft.Of(1500, otherPrice: true, typedPesos: 900, typedNote: "   ").Note.Should().BeNull("a blank note is no note");
+        OfferDraft.Of(1500, otherPrice: true, typedPesos: null, typedNote: null).IsValid.Should().BeFalse("the price box is empty");
+        OfferDraft.Of(1500, otherPrice: true, typedPesos: 900, typedNote: new string('a', JobBoard.MaxOfferNote + 1))
+            .IsValid.Should().BeFalse("the note is too long");
+    }
+
+    [Fact]
     public void ARequestsPage_SitsUnderTheRequestsTab() =>
         ProRoutes.Request(42).Should().Be("/professional/requests/42").And.StartWith(ProRoutes.Requests);
 }

@@ -1,0 +1,8 @@
+<MudStack Spacing="2" Class="app-field-group">
+    <MudNumericField T="int?" Value="Price" ValueChanged="PriceChanged" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
+                     Class="app-field" HideSpinButtons="true" Min="0" Adornment="Adornment.Start" AdornmentText="₱"
+                     Label="@T.Get(Copy.OfferYourPrice)" />
+    <MudTextField T="string" Value="Note" ValueChanged="NoteChanged" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
+                  Class="app-field" Lines="2" MaxLength="@JobBoard.MaxOfferNote"
+                  Label="@T.Get(Copy.OfferNote)" Placeholder="@T.Get(Copy.OfferNoteHint)" />
+</MudStack>

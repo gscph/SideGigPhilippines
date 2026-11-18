@@ -1,0 +1,19 @@
+<MudStack Row="true" Spacing="3" AlignItems="AlignItems.Start" Justify="Justify.SpaceBetween" Class="py-4">
+    <MudStack Spacing="1" Class="flex-1 app-min-w-0">
+        <MudText Typo="Typo.subtitle1">@Label</MudText>
+        @if (!string.IsNullOrWhiteSpace(Value))
+        {
+            <MudText Typo="Typo.body1" Color="ValueColor">@Value</MudText>
+        }
+        @if (!string.IsNullOrWhiteSpace(Detail))
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Detail</MudText>
+        }
+        @ChildContent
+    </MudStack>
+    @if (!string.IsNullOrEmpty(ActionLabel))
+    {
+        <MudButton Variant="Variant.Text" Color="Color.Dark" Class="mud-background-gray flex-shrink-0" Disabled="Busy"
+                   OnClick="@(() => OnAction.InvokeAsync())">@ActionLabel</MudButton>
+    }
+</MudStack>

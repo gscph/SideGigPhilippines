@@ -1,92 +1,97 @@
 @page "/professional/requests/{Id:long}"
 @using SideGigPh.Maui.Components.Professional
-@layout ProLayout
 
-<MudStack Spacing="4">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@ProRoutes.Requests" aria-label="@T.Get(CommonCopy.Back)" />
-        @if (_item is { CanOffer: true } && !_reported)
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack Spacing="0" Class="full-screen">
+        <SheetHeader OnClose="Close" Divider="false">
+            <Actions>
+                @if (_item is { CanOffer: true } && !_reported)
+                {
+                    <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" Disabled="_busy"
+                                   OnClick="ReportAsync" aria-label="@T.Get(Copy.PostReport)" />
+                }
+            </Actions>
+        </SheetHeader>
+
+        <MudStack Spacing="5" Class="flex-1 px-6 pt-2 pb-16">
+            @if (!_loaded)
+            {
+                <MudStack Spacing="3">
+                    <MudSkeleton SkeletonType="SkeletonType.Text" Height="48px" Width="60%" />
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="240px" Class="rounded-lg" />
+                </MudStack>
+            }
+            else if (_item is null)
+            {
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.RequestGone)</MudText>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Href="@ProRoutes.Requests">@T.Get(Copy.RequestSeeAll)</MudButton>
+            }
+            else
+            {
+                <MudText Typo="Typo.h4" HtmlTag="h1">@T.RequestPageTitle(_item)</MudText>
+
+                @if (_notice is not null)
+                {
+                    <MudAlert Severity="@(_noticeIsError ? Severity.Error : Severity.Success)" Variant="Variant.Text" Dense="true" role="status">@T.Get(_notice)</MudAlert>
+                }
+
+                <MudPaper Outlined="true" Elevation="0" Class="app-rounded px-4">
+                    <RequestSummary Post="_item.Post" />
+                    @if (_item.HasMyOffer)
+                    {
+                        <MudDivider />
+                        @if (_editing)
+                        {
+                            <MudStack Class="py-4">
+                                <OfferFields @bind-Price="_price" @bind-Note="_note" Busy="_busy" />
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <DetailRow Label="@T.Get(Copy.OfferYourPrice)" Value="@Money.Peso(_item.MyPricePesos ?? 0)" ValueColor="Color.Success"
+                                       Detail="@T.RequestOfferDetail(_item)"
+                                       ActionLabel="@(_item.CanOffer ? T.Get(Copy.RequestChange) : null)" OnAction="StartEditing" Busy="_busy" />
+                        }
+                    }
+                    <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.RequestTheirBudget)" Value="@Pricing.PostBudget(_item.Post)" ValueColor="Color.Success" />
+                    <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.RequestTheyNeed)" Value="@_item.Post.Description">
+                        @if (_item.Post.PhotoUrls.Count > 0)
+                        {
+                            <MudStack Class="request-photos pt-2">
+                                <PhotoStrip Label="@T.Get(Copy.PostPhotosLabel)">
+                                    @foreach (var url in _item.Post.PhotoUrls)
+                                    {
+                                        <PhotoTile Url="@url" CanRemove="false" @key="url" />
+                                    }
+                                </PhotoStrip>
+                            </MudStack>
+                        }
+                    </DetailRow>
+                </MudPaper>
+
+                @if (_item.State == RequestState.New)
+                {
+                    <MudStack Spacing="3">
+                        <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.OfferYourPrice)</MudText>
+                        <PriceChoice BudgetPesos="_item.Post.BudgetPesos" @bind-OtherPrice="_otherPrice"
+                                     @bind-Price="_price" @bind-Note="_note" Busy="_busy" />
+                    </MudStack>
+                }
+                else if (_item.State == RequestState.Offered && !_editing)
+                {
+                    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button align-self-center" Disabled="_busy" OnClick="WithdrawAsync">
+                        @T.Get(Copy.RequestTakeBack)
+                    </MudButton>
+                }
+            }
+        </MudStack>
+
+        @if (_item is not null && !_reported)
         {
-            <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" Disabled="_busy"
-                           OnClick="ReportAsync" aria-label="@T.Get(Copy.PostReport)" />
+            <RequestFooter Item="_item" Editing="_editing" Busy="_busy" CanSend="CanSend"
+                           OnSend="SendAsync" OnCancel="StopEditing" />
         }
     </MudStack>
-
-    @if (!_loaded)
-    {
-        <MudStack Spacing="3">
-            <MudSkeleton SkeletonType="SkeletonType.Text" Height="48px" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="88px" />
-            <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
-        </MudStack>
-    }
-    else if (_item is null)
-    {
-        <MudStack Spacing="3" AlignItems="AlignItems.Center">
-            <MudText Typo="Typo.h5" HtmlTag="h1" Align="Align.Center">@T.Get(Copy.RequestGone)</MudText>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@ProRoutes.Requests">@T.Get(Copy.RequestSeeAll)</MudButton>
-        </MudStack>
-    }
-    else
-    {
-        <MudStack Spacing="1" AlignItems="AlignItems.Center">
-            <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">@T.ServiceLabel(_item.Post)</MudText>
-            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@T.RequestPlace(_item.Post)</MudText>
-        </MudStack>
-
-        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Stretch" role="list">
-            <StatTile Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
-                      Value="@Pricing.PostBudget(_item.Post)" Caption="@T.Get(Copy.RequestStatBudget)" />
-            @if (_item.Post.HouseholdStars is { } stars)
-            {
-                <StatTile Icon="@Icons.Material.Filled.Star" IconColor="Color.Warning"
-                          Value="@RequestText.StarsValue(stars)" Caption="@T.Get(Copy.RequestStatStars)" />
-            }
-            <StatTile Icon="@Icons.Material.Outlined.Schedule" Value="@T.Ago(_item.Post.CreatedAt)" Caption="@T.Get(Copy.RequestStatPosted)" />
-        </MudStack>
-
-        @if (_notice is not null)
-        {
-            <MudAlert Severity="@(_noticeIsError ? Severity.Error : Severity.Success)" Variant="Variant.Text" Dense="true" role="status">@T.Get(_notice)</MudAlert>
-        }
-
-        <MudDivider />
-
-        <MudStack Spacing="4">
-            @if (_item.Post.OffersService)
-            {
-                <RequestHighlight Icon="@Icons.Material.Rounded.CheckCircle" IconColor="Color.Success"
-                                  Title="@T.Get(Copy.RequestOffersService)" Detail="@T.Get(Copy.RequestOffersServiceWhy)" />
-            }
-            <RequestHighlight Icon="@Icons.Material.Outlined.ChatBubbleOutline" Title="@T.Get(Copy.RequestTheyWrote)" Detail="@_item.Post.Description" />
-            @if (_item.MyNote is { } note)
-            {
-                <RequestHighlight Icon="@Icons.Material.Outlined.StickyNote2" Title="@T.Get(Copy.RequestYourNote)" Detail="@note" />
-            }
-        </MudStack>
-
-        @if (_item.Post.PhotoUrls.Count > 0)
-        {
-            <PhotoStrip Label="@T.Get(Copy.PostPhotosLabel)">
-                @foreach (var url in _item.Post.PhotoUrls)
-                {
-                    <PhotoTile Url="@url" CanRemove="false" @key="url" />
-                }
-            </PhotoStrip>
-        }
-
-        @if (!_reported)
-        {
-            <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
-                @if (_offering && _item.CanOffer)
-                {
-                    <OfferBox Item="_item" Busy="_busy" OnSend="SendTypedAsync" OnCancel="CloseOfferBox" />
-                }
-                else
-                {
-                    <RequestActionBar Item="_item" Busy="_busy" OnTake="TakeBudgetAsync" OnOtherPrice="OpenOfferBox" OnWithdraw="WithdrawAsync" />
-                }
-            </MudPaper>
-        }
-    }
-</MudStack>
+</MudContainer>

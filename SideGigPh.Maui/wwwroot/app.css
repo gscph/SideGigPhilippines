@@ -162,3 +162,21 @@
 .app-min-w-0 {
     min-width: 0;
 }
+
+/* A choice row on a request's page (PriceChoice, Airbnb's "Choose when to pay"): the label on the left, the radio at
+   the far right, the whole row as wide as the card. MudRadio has no full-width option. */
+.app-choice-radio,
+.app-choice-radio .mud-radio {
+    width: 100%;
+    margin: 0;
+}
+
+.app-choice-radio .mud-radio {
+    justify-content: space-between;
+}
+
+/* The customer's photos on a request's page: small squares in a row (the card already shows the first one), not
+   the half-width tiles of a work-photo strip. */
+.request-photos .photo-strip {
+    grid-auto-columns: 4.5rem;
+}
