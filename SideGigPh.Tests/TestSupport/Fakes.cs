@@ -38,7 +38,7 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
 {
     public PublishResult NextResult { get; set; } = PublishResult.Published;
 
-    public List<(ProfessionalListing Listing, IReadOnlyList<WorkReference> References)> Published { get; } = [];
+    public List<ProfessionalListing> Published { get; } = [];
 
     /// <summary>What every search page answers (the server ranks; this fake only hands it back).</summary>
     public SearchResult SearchResults { get; set; } = SearchResult.Empty;
@@ -78,9 +78,9 @@ public sealed class FakeProfiles : IProfessionalProfileRepository
     /// <summary>With <see cref="PublishThrows"/>: the server stored the listing, only its answer was lost.</summary>
     public bool LandsAnyway { get; set; }
 
-    public Task<PublishResult> PublishAsync(ProfessionalListing listing, IReadOnlyList<WorkReference> references)
+    public Task<PublishResult> PublishAsync(ProfessionalListing listing)
     {
-        Published.Add((listing, references.ToList()));
+        Published.Add(listing);
         if (PublishThrows is not null)
         {
             if (LandsAnyway)

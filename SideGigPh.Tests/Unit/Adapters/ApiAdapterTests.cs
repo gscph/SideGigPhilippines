@@ -11,7 +11,7 @@ namespace SideGigPh.Tests.Unit.Adapters;
 
 /// <summary>
 /// The app's HTTP layer (<c>Services/Api/</c>) against a pretend API. It must send the sign-in token, turn every
-/// server answer into what the pages expect (phone taken, bad reference, photo taken…), show "nothing" instead of
+/// server answer into what the pages expect (phone taken, photo taken…), show "nothing" instead of
 /// crashing when offline, and not ask the server again for data it read moments ago (battery and data cost).
 /// </summary>
 public class ApiAdapterTests
@@ -21,7 +21,7 @@ public class ApiAdapterTests
     private static string Json<T>(T value, System.Text.Json.Serialization.Metadata.JsonTypeInfo<T> type) => JsonSerializer.Serialize(value, type);
 
     private static ListingDto ListingDto(string id = "pro-1") => new(
-        id, "Maria", "+639171234567", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", "under-500", null, [], null, 1);
+        id, "Maria", "+639171234567", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], "1-3", "under-500", null, [], null);
 
     private static string Error(string code) => Json(new ApiError(code), ApiJson.Default.ApiError);
 
@@ -127,7 +127,7 @@ public class ApiAdapterTests
     }
 
     [Fact]
-    public async Task OwnDraft_IsTheLiveListingWithPhotoIdsAndReferences_ReadFresh()
+    public async Task OwnDraft_IsTheLiveListingWithPhotoIds_ReadFresh()
     {
         var server = new StubServer();
         var live = ListingDto() with
@@ -137,14 +137,13 @@ public class ApiAdapterTests
             OtherWork = null,
         };
         server.Answer("GET professionals/pro-1", HttpStatusCode.OK, Json(live, ApiJson.Default.ListingDto));
-        server.Answer("GET professionals/me/references", HttpStatusCode.OK,
-            Json(new List<ReferenceDto> { new("Aling Nena", "+639181111111") }, ApiJson.Default.ListReferenceDto));
         var repo = new ApiProfessionalProfileRepository(server.Client());
         await repo.GetByIdAsync("pro-1"); // kept, but the restore still asks the server
 
         var draft = (await repo.GetOwnDraftAsync("pro-1"))!;
 
         server.CountOf("GET professionals/pro-1").Should().Be(2);
+        server.CountOf("GET professionals/me/references").Should().Be(0, "references were dropped: nothing more to read");
         draft.CategoryId.Should().Be("aircon");
         draft.AreaId.Should().Be("rizal");
         draft.ServiceIds.Should().Equal("aircon-cleaning");
@@ -153,30 +152,16 @@ public class ApiAdapterTests
         draft.RateTierId.Should().Be("under-500");
         draft.ProfilePhotoId.Should().Be("p1");
         draft.WorkPhotoIds.Should().Equal("w2", "w1");
-        draft.References.Should().Equal(new WorkReference("Aling Nena", "+639181111111"));
         draft.PublishedAt.Should().BeNull("the restore decides that, not the adapter");
     }
 
     [Fact]
-    public async Task OwnDraft_NoListing_IsNull_AndReferencesAreNotAsked()
+    public async Task OwnDraft_NoListing_IsNull()
     {
         var server = new StubServer();
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
         (await repo.GetOwnDraftAsync("nobody")).Should().BeNull();
-
-        server.CountOf("GET professionals/me/references").Should().Be(0);
-    }
-
-    [Fact]
-    public async Task OwnDraft_ReferencesNotRead_IsNull_NeverHalfAListing()
-    {
-        var server = new StubServer();
-        server.Answer("GET professionals/pro-1", HttpStatusCode.OK, Json(ListingDto(), ApiJson.Default.ListingDto));
-        server.Answer("GET professionals/me/references", HttpStatusCode.InternalServerError, Error(ApiErrors.Exception));
-        var repo = new ApiProfessionalProfileRepository(server.Client());
-
-        (await repo.GetOwnDraftAsync("pro-1")).Should().BeNull();
     }
 
     [Fact]
@@ -188,18 +173,17 @@ public class ApiAdapterTests
         var repo = new ApiProfessionalProfileRepository(server.Client());
         await repo.SearchAsync(Query(), 0);
 
-        var result = await repo.PublishAsync(TestData.ReadyDraft().ToListing(TestData.WorkerUid), TestData.ReadyDraft().References);
+        var result = await repo.PublishAsync(TestData.ReadyDraft().ToListing(TestData.WorkerUid));
         await repo.SearchAsync(Query(), 0);
 
         result.Should().Be(PublishResult.Published);
         server.CountOf(FirstPage).Should().Be(2, "a new listing must show in the next search");
         var sent = JsonSerializer.Deserialize(server.Requests.Single(r => r.Route == "PUT professionals/me").Body!, ApiJson.Default.PublishListingRequest)!;
-        sent.References.Should().ContainSingle();
+        sent.CategoryId.Should().Be("aircon");
     }
 
     [Theory]
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhoneTaken, PublishResult.PhoneTaken)]
-    [InlineData(HttpStatusCode.BadRequest, "invalid-references", PublishResult.BadReference)]
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhotoInUse, PublishResult.PhotoInUse)]
     [InlineData((HttpStatusCode)429, ApiErrors.TooManyRequests, PublishResult.TooManyTries)]
     public async Task Publish_Refused_TellsThePageWhy(HttpStatusCode status, string code, PublishResult expected)
@@ -208,7 +192,7 @@ public class ApiAdapterTests
         server.Answer("PUT professionals/me", status, Error(code));
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        (await repo.PublishAsync(TestData.ReadyDraft().ToListing(), [])).Should().Be(expected);
+        (await repo.PublishAsync(TestData.ReadyDraft().ToListing())).Should().Be(expected);
     }
 
     [Theory]
@@ -221,7 +205,7 @@ public class ApiAdapterTests
         server.Answer("PUT professionals/me", status, body);
         var repo = new ApiProfessionalProfileRepository(server.Client());
 
-        var publish = () => repo.PublishAsync(TestData.ReadyDraft().ToListing(), []);
+        var publish = () => repo.PublishAsync(TestData.ReadyDraft().ToListing());
 
         (await publish.Should().ThrowAsync<HttpRequestException>()).Which.StatusCode.Should().Be(status);
     }

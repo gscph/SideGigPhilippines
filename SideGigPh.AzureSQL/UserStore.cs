@@ -73,7 +73,7 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
 
     /// <summary>
     /// Delete account: everything the person has in the database, in one transaction. Their listing (with its
-    /// services, towns, work photos and references), every chat they are in (for both people), the reviews they wrote
+    /// services, towns and work photos, and any references saved before that feature was dropped), every chat they are in (for both people), the reviews they wrote
     /// AND the reviews about them, their blocks both ways, their phones and profile. Reports they made lose their name;
     /// reports about them stay for the operator. "Others" notes stay without their uid, and so do the features they
     /// suggested on the feedback board (shown without a name anyway); their votes there are removed. Answers with the photo ids
@@ -87,6 +87,9 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
             photos.AddRange(await db.Professionals.Where(p => p.Id == uid && p.ProfilePhotoId != null).Select(p => p.ProfilePhotoId!).ToListAsync(ct));
             photos.AddRange(await db.Users.Where(u => u.Uid == uid && u.ProfilePhotoId != null).Select(u => u.ProfilePhotoId!).ToListAsync(ct));
 
+            // References are no longer collected, but rows saved before then are personal data: purge them by name
+            // rather than rely only on the database's cascade from Professionals.
+            await db.ProfessionalReferences.Where(r => r.ProfessionalId == uid).ExecuteDeleteAsync(ct);
             await db.Professionals.Where(p => p.Id == uid).ExecuteDeleteAsync(ct);
             await db.Chats.Where(c => c.SeekerId == uid || c.ProfessionalId == uid).ExecuteDeleteAsync(ct);
             await db.Reviews.Where(r => r.SeekerId == uid || r.ProfessionalId == uid).ExecuteDeleteAsync(ct);

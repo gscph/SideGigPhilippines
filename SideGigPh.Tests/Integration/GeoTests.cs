@@ -28,7 +28,7 @@ public class GeoTests(ApiTestHost api)
         var listing = (await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!;
         var request = new PublishListingRequest(listing.DisplayName, listing.CategoryId, listing.AreaId, listing.ServiceIds, listing.CityIds,
             listing.ExperienceId, listing.RateTierId, listing.ProfilePhoto!.Id, [.. listing.WorkPhotos.Select(p => p.Id)],
-            [new ReferenceDto("Aling Nena", TestPhone.UniqueNumber())], latitude, longitude, radiusKm);
+            latitude, longitude, radiusKm);
         return await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
     }
 

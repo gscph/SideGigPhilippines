@@ -96,7 +96,7 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
         });
     }
 
-    /// <summary>The last setup step (photo, work photo, reference, number) was just done: straight to Publish, once.</summary>
+    /// <summary>The last setup step (photo, work photo, number) was just done: straight to Publish, once.</summary>
     private void PromptPublish()
     {
         if (_ready && Workspace.TakePublishPrompt())

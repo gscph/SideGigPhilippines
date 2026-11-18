@@ -280,54 +280,6 @@ public sealed class ProWorkspace(
         }
     }
 
-    /// <summary>
-    /// Adds someone who can vouch for the pro. The number is read the way people type it (0917…, +63 917…);
-    /// it can't be the pro's own, nor one already on the list.
-    /// </summary>
-    public async Task<ReferenceAddResult> AddReferenceAsync(string? name, string? typedNumber)
-    {
-        var trimmed = name?.Trim();
-        if (Draft.References.Count >= ProfessionalDraft.MaxReferences)
-        {
-            return ReferenceAddResult.Full;
-        }
-
-        if (string.IsNullOrEmpty(trimmed))
-        {
-            return ReferenceAddResult.NoName;
-        }
-
-        if (!PhilippineMobile.TryNormalize(typedNumber, out var number))
-        {
-            return ReferenceAddResult.InvalidNumber;
-        }
-
-        if (number == Draft.MobileNumber)
-        {
-            return ReferenceAddResult.OwnNumber;
-        }
-
-        if (Draft.References.Any(r => r.MobileNumber == number))
-        {
-            return ReferenceAddResult.Duplicate;
-        }
-
-        Draft.References.Add(new WorkReference(trimmed, number));
-        await SaveAsync(listingChanged: true);
-        return ReferenceAddResult.Added;
-    }
-
-    /// <summary>A published listing keeps at least <see cref="ProfessionalDraft.MinReferences"/> reference.</summary>
-    public bool CanRemoveReference => !IsPublished || Draft.References.Count > ProfessionalDraft.MinReferences;
-
-    public async Task RemoveReferenceAsync(WorkReference reference)
-    {
-        if (CanRemoveReference && Draft.References.Remove(reference))
-        {
-            await SaveAsync(listingChanged: true);
-        }
-    }
-
     /// <summary>The pro took the pledge: make the listing searchable, if it has every interview answer and the setup checklist is done.</summary>
     public async Task<PublishResult> PublishAsync()
     {
@@ -343,12 +295,6 @@ public sealed class ProWorkspace(
 
         // The phone may have been added to the account since the interview.
         Draft.TakeAccount(await identity.GetCurrentUserAsync());
-
-        // References added before that couldn't be checked against it.
-        if (Draft.References.Any(r => r.MobileNumber == Draft.MobileNumber))
-        {
-            return PublishResult.BadReference;
-        }
 
         var result = await PublishOrCheckAsync();
         if (result == PublishResult.Published)
@@ -367,7 +313,7 @@ public sealed class ProWorkspace(
     {
         try
         {
-            return await profiles.PublishAsync(Listing, Draft.References);
+            return await profiles.PublishAsync(Listing);
         }
         catch (HttpRequestException ex) when (ex.StatusCode is null && !IsPublished)
         {
@@ -428,7 +374,7 @@ public sealed class ProWorkspace(
         PublishResult result;
         try
         {
-            result = await profiles.PublishAsync(Listing, Draft.References);
+            result = await profiles.PublishAsync(Listing);
         }
         catch (Exception)
         {
@@ -591,7 +537,7 @@ public sealed class ProWorkspace(
         }
 
         await store.SaveAsync(_state!);
-        // Keep the live listing in step with new photos and references; a failure is retried, never thrown at a
+        // Keep the live listing in step with new photos; a failure is retried, never thrown at a
         // page after the change was already saved on the phone.
         await SyncListingAsync();
         Changed?.Invoke();

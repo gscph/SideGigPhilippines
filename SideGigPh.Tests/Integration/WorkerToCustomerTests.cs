@@ -30,7 +30,6 @@ public class WorkerToCustomerTests(ApiTestHost api)
         hit.Pro.MobileNumber.Should().BeEmpty("numbers stay private until a pick: search never carries them");
         hit.Pro.PhotoUrl.Should().StartWith(InMemoryBlobContainer.ContainerUri.ToString());
         hit.Pro.WorkPhotoUrls.Should().HaveCount(2);
-        hit.Pro.ReferenceCount.Should().Be(1, "Seekers see how many people vouch, never who");
         hit.FitsBudget.Should().BeTrue();
     }
 

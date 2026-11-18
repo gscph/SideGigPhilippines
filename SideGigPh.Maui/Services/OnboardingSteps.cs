@@ -24,7 +24,6 @@ public enum ProSetupStep
 {
     Photo = 1,
     WorkPhotos,
-    References,
 }
 
 /// <summary>The Seeker interview's questions, in order; the number is the step in its URL (<c>/start/seeker/{n}</c>).</summary>
@@ -211,7 +210,7 @@ public static class OnboardingSteps
     public static string PathOf(ProSetupStep step) => $"/start/pro/setup/{(int)step}";
 
     // One progress bar from the first question to the last setup step, so it never drops back between the two parts.
-    private const int ProTotalSteps = (int)ProStep.Preview + (int)ProSetupStep.References;
+    private const int ProTotalSteps = (int)ProStep.Preview + (int)ProSetupStep.WorkPhotos;
 
     /// <summary>How full the progress bar is on an interview question (step 1 already shows some: endowed progress).</summary>
     public static double ProgressOf(ProStep step) => (int)step / (double)ProTotalSteps;
@@ -219,19 +218,18 @@ public static class OnboardingSteps
     /// <summary>How full the progress bar is on a setup step: it carries on from the interview's preview; the last is 100%.</summary>
     public static double ProgressOf(ProSetupStep step) => ((int)ProStep.Preview + (int)step) / (double)ProTotalSteps;
 
-    /// <summary>The first proof still missing (own photo, work photos, a reference), or null when all are there.</summary>
+    /// <summary>The first proof still missing (own photo, work photos), or null when all are there.</summary>
     public static ProSetupStep? FirstUnfinished(this ProfessionalDraft draft)
     {
         if (!draft.HasProfilePhoto) return ProSetupStep.Photo;
         if (!draft.HasEnoughWorkPhotos) return ProSetupStep.WorkPhotos;
-        if (!draft.HasReference) return ProSetupStep.References;
         return null;
     }
 
     /// <summary>The setup step a URL asks for, clamped to the real steps and never past the first unfinished one.</summary>
     public static ProSetupStep SetupStepToShow(this ProfessionalDraft draft, int? requested)
     {
-        var step = (ProSetupStep)Math.Clamp(requested ?? 1, 1, (int)ProSetupStep.References);
+        var step = (ProSetupStep)Math.Clamp(requested ?? 1, 1, (int)ProSetupStep.WorkPhotos);
         return draft.FirstUnfinished() is { } unfinished && step > unfinished ? unfinished : step;
     }
 
@@ -246,7 +244,7 @@ public static class OnboardingSteps
 
     /// <summary>Next from a setup step: the next one, Publish after the last.</summary>
     public static string NextPath(ProSetupStep step) =>
-        step == ProSetupStep.References ? ProRoutes.Publish : PathOf(step + 1);
+        step == ProSetupStep.WorkPhotos ? ProRoutes.Publish : PathOf(step + 1);
 
     /// <summary>Back from a setup step: the previous one, the interview's preview from the first.</summary>
     public static string BackPath(ProSetupStep step) =>
@@ -396,7 +394,7 @@ public static class OnboardingSteps
                 : SeekerRoutes.Home;
         }
 
-        // Not live yet: back into the setup (photos, references, Publish) where they left it.
+        // Not live yet: back into the setup (photos, Publish) where they left it.
         return state.Professional.IsListingComplete ? state.Professional.AfterInterviewPath() : ProFirstUnansweredPath;
     }
 

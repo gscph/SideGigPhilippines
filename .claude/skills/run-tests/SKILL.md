@@ -42,10 +42,10 @@ Services/Models): copy the projects without bin/obj to a short path and `dotnet 
 ## When a test fails: fix the code, not the test
 
 1. **Read the failing test**: its name and the comment above its class say which user promise broke
-   (e.g. `Publish_ReferenceHasWorkersOwnNumber_ReturnsBadReferenceWithoutSending`). Read the assertion message.
+   (e.g. `Publish_MissingInterviewAnswer_ReturnsIncompleteWithoutSending`). Read the assertion message.
 2. **Decide which side is wrong.**
    - The change broke behavior users rely on → fix the app/server code.
-   - The user *asked* for this behavior to change (e.g. "allow 4 references") → update the test to the new
+   - The user *asked* for this behavior to change (e.g. "allow 8 work photos") → update the test to the new
      rule, and say which test you changed and why.
    - Unsure → ask; don't guess.
 3. **Fix the root cause.** Forbidden "fixes":

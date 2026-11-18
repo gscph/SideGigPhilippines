@@ -21,7 +21,7 @@ public class ApiMappingTests
             $"{FakePhotoStore.BaseUrl}{TestData.PhotoId(1)}.jpg",
             [$"{FakePhotoStore.BaseUrl}{TestData.PhotoId(2)}.jpg", $"{FakePhotoStore.BaseUrl}{TestData.PhotoId(3)}.jpg"]);
 
-        var request = listing.ToPublishRequest(draft.References);
+        var request = listing.ToPublishRequest();
 
         request.ProfilePhotoId.Should().Be(TestData.PhotoId(1));
         request.WorkPhotoIds.Should().Equal(TestData.PhotoId(2), TestData.PhotoId(3));
@@ -33,33 +33,41 @@ public class ApiMappingTests
         // An old on-device photo (data URL) has no id on the server: sending it would fail the whole publish.
         var listing = TestData.ReadyDraft().ToListing(TestData.WorkerUid, "data:image/jpeg;base64,AAAA", ["data:image/jpeg;base64,BBBB"]);
 
-        var request = listing.ToPublishRequest([]);
+        var request = listing.ToPublishRequest();
 
         request.ProfilePhotoId.Should().BeNull();
         request.WorkPhotoIds.Should().BeEmpty();
     }
 
     [Fact]
-    public void ToPublishRequest_SetsAreaFromTownAndCopiesReferences()
+    public void ToPublishRequest_SetsAreaFromTown()
     {
         var draft = TestData.ReadyDraft();
 
-        var request = draft.ToListing(TestData.WorkerUid).ToPublishRequest(draft.References);
+        var request = draft.ToListing(TestData.WorkerUid).ToPublishRequest();
 
         request.AreaId.Should().Be(ReferenceData.ServiceAreaId);
         request.CategoryId.Should().Be("aircon");
-        request.References.Should().ContainSingle().Which.Should().Be(new ReferenceDto("Aling Nena", TestData.ReferenceNumber));
     }
 
     [Fact]
-    public void ListingDto_ToModel_KeepsStarsPhotosAndReferenceCount()
+    public void ToPublishRequest_SendsNoReferences()
+    {
+        // References were dropped: the request has no such field, so no name or number of a third person is sent.
+        var json = System.Text.Json.JsonSerializer.Serialize(
+            TestData.ReadyDraft().ToListing(TestData.WorkerUid).ToPublishRequest(), ApiJson.Default.PublishListingRequest);
+
+        json.Should().NotContain("reference", "the app no longer collects or sends references");
+    }
+
+    [Fact]
+    public void ListingDto_ToModel_KeepsStarsAndPhotos()
     {
         var dto = new ListingDto(
             "pro-1", "Maria", "+639171234567", "plumbing", "rizal", ["plumbing-clog"], ["antipolo"], "1-3", "under-500",
             new PhotoDto(TestData.PhotoId(1), "https://x/p.jpg"),
             [new PhotoDto(TestData.PhotoId(2), "https://x/w.jpg")],
-            new ReviewSummaryDto(4.5, 12),
-            ReferenceCount: 2);
+            new ReviewSummaryDto(4.5, 12));
 
         var listing = dto.ToModel();
 
@@ -67,7 +75,6 @@ public class ApiMappingTests
         listing.PhotoUrl.Should().Be("https://x/p.jpg");
         listing.WorkPhotoUrls.Should().Equal("https://x/w.jpg");
         listing.Reviews.Should().Be(new ReviewSummary(4.5, 12));
-        listing.ReferenceCount.Should().Be(2);
     }
 
     [Fact]

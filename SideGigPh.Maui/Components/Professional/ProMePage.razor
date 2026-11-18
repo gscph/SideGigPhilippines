@@ -30,7 +30,7 @@
             else
             {
                 <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"
-                           HasReference="@Workspace.Draft.HasReference" HasVerifiedPhone="@Workspace.HasVerifiedPhone"
+                           HasVerifiedPhone="@Workspace.HasVerifiedPhone"
                            AddPhoneHref="@AddPhonePath" />
             }
         </MudStack>
@@ -48,10 +48,6 @@
         <MenuRow Href="@ProRoutes.Photos" Icon="@Icons.Material.Rounded.PhotoLibrary"
                  Text="@T.Get(Copy.PhotosTitle)" SecondaryText="@PhotosCountLabel">
             <EndContent><ProfileMarkIcon Mark="Progress.WorkPhotos" /></EndContent>
-        </MenuRow>
-        <MenuRow Href="@ProRoutes.References" Icon="@Icons.Material.Rounded.VerifiedUser"
-                 Text="@T.Get(Copy.ReferencesTitle)" SecondaryText="@ReferencesCountLabel">
-            <EndContent><ProfileMarkIcon Mark="Progress.References" /></EndContent>
         </MenuRow>
         <MenuRow Href="@ProRoutes.Badges" Icon="@Icons.Material.Rounded.WorkspacePremium"
                  Text="@T.Get(Copy.BadgesTitle)" SecondaryText="@BadgesCountLabel">

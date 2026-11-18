@@ -44,6 +44,21 @@ public class SafetyAndDeleteAccountTests(ApiTestHost api)
         profile.StatusCode.Should().Be(HttpStatusCode.NotFound, "the profile is gone");
     }
 
+    // References are no longer collected, but rows saved before then hold third people's names and numbers: Delete
+    // account must still remove them (privacy), until a later script drops the table.
+    [IntegrationFact]
+    public async Task DeleteAccount_AlsoRemovesReferencesSavedBeforeTheyWereDropped()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Rey");
+        await worker.Pro.PublishAsync();
+        await api.AddOldReferenceAsync(worker.Uid, TestPhone.UniqueNumber());
+        (await api.ReferenceRowsAsync(worker.Uid)).Should().Be(1);
+
+        await worker.Account.DeleteAccountAsync();
+
+        (await api.ReferenceRowsAsync(worker.Uid)).Should().Be(0);
+    }
+
     [IntegrationFact]
     public async Task WorkerBlocksCustomer_TheyNoLongerSeeEachOther_AndCantWrite()
     {

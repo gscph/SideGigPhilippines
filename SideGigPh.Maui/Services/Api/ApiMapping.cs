@@ -150,16 +150,15 @@ internal static partial class ApiMapping
         PhotoUrl = dto.ProfilePhoto?.Url,
         WorkPhotoUrls = dto.WorkPhotos.Select(photo => photo.Url).ToList(),
         Reviews = dto.Reviews is { } reviews ? new ReviewSummary(reviews.Average, reviews.Count) : null,
-        ReferenceCount = dto.ReferenceCount,
         Badges = [.. (dto.Badges ?? []).Select(ToModel).OfType<Badge>()],
         CompletedJobs = dto.CompletedJobs,
     };
 
     /// <summary>
-    /// The worker's own live listing as the answers that publish it again: photo ids (not URLs) and the private
-    /// <paramref name="references"/>. Name and number are not taken: they always come from the account (<c>TakeAccount</c>).
+    /// The worker's own live listing as the answers that publish it again: photo ids (not URLs). Name and number are
+    /// not taken: they always come from the account (<c>TakeAccount</c>).
     /// </summary>
-    public static ProfessionalDraft ToDraft(this ListingDto dto, IReadOnlyList<ReferenceDto> references) => new()
+    public static ProfessionalDraft ToDraft(this ListingDto dto) => new()
     {
         CategoryId = dto.CategoryId,
         ServiceIds = [.. dto.ServiceIds],
@@ -170,7 +169,6 @@ internal static partial class ApiMapping
         RateTierId = dto.RateTierId,
         ProfilePhotoId = dto.ProfilePhoto?.Id,
         WorkPhotoIds = [.. dto.WorkPhotos.Select(photo => photo.Id)],
-        References = [.. references.Select(reference => new WorkReference(reference.Name, reference.MobileNumber))],
     };
 
     /// <summary>A badge on a listing, or null for a kind this app version doesn't know yet.</summary>
@@ -271,7 +269,7 @@ internal static partial class ApiMapping
     /// The listing as the API takes it. Photos go by id, read from their URLs (the file name is the id); a URL that
     /// isn't a stored photo (a leftover on-device data URL) is left out. The number comes from the sign-in token.
     /// </summary>
-    public static PublishListingRequest ToPublishRequest(this ProfessionalListing listing, IReadOnlyList<WorkReference> references) => new(
+    public static PublishListingRequest ToPublishRequest(this ProfessionalListing listing) => new(
         listing.DisplayName,
         listing.CategoryIds.FirstOrDefault() ?? string.Empty,
         ReferenceData.AreaOf(listing.CityIds.FirstOrDefault()) ?? string.Empty,
@@ -281,7 +279,6 @@ internal static partial class ApiMapping
         listing.RateTierId,
         PhotoId(listing.PhotoUrl),
         listing.WorkPhotoUrls.Select(PhotoId).OfType<string>().Take(ProWorkspace.MaxWorkPhotos).ToList(),
-        references.Select(r => new ReferenceDto(r.Name, r.MobileNumber)).ToList(),
         listing.BasePoint?.Latitude,
         listing.BasePoint?.Longitude,
         listing.RadiusKm,

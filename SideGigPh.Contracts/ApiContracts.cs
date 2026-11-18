@@ -108,8 +108,8 @@ public sealed record PhotoDto(string Id, string Url);
 
 /// <summary>
 /// A published Skilled Worker listing (<c>GET professionals</c>, <c>GET professionals/{id}</c>), with its stars
-/// (null with no reviews yet), so search ranks in one request, and how many references vouch for the worker
-/// (only the count: reference names and numbers never leave the server).
+/// (null with no reviews yet), so search ranks in one request. (<c>referenceCount</c> was dropped with the
+/// references feature: an older app reads it as 0 and hides its references row.)
 /// </summary>
 public sealed record ListingDto(
     string Id,
@@ -124,7 +124,6 @@ public sealed record ListingDto(
     PhotoDto? ProfilePhoto,
     IReadOnlyList<PhotoDto> WorkPhotos,
     ReviewSummaryDto? Reviews = null,
-    int ReferenceCount = 0,
     IReadOnlyList<BadgeDto>? Badges = null,
     string? OtherWork = null,
     int CompletedJobs = 0);
@@ -132,7 +131,7 @@ public sealed record ListingDto(
 /// <summary>
 /// <c>PUT professionals/me</c>. The listing id is the caller's uid and its number is the account's verified
 /// number, both taken from the sign-in token, never from here. Work photos are newest first. Publishing needs a
-/// profile photo, at least 2 work photos and at least 1 reference; references are private (never in <see cref="ListingDto"/>).
+/// profile photo and at least 2 work photos. An older app may still send a <c>references</c> list: it is ignored.
 /// <paramref name="Latitude"/> / <paramref name="Longitude"/> are the worker's base point and <paramref name="RadiusKm"/>
 /// how far they travel (1–50): all optional and private (never in <see cref="ListingDto"/>). Left out, the server keeps
 /// what it has, or starts from the middle of the listing's towns and 10 km.
@@ -147,14 +146,10 @@ public sealed record PublishListingRequest(
     string? RateTierId,
     string? ProfilePhotoId,
     IReadOnlyList<string> WorkPhotoIds,
-    IReadOnlyList<ReferenceDto>? References = null,
     double? Latitude = null,
     double? Longitude = null,
     int? RadiusKm = null,
     string? OtherWork = null);
-
-/// <summary>Someone who can vouch for a Skilled Worker: a name and an E.164 Philippine mobile number.</summary>
-public sealed record ReferenceDto(string Name, string MobileNumber);
 
 /// <summary>A Seeker's review of a Skilled Worker.</summary>
 /// <param name="VerifiedJob">The Seeker picked this worker for a job both marked done.</param>

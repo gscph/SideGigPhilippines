@@ -130,7 +130,7 @@ public class OthersAnswerTests
         var withOthers = new ProfessionalDraft { CategoryId = "plumbing", ServiceIds = ["plumbing-other"], OtherJobText = "Poso negro" };
         var without = new ProfessionalDraft { CategoryId = "plumbing", ServiceIds = ["plumbing-clog"], OtherJobText = "Poso negro" };
 
-        SideGigPh.Maui.Services.Api.ApiMapping.ToPublishRequest(withOthers.ToListing(), []).OtherWork.Should().Be("Poso negro");
-        SideGigPh.Maui.Services.Api.ApiMapping.ToPublishRequest(without.ToListing(), []).OtherWork.Should().BeNull();
+        SideGigPh.Maui.Services.Api.ApiMapping.ToPublishRequest(withOthers.ToListing()).OtherWork.Should().Be("Poso negro");
+        SideGigPh.Maui.Services.Api.ApiMapping.ToPublishRequest(without.ToListing()).OtherWork.Should().BeNull();
     }
 }

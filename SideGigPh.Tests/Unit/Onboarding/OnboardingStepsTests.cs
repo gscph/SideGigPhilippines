@@ -405,7 +405,6 @@ public class OnboardingStepsTests
     {
         draft.ProfilePhotoId = "me";
         draft.WorkPhotoIds.AddRange(["w1", "w2"]);
-        draft.References.Add(new WorkReference("Aling Nena", "+639171234567"));
         return draft;
     }
 
@@ -422,10 +421,8 @@ public class OnboardingStepsTests
         draft.FirstUnfinished().Should().Be(ProSetupStep.WorkPhotos, "one work photo isn't enough");
 
         draft.WorkPhotoIds.Add("w2");
-        draft.FirstUnfinished().Should().Be(ProSetupStep.References);
-
-        draft.References.Add(new WorkReference("Aling Nena", "+639171234567"));
-        draft.FirstUnfinished().Should().BeNull();
+        draft.FirstUnfinished().Should().BeNull("own photo and 2 work photos are the whole setup");
+        draft.AfterInterviewPath().Should().Be("/professional/publish");
     }
 
     [Theory]
@@ -438,8 +435,9 @@ public class OnboardingStepsTests
 
     [Theory]
     [InlineData(1, ProSetupStep.Photo)]
-    [InlineData(3, ProSetupStep.References)]
-    [InlineData(99, ProSetupStep.References)]
+    [InlineData(2, ProSetupStep.WorkPhotos)]
+    [InlineData(3, ProSetupStep.WorkPhotos)] // the old references step's URL (a saved back link) lands on the last step
+    [InlineData(99, ProSetupStep.WorkPhotos)]
     public void SetupStep_AllDone_AnyStepCanBeRevisited(int requested, ProSetupStep expected) =>
         WithProof(FullyAnsweredDraft()).SetupStepToShow(requested).Should().Be(expected);
 
@@ -447,15 +445,14 @@ public class OnboardingStepsTests
     public void Setup_NextWalksTheStepsThenPublish()
     {
         OnboardingSteps.NextPath(ProSetupStep.Photo).Should().Be("/start/pro/setup/2");
-        OnboardingSteps.NextPath(ProSetupStep.WorkPhotos).Should().Be("/start/pro/setup/3");
-        OnboardingSteps.NextPath(ProSetupStep.References).Should().Be("/professional/publish");
+        OnboardingSteps.NextPath(ProSetupStep.WorkPhotos).Should().Be("/professional/publish");
     }
 
     [Fact]
     public void Setup_BackFromTheFirstStep_IsTheInterviewPreview()
     {
         OnboardingSteps.BackPath(ProSetupStep.Photo).Should().Be(OnboardingSteps.PathOf(ProStep.Preview));
-        OnboardingSteps.BackPath(ProSetupStep.References).Should().Be("/start/pro/setup/2");
+        OnboardingSteps.BackPath(ProSetupStep.WorkPhotos).Should().Be("/start/pro/setup/1");
     }
 
     [Fact]

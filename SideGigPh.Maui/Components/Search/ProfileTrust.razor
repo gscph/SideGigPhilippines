@@ -7,10 +7,6 @@
                 <TrustRow Icon="@BadgeIcons.Of(badge.Kind)" IconColor="Color.Primary" Title="@T.Badge(badge)" Note="@T.BadgeNote(badge)" />
             }
             <TrustRow Icon="@Icons.Material.Filled.VerifiedUser" Title="@T.Get(Copy.TrustPhone)" Note="@T.Get(Copy.TrustPhoneNote)" />
-            @if (Listing.ReferenceCount > 0)
-            {
-                <TrustRow Icon="@Icons.Material.Filled.Groups" Title="@ReferencesTitle" Note="@T.Get(Copy.TrustReferencesNote)" />
-            }
         </MudStack>
     </MudPaper>
 </MudStack>
