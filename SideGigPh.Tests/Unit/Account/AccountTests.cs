@@ -233,6 +233,25 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task AccountSwitched_KeepsTheAnswers_AndLoadsTheOtherAccount_WithoutSigningOut()
+    {
+        // A Google account adds a number that is the person's earlier phone sign-in: the code they typed signs in to that
+        // account at once (no second code). The answers stay and nothing loaded for the Google account carries over.
+        var app = new FakeApp(TestData.FinishedPro(TestData.ReadyDraft()), TestData.Worker());
+        await app.Pro.EnsureLoadedAsync();
+
+        app.Identity.User = new AuthUser { Uid = "phone-account", DisplayName = "Juan", PhoneNumber = TestData.WorkerNumber };
+        await app.Account.AccountSwitchedAsync();
+        await app.Pro.EnsureLoadedAsync();
+
+        app.Pro.MyId.Should().Be("phone-account");
+        app.Identity.User.Should().NotBeNull("switching accounts never signs out");
+        app.Store.State.Professional.CategoryId.Should().NotBeNull("the answers stay on the phone");
+        app.Users.Deleted.Should().BeEmpty();
+        app.Profiles.Removed.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task StartOver_NotSignedIn_CleansUpBothLocalIds()
     {
         var app = new FakeApp(TestData.FinishedSeeker(TestData.AirconCleaningInTaytay()), user: null);

@@ -11,6 +11,8 @@ namespace MobileAppTheme.Components.Auth;
 /// from pages that need a number; afterwards they go back to <c>then</c>. With <c>skip=true</c> (an early ask that a later
 /// page repeats) "Do this later" goes on to <c>then</c> without a number, so an SMS that never arrives is no dead end; a
 /// page that needs the number passes <c>later</c> instead (e.g. home), so someone out of codes for today can still leave.
+/// A number that is another account's signs in to that account with the same code
+/// (<see cref="AuthResult.SwitchedAccount"/>), never a second one, and goes where a sign-in goes.
 /// </summary>
 public partial class AddPhonePage : ComponentBase
 {
@@ -18,6 +20,7 @@ public partial class AddPhonePage : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private IAppAccount Account { get; set; } = default!;
+    [Inject] private IAuthLanding Landing { get; set; } = default!;
 
     [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
 
@@ -48,8 +51,17 @@ public partial class AddPhonePage : ComponentBase
         }
     }
 
-    private void HandleLinked(AuthResult result)
+    private async Task HandleLinkedAsync(AuthResult result)
     {
+        if (result is { SwitchedAccount: true, User: { } other })
+        {
+            // The code proved the number, which is another account's: that account is signed in now, so go where a
+            // sign-in goes (Account keeps this phone's answers).
+            await Account.AccountSwitchedAsync();
+            Nav.NavigateTo(other.HasName ? await Landing.GetDestinationAsync(other) : AuthRoutes.NamePath, replace: true);
+            return;
+        }
+
         if (result.IsSuccess)
         {
             Nav.NavigateTo(Destination, replace: true);

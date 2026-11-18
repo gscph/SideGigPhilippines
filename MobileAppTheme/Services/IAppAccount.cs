@@ -22,6 +22,13 @@ public interface IAppAccount
     /// </summary>
     Task SignOutAsync();
 
+    /// <summary>
+    /// Another account is now signed in on this phone: adding a number found it on that account, which the person was
+    /// signed in to with the same code (<see cref="Auth.AuthResult.SwitchedAccount"/>). Keeps this phone's answers and
+    /// forgets what was loaded for the last account, like <see cref="SignOutAsync"/> without signing out.
+    /// </summary>
+    Task AccountSwitchedAsync();
+
     /// <summary>Deletes everything the person made on this phone, so <c>/</c> starts the app fresh.</summary>
     Task StartOverAsync();
 

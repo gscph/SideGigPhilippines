@@ -96,6 +96,25 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     {
         try
         {
+#if ANDROID
+            // The number may already be on another account (often the person's own earlier phone sign-in): Firebase's
+            // SDK then signs in to it with this same code, never a second one (AndroidPhoneLink).
+            if (AndroidPhoneLink.PendingVerificationId(Auth) is { Length: > 0 } sessionId)
+            {
+                var outcome = await AndroidPhoneLink.LinkOrSignInAsync(sessionId, userEnteredCode).WaitAsync(VerifyCodeLimit);
+                var current = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after adding the number.");
+                await current.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
+                if (outcome == AndroidPhoneLink.Outcome.SwitchedAccount)
+                {
+                    logger.LogInformation("The number belonged to another account; signed in to it with the same code.");
+                    return AuthResult.SwitchedTo(Map(current));
+                }
+
+                return AuthResult.Ok(Map(current));
+            }
+
+            logger.LogWarning("The SMS session id couldn't be read from the plugin; adding the number through the plugin.");
+#endif
             var user = await Auth.LinkWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
 
             // The cached ID token doesn't carry the new phone_number claim until it's refreshed,

@@ -6,7 +6,7 @@
         <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(CommonCopy.AuthPhoneWhy)</MudText>
     }
 
-    <PhoneSignIn @ref="_phone" LinkToCurrentUser="true" OnAuthenticated="HandleLinked" SentToChanged="SentToChanged" />
+    <PhoneSignIn @ref="_phone" LinkToCurrentUser="true" OnAuthenticated="HandleLinkedAsync" SentToChanged="SentToChanged" />
 
     @if (_error is not null)
     {

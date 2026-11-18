@@ -41,7 +41,7 @@ changing that area.**
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
   `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board), `IJobPostRepository` (job posts),
-  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers (the add-phone page's "Sign in with this number" when a Google account's number belongs to another account), Start over, Delete account), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
+  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers, `AccountSwitchedAsync` (adding a number that is another account's signs in to that account with the same code, never a second one: `AuthResult.SwitchedAccount`, Android `MobileAppTheme.Firebase/AndroidPhoneLink`; "Sign in with this number" stays only where the provider can't, e.g. iOS for now), Start over, Delete account), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
 - **API adapters** (`Services/Api/`, the only app code that talks HTTP): `ApiClient` (one `HttpClient`, the Firebase
   ID token on every request, asks for gzip) and one `Api*Repository` per port, registered by `AddSideGigPhApi`
   after `AddMobileAppTheme`; `ApiMapping` converts contracts ↔ `Models/` (models never get contract types). Failed
@@ -195,7 +195,7 @@ changing that area.**
   chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,
   `JobPostStore.ContactNumberAsync`, `JobBoard.ContactNumberAsync`; null with no pick, a block, or no number).
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
-  (`ProLayout`, `SeekerLayout`) loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
+  (`ProLayout`, `SeekerLayout`) sends anyone signed out to sign in (`SignInGate`), loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
 - **Pro side:** publishing needs a complete listing (`IsListingComplete`) **and proof** (`HasProof`: the profile photo)
   and a verified number; the server checks the same (`ProfessionalStore.InvalidField`). **Work photos are optional** (0–6;

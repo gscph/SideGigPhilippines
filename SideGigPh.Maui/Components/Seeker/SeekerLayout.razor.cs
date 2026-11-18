@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MobileAppTheme.Auth;
 using MudBlazor;
 using SideGigPh.Maui.Components.Layout;
 using SideGigPh.Maui.Services;
@@ -19,6 +20,7 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
 
@@ -37,6 +39,14 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     {
         Workspace.Changed += OnWorkspaceChanged;
         Account.Changed += OnWorkspaceChanged;
+        // Signed out (e.g. "Sign in with this number", then Back): sign in first, as at launch. Without this the pages
+        // loaded with nobody signed in, and the add-number link then opened the sign-in page instead.
+        if (await Gate.RedirectAsync("/") is { } signIn)
+        {
+            Nav.NavigateTo(signIn, replace: true);
+            return;
+        }
+
         if (!await Workspace.EnsureLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);

@@ -84,7 +84,18 @@ public sealed class LocalAccount(
     public async Task SignOutAsync()
     {
         await identity.SignOutAsync();
-        // Both sides loaded this account's id, listing, chats and reviews: the next account loads its own.
+        ForgetLoaded();
+    }
+
+    public Task AccountSwitchedAsync()
+    {
+        ForgetLoaded();
+        return Task.CompletedTask;
+    }
+
+    // Both sides loaded this account's id, listing, chats and reviews: the next account loads its own.
+    private void ForgetLoaded()
+    {
         pro.Forget();
         seeker.Forget();
     }

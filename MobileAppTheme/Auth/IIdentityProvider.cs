@@ -24,8 +24,10 @@ public interface IIdentityProvider
 
     /// <summary>
     /// Confirms the code and adds the verified number to the signed-in account (e.g. a Google
-    /// account), keeping the same <see cref="AuthUser.Uid"/>. Fails with
-    /// <see cref="AuthError.PhoneInUse"/> when another account already has that number.
+    /// account), keeping the same <see cref="AuthUser.Uid"/>. When another account already has that number, the
+    /// code still proved it is the person's: the adapter signs in to that account with it, never asking for a second
+    /// code, and answers <see cref="AuthResult.SwitchedTo"/>. Fails with <see cref="AuthError.PhoneInUse"/> only where
+    /// the provider can't do that.
     /// </summary>
     Task<AuthResult> LinkPhoneAsync(string verificationId, string userEnteredCode);
 
