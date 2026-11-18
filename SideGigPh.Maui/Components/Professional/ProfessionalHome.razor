@@ -22,16 +22,7 @@
     }
 
     @if (Workspace.IsPublished)
-    {
-        @* The pro's daily work: find a job in Requests, then talk to the customer in Inbox. *@
-        <MudStack Row="true" Spacing="3" Class="align-stretch">
-            <ProWorkTile Primary="true" Href="@JobPostRoutes.Feed" Icon="@Icons.Material.Rounded.Campaign"
-                         Label="@T.Get(Copy.ProPostsTitle)" Count="NewRequestCount" CountHasMore="Board.HasMore"
-                         Detail="@RequestsDetail" />
-            <ProWorkTile Href="@ProRoutes.Inbox" Icon="@Icons.Material.Rounded.ChatBubbleOutline"
-                         Label="@T.Get(Copy.NavInbox)" Count="Workspace.UnreadCount" Detail="@InboxDetail" />
-        </MudStack>
-
+    {       
         <HomeSection Title="@T.Get(Copy.SectionNewRequests)" Href="@JobPostRoutes.Feed">
             @if (!_requestsLoaded)
             {
