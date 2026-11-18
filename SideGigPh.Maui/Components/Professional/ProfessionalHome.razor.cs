@@ -6,65 +6,55 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Pro home, Slack style: the setup checklist until the listing is published (then the amber badge reminder while a
-/// badge can still be asked for), then
-/// collapsible sections for recent messages and latest reviews.
-/// The + button adds work photos. Redraws when the workspace changes (a push re-read the Inbox, a reply was sent), so
-/// "Recent messages" shows the newest message like the Inbox does.
+/// Pro home, built around the pro's daily work. Until the listing is published: the setup checklist, then recent
+/// messages and reviews. Once live: two big tiles up top, Job Requests (new requests they haven't offered on) and Inbox
+/// (unread chats), then the newest requests and recent messages, then the profile reminders (work photos, then badges)
+/// and latest reviews. Redraws when the workspace or the board changes (a push re-read the Inbox, an offer was sent),
+/// so the counts and "Recent messages" stay current.
 /// </summary>
 public partial class ProfessionalHome : ComponentBase, IDisposable
 {
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
-    [Inject] private BusyIndicator Busy { get; set; } = default!;
-    [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ProBadges Badges { get; set; } = default!;
+    [Inject] private JobBoard Board { get; set; } = default!;
 
-    private PhotoAddResult? _photoResult;
-    private bool _busy;
+    private bool _requestsLoaded;
 
     /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
     private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Home, canSkip: true);
 
-    /// <summary>Once the listing is live, the amber badge reminder takes the setup card's place while a badge can still be asked for.</summary>
+    /// <summary>Once the listing is live, the amber reminders show while work photos or a badge can still be added.</summary>
     private ProfileProgress Progress => ProfileProgress.Of(Workspace, Badges);
+
+    /// <summary>Requests in the first page the pro hasn't offered on yet.</summary>
+    private int NewRequestCount => Board.Feed.Count(post => post.MyOfferPesos is null);
+
+    private string RequestsDetail => NewRequestCount > 0
+        ? T.Get(Copy.HomeRequestsWaiting)
+        : T.Get(Copy.HomeRequestsNone);
+
+    private string InboxDetail => Workspace.UnreadCount > 0
+        ? T.Get(Copy.HomeInboxWaiting)
+        : T.Get(Copy.HomeInboxNone);
 
     protected override async Task OnInitializedAsync()
     {
         Workspace.Changed += OnChanged;
+        Board.Changed += OnChanged;
         await Workspace.RefreshIfStaleAsync();
         if (Workspace.IsPublished)
         {
-            await Badges.RefreshIfStaleAsync();
+            await Task.WhenAll(Badges.RefreshIfStaleAsync(), Board.LoadFeedAsync());
+            _requestsLoaded = true;
         }
     }
 
-    public void Dispose() => Workspace.Changed -= OnChanged;
+    public void Dispose()
+    {
+        Workspace.Changed -= OnChanged;
+        Board.Changed -= OnChanged;
+    }
 
     private void OnChanged() => _ = InvokeAsync(StateHasChanged);
-
-    private async Task AddPhotosAsync()
-    {
-        if (_busy)
-        {
-            return; // a second tap before the picker showed (opened it twice and uploaded the photos twice)
-        }
-
-        _busy = true;
-        var from = Nav.Uri;
-        try
-        {
-            _photoResult = await Busy.RunAsync(Workspace.AddWorkPhotosAsync);
-        }
-        finally
-        {
-            _busy = false;
-        }
-
-        // Unless those photos finished the checklist and the layout already opened Publish.
-        if (_photoResult is { Added: > 0, Duplicates: 0, Failed: false } && Nav.Uri == from)
-        {
-            Nav.NavigateTo(ProRoutes.Photos);
-        }
-    }
 }
