@@ -35,6 +35,20 @@ h1:focus {
    utility class for. Keep this list short.
    ========================================================================== */
 
+/* A page title read by screen readers but not drawn: a tab home or results page laid out without a visible title
+   still has its one h1, which FocusOnNavigate focuses after each navigation. */
+.app-visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 /* ConnectionBanner: the "you're offline" strip above every screen. It pushes the page down and sticks at the top
    (a chat opens scrolled to its end, so a strip in the flow would be off screen), and the sticky top bar sits
    right under it while it shows. */

@@ -2,6 +2,7 @@
 @layout SeekerLayout
 
 <MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1" Class="app-visually-hidden">@T.Get(Copy.SearchTitle)</MudText>
     <SearchSummaryPill Request="Request" UrgencyId="@Workspace.Answers.UrgencyId" Words="@Workspace.Answers.SearchText" />
 
     <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
