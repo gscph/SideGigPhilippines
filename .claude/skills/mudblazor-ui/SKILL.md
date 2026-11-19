@@ -74,7 +74,7 @@ Useful built-in utility classes (verified): `pa-*`/`px-*`/`py-*`/`ma-0`, `flex-1
 | `CS0104: 'Size' is an ambiguous reference` in a `.razor.cs` | MAUI's global usings bring `Microsoft.Maui.Graphics.Size` alongside `MudBlazor.Size` | `using Size = MudBlazor.Size;` (see `PersonAvatar.razor.cs`) |
 | Text inside a whole-card link turns brand blue | `MudLink` defaults to `Color.Primary` and `MudText` inherits | `MudLink Underline="Underline.None" Color="Color.Inherit"` (see `ResultCard`, `ThreadRow`) |
 | `MudAppBar Color="Color.Surface"` / `MudPaper HtmlTag` | No `mud-theme-surface` class (transparent bar); MudPaper has no `HtmlTag` | White fixed bar = `MudPaper Square Elevation` + a gap class; landmarks via `role="navigation"`. `MudPaper` does have `MaxWidth`/`MinWidth` |
-| `mud-api.sh params MudTextField` shows no `DebounceInterval` | The script skips the `MudDebouncedInput` base class | They exist: `DebounceInterval`, `OnDebounceIntervalElapsed` (see `SearchBox`) |
+| `mud-api.sh params MudTextField` shows no `DebounceInterval` | The script skips the `MudDebouncedInput` base class | They exist: `DebounceInterval`, `OnDebounceIntervalElapsed` (MudBlazor docs) |
 
 ## Before you finish
 

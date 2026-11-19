@@ -52,6 +52,7 @@ public partial class NewPostPage : ComponentBase
     private bool _leaving; // a sheet is going back to the form (waiting for the browser's history)
     private bool _tried; // Post was tapped with something missing: the notes turn red
     private MudTextField<string>? _description;
+    private bool _loaded; // the post (Edit) or the last search's answers are in the draft
     private bool _busy;
     private bool _failed;
 
@@ -64,6 +65,12 @@ public partial class NewPostPage : ComponentBase
     }
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+        _loaded = true; // the rows can't be changed before this: a sheet's Cancel would put back the empty draft
+    }
+
+    private async Task LoadAsync()
     {
         if (!await Workspace.EnsureLoadedAsync())
         {
@@ -91,20 +98,7 @@ public partial class NewPostPage : ComponentBase
             return;
         }
 
-        var answers = Workspace.Answers;
-        _draft.CategoryId = ReferenceData.FindTrade(answers.CategoryId)?.Id;
-        _draft.ServiceId = ReferenceData.ServicesOf(_draft.CategoryId).FirstOrDefault(service => service.Id == answers.ServiceId)?.Id;
-        _draft.CityId = ReferenceData.Find(ReferenceData.Cities, answers.TownShown())?.Id;
-        _draft.BarangayId = ReferenceData.FindBarangay(_draft.CityId, answers.BarangayId)?.Id;
-        if (answers.IsOtherTrade())
-        {
-            _draft.Description = answers.OtherJobText;
-        }
-
-        if (BudgetRange.TryParse(answers.BudgetId, out var from, out var upTo))
-        {
-            (_draft.BudgetMinPesos, _draft.BudgetPesos) = (from > 0 ? from : null, upTo);
-        }
+        _draft = JobBoard.DraftFrom(Workspace.Answers, Today);
     }
 
     /// <summary>Today in the Philippines: the calendar's first day.</summary>
@@ -146,9 +140,9 @@ public partial class NewPostPage : ComponentBase
 
     private void GoBack()
     {
-        if (!Editing)
+        if (!Editing && _loaded)
         {
-            Board.KeepUnsent(_draft); // an edit is dropped: the post itself still holds it
+            Board.KeepUnsent(_draft); // an edit is dropped: the post itself still holds it; before loading, nothing to keep
         }
 
         Nav.NavigateTo(JobPostRoutes.Mine);
@@ -156,7 +150,7 @@ public partial class NewPostPage : ComponentBase
 
     private void OpenSheet(PostPart part)
     {
-        if (_busy || _leaving)
+        if (_busy || _leaving || !_loaded)
         {
             return;
         }

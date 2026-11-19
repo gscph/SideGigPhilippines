@@ -117,6 +117,12 @@ public sealed class SeekerWorkspace(
         return loaded;
     }
 
+    /// <summary>
+    /// The trades typed words came close to when they matched none and searched "Others" (offered above the results as
+    /// "Or pick a kind of work"); empty for a matched or tapped search.
+    /// </summary>
+    public IReadOnlyList<string> SuggestedTrades => CurrentIntent is { Matched: false } intent ? intent.OtherCategoryIds : [];
+
     /// <summary>How the saved search words were understood (None when the job was picked by tapping).</summary>
     public SearchIntent CurrentIntent => SearchIntentParser.Parse(Answers.SearchText);
 
@@ -149,8 +155,9 @@ public sealed class SeekerWorkspace(
     public Task<SearchResult> MoreResultsAsync(SearchResult shown) => search.MoreAsync(Request, shown);
 
     /// <summary>
-    /// Free-text search: works out the job from the words and searches for it. When nothing
-    /// matches, the previous job is kept and the caller shows a "pick a service" hint.
+    /// Free-text search: works out the job from the words and searches for it. Words that match no trade search the
+    /// "Others" trade with what they typed (<see cref="SeekerAnswers.OtherJobText"/>), so any words always search: workers
+    /// who wrote alike under "Others" come first, and an empty result offers to post it.
     /// </summary>
     public async Task<SearchIntent> SearchForAsync(string? words)
     {
@@ -160,6 +167,12 @@ public sealed class SeekerWorkspace(
         {
             Answers.CategoryId = intent.CategoryId;
             Answers.ServiceId = intent.ServiceId;
+        }
+        else if (Answers.SearchText is { } typed)
+        {
+            Answers.CategoryId = ReferenceData.OtherTradeId;
+            Answers.ServiceId = ReferenceData.OtherTradeId;
+            Answers.OtherJobText = typed;
         }
 
         await SaveAsync();
@@ -172,6 +185,7 @@ public sealed class SeekerWorkspace(
         Answers.CategoryId = categoryId;
         Answers.ServiceId = null;
         Answers.SearchText = null;
+        Answers.OtherJobText = null; // words typed for an earlier "Others" search never ride along with a picked trade
         return SaveAsync();
     }
 
@@ -180,6 +194,11 @@ public sealed class SeekerWorkspace(
     {
         Answers.ServiceId = serviceId;
         Answers.SearchText = null;
+        if (!ReferenceData.IsOtherJob(serviceId))
+        {
+            Answers.OtherJobText = null;
+        }
+
         return SaveAsync();
     }
 

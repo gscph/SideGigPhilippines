@@ -258,6 +258,32 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>
+    /// A new post filled in from the household's last search or interview answers: the trade, service, town and
+    /// barangay (dropped when no longer offered), the budget range, "Today, it's urgent" as today on the calendar, and
+    /// what they typed under "Others" (the "Others" trade or a trade's own "Others" job) as the problem, so most people
+    /// only check it and post.
+    /// </summary>
+    public static JobPostDraft DraftFrom(SeekerAnswers answers, DateOnly today)
+    {
+        var draft = new JobPostDraft { CategoryId = ReferenceData.FindTrade(answers.CategoryId)?.Id };
+        draft.ServiceId = ReferenceData.ServicesOf(draft.CategoryId).FirstOrDefault(service => service.Id == answers.ServiceId)?.Id;
+        draft.CityId = ReferenceData.Find(ReferenceData.Cities, answers.TownShown())?.Id;
+        draft.BarangayId = ReferenceData.FindBarangay(draft.CityId, answers.BarangayId)?.Id;
+        if (answers.IsOtherTrade() || ReferenceData.IsOtherJob(draft.ServiceId))
+        {
+            draft.Description = answers.OtherJobText;
+        }
+
+        if (BudgetRange.TryParse(answers.BudgetId, out var from, out var upTo))
+        {
+            (draft.BudgetMinPesos, draft.BudgetPesos) = (from > 0 ? from : null, upTo);
+        }
+
+        draft.NeededOn = answers.UrgencyId == ReferenceData.UrgencyToday ? today : null;
+        return draft;
+    }
+
+    /// <summary>
     /// Edit post: a draft holding <paramref name="post"/> as it is now. Its photos are marked saved (taking one off
     /// doesn't delete it until Save), and once workers sent offers its trade and service stay (<see cref="JobPostDraft.WhatLocked"/>).
     /// </summary>

@@ -60,6 +60,38 @@ public class JobBoardTests
     }
 
     [Fact]
+    public void ANewPost_StartsFromTheirAnswers_TodayAndTypedOthersIncluded()
+    {
+        var today = new DateOnly(2026, 11, 19);
+        var answers = new SeekerAnswers
+        {
+            CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "angono", BarangayId = "angono-san-isidro",
+            BudgetId = "800-1500", UrgencyId = ReferenceData.UrgencyToday,
+        };
+
+        var draft = JobBoard.DraftFrom(answers, today);
+
+        draft.Should().BeEquivalentTo(new
+        {
+            CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "angono", BarangayId = "angono-san-isidro",
+            BudgetMinPesos = (int?)800, BudgetPesos = (int?)1500, NeededOn = (DateOnly?)today,
+        }, options => options.ExcludingMissingMembers());
+        draft.Description.Should().BeNull();
+
+        answers.UrgencyId = ReferenceData.UrgencyThisWeek;
+        answers.BudgetId = "under-1500";
+        JobBoard.DraftFrom(answers, today).NeededOn.Should().BeNull("no one day: any day");
+        JobBoard.DraftFrom(answers, today).BudgetMinPesos.Should().BeNull("only an \"up to\"");
+
+        answers.ServiceId = ReferenceData.ServicesOf("aircon").Single(service => ReferenceData.IsOtherJob(service.Id)).Id;
+        answers.OtherJobText = "Ayos ng ref";
+        JobBoard.DraftFrom(answers, today).Description.Should().Be("Ayos ng ref", "a trade's own \"Others\" job keeps what they typed");
+
+        answers.CategoryId = answers.ServiceId = ReferenceData.OtherTradeId;
+        JobBoard.DraftFrom(answers, today).Description.Should().Be("Ayos ng ref");
+    }
+
+    [Fact]
     public void Missing_NamesEverythingStillNeeded_InTheOrderOnScreen()
     {
         JobBoard.Missing(Complete()).Should().BeEmpty();
