@@ -10,7 +10,7 @@
                 <SheetQuestion Open="@(sheet.Open == SearchStep.What)" Title="@T.Get(Copy.SheetWhatTitle)" Label="@T.Get(Copy.SheetWhat)"
                                Value="@(T.What(sheet.Words, sheet.CategoryId, sheet.ServiceId) ?? T.Get(Copy.SheetAddService))"
                                OnOpen="() => sheet.OpenStep(SearchStep.What)">
-                    <SearchBox Value="@sheet.Words" CategoryId="@sheet.CategoryId" Live="true" Flat="true" OnSearch="sheet.Type" />
+                    <SearchBox Value="@sheet.Words" CategoryId="@sheet.CategoryId" Live="true" Flat="true" OnSearch="sheet.Type" OnSubmit="SearchAsync" />
                     <CategoryRail Items="Categories" Label="@T.Get(Copy.BrowseTitle)" OnPick="sheet.PickTrade" />
                     @if (sheet.Words is null && sheet.CategoryId is { } categoryId)
                     {

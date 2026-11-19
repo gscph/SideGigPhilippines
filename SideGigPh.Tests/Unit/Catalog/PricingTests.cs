@@ -97,15 +97,36 @@ public class PricingTests
     [InlineData(755, 755, true)]
     [InlineData(800, 1500, true)]
     [InlineData(300, 1500, true)]    // under the job's guide: it is only a guide
-    [InlineData(0, 1500, false)]     // a budget starts above ₱0
+    [InlineData(0, 1500, true)]      // ₱0 "From": only an "up to", as the post form allows
     [InlineData(1500, 800, false)]   // top under the bottom
-    [InlineData(null, 1500, false)]
+    [InlineData(null, 1500, true)]   // "From" is optional
     [InlineData(800, null, false)]
     [InlineData(10, 40, false)]      // a top under the smallest budget a post can carry
     [InlineData(10, 50, true)]
     [InlineData(800, 1_000_001, false)]
-    public void TypedBudget_AnyAmountAboveZero_AndGoesUp(int? min, int? max, bool valid) =>
+    public void TypedBudget_AnOptionalFrom_AndAnUpToThatGoesUp(int? min, int? max, bool valid) =>
         Pricing.IsValidBudget(min, max).Should().Be(valid);
+
+    [Theory]
+    [InlineData(800, null, BudgetProblem.NoUpTo)]          // the "₱800 and up" tile fills only "From"
+    [InlineData(null, 40, BudgetProblem.UpToOutOfRange)]
+    [InlineData(null, 2_000_000, BudgetProblem.UpToOutOfRange)]
+    [InlineData(1500, 800, BudgetProblem.UpToBelowFrom)]
+    public void AGreyNext_SaysWhy(int? min, int? max, BudgetProblem problem)
+    {
+        Pricing.BudgetProblemOf(min, max).Should().Be(problem);
+        new AppText().Get(Pricing.BudgetProblemNote(problem)).Should().NotBeNullOrWhiteSpace();
+    }
+
+    [Fact]
+    public void ARangeWithoutFrom_IsSavedAsUpToOnly()
+    {
+        Pricing.BudgetIdOf(null, 1500).Should().Be("under-1500");
+        Pricing.BudgetIdOf(0, 1500).Should().Be("under-1500");
+        Pricing.BudgetIdOf(800, 1500).Should().Be("800-1500");
+        Pricing.BudgetProblemOf(null, 1500).Should().BeNull();
+        new AppText().Get(Pricing.BudgetProblemNote(BudgetProblem.UpToOutOfRange)).Should().Contain("₱50").And.Contain("₱1,000,000");
+    }
 
     // The interview's budget fills the post form ("Post what I need"): a range Next accepted must be one the post can
     // send, or the household lands on a form whose Post button stays grey over a budget they already gave.

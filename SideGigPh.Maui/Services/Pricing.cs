@@ -72,12 +72,31 @@ public static class Pricing
     }
 
     /// <summary>
-    /// A typed budget the app accepts: from more than ₱0, up to the same or more, and a top a post can carry
-    /// (<see cref="JobPostRules.IsBudgetRange"/>), so "Post what I need" opens with a budget it can send. The job's guide
-    /// is only shown beside the boxes: the household pays after the work is done, at the price the two agree on.
+    /// A typed budget the app accepts: an optional "From" (empty or ₱0: only an "up to"), an "Up to" a post can carry, the
+    /// same or more than "From" (<see cref="JobPostRules.IsBudgetRange"/>), so "Post what I need" opens with a budget it
+    /// can send. The job's guide is only shown beside the boxes: the household pays after the work is done, at the price
+    /// the two agree on.
     /// </summary>
-    public static bool IsValidBudget(int? min, int? max) =>
-        min is { } from && from > 0 && JobPostRules.IsBudgetRange(from, max);
+    public static bool IsValidBudget(int? min, int? max) => BudgetProblemOf(min, max) is null;
+
+    /// <summary>Why Next is off on the budget boxes, so the "Up to" box can say so; null when the range is fine.</summary>
+    public static BudgetProblem? BudgetProblemOf(int? min, int? max) =>
+        min is < 0 ? BudgetProblem.UpToBelowFrom
+        : max is null ? BudgetProblem.NoUpTo
+        : !JobPostRules.IsBudget(max) ? BudgetProblem.UpToOutOfRange
+        : min is { } from && from > max ? BudgetProblem.UpToBelowFrom
+        : null;
+
+    /// <summary>What the "Up to" box says while <paramref name="problem"/> keeps Next off.</summary>
+    public static LocalizedText BudgetProblemNote(BudgetProblem problem) => problem switch
+    {
+        BudgetProblem.NoUpTo => Copy.BudgetNeedsUpTo,
+        BudgetProblem.UpToOutOfRange => Fill(Copy.BudgetUpToRange, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
+        _ => Copy.BudgetToError,
+    };
+
+    /// <summary>The range to save: "800-1500", or "under-1500" without a "From" (<see cref="BudgetRange.Format"/>).</summary>
+    public static string BudgetIdOf(int? min, int max) => BudgetRange.Format(min is > 0 ? min.Value : 0, max);
 
     /// <summary>The two boxes' first values: the saved range, else the job's low to average price, else empty.</summary>
     public static (int? Min, int? Max) CustomStart(string? budgetId, string? serviceId, string? categoryId) =>
@@ -109,4 +128,17 @@ public static class Pricing
 
     // To the nearest ₱50, so a mean reads like a price people quote.
     private static int RoundedMean(IEnumerable<int> amounts) => (int)Math.Round(amounts.Average() / 50, MidpointRounding.AwayFromZero) * 50;
+}
+
+/// <summary>What keeps the budget boxes from moving on (<see cref="Pricing.BudgetProblemOf"/>).</summary>
+public enum BudgetProblem
+{
+    /// <summary>No "Up to" yet (an open-ended guide tile fills only "From").</summary>
+    NoUpTo,
+
+    /// <summary>"Up to" under the smallest budget a post carries, or over the largest.</summary>
+    UpToOutOfRange,
+
+    /// <summary>"Up to" under "From".</summary>
+    UpToBelowFrom,
 }

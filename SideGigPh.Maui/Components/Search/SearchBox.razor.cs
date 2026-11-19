@@ -6,8 +6,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// "What do you need?" box. In <see cref="Live"/> mode it searches as the user types (after a
-/// short pause); otherwise it searches when they press the keyboard's search/enter key. The placeholder names an
+/// "What do you need?" box. In <see cref="Live"/> mode every change is reported at once (the search sheet keeps the words;
+/// nothing goes to the server), and the keyboard's search/enter key also runs <see cref="OnSubmit"/>; otherwise it
+/// searches when they press that key. The placeholder names an
 /// honorific ("Find a Manong…"): the one that fits <see cref="CategoryId"/>, or a random one until a trade is picked.
 /// </summary>
 public partial class SearchBox : ComponentBase
@@ -29,6 +30,9 @@ public partial class SearchBox : ComponentBase
 
     [Parameter] public EventCallback<string> OnSearch { get; set; }
 
+    /// <summary>The keyboard's search/enter key in <see cref="Live"/> mode (the search sheet runs the search).</summary>
+    [Parameter] public EventCallback OnSubmit { get; set; }
+
     private string? _text;
     private string? _lastValue;
     private readonly string _randomHonorific = Honorifics.Random();
@@ -43,10 +47,25 @@ public partial class SearchBox : ComponentBase
         }
     }
 
-    private Task OnTypedAsync(string text) => Live ? OnSearch.InvokeAsync(text) : Task.CompletedTask;
+    private Task OnTypedAsync(string? text)
+    {
+        _text = text;
+        return Live ? OnSearch.InvokeAsync(text ?? string.Empty) : Task.CompletedTask;
+    }
 
-    private Task OnKeyDownAsync(KeyboardEventArgs e) =>
-        e.Key == "Enter" ? OnSearch.InvokeAsync(_text ?? string.Empty) : Task.CompletedTask;
+    private async Task OnKeyDownAsync(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter")
+        {
+            return;
+        }
+
+        await OnSearch.InvokeAsync(_text ?? string.Empty);
+        if (Live)
+        {
+            await OnSubmit.InvokeAsync();
+        }
+    }
 
     private Task ClearAsync(MouseEventArgs _)
     {

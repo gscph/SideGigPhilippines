@@ -22,7 +22,6 @@ public partial class SearchPage : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     private SearchResult? _result;
-    private string? _unmatchedText;
     private IReadOnlyList<string> _suggestedCategoryIds = [];
     private int _searchVersion;
 
@@ -31,22 +30,10 @@ public partial class SearchPage : ComponentBase
     private string TownLabel => Label(ReferenceData.Find(ReferenceData.Cities, Request.CityId));
 
     /// <summary>
-    /// The selected trade first, then other trades the typed words matched, then the rest. When the
-    /// words didn't settle on one trade, the trades they matched come first and nothing is selected.
+    /// With nothing picked, every trade; after typed words that searched "Others", only the trades they came close to.
     /// </summary>
-    private IReadOnlyList<ChoiceItem> CategoryItems
-    {
-        get
-        {
-            var selected = _unmatchedText is null ? Request.CategoryId : null;
-            var first = new[] { selected }.Concat(_suggestedCategoryIds).OfType<string>().Distinct().ToList();
-            var ordered = first
-                .Select(ReferenceData.FindTrade)
-                .OfType<CatalogOption>()
-                .Concat(ReferenceData.Categories.Where(category => !first.Contains(category.Id)));
-            return ChoiceItem.From(ordered, T);
-        }
-    }
+    private IReadOnlyList<ChoiceItem> CategoryItems => ChoiceItem.From(
+        _suggestedCategoryIds.Count > 0 ? _suggestedCategoryIds.Select(ReferenceData.FindTrade).OfType<CatalogOption>() : ReferenceData.Categories, T);
 
     // Best match or lowest price first: being over the budget never hides a worker in either.
     private IReadOnlyList<ChoiceItem> Orders =>
@@ -67,15 +54,13 @@ public partial class SearchPage : ComponentBase
         }
 
         var intent = Workspace.CurrentIntent;
-        _unmatchedText = Workspace.Answers.SearchText is { } words && !intent.Matched ? words : null;
-        _suggestedCategoryIds = intent.OtherCategoryIds;
+        _suggestedCategoryIds = intent.Matched ? [] : intent.OtherCategoryIds;
         await RunSearchAsync();
     }
 
     private async Task PickCategoryAsync(string categoryId)
     {
         await Workspace.PickCategoryAsync(categoryId);
-        _unmatchedText = null;
         _suggestedCategoryIds = [];
         await RunSearchAsync();
     }

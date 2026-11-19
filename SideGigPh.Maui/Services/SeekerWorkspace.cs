@@ -149,8 +149,9 @@ public sealed class SeekerWorkspace(
     public Task<SearchResult> MoreResultsAsync(SearchResult shown) => search.MoreAsync(Request, shown);
 
     /// <summary>
-    /// Free-text search: works out the job from the words and searches for it. When nothing
-    /// matches, the previous job is kept and the caller shows a "pick a service" hint.
+    /// Free-text search: works out the job from the words and searches for it. Words that match no trade search the
+    /// "Others" trade with what they typed (<see cref="SeekerAnswers.OtherJobText"/>), so any words always search: workers
+    /// who wrote alike under "Others" come first, and an empty result offers to post it.
     /// </summary>
     public async Task<SearchIntent> SearchForAsync(string? words)
     {
@@ -160,6 +161,12 @@ public sealed class SeekerWorkspace(
         {
             Answers.CategoryId = intent.CategoryId;
             Answers.ServiceId = intent.ServiceId;
+        }
+        else if (Answers.SearchText is { } typed)
+        {
+            Answers.CategoryId = ReferenceData.OtherTradeId;
+            Answers.ServiceId = ReferenceData.OtherTradeId;
+            Answers.OtherJobText = typed;
         }
 
         await SaveAsync();

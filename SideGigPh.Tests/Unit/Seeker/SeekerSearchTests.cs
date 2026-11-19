@@ -67,14 +67,17 @@ public class SeekerSearchTests
     }
 
     [Fact]
-    public async Task SearchFor_UnknownWords_KeepsThePreviousJob()
+    public async Task SearchFor_UnknownWords_SearchesOthers_WithWhatTheyTyped()
     {
         var app = await FakeApp.SeekerAsync();
 
-        var intent = await app.Seeker.SearchForAsync("xyzzy");
+        var intent = await app.Seeker.SearchForAsync("  ayos ng piano  ");
 
         intent.Matched.Should().BeFalse();
-        app.Seeker.Answers.ServiceId.Should().Be("aircon-cleaning");
+        app.Seeker.Answers.CategoryId.Should().Be(ReferenceData.OtherTradeId, "any words search: nothing we list, so \"Others\"");
+        app.Seeker.Answers.ServiceId.Should().Be(ReferenceData.OtherTradeId);
+        app.Seeker.Answers.OtherJobText.Should().Be("ayos ng piano", "sent with the search, so workers who typed alike come first");
+        app.Seeker.Request.OtherText.Should().Be("ayos ng piano");
     }
 
     [Fact]
