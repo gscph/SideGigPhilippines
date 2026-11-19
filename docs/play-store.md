@@ -2,7 +2,8 @@
 
 The app's Play package is `com.tarbaho.app` (the Firebase Android app). Store builds come from
 `.github/workflows/build.yml` with channel **prod**: a signed **AAB** (Play takes only bundles), stamped
-`AppChannel=prod`. Keys and fingerprints: [`android-signing.md`](android-signing.md).
+`AppChannel=prod`. Keys and fingerprints: [`android-signing.md`](android-signing.md). What to type in the Play Console's forms
+(App access, content rating, Data safety, release notes): [`play-console-answers.md`](play-console-answers.md).
 
 ## 1. Once: get the first build into Internal testing
 
@@ -33,7 +34,8 @@ Do these in order. Steps 1–4 make the build; 5–8 make sign-in work on the Pl
 8. **A test number for Play's reviewers and for you.** Firebase console → Authentication → Sign-in method →
    Phone → *Phone numbers for testing*: e.g. `+63 917 555 0100`, code `123456`. No SMS is sent (and it costs
    nothing). Put it in Play Console → App content → **App access** ("All functionality is behind sign-in":
-   the number and the code). Reviewers can't get past the sign-in screen without it.
+   the number and the code). Reviewers can't get past the sign-in screen without it. Tell testers too: the app still allows only 3
+   codes a day per phone (`SmsSendLimit`), test number or not, so they shouldn't sign out and in again and again.
 
 Then run the build again (step 3) and upload it as a second internal release, or let CI upload it (below).
 Install from the testers' opt-in link and check: phone sign-in, Google sign-in, publish a listing, search,
@@ -47,7 +49,8 @@ chat, a push notification, post a request, delete the account.
    *Tarbaho* → permissions *Release to testing tracks* (add *Release to production* only when you want CI to
    do that too). It can take a few minutes to work.
 3. Repo secret **`PLAY_SERVICE_ACCOUNT_JSON`** = the whole JSON file (plain text, not base64).
-4. Run the workflow with channel `prod`, play_track `internal`:
+4. Run the workflow with channel `prod`, play_track `internal` (a run with a Play track stops at once if the
+   channel isn't `prod` or this secret is missing):
    - play_status `draft` (default): the release waits in the Play Console; press *Review release* →
      *Start rollout*. Play requires `draft` until the app has passed its first review.
    - play_status `completed`: testers get it at once (only after that first review).

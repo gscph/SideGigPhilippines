@@ -47,6 +47,15 @@ both in Firebase:
 keytool -list -v -keystore sidegigph-release.keystore -alias sidegigph
 ```
 
+The upload key (`CN=Joseph Cadiao, O=Tarbaho`, made 17 Nov 2026, in the CI secrets) prints:
+
+```
+SHA1:   55:D2:EF:BE:2A:0C:79:7C:88:4E:11:08:47:E2:44:F2:2C:F1:E0:DC
+SHA256: F4:C7:8A:57:95:6A:B9:0C:25:0E:BA:4B:5F:30:24:65:EF:71:9F:AB:CB:ED:5C:8B:DC:95:C3:91:5A:89:5B:0F
+```
+
+A prod run's page shows the SHA-1 that signed its bundle; it must be this one.
+
 **Google Play:** Play re-signs the app with its own *App signing key*. Also register that key's
 SHA-1/SHA-256, from Play Console → Setup → App integrity, or sign-in fails only in the Play-installed app.
 
