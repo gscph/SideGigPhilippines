@@ -245,6 +245,7 @@ anything linking them to you.
 |---|---|---|---|
 | **Camera** | Skilled Worker setup, when you take your selfie | Take your profile photo | Pick a photo from your gallery instead |
 | **Photos / storage** (older Android only) | When you add photos | Choose work photos | You can't add photos from the gallery |
+| **Location** (approximate and precise) | Only when you tap **Use my location**, while the App is open; never in the background | Set a Skilled Worker's base point or the place of a post | We use the middle of your town instead |
 | **Notifications** | After you publish a listing or send your first message, never at first launch | Tell you about new messages | You won't be alerted; messages still arrive in the Inbox |
 
 ## 11. Changes to this Policy
