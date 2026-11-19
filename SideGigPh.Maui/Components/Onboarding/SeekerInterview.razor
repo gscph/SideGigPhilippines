@@ -7,8 +7,7 @@
         case SeekerStep.Category:
             <InterviewStep Illustration="@AppImages.HomeRepair" Title="@T.Get(Copy.SeekerCategoryTitle)" Progress="Progress" OnBack="GoBack"
                            OnNext="OtherTradeNext" CanContinue="@HasOtherTradeText">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.TradeChoices, T)"
-                             SelectedIds="Selected(_pickedOtherTrade ? ReferenceData.OtherTradeId : Answers.CategoryId)" OnPick="PickCategoryAsync" />
+                <OneChoiceTiles Options="ReferenceData.TradeChoices" PickedId="@(_pickedOtherTrade ? ReferenceData.OtherTradeId : Answers.CategoryId)" OnPick="PickCategoryAsync" />
                 @if (_pickedOtherTrade)
                 {
                     <OtherJobField Label="@T.Get(Copy.OtherTradeSeekerLabel)" Help="@T.Get(Copy.OtherTradeHelp)"
@@ -20,8 +19,7 @@
         case SeekerStep.Service:
             <InterviewStep Illustration="@AppImages.Job" Title="@T.Get(Copy.SeekerServiceTitle)" Why="@T.Get(Copy.SeekerServiceWhy)"
                            Progress="Progress" OnBack="GoBack" OnNext="OtherJobNext">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.ServicesOf(Answers.CategoryId), T)"
-                             SelectedIds="Selected(Answers.ServiceId)" OnPick="PickServiceAsync" />
+                <OneChoiceTiles Options="ReferenceData.ServicesOf(Answers.CategoryId)" PickedId="@Answers.ServiceId" OnPick="PickServiceAsync" />
                 @if (PickedOtherJob)
                 {
                     <OtherJobField Label="@T.Get(Copy.OtherJobSeekerLabel)" Value="@Answers.OtherJobText" ValueChanged="SetOtherJobText" />

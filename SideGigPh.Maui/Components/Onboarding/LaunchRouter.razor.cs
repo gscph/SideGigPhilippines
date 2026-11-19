@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MobileAppTheme.Components.Shared;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Analytics;
@@ -33,10 +34,38 @@ public partial class LaunchRouter : ComponentBase, IDisposable
     private bool _busy;
     private OnboardingState? _state;
 
+    // The app's first visit follows index.html's splash, so it shows at once; later visits wait (see ShowSplashLaterAsync).
+    private static bool s_launched;
+    private bool _showSplash;
+    private readonly CancellationTokenSource _leaving = new();
+
     protected override Task OnInitializedAsync()
     {
         Network.Changed += OnNetworkChanged;
+        _showSplash = !s_launched;
+        s_launched = true;
+        if (!_showSplash)
+        {
+            _ = ShowSplashLaterAsync();
+        }
+
         return RouteAsync();
+    }
+
+    // Choosing the language or signing in passes through here on the way to the next screen, usually in a few
+    // milliseconds: the splash only shows when that takes long enough to look stuck.
+    private async Task ShowSplashLaterAsync()
+    {
+        try
+        {
+            await Task.Delay(BusyOverlay.ShowAfter, _leaving.Token);
+            _showSplash = true;
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (OperationCanceledException)
+        {
+            // Already gone to the next screen.
+        }
     }
 
     // Back online while the no-internet screen shows: try again without a tap.
@@ -57,7 +86,12 @@ public partial class LaunchRouter : ComponentBase, IDisposable
         }
     }
 
-    public void Dispose() => Network.Changed -= OnNetworkChanged;
+    public void Dispose()
+    {
+        Network.Changed -= OnNetworkChanged;
+        _leaving.Cancel();
+        _leaving.Dispose();
+    }
 
     private async Task TryAgainAsync()
     {

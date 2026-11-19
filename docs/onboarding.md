@@ -74,7 +74,7 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 | S5 | What's your budget? / Magkano ang budget mo dito? | Two boxes, **From** and **Up to**; the job's guide ranges fill them in one tap; "Di ko pa alam" skips. The job's usual price shows as a guide, never a rule (they pay after the work) | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** / "Above your budget" pills (over the budget ranks lower, never hidden) and the Sort menu (Lowest price) |
 | S6 | How do you want to find a worker? / Paano mo gustong humanap ng gagawa? | **See workers now** · **Post what I need** (`ReferenceData.FindByChoices`, in code; `SeekerAnswers.FindBy`, advances on tap) | "You can do both later from Home." | Where the interview lands: the results, or the post form pre-filled with S1–S5 (`OnboardingSteps.FinishPath`) |
 
-**"Others" never blocks.** The last tile of the trade question (both sides) is "Others": the person types the work, it is saved as their trade and job (`other`), the job question is skipped and the interview goes on. Workers and households who picked "Others" find each other by what they typed (search orders shared words first). The worker's rate is likewise their own from–to range; the guide's levels only fill the boxes.
+**"Others" never blocks.** The last tile of the trade question (both sides) is "Others": the person types the work, it is saved as their trade and job (`other`), the job question is skipped and the interview goes on. Once "Others" is picked (a trade, or a Seeker's job) the tiles fold to that one tile with "Show the list again" under it (`OneChoiceTiles`, `Services/OtherChoice`), so the box sits right under the question and the keyboard never covers it; on Android the page also shrinks above the keyboard (`MainPage`, `SafeAreaRegions.SoftInput`). Workers and households who picked "Others" find each other by what they typed (search orders shared words first). The worker's rate is likewise their own from–to range; the guide's levels only fill the boxes.
 
 **S6 is never asked again:** changing an answer later goes straight back to the results, and someone who finished before S6 existed is never sent to it (Seeker home's `PostRequestCard` offers posting to everyone).
 
@@ -196,7 +196,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 ### Routes
 | Route | Component | Role |
 |-------|-----------|------|
-| `/` | `Onboarding/LaunchRouter` | Loads `IOnboardingStore`, applies the language and redirects to `/start`, `/start/role`, the resume step, `/seeker` or `/professional`. |
+| `/` | `Onboarding/LaunchRouter` | Loads `IOnboardingStore`, applies the language and redirects to `/start`, `/start/role`, the resume step, `/seeker` or `/professional`. The splash shows at once only on the app's first visit (after `index.html`'s); the language and sign-in pass through here too, and then it shows only past `BusyOverlay.ShowAfter` (300 ms), so a quick hop never flashes it. |
 | `/start` | `Onboarding/LanguagePage` | English / Taglish. |
 | `/start/role` | `Onboarding/RolePage` | Seeker / Professional fork. |
 | `/start/seeker/{step?}` | `Onboarding/SeekerInterview` | S1–S6, plus the loader at step 7. |
