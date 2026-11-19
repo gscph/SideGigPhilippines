@@ -24,9 +24,12 @@ says "Tarbaho" in `Copy.cs`.
   (`Honorifics.For`: Manong for construction (carpentry, masonry and the other building jobs are its jobs); Ate for errands; Kuya for everyday repairs and any
   new trade). Copy takes the word as `{0}`; English lines that want the plural ("Find Kuyas nearby", the empty search
   "No Kuyas…") pass `englishPlural: true` to `AppText.FormatHonorific`. Ate and Manang always stay in the rotation.
-- Spell "maghanap" as one word. The logo is a crew of three workers in hard hats with a hammer and a wrench behind them (a team that fixes homes, not one
-  person), one single-color path in a 24-unit box (`AppTheme.Logo`), also used by the launcher icon, both splashes and
-  the Android notification icon (`ic_notification.xml`). A small nav mark,
+- Spell "maghanap" as one word. The logo is the **Folded T**: a slanted T for Tarbaho folded like a ribbon, four
+  shapes in a 24-unit box (`AppTheme.Logo`) in one color at three strengths (full, 78%, 62% opacity), so it follows
+  `Color.Primary` and still reads as three purple shades; also used by the launcher icon, both splashes and
+  the Android notification icon (`ic_notification.xml`, white with the same alphas). Both splashes say
+  **"Powered by AI"** small under the spinner (`AppBrand.SplashCredit`; the pre-Blazor splash in `index.html` in
+  English). The native Android splash shows only the logo: Android 12+ crops it to the icon circle, so text can't go there. A small nav mark,
   the wordmark font and the final palette are still to come.
 
 ## Photos
