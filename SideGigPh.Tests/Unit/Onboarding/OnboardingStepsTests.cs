@@ -335,6 +335,19 @@ public class OnboardingStepsTests
     }
 
     [Fact]
+    public void NextPath_ChangingAnAnswerLater_ReturnsWhereTheyFinished()
+    {
+        // Back from the post form lands on the questions: tapping "Post what I need" again must reopen the form.
+        var answers = FullSeeker();
+        answers.FindBy = ReferenceData.FindByPost;
+        answers.NextPath(SeekerStep.FindBy, finished: true).Should().Be("/posts/new");
+        answers.NextPath(SeekerStep.Budget, finished: true).Should().Be("/posts/new");
+
+        answers.FindBy = ReferenceData.FindBySearch;
+        answers.NextPath(SeekerStep.FindBy, finished: true).Should().Be("/seeker/search");
+    }
+
+    [Fact]
     public void NextPath_AfterTheBudget_AsksSearchOrPost() =>
         FullSeeker().NextPath(SeekerStep.Budget, finished: false).Should().Be("/start/seeker/6");
 

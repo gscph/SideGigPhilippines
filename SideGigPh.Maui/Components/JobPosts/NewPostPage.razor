@@ -7,7 +7,15 @@
 
 <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
     <MudStack Spacing="0" Class="full-screen">
-        @if (_sheet is { } part)
+        @if (!_loaded)
+        {
+            <SheetHeader OnClose="GoBack" Divider="false" />
+            <MudText Typo="Typo.h4" HtmlTag="h1" Class="app-visually-hidden">@T.Get(Editing ? Copy.PostEditTitle : Copy.PostNewTitle)</MudText>
+            <MudStack AlignItems="AlignItems.Center" Class="py-12">
+                <MudProgressCircular Indeterminate="true" Color="Color.Primary" aria-label="@T.Get(Copy.PostNewTitle)" />
+            </MudStack>
+        }
+        else if (_sheet is { } part)
         {
             @if (_jobsStep)
             {

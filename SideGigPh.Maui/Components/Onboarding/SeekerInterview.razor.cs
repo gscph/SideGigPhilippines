@@ -72,7 +72,8 @@ public partial class SeekerInterview : ComponentBase
     private IReadOnlyList<CatalogOption> BudgetChoices => Pricing.BudgetChoices(Answers.ServiceId, Answers.CategoryId, Answers.BudgetId);
 
     // The tile the two boxes match, if any.
-    private string? PickedBudget => _budgetMin is { } min ? BudgetRange.Format(min, _budgetMax) : null;
+    private string? PickedBudget => _budgetMin is { } min ? BudgetRange.Format(min, _budgetMax)
+        : _budgetMax is { } max ? Pricing.BudgetIdOf(null, max) : null;
 
     // "Most people pay ₱1,000 for Aircon cleaning." (the job's average), as an anchor above the choices.
     private string? BudgetWhy =>
@@ -194,7 +195,7 @@ public partial class SeekerInterview : ComponentBase
 
     private Task SaveBudgetAsync()
     {
-        Answers.BudgetId = BudgetRange.Format(_budgetMin!.Value, _budgetMax!.Value);
+        Answers.BudgetId = Pricing.BudgetIdOf(_budgetMin, _budgetMax!.Value);
         return AdvanceAsync();
     }
 

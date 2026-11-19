@@ -1,5 +1,5 @@
-<MudTextField T="string" @bind-Value="_text" Variant="Variant.Outlined" Margin="Margin.Dense" Class="@BoxClass" Immediate
-              DebounceInterval="@(Live ? 400 : 0)" OnDebounceIntervalElapsed="OnTypedAsync" OnKeyDown="OnKeyDownAsync"
+<MudTextField T="string" Value="_text" ValueChanged="OnTypedAsync" Variant="Variant.Outlined" Margin="Margin.Dense" Class="@BoxClass" Immediate
+              OnKeyDown="OnKeyDownAsync"
               Clearable="true" OnClearButtonClick="ClearAsync"
               Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Dark"
               Placeholder="@T.FormatHonorific(Copy.SearchPlaceholder, Honorific)" MaxLength="80"

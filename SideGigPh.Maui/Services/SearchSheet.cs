@@ -49,11 +49,14 @@ public sealed class SearchSheet
 
     public void OpenStep(SearchStep step) => Open = step;
 
-    /// <summary>Words typed in the What box; a trade picked earlier no longer applies.</summary>
+    /// <summary>
+    /// Words typed in the What box; a trade picked earlier no longer applies. Clearing the words of an "Others" search
+    /// (typed words that matched no trade) clears that too, so What asks again instead of searching "Others" with nothing.
+    /// </summary>
     public void Type(string? words)
     {
         Words = string.IsNullOrWhiteSpace(words) ? null : words.Trim();
-        if (Words is not null)
+        if (Words is not null || CategoryId == ReferenceData.OtherTradeId)
         {
             CategoryId = null;
             ServiceId = null;

@@ -12,7 +12,7 @@
                     SelectedId="@Request.Order.ToString()" OnPick="PickOrderAsync" />
     </MudStack>
 
-    @if (Request.CategoryId is null || _unmatchedText is not null)
+    @if (Request.CategoryId is null)
     {
         <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.BrowseTitle)</MudText>
         <ChoiceTiles Items="CategoryItems" OnPick="PickCategoryAsync" />
@@ -25,6 +25,13 @@
     }
     else
     {
+        @if (_suggestedCategoryIds.Count > 0)
+        {
+            @* Words that matched no trade searched "Others"; the trades they came close to are one tap away. *@
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.SearchOrPickTrade)</MudText>
+            <ChoiceTiles Items="CategoryItems" Compact="true" OnPick="PickCategoryAsync" />
+        }
+
         @if (_result.Total == 0)
         {
             <EmptyState Icon="@Icons.Material.Outlined.SearchOff" Text="@T.FormatHonorific(Copy.ResultsEmpty, Honorifics.For(Request.CategoryId), englishPlural: true)" OnRetry="RunSearchAsync" />

@@ -73,6 +73,11 @@ public static class Copy
     public static readonly LocalizedText BudgetToLabel = new("Up to (₱)", "Hanggang (₱)");
     // The job's price guide under a budget box: only a guide, never a rule (workers set their own prices). {0}–{1} = pesos.
     public static readonly LocalizedText PriceGuideNote = new("Usual price: {0} – {1}. Only a guide.", "Usual price: {0} – {1}. Guide lang 'to.");
+    // Under "Up to" while Next is off (Pricing.BudgetProblemNote).
+    public static readonly LocalizedText BudgetNeedsUpTo = new("Type the most you'd pay to go on", "I-type ang pinakamataas na kaya mo para tumuloy");
+    /// <summary>{0} = the smallest budget ("₱50"), {1} = the largest.</summary>
+    public static readonly LocalizedText BudgetUpToRange = new("Type an amount from {0} to {1}", "Mag-type ng halaga mula {0} hanggang {1}");
+    public static readonly LocalizedText BudgetFromNotNegative = new("\"From\" can't be below ₱0", "Hindi pwedeng mas mababa sa ₱0 ang \"From\"");
     public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat same o mas mataas sa first amount");
 
     // "Others" after the trades: kinds of work we don't list yet. The text is matched with the other side's (search).
@@ -117,6 +122,8 @@ public static class Copy
     /// <summary>{0} = what, {1} = the town: the results' summary pill.</summary>
     public static readonly LocalizedText SheetWhatWhere = new("{0} in {1}", "{0} sa {1}");
     public static readonly LocalizedText BrowseTitle = new("Browse by service", "Pumili ng service");
+    // Above "Others" results when the typed words came close to some trades (SearchPage).
+    public static readonly LocalizedText SearchOrPickTrade = new("Or pick a kind of work", "O pumili ng klase ng work");
 
     // --- Search results ---------------------------------------------------
     /// <summary>{0} = how many, {1} = the Seeker's town: the first group's heading.</summary>

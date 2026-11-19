@@ -363,9 +363,10 @@ public static class OnboardingSteps
 
     /// <summary>
     /// Where a Seeker goes after answering <paramref name="step"/>: the next question during the interview; when
-    /// changing an answer after it, the next still-missing question, or back to the results when nothing is missing.
-    /// "Search or post" is never asked again when changing an answer (someone who finished before it existed has none):
-    /// Home offers both.
+    /// changing an answer after it (the phone's Back from the post form lands on the questions), the next still-missing
+    /// question, else where they finished (<see cref="FinishPath"/>: the post form for "Post what I need", else the
+    /// results). "Search or post" is never asked again when changing an answer (someone who finished before it existed
+    /// has none): Home offers both.
     /// </summary>
     public static string NextPath(this SeekerAnswers answers, SeekerStep step, bool finished)
     {
@@ -375,7 +376,7 @@ public static class OnboardingSteps
         }
 
         var next = answers.FirstUnanswered();
-        return next is SeekerStep.FindBy or SeekerStep.Finding ? SeekerRoutes.Search : PathOf(next);
+        return next is SeekerStep.FindBy or SeekerStep.Finding ? answers.FinishPath() : PathOf(next);
     }
 
     /// <summary>Back from a Seeker question, skipping the job question of the "Others" trade.</summary>

@@ -63,6 +63,21 @@ public class SearchSheetTests
     }
 
     [Fact]
+    public void ClearingTheWordsOfAnOthersSearch_AsksWhatAgain()
+    {
+        var others = SearchSheet.From(new SeekerAnswers { CategoryId = ReferenceData.OtherTradeId, ServiceId = ReferenceData.OtherTradeId });
+
+        others.Type("");
+
+        others.CategoryId.Should().BeNull("\"Others\" with no words searches nothing");
+        others.ServiceId.Should().BeNull();
+
+        var aircon = SearchSheet.From(new SeekerAnswers { CategoryId = "aircon", ServiceId = "aircon-cleaning" });
+        aircon.Type("");
+        aircon.CategoryId.Should().Be("aircon", "a tapped trade stays while the box is empty");
+    }
+
+    [Fact]
     public void ATradeTile_AlwaysMeansAllItsJobs_UntilAJobTileIsPicked()
     {
         var current = new SeekerAnswers { CategoryId = "aircon", ServiceId = "aircon-cleaning" };
