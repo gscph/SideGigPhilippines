@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// <summary>
 /// The fields of one change sheet on the new post page: What (picture tiles, two pages: the kinds of work, then, on
 /// <see cref="JobsStep"/>, the picked trade's services), Where (town, barangay, "Use my
-/// location") or Your budget (from / up to, the job's usual price as a guide). They change <see cref="Draft"/>
+/// location"), When (a calendar from <see cref="Today"/>, or "Any day is fine") or Your budget (from / up to, the job's usual price as a guide). They change <see cref="Draft"/>
 /// directly; the page keeps a <see cref="PostSnapshot"/> so Cancel puts the answers back.
 /// </summary>
 public partial class PostPartFields : ComponentBase
@@ -18,6 +18,9 @@ public partial class PostPartFields : ComponentBase
     [Parameter, EditorRequired] public JobPostDraft Draft { get; set; } = default!;
 
     [Parameter] public PostPart Part { get; set; }
+
+    /// <summary>Today in the Philippines: the calendar's first day.</summary>
+    [Parameter] public DateOnly Today { get; set; }
 
     /// <summary>The What sheet's second page: the picked trade's jobs instead of the kinds of work.</summary>
     [Parameter] public bool JobsStep { get; set; }
@@ -51,4 +54,14 @@ public partial class PostPartFields : ComponentBase
     }
 
     private void PickTown(string? cityId) => PostReview.PickTown(Draft, cityId);
+
+    private DateTime? PickedDate => Draft.NeededOn?.ToDateTime(TimeOnly.MinValue);
+
+    private DateTime FirstDate => Today.ToDateTime(TimeOnly.MinValue);
+
+    private DateTime LastDate => PostDay.LastDay(Today).ToDateTime(TimeOnly.MinValue);
+
+    private void PickDay(DateTime? date) => Draft.NeededOn = date is { } d ? DateOnly.FromDateTime(d) : null;
+
+    private void AnyDay() => Draft.NeededOn = null;
 }

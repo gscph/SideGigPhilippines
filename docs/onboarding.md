@@ -61,7 +61,7 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 - **Every tile has an icon.** Labels are a few words, and hints are short.
 - **Numbers carry meaning:** peso amounts, years, towns. These read the same in both languages.
 - **Service names stand on their own** ("Linis ng aircon", not just "Linis"). A tile then makes sense without its heading, and the same label drops cleanly into the pre-filled text message.
-- **Taglish means everyday Taglish** ("Pa-freon ng aircon", "Nagca-canvass lang"), not formal Filipino.
+- **Taglish means everyday Taglish** ("Pa-freon ng aircon", "Tumitingin-tingin lang"), not formal Filipino.
 
 ### 2.1 Seeker interview (results in under 30 seconds)
 
@@ -70,7 +70,7 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 | S1 | What do you need done? / Ano'ng ipapagawa mo? | 10 category tiles with icon and hint (aircon, tubero, electrician, bubong at alulod, karpintero, welder, mason & tiles, errands/PasaBuy, solar cleaning, home service massage) | none | Results chip, search |
 | S2 | What kind of job? / Anong klaseng trabaho? | The category's jobs, most-requested first, ending with "Iba pa" | "So you only see pros who do exactly this." | Chip, ranking, **pre-filled text** |
 | S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`; sets the area), the server's default town (Angono) shown picked. A town with barangays shows the optional `BarangayField` ("Not sure / skip" first) and waits for Next; a town without moves on when tapped | "See skilled workers near you." | Chip, search, pre-filled text |
-| S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Nagca-canvass lang | "We'll tell the pro when you need it." | Chip, pre-filled text |
+| S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Tumitingin-tingin lang | "We'll tell the pro when you need it." | Chip, pre-filled text |
 | S5 | What's your budget? / Magkano ang budget mo dito? | Two boxes, **From** and **Up to**; the job's guide ranges fill them in one tap; "Di ko pa alam" skips. The job's usual price shows as a guide, never a rule (they pay after the work) | "Pros who fit your budget show up first." | Chip, **"Pasok sa budget mo"** / "Above your budget" pills (over the budget ranks lower, never hidden) and the Sort menu (Lowest price) |
 | S6 | How do you want to find a worker? / Paano mo gustong humanap ng gagawa? | **See workers now** · **Post what I need** (`ReferenceData.FindByChoices`, in code; `SeekerAnswers.FindBy`, advances on tap) | "You can do both later from Home." | Where the interview lands: the results, or the post form pre-filled with S1–S5 (`OnboardingSteps.FinishPath`) |
 

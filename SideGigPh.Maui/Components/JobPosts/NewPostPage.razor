@@ -16,7 +16,7 @@
 
             <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
                 <MudText Typo="Typo.h4" HtmlTag="h1">@SheetTitle(part)</MudText>
-                <PostPartFields Draft="_draft" Part="part" JobsStep="_jobsStep" OnTradePicked="TradePicked" OnJobPicked="StateHasChanged" />
+                <PostPartFields Draft="_draft" Part="part" JobsStep="_jobsStep" Today="Today" OnTradePicked="TradePicked" OnJobPicked="StateHasChanged" />
             </MudStack>
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
@@ -64,6 +64,9 @@
                     <DetailRow Label="@T.Get(Copy.PostRowWhere)" Value="@T.PostWhere(_draft)" Busy="_busy"
                                ActionLabel="@T.PostAction(_draft, PostPart.Where)" OnAction="@(() => OpenSheet(PostPart.Where))" />
                     <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.PostRowWhen)" Value="@T.PostWhen(_draft, Today)" Busy="_busy"
+                               ActionLabel="@T.PostAction(_draft, PostPart.When)" OnAction="@(() => OpenSheet(PostPart.When))" />
+                    <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostBudget)" Value="@PostReviewText.PostBudgetText(_draft)" ValueColor="Color.Success" Busy="_busy"
                                ActionLabel="@T.PostAction(_draft, PostPart.Budget)" OnAction="@(() => OpenSheet(PostPart.Budget))" />
                 </MudPaper>
@@ -105,10 +108,10 @@
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                           Disabled="@(_busy || !JobBoard.CanPost(_draft))" OnClick="PostAsync">
+                           Disabled="@(_busy || !JobBoard.CanPost(_draft, Today))" OnClick="PostAsync">
                     @T.Get(Editing ? Copy.PostSaveChanges : Copy.PostSend)
                 </MudButton>
-                @if (JobBoard.MissingHint(_draft, T) is { } missing)
+                @if (JobBoard.MissingHint(_draft, T, Today) is { } missing)
                 {
                     <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-2">@missing</MudText>
                 }

@@ -19,6 +19,28 @@ public static class PostReviewText
     public static string? PostWhere(this AppText text, JobPostDraft draft) =>
         draft.CityId is { } cityId ? text.Place(cityId, draft.BarangayId) : null;
 
+    /// <summary>The When row: "Today", "Tomorrow", "Sat, Nov 22", or "Any day" when none is picked.</summary>
+    public static string PostWhen(this AppText text, JobPostDraft draft, DateOnly today) =>
+        draft.NeededOn is { } day ? text.Day(day, today) : text.Get(Copy.PostAnyDay);
+
+    /// <summary>"Today", "Tomorrow", else the short day and date ("Sat, Nov 22").</summary>
+    public static string Day(this AppText text, DateOnly day, DateOnly today) =>
+        day == today ? text.Get(Copy.PostDayToday)
+        : day == today.AddDays(1) ? text.Get(Copy.PostDayTomorrow)
+        : ShortDate(day);
+
+    /// <summary>"Needed today", "Needed tomorrow", "Needed Sat, Nov 22"; null when any day is fine.</summary>
+    public static string? Needed(this AppText text, DateOnly? day, DateOnly today) => day switch
+    {
+        null => null,
+        { } d when d == today => text.Get(Copy.PostNeededToday),
+        { } d when d == today.AddDays(1) => text.Get(Copy.PostNeededTomorrow),
+        { } d => text.Format(Copy.PostNeededOn, ShortDate(d)),
+    };
+
+    /// <summary>"Sat, Nov 22" (the English day and month names Taglish uses too).</summary>
+    public static string ShortDate(DateOnly day) => day.ToString("ddd, MMM d", System.Globalization.CultureInfo.InvariantCulture);
+
     /// <summary>"₱800 – ₱1,500" or "₱1,500", or null before an "up to" is typed.</summary>
     public static string? PostBudgetText(JobPostDraft draft) =>
         draft.BudgetPesos is { } upTo ? Pricing.PostBudget(draft.BudgetMinPesos, upTo) : null;
@@ -32,6 +54,7 @@ public static class PostReviewText
     {
         PostPart.What => Copy.PostSheetWhat,
         PostPart.Where => Copy.PostSheetWhere,
+        PostPart.When => Copy.PostSheetWhen,
         _ => Copy.PostBudget,
     });
 }

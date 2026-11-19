@@ -31,11 +31,17 @@ public static class RequestText
         _ => null,
     };
 
-    /// <summary>The row's small last line: "2 hr ago", then "· You offered ₱1,000" when there is a state.</summary>
-    public static string RequestTimeLine(this AppText text, RequestItem item) =>
-        text.RequestStatus(item) is { } status
+    /// <summary>
+    /// The row's small last line: "Needed tomorrow" when the customer picked a day, "2 hr ago", then "· You offered
+    /// ₱1,000" when there is a state.
+    /// </summary>
+    public static string RequestTimeLine(this AppText text, RequestItem item, DateOnly today)
+    {
+        var line = text.RequestStatus(item) is { } status
             ? text.Format(Copy.RequestTimeAndStatus, text.Ago(item.Post.CreatedAt), status)
             : text.Ago(item.Post.CreatedAt);
+        return text.Needed(item.Post.NeededOn, today) is { } needed ? text.Format(Copy.RequestTimeAndStatus, needed, line) : line;
+    }
 
     /// <summary>The row's one button: "Offer" until the worker sent a price, then "My offer".</summary>
     public static string RequestAction(this AppText text, RequestItem item) =>

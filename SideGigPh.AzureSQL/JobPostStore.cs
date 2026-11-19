@@ -58,6 +58,11 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             return new JobPostOutcome(null, field);
         }
 
+        if (!JobPostRules.IsNeededOn(request.NeededOn, ServerToday()))
+        {
+            return new JobPostOutcome(null, "neededOn");
+        }
+
         var description = request.Description.Trim();
         var again = await db.JobPosts.AsNoTracking().Include(p => p.Photos).FirstOrDefaultAsync(
             p => p.SeekerUid == uid && p.Status == JobPostStatuses.Open && p.ServiceId == request.ServiceId && p.CityId == request.CityId && p.Description == description,
@@ -79,6 +84,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             BudgetMinPesos = request.BudgetMinPesos,
             CityId = request.CityId,
             BarangayId = ServedBarangay(served, request.CityId, request.BarangayId),
+            NeededOn = request.NeededOn,
             Latitude = point?.Latitude,
             Longitude = point?.Longitude,
             CreatedAt = DateTimeOffset.UtcNow,
@@ -110,6 +116,12 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             return new JobPostOutcome(null, field);
         }
 
+        // A day already on the post may have passed: keeping it is fine, a new one must be from today.
+        if (request.NeededOn != row.NeededOn && !JobPostRules.IsNeededOn(request.NeededOn, ServerToday()))
+        {
+            return new JobPostOutcome(null, "neededOn");
+        }
+
         if ((request.CategoryId != row.CategoryId || request.ServiceId != row.ServiceId)
             && await db.JobOffers.AnyAsync(o => o.PostId == postId && o.Status != JobOfferStatuses.Withdrawn, cancellationToken))
         {
@@ -126,6 +138,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         row.BudgetMinPesos = request.BudgetMinPesos;
         row.CityId = request.CityId;
         row.BarangayId = ServedBarangay(served, request.CityId, request.BarangayId);
+        row.NeededOn = request.NeededOn;
         if (point is { } moved)
         {
             row.Latitude = moved.Latitude;
@@ -507,6 +520,12 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
     /// <summary>A distance for other people's eyes: whole kilometres, never under 1, so a point can't be worked out from it.</summary>
     public static int? DistanceKm(double? meters) => meters is { } m ? Math.Max(1, (int)Math.Round(m / 1000.0)) : null;
 
+    /// <summary>
+    /// Today in the Philippines, one day early: a phone whose clock or midnight runs a little ahead of the server's still
+    /// gets its "today" accepted.
+    /// </summary>
+    private static DateOnly ServerToday() => JobPostRules.PhilippineToday(DateTimeOffset.UtcNow).AddDays(-1);
+
     /// <summary>The barangay when it is one we serve in <paramref name="cityId"/>, else null.</summary>
     internal static string? ServedBarangay(ConfigDto served, string cityId, string? barangayId) =>
         barangayId is not null && (served.Barangays ?? []).Any(b => b.Id == barangayId && b.TownId == cityId) ? barangayId : null;
@@ -567,7 +586,8 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         pickedProId,
         row.BudgetMinPesos,
         householdReviews,
-        row.BarangayId);
+        row.BarangayId,
+        row.NeededOn);
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

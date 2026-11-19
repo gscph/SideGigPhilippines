@@ -25,6 +25,15 @@
         </MudStack>
         <LocationButton IsSet="@(Draft.Point is not null)" Why="@T.Get(Copy.PostLocationWhy)" OnFound="@(point => Draft.Point = point)" />
         break;
+    case PostPart.When:
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.PostWhenWhy)</MudText>
+        <MudDatePicker PickerVariant="PickerVariant.Static" Date="PickedDate" DateChanged="PickDay" MinDate="FirstDate" MaxDate="LastDate"
+                       ShowToolbar="false" Elevation="0" Color="Color.Primary" Class="align-self-center" aria-label="@T.Get(Copy.PostSheetWhen)" />
+        <MudButton Variant="@(Draft.NeededOn is null ? Variant.Filled : Variant.Outlined)" Color="@(Draft.NeededOn is null ? Color.Primary : Color.Dark)"
+                   FullWidth="true" StartIcon="@Icons.Material.Filled.EventAvailable" OnClick="AnyDay">
+            @T.Get(Copy.PostAnyDayButton)
+        </MudButton>
+        break;
     default:
         <MudStack Spacing="2" Class="app-field-group">
             <MudNumericField T="int?" @bind-Value="Draft.BudgetMinPesos" Immediate="true" Variant="Variant.Filled" Underline="false"

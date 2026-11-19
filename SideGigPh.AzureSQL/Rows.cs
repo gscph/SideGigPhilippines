@@ -294,6 +294,9 @@ public sealed class JobPostRow
     /// <summary>The barangay the household picked (<c>021-schema-barangays.sql</c>); null = not sure or not given.</summary>
     public string? BarangayId { get; set; }
 
+    /// <summary>The day the household needs it done (<c>024-schema-post-needed-date.sql</c>); null = any day.</summary>
+    public DateOnly? NeededOn { get; set; }
+
     public double? Latitude { get; set; }
     public double? Longitude { get; set; }
     public string Status { get; set; } = "open";

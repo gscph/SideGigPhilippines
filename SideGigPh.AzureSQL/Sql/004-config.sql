@@ -204,7 +204,7 @@ INSERT INTO @Options (ListId, Id, LabelEnglish, LabelTaglish, Icon, Amount, Sort
 ('experience',   '10-plus',    N'10+ years',               N'Mahigit 10 taon',         N'🏆',    0, 4, 1),
 ('urgencies',    'today',      N'Today, it''s urgent',     N'Ngayon na, urgent',       N'⚡',    0, 1, 1),
 ('urgencies',    'this-week',  N'This week',               N'Ngayong linggo',          N'📅',    0, 2, 1),
-('urgencies',    'canvassing', N'Just comparing prices',   N'Nagca-canvass lang',      N'🔍',    0, 3, 1),
+('urgencies',    'canvassing', N'Just looking around',     N'Tumitingin-tingin lang',  N'🔍',    0, 3, 1),
 -- Monthly earnings goals (private to the worker). Amount = pesos per month.
 ('income-goals', '5000',       N'₱5,000',                  N'₱5,000',                  NULL,  5000, 1, 1),
 ('income-goals', '10000',      N'₱10,000',                 N'₱10,000',                 NULL,  10000, 2, 1),

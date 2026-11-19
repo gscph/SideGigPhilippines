@@ -23,6 +23,10 @@
                 <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
                              Text="@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(Post))" />
                 <ProCardFact Icon="@Icons.Material.Filled.Place" Text="@T.Place(Post.CityId, Post.BarangayId)" />
+                @if (NeededText is { } needed)
+                {
+                    <ProCardFact Icon="@Icons.Material.Filled.Event" Text="@needed" />
+                }
             </MudStack>
 
             @if (Post.PhotoUrls.Count > 0)

@@ -16,6 +16,7 @@ namespace SideGigPh.Maui.Models;
 /// <param name="BudgetMinPesos">The low end ("from"), or null when they gave only a top.</param>
 /// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked, or null (not sure).</param>
 /// <param name="PhotoIds">The stored ids of <paramref name="PhotoUrls"/>, same order (Edit post keeps them); null when unknown.</param>
+/// <param name="NeededOn">The day the household needs it done (Philippine date), or null for any day.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -35,7 +36,8 @@ public sealed record JobPost(
     int? BudgetMinPesos = null,
     ReviewSummary? HouseholdStars = null,
     string? BarangayId = null,
-    IReadOnlyList<string>? PhotoIds = null);
+    IReadOnlyList<string>? PhotoIds = null,
+    DateOnly? NeededOn = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.
@@ -62,6 +64,12 @@ public sealed class JobPostDraft
 
     /// <summary>The barangay in <see cref="CityId"/> (<c>ReferenceData.BarangaysOf</c>); optional, null = not sure.</summary>
     public string? BarangayId { get; set; }
+
+    /// <summary>The day they need it done, from the post's calendar (<see cref="Services.PostDay"/>); optional, null = any day.</summary>
+    public DateOnly? NeededOn { get; set; }
+
+    /// <summary>Edit post: the day the post had when the form opened (it may stay even once it has passed).</summary>
+    public DateOnly? SavedNeededOn { get; set; }
 
     /// <summary>
     /// Where the work is, from the phone when the household taps "Use my location" (private: workers see the town and

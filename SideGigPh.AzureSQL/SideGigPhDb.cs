@@ -356,6 +356,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             post.Property(p => p.Description).HasMaxLength(600).IsUnicode();
             post.Property(p => p.CityId).HasMaxLength(40);
             post.Property(p => p.BarangayId).HasMaxLength(40);
+            post.Property(p => p.NeededOn).HasColumnType("date");
             post.Property(p => p.Status).HasMaxLength(10);
             post.HasMany(p => p.Photos).WithOne().HasForeignKey(photo => photo.PostId).HasConstraintName("FK_JobPostPhotos_Post").OnDelete(DeleteBehavior.Cascade);
             post.HasIndex(p => new { p.Status, p.CategoryId, p.CreatedAt }).IsDescending(false, false, true).HasDatabaseName("IX_JobPosts_Open");

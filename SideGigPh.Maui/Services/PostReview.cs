@@ -7,6 +7,7 @@ public enum PostPart
 {
     What,
     Where,
+    When,
     Budget,
 }
 
@@ -18,17 +19,18 @@ public sealed record PostSnapshot(
     string? BarangayId,
     GeoPoint? Point,
     int? BudgetMinPesos,
-    int? BudgetPesos);
+    int? BudgetPesos,
+    DateOnly? NeededOn);
 
 /// <summary>
-/// The post form laid out like Airbnb's "Review and continue": one card of rows (What / Where / Your budget), each with
+/// The post form laid out like Airbnb's "Review and continue": one card of rows (What / Where / When / Your budget), each with
 /// a gray Change (or Add) button opening its own full-screen sheet with Cancel and Save. Nothing here talks to the server;
 /// <see cref="JobBoard"/> still decides what can be posted.
 /// </summary>
 public static class PostReview
 {
     public static PostSnapshot Take(JobPostDraft draft) => new(
-        draft.CategoryId, draft.ServiceId, draft.CityId, draft.BarangayId, draft.Point, draft.BudgetMinPesos, draft.BudgetPesos);
+        draft.CategoryId, draft.ServiceId, draft.CityId, draft.BarangayId, draft.Point, draft.BudgetMinPesos, draft.BudgetPesos, draft.NeededOn);
 
     /// <summary>Cancel on a sheet: the answers as they were when it opened.</summary>
     public static void Restore(JobPostDraft draft, PostSnapshot snapshot)
@@ -40,6 +42,7 @@ public static class PostReview
         draft.Point = snapshot.Point;
         draft.BudgetMinPesos = snapshot.BudgetMinPesos;
         draft.BudgetPesos = snapshot.BudgetPesos;
+        draft.NeededOn = snapshot.NeededOn;
     }
 
     /// <summary>True when the row has an answer (its button says Change), false when it is still empty (Add).</summary>
@@ -47,6 +50,7 @@ public static class PostReview
     {
         PostPart.What => draft.ServiceId is not null,
         PostPart.Where => draft.CityId is not null,
+        PostPart.When => draft.NeededOn is not null,
         _ => draft.BudgetPesos is not null,
     };
 

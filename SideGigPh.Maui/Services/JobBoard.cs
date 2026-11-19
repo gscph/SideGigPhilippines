@@ -62,27 +62,30 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         return kept;
     }
 
-    public static JobPostField? FirstMissing(JobPostDraft draft) =>
+    /// <param name="today">The Philippines' date (<see cref="PostDay.Today"/>); null: the phone's clock now.</param>
+    public static JobPostField? FirstMissing(JobPostDraft draft, DateOnly? today = null) =>
         draft.CategoryId is null ? JobPostField.Trade
         : draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId) ? JobPostField.Service
         : !JobPostRules.IsDescription(draft.Description) ? JobPostField.Description
         : !JobPostRules.IsBudgetRange(draft.BudgetMinPesos, draft.BudgetPesos) ? JobPostField.Budget
         : draft.CityId is null ? JobPostField.Town
+        : !PostDay.IsValid(draft.NeededOn, draft.SavedNeededOn, today ?? PostDay.Today(TimeProvider.System)) ? JobPostField.When
         : null;
 
-    public static bool CanPost(JobPostDraft draft) => FirstMissing(draft) is null;
+    public static bool CanPost(JobPostDraft draft, DateOnly? today = null) => FirstMissing(draft, today) is null;
 
     /// <summary>
     /// What to fix before Post works, in a few words (shown under the greyed-out button, so a too-short description or a
     /// small budget doesn't leave the household guessing); null when the draft can be posted.
     /// </summary>
-    public static string? MissingHint(JobPostDraft draft, AppText text) => FirstMissing(draft) switch
+    public static string? MissingHint(JobPostDraft draft, AppText text, DateOnly? today = null) => FirstMissing(draft, today) switch
     {
         JobPostField.Trade => text.Get(Copy.PostMissingTrade),
         JobPostField.Service => text.Get(Copy.PostMissingService),
         JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
         JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
         JobPostField.Town => text.Get(Copy.PostMissingTown),
+        JobPostField.When => text.Get(Copy.PostMissingWhen),
         _ => null,
     };
 
@@ -237,6 +240,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             BudgetMinPesos = post.BudgetMinPesos,
             CityId = post.CityId,
             BarangayId = post.BarangayId,
+            NeededOn = post.NeededOn,
+            SavedNeededOn = post.NeededOn,
             WhatLocked = post.OfferCount > 0,
         };
         foreach (var (id, url) in (post.PhotoIds ?? []).Zip(post.PhotoUrls))
@@ -536,4 +541,7 @@ public enum JobPostField
     Description,
     Budget,
     Town,
+
+    /// <summary>The picked day has passed (a draft kept overnight): pick another, or any day.</summary>
+    When,
 }

@@ -16,6 +16,10 @@ namespace SideGigPh.Maui.Components.JobPosts;
 public partial class JobPostCard : ComponentBase
 {
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
+
+    /// <summary>"Needed tomorrow", or null when any day is fine.</summary>
+    private string? NeededText => T.Needed(Post.NeededOn, PostDay.Today(Clock));
 
     [Parameter, EditorRequired] public JobPost Post { get; set; } = default!;
 

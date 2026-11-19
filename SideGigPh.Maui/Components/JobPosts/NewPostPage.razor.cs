@@ -9,7 +9,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// <summary>
 /// The form to post what a household needs done, full screen outside the tab shell, laid out like Airbnb's "Review and
 /// continue": one card with What (kind of work + exact service, "Others" too), Where (town, the launch's default town
-/// when they have none, optional barangay and "Use my location") and Your budget (from–to, the suggested minimum price
+/// when they have none, optional barangay and "Use my location"), When (optional: a day on a calendar, workers see it,
+/// <see cref="PostDay"/>) and Your budget (from–to, the suggested minimum price
 /// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>); then what is
 /// wrong and up to three photos. It starts with the trade, service, town and barangay
 /// from their last search or post, so most people only type the problem and a number. Post leads back to their posts.
@@ -25,6 +26,7 @@ public partial class NewPostPage : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
 
     /// <summary>The post to change (<c>/posts/{id}/edit</c>), or null for a new post.</summary>
     [Parameter] public long? Id { get; set; }
@@ -81,6 +83,9 @@ public partial class NewPostPage : ComponentBase
             (_draft.BudgetMinPesos, _draft.BudgetPesos) = (from > 0 ? from : null, upTo);
         }
     }
+
+    /// <summary>Today in the Philippines: the calendar's first day.</summary>
+    private DateOnly Today => PostDay.Today(Clock);
 
     /// <summary>Changing an open post (<see cref="Id"/>), not posting a new one.</summary>
     private bool Editing => Id is not null;
@@ -160,7 +165,7 @@ public partial class NewPostPage : ComponentBase
 
     private async Task PostAsync()
     {
-        if (_busy || !JobBoard.CanPost(_draft))
+        if (_busy || !JobBoard.CanPost(_draft, Today))
         {
             return; // a second tap before the button re-rendered as disabled
         }
