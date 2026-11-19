@@ -14,7 +14,7 @@
    Rules (CLAUDE.md):
      - Ids are stable: saved answers, listings, chats and reviews point at them. Change only labels.
        To stop offering a trade, keep its rows here with IsActive = 0 (see home_massage).
-     - Each trade's jobs are ordered most-requested first and end with "Others / Wala sa nabanggit"
+     - Each trade's jobs are ordered most-requested first and end with "Others / Iba pa"
        (the -other job). What people type after picking it goes to dbo.OtherJobNotes.
      - Every active job has a price guide (PriceMin <= PriceAverage <= PriceHigh, pesos, labor only): only a guide
        shown to workers setting their price and households setting a budget. Needs 008-schema-service-prices.sql first.
@@ -75,26 +75,26 @@ DECLARE @Services TABLE
 -- Skilled Workers see it when they type their own average price; Seekers pick a budget range built from it.
 -- Sources (Nov 2026): published Metro Manila / Rizal service rates; Rizal labor runs a little under Manila's.
 INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive, PriceMin, PriceAverage, PriceHigh) VALUES
-('aircon-cleaning',          'aircon',         N'Aircon cleaning',                           N'Pa-linis ng aircon',                         N'🧽', 1, 1,   755,  1000,  1500),
-('aircon-repair',            'aircon',         N'Aircon not cooling / repair',               N'Hindi lumalamig / pa-repair ng aircon',      N'🌡️', 2, 1,   755,  1500,  2500),
-('aircon-leak',              'aircon',         N'Aircon leaking water',                      N'Tumutulo ang aircon',                        N'💧', 3, 1,   755,  1000,  1500),
-('aircon-freon',             'aircon',         N'Freon recharge',                            N'Pa-freon ng aircon',                         N'🧪', 4, 1,  1200,  2000,  3000),
-('aircon-install',           'aircon',         N'Aircon installation (window / split-type)', N'Pakabit ng aircon (window / split-type)',    N'🔧', 5, 1,  2500,  3500,  5000),
-('aircon-relocate',          'aircon',         N'Aircon removal or transfer',                N'Pabaklas o palipat ng aircon',               N'🚚', 6, 1,  1500,  2500,  4000),
-('aircon-pms',               'aircon',         N'Aircon PMS / check-up',                     N'PMS / check-up ng aircon',                   N'📋', 7, 1,   755,  1200,  1800),
-('aircon-other',             'aircon',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
+('aircon-cleaning',          'aircon',         N'Aircon cleaning',                           N'Linis aircon',                               N'🧽', 1, 1,   755,  1000,  1500),
+('aircon-repair',            'aircon',         N'Aircon repair',                             N'Sirang aircon',                              N'🌡️', 2, 1,   755,  1500,  2500),
+('aircon-leak',              'aircon',         N'Aircon leak',                               N'Tumutulong aircon',                          N'💧', 3, 1,   755,  1000,  1500),
+('aircon-freon',             'aircon',         N'Freon recharge',                            N'Pa-freon',                                   N'🧪', 4, 1,  1200,  2000,  3000),
+('aircon-install',           'aircon',         N'Aircon install',                            N'Pakabit aircon',                             N'🔧', 5, 1,  2500,  3500,  5000),
+('aircon-relocate',          'aircon',         N'Aircon transfer',                           N'Palipat aircon',                             N'🚚', 6, 1,  1500,  2500,  4000),
+('aircon-pms',               'aircon',         N'Aircon PMS',                                N'Aircon PMS',                                 N'📋', 7, 1,   755,  1200,  1800),
+('aircon-other',             'aircon',         N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,   755,  1200,  2000),
 
-('construction-foreman',     'construction',   N'Foreman / maestro',                         N'Foreman / maestro',                          N'👷', 1, 1,  1200,  1800,  2500),
-('construction-carpentry',   'construction',   N'Carpentry (furniture, doors, cabinets, ceiling)', N'Karpintero (furniture, pinto, cabinet, kisame)', N'🔨', 2, 1,   755,  1200,  2000),
-('construction-electrical',  'construction',   N'Electrical (wiring, outlets, breaker, CCTV)', N'Electrician (kuryente, wiring, breaker, CCTV)', N'⚡', 3, 1,   755,  1200,  2500),
-('construction-plumbing',    'construction',   N'Plumbing (clogs, leaks, pipes, CR)',        N'Tubero (barado, tagas, lababo, CR)',         N'🚰', 4, 1,   755,  1200,  2000),
-('construction-masonry',     'construction',   N'Masonry (hollow blocks, cement, cracks, walls)', N'Mason (hollow blocks, semento, bitak, pader)', N'🧱', 5, 1,   755,  1200,  2000),
-('construction-tiles',       'construction',   N'Tile setting',                              N'Pakabit ng tiles',                           N'🔲', 6, 1,  1000,  2000,  3500),
-('construction-welding',     'construction',   N'Welding (gates, grills, railings)',         N'Welder (gate, grills, rehas)',               N'🔥', 7, 1,   755,  1200,  2000),
-('construction-roofing',     'construction',   N'Roofing & gutter (leaks, roof sheets)',     N'Bubong at alulod (tulo, yero)',              N'🏠', 8, 1,  1000,  2000,  3500),
-('construction-steelman',    'construction',   N'Steelman (rebar work)',                     N'Steelman (bakal / rebar)',                   N'🏗️', 9, 1,   755,  1100,  1500),
-('construction-helper',      'construction',   N'Construction helper',                       N'Helper / peon',                              N'🧰', 10, 1,   755,   850,  1000),
-('construction-other',       'construction',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1200,  2000),
+('construction-foreman',     'construction',   N'Foreman',                                   N'Maestro',                                    N'👷', 1, 1,  1200,  1800,  2500),
+('construction-carpentry',   'construction',   N'Carpentry',                                 N'Karpintero',                                 N'🔨', 2, 1,   755,  1200,  2000),
+('construction-electrical',  'construction',   N'Electrical',                                N'Electrician',                                N'⚡', 3, 1,   755,  1200,  2500),
+('construction-plumbing',    'construction',   N'Plumbing',                                  N'Tubero',                                     N'🚰', 4, 1,   755,  1200,  2000),
+('construction-masonry',     'construction',   N'Masonry',                                   N'Mason',                                      N'🧱', 5, 1,   755,  1200,  2000),
+('construction-tiles',       'construction',   N'Tile setting',                              N'Tiles',                                      N'🔲', 6, 1,  1000,  2000,  3500),
+('construction-welding',     'construction',   N'Welding',                                   N'Welder',                                     N'🔥', 7, 1,   755,  1200,  2000),
+('construction-roofing',     'construction',   N'Roofing',                                   N'Bubong',                                     N'🏠', 8, 1,  1000,  2000,  3500),
+('construction-steelman',    'construction',   N'Steelman',                                  N'Steelman',                                   N'🏗️', 9, 1,   755,  1100,  1500),
+('construction-helper',      'construction',   N'Helper',                                    N'Helper',                                     N'🧰', 10, 1,   755,   850,  1000),
+('construction-other',       'construction',   N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,   755,  1200,  2000),
 
 ('plumbing-clog',            'plumbing',       N'Clogged sink, drain or CR',                 N'Barado ang lababo, drain o CR',              N'🪠', 1, 0,   755,  1000,  1800),
 ('plumbing-leak',            'plumbing',       N'Leaking pipe or faucet',                    N'May tagas ang tubo o gripo',                 N'💧', 2, 0,   755,  1000,  1500),
@@ -146,29 +146,29 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('mechanic-suspension',      'car_mechanic',   N'Suspension',                                N'Suspension',                                 N'🛞', 1, 1,  1000,  2000,  3500),
 ('mechanic-engine',          'car_mechanic',   N'Engine',                                    N'Makina',                                     N'⚙️', 2, 1,  1500,  3000,  5000),
 ('mechanic-electronics',     'car_mechanic',   N'Electronics',                               N'Electronics',                                N'🔋', 3, 1,  1000,  2000,  3500),
-('mechanic-other',           'car_mechanic',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
+('mechanic-other',           'car_mechanic',   N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,  1000,  2000,  3500),
 
-('errand-house-cleaning',    'errand_runner',  N'House cleaning',                            N'Linis ng bahay',                             N'🧹', 1, 1,   755,  1000,  1500),
-('errand-grocery',           'errand_runner',  N'Grocery or market run',                     N'Pa-grocery o pa-palengke',                   N'🛒', 2, 1,   755,   900,  1200),
-('errand-bills',             'errand_runner',  N'Bills payment',                             N'Pabayad ng bills',                           N'🧾', 3, 1,   755,   850,  1000),
-('errand-pasabuy',           'errand_runner',  N'PasaBuy (buy and deliver)',                 N'PasaBuy',                                    N'🛍️', 4, 1,   755,   900,  1200),
-('errand-documents',         'errand_runner',  N'Document pickup or delivery',               N'Pakuha o pahatid ng papeles',                N'📄', 5, 1,   755,   900,  1200),
-('errand-parcel',            'errand_runner',  N'Parcel pickup or drop-off',                 N'Pa-pickup o pa-drop off ng parcel',          N'📦', 6, 1,   755,   850,  1000),
-('errand-car-cleaning',      'errand_runner',  N'Car cleaning',                              N'Linis ng kotse',                             N'🚗', 7, 1,   755,   900,  1200),
-('errand-gardening',         'errand_runner',  N'Gardening',                                 N'Pag-aalaga ng halaman / garden',             N'🌱', 8, 1,   755,  1000,  1500),
-('errand-other',             'errand_runner',  N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,   900,  1200),
+('errand-house-cleaning',    'errand_runner',  N'House cleaning',                            N'Linis bahay',                                N'🧹', 1, 1,   755,  1000,  1500),
+('errand-grocery',           'errand_runner',  N'Grocery run',                               N'Pa-grocery',                                 N'🛒', 2, 1,   755,   900,  1200),
+('errand-bills',             'errand_runner',  N'Bills payment',                             N'Bills payment',                              N'🧾', 3, 1,   755,   850,  1000),
+('errand-pasabuy',           'errand_runner',  N'PasaBuy',                                   N'PasaBuy',                                    N'🛍️', 4, 1,   755,   900,  1200),
+('errand-documents',         'errand_runner',  N'Document delivery',                         N'Pahatid papeles',                            N'📄', 5, 1,   755,   900,  1200),
+('errand-parcel',            'errand_runner',  N'Parcel pickup',                             N'Pa-pickup parcel',                           N'📦', 6, 1,   755,   850,  1000),
+('errand-car-cleaning',      'errand_runner',  N'Car cleaning',                              N'Linis kotse',                                N'🚗', 7, 1,   755,   900,  1200),
+('errand-gardening',         'errand_runner',  N'Gardening',                                 N'Paghahalaman',                               N'🌱', 8, 1,   755,  1000,  1500),
+('errand-other',             'errand_runner',  N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,   755,   900,  1200),
 
-('solar-cleaning',           'solar_cleaning', N'Solar panel cleaning',                      N'Pa-linis ng solar panel',                    N'🧽', 1, 1,  1000,  2000,  3500),
-('solar-checkup',            'solar_cleaning', N'Solar check-up / maintenance',              N'Check-up o maintenance ng solar',            N'📋', 2, 1,  1000,  1800,  3000),
-('solar-inverter',           'solar_cleaning', N'Inverter or battery check',                 N'Check ng inverter o battery',                N'🔋', 3, 1,  1000,  2000,  3500),
-('solar-other',              'solar_cleaning', N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1000,  2000,  3500),
+('solar-cleaning',           'solar_cleaning', N'Panel cleaning',                            N'Linis panel',                                N'🧽', 1, 1,  1000,  2000,  3500),
+('solar-checkup',            'solar_cleaning', N'Solar check-up',                            N'Solar check-up',                             N'📋', 2, 1,  1000,  1800,  3000),
+('solar-inverter',           'solar_cleaning', N'Inverter check',                            N'Inverter check',                             N'🔋', 3, 1,  1000,  2000,  3500),
+('solar-other',              'solar_cleaning', N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,  1000,  2000,  3500),
 
 ('it-software',              'it',             N'Software',                                  N'Software',                                   N'💾', 1, 1,   755,  1200,  2000),
 ('it-hardware',              'it',             N'Hardware',                                  N'Hardware',                                   N'🖥️', 2, 1,   755,  1500,  2500),
 ('it-cybersecurity',         'it',             N'Cybersecurity',                             N'Cybersecurity',                              N'🔒', 3, 1,  1000,  2000,  3500),
-('it-ai',                    'it',             N'Artificial Intelligence',              N'Artificial Intelligence (AI)',               N'🤖', 4, 1,  1500,  3000,  5000),
+('it-ai',                    'it',             N'AI',                                        N'AI',                                         N'🤖', 4, 1,  1500,  3000,  5000),
 ('it-enterprise',            'it',             N'Enterprise Solutions',                      N'Enterprise Solutions',                       N'🏢', 5, 1,  3000,  6000, 10000),
-('it-other',                 'it',             N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   755,  1500,  2500),
+('it-other',                 'it',             N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,   755,  1500,  2500),
 
 -- Retired with home_massage.
 ('massage-full-body',        'home_massage',   N'Full body massage',                         N'Full body massage',                          N'💆', 1, 0,  NULL,  NULL,  NULL),
