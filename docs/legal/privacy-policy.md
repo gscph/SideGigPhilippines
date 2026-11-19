@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 18, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 19, 2026
 
 ---
 
