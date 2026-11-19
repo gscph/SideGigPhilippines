@@ -35,7 +35,7 @@ Do these in order. Steps 1–4 make the build; 5–8 make sign-in work on the Pl
    Phone → *Phone numbers for testing*: e.g. `+63 917 555 0100`, code `123456`. No SMS is sent (and it costs
    nothing). Put it in Play Console → App content → **App access** ("All functionality is behind sign-in":
    the number and the code). Reviewers can't get past the sign-in screen without it. Tell testers too: the app still allows only 3
-   codes a day per phone (`SmsSendLimit`), test number or not, so they shouldn't sign out and in again and again.
+   codes a day per phone and a 6-minute wait after a restart (`SmsSendLimit`), test number or not, so they shouldn't sign out and in again and again.
 
 Then run the build again (step 3) and upload it as a second internal release, or let CI upload it (below).
 Install from the testers' opt-in link and check: phone sign-in, Google sign-in, publish a listing, search,
@@ -56,6 +56,7 @@ chat, a push notification, post a request, delete the account.
    - play_status `completed`: testers get it at once (only after that first review).
 
 Every run's number is the Android versionCode, so each upload is higher than the last, as Play requires.
+**Start a new run** for each upload: "Re-run jobs" keeps the run number, and Play refuses a versionCode it has seen.
 
 ## 3. Before production (the launch checklist)
 

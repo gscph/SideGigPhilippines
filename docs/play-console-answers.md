@@ -5,7 +5,7 @@ and the later review go through. The steps around them are in [`play-store.md`](
 from the [Privacy Policy](legal/privacy-policy.md) and the app's Android manifest: **when either changes, change
 this page and the form together.**
 
-Checked against build `0.1.0` (versionCode 29, 19 Nov 2026): target SDK 36, min SDK 24, 64-bit only
+Checked against build `0.1.0` (the beta APK of CI run 29 and the prod AAB of run 30, 19 Nov 2026): target SDK 36, min SDK 24, 64-bit only
 (`arm64-v8a`, `x86_64`), native libraries 16 KB aligned, **no `AD_ID` permission**.
 
 ## Create app
@@ -30,8 +30,8 @@ Checked against build `0.1.0` (versionCode 29, 19 Nov 2026): target SDK 36, min 
 - Other information:
   > Choose English, then type the phone number above on the sign-in screen; the code is filled in or can be typed.
   > No SMS is sent. Choose "I need something done" to search, see worker profiles and post a request, or "I am a
-  > Skilled Worker" to set up a worker listing. The app limits sign-in codes to 3 a day per phone, so please don't sign
-  > out and in again many times on one device.
+  > Skilled Worker" to set up a worker listing. The app limits sign-in codes on each phone (3 a day, and a
+  > 6-minute wait after the app restarts), so please don't sign out and in again; Google sign-in also works.
 
 ## Ads
 
@@ -83,20 +83,20 @@ Check again when Firebase Analytics is turned on (`FirebaseAnalytics` build flag
 
 | Category → type | Collected | Required or optional | Purposes |
 |---|---|---|---|
-| Location → **Approximate location** | Yes | Optional (only on "Use my location"; the app asks for coarse too, though it drops a rough point) | App functionality |
+| Location → **Approximate location** | Yes | Required (the town everyone picks; Play counts the city a user is in) | App functionality |
 | Location → **Precise location** | Yes | Optional (only on "Use my location") | App functionality |
 | Personal info → **Name** | Yes | Required | App functionality, Account management |
 | Personal info → **Email address** | Yes | Optional (Google sign-in only) | Account management |
 | Personal info → **User IDs** | Yes | Required (the sign-in account id) | App functionality, Account management, Fraud prevention, security, and compliance |
 | Personal info → **Phone number** | Yes | Optional (workers need one to publish; customers may skip) | Account management, Fraud prevention, security, and compliance, App functionality |
 | Personal info → **Other info** | Yes | Optional (badge proofs: ID number, name and expiry read from a government ID; income goal) | Fraud prevention, security, and compliance, App functionality |
-| Messages → **Other in-app messages** | Yes | Optional (chat) | App functionality |
+| Messages → **Other in-app messages** | Yes | Optional (chat) | App functionality, Fraud prevention, security, and compliance (staff read a chat only when it is reported) |
 | Photos and videos → **Photos** | Yes | Optional (profile and work photos, post photos, badge proofs) | App functionality, Fraud prevention, security, and compliance |
 | App activity → **App interactions** | Yes | Required (a worker's last-active time, for "active recently") | App functionality |
 | App activity → **Other user-generated content** | Yes | Optional (reviews, posts, offers, feature suggestions, "Others" text, reports) | App functionality |
 | App info and performance → **Crash logs** | Yes | Optional (Me → Send error reports) | Analytics |
 | App info and performance → **Diagnostics** | Yes | Optional (same switch) | Analytics |
-| Device or other IDs → **Device or other IDs** | Yes | Required (push token, random install id in error reports) | App functionality |
+| Device or other IDs → **Device or other IDs** | Yes | Required (push token; the random install id travels only in the optional error reports) | App functionality, Analytics |
 
 **Not collected:** address, race, beliefs,
 health, financial or payment info, contacts, calendar, SMS or call logs, audio, files, web history, installed apps,
