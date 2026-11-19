@@ -683,8 +683,8 @@ public static class Copy
     public static readonly LocalizedText CommitFairOffers = new(
         "When I send an offer on a customer's request, it's a fair price I will really keep. No fake low price, then charging more.",
         "Kapag nag-offer ako sa request ng customer, patas na price ito na tutuparin ko. Walang fake na murang price na tataasan ko pala.");
-    public static readonly LocalizedText PublishTitle = new("This is what customers will see", "Ito ang makikita ng customer");
-    public static readonly LocalizedText PublishWhy = new("Customers in your towns will see this and message you here in the app. Your number stays private until they pick you.", "Makikita ito ng customer sa mga bayan mo at ime-message ka nila dito sa app. Private ang number mo hanggang piliin ka nila.");
+    public static readonly LocalizedText PublishTitle = new("Ready to go live?", "Ready ka na bang mag-live?");
+    public static readonly LocalizedText PublishWhy = new("Tap Ready and customers in your towns can find you and message you here in the app. Your number stays private until they pick you.", "I-tap ang Game! at makikita ka na ng customer sa mga bayan mo at ime-message ka nila dito sa app. Private ang number mo hanggang piliin ka nila.");
 
     /// <summary>The Ready step's one-word button: it publishes the listing ("I'm ready for work").</summary>
     public static readonly LocalizedText PublishReady = new("Ready", "Game!");

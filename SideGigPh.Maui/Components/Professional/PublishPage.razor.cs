@@ -6,7 +6,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// Going live, step 1 (<see cref="PublishStep.Checklist"/>): the worker ticks every promise (<see cref="PublishChecklist"/>:
-/// honest work and prices, the Terms, the community rules, fair offers) before the Ready step, which shows the card and
+/// honest work and prices, the Terms, the community rules, fair offers) before the Ready step, which
 /// publishes. Every "Publish" link opens here; a live listing goes home (its edits never pass the promises again). The
 /// verified-number check is on the Ready step, not here, so a worker who tapped "Do this later" on the interview's number
 /// question isn't asked again straight away. A full-screen step with the interview look; the rules are in

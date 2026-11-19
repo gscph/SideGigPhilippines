@@ -4,7 +4,6 @@
 {
     <InterviewStep Illustration="@AppImages.Publish" Title="@T.Get(Copy.PublishTitle)" Why="@T.Get(Copy.PublishWhy)" Progress="Progress"
                    OnBack="GoBack" OnNext="PublishAsync" NextLabel="@T.Get(Copy.PublishReady)" CanContinue="@(!_busy)">
-        <ProCard Listing="Workspace.Listing" Class="own-listing" />
         @if (_problem is not null)
         {
             <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(_problem)</MudAlert>

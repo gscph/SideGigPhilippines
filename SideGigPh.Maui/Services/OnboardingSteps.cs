@@ -25,7 +25,8 @@ public enum ProStep
 
 /// <summary>
 /// Going live, after the interview (<c>/professional/publish</c>, then <c>/professional/publish/ready</c>): the promises
-/// (<see cref="PublishChecklist"/>), then the card one last time and the Ready button that publishes.
+/// (<see cref="PublishChecklist"/>), then the Ready button that publishes (the card was
+/// already shown by the interview's <see cref="ProStep.Preview"/>, so it is not shown twice).
 /// </summary>
 public enum PublishStep
 {

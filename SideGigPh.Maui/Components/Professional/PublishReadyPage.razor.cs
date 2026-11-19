@@ -8,8 +8,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Going live, step 2 (<see cref="PublishStep.Ready"/>): the worker sees their card one last time and taps Ready, which
-/// publishes. Only after every promise on the checklist is ticked in this run of the app; otherwise (a link, the app
+/// Going live, step 2 (<see cref="PublishStep.Ready"/>): the worker taps Ready, which publishes (no card here: the
+/// interview's preview just showed it, right before the promises). Only after every promise on the checklist is ticked in this run of the app; otherwise (a link, the app
 /// killed and reopened) it goes back to the checklist. Back returns to the checklist with the ticks kept. A full-screen
 /// step with the interview look; the rules are in <see cref="OnboardingSteps"/>.
 /// </summary>
