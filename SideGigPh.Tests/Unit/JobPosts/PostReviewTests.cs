@@ -137,4 +137,70 @@ public class PostReviewTests
         PostReview.PickTrade(draft, ReferenceData.OtherTradeId);
         PostReview.CanSave(draft, PostPart.What).Should().BeTrue("\"Others\" picks its one job with the trade");
     }
+
+    [Fact]
+    public void EachSheet_HasItsOwnUrlPart_AndBackGoesToTheForm()
+    {
+        foreach (var part in Enum.GetValues<PostPart>())
+        {
+            PostReview.FromSlug(PostReview.Slug(part)).Should().Be(part, "the URL opens the same sheet");
+        }
+
+        PostReview.Slug(PostPart.What).Should().Be("what");
+        PostReview.FromSlug("BUDGET").Should().Be(PostPart.Budget);
+        PostReview.FromSlug(null).Should().BeNull("the form itself");
+        PostReview.FromSlug("photos").Should().BeNull("a word it doesn't know shows the form");
+
+        PostReview.SheetDepth(null).Should().Be(1);
+        PostReview.SheetDepth("aircon").Should().Be(2, "the trades page sits between a trade's jobs and the form");
+    }
+
+    [Fact]
+    public void EachMissingField_BelongsToItsRow_AndTheProblemToTheForm()
+    {
+        PostReview.PartOf(JobPostField.Trade).Should().Be(PostPart.What);
+        PostReview.PartOf(JobPostField.Service).Should().Be(PostPart.What);
+        PostReview.PartOf(JobPostField.Town).Should().Be(PostPart.Where);
+        PostReview.PartOf(JobPostField.Budget).Should().Be(PostPart.Budget);
+        PostReview.PartOf(JobPostField.Description).Should().BeNull("typed on the form, not on a sheet");
+    }
+
+    [Fact]
+    public void EmptyRows_SayWhatToDo_AndDoneRowsSayNothing()
+    {
+        var text = English();
+        var empty = new JobPostDraft();
+
+        text.PostRowMissing(empty, PostPart.What).Should().Be("Pick the kind of work.");
+        text.PostRowMissing(empty, PostPart.Where).Should().Be("Pick your town.");
+        text.PostRowMissing(empty, PostPart.Budget).Should().StartWith("Type your budget");
+        text.PostRowMissing(new JobPostDraft { CategoryId = "aircon" }, PostPart.What).Should().Be("Pick what exactly you need.");
+
+        var filled = Filled();
+        foreach (var part in Enum.GetValues<PostPart>())
+        {
+            text.PostRowMissing(filled, part).Should().BeNull("{0} is done", part);
+        }
+
+        filled.BudgetMinPesos = 2000;
+        text.PostRowMissing(filled, PostPart.Budget).Should().Contain("not less than", "a budget typed but refused still says why");
+    }
+
+    [Fact]
+    public void UnderPost_EverythingStillNeeded_IsNamed_UntilItCanBePosted()
+    {
+        var text = English();
+
+        text.PostStillNeeded(new JobPostDraft()).Should().Be("Still needed: the service, your town, your budget, the problem");
+
+        var draft = Filled();
+        text.PostStillNeeded(draft).Should().Be("Still needed: the problem");
+
+        draft.Description = "Hindi na malamig ang aircon";
+        text.PostStillNeeded(draft).Should().BeNull("Post works");
+
+        text.Use(AppLanguage.Taglish);
+        text.PostStillNeeded(new JobPostDraft { Description = draft.Description, CityId = "angono" })
+            .Should().Be("Kulang pa: ang service, budget mo");
+    }
 }

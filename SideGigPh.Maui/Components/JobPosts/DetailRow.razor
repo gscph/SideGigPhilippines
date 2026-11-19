@@ -9,6 +9,10 @@
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary">@Detail</MudText>
         }
+        @if (!string.IsNullOrWhiteSpace(Missing))
+        {
+            <MudText Typo="Typo.body2" Color="@(Alert ? Color.Error : Color.Secondary)">@Missing</MudText>
+        }
         @ChildContent
     </MudStack>
     @if (!string.IsNullOrEmpty(ActionLabel))

@@ -34,4 +34,20 @@ public static class PostReviewText
         PostPart.Where => Copy.PostSheetWhere,
         _ => Copy.PostBudget,
     });
+
+    /// <summary>A row's note while it is missing ("Pick your town."), or null when the row is done.</summary>
+    public static string? PostRowMissing(this AppText text, JobPostDraft draft, PostPart part) =>
+        PostReview.MissingIn(draft, part) is { } field ? JobBoard.MissingText(field, text) : null;
+
+    /// <summary>Under the Post button: "Still needed: the service, your budget", or null once it can be posted.</summary>
+    public static string? PostStillNeeded(this AppText text, JobPostDraft draft) =>
+        JobBoard.Missing(draft) is { Count: > 0 } missing
+            ? text.Format(Copy.PostStillNeeded, string.Join(", ", missing.Select(field => text.Get(field switch
+            {
+                JobPostField.Trade or JobPostField.Service => Copy.PostNeedService,
+                JobPostField.Town => Copy.PostNeedTown,
+                JobPostField.Budget => Copy.PostNeedBudget,
+                _ => Copy.PostNeedProblem,
+            }))))
+            : null;
 }
