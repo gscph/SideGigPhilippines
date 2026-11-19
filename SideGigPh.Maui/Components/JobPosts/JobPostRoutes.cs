@@ -1,3 +1,5 @@
+using SideGigPh.Maui.Services;
+
 namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
@@ -14,6 +16,16 @@ public static class JobPostRoutes
 
     /// <summary>The same form, filled in, to change one of the household's open posts; full screen.</summary>
     public static string Edit(long postId) => $"{Mine}/{postId}/edit";
+
+    /// <summary>The new post form, or the edit form of <paramref name="postId"/>.</summary>
+    public static string Form(long? postId) => postId is { } id ? Edit(id) : New;
+
+    /// <summary>
+    /// One Change sheet of the form (<c>/posts/new/where</c>), or the What sheet's jobs page for
+    /// <paramref name="jobsOfTrade"/> (<c>/posts/new/what/aircon</c>): its own URL, so the phone's Back closes it.
+    /// </summary>
+    public static string Sheet(long? postId, PostPart part, string? jobsOfTrade = null) =>
+        $"{Form(postId)}/{PostReview.Slug(part)}" + (jobsOfTrade is null ? string.Empty : $"/{Uri.EscapeDataString(jobsOfTrade)}");
 
     /// <summary>The offers on one of the household's posts; under <see cref="Mine"/> so the Post tab stays lit.</summary>
     public static string Offers(long postId) => $"{Mine}/{postId}/offers";

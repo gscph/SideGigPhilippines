@@ -9,10 +9,11 @@ namespace MobileAppTheme.Branding;
 /// (usually from <see cref="MobileTheme.Create"/>) and an optional one-line tagline (shown under
 /// the logo on the sign-in screen), and its public legal pages (<see cref="LegalLinks"/>: the sign-in consent line
 /// and the Me page link to them), and the build's version label (<c>v0.1.0-rc.12</c>, shown small and muted on the
-/// splash and beside the logo in the top bar, so a tester can say which build they run). The app builds one and passes it to <c>AddMobileAppTheme</c>;
+/// splash and beside the logo in the top bar, so a tester can say which build they run), and an optional small
+/// splash credit (<see cref="SplashCredit"/>, e.g. "Powered by …", under the spinner). The app builds one and passes it to <c>AddMobileAppTheme</c>;
 /// skeleton components inject it.
 /// </summary>
-public sealed record AppBrand(string Name, string LogoIcon, MudTheme Theme, LocalizedText? Tagline = null, LegalLinks? Legal = null, string? Version = null);
+public sealed record AppBrand(string Name, string LogoIcon, MudTheme Theme, LocalizedText? Tagline = null, LegalLinks? Legal = null, string? Version = null, LocalizedText? SplashCredit = null);
 
 /// <summary>
 /// The product's public legal pages (web pages anyone can open, as the app stores require). Links to them open in the

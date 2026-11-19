@@ -11,6 +11,10 @@
         }
     </MudStack>
     <MudProgressCircular Indeterminate="true" Color="Color.Primary" Size="Size.Small" />
+    @if (Brand.SplashCredit is { } credit)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center">@T.Get(credit)</MudText>
+    }
     @if (!string.IsNullOrEmpty(Brand.Version))
     {
         <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center">@Brand.Version</MudText>

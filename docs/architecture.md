@@ -24,9 +24,12 @@ says "Tarbaho" in `Copy.cs`.
   (`Honorifics.For`: Manong for construction (carpentry, masonry and the other building jobs are its jobs); Ate for errands; Kuya for everyday repairs and any
   new trade). Copy takes the word as `{0}`; English lines that want the plural ("Find Kuyas nearby", the empty search
   "No Kuyas…") pass `englishPlural: true` to `AppText.FormatHonorific`. Ate and Manang always stay in the rotation.
-- Spell "maghanap" as one word. The logo is a crew of three workers in hard hats with a hammer and a wrench behind them (a team that fixes homes, not one
-  person), one single-color path in a 24-unit box (`AppTheme.Logo`), also used by the launcher icon, both splashes and
-  the Android notification icon (`ic_notification.xml`). A small nav mark,
+- Spell "maghanap" as one word. The logo is the **Folded T**: a slanted T for Tarbaho folded like a ribbon, four
+  shapes in a 24-unit box (`AppTheme.Logo`) in one color at three strengths (full, 78%, 62% opacity), so it follows
+  `Color.Primary` and still reads as three purple shades; also used by the launcher icon, both splashes and
+  the Android notification icon (`ic_notification.xml`, white with the same alphas). Both splashes say
+  **"Powered by AI"** small under the spinner (`AppBrand.SplashCredit`; the pre-Blazor splash in `index.html` in
+  English). The native Android splash shows only the logo: Android 12+ crops it to the icon circle, so text can't go there. A small nav mark,
   the wordmark font and the final palette are still to come.
 
 ## Photos
@@ -185,12 +188,21 @@ for Android).
   "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen), laid out like
   Airbnb's "Review and continue" (`docs/ux/airbnb-2026-11-18/airbnb-20`, `22`): the title "Post what you need done"
   (no explainer), one outlined card (`PostDraftSummary`: the first photo or the service's picture, the service and its
-  trade, with What's Change (a **What** `DetailRow` with Add only while no service is picked, so the service shows once); then `DetailRow`s **Where** ("Angono · Brgy. San Isidro"), **When** (the day they need it, optional: "Any day" until picked) and **Your budget** (green),
-  each with a gray **Change**, or **Add** while empty). A row's button opens its own full-screen sheet in the page (no
-  pop-up; `PostPartFields`: What is two pages: picture tiles for the kind of work, and a tap opens that trade's own page of services titled with the trade, ← back to the trades (`PostReview.HasJobChoice`; "Others" stays, it is its own job), Save greyed until a service is picked (`PostReview.CanSave`), so a trade alone never leaves Post grey; town + barangay + "Use my location"; When: a static `MudDatePicker` from today (Philippine date) to `JobPostRules.MaxDaysAhead` (90) days ahead plus "Any day is fine"; budget from / up to
+  trade, with What's Change (a **What** `DetailRow` with Add only while no service is picked, so the service shows once); then `DetailRow`s **Where** ("Angono · Brgy. San Isidro"), **When** (the day they need it, optional: "Any day" until picked; a day that has passed is "missing") and **Your budget** (green),
+  each with a gray **Change**, or **Add** while empty). A row still missing an answer says what to do under it
+  (`DetailRow.Missing`, `PostReviewText.PostRowMissing` → `JobBoard.MissingText`: "Pick your town.", gray, red once Post
+  was tapped). A row's button opens its own full-screen sheet with **its own URL** under the form
+  (`JobPostRoutes.Sheet`: `/posts/new/what`, `/posts/new/what/{trade}` for that trade's jobs, `/where`, `/when`, `/budget`; the
+  same under `/posts/{id}/edit`; the same `NewPostPage` instance stays, `PostReview.Slug` / `FromSlug`), so the phone's
+  Back closes it like Cancel (arriving on the form without Save restores the `PostSnapshot`) or goes from the jobs back
+  to the trades; Save, Cancel and ← go back through the WebView history (`history.go`, `PostReview.SheetDepth`), so
+  Back on the form afterwards leaves it as before (`PostPartFields`: What is two pages: picture tiles for the kind of work, and a tap opens that trade's own page of services titled with the trade, ← back to the trades (`PostReview.HasJobChoice`; "Others" stays, it is its own job), Save greyed until a service is picked (`PostReview.CanSave`), so a trade alone never leaves Post grey; town + barangay + "Use my location"; When: a static `MudDatePicker` from today (Philippine date) to `JobPostRules.MaxDaysAhead` (90) days ahead plus "Any day is fine"; budget from / up to
   with the guide), with Cancel (link, puts the answers back from a `PostSnapshot`) and Save pinned at the bottom.
   Under the card: "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
-  (`JobBoard.AddPhotosAsync`); Post pinned at the bottom with what is still missing under it. Trade, service and town
+  (`JobBoard.AddPhotosAsync`); Post pinned at the bottom, never greyed for a missing answer: under it "Still needed: the
+  service, your budget" names everything left (`JobBoard.Missing`, in the card's order: What, Where, When, Your budget, the
+  problem; `PostReviewText.PostStillNeeded`), and a tap with something missing turns the notes red and opens the first
+  one's sheet (`PostReview.PartOf`), or focuses the problem's box, which then shows its own error. Trade, service and town
   start from their last search. Closing with ✕ keeps a draft with typed words or photos for the next open (`JobBoard.KeepUnsent` / `TakeUnsent`, in memory). **Edit post:** an open post's card (`JobPostCard`) has Edit beside Take down, opening the same page at `JobPostRoutes.Edit(id)` = `/posts/{id}/edit` filled in (`JobBoard.EditDraft`: title "Change your post", button "Save changes"; ✕ drops the edit, no kept draft). `PUT job-posts/{id}` (`JobPostStore.UpdateAsync`, limit `Limited.JobPostEdit`) takes the whole post like `POST job-posts`, replaces the photos, keeps the point unless the phone sent one or the town changed, and alerts nobody again; once offers came in the trade and service stay (`JobPostDraft.WhatLocked` hides What's Change; the server refuses `invalid-categoryId` / `invalid-serviceId`). A photo already on the post stays stored when taken off the draft (`SavedPhotoIds`), so Cancel loses nothing. A post closed meanwhile answers `404` → `JobPostResult.Closed`, and the page says it can't change. Rules: `Services/PostReview`, `Services/Localization/PostReviewText`, tested in
   `Unit/JobPosts/PostReviewTests`.
   **The post's day** (`024-schema-post-needed-date.sql`, `JobPosts.NeededOn` date NULL, `JobPostDto` / `NewJobPostRequest.NeededOn`,

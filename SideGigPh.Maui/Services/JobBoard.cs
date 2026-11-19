@@ -62,31 +62,64 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         return kept;
     }
 
+    /// <summary>
+    /// Everything still missing before Post works, in the order the form shows it (What, Where, When, Your budget, then
+    /// the problem), so the card can mark each empty row and the footer can name them all; empty when it can be posted.
+    /// </summary>
     /// <param name="today">The Philippines' date (<see cref="PostDay.Today"/>); null: the phone's clock now.</param>
+    public static IReadOnlyList<JobPostField> Missing(JobPostDraft draft, DateOnly? today = null)
+    {
+        var missing = new List<JobPostField>();
+        if (draft.CategoryId is null)
+        {
+            missing.Add(JobPostField.Trade);
+        }
+        else if (draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId))
+        {
+            missing.Add(JobPostField.Service);
+        }
+
+        if (draft.CityId is null)
+        {
+            missing.Add(JobPostField.Town);
+        }
+
+        if (!PostDay.IsValid(draft.NeededOn, draft.SavedNeededOn, today ?? PostDay.Today(TimeProvider.System)))
+        {
+            missing.Add(JobPostField.When);
+        }
+
+        if (!JobPostRules.IsBudgetRange(draft.BudgetMinPesos, draft.BudgetPesos))
+        {
+            missing.Add(JobPostField.Budget);
+        }
+
+        if (!JobPostRules.IsDescription(draft.Description))
+        {
+            missing.Add(JobPostField.Description);
+        }
+
+        return missing;
+    }
+
+    /// <summary>The first thing still missing (where a tap on Post takes the household), or null when it can be posted.</summary>
     public static JobPostField? FirstMissing(JobPostDraft draft, DateOnly? today = null) =>
-        draft.CategoryId is null ? JobPostField.Trade
-        : draft.ServiceId is null || !ReferenceData.ServicesOf(draft.CategoryId).Any(service => service.Id == draft.ServiceId) ? JobPostField.Service
-        : !JobPostRules.IsDescription(draft.Description) ? JobPostField.Description
-        : !JobPostRules.IsBudgetRange(draft.BudgetMinPesos, draft.BudgetPesos) ? JobPostField.Budget
-        : draft.CityId is null ? JobPostField.Town
-        : !PostDay.IsValid(draft.NeededOn, draft.SavedNeededOn, today ?? PostDay.Today(TimeProvider.System)) ? JobPostField.When
-        : null;
+        Missing(draft, today) is [var first, ..] ? first : null;
 
     public static bool CanPost(JobPostDraft draft, DateOnly? today = null) => FirstMissing(draft, today) is null;
 
     /// <summary>
-    /// What to fix before Post works, in a few words (shown under the greyed-out button, so a too-short description or a
-    /// small budget doesn't leave the household guessing); null when the draft can be posted.
+    /// What to do about one missing field, in a few words (on its row of the card, or under the problem's box), so a
+    /// too-short description or a small budget doesn't leave the household guessing.
     /// </summary>
-    public static string? MissingHint(JobPostDraft draft, AppText text, DateOnly? today = null) => FirstMissing(draft, today) switch
+    public static string MissingText(JobPostField field, AppText text) => field switch
     {
         JobPostField.Trade => text.Get(Copy.PostMissingTrade),
         JobPostField.Service => text.Get(Copy.PostMissingService),
         JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
         JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
-        JobPostField.Town => text.Get(Copy.PostMissingTown),
         JobPostField.When => text.Get(Copy.PostMissingWhen),
-        _ => null,
+        _ => text.Get(Copy.PostMissingTown),
     };
 
     /// <summary>True when a worker can send <paramref name="pricePesos"/> with <paramref name="note"/> (no note is fine).</summary>
@@ -533,15 +566,15 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 }
 
-/// <summary>The fields of the post form, in the order they are asked.</summary>
+/// <summary>The fields of the post form, in the order the form shows them.</summary>
 public enum JobPostField
 {
     Trade,
     Service,
-    Description,
-    Budget,
     Town,
 
     /// <summary>The picked day has passed (a draft kept overnight): pick another, or any day.</summary>
     When,
+    Budget,
+    Description,
 }

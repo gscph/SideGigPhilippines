@@ -33,7 +33,7 @@ public class JobBoardTests
     public void ACompleteDraft_CanBePosted() => JobBoard.CanPost(Complete()).Should().BeTrue();
 
     [Fact]
-    public void TheFirstMissingField_IsNamed_InTheOrderAsked()
+    public void TheFirstMissingField_IsNamed_InTheOrderOnScreen()
     {
         JobBoard.FirstMissing(new JobPostDraft()).Should().Be(JobPostField.Trade);
 
@@ -54,31 +54,41 @@ public class JobBoardTests
         draft = Complete();
         draft.CityId = null;
         JobBoard.FirstMissing(draft).Should().Be(JobPostField.Town);
+
+        draft.BudgetPesos = null;
+        JobBoard.FirstMissing(draft).Should().Be(JobPostField.Town, "Where sits above Your budget on the card");
     }
 
     [Fact]
-    public void AGreyedOutPost_SaysWhatIsMissing_AndNothingOnceReady()
+    public void Missing_NamesEverythingStillNeeded_InTheOrderOnScreen()
+    {
+        JobBoard.Missing(Complete()).Should().BeEmpty();
+        JobBoard.Missing(new JobPostDraft()).Should().Equal(
+            JobPostField.Trade, JobPostField.Town, JobPostField.Budget, JobPostField.Description);
+        JobBoard.Missing(new JobPostDraft { CategoryId = "aircon", CityId = "angono", BudgetPesos = 800 }).Should().Equal(
+            [JobPostField.Service, JobPostField.Description], "the trade is picked, its exact service is not");
+    }
+
+    [Fact]
+    public void EachMissingField_SaysWhatToDo()
     {
         var text = new AppText();
-        JobBoard.MissingHint(Complete(), text).Should().BeNull("the Post button works");
+        JobBoard.MissingText(JobPostField.Description, text).Should().Be("Describe the problem in at least 10 letters.");
+        JobBoard.MissingText(JobPostField.Budget, text).Should().Contain("₱50 – ₱1,000,000").And.Contain("not less than");
+        JobBoard.MissingText(JobPostField.Trade, text).Should().Be("Pick the kind of work.");
+        JobBoard.MissingText(JobPostField.Town, text).Should().Be("Pick your town.");
 
-        var draft = Complete();
-        draft.Description = "Sira";
-        JobBoard.MissingHint(draft, text).Should().Be("Describe the problem in at least 10 letters.");
+        foreach (var draft in new[] { Budget(40), Budget(2_000_000), Budget(1000, from: 1500) })
+        {
+            JobBoard.FirstMissing(draft).Should().Be(JobPostField.Budget, "too small, too big, or \"from\" above \"up to\" is refused by the server too");
+        }
 
-        draft = Complete();
-        draft.BudgetPesos = 40;
-        JobBoard.MissingHint(draft, text).Should().Contain("₱50 – ₱1,000,000");
-
-        draft = Complete();
-        draft.BudgetPesos = 2_000_000;
-        JobBoard.MissingHint(draft, text).Should().Contain("₱50 – ₱1,000,000", "a budget over the top is refused too");
-
-        draft = Complete();
-        (draft.BudgetMinPesos, draft.BudgetPesos) = (1500, 1000);
-        JobBoard.MissingHint(draft, text).Should().Contain("not less than", "\"from\" above \"up to\" is refused by the server too");
-
-        JobBoard.MissingHint(new JobPostDraft(), text).Should().Be("Pick the kind of work.");
+        static JobPostDraft Budget(int upTo, int? from = null)
+        {
+            var draft = Complete();
+            (draft.BudgetMinPesos, draft.BudgetPesos) = (from, upTo);
+            return draft;
+        }
     }
 
     [Fact]

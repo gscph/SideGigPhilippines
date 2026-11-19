@@ -1,5 +1,9 @@
 @page "/posts/new"
+@page "/posts/new/{Sheet}"
+@page "/posts/new/{Sheet}/{Trade}"
 @page "/posts/{Id:long}/edit"
+@page "/posts/{Id:long}/edit/{Sheet}"
+@page "/posts/{Id:long}/edit/{Sheet}/{Trade}"
 
 <MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
     <MudStack Spacing="0" Class="full-screen">
@@ -7,11 +11,11 @@
         {
             @if (_jobsStep)
             {
-                <SheetHeader OnBack="BackToTrades" Divider="false" />
+                <SheetHeader OnBack="BackToTradesAsync" Divider="false" />
             }
             else
             {
-                <SheetHeader OnClose="CancelSheet" Divider="false" />
+                <SheetHeader OnClose="CancelSheetAsync" Divider="false" />
             }
 
             <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
@@ -21,10 +25,10 @@
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
                 <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                    <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" OnClick="CancelSheet">
+                    <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Large" Class="app-link-button" OnClick="CancelSheetAsync">
                         @T.Get(CommonCopy.Cancel)
                     </MudButton>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(!PostReview.CanSave(_draft, part))" OnClick="SaveSheet">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="@(!PostReview.CanSave(_draft, part))" OnClick="SaveSheetAsync">
                         @T.Get(Copy.Save)
                     </MudButton>
                 </MudStack>
@@ -58,24 +62,29 @@
                     else
                     {
                         <DetailRow Label="@T.Get(Copy.PostRowWhat)" Value="@T.PostWhat(_draft)" Busy="_busy"
+                                   Missing="@T.PostRowMissing(_draft, PostPart.What, Today)" Alert="_tried"
                                    ActionLabel="@T.PostAction(_draft, PostPart.What)" OnAction="@(() => OpenSheet(PostPart.What))" />
                     }
                     <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostRowWhere)" Value="@T.PostWhere(_draft)" Busy="_busy"
+                               Missing="@T.PostRowMissing(_draft, PostPart.Where, Today)" Alert="_tried"
                                ActionLabel="@T.PostAction(_draft, PostPart.Where)" OnAction="@(() => OpenSheet(PostPart.Where))" />
                     <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostRowWhen)" Value="@T.PostWhen(_draft, Today)" Busy="_busy"
+                               Missing="@T.PostRowMissing(_draft, PostPart.When, Today)" Alert="_tried"
                                ActionLabel="@T.PostAction(_draft, PostPart.When)" OnAction="@(() => OpenSheet(PostPart.When))" />
                     <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostBudget)" Value="@PostReviewText.PostBudgetText(_draft)" ValueColor="Color.Success" Busy="_busy"
+                               Missing="@T.PostRowMissing(_draft, PostPart.Budget, Today)" Alert="_tried"
                                ActionLabel="@T.PostAction(_draft, PostPart.Budget)" OnAction="@(() => OpenSheet(PostPart.Budget))" />
                 </MudPaper>
 
                 <MudStack Spacing="2">
                     <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.PostDescription)</MudText>
-                    <MudTextField T="string" @bind-Value="_draft.Description" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                    <MudTextField T="string" @ref="_description" @bind-Value="_draft.Description" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                                   Class="app-field" Lines="4" MaxLength="@JobBoard.MaxDescription"
-                                  Placeholder="@T.Get(Copy.PostDescriptionHint)" aria-label="@T.Get(Copy.PostDescription)" />
+                                  Placeholder="@T.Get(Copy.PostDescriptionHint)" aria-label="@T.Get(Copy.PostDescription)"
+                                  Error="@(_tried && DescriptionMissing)" ErrorText="@DescriptionNote" />
                 </MudStack>
 
                 <MudStack Spacing="2">
@@ -108,12 +117,12 @@
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                           Disabled="@(_busy || !JobBoard.CanPost(_draft, Today))" OnClick="PostAsync">
+                           Disabled="_busy" OnClick="PostAsync">
                     @T.Get(Editing ? Copy.PostSaveChanges : Copy.PostSend)
                 </MudButton>
-                @if (JobBoard.MissingHint(_draft, T, Today) is { } missing)
+                @if (T.PostStillNeeded(_draft, Today) is { } needed)
                 {
-                    <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-2">@missing</MudText>
+                    <MudText Typo="Typo.caption" Color="@(_tried ? Color.Error : Color.Secondary)" Align="Align.Center" Class="mt-2" role="status">@needed</MudText>
                 }
             </MudPaper>
         }

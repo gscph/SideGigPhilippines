@@ -319,7 +319,7 @@ public static class Copy
     public static readonly LocalizedText PostPhotosHint = new("Up to {0} photos. You can skip this.", "Hanggang {0} photos. Pwede ring i-skip.");
     public static readonly LocalizedText PostPhotosLabel = new("Photos of the problem", "Mga photo ng problema");
     public static readonly LocalizedText PostSend = new("Post", "I-post");
-    // Under a greyed-out Post button: the first thing still missing (JobBoard.MissingHint).
+    // On each row of the post card still missing an answer, and under the problem's box (JobBoard.MissingText).
     public static readonly LocalizedText PostMissingTrade = new("Pick the kind of work.", "Pumili ng klase ng work.");
     public static readonly LocalizedText PostMissingService = new("Pick what exactly you need.", "Piliin kung ano mismo ang ipapagawa mo.");
     /// <summary>{0} = the fewest letters the description needs.</summary>
@@ -328,6 +328,14 @@ public static class Copy
     public static readonly LocalizedText PostMissingBudget = new("Type your budget \"up to\" ({0} – {1}), not less than \"from\".", "I-type ang budget \"up to\" ({0} – {1}), dapat di bababa sa \"from\".");
     public static readonly LocalizedText PostMissingTown = new("Pick your town.", "Piliin ang bayan mo.");
     public static readonly LocalizedText PostMissingWhen = new("That day has passed. Pick another day.", "Lumipas na ang araw na 'yan. Pumili ng iba.");
+    // Under the Post button while something is missing (PostReviewText.PostStillNeeded); a tap on Post goes to the first.
+    /// <summary>{0} = what is missing, e.g. "the service, your budget".</summary>
+    public static readonly LocalizedText PostStillNeeded = new("Still needed: {0}", "Kulang pa: {0}");
+    public static readonly LocalizedText PostNeedService = new("the service", "ang service");
+    public static readonly LocalizedText PostNeedTown = new("your town", "bayan mo");
+    public static readonly LocalizedText PostNeedBudget = new("your budget", "budget mo");
+    public static readonly LocalizedText PostNeedDay = new("another day", "ibang araw");
+    public static readonly LocalizedText PostNeedProblem = new("the problem", "ang problema");
     public static readonly LocalizedText PostFailed = new("It didn't post. Check your internet and try again.", "Di na-post. I-check ang internet tapos try ulit.");
     public static readonly LocalizedText PostShowing = new("Workers can see it", "Nakikita na ng mga worker");
     public static readonly LocalizedText PostTakenDown = new("Taken down", "Tinanggal na");

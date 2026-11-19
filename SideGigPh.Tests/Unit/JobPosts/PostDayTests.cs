@@ -53,7 +53,10 @@ public class PostDayTests
 
         var stale = Filled(Today.AddDays(-2));
         JobBoard.FirstMissing(stale, Today).Should().Be(JobPostField.When);
-        JobBoard.MissingHint(stale, English(), Today).Should().Be("That day has passed. Pick another day.");
+        JobBoard.MissingText(JobPostField.When, English()).Should().Be("That day has passed. Pick another day.");
+        English().PostRowMissing(stale, PostPart.When, Today).Should().Be("That day has passed. Pick another day.", "the When row says so");
+        English().PostStillNeeded(stale, Today).Should().Be("Still needed: another day");
+        PostReview.PartOf(JobPostField.When).Should().Be(PostPart.When, "a tap on Post opens the When sheet");
 
         stale.SavedNeededOn = stale.NeededOn; // Edit post: the day it already had may stay
         JobBoard.CanPost(stale, Today).Should().BeTrue();

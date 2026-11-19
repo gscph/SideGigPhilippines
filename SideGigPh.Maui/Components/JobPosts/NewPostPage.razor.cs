@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
+using MudBlazor;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -11,8 +13,10 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// continue": one card with What (kind of work + exact service, "Others" too), Where (town, the launch's default town
 /// when they have none, optional barangay and "Use my location"), When (optional: a day on a calendar, workers see it,
 /// <see cref="PostDay"/>) and Your budget (from–to, the suggested minimum price
-/// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>); then what is
-/// wrong and up to three photos. It starts with the trade, service, town and barangay
+/// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>) with its own URL
+/// (<see cref="JobPostRoutes.Sheet"/>), so the phone's Back closes it like Cancel, or goes from a trade's jobs back to the
+/// trades; then what is wrong and up to three photos. Each row still missing says what to do, the footer names everything
+/// still needed, and Post stays tappable: a tap with something missing turns the notes red and opens the first one. It starts with the trade, service, town and barangay
 /// from their last search or post, so most people only type the problem and a number. Post leads back to their posts.
 /// The same form at <c>/posts/{id}/edit</c> changes an open post (<see cref="JobBoard.EditDraft"/>): filled in, "Save
 /// changes", the trade and service fixed once offers came in, and a note instead when the post closed meanwhile.
@@ -27,9 +31,16 @@ public partial class NewPostPage : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private TimeProvider Clock { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
 
     /// <summary>The post to change (<c>/posts/{id}/edit</c>), or null for a new post.</summary>
     [Parameter] public long? Id { get; set; }
+
+    /// <summary>The open sheet's part of the URL (<see cref="PostReview.Slug"/>), or null on the form itself.</summary>
+    [Parameter] public string? Sheet { get; set; }
+
+    /// <summary>On the What sheet: the trade whose jobs are shown (its second page), or null for the trades.</summary>
+    [Parameter] public string? Trade { get; set; }
 
     private JobPostDraft _draft = new();
     private bool _closed; // Edit post: it isn't theirs or no longer open
@@ -37,8 +48,20 @@ public partial class NewPostPage : ComponentBase
     private PostPart? _sheet;
     private PostSnapshot? _before;
     private bool _jobsStep; // the What sheet's second page: the picked trade's jobs
+    private bool _saved; // Save was tapped: the answers stay when the form comes back
+    private bool _leaving; // a sheet is going back to the form (waiting for the browser's history)
+    private bool _tried; // Post was tapped with something missing: the notes turn red
+    private MudTextField<string>? _description;
     private bool _busy;
     private bool _failed;
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        // The same page stays on screen between the form and its sheets: a URL without a sheet must clear the old one.
+        Sheet = null;
+        Trade = null;
+        return base.SetParametersAsync(parameters);
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -87,6 +110,37 @@ public partial class NewPostPage : ComponentBase
     /// <summary>Today in the Philippines: the calendar's first day.</summary>
     private DateOnly Today => PostDay.Today(Clock);
 
+    /// <summary>
+    /// The URL changed between the form and a sheet (a tap here, Save, Cancel or the phone's Back). Arriving on the form
+    /// without Save puts the answers back as they were when the sheet opened, so Back is the same as Cancel.
+    /// </summary>
+    protected override void OnParametersSet()
+    {
+        var part = _closed ? null : PostReview.FromSlug(Sheet);
+        if (part is null)
+        {
+            if (_sheet is not null && !_saved && _before is not null)
+            {
+                PostReview.Restore(_draft, _before);
+            }
+
+            _before = null;
+            _saved = false;
+        }
+        else
+        {
+            _before ??= PostReview.Take(_draft);
+            if (part == PostPart.What && Trade is not null && _draft.CategoryId != Trade)
+            {
+                PostReview.PickTrade(_draft, Trade); // opened by its URL: the jobs shown are the picked trade's
+            }
+        }
+
+        _sheet = part;
+        _jobsStep = part == PostPart.What && PostReview.HasJobChoice(Trade);
+        _leaving = false;
+    }
+
     /// <summary>Changing an open post (<see cref="Id"/>), not posting a new one.</summary>
     private bool Editing => Id is not null;
 
@@ -102,40 +156,62 @@ public partial class NewPostPage : ComponentBase
 
     private void OpenSheet(PostPart part)
     {
-        if (_busy)
+        if (_busy || _leaving)
         {
             return;
         }
 
         _before = PostReview.Take(_draft);
-        _sheet = part;
-        _jobsStep = false;
+        Nav.NavigateTo(JobPostRoutes.Sheet(Id, part));
     }
 
-    /// <summary>Cancel or the close button: the answers as they were when the sheet opened.</summary>
-    private void CancelSheet()
+    /// <summary>Cancel or the close button: back to the form, which puts the answers back as they were.</summary>
+    private Task CancelSheetAsync() => LeaveSheetAsync();
+
+    private Task SaveSheetAsync()
     {
-        if (_before is not null)
+        if (_sheet is not { } part || !PostReview.CanSave(_draft, part))
         {
-            PostReview.Restore(_draft, _before);
+            return Task.CompletedTask;
         }
 
-        _sheet = null;
+        _saved = true;
+        return LeaveSheetAsync();
     }
 
-    private void SaveSheet()
-    {
-        if (_sheet is { } part && PostReview.CanSave(_draft, part))
-        {
-            _sheet = null;
-        }
-    }
+    /// <summary>Back to the form through the browser's history, so the phone's Back after it leaves the form as before.</summary>
+    private Task LeaveSheetAsync() => GoBackAsync(PostReview.SheetDepth(Trade));
 
     /// <summary>A kind of work was tapped: on to its jobs (a trade without a choice, "Others", stays here).</summary>
-    private void TradePicked() => _jobsStep = PostReview.HasJobChoice(_draft.CategoryId);
+    private void TradePicked()
+    {
+        if (!_leaving && PostReview.HasJobChoice(_draft.CategoryId))
+        {
+            Nav.NavigateTo(JobPostRoutes.Sheet(Id, PostPart.What, _draft.CategoryId));
+        }
+    }
 
     /// <summary>← on the jobs page: back to the kinds of work, the picks kept (Cancel still puts everything back).</summary>
-    private void BackToTrades() => _jobsStep = false;
+    private Task BackToTradesAsync() => GoBackAsync(1);
+
+    private async Task GoBackAsync(int pages)
+    {
+        if (_leaving)
+        {
+            return; // a second tap before the history moved
+        }
+
+        _leaving = true;
+        try
+        {
+            await JS.InvokeVoidAsync("history.go", -pages);
+        }
+        catch (JSException)
+        {
+            _leaving = false;
+            Nav.NavigateTo(JobPostRoutes.Form(Id), replace: true);
+        }
+    }
 
     /// <summary>The jobs page is titled with its trade ("Construction"), every other sheet with its part.</summary>
     private string SheetTitle(PostPart part) =>
@@ -163,11 +239,31 @@ public partial class NewPostPage : ComponentBase
 
     private Task RemovePhotoAsync(string photoId) => Board.RemovePhotoAsync(_draft, photoId);
 
+    private bool DescriptionMissing => !JobPostRules.IsDescription(_draft.Description);
+
+    private string DescriptionNote => JobBoard.MissingText(JobPostField.Description, T);
+
     private async Task PostAsync()
     {
-        if (_busy || !JobBoard.CanPost(_draft, Today))
+        if (_busy)
         {
             return; // a second tap before the button re-rendered as disabled
+        }
+
+        if (JobBoard.FirstMissing(_draft, Today) is { } missing)
+        {
+            // Post stays tappable: it shows what is missing in red and opens the first one.
+            _tried = true;
+            if (PostReview.PartOf(missing) is { } part)
+            {
+                OpenSheet(part);
+            }
+            else if (_description is not null)
+            {
+                await _description.FocusAsync();
+            }
+
+            return;
         }
 
         _busy = true;
