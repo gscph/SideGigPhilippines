@@ -9,6 +9,9 @@ public sealed record PhotoAddResult(int Added, int Duplicates, PhotoProblem Prob
 {
     public bool Failed => Problem != PhotoProblem.None;
 
+    /// <summary>The upload failed in a way the same photo may get through on another go (no internet, server trouble).</summary>
+    public bool CanRetry => Problem is PhotoProblem.NoInternet or PhotoProblem.ServerError;
+
     public static PhotoAddResult Nothing { get; } = new(0, 0);
 
     /// <summary>A pick that brought no photos back: cancelled (no problem), no permission, or the gallery failed.</summary>
@@ -20,9 +23,14 @@ public sealed record PhotoAddResult(int Added, int Duplicates, PhotoProblem Prob
         _ => PhotoProblem.CouldNotOpen,
     });
 
-    /// <summary>An upload the photo store refused: taken by another account, or a network/server failure.</summary>
-    public static PhotoAddResult From(PhotoStoreException ex) =>
-        new(0, 0, ex.Taken ? PhotoProblem.Taken : PhotoProblem.UploadFailed);
+    /// <summary>An upload that failed: no internet, server trouble, a photo the server can't use, or one another account has.</summary>
+    public static PhotoAddResult From(PhotoStoreException ex) => new(0, 0, ex.Failure switch
+    {
+        PhotoStoreFailure.NoInternet => PhotoProblem.NoInternet,
+        PhotoStoreFailure.Rejected => PhotoProblem.Rejected,
+        PhotoStoreFailure.Taken => PhotoProblem.Taken,
+        _ => PhotoProblem.ServerError,
+    });
 }
 
 /// <summary>Why adding photos stopped.</summary>
@@ -39,8 +47,14 @@ public enum PhotoProblem
     /// <summary>The phone denied the camera (for a selfie).</summary>
     NoCamera,
 
-    /// <summary>The upload failed (no internet, server error): worth trying again.</summary>
-    UploadFailed,
+    /// <summary>The upload got no answer (no internet): the same photo can go again once connected.</summary>
+    NoInternet,
+
+    /// <summary>The server couldn't take it right now (busy, down): the same photo can go again in a moment.</summary>
+    ServerError,
+
+    /// <summary>The server can't use this photo (too big, not a readable picture): another photo is needed.</summary>
+    Rejected,
 
     /// <summary>Another account already uses this photo (anti-fraud rule 2).</summary>
     Taken,

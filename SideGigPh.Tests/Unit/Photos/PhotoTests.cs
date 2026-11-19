@@ -89,19 +89,45 @@ public class PhotoTests
     }
 
     [Theory]
-    [InlineData(false, PhotoProblem.UploadFailed)]
-    [InlineData(true, PhotoProblem.Taken)] // anti-fraud rule 2: another account has this photo
-    public async Task ChangeProfilePhoto_UploadRefused_SaysWhyAndKeepsTheOldPhoto(bool taken, PhotoProblem expected)
+    [InlineData(PhotoStoreFailure.NoInternet, PhotoProblem.NoInternet)]
+    [InlineData(PhotoStoreFailure.ServerError, PhotoProblem.ServerError)]
+    [InlineData(PhotoStoreFailure.Rejected, PhotoProblem.Rejected)]
+    [InlineData(PhotoStoreFailure.Taken, PhotoProblem.Taken)] // anti-fraud rule 2: another account has this photo
+    public async Task ChangeProfilePhoto_UploadRefused_SaysWhyAndKeepsTheOldPhoto(PhotoStoreFailure failure, PhotoProblem expected)
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
         app.Picker.Picks(50);
-        app.Photos.Refuse = new PhotoStoreException("no", taken: taken);
+        app.Photos.Refuse = new PhotoStoreException("no", failure);
 
         var result = await app.Pro.ChangeProfilePhotoAsync();
 
         result.Problem.Should().Be(expected);
         result.Failed.Should().BeTrue();
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(1));
+    }
+
+    [Theory]
+    [InlineData(PhotoProblem.NoInternet, true)]
+    [InlineData(PhotoProblem.ServerError, true)]
+    [InlineData(PhotoProblem.Rejected, false)] // the same photo would be refused again
+    [InlineData(PhotoProblem.Taken, false)]
+    [InlineData(PhotoProblem.NoCamera, false)]
+    [InlineData(PhotoProblem.None, false)]
+    public void ASelfieIsKeptForTryAgain_OnlyWhenTheSamePhotoMayGetThrough(PhotoProblem problem, bool canRetry) =>
+        new PhotoAddResult(0, 0, problem).CanRetry.Should().Be(canRetry);
+
+    [Fact]
+    public async Task ASelfieThatFailedForWantOfInternet_GoesThroughOnTryAgain_WithTheSamePhoto()
+    {
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        var selfie = new PhotoPick(PhotoPickStatus.Picked, [[50]]);
+        app.Photos.Refuse = new PhotoStoreException("offline", PhotoStoreFailure.NoInternet);
+
+        (await app.Pro.SetProfilePhotoAsync(selfie)).CanRetry.Should().BeTrue();
+
+        app.Photos.Refuse = null;
+        (await app.Pro.SetProfilePhotoAsync(selfie)).Added.Should().Be(1);
+        app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(50));
     }
 
     // --- Work photos ----------------------------------------------------------
@@ -160,11 +186,11 @@ public class PhotoTests
     {
         var app = await FakeApp.ProAsync(DraftWithPhotos(2));
         app.Picker.Picks(60, 61);
-        app.Photos.Refuse = new PhotoStoreException("offline");
+        app.Photos.Refuse = new PhotoStoreException("offline", PhotoStoreFailure.NoInternet);
 
         var result = await app.Pro.AddWorkPhotosAsync();
 
-        result.Problem.Should().Be(PhotoProblem.UploadFailed);
+        result.Problem.Should().Be(PhotoProblem.NoInternet);
         result.Added.Should().Be(0);
         app.Pro.Draft.WorkPhotoIds.Should().HaveCount(2);
     }
@@ -278,7 +304,7 @@ public class PhotoTests
     {
         var app = await FakeApp.SeekerAsync();
         app.Picker.Picks(70);
-        app.Photos.Refuse = new PhotoStoreException("taken", taken: true);
+        app.Photos.Refuse = new PhotoStoreException("taken", PhotoStoreFailure.Taken);
 
         (await app.Seeker.ChangeProfilePhotoAsync()).Problem.Should().Be(PhotoProblem.Taken);
         app.Seeker.Answers.ProfilePhotoId.Should().BeNull();

@@ -9,7 +9,8 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// App entry point (no UI of its own). Applies the saved language and sends the user to
 /// wherever they left off: language → sign in (+ name after a phone sign-in) → role → the
 /// interview step → their home. Everyone signs in before using the app; a worker whose app was reinstalled gets their
-/// live listing back first (<see cref="ListingRestore"/>).
+/// live listing back first (<see cref="ListingRestore"/>); when that read gets no answer the page says "No internet" with
+/// Try again, never the role question (which would treat a live worker as new).
 /// </summary>
 public partial class LaunchRouter : ComponentBase
 {
@@ -24,7 +25,32 @@ public partial class LaunchRouter : ComponentBase
     /// <summary>The main splash line, the same as the busy splash's first: "AI-assisted ID checks".</summary>
     private static LocalizedText MainLine => Copy.TrustTagline;
 
-    protected override async Task OnInitializedAsync()
+    // The listing restore got no answer: the no-internet screen shows instead of the splash.
+    private bool _offline;
+    private bool _busy;
+
+    protected override Task OnInitializedAsync() => RouteAsync();
+
+    private async Task TryAgainAsync()
+    {
+        if (_busy)
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            _offline = false;
+            await RouteAsync();
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task RouteAsync()
     {
         // The config first (once per launch, while the splash shows): the saved answers are checked against it as they load (OnboardingCleanup).
         await Config.LoadAsync();
@@ -48,7 +74,12 @@ public partial class LaunchRouter : ComponentBase
         // Signed in on a phone with no answers (reinstalled, a new phone, or "Sign in with this number" before the first
         // question): a worker's live listing comes back, so they open Pro home instead of the interview. Every sign-in
         // comes back here (IAuthLanding's default "/").
-        await Restore.RestoreAsync(state);
+        if (await Restore.RestoreAsync(state) == ListingRestoreResult.Offline)
+        {
+            _offline = true;
+            return;
+        }
+
         Nav.NavigateTo(OnboardingSteps.LaunchPath(state), replace: true);
     }
 }

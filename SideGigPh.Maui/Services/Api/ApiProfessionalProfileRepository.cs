@@ -22,14 +22,12 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
     private readonly TimedCache<SearchResult> _searches = new(SearchFreshFor);
     private readonly TimedCache<ProfessionalListing> _listings = new(ListingFreshFor);
 
-    public Task<ProfessionalDraft?> GetOwnDraftAsync(string uid) =>
-        api.ReadAsync(async () =>
-        {
-            // Not from the kept listings: those carry no photo ids, and the restore needs the server's latest.
-            return await api.GetAsync($"professionals/{ApiClient.Escape(uid)}", ApiJson.Default.ListingDto) is { } listing
-                ? listing.ToDraft()
-                : null;
-        }, null, $"the own listing of {uid}");
+    // Not from the kept listings: those carry no photo ids, and the restore needs the server's latest. Not through
+    // ReadAsync either: a failed read must not look like "no listing" (the restore would treat a live worker as new).
+    public async Task<ProfessionalDraft?> GetOwnDraftAsync(string uid) =>
+        await api.GetAsync($"professionals/{ApiClient.Escape(uid)}", ApiJson.Default.ListingDto) is { } listing
+            ? listing.ToDraft()
+            : null;
 
     public Task<SearchResult> SearchAsync(ProfessionalSearchQuery query, int skip)
     {

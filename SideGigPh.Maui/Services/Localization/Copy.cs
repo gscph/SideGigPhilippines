@@ -643,7 +643,9 @@ public static class Copy
         "Customers see it only after they pick your offer. You add it once, with a code we text you.",
         "Makikita lang ng customer ang number mo kapag pinili ka na nila. Isang beses mo lang 'to ilalagay, may code kaming ite-text.");
     public static readonly LocalizedText PhotosOpenSettings = new("Open Settings", "Buksan ang Settings");
-    public static readonly LocalizedText PhotosUploadFailed = new("Couldn't upload your photo. Check your internet and try again.", "Di na-upload ang photo. I-check ang internet mo tapos try ulit.");
+    public static readonly LocalizedText PhotosNoInternet = new("No internet, so your photo wasn't uploaded. Connect, then try again.", "Walang internet kaya di na-upload ang photo. Mag-connect, tapos try ulit.");
+    public static readonly LocalizedText PhotosServerError = new("Our server couldn't take your photo right now. Please try again in a moment.", "Di natanggap ng server ang photo ngayon. Try ulit maya-maya.");
+    public static readonly LocalizedText PhotosRejected = new("This photo can't be used (too big, or not a clear picture). Please try another photo.", "Di pwede ang photo na ito (masyadong malaki, o di malinaw). Try ng ibang photo.");
     public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");
 
     // --- Profile ----------------------------------------------------------

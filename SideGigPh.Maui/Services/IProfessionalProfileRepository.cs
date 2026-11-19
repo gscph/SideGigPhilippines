@@ -12,7 +12,7 @@ public interface IProfessionalProfileRepository
     /// <summary>
     /// The signed-in worker's own live listing as interview answers, photo ids included, read
     /// fresh from the server (a reinstalled app restores it: <see cref="ListingRestore"/>). Null when they have no
-    /// listing or it couldn't be read (logged).
+    /// listing; throws (logged) when it couldn't be read, so a failed read never looks like "no listing".
     /// </summary>
     Task<ProfessionalDraft?> GetOwnDraftAsync(string uid);
 

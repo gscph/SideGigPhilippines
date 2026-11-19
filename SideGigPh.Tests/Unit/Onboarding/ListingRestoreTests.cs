@@ -33,7 +33,7 @@ public class ListingRestoreTests
         var state = FreshInstall();
         var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
 
-        (await restore.RestoreAsync(state)).Should().BeTrue();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Restored);
 
         OnboardingSteps.LaunchPath(state).Should().Be(ProRoutes.Home);
         state.Role.Should().Be(UserRole.Professional);
@@ -69,7 +69,7 @@ public class ListingRestoreTests
         var state = FreshInstall();
         var (restore, app) = Make(state, TestData.SeekerUser());
 
-        (await restore.RestoreAsync(state)).Should().BeFalse();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
 
         OnboardingSteps.LaunchPath(state).Should().Be(OnboardingSteps.RolePath);
         state.Role.Should().BeNull();
@@ -77,16 +77,44 @@ public class ListingRestoreTests
     }
 
     [Fact]
-    public async Task AFailedRead_FallsBackToTheRoleQuestion_WithoutThrowing()
+    public async Task AReadWithNoAnswer_IsOffline_NotANewWorker()
     {
         var state = FreshInstall();
         var (restore, app) = Make(state, TestData.Worker());
-        app.Profiles.OwnDraftThrows = new HttpRequestException("offline");
+        app.Profiles.OwnDraftThrows = new HttpRequestException("No internet");
 
-        (await restore.RestoreAsync(state)).Should().BeFalse();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Offline,
+            "with no answer nobody knows whether a live listing exists: launch asks to try again");
+
+        state.Role.Should().BeNull();
+        app.Store.Saves.Should().Be(0);
+    }
+
+    [Theory]
+    [InlineData(System.Net.HttpStatusCode.InternalServerError)]
+    [InlineData(System.Net.HttpStatusCode.Unauthorized)]
+    public async Task AServerError_FallsBackToTheRoleQuestion_WithoutThrowing(System.Net.HttpStatusCode status)
+    {
+        var state = FreshInstall();
+        var (restore, app) = Make(state, TestData.Worker());
+        app.Profiles.OwnDraftThrows = new HttpRequestException("server", null, status);
+
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged, "a broken server must not lock the app");
 
         OnboardingSteps.LaunchPath(state).Should().Be(OnboardingSteps.RolePath);
         app.Store.Saves.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task ABrokenAdapter_FallsBackToTheRoleQuestion_WithoutThrowing()
+    {
+        var state = FreshInstall();
+        var (restore, app) = Make(state, TestData.Worker());
+        app.Profiles.OwnDraftThrows = new InvalidOperationException("bug");
+
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
+
+        OnboardingSteps.LaunchPath(state).Should().Be(OnboardingSteps.RolePath);
     }
 
     [Fact]
@@ -100,8 +128,8 @@ public class ListingRestoreTests
         var midInterview = new OnboardingState { Language = AppLanguage.English, Role = UserRole.Professional, ResumePath = "/start/pro/2" };
         var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
 
-        (await restore.RestoreAsync(state)).Should().BeFalse();
-        (await restore.RestoreAsync(midInterview)).Should().BeFalse();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
+        (await restore.RestoreAsync(midInterview)).Should().Be(ListingRestoreResult.Unchanged);
 
         state.Professional.Should().BeSameAs(draft);
         draft.ServiceIds.Should().Equal("aircon-cleaning");
@@ -123,7 +151,7 @@ public class ListingRestoreTests
         };
         var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
 
-        (await restore.RestoreAsync(state)).Should().BeTrue();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Restored);
 
         OnboardingSteps.LaunchPath(state).Should().Be(ProRoutes.Home);
         state.ResumePath.Should().BeNull();
@@ -143,7 +171,7 @@ public class ListingRestoreTests
         };
         var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
 
-        (await restore.RestoreAsync(state)).Should().BeFalse();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
 
         state.Professional.CategoryId.Should().Be("plumbing");
         state.CompletedAt.Should().BeNull();
@@ -156,7 +184,7 @@ public class ListingRestoreTests
         var state = new OnboardingState { Language = AppLanguage.English, Role = UserRole.Seeker, ResumePath = "/start/seeker/1" };
         var (restore, app) = Make(state, TestData.Worker(), TestData.ReadyDraft());
 
-        (await restore.RestoreAsync(state)).Should().BeFalse();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
 
         state.Role.Should().Be(UserRole.Seeker);
         app.Profiles.OwnDraftReads.Should().BeEmpty();
@@ -168,7 +196,7 @@ public class ListingRestoreTests
         var state = FreshInstall();
         var (restore, app) = Make(state, user: null, TestData.ReadyDraft());
 
-        (await restore.RestoreAsync(state)).Should().BeFalse();
+        (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
 
         app.Profiles.OwnDraftReads.Should().BeEmpty();
         state.Role.Should().BeNull();

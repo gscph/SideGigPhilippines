@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MobileAppTheme.Auth;
 using MobileAppTheme.Localization;
+using MobileAppTheme.Services;
 
 namespace MobileAppTheme.Components.Auth;
 
@@ -24,6 +25,7 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
     [Inject] private IPhoneNumberFormat PhoneFormat { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private SmsSendLimit Limit { get; set; } = default!;
+    [Inject] private INetworkStatus Network { get; set; } = default!;
 
     [Parameter] public EventCallback<AuthResult> OnAuthenticated { get; set; }
 
@@ -182,18 +184,18 @@ public partial class PhoneSignIn : ComponentBase, IDisposable
             _step = Step.EnterCode;
             await SentToChanged.InvokeAsync(e164);
         }
-        catch (TimeoutException ex)
-        {
-            // The provider never answered (no signal, or its app check stalled): say so instead of spinning. The SMS may
-            // still have gone out, so it counts: an instant retry would pay for a second one.
-            Limit.Record(e164);
-            _timedOut = true;
-            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Network, ex.Message));
-        }
         catch (Exception ex)
         {
-            // The adapter has already logged the full exception.
-            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthError.Unknown, ex.Message));
+            // The adapter has already logged the full exception. A provider that never answered (no signal, or its app
+            // check stalled) says so instead of spinning; its SMS may still have gone out, so it counts when the phone
+            // was online (an instant retry would pay for a second one), never when it had no network at all.
+            if (SmsSendLimit.FailedSendCounts(ex, Network.IsOnline))
+            {
+                Limit.Record(e164);
+            }
+
+            _timedOut = ex is TimeoutException;
+            await OnAuthenticated.InvokeAsync(AuthResult.Fail(AuthException.ErrorOf(ex), ex.Message));
         }
         finally
         {

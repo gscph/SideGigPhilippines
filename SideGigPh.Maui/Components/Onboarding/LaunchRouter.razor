@@ -1,6 +1,21 @@
 @page "/"
 
-@* Same brand splash as index.html (and the busy splash), so there's no flash while the saved state loads. The role
-   isn't known yet, so it shows the Seeker line with a random honorific, in both languages since a first launch
-   doesn't know the language yet. *@
-<SplashScreen Line="@MainLine.English" SubLine="@MainLine.Taglish" />
+@if (_offline)
+{
+    @* The listing restore got no answer: say so, with Try again, instead of treating a live worker as new. *@
+    <MudContainer MaxWidth="MaxWidth.Small" Class="full-screen">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="4" Class="flex-1 px-4">
+            <EmptyState Icon="@Icons.Material.Rounded.WifiOff" Text="@T.Get(CommonCopy.NoConnection)" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="_busy" OnClick="TryAgainAsync">
+                @T.Get(CommonCopy.TryAgain)
+            </MudButton>
+        </MudStack>
+    </MudContainer>
+}
+else
+{
+    @* Same brand splash as index.html (and the busy splash), so there's no flash while the saved state loads. The role
+       isn't known yet, so it shows the Seeker line with a random honorific, in both languages since a first launch
+       doesn't know the language yet. *@
+    <SplashScreen Line="@MainLine.English" SubLine="@MainLine.Taglish" />
+}

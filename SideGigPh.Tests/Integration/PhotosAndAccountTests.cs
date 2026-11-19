@@ -126,7 +126,7 @@ public class PhotosAndAccountTests(ApiTestHost api)
         var state = new OnboardingState { Language = AppLanguage.English };
         var reinstalled = new TestPhone(api, "Cid", state: state, uid: worker.Uid);
 
-        (await reinstalled.Get<ListingRestore>().RestoreAsync(state)).Should().BeTrue();
+        (await reinstalled.Get<ListingRestore>().RestoreAsync(state)).Should().Be(ListingRestoreResult.Restored);
 
         OnboardingSteps.LaunchPath(state).Should().Be("/professional");
         state.Professional.ServiceIds.Should().BeEquivalentTo(published.ServiceIds);

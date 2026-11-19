@@ -60,6 +60,14 @@ public sealed class SmsSendLimit(ISmsSendHistory history, TimeProvider clock)
         history.Save([.. Recent(now), now]);
     }
 
+    /// <summary>
+    /// Whether a send that failed still counts as one of the day's codes: only a send that ran out of time
+    /// (<see cref="TimeoutException"/>) while the phone was <paramref name="online"/>, since the SMS may still have gone
+    /// out and an instant retry would pay for a second one. Nothing goes out from a phone with no network, nor when
+    /// the provider answered with an error.
+    /// </summary>
+    public static bool FailedSendCounts(Exception failure, bool online) => failure is TimeoutException && online;
+
     // The sends of the last 24 hours, oldest first.
     private List<DateTimeOffset> Recent(DateTimeOffset now) =>
         [.. history.Load().Where(at => at > now - Day && at <= now).Order()];

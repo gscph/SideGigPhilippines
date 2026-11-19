@@ -178,6 +178,16 @@ public class ApiAdapterTests
     }
 
     [Fact]
+    public async Task OwnDraft_Offline_Throws_SoItNeverLooksLikeNoListing()
+    {
+        var repo = new ApiProfessionalProfileRepository(new StubServer { Offline = true }.Client());
+
+        var read = () => repo.GetOwnDraftAsync("pro-1");
+
+        (await read.Should().ThrowAsync<HttpRequestException>()).Which.StatusCode.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Publish_Ok_IsPublished_AndClearsTheCaches()
     {
         var server = new StubServer();
@@ -265,24 +275,43 @@ public class ApiAdapterTests
 
     [Theory]
     [InlineData(HttpStatusCode.InternalServerError, "{}")]
+    [InlineData(HttpStatusCode.TooManyRequests, "{}")]
+    [InlineData(HttpStatusCode.Unauthorized, "{}")]
     [InlineData(HttpStatusCode.OK, "null")]
     [InlineData(HttpStatusCode.OK, "{broken")]
-    public async Task PhotoUpload_ServerProblem_IsAnUploadFailure_NotTaken(HttpStatusCode status, string body)
+    public async Task PhotoUpload_ServerProblem_IsAServerError_NotNoInternet(HttpStatusCode status, string body)
     {
         var server = new StubServer();
         server.Answer("POST photos", status, body);
 
         var upload = () => Photos(server).SaveAsync([1]);
 
-        (await upload.Should().ThrowAsync<PhotoStoreException>()).Which.Taken.Should().BeFalse();
+        (await upload.Should().ThrowAsync<PhotoStoreException>()).Which.Failure.Should().Be(PhotoStoreFailure.ServerError,
+            "the server answered: the internet works, and the same photo may get through later");
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest)]
+    [InlineData(HttpStatusCode.RequestEntityTooLarge)]
+    [InlineData(HttpStatusCode.UnsupportedMediaType)]
+    public async Task PhotoUpload_PhotoTheServerCantUse_IsRejected(HttpStatusCode status)
+    {
+        var server = new StubServer();
+        server.Answer("POST photos", status, "{\"error\":\"broken-image\"}");
+
+        var upload = () => Photos(server).SaveAsync([1]);
+
+        (await upload.Should().ThrowAsync<PhotoStoreException>()).Which.Failure.Should().Be(PhotoStoreFailure.Rejected);
     }
 
     [Fact]
-    public async Task PhotoUpload_Offline_IsAnUploadFailure()
+    public async Task PhotoUpload_Offline_IsNoInternet()
     {
         var upload = () => Photos(new StubServer { Offline = true }).SaveAsync([1]);
 
-        (await upload.Should().ThrowAsync<PhotoStoreException>()).Which.InnerException.Should().BeOfType<HttpRequestException>();
+        var failure = (await upload.Should().ThrowAsync<PhotoStoreException>()).Which;
+        failure.Failure.Should().Be(PhotoStoreFailure.NoInternet);
+        failure.InnerException.Should().BeOfType<HttpRequestException>();
     }
 
     [Fact]

@@ -9,4 +9,10 @@
         @T.Get(Copy.SelfieFromPhotos)
     </MudButton>
     <PhotoAddNotice Result="_photoResult" />
+    @if (_unsent is not null)
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Rounded.Refresh" Disabled="_busy" OnClick="RetryAsync">
+            @T.Get(CommonCopy.TryAgain)
+        </MudButton>
+    }
 </MudStack>

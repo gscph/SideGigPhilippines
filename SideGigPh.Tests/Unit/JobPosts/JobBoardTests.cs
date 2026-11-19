@@ -111,11 +111,11 @@ public class JobBoardTests
     {
         var draft = Complete();
         await _board.AddPhotosAsync(draft, Picked(1));
-        _photos.Refuse = new PhotoStoreException("offline");
+        _photos.Refuse = new PhotoStoreException("offline", PhotoStoreFailure.NoInternet);
 
         var result = await _board.AddPhotosAsync(draft, Picked(2));
 
-        result.Problem.Should().Be(PhotoProblem.UploadFailed);
+        result.Problem.Should().Be(PhotoProblem.NoInternet);
         draft.Photos.Should().ContainSingle();
     }
 
