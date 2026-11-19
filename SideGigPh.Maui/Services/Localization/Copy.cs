@@ -295,6 +295,18 @@ public static class Copy
     public static readonly LocalizedText PostAdd = new("Add", "Add");
     public static readonly LocalizedText PostSheetWhat = new("What you need", "Ano'ng kailangan mo");
     public static readonly LocalizedText PostSheetWhere = new("Where it is", "Saan 'to");
+    // The post's day (PostDay): optional, picked on a calendar; workers see it on the request.
+    public static readonly LocalizedText PostRowWhen = new("When", "Kailan");
+    public static readonly LocalizedText PostSheetWhen = new("When do you need it?", "Kailan mo kailangan?");
+    public static readonly LocalizedText PostWhenWhy = new("Workers will see this day. You can skip it.", "Makikita 'to ng mga worker. Pwede ring i-skip.");
+    public static readonly LocalizedText PostAnyDay = new("Any day", "Kahit kailan");
+    public static readonly LocalizedText PostAnyDayButton = new("Any day is fine", "Kahit kailan, ok lang");
+    public static readonly LocalizedText PostDayToday = new("Today", "Ngayon");
+    public static readonly LocalizedText PostDayTomorrow = new("Tomorrow", "Bukas");
+    public static readonly LocalizedText PostNeededToday = new("Needed today", "Kailangan ngayon");
+    public static readonly LocalizedText PostNeededTomorrow = new("Needed tomorrow", "Kailangan bukas");
+    /// <summary>{0} = the day, e.g. "Sat, Nov 22".</summary>
+    public static readonly LocalizedText PostNeededOn = new("Needed {0}", "Kailangan sa {0}");
     public static readonly LocalizedText PostTrade = new("Kind of work", "Klase ng work");
     public static readonly LocalizedText PostService = new("What exactly", "Ano mismo");
     public static readonly LocalizedText PostDescription = new("Describe the problem", "Ano'ng problema?");
@@ -315,12 +327,14 @@ public static class Copy
     /// <summary>{0} = the smallest budget, e.g. "₱50"; {1} = the largest.</summary>
     public static readonly LocalizedText PostMissingBudget = new("Type your budget \"up to\" ({0} – {1}), not less than \"from\".", "I-type ang budget \"up to\" ({0} – {1}), dapat di bababa sa \"from\".");
     public static readonly LocalizedText PostMissingTown = new("Pick your town.", "Piliin ang bayan mo.");
+    public static readonly LocalizedText PostMissingWhen = new("That day has passed. Pick another day.", "Lumipas na ang araw na 'yan. Pumili ng iba.");
     // Under the Post button while something is missing (PostReviewText.PostStillNeeded); a tap on Post goes to the first.
     /// <summary>{0} = what is missing, e.g. "the service, your budget".</summary>
     public static readonly LocalizedText PostStillNeeded = new("Still needed: {0}", "Kulang pa: {0}");
     public static readonly LocalizedText PostNeedService = new("the service", "ang service");
     public static readonly LocalizedText PostNeedTown = new("your town", "bayan mo");
     public static readonly LocalizedText PostNeedBudget = new("your budget", "budget mo");
+    public static readonly LocalizedText PostNeedDay = new("another day", "ibang araw");
     public static readonly LocalizedText PostNeedProblem = new("the problem", "ang problema");
     public static readonly LocalizedText PostFailed = new("It didn't post. Check your internet and try again.", "Di na-post. I-check ang internet tapos try ulit.");
     public static readonly LocalizedText PostShowing = new("Workers can see it", "Nakikita na ng mga worker");
@@ -367,6 +381,7 @@ public static class Copy
     public static readonly LocalizedText RequestYouOffered = new("You offered {0}", "Nag-offer ka ng {0}");
     public static readonly LocalizedText RequestTimeAndStatus = new("{0} · {1}", "{0} · {1}");
     public static readonly LocalizedText RequestTheirBudget = new("Their budget", "Budget nila");
+    public static readonly LocalizedText RequestWhen = new("When they need it", "Kailan nila kailangan");
     public static readonly LocalizedText RequestWaiting = new("Waiting for the customer", "Hinihintay pa ang customer");
     public static readonly LocalizedText RequestChange = new("Change", "Palitan");
     public static readonly LocalizedText RequestSendTitle = new("Send your price", "I-send ang price mo");

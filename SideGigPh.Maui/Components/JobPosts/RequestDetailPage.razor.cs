@@ -22,6 +22,7 @@ public partial class RequestDetailPage : ComponentBase
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public long Id { get; set; }

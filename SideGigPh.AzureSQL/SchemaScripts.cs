@@ -27,5 +27,6 @@ public static class SchemaScripts
         "021-schema-barangays",
         "022-schema-construction-trades",
         "023-schema-worker-price",
+        "024-schema-post-needed-date",
     ];
 }

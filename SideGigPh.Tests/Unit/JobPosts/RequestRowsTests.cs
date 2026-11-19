@@ -18,9 +18,12 @@ public class RequestRowsTests
 
     public RequestRowsTests() => _board = new JobBoard(_posts, new FakePhotoStore());
 
-    private static JobPost Post(long id, int? myOffer = null, int? km = 3, string? barangay = null) =>
+    private static readonly DateOnly Today = new(2026, 11, 19);
+
+    private static JobPost Post(long id, int? myOffer = null, int? km = 3, string? barangay = null, DateOnly? neededOn = null) =>
         new(id, "construction", "construction-plumbing", "Barado ang lababo sa kusina", 1500, "angono", [], IsOpen: true, Mine: false,
-            OffersService: true, DistanceKm: km, DateTimeOffset.Now.AddMinutes(-5), MyOfferPesos: myOffer, BarangayId: barangay);
+            OffersService: true, DistanceKm: km, DateTimeOffset.Now.AddMinutes(-5), MyOfferPesos: myOffer, BarangayId: barangay,
+            NeededOn: neededOn);
 
     private static MyOffer Mine(long id, MyOfferState state, int price = 1000, string? note = null, string? chat = null) =>
         new(Post(id, myOffer: state == MyOfferState.Waiting ? price : null), price, note, state, DateTimeOffset.Now, chat);
@@ -73,11 +76,20 @@ public class RequestRowsTests
     public void TheRow_NamesAStateOnlyWhenThereIsOne()
     {
         _text.RequestStatus(RequestItem.From(Post(1))).Should().BeNull("a new request has no state");
-        _text.RequestTimeLine(RequestItem.From(Post(1))).Should().Be("5 min ago");
+        _text.RequestTimeLine(RequestItem.From(Post(1)), Today).Should().Be("5 min ago");
 
-        _text.RequestTimeLine(RequestItem.From(Post(1, myOffer: 1000))).Should().Be("5 min ago · You offered ₱1,000");
+        _text.RequestTimeLine(RequestItem.From(Post(1, myOffer: 1000)), Today).Should().Be("5 min ago · You offered ₱1,000");
         _text.RequestStatus(RequestItem.From(Mine(1, MyOfferState.Picked))).Should().Be("Picked you");
         _text.RequestStatus(RequestItem.From(Mine(1, MyOfferState.NotPicked))).Should().Be("Not picked");
+    }
+
+    [Fact]
+    public void TheRow_SaysTheDayTheCustomerNeedsIt_First()
+    {
+        _text.RequestTimeLine(RequestItem.From(Post(1, neededOn: Today)), Today).Should().Be("Needed today · 5 min ago");
+        _text.RequestTimeLine(RequestItem.From(Post(1, neededOn: Today.AddDays(1), myOffer: 900)), Today)
+            .Should().Be("Needed tomorrow · 5 min ago · You offered ₱900");
+        _text.RequestTimeLine(RequestItem.From(Post(1, neededOn: new DateOnly(2026, 11, 22))), Today).Should().Be("Needed Sun, Nov 22 · 5 min ago");
     }
 
     [Fact]

@@ -56,6 +56,9 @@
                     <MudDivider />
                     <DetailRow Label="@T.Get(Copy.RequestTheirBudget)" Value="@Pricing.PostBudget(_item.Post)" ValueColor="Color.Success" />
                     <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.RequestWhen)"
+                               Value="@(_item.Post.NeededOn is { } day ? T.Day(day, PostDay.Today(Clock)) : T.Get(Copy.PostAnyDay))" />
+                    <MudDivider />
                     <DetailRow Label="@T.Get(Copy.RequestTheyNeed)" Value="@_item.Post.Description">
                         @if (_item.Post.PhotoUrls.Count > 0)
                         {

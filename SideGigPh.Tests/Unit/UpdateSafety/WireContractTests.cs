@@ -128,12 +128,13 @@ public class WireContractTests
             BarangayId: "taytay-muzon");
         FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
             "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt",
-            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews", "barangayId");
+            "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews", "barangayId",
+            "neededOn");
         FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
         FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1, BarangayId: "taytay-muzon"),
                 ApiJson.Default.NewJobPostRequest)
             .Should().Equal("categoryId", "serviceId", "description", "budgetPesos", "cityId", "photoIds", "latitude", "longitude", "budgetMinPesos",
-                "barangayId");
+                "barangayId", "neededOn");
         JobPostStatuses.Open.Should().Be("open");
         JobPostStatuses.Closed.Should().Be("closed");
         JobPostStatuses.Hidden.Should().Be("hidden");

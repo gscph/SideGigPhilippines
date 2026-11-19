@@ -20,7 +20,7 @@
 
             <MudStack Spacing="4" Class="flex-1 px-6 pt-2 pb-16">
                 <MudText Typo="Typo.h4" HtmlTag="h1">@SheetTitle(part)</MudText>
-                <PostPartFields Draft="_draft" Part="part" JobsStep="_jobsStep" OnTradePicked="TradePicked" OnJobPicked="StateHasChanged" />
+                <PostPartFields Draft="_draft" Part="part" JobsStep="_jobsStep" Today="Today" OnTradePicked="TradePicked" OnJobPicked="StateHasChanged" />
             </MudStack>
 
             <MudPaper Square="true" Elevation="0" Class="sticky-footer px-6 py-4 border-t border-solid mud-border-lines-default">
@@ -62,16 +62,20 @@
                     else
                     {
                         <DetailRow Label="@T.Get(Copy.PostRowWhat)" Value="@T.PostWhat(_draft)" Busy="_busy"
-                                   Missing="@T.PostRowMissing(_draft, PostPart.What)" Alert="_tried"
+                                   Missing="@T.PostRowMissing(_draft, PostPart.What, Today)" Alert="_tried"
                                    ActionLabel="@T.PostAction(_draft, PostPart.What)" OnAction="@(() => OpenSheet(PostPart.What))" />
                     }
                     <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostRowWhere)" Value="@T.PostWhere(_draft)" Busy="_busy"
-                               Missing="@T.PostRowMissing(_draft, PostPart.Where)" Alert="_tried"
+                               Missing="@T.PostRowMissing(_draft, PostPart.Where, Today)" Alert="_tried"
                                ActionLabel="@T.PostAction(_draft, PostPart.Where)" OnAction="@(() => OpenSheet(PostPart.Where))" />
                     <MudDivider />
+                    <DetailRow Label="@T.Get(Copy.PostRowWhen)" Value="@T.PostWhen(_draft, Today)" Busy="_busy"
+                               Missing="@T.PostRowMissing(_draft, PostPart.When, Today)" Alert="_tried"
+                               ActionLabel="@T.PostAction(_draft, PostPart.When)" OnAction="@(() => OpenSheet(PostPart.When))" />
+                    <MudDivider />
                     <DetailRow Label="@T.Get(Copy.PostBudget)" Value="@PostReviewText.PostBudgetText(_draft)" ValueColor="Color.Success" Busy="_busy"
-                               Missing="@T.PostRowMissing(_draft, PostPart.Budget)" Alert="_tried"
+                               Missing="@T.PostRowMissing(_draft, PostPart.Budget, Today)" Alert="_tried"
                                ActionLabel="@T.PostAction(_draft, PostPart.Budget)" OnAction="@(() => OpenSheet(PostPart.Budget))" />
                 </MudPaper>
 
@@ -116,7 +120,7 @@
                            Disabled="_busy" OnClick="PostAsync">
                     @T.Get(Editing ? Copy.PostSaveChanges : Copy.PostSend)
                 </MudButton>
-                @if (T.PostStillNeeded(_draft) is { } needed)
+                @if (T.PostStillNeeded(_draft, Today) is { } needed)
                 {
                     <MudText Typo="Typo.caption" Color="@(_tried ? Color.Error : Color.Secondary)" Align="Align.Center" Class="mt-2" role="status">@needed</MudText>
                 }

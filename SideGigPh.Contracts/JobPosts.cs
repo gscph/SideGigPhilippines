@@ -13,6 +13,7 @@ namespace SideGigPh.Contracts;
 /// <param name="MyOfferPesos">For a worker: the price they offered on it, or null when they haven't (or took it back).</param>
 /// <param name="PickedProId">For the household: the worker whose offer they picked (the post is closed then), else null.</param>
 /// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked (config <c>Barangays</c>), or null.</param>
+/// <param name="NeededOn">The day the household needs it done (Philippine date), or null for any day.</param>
 public sealed record JobPostDto(
     long Id,
     string CategoryId,
@@ -31,12 +32,15 @@ public sealed record JobPostDto(
     string? PickedProId = null,
     int? BudgetMinPesos = null,
     ReviewSummaryDto? HouseholdReviews = null,
-    string? BarangayId = null);
+    string? BarangayId = null,
+    DateOnly? NeededOn = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the
 /// phone's point when it has one; without them the post sits at the centre of <paramref name="CityId"/>.
 /// <paramref name="BarangayId"/> is optional: a barangay of <paramref name="CityId"/> we serve (anything else is left off).
+/// <paramref name="NeededOn"/> is optional: the day they need it, from today to <see cref="JobPostRules.MaxDaysAhead"/>
+/// days ahead (Philippine date); null = any day.
 /// </summary>
 public sealed record NewJobPostRequest(
     string CategoryId,
@@ -48,7 +52,8 @@ public sealed record NewJobPostRequest(
     double? Latitude = null,
     double? Longitude = null,
     int? BudgetMinPesos = null,
-    string? BarangayId = null);
+    string? BarangayId = null,
+    DateOnly? NeededOn = null);
 
 /// <summary>
 /// <c>GET job-posts/feed</c>: one page of the open posts a worker can take: their own trade, within the distance they
@@ -91,6 +96,18 @@ public static class JobPostRules
 
     /// <summary>A budget "from" (optional) and "up to": the top is a budget, and the low end, when given, is 0 to the top.</summary>
     public static bool IsBudgetRange(int? from, int? upTo) => IsBudget(upTo) && (from is null || (from >= 0 && from <= upTo));
+
+    /// <summary>How far ahead a household may pick the day they need the work done.</summary>
+    public const int MaxDaysAhead = 90;
+
+    /// <summary>The Philippines' clock (UTC+8, no daylight saving): the dates on a post are its dates.</summary>
+    public static readonly TimeSpan PhilippineOffset = TimeSpan.FromHours(8);
+
+    /// <summary>Today's date in the Philippines at <paramref name="now"/>.</summary>
+    public static DateOnly PhilippineToday(DateTimeOffset now) => DateOnly.FromDateTime(now.ToOffset(PhilippineOffset).DateTime);
+
+    /// <summary>No day (any day is fine), or one from <paramref name="today"/> to <see cref="MaxDaysAhead"/> days after it.</summary>
+    public static bool IsNeededOn(DateOnly? day, DateOnly today) => day is null || (day >= today && day <= today.AddDays(MaxDaysAhead));
 }
 
 /// <summary>

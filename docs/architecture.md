@@ -188,23 +188,30 @@ for Android).
   "Take down" on the open ones. "Post what you need" opens `NewPostPage` (`/posts/new`, full screen), laid out like
   Airbnb's "Review and continue" (`docs/ux/airbnb-2026-11-18/airbnb-20`, `22`): the title "Post what you need done"
   (no explainer), one outlined card (`PostDraftSummary`: the first photo or the service's picture, the service and its
-  trade, with What's Change (a **What** `DetailRow` with Add only while no service is picked, so the service shows once); then `DetailRow`s **Where** ("Angono · Brgy. San Isidro") and **Your budget** (green),
+  trade, with What's Change (a **What** `DetailRow` with Add only while no service is picked, so the service shows once); then `DetailRow`s **Where** ("Angono · Brgy. San Isidro"), **When** (the day they need it, optional: "Any day" until picked; a day that has passed is "missing") and **Your budget** (green),
   each with a gray **Change**, or **Add** while empty). A row still missing an answer says what to do under it
   (`DetailRow.Missing`, `PostReviewText.PostRowMissing` → `JobBoard.MissingText`: "Pick your town.", gray, red once Post
   was tapped). A row's button opens its own full-screen sheet with **its own URL** under the form
-  (`JobPostRoutes.Sheet`: `/posts/new/what`, `/posts/new/what/{trade}` for that trade's jobs, `/where`, `/budget`; the
+  (`JobPostRoutes.Sheet`: `/posts/new/what`, `/posts/new/what/{trade}` for that trade's jobs, `/where`, `/when`, `/budget`; the
   same under `/posts/{id}/edit`; the same `NewPostPage` instance stays, `PostReview.Slug` / `FromSlug`), so the phone's
   Back closes it like Cancel (arriving on the form without Save restores the `PostSnapshot`) or goes from the jobs back
   to the trades; Save, Cancel and ← go back through the WebView history (`history.go`, `PostReview.SheetDepth`), so
-  Back on the form afterwards leaves it as before (`PostPartFields`: What is two pages: picture tiles for the kind of work, and a tap opens that trade's own page of services titled with the trade, ← back to the trades (`PostReview.HasJobChoice`; "Others" stays, it is its own job), Save greyed until a service is picked (`PostReview.CanSave`), so a trade alone never leaves Post grey; town + barangay + "Use my location"; budget from / up to
+  Back on the form afterwards leaves it as before (`PostPartFields`: What is two pages: picture tiles for the kind of work, and a tap opens that trade's own page of services titled with the trade, ← back to the trades (`PostReview.HasJobChoice`; "Others" stays, it is its own job), Save greyed until a service is picked (`PostReview.CanSave`), so a trade alone never leaves Post grey; town + barangay + "Use my location"; When: a static `MudDatePicker` from today (Philippine date) to `JobPostRules.MaxDaysAhead` (90) days ahead plus "Any day is fine"; budget from / up to
   with the guide), with Cancel (link, puts the answers back from a `PostSnapshot`) and Save pinned at the bottom.
   Under the card: "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
   (`JobBoard.AddPhotosAsync`); Post pinned at the bottom, never greyed for a missing answer: under it "Still needed: the
-  service, your budget" names everything left (`JobBoard.Missing`, in the card's order: What, Where, Your budget, the
+  service, your budget" names everything left (`JobBoard.Missing`, in the card's order: What, Where, When, Your budget, the
   problem; `PostReviewText.PostStillNeeded`), and a tap with something missing turns the notes red and opens the first
   one's sheet (`PostReview.PartOf`), or focuses the problem's box, which then shows its own error. Trade, service and town
   start from their last search. Closing with ✕ keeps a draft with typed words or photos for the next open (`JobBoard.KeepUnsent` / `TakeUnsent`, in memory). **Edit post:** an open post's card (`JobPostCard`) has Edit beside Take down, opening the same page at `JobPostRoutes.Edit(id)` = `/posts/{id}/edit` filled in (`JobBoard.EditDraft`: title "Change your post", button "Save changes"; ✕ drops the edit, no kept draft). `PUT job-posts/{id}` (`JobPostStore.UpdateAsync`, limit `Limited.JobPostEdit`) takes the whole post like `POST job-posts`, replaces the photos, keeps the point unless the phone sent one or the town changed, and alerts nobody again; once offers came in the trade and service stay (`JobPostDraft.WhatLocked` hides What's Change; the server refuses `invalid-categoryId` / `invalid-serviceId`). A photo already on the post stays stored when taken off the draft (`SavedPhotoIds`), so Cancel loses nothing. A post closed meanwhile answers `404` → `JobPostResult.Closed`, and the page says it can't change. Rules: `Services/PostReview`, `Services/Localization/PostReviewText`, tested in
   `Unit/JobPosts/PostReviewTests`.
+  **The post's day** (`024-schema-post-needed-date.sql`, `JobPosts.NeededOn` date NULL, `JobPostDto` / `NewJobPostRequest.NeededOn`,
+  rules `Services/PostDay` + `JobPostRules.IsNeededOn`, tested in `Unit/JobPosts/PostDayTests`): optional, in the
+  Philippines' dates (UTC+8, `JobPostRules.PhilippineToday`); the server refuses a new day before yesterday or past 90
+  days (`invalid-neededOn`) but an edit may keep the day the post already had. Workers see "Needed tomorrow" first on
+  the request row's last line and a "When they need it" row on the request page; the household's card shows it too.
+  **It is not the interview's "When"**: the Seeker's urgency answer (Today / This week / Just looking around) stays a
+  search answer that only words the first chat message, and never fills or filters a post.
 - **Pro side:** the **Requests** tab (`ProRoutes.Requests` = `JobPostRoutes.Feed`, `ProPostsPage`, inside
   `ProLayout`) is the feed, a page of `Paging.JobPosts` (10) at a time with `LoadMoreOnScroll`. Until the listing is
   published it says to publish first: the server matches posts to the published listing (trade, services, base

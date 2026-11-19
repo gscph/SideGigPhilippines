@@ -252,7 +252,7 @@ public static class ReferenceData
     [
         new(UrgencyToday, new("Today, it's urgent", "Ngayon na, urgent"), AppImages.For(UrgencyToday)),
         new(UrgencyThisWeek, new("This week", "Ngayong linggo"), AppImages.For(UrgencyThisWeek)),
-        new(UrgencyCanvassing, new("Just comparing prices", "Nagca-canvass lang"), AppImages.For(UrgencyCanvassing)),
+        new(UrgencyCanvassing, new("Just looking around", "Tumitingin-tingin lang"), AppImages.For(UrgencyCanvassing)),
     ],
     IncomeGoals:
     [

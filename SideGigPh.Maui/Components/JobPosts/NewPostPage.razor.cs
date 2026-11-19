@@ -11,7 +11,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// <summary>
 /// The form to post what a household needs done, full screen outside the tab shell, laid out like Airbnb's "Review and
 /// continue": one card with What (kind of work + exact service, "Others" too), Where (town, the launch's default town
-/// when they have none, optional barangay and "Use my location") and Your budget (from–to, the suggested minimum price
+/// when they have none, optional barangay and "Use my location"), When (optional: a day on a calendar, workers see it,
+/// <see cref="PostDay"/>) and Your budget (from–to, the suggested minimum price
 /// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>) with its own URL
 /// (<see cref="JobPostRoutes.Sheet"/>), so the phone's Back closes it like Cancel, or goes from a trade's jobs back to the
 /// trades; then what is wrong and up to three photos. Each row still missing says what to do, the footer names everything
@@ -29,6 +30,7 @@ public partial class NewPostPage : ComponentBase
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
 
     /// <summary>The post to change (<c>/posts/{id}/edit</c>), or null for a new post.</summary>
@@ -104,6 +106,9 @@ public partial class NewPostPage : ComponentBase
             (_draft.BudgetMinPesos, _draft.BudgetPesos) = (from > 0 ? from : null, upTo);
         }
     }
+
+    /// <summary>Today in the Philippines: the calendar's first day.</summary>
+    private DateOnly Today => PostDay.Today(Clock);
 
     /// <summary>
     /// The URL changed between the form and a sheet (a tap here, Save, Cancel or the phone's Back). Arriving on the form
@@ -245,7 +250,7 @@ public partial class NewPostPage : ComponentBase
             return; // a second tap before the button re-rendered as disabled
         }
 
-        if (JobBoard.FirstMissing(_draft) is { } missing)
+        if (JobBoard.FirstMissing(_draft, Today) is { } missing)
         {
             // Post stays tappable: it shows what is missing in red and opens the first one.
             _tried = true;

@@ -70,7 +70,8 @@ internal static partial class ApiMapping
         dto.BudgetMinPesos,
         dto.HouseholdReviews is { } stars ? new ReviewSummary(stars.Average, stars.Count) : null,
         dto.BarangayId,
-        [.. dto.Photos.Select(photo => photo.Id)]);
+        [.. dto.Photos.Select(photo => photo.Id)],
+        dto.NeededOn);
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
         new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating,
@@ -112,7 +113,8 @@ internal static partial class ApiMapping
         draft.Point?.Latitude,
         draft.Point?.Longitude,
         BudgetMinPesos: draft.BudgetMinPesos,
-        BarangayId: ReferenceData.FindBarangay(draft.CityId, draft.BarangayId)?.Id);
+        BarangayId: ReferenceData.FindBarangay(draft.CityId, draft.BarangayId)?.Id,
+        NeededOn: draft.NeededOn);
 
     public static UserProfile ToModel(this UserDto dto) => new(
         dto.Uid,

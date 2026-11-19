@@ -63,10 +63,11 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>
-    /// Everything still missing before Post works, in the order the form shows it (What, Where, Your budget, then the
-    /// problem), so the card can mark each empty row and the footer can name them all; empty when it can be posted.
+    /// Everything still missing before Post works, in the order the form shows it (What, Where, When, Your budget, then
+    /// the problem), so the card can mark each empty row and the footer can name them all; empty when it can be posted.
     /// </summary>
-    public static IReadOnlyList<JobPostField> Missing(JobPostDraft draft)
+    /// <param name="today">The Philippines' date (<see cref="PostDay.Today"/>); null: the phone's clock now.</param>
+    public static IReadOnlyList<JobPostField> Missing(JobPostDraft draft, DateOnly? today = null)
     {
         var missing = new List<JobPostField>();
         if (draft.CategoryId is null)
@@ -83,6 +84,11 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             missing.Add(JobPostField.Town);
         }
 
+        if (!PostDay.IsValid(draft.NeededOn, draft.SavedNeededOn, today ?? PostDay.Today(TimeProvider.System)))
+        {
+            missing.Add(JobPostField.When);
+        }
+
         if (!JobPostRules.IsBudgetRange(draft.BudgetMinPesos, draft.BudgetPesos))
         {
             missing.Add(JobPostField.Budget);
@@ -97,9 +103,10 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>The first thing still missing (where a tap on Post takes the household), or null when it can be posted.</summary>
-    public static JobPostField? FirstMissing(JobPostDraft draft) => Missing(draft) is [var first, ..] ? first : null;
+    public static JobPostField? FirstMissing(JobPostDraft draft, DateOnly? today = null) =>
+        Missing(draft, today) is [var first, ..] ? first : null;
 
-    public static bool CanPost(JobPostDraft draft) => FirstMissing(draft) is null;
+    public static bool CanPost(JobPostDraft draft, DateOnly? today = null) => FirstMissing(draft, today) is null;
 
     /// <summary>
     /// What to do about one missing field, in a few words (on its row of the card, or under the problem's box), so a
@@ -111,6 +118,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
         JobPostField.Service => text.Get(Copy.PostMissingService),
         JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
         JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
+        JobPostField.When => text.Get(Copy.PostMissingWhen),
         _ => text.Get(Copy.PostMissingTown),
     };
 
@@ -265,6 +273,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             BudgetMinPesos = post.BudgetMinPesos,
             CityId = post.CityId,
             BarangayId = post.BarangayId,
+            NeededOn = post.NeededOn,
+            SavedNeededOn = post.NeededOn,
             WhatLocked = post.OfferCount > 0,
         };
         foreach (var (id, url) in (post.PhotoIds ?? []).Zip(post.PhotoUrls))
@@ -562,6 +572,9 @@ public enum JobPostField
     Trade,
     Service,
     Town,
+
+    /// <summary>The picked day has passed (a draft kept overnight): pick another, or any day.</summary>
+    When,
     Budget,
     Description,
 }

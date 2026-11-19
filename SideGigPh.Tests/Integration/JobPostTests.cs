@@ -289,6 +289,44 @@ public class JobPostTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task TheDayTheHouseholdNeedsIt_IsKeptOnThePost_AndWorkersSeeIt()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Kailan");
+        var plumber = await PlumberAsync(api, "Tubero", towns: ["taytay"]);
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
+        var draft = Draft(tag);
+        draft.NeededOn = today.AddDays(2);
+
+        var posted = await PostAsync(household, draft);
+
+        posted.NeededOn.Should().Be(today.AddDays(2));
+        (await FeedAsync(plumber, tag)).Should().ContainSingle().Which.NeededOn.Should().Be(today.AddDays(2));
+
+        var edit = JobBoard.EditDraft(posted);
+        edit.NeededOn = null; // any day is fine now
+        (await household.Get<JobBoard>().SaveEditAsync(edit)).Should().Be(JobPostResult.Posted);
+        (await FeedAsync(plumber, tag)).Should().ContainSingle().Which.NeededOn.Should().BeNull();
+    }
+
+    [IntegrationFact]
+    public async Task ADayThatHasPassed_OrTooFarAhead_IsRefused()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Lumipas");
+        var client = api.Client(api.Tokens.For(household.Uid));
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
+
+        foreach (var day in new[] { today.AddDays(-3), today.AddDays(JobPostRules.MaxDaysAhead + 1) })
+        {
+            var request = new NewJobPostRequest("construction", "construction-plumbing", $"Barado ang lababo sa kusina {tag}", 800, "taytay", NeededOn: day);
+            using var response = await client.PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await response.Content.ReadAsStringAsync()).Should().Contain("neededOn");
+        }
+    }
+
+    [IntegrationFact]
     public async Task ABarangayOfAnotherTown_OrNotServed_IsLeftOff_AndThePostStillGoesThrough()
     {
         var tag = Tag();

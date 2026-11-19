@@ -7,6 +7,7 @@ public enum PostPart
 {
     What,
     Where,
+    When,
     Budget,
 }
 
@@ -18,22 +19,24 @@ public sealed record PostSnapshot(
     string? BarangayId,
     GeoPoint? Point,
     int? BudgetMinPesos,
-    int? BudgetPesos);
+    int? BudgetPesos,
+    DateOnly? NeededOn);
 
 /// <summary>
-/// The post form laid out like Airbnb's "Review and continue": one card of rows (What / Where / Your budget), each with
+/// The post form laid out like Airbnb's "Review and continue": one card of rows (What / Where / When / Your budget), each with
 /// a gray Change (or Add) button opening its own full-screen sheet with Cancel and Save. Each sheet has its own URL under
-/// the form (<c>/posts/new/what</c>, <c>/posts/new/what/{trade}</c> for its jobs, <c>/where</c>, <c>/budget</c>; the same
+/// the form (<c>/posts/new/what</c>, <c>/posts/new/what/{trade}</c> for its jobs, <c>/where</c>, <c>/when</c>, <c>/budget</c>; the same
 /// under <c>/posts/{id}/edit</c>), so the phone's Back closes the sheet or goes back one page instead of leaving the form.
 /// Nothing here talks to the server; <see cref="JobBoard"/> still decides what can be posted.
 /// </summary>
 public static class PostReview
 {
-    /// <summary>A sheet's part of the URL ("what", "where", "budget").</summary>
+    /// <summary>A sheet's part of the URL ("what", "where", "when", "budget").</summary>
     public static string Slug(PostPart part) => part switch
     {
         PostPart.What => "what",
         PostPart.Where => "where",
+        PostPart.When => "when",
         _ => "budget",
     };
 
@@ -62,16 +65,18 @@ public static class PostReview
     {
         JobPostField.Trade or JobPostField.Service => PostPart.What,
         JobPostField.Town => PostPart.Where,
+        JobPostField.When => PostPart.When,
         JobPostField.Budget => PostPart.Budget,
         _ => null,
     };
 
     /// <summary>What is still missing on one row of the card (its note says what to do), or null when the row is done.</summary>
-    public static JobPostField? MissingIn(JobPostDraft draft, PostPart part) =>
-        JobBoard.Missing(draft).Cast<JobPostField?>().FirstOrDefault(field => PartOf(field!.Value) == part);
+    /// <param name="today">The Philippines' date (<see cref="PostDay.Today"/>); null: the phone's clock now.</param>
+    public static JobPostField? MissingIn(JobPostDraft draft, PostPart part, DateOnly? today = null) =>
+        JobBoard.Missing(draft, today).Cast<JobPostField?>().FirstOrDefault(field => PartOf(field!.Value) == part);
 
     public static PostSnapshot Take(JobPostDraft draft) => new(
-        draft.CategoryId, draft.ServiceId, draft.CityId, draft.BarangayId, draft.Point, draft.BudgetMinPesos, draft.BudgetPesos);
+        draft.CategoryId, draft.ServiceId, draft.CityId, draft.BarangayId, draft.Point, draft.BudgetMinPesos, draft.BudgetPesos, draft.NeededOn);
 
     /// <summary>Cancel on a sheet: the answers as they were when it opened.</summary>
     public static void Restore(JobPostDraft draft, PostSnapshot snapshot)
@@ -83,6 +88,7 @@ public static class PostReview
         draft.Point = snapshot.Point;
         draft.BudgetMinPesos = snapshot.BudgetMinPesos;
         draft.BudgetPesos = snapshot.BudgetPesos;
+        draft.NeededOn = snapshot.NeededOn;
     }
 
     /// <summary>True when the row has an answer (its button says Change), false when it is still empty (Add).</summary>
@@ -90,6 +96,7 @@ public static class PostReview
     {
         PostPart.What => draft.ServiceId is not null,
         PostPart.Where => draft.CityId is not null,
+        PostPart.When => draft.NeededOn is not null,
         _ => draft.BudgetPesos is not null,
     };
 
