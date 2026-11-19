@@ -14,7 +14,8 @@ namespace MobileAppTheme.Firebase;
 ///
 /// Error policy: every failure is logged in full (type + stack, to Logcat / Output) and returned
 /// as a provider-neutral <see cref="AuthError"/> (see <see cref="FirebaseAuthErrors"/>), with the
-/// raw text in <see cref="AuthResult.Detail"/>. Phone code sending logs, then rethrows.
+/// raw text in <see cref="AuthResult.Detail"/>. Phone code sending logs, then throws: the time limit as
+/// <see cref="TimeoutException"/> (the SMS may still go out), anything else as an <see cref="AuthException"/>.
 ///
 /// Needs, in the app: <c>Platforms/Android/google-services.json</c> (GoogleServicesJson) and/or
 /// <c>Platforms/iOS/GoogleService-Info.plist</c> (BundleResource), the debug/release SHA-1 and
@@ -64,10 +65,15 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             await Auth.VerifyPhoneNumberAsync(phoneNumber).WaitAsync(SendCodeLimit);
             return new PhoneVerification { VerificationId = string.Empty };
         }
+        catch (TimeoutException ex)
+        {
+            logger.LogError(ex, "Firebase gave no answer to sending the SMS code within {Seconds} s.", SendCodeLimit.TotalSeconds);
+            throw;
+        }
         catch (Exception ex)
         {
             logger.LogError(ex, "Firebase could not send the SMS code.");
-            throw;
+            throw new AuthException(FirebaseAuthErrors.FromPhone(ex), ex.Message, ex);
         }
     }
 

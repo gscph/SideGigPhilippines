@@ -22,11 +22,29 @@ public interface IPhotoStore
 }
 
 /// <summary>
-/// A photo could not be stored. <see cref="Taken"/> means the store refused it because another
-/// account already has the same photo (duplicate check); otherwise it was a network or server
-/// problem worth retrying. <see cref="Exception.InnerException"/> has the cause when there is one.
+/// A photo could not be stored, and why (<see cref="Failure"/>), so the app can say what to do: wait for the internet,
+/// try again later, or pick another photo. <see cref="Exception.InnerException"/> has the cause when there is one.
 /// </summary>
-public sealed class PhotoStoreException(string message, Exception? inner = null, bool taken = false) : Exception(message, inner)
+public sealed class PhotoStoreException(string message, PhotoStoreFailure failure, Exception? inner = null) : Exception(message, inner)
 {
-    public bool Taken { get; } = taken;
+    public PhotoStoreFailure Failure { get; } = failure;
+
+    /// <summary>The store refused it because another account already has the same photo (duplicate check).</summary>
+    public bool Taken => Failure == PhotoStoreFailure.Taken;
+}
+
+/// <summary>Why a photo could not be stored.</summary>
+public enum PhotoStoreFailure
+{
+    /// <summary>The upload got no answer (no signal, no internet): the same photo can go again once connected.</summary>
+    NoInternet,
+
+    /// <summary>The store answered but couldn't take it now (busy, down, sign-in expired): the same photo can go again later.</summary>
+    ServerError,
+
+    /// <summary>The store refused this photo itself (too big, not a picture it can read): another photo is needed.</summary>
+    Rejected,
+
+    /// <summary>Another account already has the same photo (duplicate check).</summary>
+    Taken,
 }

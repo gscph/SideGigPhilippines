@@ -76,6 +76,41 @@ public class SmsSendLimitTests
         new SmsSendLimit(_history, _clock).WaitLeft("+639181234567").Should().Be(SmsSendLimit.Wait, "after a restart the last number is unknown");
     }
 
+    [Fact]
+    public void A_send_that_timed_out_while_online_counts_since_the_sms_may_still_come()
+    {
+        SmsSendLimit.FailedSendCounts(new TimeoutException(), online: true).Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_send_that_timed_out_with_no_network_does_not_count()
+    {
+        SmsSendLimit.FailedSendCounts(new TimeoutException(), online: false).Should().BeFalse("nothing went out from a phone with no network");
+    }
+
+    [Fact]
+    public void A_send_the_provider_refused_does_not_count()
+    {
+        SmsSendLimit.FailedSendCounts(new AuthException(AuthError.Network, "network"), online: true).Should().BeFalse();
+        SmsSendLimit.FailedSendCounts(new AuthException(AuthError.TooManyAttempts, "too many"), online: true).Should().BeFalse();
+    }
+
+    [Theory]
+    [InlineData(AuthError.Network)]
+    [InlineData(AuthError.TooManyAttempts)]
+    public void A_failed_send_shows_the_adapters_own_reason(AuthError error)
+    {
+        AuthException.ErrorOf(new AuthException(error, "x")).Should().Be(error);
+    }
+
+    [Fact]
+    public void A_failed_send_with_no_answer_is_a_network_error_not_sign_in_failed()
+    {
+        AuthException.ErrorOf(new TimeoutException()).Should().Be(AuthError.Network);
+        AuthException.ErrorOf(new HttpRequestException("No such host")).Should().Be(AuthError.Network);
+        AuthException.ErrorOf(new InvalidOperationException("bug")).Should().Be(AuthError.Unknown);
+    }
+
     private sealed class MemoryHistory : ISmsSendHistory
     {
         private IReadOnlyList<DateTimeOffset> _sends = [];

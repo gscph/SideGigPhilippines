@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Localization;
@@ -9,9 +10,11 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// App entry point (no UI of its own). Applies the saved language and sends the user to
 /// wherever they left off: language → sign in (+ name after a phone sign-in) → role → the
 /// interview step → their home. Everyone signs in before using the app; a worker whose app was reinstalled gets their
-/// live listing back first (<see cref="ListingRestore"/>).
+/// live listing back first (<see cref="ListingRestore"/>); when that read gets no answer the page says "No internet" with
+/// Try again (also by itself once the connection is back), and "Continue anyway" for someone who has no listing to lose
+/// (a new account) so nobody is stuck on it.
 /// </summary>
-public partial class LaunchRouter : ComponentBase
+public partial class LaunchRouter : ComponentBase, IDisposable
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private AppConfigService Config { get; set; } = default!;
@@ -20,15 +23,67 @@ public partial class LaunchRouter : ComponentBase
     [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private INetworkStatus Network { get; set; } = default!;
 
     /// <summary>The main splash line, the same as the busy splash's first: "AI-assisted ID checks".</summary>
     private static LocalizedText MainLine => Copy.TrustTagline;
 
-    protected override async Task OnInitializedAsync()
+    // The listing restore got no answer: the no-internet screen shows instead of the splash.
+    private bool _offline;
+    private bool _busy;
+    private OnboardingState? _state;
+
+    protected override Task OnInitializedAsync()
+    {
+        Network.Changed += OnNetworkChanged;
+        return RouteAsync();
+    }
+
+    // Back online while the no-internet screen shows: try again without a tap.
+    private void OnNetworkChanged()
+    {
+        if (_offline && Network.IsOnline)
+        {
+            _ = InvokeAsync(TryAgainAsync);
+        }
+    }
+
+    /// <summary>"Continue anyway": the launch goes on without the listing restore, as on a new phone.</summary>
+    private void ContinueAnyway()
+    {
+        if (_state is { } state)
+        {
+            Nav.NavigateTo(OnboardingSteps.LaunchPath(state), replace: true);
+        }
+    }
+
+    public void Dispose() => Network.Changed -= OnNetworkChanged;
+
+    private async Task TryAgainAsync()
+    {
+        if (_busy)
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            _offline = false;
+            await RouteAsync();
+        }
+        finally
+        {
+            _busy = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RouteAsync()
     {
         // The config first (once per launch, while the splash shows): the saved answers are checked against it as they load (OnboardingCleanup).
         await Config.LoadAsync();
-        var state = await Store.LoadAsync();
+        var state = _state = await Store.LoadAsync();
         // Usage analytics and A/B variants (both off unless the build turned them on); neither holds up the launch.
         Analytics.Start(state);
         if (state.Language is not { } language)
@@ -48,7 +103,12 @@ public partial class LaunchRouter : ComponentBase
         // Signed in on a phone with no answers (reinstalled, a new phone, or "Sign in with this number" before the first
         // question): a worker's live listing comes back, so they open Pro home instead of the interview. Every sign-in
         // comes back here (IAuthLanding's default "/").
-        await Restore.RestoreAsync(state);
+        if (await Restore.RestoreAsync(state) == ListingRestoreResult.Offline)
+        {
+            _offline = true;
+            return;
+        }
+
         Nav.NavigateTo(OnboardingSteps.LaunchPath(state), replace: true);
     }
 }

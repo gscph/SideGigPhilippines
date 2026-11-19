@@ -109,7 +109,7 @@ public sealed class TestPhone
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
         (await phone.Pro.ChangeProfilePhotoAsync()).Failed.Should().BeFalse();
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg(), TestImages.Jpeg()]);
-        // The whole result, so a failure says why (Taken = another account has these bytes, UploadFailed = the server refused).
+        // The whole result, so a failure says why (Taken = another account has these bytes, Rejected or ServerError = the server refused).
         (await phone.Pro.AddWorkPhotosAsync()).Should().Be(new PhotoAddResult(2, 0));
         return phone;
     }

@@ -19,9 +19,10 @@ public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl, HttpMessageH
 /// (<see cref="IIdentityProvider.GetIdTokenAsync"/>), which the API checks; JSON uses the shared
 /// <c>SideGigPh.Contracts.ApiJson</c> types. Every request also names the app build (<c>X-App-Version</c>) and a
 /// failed one is logged with the API build that answered (<c>X-Api-Version</c>), so an error report says which
-/// versions met.
+/// versions met. Each request also tells <see cref="INetworkStatus"/> whether it got an answer, so a phone whose network
+/// is "connected" but reaches nothing (broken DNS, a captive Wi-Fi) still shows as offline.
 /// </summary>
-public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger)
+public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger, INetworkStatus? network = null)
 {
     private readonly HttpClient _http = CreateHttp(options);
 
@@ -96,6 +97,40 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// ("Socket closed", "Canceled") instead, which reads didn't catch, so a flaky 4G signal broke whole screens.
     /// </summary>
     private async Task<HttpResponseMessage> SendWithRetryAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var response = await SendTriesAsync(makeRequest, cancellationToken);
+            network?.Answered();
+            return response;
+        }
+        catch (Exception ex) when (NetworkErrors.IsNetwork(ex))
+        {
+            // A request that ran out of time says nothing about the connection (a cold server, a paused database):
+            // only one that couldn't reach the server at all counts the phone as offline.
+            if (!TimedOut(ex))
+            {
+                network?.NoAnswer();
+            }
+
+            throw;
+        }
+    }
+
+    private static bool TimedOut(Exception exception)
+    {
+        for (var e = exception; e is not null; e = e.InnerException)
+        {
+            if (e is OperationCanceledException or TimeoutException)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private async Task<HttpResponseMessage> SendTriesAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
     {
         for (var attempt = 1; ; attempt++)
         {

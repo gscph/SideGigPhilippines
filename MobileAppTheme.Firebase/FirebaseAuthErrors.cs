@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using MobileAppTheme.Auth;
+using MobileAppTheme.Services;
 using Plugin.Firebase.Core.Exceptions;
 
 namespace MobileAppTheme.Firebase;
@@ -39,10 +40,30 @@ public static partial class FirebaseAuthErrors
         }
 
         status = ex.Message;
-        return ex is TaskCanceledException or OperationCanceledException ? AuthError.Cancelled : AuthError.Unknown;
+        // After the account picker, Firebase's own step (exchanging the Google token) fails with no status code: a
+        // dropped connection there is a network error.
+        return IsNetwork(ex) ? AuthError.Network
+            : ex is TaskCanceledException or OperationCanceledException ? AuthError.Cancelled
+            : AuthError.Unknown;
     }
 
-    /// <summary>The error for a failed SMS-code sign-in, or adding a number to the account.</summary>
+    /// <summary>
+    /// A failure for want of a connection: our time limit, Firebase's Android <c>FirebaseNetworkException</c> (anywhere in
+    /// the chain), a request with no answer (<see cref="NetworkErrors.IsNetwork"/>) or a message that says "network".
+    /// </summary>
+    private static bool IsNetwork(Exception ex)
+    {
+        for (var e = ex; e is not null; e = e.InnerException)
+        {
+            if (e is TimeoutException || e.GetType().Name is "FirebaseNetworkException")
+            {
+                return true;
+            }
+        }
+
+        return NetworkErrors.IsNetwork(ex) || ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase);
+    }
+
     /// <summary>Sign in with Apple: the person closing Apple's sheet is a cancel, not an error to show.</summary>
     public static AuthError FromApple(Exception ex) =>
         ex is TaskCanceledException or OperationCanceledException
@@ -50,6 +71,7 @@ public static partial class FirebaseAuthErrors
         : ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) ? AuthError.Network
         : AuthError.Unknown;
 
+    /// <summary>The error for a failed SMS-code send or sign-in, or adding a number to the account.</summary>
     public static AuthError FromPhone(Exception ex) => ex switch
     {
         // Linking a number another account has: "This credential is already associated with a
@@ -59,8 +81,8 @@ public static partial class FirebaseAuthErrors
         FirebaseAuthException { Reason: FIRAuthError.InvalidCredential } => AuthError.InvalidCode,
         // The same from Firebase's own Android SDK (AndroidPhoneLink adds the number without the plugin): wrong or expired code.
         _ when ex.GetType().Name is "FirebaseAuthInvalidCredentialsException" => AuthError.InvalidCode,
-        TimeoutException => AuthError.Network, // our own limit (VerifyCodeLimit): no answer, most likely no signal
-        _ when ex.Message.Contains("network", StringComparison.OrdinalIgnoreCase) => AuthError.Network,
+        // Our own limits (VerifyCodeLimit, SendCodeLimit), Firebase's network exception, or a message that says so.
+        _ when IsNetwork(ex) => AuthError.Network,
         _ when ex.Message.Contains("too many", StringComparison.OrdinalIgnoreCase) => AuthError.TooManyAttempts,
         _ => AuthError.Unknown,
     };

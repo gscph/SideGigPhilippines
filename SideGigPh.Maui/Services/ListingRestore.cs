@@ -16,14 +16,15 @@ public sealed class ListingRestore(
     /// <summary>
     /// Fills <paramref name="state"/> with the signed-in account's live listing and saves it, when this phone holds
     /// nothing to keep (<see cref="HoldsNoAnswers"/>): an answered interview, a Seeker side or unsaved edits are left
-    /// as they are. A Seeker, someone with no listing, nobody signed in or a failed read leaves it unchanged, so
-    /// launch carries on as before. Never throws. True when the listing was restored.
+    /// as they are. A Seeker, someone with no listing, nobody signed in or a server error leaves it unchanged, so
+    /// launch carries on as before. A read that got no answer (no internet) is <see cref="ListingRestoreResult.Offline"/>:
+    /// the launch asks to try again instead of treating a live worker as new. Never throws.
     /// </summary>
-    public async Task<bool> RestoreAsync(OnboardingState state)
+    public async Task<ListingRestoreResult> RestoreAsync(OnboardingState state)
     {
         if (!HoldsNoAnswers(state))
         {
-            return false;
+            return ListingRestoreResult.Unchanged;
         }
 
         AuthUser? user;
@@ -33,16 +34,21 @@ public sealed class ListingRestore(
             user = await identity.GetCurrentUserAsync();
             draft = user is null ? null : await profiles.GetOwnDraftAsync(user.Uid);
         }
+        catch (Exception ex) when (NetworkErrors.IsNetwork(ex))
+        {
+            logger.LogWarning(ex, "No answer reading the own listing to restore.");
+            return ListingRestoreResult.Offline;
+        }
         catch (Exception ex)
         {
-            // Launch must go on: the worker answers the role question as on a new phone.
+            // A server error: launch must go on, and the worker answers the role question as on a new phone.
             logger.LogError(ex, "Reading the own listing to restore failed.");
-            return false;
+            return ListingRestoreResult.Unchanged;
         }
 
         if (draft is null)
         {
-            return false;
+            return ListingRestoreResult.Unchanged;
         }
 
         var now = DateTimeOffset.Now;
@@ -63,7 +69,7 @@ public sealed class ListingRestore(
             logger.LogError(ex, "Saving the restored listing failed.");
         }
 
-        return true;
+        return ListingRestoreResult.Restored;
     }
 
     /// <summary>
@@ -77,4 +83,17 @@ public sealed class ListingRestore(
             && state.CompletedAt is null
             && (state.ResumePath is null || state.ResumePath == OnboardingSteps.FirstPath(UserRole.Professional))
             && state.Professional is { CategoryId: null, PublishedAt: null, ProfilePhotoId: null, WorkPhotoIds.Count: 0 });
+}
+
+/// <summary>What <see cref="ListingRestore.RestoreAsync"/> did.</summary>
+public enum ListingRestoreResult
+{
+    /// <summary>Nothing to restore (answers on the phone, a Seeker, no listing, a server error): launch goes on.</summary>
+    Unchanged,
+
+    /// <summary>The live listing is back on the phone: launch opens Pro home.</summary>
+    Restored,
+
+    /// <summary>The read got no answer: whether there is a listing is unknown, so launch asks to try again.</summary>
+    Offline,
 }

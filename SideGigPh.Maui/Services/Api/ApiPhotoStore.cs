@@ -26,12 +26,12 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
             using var response = await api.SendAsync(HttpMethod.Post, "photos", content);
             if (response.StatusCode == HttpStatusCode.Conflict)
             {
-                throw new PhotoStoreException("This photo already belongs to another account.", taken: true);
+                throw new PhotoStoreException("This photo already belongs to another account.", PhotoStoreFailure.Taken);
             }
 
             await api.EnsureWrittenAsync(response, "upload a photo");
             var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto)
-                ?? throw new PhotoStoreException("The photo server sent an empty answer.");
+                ?? throw new PhotoStoreException("The photo server sent an empty answer.", PhotoStoreFailure.ServerError);
 
             _urls[saved.Id] = saved.Url;
             return saved.Id;
@@ -43,9 +43,20 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
             logger.LogError(ex, "Photo upload failed.");
-            throw new PhotoStoreException("The photo could not be uploaded.", ex);
+            throw new PhotoStoreException("The photo could not be uploaded.", FailureOf(ex), ex);
         }
     }
+
+    /// <summary>
+    /// Why an upload failed, for an honest message: no answer at all is no internet; the server refusing the photo
+    /// itself (400 broken or unreadable picture, 413 too big, 415) needs another photo; anything else it answered
+    /// (401, 429, 5xx, a broken answer) is worth sending the same photo again later.
+    /// </summary>
+    public static PhotoStoreFailure FailureOf(Exception ex) =>
+        NetworkErrors.IsNetwork(ex) ? PhotoStoreFailure.NoInternet
+        : ex is HttpRequestException { StatusCode: HttpStatusCode.BadRequest or HttpStatusCode.RequestEntityTooLarge or HttpStatusCode.UnsupportedMediaType }
+            ? PhotoStoreFailure.Rejected
+        : PhotoStoreFailure.ServerError;
 
     public Task<string?> GetUrlAsync(string photoId) =>
         Task.FromResult<string?>(_urls.TryGetValue(photoId, out var url) ? url : $"{options.PhotoBaseUrl}{photoId}.jpg");
