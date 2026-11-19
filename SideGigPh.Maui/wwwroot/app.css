@@ -47,6 +47,11 @@
     color: var(--mud-palette-primary, #5B2A86);
 }
 
+.app-loading__ai {
+    font-size: 0.75rem;
+    color: var(--mud-palette-secondary, #6a6a6a);
+}
+
 .app-loading__spinner {
     width: 28px;
     height: 28px;

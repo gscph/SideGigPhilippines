@@ -1,16 +1,19 @@
 using Microsoft.AspNetCore.Components;
 using MobileAppTheme.Branding;
+using MobileAppTheme.Localization;
 
 namespace MobileAppTheme.Components.Shared;
 
 /// <summary>
 /// The brand splash: logo and name (<see cref="BrandMark"/>), a line under them, an optional softer second line,
-/// a small spinner and the build's version (<see cref="AppBrand.Version"/>, muted). The launch screen shows it while the app starts; <see cref="BusyOverlay"/> shows it while
+/// a small spinner, the brand's optional credit (<see cref="AppBrand.SplashCredit"/>) and the build's version (<see cref="AppBrand.Version"/>, muted). The launch screen shows it while the app starts; <see cref="BusyOverlay"/> shows it while
 /// the app waits, changing <see cref="Line"/> every couple of seconds.
 /// </summary>
 public partial class SplashScreen : ComponentBase
 {
     [Inject] private AppBrand Brand { get; set; } = default!;
+
+    [Inject] private AppText T { get; set; } = default!;
 
     [Parameter] public string? Line { get; set; }
 
