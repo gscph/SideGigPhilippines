@@ -81,6 +81,36 @@ public class SeekerSearchTests
     }
 
     [Fact]
+    public async Task SearchFor_UnknownWords_SuggestsTheTradesTheyCameCloseTo_OnlyThen()
+    {
+        var app = await FakeApp.SeekerAsync();
+
+        var intent = await app.Seeker.SearchForAsync("ayos ng piano");
+        app.Seeker.SuggestedTrades.Should().Equal(intent.OtherCategoryIds);
+
+        await app.Seeker.SearchForAsync("aircon cleaning");
+        app.Seeker.SuggestedTrades.Should().BeEmpty("a matched search needs no suggestions");
+
+        await app.Seeker.PickCategoryAsync("aircon");
+        app.Seeker.SuggestedTrades.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task OthersWords_DontRideAlongWithATradeOrJobPickedLater()
+    {
+        var app = await FakeApp.SeekerAsync();
+        await app.Seeker.SearchForAsync("ayos ng piano");
+
+        await app.Seeker.PickCategoryAsync("aircon");
+        app.Seeker.Answers.OtherJobText.Should().BeNull();
+        app.Seeker.Request.OtherText.Should().BeNull();
+
+        await app.Seeker.SearchForAsync("ayos ng piano");
+        await app.Seeker.PickServiceAsync("aircon-cleaning");
+        app.Seeker.Answers.OtherJobText.Should().BeNull();
+    }
+
+    [Fact]
     public async Task SearchFor_Blank_ClearsTheSavedWords()
     {
         var app = await FakeApp.SeekerAsync();

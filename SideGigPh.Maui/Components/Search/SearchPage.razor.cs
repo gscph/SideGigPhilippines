@@ -53,8 +53,7 @@ public partial class SearchPage : ComponentBase
             return;
         }
 
-        var intent = Workspace.CurrentIntent;
-        _suggestedCategoryIds = intent.Matched ? [] : intent.OtherCategoryIds;
+        _suggestedCategoryIds = Workspace.SuggestedTrades;
         await RunSearchAsync();
     }
 

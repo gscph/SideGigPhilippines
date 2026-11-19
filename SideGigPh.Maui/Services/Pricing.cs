@@ -81,7 +81,7 @@ public static class Pricing
 
     /// <summary>Why Next is off on the budget boxes, so the "Up to" box can say so; null when the range is fine.</summary>
     public static BudgetProblem? BudgetProblemOf(int? min, int? max) =>
-        min is < 0 ? BudgetProblem.UpToBelowFrom
+        min is < 0 ? BudgetProblem.FromBelowZero
         : max is null ? BudgetProblem.NoUpTo
         : !JobPostRules.IsBudget(max) ? BudgetProblem.UpToOutOfRange
         : min is { } from && from > max ? BudgetProblem.UpToBelowFrom
@@ -91,6 +91,7 @@ public static class Pricing
     public static LocalizedText BudgetProblemNote(BudgetProblem problem) => problem switch
     {
         BudgetProblem.NoUpTo => Copy.BudgetNeedsUpTo,
+        BudgetProblem.FromBelowZero => Copy.BudgetFromNotNegative,
         BudgetProblem.UpToOutOfRange => Fill(Copy.BudgetUpToRange, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
         _ => Copy.BudgetToError,
     };
@@ -100,7 +101,7 @@ public static class Pricing
 
     /// <summary>The two boxes' first values: the saved range, else the job's low to average price, else empty.</summary>
     public static (int? Min, int? Max) CustomStart(string? budgetId, string? serviceId, string? categoryId) =>
-        BudgetRange.TryParse(budgetId, out var min, out var max) && max is { } top ? (min, top)
+        BudgetRange.TryParse(budgetId, out var min, out var max) && max is { } top ? (min > 0 ? min : null, top)
         : GuideFor(serviceId, categoryId) is { } guide ? (guide.Min, guide.Average)
         : (null, null);
 
@@ -141,4 +142,7 @@ public enum BudgetProblem
 
     /// <summary>"Up to" under "From".</summary>
     UpToBelowFrom,
+
+    /// <summary>"From" under ₱0.</summary>
+    FromBelowZero,
 }

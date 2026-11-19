@@ -140,9 +140,9 @@ public partial class NewPostPage : ComponentBase
 
     private void GoBack()
     {
-        if (!Editing)
+        if (!Editing && _loaded)
         {
-            Board.KeepUnsent(_draft); // an edit is dropped: the post itself still holds it
+            Board.KeepUnsent(_draft); // an edit is dropped: the post itself still holds it; before loading, nothing to keep
         }
 
         Nav.NavigateTo(JobPostRoutes.Mine);

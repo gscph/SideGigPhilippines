@@ -77,6 +77,7 @@ public static class Copy
     public static readonly LocalizedText BudgetNeedsUpTo = new("Type the most you'd pay to go on", "I-type ang pinakamataas na kaya mo para tumuloy");
     /// <summary>{0} = the smallest budget ("₱50"), {1} = the largest.</summary>
     public static readonly LocalizedText BudgetUpToRange = new("Type an amount from {0} to {1}", "Mag-type ng halaga mula {0} hanggang {1}");
+    public static readonly LocalizedText BudgetFromNotNegative = new("\"From\" can't be below ₱0", "Hindi pwedeng mas mababa sa ₱0 ang \"From\"");
     public static readonly LocalizedText BudgetToError = new("Make it the same or more than the first amount", "Dapat same o mas mataas sa first amount");
 
     // "Others" after the trades: kinds of work we don't list yet. The text is matched with the other side's (search).

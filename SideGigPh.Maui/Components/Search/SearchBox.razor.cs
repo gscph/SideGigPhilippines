@@ -6,9 +6,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// "What do you need?" box. In <see cref="Live"/> mode every change is reported at once (the search sheet keeps the words;
-/// nothing goes to the server), and the keyboard's search/enter key also runs <see cref="OnSubmit"/>; otherwise it
-/// searches when they press that key. The placeholder names an
+/// "What do you need?" box in the search sheet. Every change is reported at once (<see cref="OnTyped"/>: the sheet keeps
+/// the words; nothing goes to the server), and the keyboard's search/enter key runs <see cref="OnSubmit"/>. The
+/// placeholder names an
 /// honorific ("Find a Manong…"): the one that fits <see cref="CategoryId"/>, or a random one until a trade is picked.
 /// </summary>
 public partial class SearchBox : ComponentBase
@@ -18,8 +18,6 @@ public partial class SearchBox : ComponentBase
     /// <summary>The words to start with, e.g. the last search.</summary>
     [Parameter] public string? Value { get; set; }
 
-    [Parameter] public bool Live { get; set; }
-
     /// <summary>Inside a card (the search sheet): a plain outlined pill, without the raised look of Home's box.</summary>
     [Parameter] public bool Flat { get; set; }
 
@@ -28,9 +26,10 @@ public partial class SearchBox : ComponentBase
     /// <summary>The trade being searched, if any: picks the placeholder's honorific.</summary>
     [Parameter] public string? CategoryId { get; set; }
 
-    [Parameter] public EventCallback<string> OnSearch { get; set; }
+    /// <summary>Every change of the words, cleared included.</summary>
+    [Parameter] public EventCallback<string> OnTyped { get; set; }
 
-    /// <summary>The keyboard's search/enter key in <see cref="Live"/> mode (the search sheet runs the search).</summary>
+    /// <summary>The keyboard's search/enter key (the search sheet runs the search).</summary>
     [Parameter] public EventCallback OnSubmit { get; set; }
 
     private string? _text;
@@ -50,7 +49,7 @@ public partial class SearchBox : ComponentBase
     private Task OnTypedAsync(string? text)
     {
         _text = text;
-        return Live ? OnSearch.InvokeAsync(text ?? string.Empty) : Task.CompletedTask;
+        return OnTyped.InvokeAsync(text ?? string.Empty);
     }
 
     private async Task OnKeyDownAsync(KeyboardEventArgs e)
@@ -60,16 +59,13 @@ public partial class SearchBox : ComponentBase
             return;
         }
 
-        await OnSearch.InvokeAsync(_text ?? string.Empty);
-        if (Live)
-        {
-            await OnSubmit.InvokeAsync();
-        }
+        await OnTyped.InvokeAsync(_text ?? string.Empty);
+        await OnSubmit.InvokeAsync();
     }
 
     private Task ClearAsync(MouseEventArgs _)
     {
         _text = string.Empty;
-        return Live ? OnSearch.InvokeAsync(string.Empty) : Task.CompletedTask;
+        return OnTyped.InvokeAsync(string.Empty);
     }
 }

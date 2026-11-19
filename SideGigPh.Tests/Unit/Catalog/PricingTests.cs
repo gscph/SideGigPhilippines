@@ -112,6 +112,7 @@ public class PricingTests
     [InlineData(null, 40, BudgetProblem.UpToOutOfRange)]
     [InlineData(null, 2_000_000, BudgetProblem.UpToOutOfRange)]
     [InlineData(1500, 800, BudgetProblem.UpToBelowFrom)]
+    [InlineData(-5, 1500, BudgetProblem.FromBelowZero)]
     public void AGreyNext_SaysWhy(int? min, int? max, BudgetProblem problem)
     {
         Pricing.BudgetProblemOf(min, max).Should().Be(problem);
@@ -149,6 +150,7 @@ public class PricingTests
     {
         Pricing.CustomStart("900-1300", "aircon-cleaning", "aircon").Should().Be((900, 1300));
         Pricing.CustomStart(null, "aircon-cleaning", "aircon").Should().Be((755, 1000));
+        Pricing.CustomStart("under-1500", "aircon-cleaning", "aircon").Should().Be(((int?)null, (int?)1500), "an \"up to\" alone leaves From empty, not ₱0");
         Pricing.CustomStart(null, null, null).Should().Be(((int?)null, (int?)null), "no guide: the boxes start empty");
     }
 
