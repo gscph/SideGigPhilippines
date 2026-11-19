@@ -15,10 +15,11 @@
         </MudStack>
     </MudContainer>
 }
-else
+else if (_showSplash)
 {
     @* Same brand splash as index.html (and the busy splash), so there's no flash while the saved state loads. The role
        isn't known yet, so it shows the Seeker line with a random honorific, in both languages since a first launch
-       doesn't know the language yet. *@
+       doesn't know the language yet. A later visit (after the language or sign-in) shows it only past
+       BusyOverlay.ShowAfter, so a quick hop to the next screen doesn't flash it. *@
     <SplashScreen Line="@MainLine.English" SubLine="@MainLine.Taglish" />
 }

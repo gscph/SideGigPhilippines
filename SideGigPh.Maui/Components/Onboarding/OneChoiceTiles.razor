@@ -1,0 +1,10 @@
+<MudStack Spacing="2">
+    <ChoiceTiles Items="ChoiceItem.From(OtherChoice.Shown(Options, PickedId, _showAll), T)" SelectedIds="Selected" OnPick="PickAsync" />
+    @if (OtherChoice.IsFolded(Options, PickedId, _showAll))
+    {
+        <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button align-self-center"
+                   StartIcon="@Icons.Material.Rounded.ExpandMore" OnClick="ShowAll">
+            @T.Get(Copy.OtherShowList)
+        </MudButton>
+    }
+</MudStack>

@@ -7,8 +7,7 @@
         case ProStep.Skills:
             <InterviewStep Illustration="@AppImages.Trade" Title="@T.Get(Copy.ProSkillsTitle)" Why="@T.Get(Copy.ProSkillsWhy)" Progress="Progress"
                            OnBack="GoBack" OnNext="OtherTradeNext" CanContinue="@(!string.IsNullOrWhiteSpace(_otherTradeText))">
-                <ChoiceTiles Items="ChoiceItem.From(ReferenceData.TradeChoices, T)"
-                             SelectedIds="Selected(_pickedOtherTrade ? ReferenceData.OtherTradeId : Draft.CategoryId)" OnPick="PickSkillAsync" />
+                <OneChoiceTiles Options="ReferenceData.TradeChoices" PickedId="@(_pickedOtherTrade ? ReferenceData.OtherTradeId : Draft.CategoryId)" OnPick="PickSkillAsync" />
                 @if (_pickedOtherTrade)
                 {
                     <OtherJobField Label="@T.Get(Copy.OtherTradeProLabel)" Help="@T.Get(Copy.OtherTradeHelp)"

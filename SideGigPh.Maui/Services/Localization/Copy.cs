@@ -43,6 +43,7 @@ public static class Copy
     public static readonly LocalizedText SeekerServiceWhy = new("So we can filter Skilled workers.", "Para ma filter namin ang mga Skilled worker.");
     public static readonly LocalizedText OtherJobSeekerLabel = new("What do you need done?", "Ano'ng ipapagawa mo?");
     public static readonly LocalizedText OtherJobProLabel = new("What other work do you do?", "Anong iba pang gawa ang kaya mo?");
+    public static readonly LocalizedText OtherShowList = new("Show the list again", "Ipakita ulit ang listahan");
     public static readonly LocalizedText OtherJobHelp = new("Optional. It helps us add more services.", "Optional. Para madagdagan namin ang listahan.");
     public static readonly LocalizedText SeekerCityTitle = new("Where do you need it done?", "Saan ito gagawin?");
     public static readonly LocalizedText SeekerCityWhy = new("See skilled workers near you.", "Para makita mo ang mga skilled worker na malapit sa'yo.");
