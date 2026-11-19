@@ -44,6 +44,21 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
+      # Wrong inputs or a missing Play secret stop the run here, not after a 5-minute build (and a beta run with a
+      # Play track would otherwise skip the upload without a word).
+      - name: Check the inputs
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ "${{ inputs.play_track }}" != "none" ]; then
+            if [ "${{ inputs.channel }}" != "prod" ]; then
+              echo "::error::play_track ${{ inputs.play_track }} needs channel prod (Play takes only the signed AAB)"; exit 1
+            fi
+            if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
+              echo "::error::Secret PLAY_SERVICE_ACCOUNT_JSON is missing: upload the first AAB by hand, or set it up (docs/play-store.md, part 2)"; exit 1
+            fi
+          fi
+
       - uses: actions/checkout@v4
 
       - name: Setup .NET
