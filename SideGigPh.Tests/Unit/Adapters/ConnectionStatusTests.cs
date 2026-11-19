@@ -45,6 +45,25 @@ public class ConnectionStatusTests
         status.IsOnline.Should().BeFalse();
     }
 
+    [Fact]
+    public async Task ApiClient_ARequestThatOnlyRanOutOfTime_IsNotCountedAsOffline()
+    {
+        var status = new DeviceNetworkStatus();
+        var options = new ApiOptions("https://api.test/api/", "https://photos.test/", new TimesOut());
+        var api = new ApiClient(options, new FakeIdentity(null), NullLogger<ApiClient>.Instance, status);
+
+        var read = () => api.SendAsync(HttpMethod.Get, "config");
+
+        await read.Should().ThrowAsync<HttpRequestException>();
+        status.IsOnline.Should().BeTrue("a cold server or paused database is slow, not a lost connection");
+    }
+
+    private sealed class TimesOut : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            throw new TaskCanceledException("timed out", new TimeoutException());
+    }
+
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.InternalServerError)]

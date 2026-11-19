@@ -41,7 +41,7 @@ public static partial class FirebaseAuthErrors
 
         status = ex.Message;
         // After the account picker, Firebase's own step (exchanging the Google token) fails with no status code: a
-        // dropped connection there is a network error, as is our own time limit (GoogleSignInLimit).
+        // dropped connection there is a network error.
         return IsNetwork(ex) ? AuthError.Network
             : ex is TaskCanceledException or OperationCanceledException ? AuthError.Cancelled
             : AuthError.Unknown;

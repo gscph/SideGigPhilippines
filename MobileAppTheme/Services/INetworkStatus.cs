@@ -13,7 +13,10 @@ public interface INetworkStatus
     /// <summary>Raised on any thread when <see cref="IsOnline"/> may have changed.</summary>
     event Action? Changed;
 
-    /// <summary>A web request got no answer at all (no signal, no DNS, timeout): the phone is offline until one does.</summary>
+    /// <summary>
+    /// A web request couldn't reach the server (no signal, no DNS, dropped socket): the phone is offline until one gets
+    /// an answer. A request that only ran out of time is not reported: a slow server isn't a lost connection.
+    /// </summary>
     void NoAnswer();
 
     /// <summary>A web request got an answer (any status, even an error): the connection works.</summary>

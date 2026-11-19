@@ -9,6 +9,9 @@
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Disabled="_busy" OnClick="TryAgainAsync">
                 @T.Get(CommonCopy.TryAgain)
             </MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button" Disabled="_busy" OnClick="ContinueAnyway">
+                @T.Get(Copy.LaunchContinueOffline)
+            </MudButton>
         </MudStack>
     </MudContainer>
 }

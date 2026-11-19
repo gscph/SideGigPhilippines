@@ -42,12 +42,6 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     /// </summary>
     public static readonly TimeSpan VerifyCodeLimit = TimeSpan.FromSeconds(30);
 
-    /// <summary>
-    /// The longest a Google sign-in may take, account picker included (adding a new Google account there takes a
-    /// while). Past it a dropped connection says "no connection" instead of a spinner that never stops.
-    /// </summary>
-    public static readonly TimeSpan GoogleSignInLimit = TimeSpan.FromMinutes(3);
-
     private static IFirebaseAuth Auth => CrossFirebaseAuth.Current;
 
     /// <summary>The number the last code went to (E.164), to recognise an automatic sign-in with it.</summary>
@@ -165,7 +159,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             // Google sign-in lives on its own cross instance and needs
             // FirebaseAuthGoogleImplementation.Initialize(...) at startup (FirebaseAuthSetup).
             FirebaseAuthSetup.GoogleSignInPending = true;
-            var user = await CrossFirebaseAuthGoogle.Current.SignInWithGoogleAsync().WaitAsync(GoogleSignInLimit);
+            var user = await CrossFirebaseAuthGoogle.Current.SignInWithGoogleAsync();
             return AuthResult.Ok(Map(user));
         }
         catch (Exception ex)

@@ -106,9 +106,28 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         }
         catch (Exception ex) when (NetworkErrors.IsNetwork(ex))
         {
-            network?.NoAnswer();
+            // A request that ran out of time says nothing about the connection (a cold server, a paused database):
+            // only one that couldn't reach the server at all counts the phone as offline.
+            if (!TimedOut(ex))
+            {
+                network?.NoAnswer();
+            }
+
             throw;
         }
+    }
+
+    private static bool TimedOut(Exception exception)
+    {
+        for (var e = exception; e is not null; e = e.InnerException)
+        {
+            if (e is OperationCanceledException or TimeoutException)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task<HttpResponseMessage> SendTriesAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
