@@ -13,50 +13,50 @@ namespace SideGigPh.Api;
 /// </summary>
 public sealed class AdminFunctions(FirebaseTokenValidator auth, AdminList admins, AdminStore store)
 {
-    /// <summary><c>GET admin/stats</c>: users, activity and what waits for the operator, with sign-ups per Philippine day.</summary>
+    /// <summary><c>GET ops/stats</c>: users, activity and what waits for the operator, with sign-ups per Philippine day.</summary>
     [Function("AdminStats")]
     public async Task<IActionResult> Stats(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/stats")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/stats")] HttpRequest request,
         CancellationToken cancellationToken)
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
         return admin is null ? refusal! : new OkObjectResult(await store.StatsAsync(DateTimeOffset.UtcNow, cancellationToken));
     }
 
-    /// <summary><c>GET admin/users?role=seeker|professional|none&amp;search=&amp;sort=joined|active|name&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
+    /// <summary><c>GET ops/users?role=seeker|professional|none&amp;search=&amp;sort=joined|active|name&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
     [Function("AdminUsers")]
     public async Task<IActionResult> Users(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/users")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/users")] HttpRequest request,
         CancellationToken cancellationToken)
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
         return admin is null ? refusal! : new OkObjectResult(await store.UsersAsync(ListQuery(request, "role"), cancellationToken));
     }
 
-    /// <summary><c>GET admin/seekers?town=&amp;search=&amp;sort=joined|active|name|posts|completed&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
+    /// <summary><c>GET ops/seekers?town=&amp;search=&amp;sort=joined|active|name|posts|completed&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
     [Function("AdminSeekers")]
     public async Task<IActionResult> Seekers(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/seekers")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/seekers")] HttpRequest request,
         CancellationToken cancellationToken)
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
         return admin is null ? refusal! : new OkObjectResult(await store.SeekersAsync(ListQuery(request, "town"), cancellationToken));
     }
 
-    /// <summary><c>GET admin/workers?filter=live|not-live|{tradeId}&amp;search=&amp;sort=joined|active|name|rating|completed|rate&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
+    /// <summary><c>GET ops/workers?filter=live|not-live|{tradeId}&amp;search=&amp;sort=joined|active|name|rating|completed|rate&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
     [Function("AdminWorkers")]
     public async Task<IActionResult> Workers(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/workers")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/workers")] HttpRequest request,
         CancellationToken cancellationToken)
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
         return admin is null ? refusal! : new OkObjectResult(await store.WorkersAsync(ListQuery(request, "filter"), cancellationToken));
     }
 
-    /// <summary><c>GET admin/error-reports?filter=error|crash|…|dev|beta|prod&amp;search=&amp;sort=received|last|count&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
+    /// <summary><c>GET ops/error-reports?filter=error|crash|…|dev|beta|prod&amp;search=&amp;sort=received|last|count&amp;desc=true&amp;skip=0&amp;take=25</c>.</summary>
     [Function("AdminErrorReports")]
     public async Task<IActionResult> ErrorReports(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/error-reports")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/error-reports")] HttpRequest request,
         CancellationToken cancellationToken)
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);

@@ -6,7 +6,7 @@ namespace SideGigPh.Admin.Services;
 public enum OperatorState { Loading, NotConfigured, SignedOut, NotOperator, Operator }
 
 /// <summary>
-/// The operator's session: Google sign-in (<see cref="IAdminSignIn"/>), then <c>GET admin/me</c> decides. Only a uid in
+/// The operator's session: Google sign-in (<see cref="IAdminSignIn"/>), then <c>GET ops/me</c> decides. Only a uid in
 /// the API's <c>AdminUids</c> setting is an operator; the site keeps no list of its own. Raises <see cref="Changed"/>
 /// on every move, so the layout swaps between the sign-in screens and the site.
 /// </summary>
@@ -76,7 +76,7 @@ public sealed class AuthService(IAdminSignIn signIn, AdminApi api)
         Error = null;
         try
         {
-            var status = await api.GetAsync("admin/me", ApiJson.Default.AdminStatusDto);
+            var status = await api.GetAsync("ops/me", ApiJson.Default.AdminStatusDto);
             Move(status.IsOperator ? OperatorState.Operator : OperatorState.NotOperator);
         }
         catch (AdminApiException ex)

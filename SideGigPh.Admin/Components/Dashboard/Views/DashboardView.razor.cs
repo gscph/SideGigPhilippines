@@ -7,7 +7,7 @@ namespace SideGigPh.Admin.Components.Dashboard.Views;
 
 /// <summary>
 /// The first page: the app's numbers for a first look at how it's going (people, what they did, what needs the
-/// operator), sign-ups per day and the breakdowns by trade, town and language. One call (<c>GET admin/stats</c>).
+/// operator), sign-ups per day and the breakdowns by trade, town and language. One call (<c>GET ops/stats</c>).
 /// </summary>
 public partial class DashboardView
 {

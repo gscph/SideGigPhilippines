@@ -1,6 +1,6 @@
 namespace SideGigPh.Contracts;
 
-// The operator site's reads (SideGigPh.Admin → admin/…, only the uids in AdminUids). Lists come in pages with a total, so
+// The operator site's reads (SideGigPh.Admin → ops/…, only the uids in AdminUids). Lists come in pages with a total, so
 // the site's grids page on the server. Phone numbers and emails come masked: the dashboard is for counting and
 // spotting problems, not for contacting people.
 
@@ -27,7 +27,7 @@ public static class AdminLists
     public const string NoRole = "none";
 }
 
-/// <summary><c>GET admin/stats</c>: the numbers on the dashboard. Days are Philippine days (UTC+8).</summary>
+/// <summary><c>GET ops/stats</c>: the numbers on the dashboard. Days are Philippine days (UTC+8).</summary>
 public sealed record AdminStatsDto(
     DateTimeOffset At,
     AdminUserStatsDto Users,
@@ -83,7 +83,7 @@ public sealed record AdminDayDto(DateOnly Day, int Seekers, int Workers, int NoR
 /// <summary>A count for one trade, town or language.</summary>
 public sealed record AdminCountDto(string Id, string Label, int Count);
 
-/// <summary><c>GET admin/users</c>: one account.</summary>
+/// <summary><c>GET ops/users</c>: one account.</summary>
 public sealed record AdminUserDto(
     string Uid,
     string? Name,
@@ -96,7 +96,7 @@ public sealed record AdminUserDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? LastActiveAt);
 
-/// <summary><c>GET admin/seekers</c>: one household and what it did.</summary>
+/// <summary><c>GET ops/seekers</c>: one household and what it did.</summary>
 public sealed record AdminSeekerDto(
     string Uid,
     string? Name,
@@ -112,7 +112,7 @@ public sealed record AdminSeekerDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? LastActiveAt);
 
-/// <summary><c>GET admin/workers</c>: one skilled worker, published or not, and how their listing does.</summary>
+/// <summary><c>GET ops/workers</c>: one skilled worker, published or not, and how their listing does.</summary>
 public sealed record AdminWorkerDto(
     string Uid,
     string? Name,
@@ -137,7 +137,7 @@ public sealed record AdminWorkerDto(
     DateTimeOffset? PublishedAt,
     DateTimeOffset? LastActiveAt);
 
-/// <summary><c>GET admin/error-reports</c>: one problem an app sent (scrubbed when recorded and again on the server).</summary>
+/// <summary><c>GET ops/error-reports</c>: one problem an app sent (scrubbed when recorded and again on the server).</summary>
 public sealed record AdminErrorReportDto(
     long Id,
     string Kind,

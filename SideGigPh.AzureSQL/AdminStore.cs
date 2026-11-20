@@ -56,7 +56,7 @@ public static class AdminMask
 }
 
 /// <summary>
-/// The operator site's reads (<c>admin/…</c>): the dashboard's numbers and the lists of accounts, households, workers
+/// The operator site's reads (<c>ops/…</c>): the dashboard's numbers and the lists of accounts, households, workers
 /// and error reports, a page at a time. Read only, no tracking. Contact details leave here masked
 /// (<see cref="AdminMask"/>); review counts include blind reviews still hidden from the public.
 /// </summary>

@@ -77,7 +77,7 @@ public static class ApiErrors
     /// <summary>403 on <c>PUT household-reviews</c>: no completed job (picked, both marked done) between the two.</summary>
     public const string NoCompletedJob = "no-completed-job";
 
-    /// <summary>403 on an <c>admin/…</c> route: the caller isn't an operator.</summary>
+    /// <summary>403 on an <c>ops/…</c> route: the caller isn't an operator.</summary>
     public const string NotAdmin = "not-admin";
 
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>

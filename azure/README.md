@@ -35,7 +35,7 @@ To move the API to another Function App, point the `api` record at it; the app n
 - `PhotoStorage` (storage): `cloudshell-setup.sh` puts it there.
 - `SqlDatabase` (Azure SQL): you add it (see Azure SQL below).
 - `DocumentIntelligenceEndpoint` / `DocumentIntelligenceKey` (the AI read of a worker's ID photo, free tier): paste [`cloudshell-document-intelligence.sh`](cloudshell-document-intelligence.sh) into Cloud Shell; it also makes the private `verification` container for ID photos and proofs. Optional: without them an ID still reaches the operator, just not read by AI.
-- `AdminUids` (the operators who approve verifications): you add it, the Firebase uids of the operator accounts, comma separated (Firebase console → Authentication → Users → User UID). Empty = nobody can open `admin/…` routes.
+- `AdminUids` (the operators who approve verifications): you add it, the Firebase uids of the operator accounts, comma separated (Firebase console → Authentication → Users → User UID). Empty = nobody can open `ops/…` routes.
 - `FirebaseServiceAccount` (sends new-message notifications): you add it, see [`firebase/README.md`](../firebase/README.md) → Notifications. Optional on a PC (leave it empty in `local.settings.json`: messages still send, nobody is notified).
 
 To see or change them: Azure portal → Function App `SideGigPhApi` → Settings → **Environment variables**.

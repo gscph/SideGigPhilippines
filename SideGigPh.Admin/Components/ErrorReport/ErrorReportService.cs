@@ -6,7 +6,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Admin.Components.ErrorReport;
 
 /// <summary>
-/// The problems the apps sent (<c>GET admin/error-reports</c>, kept 90 days, scrubbed of numbers, uids and emails on the
+/// The problems the apps sent (<c>GET ops/error-reports</c>, kept 90 days, scrubbed of numbers, uids and emails on the
 /// phone and again on the server), and this site's own crashes, sent to the same place (<see cref="ReportSiteErrorAsync"/>).
 /// </summary>
 public sealed class ErrorReportService(AdminApi api)
@@ -37,7 +37,7 @@ public sealed class ErrorReportService(AdminApi api)
 
     public async Task<GridData<AdminErrorReportDto>> GetReportsAsync(GridState<AdminErrorReportDto> state, string? search, string? filter, CancellationToken cancellationToken)
     {
-        var page = await api.GetAsync($"admin/error-reports?{state.ToAdminQuery(search, Sorts, ("filter", filter))}", ApiJson.Default.AdminErrorReportPageDto, cancellationToken);
+        var page = await api.GetAsync($"ops/error-reports?{state.ToAdminQuery(search, Sorts, ("filter", filter))}", ApiJson.Default.AdminErrorReportPageDto, cancellationToken);
         return page.Items.ToGridData(page.Total);
     }
 

@@ -5,7 +5,7 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.Admin.Components.User;
 
-/// <summary>Every account (<c>GET admin/users</c>), a page at a time, sorted and searched on the server.</summary>
+/// <summary>Every account (<c>GET ops/users</c>), a page at a time, sorted and searched on the server.</summary>
 public sealed class UserService(AdminApi api)
 {
     /// <summary>The grid's column → the API's sort word.</summary>
@@ -27,7 +27,7 @@ public sealed class UserService(AdminApi api)
 
     public async Task<GridData<AdminUserDto>> GetUsersAsync(GridState<AdminUserDto> state, string? search, string? role, CancellationToken cancellationToken)
     {
-        var page = await api.GetAsync($"admin/users?{state.ToAdminQuery(search, Sorts, ("role", role))}", ApiJson.Default.AdminUserPageDto, cancellationToken);
+        var page = await api.GetAsync($"ops/users?{state.ToAdminQuery(search, Sorts, ("role", role))}", ApiJson.Default.AdminUserPageDto, cancellationToken);
         return page.Items.ToGridData(page.Total);
     }
 

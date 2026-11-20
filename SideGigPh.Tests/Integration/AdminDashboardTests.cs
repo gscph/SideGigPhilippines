@@ -9,8 +9,8 @@ using SideGigPh.Tests.Integration.Support;
 namespace SideGigPh.Tests.Integration;
 
 /// <summary>
-/// The operator site's reads on the real API and database (<c>admin/stats</c>, <c>admin/users</c>, <c>admin/seekers</c>,
-/// <c>admin/workers</c>, <c>admin/error-reports</c>): new people show up in the lists and the counts, contact details
+/// The operator site's reads on the real API and database (<c>ops/stats</c>, <c>ops/users</c>, <c>ops/seekers</c>,
+/// <c>ops/workers</c>, <c>ops/error-reports</c>): new people show up in the lists and the counts, contact details
 /// come masked, and nobody but an operator gets anything.
 /// </summary>
 [Collection(ApiCollection.Name)]
@@ -35,7 +35,7 @@ public class AdminDashboardTests(ApiTestHost api)
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Ramil");
         await worker.Pro.PublishAsync();
 
-        var page = (await Operator.GetFromJsonAsync($"admin/workers?search={worker.Uid}", ApiJson.Default.AdminWorkerPageDto))!;
+        var page = (await Operator.GetFromJsonAsync($"ops/workers?search={worker.Uid}", ApiJson.Default.AdminWorkerPageDto))!;
 
         var row = page.Items.Should().ContainSingle().Subject;
         page.Total.Should().Be(1);
@@ -43,9 +43,9 @@ public class AdminDashboardTests(ApiTestHost api)
         row.Trade.Should().NotBeNullOrEmpty();
         row.Towns.Should().NotBeNullOrEmpty();
         row.Phone.Should().NotBe(worker.PhoneNumber).And.EndWith(worker.PhoneNumber![^4..]);
-        (await Operator.GetFromJsonAsync($"admin/workers?search={worker.Uid}&filter=not-live", ApiJson.Default.AdminWorkerPageDto))!
+        (await Operator.GetFromJsonAsync($"ops/workers?search={worker.Uid}&filter=not-live", ApiJson.Default.AdminWorkerPageDto))!
             .Items.Should().BeEmpty();
-        (await Operator.GetFromJsonAsync($"admin/workers?search={worker.Uid}&filter=aircon", ApiJson.Default.AdminWorkerPageDto))!
+        (await Operator.GetFromJsonAsync($"ops/workers?search={worker.Uid}&filter=aircon", ApiJson.Default.AdminWorkerPageDto))!
             .Items.Should().ContainSingle();
     }
 
@@ -54,13 +54,13 @@ public class AdminDashboardTests(ApiTestHost api)
     {
         var uid = await SeekerProfileAsync("Nena");
 
-        var users = (await Operator.GetFromJsonAsync($"admin/users?search={uid}&role=seeker", ApiJson.Default.AdminUserPageDto))!;
+        var users = (await Operator.GetFromJsonAsync($"ops/users?search={uid}&role=seeker", ApiJson.Default.AdminUserPageDto))!;
         var user = users.Items.Should().ContainSingle().Subject;
         (user.Role, user.Language, user.HasListing).Should().Be((Wire.Seeker, Wire.Taglish, false));
         user.Email.Should().Be("n•••@example.com");
-        (await Operator.GetFromJsonAsync($"admin/users?search={uid}&role=professional", ApiJson.Default.AdminUserPageDto))!.Items.Should().BeEmpty();
+        (await Operator.GetFromJsonAsync($"ops/users?search={uid}&role=professional", ApiJson.Default.AdminUserPageDto))!.Items.Should().BeEmpty();
 
-        var seekers = (await Operator.GetFromJsonAsync($"admin/seekers?search={uid}", ApiJson.Default.AdminSeekerPageDto))!;
+        var seekers = (await Operator.GetFromJsonAsync($"ops/seekers?search={uid}", ApiJson.Default.AdminSeekerPageDto))!;
         var seeker = seekers.Items.Should().ContainSingle().Subject;
         (seeker.Name, seeker.Posts, seeker.Chats).Should().Be(("Nena", 0, 0));
     }
@@ -70,7 +70,7 @@ public class AdminDashboardTests(ApiTestHost api)
     {
         await SeekerProfileAsync("Paging");
 
-        var page = (await Operator.GetFromJsonAsync($"admin/users?take={AdminLists.MaxTake + 50}&skip=-3", ApiJson.Default.AdminUserPageDto))!;
+        var page = (await Operator.GetFromJsonAsync($"ops/users?take={AdminLists.MaxTake + 50}&skip=-3", ApiJson.Default.AdminUserPageDto))!;
 
         page.Items.Count.Should().BeInRange(1, AdminLists.MaxTake);
         page.Total.Should().BeGreaterThanOrEqualTo(page.Items.Count);
@@ -79,10 +79,10 @@ public class AdminDashboardTests(ApiTestHost api)
     [IntegrationFact]
     public async Task Stats_CountTodaysSignUps_ByPhilippineDay()
     {
-        var before = (await Operator.GetFromJsonAsync("admin/stats", ApiJson.Default.AdminStatsDto))!;
+        var before = (await Operator.GetFromJsonAsync("ops/stats", ApiJson.Default.AdminStatsDto))!;
         await SeekerProfileAsync("Counted");
 
-        var after = (await Operator.GetFromJsonAsync("admin/stats", ApiJson.Default.AdminStatsDto))!;
+        var after = (await Operator.GetFromJsonAsync("ops/stats", ApiJson.Default.AdminStatsDto))!;
 
         after.Users.Total.Should().Be(before.Users.Total + 1);
         after.Users.Seekers.Should().Be(before.Users.Seekers + 1);
@@ -103,20 +103,20 @@ public class AdminDashboardTests(ApiTestHost api)
                 DateTimeOffset.UtcNow.AddMinutes(-1), DateTimeOffset.UtcNow)]);
         sent.Should().BeTrue();
 
-        var page = (await Operator.GetFromJsonAsync($"admin/error-reports?search={marker}", ApiJson.Default.AdminErrorReportPageDto))!;
+        var page = (await Operator.GetFromJsonAsync($"ops/error-reports?search={marker}", ApiJson.Default.AdminErrorReportPageDto))!;
 
         var report = page.Items.Should().ContainSingle().Subject;
         (report.Kind, report.Count, report.Channel, report.Install).Should().Be((ErrorKinds.Crash, 2, AppChannels.Beta, installId[..8]));
-        (await Operator.GetFromJsonAsync($"admin/error-reports?search={marker}&filter=prod", ApiJson.Default.AdminErrorReportPageDto))!.Items.Should().BeEmpty();
-        (await Operator.GetFromJsonAsync($"admin/error-reports?search={marker}&filter=crash", ApiJson.Default.AdminErrorReportPageDto))!.Items.Should().ContainSingle();
+        (await Operator.GetFromJsonAsync($"ops/error-reports?search={marker}&filter=prod", ApiJson.Default.AdminErrorReportPageDto))!.Items.Should().BeEmpty();
+        (await Operator.GetFromJsonAsync($"ops/error-reports?search={marker}&filter=crash", ApiJson.Default.AdminErrorReportPageDto))!.Items.Should().ContainSingle();
     }
 
     [IntegrationTheory]
-    [InlineData("admin/stats")]
-    [InlineData("admin/users")]
-    [InlineData("admin/seekers")]
-    [InlineData("admin/workers")]
-    [InlineData("admin/error-reports")]
+    [InlineData("ops/stats")]
+    [InlineData("ops/users")]
+    [InlineData("ops/seekers")]
+    [InlineData("ops/workers")]
+    [InlineData("ops/error-reports")]
     public async Task OnlyOperators_GetAnything(string route)
     {
         using var signedOut = await api.Client().GetAsync(route);
