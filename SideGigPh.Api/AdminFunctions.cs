@@ -8,7 +8,7 @@ namespace SideGigPh.Api;
 
 /// <summary>
 /// The operator site's reads (<c>SideGigPh.Admin</c>): the dashboard's numbers and the lists of accounts, households,
-/// skilled workers and error reports, a page at a time. Only the uids in <c>AdminUids</c> (<see cref="AdminList"/>);
+/// skilled workers, error reports and "Others" notes, a page at a time. Only the uids in <c>AdminUids</c> (<see cref="AdminList"/>);
 /// anyone else gets 401 or 403 <c>not-admin</c>. Read only: nothing here changes data. Contact details come masked.
 /// </summary>
 public sealed class AdminFunctions(FirebaseTokenValidator auth, AdminList admins, AdminStore store)
@@ -61,6 +61,16 @@ public sealed class AdminFunctions(FirebaseTokenValidator auth, AdminList admins
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
         return admin is null ? refusal! : new OkObjectResult(await store.ErrorReportsAsync(ListQuery(request, "filter"), cancellationToken));
+    }
+
+    /// <summary><c>GET ops/other-jobs?filter=seeker|professional|{tradeId}&amp;search=&amp;desc=true&amp;skip=0&amp;take=25</c>: what people typed under "Others", newest first.</summary>
+    [Function("AdminOtherJobs")]
+    public async Task<IActionResult> OtherJobs(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/other-jobs")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
+        return admin is null ? refusal! : new OkObjectResult(await store.OtherJobsAsync(ListQuery(request, "filter"), cancellationToken));
     }
 
     /// <summary>The page the query string asks for; <paramref name="filterName"/> names the list's one filter.</summary>

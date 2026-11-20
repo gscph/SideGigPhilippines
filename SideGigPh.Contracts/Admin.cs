@@ -157,6 +157,20 @@ public sealed record AdminErrorReportDto(
     DateTimeOffset LastAt,
     DateTimeOffset ReceivedAt);
 
+/// <summary>
+/// <c>GET ops/other-jobs</c>: what one person typed after picking "Others" (<c>OtherJobNotes</c>): under a trade's
+/// "Others" job, or as their own trade (<see cref="TradeId"/> <c>other</c>). <see cref="Uid"/> is null once they deleted their account.
+/// </summary>
+public sealed record AdminOtherJobDto(
+    long Id,
+    string Side,
+    string TradeId,
+    string Trade,
+    string Text,
+    string? Uid,
+    string? Name,
+    DateTimeOffset CreatedAt);
+
 public sealed record AdminUserPageDto(List<AdminUserDto> Items, int Total);
 
 public sealed record AdminSeekerPageDto(List<AdminSeekerDto> Items, int Total);
@@ -164,3 +178,5 @@ public sealed record AdminSeekerPageDto(List<AdminSeekerDto> Items, int Total);
 public sealed record AdminWorkerPageDto(List<AdminWorkerDto> Items, int Total);
 
 public sealed record AdminErrorReportPageDto(List<AdminErrorReportDto> Items, int Total);
+
+public sealed record AdminOtherJobPageDto(List<AdminOtherJobDto> Items, int Total);

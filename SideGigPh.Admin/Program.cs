@@ -5,6 +5,7 @@ using SideGigPh.Admin.Components;
 using SideGigPh.Admin.Components.Badge;
 using SideGigPh.Admin.Components.Dashboard;
 using SideGigPh.Admin.Components.ErrorReport;
+using SideGigPh.Admin.Components.OtherJob;
 using SideGigPh.Admin.Components.Seeker;
 using SideGigPh.Admin.Components.Shared;
 using SideGigPh.Admin.Components.User;
@@ -39,5 +40,6 @@ builder.Services.AddSingleton<SeekerService>();
 builder.Services.AddSingleton<WorkerService>();
 builder.Services.AddSingleton<BadgeService>();
 builder.Services.AddSingleton<ErrorReportService>();
+builder.Services.AddSingleton<OtherJobService>();
 
 await builder.Build().RunAsync();

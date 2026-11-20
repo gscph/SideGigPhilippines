@@ -470,10 +470,15 @@ households and skilled workers, the badge review (the same as the phone's `Badge
   `GET ops/seekers?town=` (a household's town = its latest post's or chat's: the home town lives on the phone only),
   `GET ops/workers?filter=live|not-live|{tradeId}` (every live listing, even one whose account profile was never
   saved, then worker accounts not live yet; rating and review counts include blind reviews still hidden from the
-  public), `GET ops/error-reports?filter={kind}|{channel}`. Each list takes `search` (name, number, email, uid; error
+  public), `GET ops/error-reports?filter={kind}|{channel}`, `GET ops/other-jobs?filter=seeker|professional|{tradeId}`
+  (`OtherJobNotes`, newest first; `other` = typed as their own trade; the writer's name joined from `Users`). Each list takes `search` (name, number, email, uid; error
   reports: message, source, page, version, install), `sort` (`AdminLists`), `desc`, `skip`, `take`, and answers
   `{ items, total }`. **Contact details leave the server masked** (`AdminMask`: `+63 9•• ••• 4567`, `j•••@gmail.com`,
   the install id cut to 8): the dashboard is for counting and spotting problems, not for contacting people.
+- **"Others" typed** (`Components/OtherJob/`, `OtherJobService`, page `/other-jobs`, side menu "Insights", linked from
+  the dashboard's "Others" tile): every note people typed after picking "Others", newest first, with the trade it was
+  under ("Own trade" for the interviews' Others tile), the side and who; filter by side, the Others trade or a trade,
+  search the text. It shows which trades and jobs to add next to `004-config.sql`.
 - **Error reports:** the apps' reports, newest first, a row opens to the stack trace and the trail (`ErrorReportDetail`).
   The site's own crashes go to the same table: `MainLayout`'s error boundary shows `SiteErrorPanel`, which sends one
   `POST error-reports` (`ErrorReportService.ReportSiteErrorAsync`, version `operator`, platform `web`, channel `prod`);
