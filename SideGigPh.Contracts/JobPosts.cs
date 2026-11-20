@@ -172,6 +172,9 @@ public static class JobOfferStatuses
 
     /// <summary>The worker took it back.</summary>
     public const string Withdrawn = "withdrawn";
+
+    /// <summary>It was picked, then either side called the job off before both marked it done; the post opened again.</summary>
+    public const string Cancelled = "cancelled";
 }
 
 /// <summary>The limits both sides keep for an offer (the columns of <c>JobOffers</c>).</summary>

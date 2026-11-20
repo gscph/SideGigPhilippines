@@ -835,6 +835,31 @@ public sealed class FakeJobPosts : IJobPostRepository
         throw new InvalidOperationException($"No picked job on post {postId}.");
     }
 
+    /// <summary>The picked jobs called off: post, reason, note.</summary>
+    public List<(long PostId, string Reason, string? Note)> Cancelled { get; } = [];
+
+    public Task CancelPickAsync(long postId, string reason, string? note)
+    {
+        ThrowIfOfflineOrGone();
+        foreach (var jobs in PickedWith.Values)
+        {
+            var index = jobs.FindIndex(j => j.PostId == postId);
+            if (index >= 0)
+            {
+                if (jobs[index].IsCompleted)
+                {
+                    throw new HttpRequestException("completed", null, System.Net.HttpStatusCode.Conflict);
+                }
+
+                jobs.RemoveAt(index);
+                Cancelled.Add((postId, reason, note));
+                return Task.CompletedTask;
+            }
+        }
+
+        throw new HttpRequestException("gone", null, System.Net.HttpStatusCode.NotFound);
+    }
+
     public Task RateHouseholdAsync(string seekerUid, int rating, string? comment)
     {
         ThrowIfOfflineOrGone();

@@ -385,6 +385,10 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             offer.HasIndex(o => o.ProUid).HasDatabaseName("IX_JobOffers_Pro");
             // 018-schema-job-done
             offer.HasIndex(o => o.ProUid, "IX_JobOffers_Done").HasFilter("[HouseholdDoneAt] IS NOT NULL AND [WorkerDoneAt] IS NOT NULL");
+            // 026-schema-cancel-pick
+            offer.Property(o => o.CancelledBy).HasMaxLength(10);
+            offer.Property(o => o.CancelReason).HasMaxLength(20);
+            offer.Property(o => o.CancelNote).HasMaxLength(300).IsUnicode();
         });
 
         model.Entity<HouseholdReviewRow>(review =>

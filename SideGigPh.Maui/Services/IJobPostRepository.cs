@@ -63,6 +63,13 @@ public interface IJobPostRepository
     Task<PickedJob> MarkDoneAsync(long postId);
 
     /// <summary>
+    /// This person (the household or the picked worker) calls off the picked job on <paramref name="postId"/> with a
+    /// reason (<c>PickCancelReasons</c>) and an optional note; the post opens again. Throws when it didn't send; an
+    /// <see cref="HttpRequestException"/> with status 409 when both had already marked it done.
+    /// </summary>
+    Task CancelPickAsync(long postId, string reason, string? note);
+
+    /// <summary>
     /// A worker rates a household after a completed job between them; writing again replaces it. Throws when it didn't
     /// send (status 403: no completed job yet).
     /// </summary>

@@ -495,6 +495,21 @@ public static class Copy
     public static readonly LocalizedText RateCustomerSend = new("Send rating", "I-send ang rating");
     public static readonly LocalizedText YouRatedCustomer = new("You gave this customer {0} of 5 stars.", "Binigyan mo ang customer ng {0} sa 5 star.");
     public static readonly LocalizedText ChangeRating = new("Change", "Palitan");
+    public static readonly LocalizedText CancelPickLink = new("Cancel this", "I-cancel ito");
+    public static readonly LocalizedText CancelPickTitle = new("Why are you cancelling?", "Bakit mo ika-cancel?");
+    public static readonly LocalizedText CancelPickHousehold = new("Your post opens again, so you can pick another offer.", "Bubuksan ulit ang post mo para makapili ka ng ibang offer.");
+    public static readonly LocalizedText CancelPickWorker = new("The customer can pick someone else.", "Makakapili ang customer ng iba.");
+    public static readonly LocalizedText CancelPickNote = new("Add a note (optional)", "Dagdag na paliwanag (optional)");
+    public static readonly LocalizedText CancelPickConfirm = new("Cancel it", "I-cancel na");
+    public static readonly LocalizedText CancelPickKeep = new("Keep it", "Huwag na");
+    public static readonly LocalizedText CancelPickFailed = new("Didn't cancel. Check your internet and try again.", "Hindi na-cancel. I-check ang internet mo tapos try ulit.");
+    public static readonly LocalizedText CancelPickMessage = new("I cancelled this: {0}. Reason: {1}.", "Kinancel ko na ito: {0}. Dahilan: {1}.");
+    public static readonly LocalizedText CancelReasonCantMakeIt = new("I can't make it", "Hindi ako makakapunta");
+    public static readonly LocalizedText CancelReasonNoReply = new("They stopped replying", "Hindi na sila sumasagot");
+    public static readonly LocalizedText CancelReasonNoShow = new("The worker didn't come", "Hindi dumating ang worker");
+    public static readonly LocalizedText CancelReasonNotNeeded = new("I don't need it anymore", "Hindi ko na kailangan");
+    public static readonly LocalizedText CancelReasonPrice = new("We didn't agree on the price", "Hindi kami nagkasundo sa presyo");
+    public static readonly LocalizedText CancelReasonOther = new("Other reason", "Iba pang dahilan");
     public static readonly LocalizedText PickedDidNotSend = new("Didn't send. Check your internet and try again.", "Di na-send. I-check ang internet mo tapos try ulit.");
 
     // --- Blind reviews: hidden until both review, or 14 days ---------------

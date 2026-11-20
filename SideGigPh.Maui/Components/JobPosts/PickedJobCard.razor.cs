@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -11,7 +12,9 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// review (<see cref="RateHref"/>) or the worker's stars for the household, right here, with a line on the blind
 /// reviews (<see cref="BlindReviews"/>: hidden until both reviewed, or 14 days; then the other's stars, and this
 /// person's review is locked: no Change button, <see cref="PickedJob.MyReviewLocked"/>). Raises
-/// <see cref="OnChanged"/> with the job as the server now has it.
+/// <see cref="OnChanged"/> with the job as the server now has it. Until both marked it done, "Cancel this" opens a
+/// reason (<see cref="PickCancel"/>) and an optional note; once called off it raises <see cref="OnCancelled"/> with
+/// the chat message to send the other person.
 /// </summary>
 public partial class PickedJobCard : ComponentBase
 {
@@ -31,11 +34,17 @@ public partial class PickedJobCard : ComponentBase
 
     [Parameter] public EventCallback<PickedJob> OnChanged { get; set; }
 
+    /// <summary>The job was called off: the message telling the other person why (the page sends it in the chat).</summary>
+    [Parameter] public EventCallback<string> OnCancelled { get; set; }
+
     private bool _busy;
     private bool _editing;
     private int _stars;
     private string? _comment;
     private string? _error;
+    private bool _cancelling;
+    private string? _reason;
+    private string? _note;
 
     private string Title => Job.IAmTheHousehold
         ? T.Format(Copy.PickedTitleHousehold, OtherName)
@@ -91,6 +100,53 @@ public partial class PickedJobCard : ComponentBase
             else
             {
                 _error = T.Get(Copy.PickedDidNotSend);
+            }
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private void StartCancel()
+    {
+        _reason = null;
+        _note = null;
+        _error = null;
+        _cancelling = true;
+    }
+
+    private void KeepIt() => _cancelling = false;
+
+    private async Task CancelAsync()
+    {
+        if (_busy || _reason is not { } reason)
+        {
+            return; // a second tap before the button re-rendered as disabled
+        }
+
+        _busy = true;
+        _error = null;
+        try
+        {
+            switch (await Board.CancelPickAsync(Job, reason, _note))
+            {
+                case CancelPickResult.Cancelled:
+                    _cancelling = false;
+                    await OnCancelled.InvokeAsync(T.CancelMessage(ServiceLabel, reason, _note));
+                    break;
+                case CancelPickResult.Completed:
+                    // Both marked it done meanwhile: show it as it is now.
+                    _cancelling = false;
+                    if ((await Board.PickedJobsAsync(OtherUid)).FirstOrDefault(j => j.PostId == Job.PostId) is { } now)
+                    {
+                        await OnChanged.InvokeAsync(now);
+                    }
+
+                    break;
+                default:
+                    _error = T.Get(Copy.CancelPickFailed);
+                    break;
             }
         }
         finally

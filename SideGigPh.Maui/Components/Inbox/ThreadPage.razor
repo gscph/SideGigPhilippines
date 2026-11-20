@@ -55,7 +55,7 @@
             @if (_job is not null)
             {
                 <PickedJobCard Job="_job" OtherName="@_pro.DisplayName" OtherUid="@_pro.Id" RateHref="@SeekerRoutes.RateAfterJob(_pro.Id)"
-                               OnChanged="JobChanged" />
+                               OnChanged="JobChanged" OnCancelled="JobCancelledAsync" />
             }
 
             @if (_job is { IsCompleted: true })

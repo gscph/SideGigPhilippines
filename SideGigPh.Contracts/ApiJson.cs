@@ -52,6 +52,7 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(PickedJobDto))]
 [JsonSerializable(typeof(List<PickedJobDto>))]
 [JsonSerializable(typeof(SaveHouseholdReviewRequest))]
+[JsonSerializable(typeof(CancelPickRequest))]
 [JsonSerializable(typeof(SendOfferRequest))]
 [JsonSerializable(typeof(BadgeDto))]
 [JsonSerializable(typeof(List<BadgeDto>))]

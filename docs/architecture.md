@@ -342,6 +342,15 @@ for Android).
   tells `SeekerWorkspace.CompletedJobWith`, so `CanRate` opens the review page at once. `ReviewRow` shows a green
   "Verified service" chip (`Review.VerifiedJob`; copy says service, never job), `ListingFacts` a "Done through Tarbaho:
   N" fact, and a worker's `JobPostCard` the household's stars.
+  **Calling a pick off** (`026-schema-cancel-pick.sql`, `PickedJobStore.CancelAsync`, `POST picked-jobs/{postId}/cancel`):
+  until both marked it done, the card's "Cancel this" link opens the side's reasons (`Services/PickCancel.ReasonsFor`:
+  the household "didn't come" / "stopped replying" / "don't need it" / price / other, the worker "can't make it" /
+  "stopped replying" / price / other, words in `PickCancelText`) and an optional note; **Cancel it** (red) calls
+  `JobBoard.CancelPickAsync`, which marks the household's post open again in `Mine`. The offer becomes `cancelled`
+  (who, when, why kept for the operator), the post opens again for its other offers (a hidden post stays hidden), the
+  numbers stop showing (`ContactNumberAsync` needs a pick), the worker's My offers reads it as not picked and the
+  household's offer count leaves it out. The chat stays: the page drops the card, re-reads the number and sends the
+  other person "I cancelled this: Plumbing. Reason: …" (`PickCancelText.CancelMessage`), which is also their alert.
 - **Blind two-way reviews** (no schema change, computed from the existing times): if one side's review showed first,
   the other could answer it in kind, so people would inflate their stars out of fear. After a completed job, a review
   either side writes (or changes) from then on stays **hidden until the other side has reviewed since that job too, or

@@ -27,5 +27,54 @@ public sealed record PickedJobDto(
     int? TheirRating = null,
     bool MyReviewLocked = false);
 
+/// <summary>
+/// <c>POST picked-jobs/{postId}/cancel</c>: the household or the picked worker calls the job off before both marked it
+/// done. The post opens again for its other offers, the numbers stop showing, the chat stays.
+/// </summary>
+/// <param name="Reason">One of <see cref="PickCancelReasons"/>.</param>
+/// <param name="Note">Optional words, up to <see cref="PickCancelRules.MaxNote"/>.</param>
+public sealed record CancelPickRequest(string Reason, string? Note = null);
+
+/// <summary>Why a picked job was called off (the ids stored in <c>JobOffers.CancelReason</c>; the app words them).</summary>
+public static class PickCancelReasons
+{
+    /// <summary>The worker can't do it (busy, sick, too far).</summary>
+    public const string CantMakeIt = "cant-make-it";
+
+    /// <summary>The other side stopped answering.</summary>
+    public const string NoReply = "no-reply";
+
+    /// <summary>The worker didn't come.</summary>
+    public const string NoShow = "no-show";
+
+    /// <summary>The household doesn't need it any more (fixed, found someone else).</summary>
+    public const string NotNeeded = "not-needed";
+
+    /// <summary>They couldn't agree on the price.</summary>
+    public const string Price = "price";
+
+    public const string Other = "other";
+
+    public static readonly IReadOnlyList<string> All = [CantMakeIt, NoReply, NoShow, NotNeeded, Price, Other];
+
+    public static bool IsKnown(string? reason) => reason is not null && All.Contains(reason);
+}
+
+/// <summary>Who called a picked job off (<c>JobOffers.CancelledBy</c>).</summary>
+public static class PickCancelSides
+{
+    public const string Household = "household";
+    public const string Worker = "worker";
+}
+
+/// <summary>The limits both sides keep for calling a job off.</summary>
+public static class PickCancelRules
+{
+    public const int MaxNote = 300;
+
+    /// <summary>No note, or one that fits once trimmed.</summary>
+    public static bool IsNote(string? note) => note is null || note.Trim().Length <= MaxNote;
+}
+
 /// <summary><c>PUT household-reviews</c>: a worker's stars for a household, after a completed job between them. Writing again replaces it.</summary>
 public sealed record SaveHouseholdReviewRequest(string SeekerUid, int Rating, string? Comment = null);

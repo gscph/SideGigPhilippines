@@ -167,7 +167,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             .ToListAsync(cancellationToken);
         var ids = rows.Select(row => row.Id).ToList();
         var offers = await db.JobOffers.AsNoTracking()
-            .Where(o => ids.Contains(o.PostId) && o.Status != JobOfferStatuses.Withdrawn)
+            .Where(o => ids.Contains(o.PostId) && (o.Status == JobOfferStatuses.Sent || o.Status == JobOfferStatuses.Picked))
             .Select(o => new { o.PostId, o.ProUid, o.Status })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(row => ToDto(
@@ -199,7 +199,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         {
             var post = posts[o.PostId];
             var state = o.Status == JobOfferStatuses.Picked ? MyOfferStates.Picked
-                : post.Status == JobPostStatuses.Open ? MyOfferStates.Waiting
+                : o.Status == JobOfferStatuses.Sent && post.Status == JobPostStatuses.Open ? MyOfferStates.Waiting
                 : MyOfferStates.NotPicked;
             return new MyOfferDto(
                 ToDto(post, uid, myOfferPesos: o.PricePesos),

@@ -53,6 +53,41 @@ public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobSto
     }
 
     /// <summary>
+    /// <c>POST picked-jobs/{postId}/cancel</c>: the caller (the household or the picked worker) calls the job off with a
+    /// reason; the post opens again. <c>204</c>; <c>404</c> when the caller is neither or nothing is picked there;
+    /// <c>409 job-completed</c> once both marked it done; <c>400</c> for an unknown reason or a long note.
+    /// </summary>
+    [Function("CancelPickedJob")]
+    public async Task<IActionResult> Cancel(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "picked-jobs/{postId}/cancel")] HttpRequest request,
+        string postId,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.JobOffer, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        if (!long.TryParse(postId, out var id) || await ApiResults.ReadAsync<CancelPickRequest>(request, cancellationToken) is not { } cancel)
+        {
+            return ApiResults.BadRequest();
+        }
+
+        return await jobs.CancelAsync(uid, id, cancel, cancellationToken) switch
+        {
+            CancelPickOutcome.Cancelled => new NoContentResult(),
+            CancelPickOutcome.NotFound => new NotFoundResult(),
+            CancelPickOutcome.Completed => ApiResults.Conflict(ApiErrors.JobCompleted),
+            _ => ApiResults.BadRequest(),
+        };
+    }
+
+    /// <summary>
     /// <c>PUT household-reviews</c>: the caller, a worker, rates a household after a completed job between them.
     /// <c>403 no-completed-job</c> before that.
     /// </summary>
