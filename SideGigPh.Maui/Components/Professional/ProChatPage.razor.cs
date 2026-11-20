@@ -175,6 +175,11 @@ public partial class ProChatPage : ComponentBase, IDisposable
             _scrollToEnd = true;
             _message = null;
         }
+        catch (TextNotAllowedException)
+        {
+            // Nothing was sent; the message stays in the box to be rewritten.
+            _error = T.Get(Copy.TextNotAllowed);
+        }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Replying in chat {ChatId} failed.", ChatId);

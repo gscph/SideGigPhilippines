@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
 /// <summary>In-app chat. Every call is about the caller's own chats; nobody else's can be read.</summary>
-public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier, UserStore users, CallerLimits limits)
+public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, ChatNotifier notifier, UserStore users, CallerLimits limits,
+    TextModeration moderation)
 {
     /// <summary>
     /// <c>GET chats?side=seeker&amp;take=30&amp;before={chatId}</c> (or <c>side=professional</c>): one page of the caller's
@@ -94,7 +96,8 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
 
     /// <summary>
     /// Sends a message; the first one creates the chat. Tells the other person (<see cref="ChatNotifier"/>). Answers with
-    /// the chat as saved, or <c>429</c> past <see cref="Limited.Message"/> / <see cref="Limited.NewChat"/>.
+    /// the chat as saved, <c>429</c> past <see cref="Limited.Message"/> / <see cref="Limited.NewChat"/>, or <c>422
+    /// text-not-allowed</c> for rude or sexual words (<see cref="TextModeration"/>: nothing saved, nobody notified).
     /// </summary>
     [Function("SendChatMessage")]
     public async Task<IActionResult> Send(
@@ -115,6 +118,11 @@ public sealed class ChatFunctions(FirebaseTokenValidator auth, ChatStore chats, 
         if (await ApiResults.ReadAsync<SendMessageRequest>(request, cancellationToken) is not { } message)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("chat message", message.Text, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         var result = await chats.SendAsync(chatId, uid, message, () => limits.TryTake(Limited.NewChat, uid), cancellationToken);
