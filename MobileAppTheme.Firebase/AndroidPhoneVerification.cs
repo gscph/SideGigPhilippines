@@ -1,4 +1,5 @@
 #if ANDROID
+using Android.App;
 using Firebase;
 using Firebase.Auth;
 using Java.Lang;
@@ -16,14 +17,41 @@ namespace MobileAppTheme.Firebase;
 /// a number Android confirmed by itself (instant verification, no code to type) never signed in, and a "code sent" that
 /// arrived after the app had gone to the background (the reCAPTCHA browser page, or reading the SMS: common on Xiaomi)
 /// left no session id, so the right six digits were refused. Here each send waits for Firebase's answer, keeps every
-/// one of them for that send only, and a late answer to an older send is ignored.
+/// one of them for that send only, and a late answer to an older send is ignored. Firebase drops a send's callbacks
+/// when the screen stops (its activity scope), so a send still waiting when the app comes back asks again for the same
+/// number (<see cref="ScreenBack"/>, Firebase's own advice): no second SMS, and the answer reaches the new callbacks.
 /// </summary>
-internal sealed class AndroidPhoneVerification(ILogger logger)
+internal sealed class AndroidPhoneVerification
 {
     /// <summary>How long Android waits to read the SMS by itself before giving up (Firebase's own limit).</summary>
     private const long AutoReadSeconds = 60;
 
+    // The provider is a singleton, so there is one of these; the activity's OnStart reaches it through this.
+    private static AndroidPhoneVerification? s_instance;
+
+    private readonly ILogger _logger;
     private Attempt? _current;
+
+    public AndroidPhoneVerification(ILogger logger)
+    {
+        _logger = logger;
+        s_instance = this;
+    }
+
+    /// <summary>
+    /// The app's screen is showing again (activity OnStart, from <see cref="FirebaseAuthSetup"/>). A send still waiting
+    /// for Firebase's answer lost its callbacks when the screen stopped (the person went to read the SMS, or the
+    /// reCAPTCHA page opened): ask again for the same number so the answer has somewhere to go.
+    /// </summary>
+    public static void ScreenBack(Activity activity)
+    {
+        if (s_instance is { _current: { } attempt } owner && !attempt.Sent.Task.IsCompleted
+            && DateTimeOffset.UtcNow - attempt.StartedAt < TimeSpan.FromSeconds(AutoReadSeconds))
+        {
+            owner._logger.LogInformation("The SMS code send was still waiting when the app came back; asking again.");
+            owner.Start(activity, attempt, resend: null);
+        }
+    }
 
     /// <summary>
     /// Asks Firebase to send a code to <paramref name="phoneNumber"/> (E.164) and waits for its answer: done once the
@@ -40,8 +68,14 @@ internal sealed class AndroidPhoneVerification(ILogger logger)
         var attempt = new Attempt(phoneNumber);
         _current = attempt;
 
+        Start(activity, attempt, resend);
+        return attempt.Sent.Task;
+    }
+
+    private void Start(Activity activity, Attempt attempt, PhoneAuthProvider.ForceResendingToken? resend)
+    {
         var options = PhoneAuthOptions.NewBuilder()
-            .SetPhoneNumber(phoneNumber)
+            .SetPhoneNumber(attempt.PhoneNumber)
             .SetTimeout(Long.ValueOf(AutoReadSeconds), TimeUnit.Seconds!)
             .SetActivity(activity)
             .SetCallbacks(new Callbacks(this, attempt));
@@ -51,7 +85,6 @@ internal sealed class AndroidPhoneVerification(ILogger logger)
         }
 
         PhoneAuthProvider.VerifyPhoneNumber(options.Build());
-        return attempt.Sent.Task;
     }
 
     /// <summary>
@@ -101,7 +134,7 @@ internal sealed class AndroidPhoneVerification(ILogger logger)
     {
         if (!attempt.Sent.TrySetException(exception))
         {
-            logger.LogWarning(exception, "Firebase reported a phone verification failure after the code was sent.");
+            _logger.LogWarning(exception, "Firebase reported a phone verification failure after the code was sent.");
         }
     }
 
@@ -110,12 +143,12 @@ internal sealed class AndroidPhoneVerification(ILogger logger)
         try
         {
             await FirebaseAuth.Instance.SignInWithCredentialAsync(credential);
-            logger.LogInformation("Android confirmed the number by itself; signed in.");
+            _logger.LogInformation("Android confirmed the number by itself; signed in.");
         }
         catch (Exception ex)
         {
             // The person can still type the code.
-            logger.LogWarning(ex, "Signing in with the number Android confirmed by itself failed.");
+            _logger.LogWarning(ex, "Signing in with the number Android confirmed by itself failed.");
         }
     }
 
@@ -123,6 +156,7 @@ internal sealed class AndroidPhoneVerification(ILogger logger)
     private sealed class Attempt(string phoneNumber)
     {
         public string PhoneNumber { get; } = phoneNumber;
+        public DateTimeOffset StartedAt { get; } = DateTimeOffset.UtcNow;
         public TaskCompletionSource Sent { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
         public string? VerificationId { get; set; }
         public PhoneAuthProvider.ForceResendingToken? ResendToken { get; set; }
