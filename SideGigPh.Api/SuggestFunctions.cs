@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -13,9 +14,10 @@ namespace SideGigPh.Api;
 /// posts a new one. No sign-in: a visitor is a random id in a cookie (<see cref="VoterCookie"/>, stored as
 /// <c>web-…</c> like a uid), so one browser has one vote per suggestion. Posts and votes are limited per IP address
 /// (<see cref="Limited.WebFeedback"/>, <see cref="Limited.WebFeedbackVote"/>) and in total
-/// (<see cref="Limited.WebFeedbackTotal"/>); a hidden field bots fill in is ignored. Plain HTML forms, no script.
+/// (<see cref="Limited.WebFeedbackTotal"/>); a hidden field bots fill in is ignored; a rude suggestion is refused
+/// (<see cref="TextModeration"/>) and the page asks for it without the rude words. Plain HTML forms, no script.
 /// </summary>
-public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits)
+public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits, TextModeration moderation)
 {
     /// <summary>The cookie holding a visitor's random id.</summary>
     public const string VoterCookie = "tarbaho_voter";
@@ -47,6 +49,7 @@ public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits
     /// <summary>
     /// <c>POST suggest</c> (form: <c>title</c>, <c>details</c>, <c>step</c>): first the look-alikes to upvote, if the board
     /// has any; with <c>step=post</c> (or none alike) the suggestion is posted, with the visitor's vote as its first.
+    /// A rude one is not posted: the form comes back with what was typed and a note, answered <c>422</c>.
     /// </summary>
     [Function("PostSuggestion")]
     public async Task<IActionResult> Post(
@@ -85,6 +88,12 @@ public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits
         if (!limits.TryTake(Limited.WebFeedback, ClientAddress(request)) || !limits.TryTake(Limited.WebFeedbackTotal, "all"))
         {
             return ApiResults.TooMany();
+        }
+
+        if (!await moderation.AllowsAsync("web suggestion", [draft.Title, draft.Details], cancellationToken))
+        {
+            var board = await feedback.ListAsync(voter, 0, Shown, cancellationToken);
+            return SuggestPage.Html(root, board.Posts, draft with { Rude = true }, SuggestPage.Notice.None);
         }
 
         var details = draft.Details.Length == 0 ? null : draft.Details;

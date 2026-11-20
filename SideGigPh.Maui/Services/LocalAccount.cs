@@ -6,7 +6,8 @@ namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// SideGigPh's <see cref="IAppAccount"/>: the person on this phone, whichever side they're on: their app language,
-/// their saved profile (<see cref="IUserRepository"/>) and Start over, on the Me page of each side.
+/// their saved profile (<see cref="IUserRepository"/>) and Start over, on the Me page of each side. Also the name
+/// page's <see cref="IDisplayNameCheck"/>: a new name goes to the server first, which refuses a rude one.
 /// Only ports are used here, never adapters.
 /// </summary>
 public sealed class LocalAccount(
@@ -21,7 +22,7 @@ public sealed class LocalAccount(
     ProWorkspace pro,
     SeekerWorkspace seeker,
     AppText text,
-    ILogger<LocalAccount> logger) : IAppAccount
+    ILogger<LocalAccount> logger) : IAppAccount, IDisplayNameCheck
 {
     /// <summary>Raised after the language changes, so the shell re-renders its labels.</summary>
     public event Action? Changed;
@@ -54,20 +55,7 @@ public sealed class LocalAccount(
 
         try
         {
-            var state = await store.LoadAsync();
-            var now = DateTimeOffset.Now;
-
-            // One call, no read first: the server keeps the first CreatedAt itself (UserStore.SaveAsync).
-            await users.SaveAsync(new UserProfile(
-                user.Uid,
-                user.DisplayName,
-                user.PhoneNumber,
-                user.Email,
-                state.Language ?? text.Language,
-                state.Role,
-                now,
-                now,
-                state.Role == UserRole.Professional ? state.Professional.ProfilePhotoId : state.Seeker.ProfilePhotoId));
+            await SaveProfileAsync(user, user.DisplayName);
         }
         catch (Exception ex)
         {
@@ -75,6 +63,51 @@ public sealed class LocalAccount(
             // an offline phone must still get through onboarding. The next change saves it again.
             logger.LogWarning(ex, "Saving the profile of {Uid} failed.", user.Uid);
         }
+    }
+
+    /// <summary>
+    /// The name page's check: the profile is saved with the new name before the account gets it, so a name the server
+    /// refuses (rude words, <see cref="TextNotAllowedException"/>) is never kept. Any other failure allows it: the
+    /// profile is a backup, and the next change saves it again.
+    /// </summary>
+    public async Task<bool> AllowsAsync(string displayName)
+    {
+        if (await identity.GetCurrentUserAsync() is not { } user)
+        {
+            return true;
+        }
+
+        try
+        {
+            await SaveProfileAsync(user, displayName);
+            return true;
+        }
+        catch (TextNotAllowedException)
+        {
+            return false;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Saving the new name of {Uid} failed.", user.Uid);
+            return true;
+        }
+    }
+
+    // One call, no read first: the server keeps the first CreatedAt itself (UserStore.SaveAsync).
+    private async Task SaveProfileAsync(AuthUser user, string? displayName)
+    {
+        var state = await store.LoadAsync();
+        var now = DateTimeOffset.Now;
+        await users.SaveAsync(new UserProfile(
+            user.Uid,
+            displayName,
+            user.PhoneNumber,
+            user.Email,
+            state.Language ?? text.Language,
+            state.Role,
+            now,
+            now,
+            state.Role == UserRole.Professional ? state.Professional.ProfilePhotoId : state.Seeker.ProfilePhotoId));
     }
 
     /// <summary>

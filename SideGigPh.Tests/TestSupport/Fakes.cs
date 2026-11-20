@@ -423,7 +423,8 @@ public sealed class FakeSafety : ISafetyRepository
 
 /// <summary>
 /// The feedback board on a server: <see cref="Posts"/> in the board's order, served a page at a time. Set
-/// <see cref="Fail"/> to make every write fail like a phone with no signal.
+/// <see cref="Fail"/> to make every write fail like a phone with no signal, <see cref="Refuse"/> to have the server
+/// refuse a new suggestion's words.
 /// </summary>
 public sealed class FakeFeedback : IFeedbackRepository
 {
@@ -435,6 +436,8 @@ public sealed class FakeFeedback : IFeedbackRepository
 
     public bool Fail { get; set; }
 
+    public bool Refuse { get; set; }
+
     public Task<FeedbackPage> GetPageAsync(int skip) =>
         Task.FromResult(new FeedbackPage([.. Posts.Skip(skip).Take(SideGigPh.Contracts.Paging.Feedback)], Posts.Count > skip + SideGigPh.Contracts.Paging.Feedback));
 
@@ -444,6 +447,11 @@ public sealed class FakeFeedback : IFeedbackRepository
     public Task<FeedbackPost> AddAsync(string title, string? details, UserRole? role)
     {
         ThrowIfOffline();
+        if (Refuse)
+        {
+            throw new TextNotAllowedException("text-not-allowed");
+        }
+
         Added.Add((title, details, role));
         var post = new FeedbackPost(Posts.Count + 1000, title, details, 1, FeedbackStatus.Open, VotedByMe: true, Mine: true, DateTimeOffset.UnixEpoch);
         Posts.Add(post);

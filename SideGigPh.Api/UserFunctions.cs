@@ -2,6 +2,7 @@ using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -10,7 +11,7 @@ namespace SideGigPh.Api;
 /// <summary>The signed-in person's own profile: <c>users/me</c>. Nobody else can read it.</summary>
 public sealed class UserFunctions(
     FirebaseTokenValidator auth, UserStore users, PushDeviceStore devices, BlobContainerClient photos, IAccountDeleter accounts, CallerLimits limits,
-    VerificationStore verifications, IPrivateFiles privateFiles)
+    VerificationStore verifications, IPrivateFiles privateFiles, TextModeration moderation)
 {
     [Function("GetMe")]
     public async Task<IActionResult> Get(
@@ -27,7 +28,8 @@ public sealed class UserFunctions(
 
     /// <summary>
     /// <c>PUT users/me</c>. The number saved is the token's verified one, never the body's, so a profile can't claim
-    /// someone else's number (publishing refuses a number another account uses as a Job Seeker).
+    /// someone else's number (publishing refuses a number another account uses as a Job Seeker). The display name is
+    /// the one thing in it a person types, and others see it (chats, reviews), so a rude one is refused (<c>422</c>).
     /// </summary>
     [Function("SaveMe")]
     public async Task<IActionResult> Save(
@@ -47,6 +49,11 @@ public sealed class UserFunctions(
         if (await ApiResults.ReadAsync<UserDto>(request, cancellationToken) is not { } profile)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("display name", profile.DisplayName, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         return new OkObjectResult(await users.SaveAsync(caller.Uid, profile with { PhoneNumber = caller.PhoneNumber }, cancellationToken));
