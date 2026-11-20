@@ -24,7 +24,7 @@ public static class ChatText
 
     /// <summary>A day divider in an open chat: "Today", "Yesterday", "Tue, Nov 18", or "Nov 18, 2025" for another year.</summary>
     public static string ChatDayLabel(this AppText text, DateOnly day, DateOnly today) =>
-        day == today ? text.Get(Copy.ChatToday)
+        day == today ? text.Get(Copy.PostDayToday)
         : day == today.AddDays(-1) ? text.Get(CommonCopy.Yesterday)
         : day.Year == today.Year ? PostReviewText.ShortDate(day)
         : day.ToString("MMM d, yyyy", System.Globalization.CultureInfo.InvariantCulture);

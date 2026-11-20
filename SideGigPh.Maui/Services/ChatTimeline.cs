@@ -42,5 +42,5 @@ public static class ChatTimeline
     }
 
     /// <summary>The Philippine date of a moment.</summary>
-    public static DateOnly DayOf(DateTimeOffset at) => DateOnly.FromDateTime(at.ToOffset(JobPostRules.PhilippineOffset).DateTime);
+    public static DateOnly DayOf(DateTimeOffset at) => JobPostRules.PhilippineToday(at);
 }

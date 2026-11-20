@@ -24,6 +24,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private IContactLauncher Phone { get; set; } = default!;
     [Inject] private AppVisibility Visibility { get; set; } = default!;
+    [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     [Parameter] public string ChatId { get; set; } = string.Empty;
@@ -52,12 +53,25 @@ public partial class ProChatPage : ComponentBase, IDisposable
     /// <summary>The messages have loaded, so the list can open scrolled to the newest.</summary>
     private bool _loaded;
 
-    protected override void OnInitialized() =>
+    protected override void OnInitialized()
+    {
         // A push for another chat or a new request opens it; the Inbox and the Requests feed are read again.
         _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadFeedAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
+        Workspace.Changed += ShowUnread;
+    }
+
+    /// <summary>A chat read here leaves the tray and the app icon's badge at once, as the tab layouts do.</summary>
+    private void ShowUnread() => Alerts.ShowUnread(Workspace.UnreadChatIds);
 
     protected override async Task OnParametersSetAsync()
     {
+        // Signed out (e.g. "Sign in with this number", then Back to this chat): sign in first, as the tab layouts do.
+        if (await Gate.RedirectAsync("/") is { } signIn)
+        {
+            Nav.NavigateTo(signIn, replace: true);
+            return;
+        }
+
         if (!await Workspace.EnsureLoadedAsync())
         {
             Nav.NavigateTo("/", replace: true);
@@ -216,6 +230,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
     public void Dispose()
     {
+        Workspace.Changed -= ShowUnread;
         _alerts?.Dispose();
         _watch?.Dispose();
         _jobWatch?.Dispose();
