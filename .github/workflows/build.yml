@@ -1,4 +1,6 @@
 name: Build Android & iOS
+# The run's title in the Actions list: what is built and from where (the run number shows beside it).
+run-name: "Tarbaho ${{ inputs.channel }}${{ inputs.play_track != 'none' && format(' to Play {0} ({1})', inputs.play_track, inputs.play_status) || '' }} from ${{ github.ref_name }}"
 
 # The version is major.minor.patch, worked out from the PRs squashed into main (.github/scripts/app-version.sh: the
 # "minor" / "major" label or a "feat:" / "feat!:" title, else the next patch), and this run's number is the Android
@@ -87,6 +89,12 @@ jobs:
           echo "label=$label" >> "$GITHUB_OUTPUT"
           echo "### Tarbaho $label (${{ inputs.channel }}, build $BUILD_NUMBER, commit ${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
           echo "Analytics: $FIREBASE_ANALYTICS, experiments: $FIREBASE_EXPERIMENTS" >> "$GITHUB_STEP_SUMMARY"
+
+      # The run's summary page lists the PRs added since the last successful build, each linked for the details.
+      - name: List what's new since the last build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/build-notes.sh >> "$GITHUB_STEP_SUMMARY"
 
       # google-services.json is git-ignored; without it Firebase sign-in can't start.
       - name: Write google-services.json
