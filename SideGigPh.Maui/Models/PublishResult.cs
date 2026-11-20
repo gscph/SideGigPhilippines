@@ -22,4 +22,7 @@ public enum PublishResult
 
     /// <summary>Too many publishes in a short time (the server's <c>too-many-requests</c>).</summary>
     TooManyTries,
+
+    /// <summary>The name or "Others" text has rude or sexual words (the server's <c>text-not-allowed</c>): nothing changed.</summary>
+    TextNotAllowed,
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -13,7 +14,12 @@ namespace SideGigPh.Api;
 /// their own (<c>professionals/me</c>, id = their uid).
 /// </summary>
 public sealed class ProfessionalFunctions(
-    FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, CallerLimits limits, ILogger<ProfessionalFunctions> logger)
+    FirebaseTokenValidator auth,
+    ProfessionalStore professionals,
+    SafetyStore safety,
+    CallerLimits limits,
+    TextModeration moderation,
+    ILogger<ProfessionalFunctions> logger)
 {
     /// <summary>
     /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;otherText=…&amp;sort=…&amp;skip=0&amp;take=4</c>:
@@ -116,7 +122,10 @@ public sealed class ProfessionalFunctions(
             ? new UnauthorizedResult()
             : new ContentResult { Content = "[]", ContentType = "application/json", StatusCode = StatusCodes.Status200OK };
 
-    /// <summary>Publishes the caller's listing, or replaces it. Needs a verified phone number on the account.</summary>
+    /// <summary>
+    /// Publishes the caller's listing, or replaces it. Needs a verified phone number on the account. A rude name or
+    /// "Others" text is refused (<c>422 text-not-allowed</c>) and nothing changes.
+    /// </summary>
     [Function("PublishProfessional")]
     public async Task<IActionResult> Publish(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "professionals/me")] HttpRequest request,
@@ -150,6 +159,11 @@ public sealed class ProfessionalFunctions(
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
                 $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
                 + $"and valid workPhotoIds (optional, 0-{ProfessionalStore.MaxWorkPhotos}) are required). Received: {sent}");
+        }
+
+        if (!await moderation.AllowsAsync("listing", [listing.DisplayName, listing.OtherWork], cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch

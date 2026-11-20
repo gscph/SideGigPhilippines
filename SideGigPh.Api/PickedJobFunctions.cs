@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -10,7 +11,7 @@ namespace SideGigPh.Api;
 /// Picked jobs and verified two-way reviews (brief item 12): the jobs between the caller and one other person, each
 /// side marking one done, and a worker's stars for a household after a completed job.
 /// </summary>
-public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobStore jobs, CallerLimits limits)
+public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobStore jobs, CallerLimits limits, TextModeration moderation)
 {
     /// <summary><c>GET picked-jobs/{otherUid}</c>: the picked jobs between the caller and that person, newest first (empty when none).</summary>
     [Function("GetPickedJobs")]
@@ -54,7 +55,7 @@ public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobSto
 
     /// <summary>
     /// <c>PUT household-reviews</c>: the caller, a worker, rates a household after a completed job between them.
-    /// <c>403 no-completed-job</c> before that.
+    /// <c>403 no-completed-job</c> before that, <c>422 text-not-allowed</c> for a rude comment.
     /// </summary>
     [Function("SaveHouseholdReview")]
     public async Task<IActionResult> RateHousehold(
@@ -74,6 +75,11 @@ public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobSto
         if (await ApiResults.ReadAsync<SaveHouseholdReviewRequest>(request, cancellationToken) is not { } review)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("household review", review.Comment, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         return await jobs.SaveHouseholdReviewAsync(uid, review, cancellationToken) switch

@@ -105,6 +105,11 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
             return PublishResult.TooManyTries;
         }
 
+        if (response.StatusCode == HttpStatusCode.UnprocessableEntity && await ErrorOf(response) == ApiErrors.TextNotAllowed)
+        {
+            return PublishResult.TextNotAllowed;
+        }
+
         await api.EnsureWrittenAsync(response, "publish the listing");
         return PublishResult.Published;
     }

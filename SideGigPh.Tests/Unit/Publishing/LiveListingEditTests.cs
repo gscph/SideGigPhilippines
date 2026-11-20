@@ -81,6 +81,24 @@ public class LiveListingEditTests
     }
 
     [Fact]
+    public async Task EditListing_WithRudeWords_IsShownAsRefused_UntilAnEditGoesThrough()
+    {
+        var app = await FakeApp.ProAsync(Live());
+        app.Profiles.NextResult = PublishResult.TextNotAllowed;
+
+        (await app.Pro.ListingEditedAsync()).Should().Be(PublishResult.TextNotAllowed);
+
+        app.Pro.EditRefused.Should().BeTrue("Pro home says customers still see the old listing");
+        app.Store.State.Professional.ListingOutOfDate.Should().BeTrue("the edit hasn't reached customers");
+
+        app.Profiles.NextResult = PublishResult.Published;
+        (await app.Pro.ListingEditedAsync()).Should().Be(PublishResult.Published);
+
+        app.Pro.EditRefused.Should().BeFalse();
+        app.Store.State.Professional.ListingOutOfDate.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task PhotoChange_WhenTheRepublishFails_IsKeptOnThePhoneWithoutThrowing()
     {
         var app = await FakeApp.ProAsync(Live());

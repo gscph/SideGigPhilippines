@@ -1,13 +1,15 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
 /// <summary>The app's config (answer lists that may be stale), and the "Others" notes people type (analytics).</summary>
-public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteStore notes, CallerLimits limits)
+public sealed class ConfigFunctions(
+    FirebaseTokenValidator auth, ConfigStore config, OtherJobNoteStore notes, CallerLimits limits, TextModeration moderation)
 {
     /// <summary>
     /// <c>GET config</c>: the trades and jobs, towns, experience, urgency and income goals. Public reference
@@ -31,7 +33,10 @@ public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore con
             : new OkObjectResult(snapshot.Config);
     }
 
-    /// <summary><c>POST other-jobs</c>: what the caller typed after picking "Others" in a trade.</summary>
+    /// <summary>
+    /// <c>POST other-jobs</c>: what the caller typed after picking "Others" in a trade. A rude note is not stored
+    /// (<c>422 text-not-allowed</c>); the app doesn't wait on this call, so the person isn't stopped.
+    /// </summary>
     [Function("NoteOtherJob")]
     public async Task<IActionResult> NoteOtherJob(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "other-jobs")] HttpRequest request,
@@ -50,6 +55,11 @@ public sealed class ConfigFunctions(FirebaseTokenValidator auth, ConfigStore con
         if (await ApiResults.ReadAsync<OtherJobRequest>(request, cancellationToken) is not { } note)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("other job note", note.Text, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         return await notes.SaveAsync(uid, note, cancellationToken)

@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
 /// <summary>Reviews: anyone signed in reads them; a Seeker writes one per Skilled Worker they chatted with.</summary>
-public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore reviews, CallerLimits limits)
+public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore reviews, CallerLimits limits, TextModeration moderation)
 {
     /// <summary>
     /// <c>GET reviews?professionalId=…</c> (about a worker) or <c>GET reviews?seekerId=…</c> (written by a Seeker), newest
@@ -35,7 +36,7 @@ public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore rev
             : new OkObjectResult(await reviews.BySeekerAsync(seekerId, uid, cancellationToken));
     }
 
-    /// <summary>The caller's review of a worker, replacing their earlier one.</summary>
+    /// <summary>The caller's review of a worker, replacing their earlier one. <c>422 text-not-allowed</c> for a rude comment or name.</summary>
     [Function("SaveReview")]
     public async Task<IActionResult> Save(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "reviews")] HttpRequest request,
@@ -54,6 +55,11 @@ public sealed class ReviewFunctions(FirebaseTokenValidator auth, ReviewStore rev
         if (await ApiResults.ReadAsync<SaveReviewRequest>(request, cancellationToken) is not { } review)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("review", [review.Comment, review.ReviewerName], cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         return await reviews.SaveAsync(uid, review, cancellationToken) switch
