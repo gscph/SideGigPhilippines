@@ -141,6 +141,44 @@ public class AdminDashboardTests(ApiTestHost api)
             .Items[0].Text.Should().EndWith("sliding gate");
     }
 
+    [IntegrationFact]
+    public async Task OtherJobGroups_MergeTheSameTextAndTheSameMeaning_EmbeddingEachTextOnce()
+    {
+        var marker = $"pool{Guid.NewGuid():N}"[..20];
+        var household = api.Client(api.Tokens.For($"admin-groups-{Guid.NewGuid():N}"));
+        var worker = api.Client(api.Tokens.For($"admin-groups-{Guid.NewGuid():N}"));
+        api.Embedder.Vectors[$"{marker} pool cleaning"] = [1f, 0f, .. new float[62]];
+        api.Embedder.Vectors[$"{marker} linis ng pool"] = [0.95f, 0.05f, .. new float[62]];
+        foreach (var (client, note) in new[]
+                 {
+                     (household, new OtherJobRequest("construction", Wire.Seeker, $"{marker} Pool cleaning")),
+                     (household, new OtherJobRequest("construction", Wire.Seeker, $"{marker} pool-cleaning!")),
+                     (worker, new OtherJobRequest(OtherWork.TradeId, Wire.Professional, $"{marker} linis ng pool")),
+                     (household, new OtherJobRequest("construction", Wire.Seeker, $"{marker} sliding gate")),
+                 })
+        {
+            using var sent = await client.PostAsJsonAsync("other-jobs", note, ApiJson.Default.OtherJobRequest);
+            sent.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+
+        var all = (await Operator.GetFromJsonAsync("ops/other-jobs/groups", ApiJson.Default.AdminOtherJobGroupsDto))!;
+
+        (all.UsedAi, all.Capped).Should().Be((true, false));
+        all.Groups.Select(g => g.Count).Should().BeInDescendingOrder();
+        var mine = all.Groups.Where(g => g.Label.StartsWith(marker, StringComparison.Ordinal)).ToList();
+        mine.Should().HaveCount(2);
+        var pool = mine[0];
+        (pool.Label, pool.Count, pool.Households, pool.Workers).Should().Be(($"{marker} Pool cleaning", 3, 2, 1));
+        pool.Examples.Should().Equal($"{marker} Pool cleaning", $"{marker} linis ng pool");
+        pool.Trades.Select(t => (t.Id, t.Label, t.Count)).Should().Equal(("construction", "Construction", 2), (OtherWork.TradeId, "Others", 1));
+        mine[1].Label.Should().Be($"{marker} sliding gate");
+
+        var workers = (await Operator.GetFromJsonAsync($"ops/other-jobs/groups?filter={Wire.Professional}&days=1", ApiJson.Default.AdminOtherJobGroupsDto))!;
+        workers.Groups.Should().ContainSingle(g => g.Label.StartsWith(marker, StringComparison.Ordinal))
+            .Which.Label.Should().Be($"{marker} linis ng pool");
+        api.Embedder.Asked.Count(t => t == $"{marker} pool cleaning").Should().Be(1, "a text's vector is kept and never asked for again");
+    }
+
     [IntegrationTheory]
     [InlineData("ops/stats")]
     [InlineData("ops/users")]
@@ -148,6 +186,7 @@ public class AdminDashboardTests(ApiTestHost api)
     [InlineData("ops/workers")]
     [InlineData("ops/error-reports")]
     [InlineData("ops/other-jobs")]
+    [InlineData("ops/other-jobs/groups")]
     public async Task OnlyOperators_GetAnything(string route)
     {
         using var signedOut = await api.Client().GetAsync(route);

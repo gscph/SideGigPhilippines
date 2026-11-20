@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
+using SideGigPh.Api.Insights;
 using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
@@ -47,6 +48,9 @@ public sealed class ApiTestHost : IAsyncLifetime
 
     /// <summary>Azure AI Content Safety stand-in: flags any text containing <see cref="FakeTextModerator.Marker"/>.</summary>
     public FakeTextModerator Moderator { get; } = new();
+
+    /// <summary>Azure OpenAI embeddings stand-in for the "Others" groups: vectors tests choose, else one per text.</summary>
+    public FakeTextEmbedder Embedder { get; } = new();
 
     /// <summary>The one operator account (the Function App setting <c>AdminUids</c>).</summary>
     public const string AdminUid = "test-operator";
@@ -88,6 +92,8 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddSingleton<IIdDocumentReader>(IdReader);
                     services.AddSingleton<ITextModerator>(Moderator);
                     services.AddSingleton<TextModeration>();
+                    services.AddSingleton<ITextEmbedder>(Embedder);
+                    services.AddScoped<OtherJobInsights>();
                     services.AddSingleton(new AdminList(AdminUid));
                 })
                 .Configure(app =>

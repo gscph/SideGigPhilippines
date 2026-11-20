@@ -55,6 +55,9 @@ public static class AdminMask
     public static string Install(string installId) => installId.Length > 8 ? installId[..8] : installId;
 }
 
+/// <summary>The notes <see cref="AdminStore.OtherJobNotesToGroupAsync"/> read, whether it stopped at its cap, and the trades' labels.</summary>
+public sealed record OtherJobNotesToGroup(List<OtherJobGrouping.Note> Notes, bool Capped, Func<string, string> TradeLabel);
+
 /// <summary>
 /// The operator site's reads (<c>ops/…</c>): the dashboard's numbers and the lists of accounts, households, workers,
 /// error reports and what people typed under "Others", a page at a time. Read only, no tracking. Contact details leave here masked
@@ -474,6 +477,42 @@ public sealed class AdminStore(SideGigPhDb db)
         return new AdminOtherJobPageDto(
             page.Select(n => new AdminOtherJobDto(n.Id, n.Side, n.TradeId, TradeLabel(trades, n.TradeId), n.Text, n.Uid, n.Name, n.CreatedAt)).ToList(),
             total);
+    }
+
+    /// <summary>The most notes one grouping reads (the newest); more would make the page slow and the answer no wiser.</summary>
+    public const int MaxNotesToGroup = 5000;
+
+    /// <summary>The longest "last N days" a grouping takes (ten years: all of it).</summary>
+    public const int MaxDays = 3650;
+
+    /// <summary>
+    /// The newest <see cref="MaxNotesToGroup"/> "Others" notes for <see cref="OtherJobGrouping"/>, filtered like
+    /// <see cref="OtherJobsAsync"/> (a side or a trade id) and to the last <paramref name="days"/> days when given
+    /// (null or 0 = all), with the trades' labels; <see cref="OtherJobNotesToGroup.Capped"/> when more matched.
+    /// </summary>
+    public async Task<OtherJobNotesToGroup> OtherJobNotesToGroupAsync(string? filter, int? days, DateTimeOffset now, CancellationToken cancellationToken)
+    {
+        var rows = db.OtherJobNotes.AsNoTracking();
+        rows = filter switch
+        {
+            null or "" => rows,
+            Wire.Seeker or Wire.Professional => rows.Where(n => n.Side == filter),
+            var trade => rows.Where(n => n.CategoryId == trade),
+        };
+
+        if (days is > 0)
+        {
+            var from = now.AddDays(-Math.Min(days.Value, MaxDays));
+            rows = rows.Where(n => n.CreatedAt >= from);
+        }
+
+        var newest = await rows
+            .OrderByDescending(n => n.Id)
+            .Take(MaxNotesToGroup + 1)
+            .Select(n => new OtherJobGrouping.Note(n.Text, n.Side, n.CategoryId))
+            .ToListAsync(cancellationToken);
+        var trades = await db.Categories.AsNoTracking().ToDictionaryAsync(c => c.Id, c => c.LabelEnglish, cancellationToken);
+        return new OtherJobNotesToGroup(newest.Take(MaxNotesToGroup).ToList(), newest.Count > MaxNotesToGroup, id => TradeLabel(trades, id));
     }
 
     /// <summary>A trade's English label; "Others" for the interviews' own "Others" tile, the id when it has none.</summary>

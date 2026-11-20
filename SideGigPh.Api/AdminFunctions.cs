@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Insights;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -11,7 +12,7 @@ namespace SideGigPh.Api;
 /// skilled workers, error reports and "Others" notes, a page at a time. Only the uids in <c>AdminUids</c> (<see cref="AdminList"/>);
 /// anyone else gets 401 or 403 <c>not-admin</c>. Read only: nothing here changes data. Contact details come masked.
 /// </summary>
-public sealed class AdminFunctions(FirebaseTokenValidator auth, AdminList admins, AdminStore store)
+public sealed class AdminFunctions(FirebaseTokenValidator auth, AdminList admins, AdminStore store, OtherJobInsights otherJobs)
 {
     /// <summary><c>GET ops/stats</c>: users, activity and what waits for the operator, with sign-ups per Philippine day.</summary>
     [Function("AdminStats")]
@@ -71,6 +72,27 @@ public sealed class AdminFunctions(FirebaseTokenValidator auth, AdminList admins
     {
         var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
         return admin is null ? refusal! : new OkObjectResult(await store.OtherJobsAsync(ListQuery(request, "filter"), cancellationToken));
+    }
+
+    /// <summary>
+    /// <c>GET ops/other-jobs/groups?filter=seeker|professional|{tradeId}&amp;days=</c>: what people typed under "Others",
+    /// grouped (same text after cleanup, and same meaning when the embeddings model is set up), biggest first, from the
+    /// newest <see cref="AdminStore.MaxNotesToGroup"/> notes of the last <c>days</c> days (all when missing).
+    /// </summary>
+    [Function("AdminOtherJobGroups")]
+    public async Task<IActionResult> OtherJobGroups(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/other-jobs/groups")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var (admin, refusal) = await admins.CheckAsync(auth, request, cancellationToken);
+        if (admin is null)
+        {
+            return refusal!;
+        }
+
+        var filter = string.IsNullOrWhiteSpace(request.Query["filter"]) ? null : request.Query["filter"].ToString().Trim();
+        int? days = int.TryParse(request.Query["days"], out var d) && d > 0 ? d : null;
+        return new OkObjectResult(await otherJobs.GroupsAsync(filter, days, cancellationToken));
     }
 
     /// <summary>The page the query string asks for; <paramref name="filterName"/> names the list's one filter.</summary>

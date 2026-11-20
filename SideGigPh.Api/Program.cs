@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
+using SideGigPh.Api.Insights;
 using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 
@@ -66,6 +67,23 @@ else
 {
     builder.Services.AddSingleton<IIdDocumentReader, NoIdDocumentReader>();
 }
+
+// The operator site's "Others" groups merge texts that mean the same with an Azure OpenAI embeddings deployment when
+// it's set up (the endpoint, signed in as the Function App's managed identity; a key only if given), else exact matches only.
+if (builder.Configuration[AzureOpenAiEmbedder.EndpointSetting] is { Length: > 0 } embeddingsEndpoint)
+{
+    var embeddingsKey = builder.Configuration[AzureOpenAiEmbedder.KeySetting];
+    var deployment = builder.Configuration[AzureOpenAiEmbedder.DeploymentSetting] is { Length: > 0 } named ? named : AzureOpenAiEmbedder.DefaultDeployment;
+    builder.Services.AddSingleton<ITextEmbedder>(services => new AzureOpenAiEmbedder(
+        new HttpClient(), embeddingsEndpoint, deployment, embeddingsKey, string.IsNullOrEmpty(embeddingsKey) ? new DefaultAzureCredential() : null,
+        services.GetRequiredService<ILogger<AzureOpenAiEmbedder>>()));
+}
+else
+{
+    builder.Services.AddSingleton<ITextEmbedder, NoTextEmbedder>();
+}
+
+builder.Services.AddScoped<OtherJobInsights>();
 
 // Moderation of what people write: Tarbaho's word list always, Azure AI Content Safety when it's set up
 // (azure/cloudshell-content-safety.sh: the endpoint, signed in as the Function App's managed identity; a key only if given).

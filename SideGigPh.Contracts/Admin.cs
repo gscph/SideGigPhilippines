@@ -180,3 +180,23 @@ public sealed record AdminWorkerPageDto(List<AdminWorkerDto> Items, int Total);
 public sealed record AdminErrorReportPageDto(List<AdminErrorReportDto> Items, int Total);
 
 public sealed record AdminOtherJobPageDto(List<AdminOtherJobDto> Items, int Total);
+
+/// <summary>
+/// <c>GET ops/other-jobs/groups</c>: what people typed under "Others", grouped (the same text after cleanup, and texts
+/// that mean the same when <see cref="UsedAi"/>), biggest first. <see cref="Notes"/> is how many notes were read;
+/// <see cref="Capped"/> says more matched and only the newest were grouped.
+/// </summary>
+public sealed record AdminOtherJobGroupsDto(List<AdminOtherJobGroupDto> Groups, int Notes, bool Capped, bool UsedAi);
+
+/// <summary>
+/// One kind of work people asked for under "Others": <see cref="Label"/> is the text typed most often in it,
+/// <see cref="Examples"/> the different ways it was written (most common first), <see cref="Households"/> and
+/// <see cref="Workers"/> who typed it, <see cref="Trades"/> the trades it was typed under, biggest first.
+/// </summary>
+public sealed record AdminOtherJobGroupDto(
+    string Label,
+    int Count,
+    List<string> Examples,
+    int Households,
+    int Workers,
+    List<AdminCountDto> Trades);

@@ -33,6 +33,36 @@ public sealed class OtherJobService(AdminApi api)
         return page.Items.ToGridData(page.Total);
     }
 
+    /// <summary>The Groups tab's time choices: the last N days, 0 = all of it.</summary>
+    public static readonly IReadOnlyList<(int Days, string Label)> Periods =
+    [
+        (0, "All time"),
+        (7, "Last 7 days"),
+        (30, "Last 30 days"),
+        (90, "Last 90 days"),
+        (365, "Last year"),
+    ];
+
+    /// <summary>
+    /// The notes grouped (<c>GET ops/other-jobs/groups</c>), biggest first: the same text after cleanup, and the same
+    /// meaning when the API's embeddings model is set up. <paramref name="days"/> 0 = all time.
+    /// </summary>
+    public Task<AdminOtherJobGroupsDto> GetGroupsAsync(string? filter, int days, CancellationToken cancellationToken)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(filter))
+        {
+            query.Add($"filter={Uri.EscapeDataString(filter)}");
+        }
+
+        if (days > 0)
+        {
+            query.Add($"days={days}");
+        }
+
+        return api.GetAsync($"ops/other-jobs/groups?{string.Join('&', query)}", ApiJson.Default.AdminOtherJobGroupsDto, cancellationToken);
+    }
+
     /// <summary>"Household" or "Skilled worker".</summary>
     public static string SideLabel(string side) => side == Wire.Professional ? "Skilled worker" : "Household";
 }

@@ -23,6 +23,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<CategoryRow> Categories => Set<CategoryRow>();
     public DbSet<ServiceRow> Services => Set<ServiceRow>();
     public DbSet<OtherJobNoteRow> OtherJobNotes => Set<OtherJobNoteRow>();
+    public DbSet<OtherJobTextVectorRow> OtherJobTextVectors => Set<OtherJobTextVectorRow>();
     public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
     public DbSet<BarangayRow> Barangays => Set<BarangayRow>();
     public DbSet<ErrorReportRow> ErrorReports => Set<ErrorReportRow>();
@@ -216,6 +217,15 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             note.Property(n => n.Text).HasMaxLength(100).IsUnicode();
             note.HasIndex(n => new { n.CategoryId, n.CreatedAt }).HasDatabaseName("IX_OtherJobNotes_Category");
             note.HasIndex(n => n.Uid).HasDatabaseName("IX_OtherJobNotes_Uid");
+        });
+
+        model.Entity<OtherJobTextVectorRow>(vector =>
+        {
+            vector.ToTable("OtherJobTextVectors");
+            vector.HasKey(v => new { v.TextKey, v.Model }).HasName("PK_OtherJobTextVectors");
+            vector.Property(v => v.TextKey).HasMaxLength(100).IsUnicode().UseCollation("Latin1_General_100_BIN2");
+            vector.Property(v => v.Model).HasMaxLength(64).IsUnicode(false);
+            vector.Property(v => v.Vector).HasColumnType("varbinary(max)");
         });
 
         model.Entity<ConfigOptionRow>(option =>

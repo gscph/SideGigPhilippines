@@ -184,6 +184,21 @@ public sealed class OtherJobNoteRow
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>
+/// An "Others" text's embedding (<c>OtherJobTextVectors</c>, <c>026-schema-other-job-vectors.sql</c>), made once per
+/// cleaned text and model so the operator site's grouping doesn't ask Azure again. No uid: nothing about who typed it.
+/// </summary>
+public sealed class OtherJobTextVectorRow
+{
+    public required string TextKey { get; set; }
+    public required string Model { get; set; }
+
+    /// <summary>The numbers as float32 little-endian bytes (<see cref="OtherJobGrouping.ToBytes"/>).</summary>
+    public required byte[] Vector { get; set; }
+
+    public DateTimeOffset CreatedAt { get; set; }
+}
+
 /// <summary>A problem the app had on a phone (<c>ErrorReports</c>): diagnostics with no personal data, kept 90 days.</summary>
 public sealed class ErrorReportRow
 {
