@@ -703,6 +703,11 @@ public static class Copy
         "Your listing edit isn't finished, so customers still see your old listing.",
         "Hindi pa tapos ang pag-edit ng listing mo, kaya luma pa rin ang nakikita ng customers.");
     public static readonly LocalizedText ListingEditFinish = new("Finish editing", "Tapusin ang pag-edit");
+
+    /// <summary>Pro home, when the server refused a live listing's edit (<c>ProWorkspace.EditRefused</c>).</summary>
+    public static readonly LocalizedText ListingEditRefused = new(
+        "Customers still see your old listing. Please remove rude or sexual words from your name or work description, then save again.",
+        "Luma pa rin ang listing na nakikita ng customers. Pakitanggal ang bastos o malaswang salita sa pangalan o description ng serbisyo mo, tapos i-save ulit.");
     public static readonly LocalizedText PublishFailed = new("Your listing didn't publish. Check your internet and try again.", "Di na-publish ang listing mo. I-check ang internet mo tapos try ulit.");
     public static readonly LocalizedText PublishRefused = new(
         "Your listing didn't publish. It's on our side: we got a report and will fix it. Please try again later.",

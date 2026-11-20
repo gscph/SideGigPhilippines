@@ -152,7 +152,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 
     /// <summary>
     /// A worker rates the household of a completed job (1–5 stars, an optional comment). False when it didn't send or
-    /// isn't allowed yet.
+    /// isn't allowed yet; throws <see cref="TextNotAllowedException"/> when the comment has rude words, so the card can
+    /// say so and keep it for rewriting.
     /// </summary>
     public async Task<bool> RateHouseholdAsync(string seekerUid, int rating, string? comment)
     {
@@ -166,7 +167,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             await posts.RateHouseholdAsync(seekerUid, rating, string.IsNullOrWhiteSpace(comment) ? null : comment.Trim());
             return true;
         }
-        catch (Exception ex) when (ex is not OperationCanceledException)
+        catch (Exception ex) when (ex is not OperationCanceledException and not TextNotAllowedException)
         {
             return false;
         }

@@ -16,5 +16,9 @@
                       Label="@T.Get(Copy.ReviewCommentPlaceholder)" />
         <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" MaxLength="40"
                       Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" autocomplete="name" />
+        @if (_refused)
+        {
+            <MudAlert Severity="Severity.Error" Dense="true" role="alert">@T.Get(Copy.TextNotAllowed)</MudAlert>
+        }
     </InterviewStep>
 }

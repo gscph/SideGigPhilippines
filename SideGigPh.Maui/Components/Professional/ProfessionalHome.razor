@@ -14,6 +14,11 @@
         </MudAlert>
     }
 
+    @if (Workspace.EditRefused)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Dense="true" role="alert">@T.Get(Copy.ListingEditRefused)</MudAlert>
+    }
+
     @if (!Workspace.IsPublished || !Workspace.Draft.HasProof)
     {
         <SetupCard HasPhoto="@(Workspace.ProfilePhotoUrl is not null)" WorkPhotoCount="@Workspace.WorkPhotos.Count"

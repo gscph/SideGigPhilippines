@@ -209,6 +209,7 @@ public class ApiAdapterTests
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhoneTaken, PublishResult.PhoneTaken)]
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhotoInUse, PublishResult.PhotoInUse)]
     [InlineData((HttpStatusCode)429, ApiErrors.TooManyRequests, PublishResult.TooManyTries)]
+    [InlineData(HttpStatusCode.UnprocessableEntity, ApiErrors.TextNotAllowed, PublishResult.TextNotAllowed)]
     public async Task Publish_Refused_TellsThePageWhy(HttpStatusCode status, string code, PublishResult expected)
     {
         var server = new StubServer();
@@ -222,6 +223,7 @@ public class ApiAdapterTests
     [InlineData(HttpStatusCode.BadRequest, "{\"error\":\"invalid-cityIds\"}")]
     [InlineData(HttpStatusCode.Conflict, "not json")]
     [InlineData(HttpStatusCode.Forbidden, "{\"error\":\"phone-required\"}")]
+    [InlineData(HttpStatusCode.UnprocessableEntity, "{\"error\":\"something-else\"}")]
     public async Task Publish_OtherRefusals_Throw_SoThePageSaysItDidNotPublish(HttpStatusCode status, string body)
     {
         var server = new StubServer();

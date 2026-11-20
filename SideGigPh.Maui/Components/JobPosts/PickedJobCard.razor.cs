@@ -122,6 +122,10 @@ public partial class PickedJobCard : ComponentBase
                 _error = T.Get(Copy.PickedDidNotSend);
             }
         }
+        catch (TextNotAllowedException)
+        {
+            _error = T.Get(Copy.TextNotAllowed); // the comment stays in its box to be rewritten
+        }
         finally
         {
             _busy = false;

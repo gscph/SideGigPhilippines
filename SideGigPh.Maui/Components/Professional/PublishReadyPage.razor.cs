@@ -87,6 +87,7 @@ public partial class PublishReadyPage : ComponentBase
                 PublishResult.PhoneTaken => Copy.PublishPhoneTaken,
                 PublishResult.PhotoInUse => Copy.PublishPhotoInUse,
                 PublishResult.TooManyTries => Copy.PublishTooManyTries,
+                PublishResult.TextNotAllowed => Copy.TextNotAllowed,
                 _ => null,
             };
         }

@@ -31,6 +31,7 @@ public partial class WriteReviewPage : ComponentBase
     private string? _comment;
     private string? _name;
     private bool _busy;
+    private bool _refused;
 
     private bool CanSubmit => _rating > 0 && (_name?.Trim().Length ?? 0) >= 2 && !_busy;
 
@@ -63,12 +64,17 @@ public partial class WriteReviewPage : ComponentBase
         }
 
         _busy = true;
+        _refused = false;
         try
         {
             if (await Busy.RunAsync(() => Workspace.SubmitReviewAsync(_pro!, _rating, _comment, _name!)))
             {
                 Nav.NavigateTo(SeekerRoutes.Reviews, replace: true);
             }
+        }
+        catch (TextNotAllowedException)
+        {
+            _refused = true; // the comment and name stay in their boxes to be rewritten
         }
         finally
         {

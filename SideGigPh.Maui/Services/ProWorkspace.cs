@@ -390,6 +390,13 @@ public sealed class ProWorkspace(
             return null; // logged by the adapter; still marked, so retried
         }
 
+        var refused = result == PublishResult.TextNotAllowed;
+        if (refused != EditRefused)
+        {
+            EditRefused = refused;
+            Changed?.Invoke();
+        }
+
         if (result == PublishResult.Published)
         {
             Draft.ListingOutOfDate = false;
@@ -414,6 +421,13 @@ public sealed class ProWorkspace(
     /// until it's finished (<see cref="SyncListingAsync"/> waits for a complete listing), so Pro home says so.
     /// </summary>
     public bool HasUnfinishedEdit => IsPublished && !Draft.IsListingComplete;
+
+    /// <summary>
+    /// The server refused the last edit of the live listing for rude or sexual words in the name or "Others" text
+    /// (<see cref="PublishResult.TextNotAllowed"/>): customers still see the old one, so Pro home says so until an edit
+    /// goes through.
+    /// </summary>
+    public bool EditRefused { get; private set; }
 
     /// <summary>Where an unfinished edit picks up: the first question it left unanswered.</summary>
     public string UnfinishedEditPath => OnboardingSteps.PathOf(Draft.FirstUnanswered());
@@ -483,6 +497,7 @@ public sealed class ProWorkspace(
         _activity = null;
         _refreshedAt = DateTimeOffset.MinValue;
         _publishPrompted = false;
+        EditRefused = false;
         Commitments.Clear();
         MyId = ListingMapper.OwnListingId;
         _photoUrls.Clear();
