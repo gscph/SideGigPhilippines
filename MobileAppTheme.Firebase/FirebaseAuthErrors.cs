@@ -79,11 +79,13 @@ public static partial class FirebaseAuthErrors
         _ when ex.Message.Contains("already associated", StringComparison.OrdinalIgnoreCase)
             || ex.Message.Contains("already in use", StringComparison.OrdinalIgnoreCase) => AuthError.PhoneInUse,
         FirebaseAuthException { Reason: FIRAuthError.InvalidCredential } => AuthError.InvalidCode,
-        // The same from Firebase's own Android SDK (AndroidPhoneLink adds the number without the plugin): wrong or expired code.
+        // The same from Firebase's own Android SDK (AndroidPhoneVerification / AndroidPhoneLink): wrong or expired code.
         _ when ex.GetType().Name is "FirebaseAuthInvalidCredentialsException" => AuthError.InvalidCode,
         // Our own limits (VerifyCodeLimit, SendCodeLimit), Firebase's network exception, or a message that says so.
         _ when IsNetwork(ex) => AuthError.Network,
-        _ when ex.Message.Contains("too many", StringComparison.OrdinalIgnoreCase) => AuthError.TooManyAttempts,
+        // Firebase's Android SDK: "We have blocked all requests from this device due to unusual activity" (no "too many").
+        _ when ex.GetType().Name is "FirebaseTooManyRequestsException"
+            || ex.Message.Contains("too many", StringComparison.OrdinalIgnoreCase) => AuthError.TooManyAttempts,
         _ => AuthError.Unknown,
     };
 
