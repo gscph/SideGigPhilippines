@@ -41,9 +41,6 @@ public sealed class OnboardingState
 
     /// <summary>That side's interview is finished: the app opens its home, not its questions.</summary>
     public bool HasFinished(UserRole role) => FinishedAt(role) is not null;
-
-    /// <summary>The side the app opens on (<see cref="Role"/>) has finished its interview.</summary>
-    public bool HasFinishedRole() => Role is { } role && HasFinished(role);
 }
 
 /// <summary>A household's answers: what job, where, when, for how much, and whether to search or post.</summary>

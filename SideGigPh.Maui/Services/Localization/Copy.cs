@@ -236,7 +236,7 @@ public static class Copy
     public static readonly LocalizedText SwitchToSeekerHint = new("Find someone to do a service for you", "Maghanap ng gagawa para sa'yo");
     public static readonly LocalizedText SwitchToPro = new("Switch to Skilled Worker", "Lipat sa Skilled Worker");
     public static readonly LocalizedText SwitchToProHint = new("Your listing, requests and customers", "Listing, requests at customers mo");
-    public static readonly LocalizedText SwitchToProNewHint = new("Get customers near you. Your customer side stays.", "Magkaroon ng Tarbaho. Hindi mawawala ang customer side mo.");
+    public static readonly LocalizedText SwitchToProNewHint = new("Get customers near you. Your customer side stays.", "Magkaroon ng customers malapit sa'yo. Hindi mawawala ang customer side mo.");
     public static readonly LocalizedText SwitchToSeekerNewHint = new("A few questions, then search. Your listing stays.", "Ilang tanong lang, tapos search na. Hindi mawawala ang listing mo.");
     public static readonly LocalizedText Save = new("Save", "I-save");
     public static readonly LocalizedText Saved = new("Saved", "Na-save");
