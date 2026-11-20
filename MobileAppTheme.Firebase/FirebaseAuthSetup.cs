@@ -31,7 +31,7 @@ public static class FirebaseAuthSetup
                 FirebaseCore.Start(activity);
                 FirebaseCore.TryRun("Google sign-in", () => FirebaseAuthGoogleImplementation.Initialize(googleWebClientId));
                 FirebaseCore.TryRun("Emulator phone check", UseRecaptchaOnEmulator);
-            }));
+            }).OnStart(activity => FirebaseCore.TryRun("Phone code send", () => AndroidPhoneVerification.ScreenBack(activity))));
 #elif IOS
             events.AddiOS(ios => ios.WillFinishLaunching((_, __) =>
             {

@@ -3,6 +3,9 @@ using MobileAppTheme.Auth;
 using Plugin.Firebase.Auth;
 using Plugin.Firebase.Auth.Google;
 using Plugin.Firebase.Core.Exceptions;
+#if ANDROID
+using FirebaseAuth = Firebase.Auth.FirebaseAuth;
+#endif
 
 namespace MobileAppTheme.Firebase;
 
@@ -24,6 +27,11 @@ namespace MobileAppTheme.Firebase;
 /// </summary>
 public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> logger) : IIdentityProvider
 {
+#if ANDROID
+    // Android sends and checks SMS codes through Firebase's own SDK: the plugin loses its answers (AndroidPhoneVerification).
+    private readonly AndroidPhoneVerification _android = new(logger);
+#endif
+
     /// <summary>
     /// The longest sending an SMS code may take (Firebase checks the app first, sometimes with a reCAPTCHA page).
     /// Past it the person sees "couldn't send" instead of a spinner that never stops.
@@ -60,9 +68,13 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     {
         try
         {
-            // Plugin.Firebase tracks the verification itself; VerifyPhoneOtpAsync only needs the code.
+            // The provider keeps the SMS session itself; VerifyPhoneOtpAsync only needs the code.
             _pendingPhone = phoneNumber;
+#if ANDROID
+            await _android.SendAsync(phoneNumber).WaitAsync(SendCodeLimit);
+#else
             await Auth.VerifyPhoneNumberAsync(phoneNumber).WaitAsync(SendCodeLimit);
+#endif
             return new PhoneVerification { VerificationId = string.Empty };
         }
         catch (TimeoutException ex)
@@ -81,7 +93,12 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     {
         try
         {
+#if ANDROID
+            await FirebaseAuth.Instance.SignInWithCredentialAsync(_android.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
+            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after the code was accepted.");
+#else
             var user = await Auth.SignInWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
+#endif
             return AuthResult.Ok(Map(user));
         }
         catch (Exception ex) when (Auth.CurrentUser is { } signedIn && Map(signedIn).PhoneNumber is { } number && number == _pendingPhone)
@@ -105,28 +122,24 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 #if ANDROID
             // The number may already be on another account (often the person's own earlier phone sign-in): Firebase's
             // SDK then signs in to it with this same code, never a second one (AndroidPhoneLink).
-            if (AndroidPhoneLink.PendingVerificationId(Auth) is { Length: > 0 } sessionId)
+            var outcome = await AndroidPhoneLink.LinkOrSignInAsync(_android.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
+            var current = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after adding the number.");
+            await current.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
+            if (outcome == AndroidPhoneLink.Outcome.SwitchedAccount)
             {
-                var outcome = await AndroidPhoneLink.LinkOrSignInAsync(sessionId, userEnteredCode).WaitAsync(VerifyCodeLimit);
-                var current = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after adding the number.");
-                await current.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
-                if (outcome == AndroidPhoneLink.Outcome.SwitchedAccount)
-                {
-                    logger.LogInformation("The number belonged to another account; signed in to it with the same code.");
-                    return AuthResult.SwitchedTo(Map(current));
-                }
-
-                return AuthResult.Ok(Map(current));
+                logger.LogInformation("The number belonged to another account; signed in to it with the same code.");
+                return AuthResult.SwitchedTo(Map(current));
             }
 
-            logger.LogWarning("The SMS session id couldn't be read from the plugin; adding the number through the plugin.");
-#endif
+            return AuthResult.Ok(Map(current));
+#else
             var user = await Auth.LinkWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
 
             // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
             // and a backend may read the claim from the token.
             await user.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
             return AuthResult.Ok(Map(user));
+#endif
         }
         catch (Exception ex)
         {
