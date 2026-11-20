@@ -1,3 +1,5 @@
+using System.Net.Http.Json;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Tests.Integration.Support;
 using SideGigPh.Tests.TestSupport;
@@ -31,8 +33,16 @@ public class BothSidesTests(ApiTestHost api)
         var both = await LiveWorkerAlsoCustomerAsync(api, "Lito");
         var stranger = await TestPhone.SeekerAsync(api, "Nena");
 
-        (await both.Seeker.SearchAsync()).InTown.Should().NotContain(h => h.Pro.Id == both.Uid, "nobody contacts themselves");
-        (await stranger.Seeker.SearchAsync()).InTown.Should().Contain(h => h.Pro.Id == both.Uid, "the listing is still live");
+        (await AllResultIdsAsync(both.Uid)).Should().NotContain(both.Uid, "nobody contacts themselves");
+        (await AllResultIdsAsync(stranger.Uid)).Should().Contain(both.Uid, "the listing is still live for everyone else");
+    }
+
+    // Every aircon worker the caller's search returns, in one page: the shared test database holds more than one page.
+    private async Task<List<string>> AllResultIdsAsync(string callerUid)
+    {
+        var page = await api.Client(api.Tokens.For(callerUid))
+            .GetFromJsonAsync("search/professionals?categoryId=aircon&cityId=taytay&take=1000", ApiJson.Default.SearchPageDto);
+        return [.. page!.Hits.Select(hit => hit.Listing.Id)];
     }
 
     [IntegrationFact]
