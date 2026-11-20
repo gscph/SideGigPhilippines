@@ -90,6 +90,8 @@ public static class CommonCopy
     public static readonly LocalizedText AuthCodeSent = new("Enter the code we sent by SMS to {0}.", "Ilagay ang code na tinext namin sa {0}.");
     public static readonly LocalizedText AuthNoCode = new("Didn't get a code?", "Walang dumating na code?");
     public static readonly LocalizedText AuthOr = new("or", "o");
+    public static readonly LocalizedText AuthCodeOtherWay = new(
+        "Still no code? Sign in another way:", "Wala pa ring code? Mag-sign in sa ibang paraan:");
     public static readonly LocalizedText AuthGoogle = new("Continue with Google", "Tuloy gamit ang Google");
     public static readonly LocalizedText AuthApple = new("Continue with Apple", "Tuloy gamit ang Apple");
     public static readonly LocalizedText AuthConnecting = new("Connecting…", "Kumokonekta…");
