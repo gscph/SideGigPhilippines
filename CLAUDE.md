@@ -110,14 +110,14 @@ changing that area.**
   Read the reports in SQL (`dbo.ErrorReports`, Azure portal Query editor); there is no public reader.
   A sign-in whose account is gone (deleted, disabled) is signed out by the Firebase adapter (`IsDeadSession`), never
   left calling the API without a token.
-- **Version** (one place: `Directory.Build.props`): `AppVersionNumber` (SemVer, now `0.1.0`) + `AppVersionStage`
-  (empty since the store launch, so the label is `0.1.0`; `rc` for a pre-release) + CI's `BuildNumber` (the run number) make the label `0.1.0-rc.12` (`0.1.0-rc` on
+- **Version** (one place: `Directory.Build.props`): `AppVersionNumber` (SemVer major.minor.patch, **worked out from the PRs squashed into `main`** by `.github/scripts/app-version.sh` in the app build (`build.yml`; the API stays `0.1.0`): label `minor` (or a `feat: …` title) next minor, `major` (or `feat!: …`) next major, any other PR next patch, from `AppVersionBase` `0.1`; `0.1.0` on a PC; **so label every PR you open `minor` when it is a feature people will notice, nothing when smaller, `major` only for a breaking change or milestone**) + `AppVersionStage`
+  (empty since the store launch, so the label is `0.2.3`; `rc` for a pre-release) + CI's `BuildNumber` (the run number, = Android versionCode) make the label (`0.2.3-rc.12` in a pre-release, `0.1.0` on
   a PC). `Directory.Build.targets` stamps it with the git commit into the app and the API (`StampBuildInfo`); the app
   reads it as `Services/Diagnostics/BuildInfo`, the API as `ApiVersion`. It shows small and muted on the splash and
   beside the logo in the top bar (`AppBrand.Version`), goes into every error report (`0.1.0-rc.12 (12)`), on every API
   call (`X-App-Version`, logged by `ErrorDetailsMiddleware` with each crash and refusal) and on every API answer
-  (`X-Api-Version`, logged by `ApiClient` with each failed call). To release a new version change
-  `Directory.Build.props`, never a csproj; the build number only counts up.
+  (`X-Api-Version`, logged by `ApiClient` with each failed call). Merging a PR is a new version; to set major.minor by hand change
+  `AppVersionBase` in `Directory.Build.props`, never a csproj; the build number only counts up.
 - **Analytics and A/B tests** are ports with do-nothing defaults (skeleton `IAnalytics` / `NoAnalytics`,
   `IExperiments` / `NoExperiments`) behind `Services/Analytics/AppAnalytics`. The Firebase adapters are **build-time
   feature flags, off by default** (`FirebaseAnalytics`, `FirebaseExperiments` in `Directory.Build.props`, or
@@ -257,7 +257,7 @@ SideGigPh.slnx
 │   │   └── Local/             # on-device adapters + JsonFile<T>
 │   └── wwwroot/mobile-app-theme.css
 │
-├── Directory.Build.props      # THE version (AppVersionNumber, AppVersionStage) and the Firebase build flags
+├── Directory.Build.props      # THE version (AppVersionBase, AppVersionStage; CI adds the patch) and the Firebase build flags
 ├── Directory.Build.targets    # StampBuildInfo: version + git commit into the app and the API
 ├── MobileAppTheme.Firebase/   # Firebase adapters (Android/iOS): AddFirebaseAuth (sign-in), AddFirebasePush (notifications), AddFirebaseAnalytics / AddFirebaseExperiments (build flags, off by default) — swap for another provider's project
 │

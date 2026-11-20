@@ -1,8 +1,9 @@
 name: Build Android & iOS
 
-# The version comes from Directory.Build.props (AppVersionNumber + AppVersionStage) plus this run's number:
-# run 12 builds "0.1.0" with Android versionCode 12 ("0.1.0-rc.12" while AppVersionStage is rc). To release a new
-# version, change Directory.Build.props and commit; the build number keeps counting up, as the stores require.
+# The version is major.minor.patch, worked out from the PRs squashed into main (.github/scripts/app-version.sh: the
+# "minor" / "major" label or a "feat:" / "feat!:" title, else the next patch), and this run's number is the Android
+# versionCode: run 12 at 0.2.3 builds "0.2.3" with versionCode 12 ("0.2.3-rc.12" while AppVersionStage is rc). The build number keeps counting up, as the
+# stores require.
 # The download and the file inside carry it too (tarbaho-0.1.0-build34-prod.aab = versionCode 34).
 #
 # beta: an APK for sideloading, signed with the release key when its secrets are set, else the shared dev key.
@@ -61,6 +62,8 @@ jobs:
           fi
 
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the version is counted from the merged PRs (.github/scripts/app-version.sh)
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -74,8 +77,12 @@ jobs:
       # Directory.Build.props through a plain project.
       - name: Read the version
         id: version
+        env:
+          GH_TOKEN: ${{ github.token }}   # app-version.sh reads the merged PRs' minor / major labels
         run: |
-          label="$(dotnet msbuild SideGigPh.Contracts/SideGigPh.Contracts.csproj -getProperty:AppVersionLabel -p:BuildNumber=$BUILD_NUMBER)"
+          version="$(bash .github/scripts/app-version.sh)"
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
+          label="$(dotnet msbuild SideGigPh.Contracts/SideGigPh.Contracts.csproj -getProperty:AppVersionLabel -p:BuildNumber=$BUILD_NUMBER -p:AppVersionNumber=$version)"
           if [ -z "$label" ]; then echo "::error::No AppVersionLabel (Directory.Build.props)"; exit 1; fi
           echo "label=$label" >> "$GITHUB_OUTPUT"
           echo "### Tarbaho $label (${{ inputs.channel }}, build $BUILD_NUMBER, commit ${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
@@ -122,7 +129,7 @@ jobs:
           SIDEGIGPH_KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: >-
           dotnet publish ${{ env.PROJECT }} -f net10.0-android -c Release -p:AndroidPackageFormat=${{ env.PACKAGE_FORMAT }}
-          -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppChannel=${{ inputs.channel }}
+          -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppVersionNumber=${{ env.APP_VERSION }} -p:AppChannel=${{ inputs.channel }}
           -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
           -o ${{ github.workspace }}/output/android
 

@@ -1,16 +1,21 @@
 <Project>
 
-  <!-- The one place the product's version lives (the app and the API share it). To release a new version, change
-       AppVersionNumber / AppVersionStage here and commit; CI adds the build number.
+  <!-- The one place the product's version lives (the app and the API share it): major.minor.patch (SemVer). It counts
+       itself from the PRs squashed into main (.github/scripts/app-version.sh, passed by the app build, build.yml, as AppVersionNumber): a PR
+       with the "minor" label (or a "feat: …" title) is the next minor (0.1.4 -> 0.2.0), "major" (or "feat!: …") the
+       next major (-> 1.0.0), any other PR the next patch (0.2.0 -> 0.2.1). Editing AppVersionBase here sets
+       major.minor by hand (patch 0 from that commit). AppVersionStage marks a pre-release.
 
-         AppVersionNumber  major.minor.patch (SemVer), e.g. 0.1.0
+         AppVersionBase    major.minor where the counting starts, e.g. 0.1
+         AppVersionNumber  major.minor.patch from the app build, e.g. 0.2.3; AppVersionBase.0 for the API and on a PC
          AppVersionStage   the pre-release stage: rc (release candidate, alpha/beta testing), or empty for a final release
          BuildNumber       the CI run number (-p:BuildNumber=…); 0 on a developer's PC
-         AppVersionLabel   what people and error reports see: 0.1.0-rc.12 (CI), 0.1.0-rc (a PC), 0.1.0 (final)
+         AppVersionLabel   what people and error reports see: 0.2.3 (CI), 0.1.0 (a PC), 0.2.3-rc.12 (a pre-release)
 
        Directory.Build.targets stamps the label and the git commit into the app and the API (StampBuildInfo). -->
   <PropertyGroup>
-    <AppVersionNumber>0.1.0</AppVersionNumber>
+    <AppVersionBase>0.1</AppVersionBase>
+    <AppVersionNumber Condition="'$(AppVersionNumber)' == ''">$(AppVersionBase).0</AppVersionNumber>
     <AppVersionStage></AppVersionStage>
     <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
 
