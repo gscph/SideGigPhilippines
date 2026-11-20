@@ -92,7 +92,7 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
 
 ## Automatic deploy from GitHub
 
-`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code or its SQL scripts (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` including `Sql/`, `SideGigPh.Migrate/`, `SideGigPh.Contracts/`, `SideGigPh.Admin/`, or the workflow file), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Before the API deploys, the database gets the schema scripts it is missing, on its own (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` but not `Sql/`, `SideGigPh.Contracts/`, `SideGigPh.Admin/`, or the workflow file; SQL scripts alone go to `database.yml`, below), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Before the API deploys, the database gets the schema scripts it is missing, on its own (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
 
 There are **two identities**, each with one job:
 - the Function App's **system-assigned identity**: the running API uses it to reach Azure SQL (`Authentication=Active Directory Managed Identity`);
@@ -114,11 +114,17 @@ Set it up once:
 
 ## Database migrations from GitHub
 
-`deploy-api.yml` runs `tests` → `db-check` → (`db-migrate`) → `deploy`:
+The database has its own workflow, `.github/workflows/database.yml` (`tests` → `db-check` → (`db-migrate`)), and the two decide by themselves which runs (`.github/scripts/changed.sh` holds the one list of files):
 
-- **db-check** (changes nothing): a dry run of `SideGigPh.Migrate`, which lists the `NNN-schema-*.sql` scripts the live database hasn't recorded in `dbo.SchemaChanges`. Nothing pending: the API deploys.
+- **A push that changes only `Sql/` or `SideGigPh.Migrate/`:** `database.yml` runs alone; afterwards, if the live API's commit (`X-Api-Version`) is behind `main`'s API code (say an earlier deploy stopped on a failed script), it starts `deploy-api.yml`.
+- **A push that changes the API:** `deploy-api.yml` runs. If `Sql/` or the tool changed since the live API's commit, it calls `database.yml` first and deploys only after it; otherwise it deploys without asking the database.
+- **By hand:** either workflow (Actions → Run workflow).
+
+The database jobs:
+
+- **db-check** (changes nothing): a dry run of `SideGigPh.Migrate`, which lists the `NNN-schema-*.sql` scripts the live database hasn't recorded in `dbo.SchemaChanges`. Nothing pending: nothing more to do.
 - **Scripts pending (a new `NNN-schema-*.sql` reached `main`):** **db-migrate** runs exactly what `db-check` listed, straight on the live database, in number order, each script in its own transaction (all of it or none), stopping at the first failure (then the API doesn't deploy). The API deploys after it, so it never runs ahead of its tables. There is no approval step: **merging the script to `main` is the approval**, so read a PR's `Sql/` changes before merging it. `db-check` first refuses an edited `001-schema.sql`, an unguarded step and any `DROP TABLE` (`migration-check.sh`).
-- **`004-config.sql`** (the trades, jobs and answer lists) runs only when you tick **Also run 004-config.sql** on a manual run. Sample data (`002`, `003`, `006`) and `001-schema.sql` never run.
+- **`004-config.sql`** (the trades, jobs and answer lists) runs only when you tick **Also run 004-config.sql** on a manual run of `database.yml`. Sample data (`002`, `003`, `006`) and `001-schema.sql` never run.
 - Each job opens the SQL firewall to its own runner's IP only while it runs, and removes the rule afterwards.
 
 One-time setup:
