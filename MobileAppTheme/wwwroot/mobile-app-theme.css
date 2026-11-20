@@ -135,6 +135,14 @@ body:has(.app-offline-banner) .app-chat-header {
         background-color: transparent !important;
     }
 
+/* A MudAlert whose content spans the whole width (MudBlazor sizes the message to its text), so a row inside
+   can put a link at the right end. */
+.app-alert-wide .mud-alert-position,
+.app-alert-wide .mud-alert-message {
+    flex: 1;
+    min-width: 0;
+}
+
 /* "Continue with Google": logo pinned left, label centered. Pair with app-button-ink. */
 .app-social-button {
     position: relative;
@@ -179,6 +187,15 @@ body:has(.app-offline-banner) .app-chat-header {
 .app-field .mud-input > textarea.mud-input-root.mud-input-root-filled {
     margin-top: 30px;
     padding: 0 16px 12px;
+}
+
+/* No label (the heading above names the box): no room kept for one, so the text starts at the top. */
+.app-field:not(:has(label.mud-input-label)) .mud-input > input.mud-input-root.mud-input-root-filled {
+    padding-top: 12px;
+}
+
+.app-field:not(:has(label.mud-input-label)) .mud-input > textarea.mud-input-root.mud-input-root-filled {
+    margin-top: 12px;
 }
 
 .app-field .mud-input-label-filled {

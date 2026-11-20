@@ -1,9 +1,9 @@
 @if (Result is { Problem: PhotoProblem.NoPermission or PhotoProblem.NoCamera })
 {
-    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">
-        <MudStack Spacing="1" AlignItems="AlignItems.Start">
-            <MudText Typo="Typo.body2">@T.Get(Result.Problem == PhotoProblem.NoCamera ? Copy.CameraNoPermission : Copy.PhotosNoPermission)</MudText>
-            <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="Picker.OpenAppSettings">@T.Get(Copy.PhotosOpenSettings)</MudButton>
+    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" Class="app-alert-wide" role="alert">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3">
+            <MudText Typo="Typo.body2" Class="flex-1">@T.Get(Result.Problem == PhotoProblem.NoCamera ? Copy.CameraNoPermission : Copy.PhotosNoPermission)</MudText>
+            <MudButton Variant="Variant.Text" Class="app-link-button flex-shrink-0" OnClick="Picker.OpenAppSettings">@T.Get(Copy.PhotosOpenSettings)</MudButton>
         </MudStack>
     </MudAlert>
 }
