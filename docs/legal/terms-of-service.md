@@ -1,6 +1,6 @@
 # Tarbaho Terms of Service
 
-**Effective date:** November 14, 2026 · **Last updated:** November 18, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 20, 2026
 
 ---
 
@@ -253,7 +253,7 @@ and 19 survive.
 
 ## 18. Changes
 
-We may update these Terms. We will post the new version in the App and at https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/terms and change the "Last updated"
+We may update these Terms. We will post the new version in the App and at https://api.tarbaho.com/api/legal/terms and change the "Last updated"
 date. For material changes, we will notify you in the App at least **15 days** before they take effect. If you keep
 using the App after that date, you accept the new Terms; if you don't agree, delete your account.
 

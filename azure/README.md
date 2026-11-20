@@ -1,7 +1,7 @@
 # azure/
 
 SideGigPh's server side in Azure:
-- the Function App **`SideGigPhApi`** (Flex Consumption, Linux, Southeast Asia) that `SideGigPh.Api` is published to: https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net
+- the Function App **`SideGigPhApi`** (Flex Consumption, Linux, Southeast Asia) that `SideGigPh.Api` is published to: **https://api.tarbaho.com** (custom domain; its own address `https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net` still works)
 - the **Azure SQL** database holding users, listings, reviews and chats
 - the `photos` container in the storage account **`sidegigphbfb9`**
 
@@ -16,6 +16,18 @@ The storage account is also the Function App's own storage (its deployment packa
 | `cloudshell-setup.sh` | Paste into **Azure Cloud Shell** (https://shell.azure.com, Bash). Creates the resource group, the storage account and its `photos` container and the Function App, and puts the storage connection string into the Function App's settings. Safe to run again. It doesn't create the database (see Azure SQL below). |
 | `cloudshell-github-deploy.sh` | Paste the same way, once: lets the GitHub workflow deploy `SideGigPh.Api` as a managed identity (no publish profile). See Automatic deploy from GitHub below. |
 | `cloudshell-verify.sh` | A read-only check, pasted the same way, after publishing `SideGigPh.Api`: storage, public photo URLs, settings present, and that the API answers. Prints PASS / FAIL with what to do. |
+
+## The address: api.tarbaho.com
+
+The domain `tarbaho.com` is registered at Cloudflare, which also holds its DNS. The API is on the subdomain `api`:
+- Cloudflare DNS: `CNAME api` → `sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net`, **DNS only (grey cloud)**, and `TXT asuid.api` = the Function App's
+  domain verification ID (Function App → Custom domains). With the orange proxy on, Azure can't check the domain or
+  renew its certificate.
+- Function App → **Custom domains**: `api.tarbaho.com` with a free **App Service Managed Certificate** (renews itself).
+- Firebase → Authentication → Settings → **Authorized domains**: `api.tarbaho.com` (the operator page's sign-in).
+
+The phone app (`ApiUrl` in `MauiProgram`), the operator page and the legal pages' links all use `api.tarbaho.com`.
+To move the API to another Function App, point the `api` record at it; the app needs no new build.
 
 ## Where the connection strings go
 
@@ -34,7 +46,7 @@ To see or change them: Azure portal → Function App `SideGigPhApi` → Settings
   - `SqlDatabase` points at SQL Server LocalDB, database `SideGigPh`. Create that database, then run the two scripts below against it.
 
   To use the real ones from your PC instead, paste their connection strings into `local.settings.json`, never into the `.example` file.
-- The app only knows the API address (`https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/`), which is not a secret. It sends the user's Firebase sign-in token; the API checks the token and holds the keys.
+- The app only knows the API address (`https://api.tarbaho.com/api/`), which is not a secret. It sends the user's Firebase sign-in token; the API checks the token and holds the keys.
 
 ## First time
 
