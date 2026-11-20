@@ -66,7 +66,7 @@ Check again when Firebase Analytics is turned on (`FirebaseAnalytics` build flag
 
 ## Privacy policy
 
-`https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/privacy`
+`https://api.tarbaho.com/api/legal/privacy`
 
 ## Data safety
 
@@ -76,7 +76,7 @@ Check again when Firebase Analytics is turned on (`FirebaseAnalytics` build flag
 |---|---|
 | Does the app collect or share any of the required user data types? | **Yes** |
 | Is all of the user data collected by your app encrypted in transit? | **Yes** (HTTPS only) |
-| Which ways do you provide for users to request that their data be deleted? | **In the app** (Me → Delete account) **and a web link**: `https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/data` |
+| Which ways do you provide for users to request that their data be deleted? | **In the app** (Me → Delete account) **and a web link**: `https://api.tarbaho.com/api/legal/data` |
 | Shared with third parties? | **No** for every type. Firebase and Azure are service providers acting for us, and two users seeing each other's number after a pick is a user's own choice; Play does not count either as sharing |
 
 **Data collected** (none is sold; none is used for advertising or marketing; none is processed only ephemerally):

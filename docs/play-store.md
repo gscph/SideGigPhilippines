@@ -69,7 +69,7 @@ Every run's number is the Android versionCode, so each upload is higher than the
 - Error reports are read in SQL only (`dbo.ErrorReports`); there is no public reader.
 
 **Play Console → App content**
-- **Privacy policy**: `https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/privacy`.
+- **Privacy policy**: `https://api.tarbaho.com/api/legal/privacy`.
 - **Data safety**: phone number, name, email (Google), photos, approximate and precise location (only while
   the app is open), messages (chat), government ID / TESDA photos (badges; deleted after the decision),
   crash and diagnostic data (error reports, can be turned off). References (third people's names and numbers) are

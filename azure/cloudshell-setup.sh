@@ -26,7 +26,7 @@ RESOURCE_GROUP="sidegigph"
 LOCATION="southeastasia"
 STORAGE_ACCOUNT="sidegigphbfb9"   # photos go in its "photos" container; also the Function App's storage
                                   # https://sidegigphbfb9.blob.core.windows.net/photos/
-FUNCTION_APP="SideGigPhApi"   # https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net
+FUNCTION_APP="SideGigPhApi"   # https://api.tarbaho.com (custom domain, azure/README.md)
 FIREBASE_PROJECT_ID="sidegigphilippines"
 DOTNET_VERSION="10.0"
 CONTAINER="photos"
