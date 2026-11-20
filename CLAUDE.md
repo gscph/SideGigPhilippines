@@ -195,7 +195,7 @@ changing that area.**
   chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,
   `JobPostStore.ContactNumberAsync`, `JobBoard.ContactNumberAsync`; null with no pick, a block, or no number).
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
-  (`ProLayout`, `SeekerLayout`) sends anyone signed out to sign in (`SignInGate`), loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
+  (`ProLayout`, `SeekerLayout`) sends anyone signed out to sign in (`SignInGate`), loads its workspace and passes the tabs (already loaded, `Workspace.IsLoaded`, e.g. Back from a chat: the tabs show on the first render, no blank frame, and the sign-in check runs after); routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
 - **Pro side:** publishing needs a complete listing (`IsListingComplete`) **and proof** (`HasProof`: the profile photo)
   and a verified number; the server checks the same (`ProfessionalStore.InvalidField`). **Work photos are optional** (0–6;

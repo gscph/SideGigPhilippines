@@ -39,6 +39,19 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
     {
         Workspace.Changed += OnWorkspaceChanged;
         Account.Changed += OnWorkspaceChanged;
+        if (Workspace.IsLoaded)
+        {
+            // Back from a full-screen page (a chat): the tabs show on the first render, with no blank frame, and the
+            // phone was registered when they first loaded. The sign-in check still runs.
+            Start();
+            if (await Gate.RedirectAsync("/") is { } back)
+            {
+                Nav.NavigateTo(back, replace: true);
+            }
+
+            return;
+        }
+
         // Signed out (e.g. "Sign in with this number", then Back): sign in first, as at launch. Without this the pages
         // loaded with nobody signed in, and the add-number link then opened the sign-in page instead.
         if (await Gate.RedirectAsync("/") is { } signIn)
@@ -53,13 +66,19 @@ public partial class SeekerLayout : LayoutComponentBase, IDisposable
             return;
         }
 
+        Start();
+
+        // Seekers are asked only after they write to a worker (ThreadPage); here the phone is just registered.
+        _ = Alerts.RegisterAsync();
+    }
+
+    /// <summary>Shows the tabs and listens for notifications.</summary>
+    private void Start()
+    {
         _ready = true;
         // A push is a new message or a new offer on one of their posts: both lists are read again.
         _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadMineAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
         Alerts.ShowUnread(Workspace.UnreadChatIds);
-
-        // Seekers are asked only after they write to a worker (ThreadPage); here the phone is just registered.
-        _ = Alerts.RegisterAsync();
     }
 
     public void Dispose()

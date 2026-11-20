@@ -81,6 +81,12 @@ public sealed class ProWorkspace(
     public ProfessionalListing Listing => Draft.ToListing(MyId, ProfilePhotoUrl, WorkPhotos.Select(photo => photo.Url).ToList());
 
     /// <summary>
+    /// True once <see cref="EnsureLoadedAsync"/> has finished for this person (until <see cref="Forget"/>): the tab
+    /// layout coming back from a full-screen page (a chat, a request) shows at once instead of a blank frame.
+    /// </summary>
+    public bool IsLoaded => _loading is { IsCompletedSuccessfully: true, Result: true } && _activity is { IsCompletedSuccessfully: true };
+
+    /// <summary>
     /// Loads the saved listing and photos, then the pro's chats and reviews, once. False if this user hasn't finished
     /// the Professional interview, in which case the caller sends them back to <c>/</c>.
     /// </summary>

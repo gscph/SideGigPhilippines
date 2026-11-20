@@ -102,6 +102,12 @@ public sealed class SeekerWorkspace(
     }
 
     /// <summary>
+    /// True once <see cref="EnsureLoadedAsync"/> has finished for this person (until <see cref="Forget"/>): the tab
+    /// layout coming back from a full-screen page (a chat) shows at once instead of a blank frame.
+    /// </summary>
+    public bool IsLoaded => _loading is { IsCompletedSuccessfully: true, Result: true };
+
+    /// <summary>
     /// Loads the saved answers and Inbox once. False if this user hasn't finished the Seeker
     /// interview, in which case the caller sends them back to <c>/</c>.
     /// </summary>
