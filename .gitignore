@@ -61,6 +61,10 @@ nunit-*.xml
 *.json
 !SideGigPh.Api/host.json
 !SideGigPh.Api/local.settings.example.json
+# The operator site's settings: the API address and the Firebase Web app's public ids (no secrets).
+!SideGigPh.Admin/wwwroot/appsettings.json
+!SideGigPh.Admin/wwwroot/appsettings.Development.json
+!SideGigPh.Admin/Properties/launchSettings.json
 *.v2
 /.vs/ProjectEvaluation
 /.vs/SideGigPh/CopilotIndices/18.11.1093.4562
