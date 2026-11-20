@@ -503,7 +503,7 @@ households and skilled workers, the badge review (the same as the phone's `Badge
 - **Look:** `Options/AdminTheme` (the Tarbaho colors and DM Sans, the site's one place for colors), MudBlazor only,
   English only (operators, not the app's audience), a few helpers in `wwwroot/css/admin.css`.
 - **Set up once:** Firebase console → Project settings → Your apps → **Add app → Web** (no Hosting), copy `apiKey` and
-  `appId` into `wwwroot/appsettings.json`; Authentication → Settings → **Authorized domains** → add the Function App's
+  `appId` into `wwwroot/appsettings.json`; Authentication → Settings → **Authorized domains** → add `api.tarbaho.com` and the Function App's
   host (`sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net`; `localhost` is there by default). For a
   local run against the live API, paste `azure/cloudshell-operator-cors.sh` (adds `https://localhost:7265` and
   `http://localhost:5027` to the Function App's CORS; never `*`).
