@@ -10,13 +10,16 @@ namespace MobileAppTheme.Components.Auth;
 /// then the methods the registered <see cref="IIdentityProvider"/> offers, phone code first for everyone (it also
 /// verifies the number), "or", Apple (iOS) and Google below, then the agreement to the terms and privacy policy
 /// (<see cref="LegalConsent"/>). After the code is sent the sheet becomes "Confirm your
-/// number" with a back arrow to the number. After sign-in, or if the user is already signed in, it asks for their name if the account
+/// number" with a back arrow to the number; if no code came after <see cref="CodeFallback.ShowAfter"/> (or today's
+/// codes are used up), it offers Google / Apple again under "Still no code?". After sign-in, or if the user is already signed in, it asks for their name if the account
 /// has none (<see cref="NamePage"/>), else goes where the app's <see cref="IAuthLanding"/> says. With no provider
 /// registered it explains that sign-in isn't available.
 /// </summary>
-public partial class AuthPage : ComponentBase
+public partial class AuthPage : ComponentBase, IDisposable
 {
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
+    [Inject] private SmsSendLimit Limit { get; set; } = default!;
+    [Inject] private TimeProvider Clock { get; set; } = default!;
     [Inject] private IAuthLanding Landing { get; set; } = default!;
     [Inject] private AppBrand Brand { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
@@ -27,6 +30,15 @@ public partial class AuthPage : ComponentBase
 
     // The number the SMS code went to; while set, the sheet is "Confirm your number" with a back arrow.
     private string? _sentTo;
+
+    // When the first code to this number went out (a resend keeps it), and the timer that re-draws the sheet once the
+    // other ways in are due (CodeFallback).
+    private DateTimeOffset? _sentAt;
+    private ITimer? _fallbackTimer;
+
+    // Google / Apple: always on the number step; on the code step only once the code is late or today's are used up.
+    private bool ShowOtherMethods => _sentTo is null || CodeFallback.ShowOtherSignIn(
+        Clock.GetUtcNow() - (_sentAt ?? Clock.GetUtcNow()), Limit.WaitLeft(_sentTo) is null);
 
     // Only the code step has somewhere to go back to (the number).
     private EventCallback BackHandler => _sentTo is null
@@ -71,7 +83,26 @@ public partial class AuthPage : ComponentBase
     {
         _sentTo = number;
         _error = null;
+        if (number is null)
+        {
+            _sentAt = null;
+            StopFallbackTimer();
+        }
+        else if (_sentAt is null)
+        {
+            _sentAt = Clock.GetUtcNow();
+            _fallbackTimer = Clock.CreateTimer(_ => _ = InvokeAsync(StateHasChanged), null,
+                CodeFallback.ShowAfter, Timeout.InfiniteTimeSpan);
+        }
     }
+
+    private void StopFallbackTimer()
+    {
+        _fallbackTimer?.Dispose();
+        _fallbackTimer = null;
+    }
+
+    public void Dispose() => StopFallbackTimer();
 
     // A phone sign-in has no name yet: ask for it once, then the app's landing.
     private async Task GoOnAsync(AuthUser user) =>

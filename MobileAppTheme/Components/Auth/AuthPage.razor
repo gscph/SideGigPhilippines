@@ -26,12 +26,18 @@
         </MudStack>
     }
 
-    @if (HasApple && _sentTo is null)
+    @if (HasPhone && HasOtherMethod && _sentTo is not null && ShowOtherMethods)
+    {
+        <MudDivider />
+        <MudText Typo="Typo.body2" Color="Color.Secondary" role="status">@T.Get(CommonCopy.AuthCodeOtherWay)</MudText>
+    }
+
+    @if (HasApple && ShowOtherMethods)
     {
         <AppleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
     }
 
-    @if (HasGoogle && _sentTo is null)
+    @if (HasGoogle && ShowOtherMethods)
     {
         <GoogleSignInButton OnAuthenticated="HandleAuthenticatedAsync" />
     }
