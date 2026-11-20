@@ -1,0 +1,46 @@
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+}
+<MudDataGrid @ref="_grid" T="AdminUserDto" ServerData="LoadAsync" Hover="true" Dense="true" SortMode="SortMode.Single"
+             RowsPerPage="AdminLists.DefaultTake" Elevation="0" Outlined="true">
+    <ToolBarContent>
+        <ListToolbar Search="@_search" SearchChanged="OnSearchAsync" SearchHint="Name, number, email or uid"
+                     Filter="@_role" FilterChanged="OnRoleAsync" FilterLabel="Side" Filters="UserService.Roles" Total="_total" />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Name" Title="Name">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@(context.Item.Name ?? "(no name)")</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Item.Uid</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Role" Title="Side" Sortable="false">
+            <CellTemplate>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="RoleColor(context.Item)">@UserService.RoleLabel(context.Item)</MudChip>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Phone" Title="Number" Sortable="false" />
+        <PropertyColumn Property="x => x.Email" Title="Email" Sortable="false" />
+        <PropertyColumn Property="x => x.Language" Title="Language" Sortable="false" />
+        <PropertyColumn Property="x => x.HasPhoto" Title="Photo" Sortable="false">
+            <CellTemplate>
+                <YesNoIcon Value="context.Item.HasPhoto" />
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.CreatedAt" Title="Joined">
+            <CellTemplate>@context.Item.CreatedAt.ToManila()</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.LastActiveAt" Title="Last seen">
+            <CellTemplate>@context.Item.LastActiveAt.Ago(_now)</CellTemplate>
+        </PropertyColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">No users match.</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="AdminUserDto" PageSizeOptions="ListPaging.PageSizes" />
+    </PagerContent>
+</MudDataGrid>

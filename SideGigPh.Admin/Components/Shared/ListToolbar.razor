@@ -1,0 +1,20 @@
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Wrap="Wrap.Wrap" Class="mud-width-full py-2">
+    <MudTextField T="string" Value="Search" ValueChanged="SearchChanged" Placeholder="@SearchHint"
+                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                  Clearable="true" DebounceInterval="500" Variant="Variant.Outlined" Margin="Margin.Dense" Class="admin-search" />
+    @if (Filters.Count > 0)
+    {
+        <MudSelect T="string" Value="Filter" ValueChanged="FilterChanged" Label="@FilterLabel"
+                   Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Class="admin-filter">
+            @foreach (var choice in Filters)
+            {
+                <MudSelectItem Value="choice.Value">@choice.Label</MudSelectItem>
+            }
+        </MudSelect>
+    }
+    <MudSpacer />
+    @if (Total is { } total)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@total.Count() found</MudText>
+    }
+</MudStack>

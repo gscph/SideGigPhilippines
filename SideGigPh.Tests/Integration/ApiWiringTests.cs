@@ -25,21 +25,22 @@ public class ApiWiringTests(ApiTestHost api)
             "POST chats/{chatId}/read", "DELETE chats/mine",
             "POST photos", "DELETE photos/{id}",
             "GET config", "POST other-jobs", "POST error-reports", "GET warmup",
-            "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}",
+            "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}", "GET operator/{*path}",
             "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",
             "GET suggest", "POST suggest", "POST suggest/{id}/vote",
             "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report",
             "POST verifications/{kind}", "GET verifications/mine",
             "POST job-posts", "PUT job-posts/{id}", "GET job-posts/mine", "GET offers/mine", "GET job-posts/feed", "DELETE job-posts/{id}", "POST job-posts/{id}/report",
             "POST job-posts/{id}/offers", "DELETE job-posts/{id}/offers/mine", "GET job-posts/{id}/offers", "POST job-posts/{id}/offers/{offerId}/pick", "GET contacts/{otherUid}", "GET picked-jobs/{otherUid}", "POST picked-jobs/{postId}/done", "PUT household-reviews",
-            "GET admin/me", "GET admin/verifications", "GET admin/verifications/{id}/document", "POST admin/verifications/{id}/decision");
+            "GET admin/me", "GET admin/verifications", "GET admin/verifications/{id}/document", "POST admin/verifications/{id}/decision",
+            "GET admin/stats", "GET admin/users", "GET admin/seekers", "GET admin/workers", "GET admin/error-reports");
 
     /// <summary>
     /// Public: the reference data (the trades and jobs, read before the account is ready), the legal pages (the app
-    /// stores need them open to anyone) and the feedback board's web page (the Play testers' feedback link; visitors
+    /// stores need them open to anyone), the operator site's static files (no data: its calls need a token) and the feedback board's web page (the Play testers' feedback link; visitors
     /// are a cookie id, limited per IP address). Nothing else is public: error reports are read in SQL (<c>dbo.ErrorReports</c>).
     /// </summary>
-    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}", "GET suggest", "POST suggest", "POST suggest/{id}/vote"];
+    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}", "GET operator/{*path}", "GET suggest", "POST suggest", "POST suggest/{id}/vote"];
 
     [IntegrationFact]
     public async Task EveryRoute_WithoutAToken_Is401()

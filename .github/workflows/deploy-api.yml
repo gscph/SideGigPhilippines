@@ -2,7 +2,8 @@ name: Deploy API (Azure Functions)
 
 # Brings the live Azure SQL database up to date, then builds SideGigPh.Api and deploys it to the Function App
 # SideGigPhApi. Runs on its own when a push to main changes the server's code or its SQL scripts (the API, its stores
-# and Sql/, the migration tool, the shared contracts, the legal pages it serves, or this file), and by hand.
+# and Sql/, the migration tool, the shared contracts, the legal pages it serves, the operator site it serves
+# (SideGigPh.Admin, at …/api/operator/), or this file), and by hand.
 #
 #   tests → db-check (which scripts the live database hasn't had: a dry run, changes nothing; it also refuses an
 #           edited 001-schema.sql, an unguarded step or a DROP TABLE: migration-check.sh)
@@ -33,6 +34,7 @@ on:
       - 'SideGigPh.AzureSQL/**'
       - 'SideGigPh.Migrate/**'
       - 'SideGigPh.Contracts/**'
+      - 'SideGigPh.Admin/**'
       - 'docs/legal/privacy-policy.md'
       - 'docs/legal/terms-of-service.md'
       - 'docs/legal/data-handling.md'
@@ -206,6 +208,15 @@ jobs:
       - name: Publish
         # The API's version: Directory.Build.props plus this run's number (0.1.0-rc.57), sent on every answer as X-Api-Version.
         run: dotnet publish ${{ env.PROJECT }} -c Release -p:BuildNumber=${{ github.run_number }} -o ${{ github.workspace }}/output/api
+
+      - name: Publish the operator site into the API
+        # SideGigPh.Admin (Blazor WebAssembly) is static files; OperatorSiteFunctions serves them from operator-site/
+        # at …/api/operator/, so the page and the API share one origin (no CORS).
+        run: |
+          dotnet publish SideGigPh.Admin/SideGigPh.Admin.csproj -c Release -o ${{ github.workspace }}/output/admin
+          rm -rf ${{ github.workspace }}/output/api/operator-site
+          cp -r ${{ github.workspace }}/output/admin/wwwroot ${{ github.workspace }}/output/api/operator-site
+          test -f ${{ github.workspace }}/output/api/operator-site/index.html
 
       - name: Sign in to Azure (OIDC, managed identity)
         uses: azure/login@v2

@@ -430,8 +430,83 @@ worker; each company is its own badge, with an optional building name).
 - **App, the customer:** `ListingDto.Badges` → `ProfessionalListing.Badges`; `BadgeChips` on the search result card
   and the worker's own preview, and one `TrustRow` per badge under "What we checked" on the public profile.
 - **Search:** a bonus on top of the score (`docs/search-ranking.md`).
-- **Not built yet:** an operator screen (approvals are API calls for now), taking the ID photo with the rear
-  camera from inside the app (the worker picks a photo from the gallery), and a push when a badge is decided.
+- **Web, the operator:** the same review on a computer: the operator site (below), `Badges/BadgeRequestCard`.
+- **Not built yet:** taking the ID photo with the rear camera from inside the app (the worker picks a photo from the
+  gallery), and a push when a badge is decided.
+
+## Operator site (`SideGigPh.Admin`)
+
+The operator's web dashboard: a **standalone Blazor WebAssembly** app (static files, MudBlazor only, no server of its
+own) whose backend is `SideGigPh.Api`: the app's numbers for a first look at how it's going, the lists of users,
+households and skilled workers, the badge review (the same as the phone's `BadgeReviewPage`) and the apps' error reports.
+
+- **Folders (vertical slices, like our Fcm.WebApp):** `Program.cs` (DI: sign-in, `AdminApi`, `AuthService`, then one
+  service per feature); `Components/` holds `App.razor` (router), `_Imports.razor`, `Layout/` (`MainLayout`: the
+  operator gets `TopNav` + `SideNav` + the page inside an `ErrorBoundary`, anyone else `Auth/Views/OperatorGate`;
+  `ProfileDisplay` (Sign out), `SiteErrorPanel`, `AppBrand`), `Pages/` (thin routable pages that compose a feature's
+  view: `Home` → dashboard, `Users`, `Seekers`, `Workers`, `Badges`, `ErrorReports`; list pages take `?search=` and
+  their filter with `[SupplyParameterFromQuery]`), `Shared/` (`PageHeader`, `ListToolbar` (search + one filter + count),
+  `YesNoIcon`, `FilterChoice`, `ListPaging`, `AdminRoutes` (relative paths, no leading slash, because of the base href),
+  `ReferenceService` (the public `GET config` once per visit: trade and town filters, experience labels)), and one
+  folder per feature: `<Feature>/<Feature>Service.cs` (what to ask the API, the grid's column → sort word map, labels)
+  plus `<Feature>/Views/` (`Dashboard/Views/DashboardView`, `StatTile`, `SignUpChart`, `CountTable`;
+  `User/Views/UserListView`; `Seeker/Views/SeekerListView`; `Worker/Views/WorkerListView`;
+  `Badge/Views/BadgeRequestListView`, `BadgeRequestCard` (+ `BadgeText`); `ErrorReport/Views/ErrorReportListView`,
+  `ErrorReportDetail`). Cross-cutting code sits outside `Components/`: `Services/` (`AdminApi` transport, `AuthService`
+  the operator session, `IAdminSignIn` / `FirebaseWebSignIn`, `GridQueryExtensions`), `Options/` (`AdminTheme`,
+  `FirebaseWebOptions`), `Extensions/` (Philippine-time dates, pesos and counts, `KeepInAddress`). Every component is
+  `.razor` + `.razor.cs`; injected services are `[Inject] public required`.
+- **Lists page on the server:** each list is a `MudDataGrid` with `ServerData`; `GridQueryExtensions.ToAdminQuery` turns
+  the grid's page, sort and the toolbar's search/filter into `skip`, `take` (max `AdminLists.MaxTake` 100), `sort`,
+  `desc`, `search` and the list's filter; a column the service's `Sorts` map doesn't name isn't sortable. Search and
+  filter are kept in the address (`NavigationExtensions.KeepInAddress`, replace), so a reload or a shared link opens the
+  same view. A failed load shows the API's message above an empty grid.
+- **The API's reads** (`AdminFunctions`, `AdminStore`, contracts in `SideGigPh.Contracts/Admin.cs`, operators only
+  through `AdminList.CheckAsync`, read only): `GET admin/stats` (`AdminStatsDto`: users total / households / workers /
+  no side yet / live listings, new today / 7 / 30 days, came back in 7 / 30 days (`LastActiveAt`); posts, offers,
+  picks, jobs done, chats, messages, reviews, "Others" notes, suggestions; badges waiting and approved, open reports,
+  blocks, error reports in 24 h / 7 days; sign-ups per **Philippine day** for 30 days (`AdminStore.Manila`, UTC+8) by
+  the side each account is on now; top 12 by trade, town and language), `GET admin/users?role=seeker|professional|none`,
+  `GET admin/seekers?town=` (a household's town = its latest post's or chat's: the home town lives on the phone only),
+  `GET admin/workers?filter=live|not-live|{tradeId}` (every live listing, even one whose account profile was never
+  saved, then worker accounts not live yet; rating and review counts include blind reviews still hidden from the
+  public), `GET admin/error-reports?filter={kind}|{channel}`. Each list takes `search` (name, number, email, uid; error
+  reports: message, source, page, version, install), `sort` (`AdminLists`), `desc`, `skip`, `take`, and answers
+  `{ items, total }`. **Contact details leave the server masked** (`AdminMask`: `+63 9•• ••• 4567`, `j•••@gmail.com`,
+  the install id cut to 8): the dashboard is for counting and spotting problems, not for contacting people.
+- **Error reports:** the apps' reports, newest first, a row opens to the stack trace and the trail (`ErrorReportDetail`).
+  The site's own crashes go to the same table: `MainLayout`'s error boundary shows `SiteErrorPanel`, which sends one
+  `POST error-reports` (`ErrorReportService.ReportSiteErrorAsync`, version `operator`, platform `web`, channel `prod`);
+  search "operator" to find them.
+- **Hosted by the Function App itself:** `deploy-api.yml` publishes `SideGigPh.Admin` and copies its `wwwroot` into
+  the API package as `operator-site/`; `OperatorSiteFunctions` (`GET operator/{*path}`, public: files only, no data)
+  serves it at **`…/api/operator/`**. A path without a file extension gets `index.html` with its `<base href="/">`
+  rewritten to the route; files come only from that folder (`Resolve`, nothing outside it); the Brotli copy
+  (`.br`) goes to browsers that accept it; `no-cache` + ETag; `X-Frame-Options: DENY`. Without the folder (a local
+  run, the tests) every address is 404. The page and the API share one origin, so **production needs no CORS**.
+  The Function App is the one web host: legal pages (`LegalFunctions`), the feedback board (`SuggestFunctions`) and
+  this site; a public **landing page** is planned as its own project (not built).
+- **Calls:** `Services/AdminApi` (transport only: `GetAsync`, `GetImageAsync`, `PostAsync`; one `HttpClient`, the Firebase ID token as Bearer on each call, JSON through
+  `SideGigPh.Contracts`' `ApiJson`; failures throw `AdminApiException` with a message the page shows, a browser's
+  CORS refusal reads as "can't reach the API"). Its base address is `Api:BaseUrl` in `wwwroot/appsettings.json`;
+  empty means the page's own `../` (= `/api/`); `appsettings.Development.json` points a local run at the live API.
+- **Sign-in:** port `Services/IAdminSignIn`, adapter `FirebaseWebSignIn` → `wwwroot/js/firebase-auth.js` (the Firebase
+  JS SDK from Google's CDN, Google pop-up, `authStateReady` keeps the sign-in across reloads). Settings: section
+  `Firebase` of `wwwroot/appsettings.json` (`ApiKey`, `AuthDomain`, `ProjectId`, `AppId` of the Firebase **Web** app:
+  not secrets; the page says "Not set up yet" while one is empty).
+- **Who gets in:** `Services/AuthService` signs in, then `GET admin/me`: an account in the Function App setting
+  **`AdminUids`** (comma-separated uids; the only list of operators, never in the site) gets the site; anyone else
+  sees `NotOperatorPanel` with their uid to add. The API refuses non-operators anyway (`403 not-admin`).
+- **Badge review:** `Components/Badge/BadgeService` (the phone's `BadgeReview` rules: 20 oldest first, a rejection
+  needs a reason trimmed to 200), one `BadgeRequestCard` per request: profile photo, badge (`BadgeText`), what the AI
+  read, the proof photo only on a click (every look is audited), Approve / Reject, each confirmed once.
+- **Look:** `Options/AdminTheme` (the Tarbaho colors and DM Sans, the site's one place for colors), MudBlazor only,
+  English only (operators, not the app's audience), a few helpers in `wwwroot/css/admin.css`.
+- **Set up once:** Firebase console → Project settings → Your apps → **Add app → Web** (no Hosting), copy `apiKey` and
+  `appId` into `wwwroot/appsettings.json`; Authentication → Settings → **Authorized domains** → add the Function App's
+  host (`sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net`; `localhost` is there by default). For a
+  local run against the live API, paste `azure/cloudshell-operator-cors.sh` (adds `https://localhost:7265` and
+  `http://localhost:5027` to the Function App's CORS; never `*`).
 
 ## Cold starts and double taps
 

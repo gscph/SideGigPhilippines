@@ -1,0 +1,17 @@
+<MudPaper Outlined="true" Class="pa-4 mud-height-full">
+    <MudStack Spacing="1">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icon" Color="IconColor" Size="Size.Small" />
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@Label</MudText>
+        </MudStack>
+        <MudText Typo="Typo.h4">@Value</MudText>
+        @if (Caption is not null)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@Caption</MudText>
+        }
+        @if (Href is not null)
+        {
+            <MudLink Href="@Href" Typo="Typo.body2" Color="Color.Primary">@(LinkText ?? "See the list")</MudLink>
+        }
+    </MudStack>
+</MudPaper>

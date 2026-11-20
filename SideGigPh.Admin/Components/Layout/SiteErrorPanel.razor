@@ -1,0 +1,8 @@
+<MudAlert Severity="Severity.Error" Class="mb-4">
+    <MudText Typo="Typo.subtitle1">This page broke.</MudText>
+    <MudText Typo="Typo.body2">It was sent to Error reports (search "@ErrorReportService.SiteVersion"). Try again, or open another page.</MudText>
+</MudAlert>
+<MudPaper Outlined="true" Class="pa-4 mb-4">
+    <MudText Typo="Typo.body2" Class="admin-mono">@Exception.GetType().Name: @Exception.Message</MudText>
+</MudPaper>
+<MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnRecover">Try again</MudButton>

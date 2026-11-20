@@ -1,0 +1,57 @@
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+}
+<MudDataGrid @ref="_grid" T="AdminErrorReportDto" ServerData="LoadAsync" Hover="true" Dense="true" SortMode="SortMode.Single"
+             RowsPerPage="AdminLists.DefaultTake" Elevation="0" Outlined="true">
+    <ToolBarContent>
+        <ListToolbar Search="@_search" SearchChanged="OnSearchAsync" SearchHint="Message, source, page, version or install"
+                     Filter="@_filter" FilterChanged="OnFilterAsync" FilterLabel="Show" Filters="ErrorReportService.Filters" Total="_total" />
+    </ToolBarContent>
+    <Columns>
+        <HierarchyColumn T="AdminErrorReportDto" />
+        <PropertyColumn Property="x => x.LastAt" Title="Last">
+            <CellTemplate>@context.Item.LastAt.ToManila()</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Kind" Title="Kind" Sortable="false">
+            <CellTemplate>
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="ErrorReportService.KindColor(context.Item.Kind)">@context.Item.Kind</MudChip>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Message" Title="What" Sortable="false">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2" Class="admin-clip">@context.Item.Message</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Item.Source</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Count" Title="Times" />
+        <PropertyColumn Property="x => x.Route" Title="Page" Sortable="false" />
+        <PropertyColumn Property="x => x.AppVersion" Title="Version" Sortable="false">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@context.Item.AppVersion</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Item.Channel · @context.Item.CodeVersion</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Platform" Title="Phone" Sortable="false">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@context.Item.Platform</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@(context.Item.Device ?? "—") · @context.Item.Install</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+    </Columns>
+    <ChildRowContent>
+        <ErrorReportDetail Report="context.Item" />
+    </ChildRowContent>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">No error reports match. Nice.</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="AdminErrorReportDto" PageSizeOptions="ListPaging.PageSizes" />
+    </PagerContent>
+</MudDataGrid>

@@ -15,6 +15,12 @@ public sealed class AdminList(string? setting)
     private readonly HashSet<string> _uids = [.. (setting ?? string.Empty).Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
 
     public bool Contains(string uid) => _uids.Contains(uid);
+
+    /// <summary>The operator's uid, or the answer to give instead: 401 without a sign-in, 403 <c>not-admin</c> for anyone else.</summary>
+    public async Task<(string? Admin, IActionResult? Refusal)> CheckAsync(FirebaseTokenValidator auth, HttpRequest request, CancellationToken cancellationToken) =>
+        await auth.GetUidAsync(request, cancellationToken) is not { } uid ? (null, new UnauthorizedResult())
+        : Contains(uid) ? (uid, null)
+        : (null, ApiResults.Forbidden(ApiErrors.NotAdmin));
 }
 
 /// <summary>
@@ -192,11 +198,8 @@ public sealed class VerificationFunctions(
         return new NoContentResult();
     }
 
-    /// <summary>The operator's uid, or the answer to give instead: 401 without a sign-in, 403 <c>not-admin</c> for anyone else.</summary>
-    private async Task<(string? Admin, IActionResult? Refusal)> AdminAsync(HttpRequest request, CancellationToken cancellationToken) =>
-        await auth.GetUidAsync(request, cancellationToken) is not { } uid ? (null, new UnauthorizedResult())
-        : admins.Contains(uid) ? (uid, null)
-        : (null, ApiResults.Forbidden(ApiErrors.NotAdmin));
+    private Task<(string? Admin, IActionResult? Refusal)> AdminAsync(HttpRequest request, CancellationToken cancellationToken) =>
+        admins.CheckAsync(auth, request, cancellationToken);
 
     private static IActionResult Refused(SubmitOutcome outcome) => outcome switch
     {

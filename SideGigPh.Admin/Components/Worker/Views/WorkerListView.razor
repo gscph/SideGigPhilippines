@@ -1,0 +1,97 @@
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+}
+<MudDataGrid @ref="_grid" T="AdminWorkerDto" ServerData="LoadAsync" Hover="true" Dense="true" SortMode="SortMode.Single"
+             RowsPerPage="AdminLists.DefaultTake" Elevation="0" Outlined="true">
+    <ToolBarContent>
+        <ListToolbar Search="@_search" SearchChanged="OnSearchAsync" SearchHint="Name, number, uid or their own words"
+                     Filter="@_filter" FilterChanged="OnFilterAsync" FilterLabel="Show" Filters="_filters" Total="_total" />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Name" Title="Worker">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@(context.Item.Name ?? "(no name)")</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Item.Uid</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Live" Title="Listing" Sortable="false">
+            <CellTemplate>
+                @if (context.Item.Live)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Success" Variant="Variant.Outlined">Live</MudChip>
+                }
+                else
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Default" Variant="Variant.Outlined">Not live</MudChip>
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Trade" Title="Work" Sortable="false">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@WorkerService.Work(context.Item)</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@(context.Item.Towns ?? "—")</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.RatePesos" Title="Price">
+            <CellTemplate>
+                <MudText Typo="Typo.body2" Color="Color.Success">@context.Item.RatePesos.Pesos()</MudText>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.ExperienceId" Title="Experience" Sortable="false">
+            <CellTemplate>@ExperienceLabel(context.Item.ExperienceId)</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Phone" Title="Number" Sortable="false" />
+        <PropertyColumn Property="x => x.WorkPhotos" Title="Photos" Sortable="false">
+            <CellTemplate>
+                <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                    <YesNoIcon Value="context.Item.HasPhoto" />
+                    <MudText Typo="Typo.body2">+@context.Item.WorkPhotos</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Badges" Title="Badges" Sortable="false">
+            <CellTemplate>
+                @context.Item.Badges
+                @if (context.Item.PendingBadges > 0)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Info" Variant="Variant.Outlined" Class="ml-1">@context.Item.PendingBadges waiting</MudChip>
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Rating" Title="Rating">
+            <CellTemplate>
+                @if (context.Item.Rating is { } rating)
+                {
+                    <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@Icons.Material.Filled.Star" Color="Color.Warning" Size="Size.Small" />
+                        <MudText Typo="Typo.body2">@rating.ToString("0.0") (@context.Item.Reviews)</MudText>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">—</MudText>
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Chats" Title="Chats" Sortable="false" />
+        <PropertyColumn Property="x => x.Offers" Title="Offers" Sortable="false" />
+        <PropertyColumn Property="x => x.CompletedJobs" Title="Jobs done" />
+        <PropertyColumn Property="x => x.CreatedAt" Title="Joined">
+            <CellTemplate>@context.Item.CreatedAt.ToManila()</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.LastActiveAt" Title="Last seen">
+            <CellTemplate>@context.Item.LastActiveAt.Ago(_now)</CellTemplate>
+        </PropertyColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">No skilled workers match.</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="AdminWorkerDto" PageSizeOptions="ListPaging.PageSizes" />
+    </PagerContent>
+</MudDataGrid>

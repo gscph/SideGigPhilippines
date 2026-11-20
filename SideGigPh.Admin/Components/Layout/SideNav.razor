@@ -1,0 +1,12 @@
+<MudDrawer Open="Open" OpenChanged="OpenChanged" ClipMode="DrawerClipMode.Always" Variant="DrawerVariant.Responsive" Elevation="0" Class="admin-drawer">
+    <MudNavMenu Class="pt-2">
+        <MudNavLink Href="@AdminRoutes.Home" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Insights">Dashboard</MudNavLink>
+        <MudText Typo="Typo.overline" Color="Color.Secondary" Class="px-4 pt-4">People</MudText>
+        <MudNavLink Href="@AdminRoutes.Users" Icon="@Icons.Material.Outlined.People">All users</MudNavLink>
+        <MudNavLink Href="@AdminRoutes.Seekers" Icon="@Icons.Material.Outlined.Home">Households</MudNavLink>
+        <MudNavLink Href="@AdminRoutes.Workers" Icon="@Icons.Material.Outlined.Handyman">Skilled workers</MudNavLink>
+        <MudText Typo="Typo.overline" Color="Color.Secondary" Class="px-4 pt-4">To do</MudText>
+        <MudNavLink Href="@AdminRoutes.Badges" Icon="@Icons.Material.Outlined.VerifiedUser">Badge requests</MudNavLink>
+        <MudNavLink Href="@AdminRoutes.ErrorReports" Icon="@Icons.Material.Outlined.BugReport">Error reports</MudNavLink>
+    </MudNavMenu>
+</MudDrawer>

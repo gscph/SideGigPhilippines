@@ -1,0 +1,39 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="AdminTheme.Theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@if (Auth.State == OperatorState.Operator)
+{
+    <MudLayout>
+        <TopNav OnMenu="ToggleDrawer" />
+        <SideNav @bind-Open="_drawerOpen" />
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="py-6">
+                <ErrorBoundary @ref="_errorBoundary">
+                    <ChildContent>
+                        @Body
+                    </ChildContent>
+                    <ErrorContent Context="exception">
+                        <SiteErrorPanel Exception="exception" OnRecover="Recover" />
+                    </ErrorContent>
+                </ErrorBoundary>
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+}
+else
+{
+    <MudLayout>
+        <MudAppBar Elevation="0" Dense="true" Class="admin-appbar">
+            <AppBrand />
+        </MudAppBar>
+        <MudMainContent>
+            <MudContainer MaxWidth="MaxWidth.Small" Class="py-6">
+                <OperatorGate />
+            </MudContainer>
+        </MudMainContent>
+    </MudLayout>
+}

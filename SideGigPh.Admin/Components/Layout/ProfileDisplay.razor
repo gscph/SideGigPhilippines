@@ -1,0 +1,10 @@
+<MudMenu AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" Dense="true">
+    <ActivatorContent>
+        <MudChip T="string" Variant="Variant.Outlined" Color="Color.Dark" Icon="@Icons.Material.Outlined.AccountCircle">
+            @(Auth.User?.Email ?? Auth.User?.Name ?? "Operator")
+        </MudChip>
+    </ActivatorContent>
+    <ChildContent>
+        <MudMenuItem Icon="@Icons.Material.Outlined.Logout" OnClick="SignOutAsync">Sign out</MudMenuItem>
+    </ChildContent>
+</MudMenu>

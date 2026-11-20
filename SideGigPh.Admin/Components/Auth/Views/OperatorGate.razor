@@ -1,0 +1,23 @@
+@switch (Auth.State)
+{
+    case OperatorState.Loading:
+        <MudStack AlignItems="AlignItems.Center" Class="py-12">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </MudStack>
+        break;
+
+    case OperatorState.NotConfigured:
+        <MudText Typo="Typo.h4" HtmlTag="h1" Class="mb-4">Not set up yet</MudText>
+        <MudAlert Severity="Severity.Warning">
+            Fill in the Firebase web app's ApiKey and AppId in wwwroot/appsettings.json (docs/architecture.md → Operator site).
+        </MudAlert>
+        break;
+
+    case OperatorState.NotOperator:
+        <NotOperatorPanel User="Auth.User!" Error="Auth.Error" OnSignOut="SignOutAsync" OnRetry="RetryAsync" />
+        break;
+
+    default:
+        <SignInPanel OnSignIn="SignInAsync" Busy="_busy" Error="Auth.Error" />
+        break;
+}

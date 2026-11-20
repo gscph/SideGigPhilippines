@@ -1,0 +1,68 @@
+<MudCard Outlined="true">
+    <MudCardContent>
+        <MudStack Row="true" Spacing="4" Wrap="Wrap.Wrap">
+            @if (Request.ProfilePhotoUrl is { } photo)
+            {
+                <MudImage Src="@photo" Alt="Profile photo" Class="admin-profile-photo" />
+            }
+            else
+            {
+                <MudAvatar Size="Size.Large" Color="Color.Dark">?</MudAvatar>
+            }
+            <MudStack Spacing="1" Class="flex-1">
+                <MudText Typo="Typo.h6">@BadgeText.Title(Request)</MudText>
+                <MudText Typo="Typo.body1">@(Request.WorkerName ?? "(no name)")</MudText>
+                @if (Request.ProjectName is { Length: > 0 } project)
+                {
+                    <MudText Typo="Typo.body2">Project: @project</MudText>
+                }
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Sent @Request.CreatedAt.ToManila() · uid @Request.Uid</MudText>
+            </MudStack>
+        </MudStack>
+
+        @if (BadgeText.Scan(Request) is { Length: > 0 } scan)
+        {
+            <MudStack Spacing="0" Class="mt-4">
+                <MudText Typo="Typo.subtitle2">@scan</MudText>
+                @if (Request.ScannedType is { } type) { <MudText Typo="Typo.body2">Type: @type</MudText> }
+                @if (Request.ScannedName is { } name) { <MudText Typo="Typo.body2">Name: @name</MudText> }
+                @if (Request.ScannedNumber is { } number) { <MudText Typo="Typo.body2">Number: @number</MudText> }
+                @if (Request.ScannedExpiry is { } expiry) { <MudText Typo="Typo.body2">Expires: @expiry.ToString("d MMM yyyy")</MudText> }
+            </MudStack>
+        }
+
+        <MudStack Spacing="2" Class="mt-4">
+            @if (_document is not null)
+            {
+                <MudImage Src="@_document" Alt="Proof photo" Class="admin-proof" />
+            }
+            else if (Request.HasDocument)
+            {
+                <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Outlined.Image"
+                           Disabled="_busy" OnClick="ShowDocumentAsync" Class="align-self-start">
+                    Show the proof photo (logged)
+                </MudButton>
+            }
+            else
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">No proof photo stored.</MudText>
+            }
+        </MudStack>
+
+        <MudTextField T="string" @bind-Value="_reason" Label="Reason if you reject (the worker reads it)"
+                      Variant="Variant.Filled" Lines="2" MaxLength="BadgeService.MaxReason" Counter="BadgeService.MaxReason"
+                      Immediate="true" Class="mt-4" />
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-2">@_error</MudAlert>
+        }
+    </MudCardContent>
+    <MudCardActions Class="px-4 pb-4">
+        <MudStack Row="true" Spacing="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="_busy" OnClick="() => DecideAsync(true)">Approve</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" Disabled="_busy || !BadgeService.CanReject(_reason)"
+                       OnClick="() => DecideAsync(false)">Reject</MudButton>
+        </MudStack>
+    </MudCardActions>
+</MudCard>

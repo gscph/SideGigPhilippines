@@ -1,0 +1,23 @@
+<MudStack Spacing="4" Class="py-8">
+    <MudText Typo="Typo.h4" HtmlTag="h1">Not an operator</MudText>
+    @if (Error is not null)
+    {
+        <MudAlert Severity="Severity.Error">@Error</MudAlert>
+    }
+    else
+    {
+        <MudText Typo="Typo.body1">
+            This account isn't in the API's operator list. To add it, put this uid in the Function App setting AdminUids
+            (comma separated), then try again.
+        </MudText>
+    }
+    <MudTextField T="string" Value="User.Uid" Label="Your uid" ReadOnly="true" Variant="Variant.Filled" />
+    @if (User.Email is not null)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@User.Email</MudText>
+    }
+    <MudStack Row="true" Spacing="2">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OnRetry">Try again</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" OnClick="OnSignOut">Sign out</MudButton>
+    </MudStack>
+</MudStack>

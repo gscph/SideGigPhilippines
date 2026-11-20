@@ -1,0 +1,21 @@
+<MudStack Spacing="3" Class="pa-2">
+    <MudText Typo="Typo.body2">
+        First @Report.FirstAt.ToManila() · last @Report.LastAt.ToManila() · received @Report.ReceivedAt.ToManila() · report #@Report.Id
+    </MudText>
+    <MudText Typo="Typo.subtitle2">Message</MudText>
+    <MudText Typo="Typo.body2" Class="admin-mono">@Report.Message</MudText>
+    @if (Report.Detail is { Length: > 0 } detail)
+    {
+        <MudText Typo="Typo.subtitle2">Detail</MudText>
+        <MudPaper Outlined="true" Class="pa-3">
+            <MudText Typo="Typo.body2" Class="admin-mono">@detail</MudText>
+        </MudPaper>
+    }
+    @if (Report.Trail is { Length: > 0 } trail)
+    {
+        <MudText Typo="Typo.subtitle2">Pages before it</MudText>
+        <MudPaper Outlined="true" Class="pa-3">
+            <MudText Typo="Typo.body2" Class="admin-mono">@trail</MudText>
+        </MudPaper>
+    }
+</MudStack>
