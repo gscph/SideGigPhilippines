@@ -1,4 +1,4 @@
-<MudStack Spacing="1" AlignItems="@(Mine ? AlignItems.End : AlignItems.Start)">
+<MudStack Spacing="0" AlignItems="@(Mine ? AlignItems.End : AlignItems.Start)" Class="@Class">
     <MudPaper Elevation="0" MaxWidth="80%"
               Class="@(Mine ? "app-bubble app-bubble-mine mud-theme-dark" : "app-bubble app-bubble-theirs mud-background-gray")">
         @if (Message.Kind == ChatMessageKind.Call)
@@ -13,5 +13,4 @@
             <MudText Typo="Typo.body1">@Message.Text</MudText>
         }
     </MudPaper>
-    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="px-1">@T.Ago(Message.At)</MudText>
 </MudStack>

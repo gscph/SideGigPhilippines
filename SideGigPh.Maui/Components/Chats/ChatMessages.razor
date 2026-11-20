@@ -1,0 +1,15 @@
+<MudStack Spacing="4">
+    @foreach (var day in ChatTimeline.Group(Messages))
+    {
+        <MudStack Spacing="0" @key="day.Day">
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" HtmlTag="h2" Class="pb-2">
+                @T.ChatDayLabel(day.Day, Today)
+            </MudText>
+            @foreach (var line in day.Lines)
+            {
+                <ChatBubble Message="line.Message" Mine="@(line.Message.SenderId == MyId)"
+                            Class="@(line.StartsRun ? "pt-3" : "pt-1")" @key="line.Message.Id" />
+            }
+        </MudStack>
+    }
+</MudStack>

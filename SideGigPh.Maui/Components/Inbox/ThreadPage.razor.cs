@@ -10,7 +10,8 @@ namespace SideGigPh.Maui.Components.Inbox;
 /// <summary>
 /// The Seeker's chat with one skilled worker, where Contact lands. The first message is already
 /// written from their search (job, town, how soon), so starting is one tap on Send. Call opens
-/// the dialer and is logged in the chat. The worker's replies appear here as they arrive.
+/// the dialer and is logged in the chat. The worker's replies appear here as they arrive. A full screen outside the
+/// tab shell (<see cref="ChatScreen"/>), so it loads <see cref="SeekerWorkspace"/> and listens for notifications itself.
 /// </summary>
 public partial class ThreadPage : ComponentBase, IDisposable
 {
@@ -22,6 +23,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private AppVisibility Visibility { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -34,6 +36,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
+    private IDisposable? _alerts;
 
     /// <summary>Re-reads the picked job while it waits on the worker (marking done sends no message).</summary>
     private PickedJobWatch? _jobWatch;
@@ -46,8 +49,18 @@ public partial class ThreadPage : ComponentBase, IDisposable
     /// <summary>A message was just added at the bottom: scroll to it after the next render.</summary>
     private bool _scrollToEnd;
 
+    protected override void OnInitialized() =>
+        // A push for another chat or an offer opens it; the Inbox is read again for the Inbox's dot.
+        _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadMineAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
+
     protected override async Task OnParametersSetAsync()
     {
+        if (!await Workspace.EnsureLoadedAsync())
+        {
+            Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
         _loading = true;
         _error = null;
         _jobWatch?.Dispose();
@@ -211,6 +224,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
 
     public void Dispose()
     {
+        _alerts?.Dispose();
         _watch?.Dispose();
         _jobWatch?.Dispose();
     }

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 namespace SideGigPh.Maui.Components.Chats;
 
 /// <summary>
-/// The top of an open chat (either side): back to the Inbox, the other person's photo, name and
+/// The top of an open chat (either side), pinned while the messages scroll: back to the Inbox, the other person's photo, name and
 /// detail line (their trade, or the job), an optional action on the right (Call), and a hairline.
 /// </summary>
 public partial class ChatHeader : ComponentBase

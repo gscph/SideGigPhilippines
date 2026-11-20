@@ -10,7 +10,8 @@ namespace SideGigPh.Maui.Components.Professional;
 /// <summary>
 /// The pro's chat with one customer: who they are, the job they need (what, where, how soon,
 /// budget, from the customer's answers), the messages, and a box to reply. New messages appear
-/// as they arrive. Opening it clears the chat's unread badge.
+/// as they arrive. Opening it clears the chat's unread badge. A full screen outside the tab shell
+/// (<see cref="ChatScreen"/>), so it loads <see cref="ProWorkspace"/> and listens for notifications itself.
 /// </summary>
 public partial class ProChatPage : ComponentBase, IDisposable
 {
@@ -23,6 +24,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private JobBoard Board { get; set; } = default!;
     [Inject] private IContactLauncher Phone { get; set; } = default!;
     [Inject] private AppVisibility Visibility { get; set; } = default!;
+    [Inject] private ChatAlerts Alerts { get; set; } = default!;
 
     [Parameter] public string ChatId { get; set; } = string.Empty;
 
@@ -35,6 +37,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     private PickedJob? _job;
     private ChatHistory _history = ChatHistory.Empty;
     private IDisposable? _watch;
+    private IDisposable? _alerts;
 
     /// <summary>Re-reads the picked job while it waits on the customer (marking done sends no message).</summary>
     private PickedJobWatch? _jobWatch;
@@ -49,8 +52,18 @@ public partial class ProChatPage : ComponentBase, IDisposable
     /// <summary>The messages have loaded, so the list can open scrolled to the newest.</summary>
     private bool _loaded;
 
+    protected override void OnInitialized() =>
+        // A push for another chat or a new request opens it; the Inbox and the Requests feed are read again.
+        _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadFeedAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
+
     protected override async Task OnParametersSetAsync()
     {
+        if (!await Workspace.EnsureLoadedAsync())
+        {
+            Nav.NavigateTo("/", replace: true);
+            return;
+        }
+
         _error = null;
         _loaded = false;
         _watch?.Dispose();
@@ -203,6 +216,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
     public void Dispose()
     {
+        _alerts?.Dispose();
         _watch?.Dispose();
         _jobWatch?.Dispose();
     }
