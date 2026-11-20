@@ -13,4 +13,8 @@
             <MudText Typo="Typo.body1">@Message.Text</MudText>
         }
     </MudPaper>
+    @if (ShowTime)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="px-1 pt-1">@T.Ago(Message.At)</MudText>
+    }
 </MudStack>

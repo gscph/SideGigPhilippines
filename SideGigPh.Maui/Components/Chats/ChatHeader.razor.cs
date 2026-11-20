@@ -18,7 +18,10 @@ public partial class ChatHeader : ComponentBase
 
     [Parameter] public string? Detail { get; set; }
 
-    /// <summary>Where tapping the name goes (the pro's public profile); plain text when null.</summary>
+    /// <summary>
+    /// Where tapping the photo or name goes (the pro's public profile, whose Back returns to this chat), shown by a ">"
+    /// after the name; plain text when null.
+    /// </summary>
     [Parameter] public string? ProfileHref { get; set; }
 
     [Parameter] public string? ProfileLabel { get; set; }

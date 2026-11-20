@@ -7,7 +7,7 @@
             </MudText>
             @foreach (var line in day.Lines)
             {
-                <ChatBubble Message="line.Message" Mine="@(line.Message.SenderId == MyId)"
+                <ChatBubble Message="line.Message" Mine="@(line.Message.SenderId == MyId)" ShowTime="line.EndsRun"
                             Class="@(line.StartsRun ? "pt-3" : "pt-1")" @key="line.Message.Id" />
             }
         </MudStack>

@@ -6,8 +6,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Chats;
 
 /// <summary>
-/// The conversation in an open chat (either side): a "Today" / "Yesterday" / date divider per day instead of a time
-/// under every bubble, a sender's messages in a row kept close, more room where the other person starts
+/// The conversation in an open chat (either side): a "Today" / "Yesterday" / date divider per day, a sender's messages
+/// in a row kept close with "3 hr ago" once under the last one, more room where the other person starts
 /// (<see cref="ChatTimeline"/>).
 /// </summary>
 public partial class ChatMessages : ComponentBase

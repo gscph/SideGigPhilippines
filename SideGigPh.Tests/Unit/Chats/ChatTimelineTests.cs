@@ -30,7 +30,7 @@ public class ChatTimelineTests
     }
 
     [Fact]
-    public void Group_MarksWhereEachSenderStartsTalking_AndEachDayStartsANewRun()
+    public void Group_MarksWhereEachSenderStartsAndStopsTalking_AndEachDayIsItsOwnRun()
     {
         var day1 = new DateTimeOffset(2026, 11, 18, 9, 0, 0, Manila);
         var messages = new[]
@@ -45,7 +45,9 @@ public class ChatTimelineTests
         var days = ChatTimeline.Group(messages);
 
         days[0].Lines.Select(l => l.StartsRun).Should().Equal(true, false, true, true);
+        days[0].Lines.Select(l => l.EndsRun).Should().Equal(false, true, true, true);
         days[1].Lines.Single().StartsRun.Should().BeTrue();
+        days[1].Lines.Single().EndsRun.Should().BeTrue();
     }
 
     [Fact]

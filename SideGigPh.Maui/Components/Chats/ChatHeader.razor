@@ -7,7 +7,13 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
             <PersonAvatar Name="@Name" PhotoUrl="@PhotoUrl" />
             <MudStack Spacing="0" Class="overflow-hidden">
-                <MudText Typo="Typo.subtitle1" HtmlTag="h1" Class="one-line">@Name</MudText>
+                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="0" Class="overflow-hidden">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h1" Class="one-line">@Name</MudText>
+                    @if (ProfileHref is not null)
+                    {
+                        <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Size="Size.Small" Color="Color.Secondary" aria-hidden="true" />
+                    }
+                </MudStack>
                 @if (!string.IsNullOrEmpty(Detail))
                 {
                     <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@Detail</MudText>

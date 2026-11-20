@@ -5,7 +5,7 @@
         @if (_pro is not null)
         {
             <ChatHeader BackHref="@SeekerRoutes.Inbox" Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Detail="@T.Trades(_pro)"
-                        ProfileHref="@SeekerRoutes.Pro(_pro.Id)" ProfileLabel="@T.Get(Copy.ViewProfile)">
+                        ProfileHref="@SeekerRoutes.Pro(_pro.Id, SeekerRoutes.Thread(_pro.Id))" ProfileLabel="@T.Get(Copy.ViewProfile)">
                 <Actions>
                     @if (_number is not null)
                     {
