@@ -3,7 +3,8 @@ name: Claude review
 # Reviews every pull request to main with Claude (Opus 5.5, medium effort) and posts ONE comment on the PR:
 # findings worst first, each with its evidence, or a plain "nothing found". Its main job is to catch a PR that
 # breaks a core feature (onboarding, search, posting and offers, chat). It reads code only: tests.yml runs the
-# tests, and nothing here builds the app.
+# tests, and nothing here builds the app. It also labels a PR that has no version label minor or major (a patch
+# gets no label) and never changes a label already there.
 # Needs ONE repo secret: CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`, billed to that Claude plan) or
 # ANTHROPIC_API_KEY (billed per token to the API account). Without either, the job fails and nothing else changes.
 
@@ -42,7 +43,7 @@ jobs:
             --model claude-opus-5-5
             --effort medium
             --max-turns 60
-            --allowedTools "Read,Glob,Grep,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr comment:*)"
+            --allowedTools "Read,Glob,Grep,Bash(gh pr view:*),Bash(gh pr diff:*),Bash(git diff:*),Bash(git log:*),Bash(git show:*),Bash(gh pr comment:*),Bash(gh pr edit ${{ github.event.pull_request.number }} --add-label minor),Bash(gh pr edit ${{ github.event.pull_request.number }} --add-label major)"
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
@@ -85,6 +86,18 @@ jobs:
             Every finding needs EVIDENCE: the file and line (path:line), the few lines of code quoted, and a
             concrete failure scenario (who does what, what goes wrong). Without evidence, leave it out.
 
+            Version label (the app's version is counted from these labels when the PR is squashed into main; see
+            "Versioning" in docs/architecture.md and .github/scripts/app-version.sh):
+            - major: a breaking change or a milestone (an old app stops working with the new API, a contract or
+              saved format changed without a fallback, a big launch step).
+            - minor: a feature or change people using the app will notice (a new screen, question, option or flow).
+            - patch: anything smaller (a fix, copy tweak, refactor, tests, docs, CI). Patch is NO label.
+            Read the PR's current labels (`gh pr view ${{ github.event.pull_request.number }} --json labels`).
+            If it has neither minor nor major, add yours with exactly
+            `gh pr edit ${{ github.event.pull_request.number }} --add-label minor` (or `major`); for a patch add
+            nothing. If it already has minor or major, never change it (the owner may have set it); if you
+            disagree, say so in the comment.
+
             Post exactly ONE comment, as your last step, with a heredoc so quotes in the text are safe:
             gh pr comment ${{ github.event.pull_request.number }} --body-file - <<'REVIEW'
             ...the comment...
@@ -93,6 +106,8 @@ jobs:
 
             ## Claude review
             One line: what the PR changes, and the verdict ("No problems found" or "N problems found").
+            One line: **Version:** major / minor / patch, why in a few words, and what you did (added the label,
+            kept the existing one, or no label for a patch).
             Then the findings, worst first (Breaks a core feature > Bug > Hard rule broken > Risk), each:
             ### 1. <Severity>: <short title>
             **Where:** `path:line`

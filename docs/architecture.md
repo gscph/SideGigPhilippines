@@ -56,8 +56,11 @@ review; drafts skipped; a newer push cancels the review still running) and posts
 - **The comment:** plain words, a verdict line, findings worst first (breaks a core feature > bug > hard rule > risk),
   each with **evidence** (`path:line`, the code quoted, a concrete failure scenario) and a fix; a finding it can't show
   is left out. When nothing is found it says "No problems found" and which features it followed.
-- **Read-only:** tools `Read`, `Glob`, `Grep`, `git diff` / `log` / `show`, `gh pr view` / `diff` and `gh pr comment` (its
-  only write); job permissions `contents: read`, `pull-requests: write`, `id-token: write`. It never builds the app or
+- **Version label:** it decides major / minor / patch by the rules in [Versioning](#versioning) and, when the PR has
+  neither `minor` nor `major`, adds the one it picked (a patch gets no label). It never changes a label that's
+  already there (the owner's call); if it disagrees it says so. The comment's **Version:** line says what it did.
+- **Read-only:** tools `Read`, `Glob`, `Grep`, `git diff` / `log` / `show`, `gh pr view` / `diff`, plus its only writes:
+  `gh pr comment` and exactly `gh pr edit <this PR> --add-label minor|major`; job permissions `contents: read`, `pull-requests: write`, `id-token: write`. It never builds the app or
   runs tests (`tests.yml` does). It is advice, not a required check: the owner still decides the merge.
 - **Setup:** one repo secret, either `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`, signed in with the Claude plan
   that pays) or `ANTHROPIC_API_KEY` (pay per token: Opus 5.5 is $4 per million input tokens, $20 per million output).
@@ -134,7 +137,8 @@ for Android).
   result as `AppVersionNumber`, so each build knows the version it ships. **App only:** the API deploy doesn't pass
   it, so the API (and a PC build) is `AppVersionBase.0`.
   **When opening a PR:** label it `minor` for a feature people will notice, nothing for anything smaller, `major`
-  only for a breaking change or a milestone (the owner can change the label before squashing). `AppVersionStage` is the pre-release stage
+  only for a breaking change or a milestone (the owner can change the label before squashing). The
+  [Claude PR review](#claude-pr-review) adds `minor` / `major` to a PR that has neither. `AppVersionStage` is the pre-release stage
   (empty since the Play Store launch; `rc` for a pre-release), and `BuildNumber` comes from CI
   (`-p:BuildNumber=${{ github.run_number }}`; `0` on a PC). Together they make `AppVersionLabel`: `0.2.3` from CI,
   `0.1.0` on a PC, `0.2.3-rc.12` in a pre-release. Nothing else holds a version.
