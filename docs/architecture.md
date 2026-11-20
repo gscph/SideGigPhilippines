@@ -100,6 +100,37 @@ review; drafts skipped; a newer push cancels the review still running) and posts
 
 **Server** (`SideGigPh.Api` + `SideGigPh.AzureSQL`): one function class per area (no route may start with `admin`: the Azure Functions host keeps that prefix for its own admin API and never loads such a function, so live it answers 404 while the in-memory test host serves it; the operator routes are `ops/…`, guarded by `ApiWiringTests.NoRoute_StartsWithAdmin`) (`UserFunctions`, `ProfessionalFunctions`, `ReviewFunctions`, `ChatFunctions`, `PhotoFunctions`, `ConfigFunctions`, `ErrorReportFunctions`), each checking the token first (`FirebaseTokenValidator.GetUidAsync` / `GetCallerAsync`, which also gives the verified `phone_number`) (the one public route is `GET config`, reference data read before the account is ready; `ApiWiringTests.PublicRoutes`), then calling a store (`UserStore`, `ProfessionalStore`, `ReviewStore`, `ChatStore`, `PushDeviceStore`, `ConfigStore`, `OtherJobNoteStore`, `ErrorReportStore`) that holds the data rules and answers with contracts or an outcome enum. Errors answer `{ "error", "detail" }`: `ErrorDetailsMiddleware` turns any exception into `500 exception` (or `400 bad-body`) with the stack trace in `detail` while `ApiResults.ShowDetails` is on (MVP debugging; on unless the Function App setting `ShowErrorDetails` is `false`: set that before launch), and the app logs the whole answer (`ApiClient.EnsureWrittenAsync`). Multi-row writes use `db.InTransactionAsync` (retry-safe on Azure SQL); a caller's own data sits under `…/me` / `…/mine` routes. Writes a script could repeat are limited per account by **`CallerLimits`** (in memory per instance, sliding window; `Limited`: chat messages 30/min, new chats 20/h, "Others" notes 20/h, error report batches 12/h, photo uploads 10 per 15 min, reviews 30/h): past it `429 too-many-requests` (`ApiErrors.TooManyRequests`), which the app shows as its usual didn't-send message. Search ids that can't be a trade or area find nobody without a database read or cache entry. "Others" (`OtherWork.TradeId` `other`, and each trade's `…-other` job) is accepted as a listing's and a job post's trade and job; search takes the Seeker's typed `otherText` and `SearchRanker.OtherWordsMatch` puts workers whose `ListingDto.OtherWork` shares its words first (the job-post feed still orders "Others" posts by distance only). Settings: `PhotoStorage`, `SqlDatabase`, `FirebaseProjectId`, `FirebaseServiceAccount` (notifications; optional), `ShowErrorDetails` (optional).
 
+**Moderation** (`SideGigPh.Api/Moderation/`): `TextModeration.AllowsAsync(what, texts)` runs in each function after
+the token check, rate limit and body parse and **before** the store write, push or alert; all of a request's free-text
+fields go in one check. Covered: `POST chats/{chatId}/messages` (text), `POST`/`PUT job-posts` (description),
+`POST job-posts/{id}/offers` (note), `PUT reviews` (comment, reviewer name), `PUT household-reviews` (comment),
+`POST other-jobs` (a refused note is not stored), `PUT professionals/me` (display name, "Others" work), `PUT users/me`
+(display name), `POST feedback` (title, details), `POST suggest` (the web page shows the form again with
+`SuggestPage.RudeNote`). Not covered on purpose: reports (`POST reports`, `…/report`), and texts the app writes itself
+(the first message after a pick).
+1. `RudeWords`: a word list in English, Tagalog, Taglish and jejemon, read twice (with jejemon letters: `g@g0` →
+   `gago`; with digits and marks as spaces: `gago!!` → `gago`), accents off, masks dropped (`f*ck` → `fck`), runs of
+   single letters joined (`p u t a`), three or more repeats cut (`gagooo`), plus a squeezed reading (`fuuck`). Words
+   match whole (`putahe`, `potato`, `cockroach` pass), `Stems` match inside words (`putanginamo`), `Phrases` match
+   together only (`hayop ka`; `hayop` alone is an animal), `Innocent` pairs skip (`leche flan`). Free and instant.
+2. Azure AI Content Safety (`ITextModerator` → `ContentSafetyModerator`, `text:analyze`, four severity levels,
+   `ModerationRules`: Sexual ≥ 2, Hate ≥ 2, Violence ≥ 4, SelfHarm ≥ 4; first 10,000 characters). It is weak on
+   Tagalog slang, which step 1 covers. Signs in as the Function App's managed identity ("Cognitive Services User" on
+   that resource only, `azure/cloudshell-content-safety.sh`); `ContentSafetyKey` only on a PC. Without
+   `ContentSafetyEndpoint`, `NoTextModerator`. Down, slow (`Patience` 4 s) or out of free calls → `Unchecked` and the
+   word list's answer stands: writes never wait on Azure.
+A refusal answers `422 text-not-allowed` (`ApiResults.TextNotAllowed`); the log says what was refused and why, never
+the text. App: `ApiClient` throws `Services/TextNotAllowedException` (an `HttpRequestException`, logged as a warning,
+not an error report); repositories with result enums map it (`PublishResult`, `JobPostResult`, `OfferResult`
+`.TextNotAllowed`); pages catch it before their generic failure and show `Copy.TextNotAllowed` keeping the text (chat
+composer, post form, request page, review page, `PickedJobCard`, Publish Ready, feedback). A refused live-listing
+edit keeps `ListingOutOfDate` (the old listing stays live) and sets `ProWorkspace.EditRefused`, shown on Pro home as
+`Copy.ListingEditRefused` until an edit goes through. The skeleton `NamePage` asks `IDisplayNameCheck` (default
+`AnyDisplayName`; SideGigPh = `LocalAccount`, which saves `users/me` first) before setting the sign-in account's name,
+showing `CommonCopy.AuthNameNotAllowed`; other failures let the name through (it works offline). Tests:
+`Unit/Moderation/RudeWordsTests` (every listed word caught, everyday look-alikes pass, fail open), the integration
+tests per route with `FakeTextModerator` (marker `flag-me-azure`). Privacy policy §3.6.
+
 **Error reports** (`Services/Diagnostics/`, so we can fix what we can't reproduce, like a phone that hangs after the interview's Done): **`ErrorLog`** (singleton) keeps the problems the app had on this phone in `diagnostics.json` (port **`IErrorLogStore`**, `Local/FileErrorLogStore`, kept by Start over): errors any code logs (**`ErrorLogLoggerProvider`**, an `ILoggerProvider` service; the app's own information and warnings become trail lines), crashes and unobserved task errors (**`ErrorReporting.Start`**, from `App`; a crash saves the log before the app closes), on Android what .NET never sees (**`Platforms/Android/AndroidCrashCapture`**, from `MainApplication.OnCreate`: a Java exception nothing caught, source `Crash.Java`; and at each launch how earlier runs ended, read from `ApplicationExitInfo` on Android 11+ and turned into reports by **`PastExits`**, source `Crash.LastRun`: crash, native crash (WebView, drivers), ANR with the dump's `"main"` thread, a memory kill while on screen; dated when it happened, without this run's screen, each exit once via the `diagnostics.lastExitSeen` preference), and a loading screen up longer than the skeleton's `BusyIndicator.StuckAfter` (20 s: its `Stuck` event, raised even if the wait never ends; `Unstuck` adds the whole wait to the trail). Each report carries the screen (`Components/Shared/ScreenTrail` in `Routes.razor` tells it every path, never the query) and the last 15 screens and steps; the same problem repeated only counts up; at most 50 reports for 14 days. **Every text is scrubbed when recorded** (`ErrorReportRules.Scrub` in `SideGigPh.Contracts`: sign-in tokens, phone numbers, emails, Firebase uids also inside chat ids, photo hashes, query strings) and again by the server. **`ErrorReportSender`** sends batches of 20 (`IErrorReportRepository` → `Api/ApiErrorReportRepository` → `POST error-reports` → `ErrorReportStore` → `ErrorReports`) 30 s after launch, then every 10 min while the app is on screen, only while someone is signed in (what happened before sign-in waits); a failed send waits for the next try, a batch the server refuses as bad is dropped, and neither logs an error (that would report itself). Batches carry a random install id, the app version, the **code version** (the git commit, stamped by the csproj's `StampCodeVersion` target; `-dirty` = built with uncommitted changes) and the **channel** (`AppChannel`: `dev` for Debug, `beta` for Release, `prod` with `-p:AppChannel=prod`; read by `MauiProgram.BuildInfo`), the OS version and phone model, never the account. **Privacy:** on by default (legitimate interest: keeping the app working), said in the privacy policy (what is sent, never messages, names or numbers, kept 90 days), and the Me page's **`ErrorReportsSwitch`** (both sides) turns it off, which deletes what waits. Declare "Crash logs" and "Diagnostics" in Google Play's Data safety form and "Diagnostics" in Apple's privacy label. Read them in the portal Query editor (`docs/data-model.md` → `ErrorReports`).
 
 **`IDeviceLocation`** (skeleton `Local/DeviceLocation`, MAUI `Geolocation` with `GeolocationAccuracy.Best`, 15 s):
@@ -478,7 +509,17 @@ households and skilled workers, the badge review (the same as the phone's `Badge
 - **"Others" typed** (`Components/OtherJob/`, `OtherJobService`, page `/other-jobs`, side menu "Insights", linked from
   the dashboard's "Others" tile): every note people typed after picking "Others", newest first, with the trade it was
   under ("Own trade" for the interviews' Others tile), the side and who; filter by side, the Others trade or a trade,
-  search the text. It shows which trades and jobs to add next to `004-config.sql`.
+  search the text. It shows which trades and jobs to add next to `004-config.sql`. Two tabs: **Groups** (default,
+  `GET ops/other-jobs/groups?filter=&days=`, `AdminOtherJobGroupsDto`): the newest notes (capped, the answer says so)
+  cleaned (lower case, accents and punctuation off, spaces collapsed, `OtherJobGrouping`), identical cleaned texts
+  counted, then groups whose Azure OpenAI embeddings have cosine ≥ `OtherJobGrouping.SameMeaning` (0.82, a starting
+  guess: tune on real data) merged biggest first; each group: the most common original text as its label, the count,
+  up to 5 examples, households vs workers, top trades. Embeddings: `ITextEmbedder` (`SideGigPh.Api/Insights`,
+  `AzureOpenAiEmbedder`, `text-embedding-3-small` cut to 256 dimensions, batches of 100; managed identity with
+  "Cognitive Services OpenAI User", `azure/cloudshell-embeddings.sh`; `NoTextEmbedder` without `EmbeddingsEndpoint`,
+  then identical texts only and the page says AI grouping is off). Each cleaned text is embedded once and cached in
+  `dbo.OtherJobTextVectors` (`026-schema-other-job-vectors.sql`, key = cleaned text + model, no uid); only the texts
+  go to Azure. **All entries**: the list above.
 - **Error reports:** the apps' reports, newest first, a row opens to the stack trace and the trail (`ErrorReportDetail`).
   The site's own crashes go to the same table: `MainLayout`'s error boundary shows `SiteErrorPanel`, which sends one
   `POST error-reports` (`ErrorReportService.ReportSiteErrorAsync`, version `operator`, platform `web`, channel `prod`);
