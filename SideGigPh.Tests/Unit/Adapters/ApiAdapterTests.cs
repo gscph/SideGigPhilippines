@@ -395,6 +395,17 @@ public class ApiAdapterTests
     }
 
     [Fact]
+    public async Task Chats_SendWithRudeWords_ThrowsTextNotAllowed_SoThePageAsksForARewrite()
+    {
+        var server = new StubServer();
+        server.Answer("POST chats/pro-1_seeker-1/messages", HttpStatusCode.UnprocessableEntity, Error(ApiErrors.TextNotAllowed));
+        var chats = new ApiChatRepository(server.Client(), new AppVisibility(), NullLogger<ApiChatRepository>.Instance);
+        var chat = ChatDto().ToModel();
+
+        await chats.Invoking(c => c.SendAsync(chat, chat.LastMessage)).Should().ThrowAsync<TextNotAllowedException>();
+    }
+
+    [Fact]
     public async Task Chats_MarkReadFailing_IsHarmless()
     {
         var refused = new StubServer();

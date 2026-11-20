@@ -119,6 +119,11 @@ public partial class ThreadPage : ComponentBase, IDisposable
             // Now there's a reply to wait for: allow the red dot on the app icon (asked once; the system remembers).
             _ = Alerts.AskAsync();
         }
+        catch (TextNotAllowedException)
+        {
+            // Nothing was sent; the message stays in the box to be rewritten.
+            _error = T.Get(Copy.TextNotAllowed);
+        }
         catch (Exception ex)
         {
             Logger.LogError(ex, "Sending a chat message to {ProfessionalId} failed.", Id);
