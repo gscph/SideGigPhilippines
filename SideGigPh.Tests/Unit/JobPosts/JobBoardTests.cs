@@ -1,6 +1,7 @@
 using SideGigPh.AzureSQL;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Localization;
 using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.JobPosts;
@@ -456,5 +457,46 @@ public class JobBoardTests
 
         draft.Description = "maikli";
         (await _board.SaveEditAsync(draft)).Should().Be(JobPostResult.Incomplete);
+    }
+
+    [Fact]
+    public async Task RudeWords_InAPostOrAnEdit_AreRefused_AndTheDraftAndListStay()
+    {
+        _posts.SeedMine(Open(7));
+        await _board.LoadMineAsync();
+        var edit = JobBoard.EditDraft(_board.Mine[0]);
+        edit.Description = "Barado ang lababo, ayusin agad";
+        var draft = Complete();
+        _posts.RefuseText = true;
+
+        (await _board.PostAsync(draft)).Should().Be(JobPostResult.TextNotAllowed);
+        (await _board.SaveEditAsync(edit)).Should().Be(JobPostResult.TextNotAllowed);
+
+        draft.Description.Should().Be("Barado ang lababo sa kusina", "the person fixes what they typed");
+        edit.Description.Should().Be("Barado ang lababo, ayusin agad");
+        _board.Mine.Should().ContainSingle().Which.Description.Should().Be("Barado ang lababo sa kusina");
+    }
+
+    [Fact]
+    public void ThePostForm_SaysWhyItDidntGoThrough()
+    {
+        JobBoard.FailureText(JobPostResult.TextNotAllowed, editing: false).Should().Be(Copy.TextNotAllowed);
+        JobBoard.FailureText(JobPostResult.TextNotAllowed, editing: true).Should().Be(Copy.TextNotAllowed);
+        JobBoard.FailureText(JobPostResult.Failed, editing: false).Should().Be(Copy.PostFailed);
+        JobBoard.FailureText(JobPostResult.Failed, editing: true).Should().Be(Copy.PostSaveFailed);
+        JobBoard.FailureText(JobPostResult.Posted, editing: false).Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ARudeOfferNote_IsRefused_AndTheFeedDoesntChange()
+    {
+        _posts.Seed(FeedPost(1));
+        await _board.LoadFeedAsync();
+        _posts.RefuseText = true;
+
+        (await _board.SendOfferAsync(_board.Feed[0], 800, "Puwede ako bukas")).Should().Be(OfferResult.TextNotAllowed);
+
+        _board.Feed.Should().ContainSingle().Which.MyOfferPesos.Should().BeNull();
+        _posts.Offers.Should().BeEmpty();
     }
 }

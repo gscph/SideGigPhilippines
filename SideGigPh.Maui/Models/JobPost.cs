@@ -125,6 +125,9 @@ public enum JobPostResult
 
     /// <summary>Edit post: the post is no longer open (picked, taken down), so it can't change.</summary>
     Closed,
+
+    /// <summary>The server refused what was written (rude or sexual words): nothing was saved; the draft stays to fix.</summary>
+    TextNotAllowed,
 }
 
 /// <summary>
@@ -154,4 +157,7 @@ public enum OfferResult
 
     /// <summary>It didn't reach the server (no internet, server error): worth trying again.</summary>
     Failed,
+
+    /// <summary>The server refused the note (rude or sexual words): nothing was sent; the note stays to fix.</summary>
+    TextNotAllowed,
 }

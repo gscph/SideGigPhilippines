@@ -166,8 +166,9 @@ public partial class RequestDetailPage : ComponentBase
         {
             OfferResult.Done => done,
             OfferResult.Gone => Copy.OfferGone,
+            OfferResult.TextNotAllowed => Copy.TextNotAllowed,
             _ => Copy.OfferFailed,
         };
-        _noticeIsError = result == OfferResult.Failed;
+        _noticeIsError = result is OfferResult.Failed or OfferResult.TextNotAllowed;
     }
 }
