@@ -41,6 +41,8 @@ public static class BlockedWords
 
     private const string Separators = ".-_*'’`~^";
 
+    private static readonly char[] TokenBreaks = [' ', '\t', '\r', '\n', ' ', '　', ':', '/'];
+
     // A number with an optional unit is a quantity, never letters: 1500, 10am, 5pcs, 90sqm, 2nd.
     private static readonly Regex Quantity = new(
         "^[0-9][0-9.,]*(?:st|nd|rd|th|am|pm|x|k|m|cm|mm|ft|kg|g|l|hp|kw|w|v|s|pc|pcs|hr|hrs|min|mins|sqm|yr|yrs|php|day|days)?$",
@@ -147,7 +149,8 @@ public static class BlockedWords
             mapped.Append(Homoglyphs.TryGetValue(c, out var latin) ? latin : c);
         }
 
-        var raw = JoinSingles(mapped.ToString().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries), _ => true);
+        // ':' and '/' split too, so a number after them stays a number ("localhost:8080", "2/3"), not look-alike letters.
+        var raw = JoinSingles(mapped.ToString().Split(TokenBreaks, StringSplitOptions.RemoveEmptyEntries), _ => true);
         var part = new List<List<string>>();
         foreach (var one in new[] { 'i', 'l' })
         {

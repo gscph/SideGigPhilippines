@@ -31,6 +31,13 @@ king ina
 inamo
 amputa
 ampota
+putangna
+potangna
+tang na mo
+
+# --- Tagalog: words said backwards (obob = bobo, ogag = gago) ---
+obob
+ogag
 
 # --- Tagalog: insults ---
 gago
@@ -49,6 +56,7 @@ tanga
 tangang
 katangahan
 bobo
+bobong
 kabobohan
 kupal
 ungas
@@ -66,7 +74,13 @@ pakyo
 fakyu
 pak u
 pak yu
+pak you
+pakyou
 fak u
+fak yu
+fak you
+fk u
+fk you
 fuk u
 pakshet
 pakshit
@@ -99,6 +113,9 @@ chinupa
 tsinupa
 libog
 malibog
+puday
+pokpok
+betlog
 
 # --- Tagalog: slurs (identity word used as an insult; the word alone is allowed) ---
 bakla ka
@@ -138,6 +155,11 @@ shithole
 shitface
 batshit
 horseshit
+dipshit
+chickenshit
+wtf
+fk
+fuq
 fck
 fcking
 fcked
@@ -167,13 +189,22 @@ smartas
 fatas
 aswipe
 ashat
+ahole
+asclown
 kis my as
+douchebag
+dickwad
+toser
+skank
+skanks
 
 # --- English: sexual / anatomy (vulgar) ---
 pusy
 pusies
 tits
 tities
+tity
+jiz
 dickhead
 dickface
 big dick
@@ -189,6 +220,8 @@ blow job
 hand job
 jerk off
 jack off
+jerkof
+jackof
 
 # --- English: slurs (racial / ethnic) ---
 niger
@@ -244,6 +277,11 @@ tarantad
 hinayupak
 kantot
 jakol
+jakul
+hindot
+hindut
+fvck
+phuck
 salsal
 pekpek
 ashole

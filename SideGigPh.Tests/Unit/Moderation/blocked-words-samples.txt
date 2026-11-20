@@ -17,6 +17,27 @@ kup@l
 ( . Y . )
 🖕
 🖕🏽 ka
+v0v0
+V0V0 ka
+0b0b
+obob
+obob ka talaga
+8080
+8080 mo
+ang 8080 mo
+8o8o
+ogag
+8====D~~
+B===>
+8==3
+c===3
+(_|_)
+t(-_-t)
+t(-.-t)
+8008
+80085
+58008
+5318008
 # --- Tagalog / Taglish ---
 putang ina mo
 putangina
@@ -98,6 +119,19 @@ bakla ka
 bayot ka
 bwakanangina
 lintik ka
+putang*na mo
+tang na mo
+bobong tubero
+pak you
+fak yu
+fk you
+puday
+pokpok
+betlog mo
+hindot
+hindutan
+jakulin
+p0kp0k
 # --- Bisaya / Cebuano, Ilocano ---
 yawa
 yawa ka
@@ -166,6 +200,23 @@ horny
 send nudes
 stfu
 gtfo
+wtf
+WTF ang mahal
+f**k you
+fvcking
+phucking
+fuq
+dipshit
+a**hole
+assclown
+douchebag
+dickwad
+tosser
+skank
+jizz
+titty
+jerkoff
+jackoff
 nigger
 n1gger
 nigga
@@ -250,6 +301,20 @@ ass. foreman
 assessment
 massage
 bass guitar
+# --- numbers that look like the calculator words, and the backwards words' neighbours ---
+port 8080
+localhost:8080
+₱8080
+8080 pesos
+₱8,080 lahat
+Php 8080
+10 x 8080mm
+Unit 1808
+bubong sa Taytay
+pukpok ng martilyo
+dowel o tarugo
+fake you
+fax you
 # --- normal service talk ---
 Linis aircon, 2 units split-type, chemical wash
 Barado ang lababo at CR, kailangan ngayon na
