@@ -9,6 +9,11 @@
     "FirebaseServiceAccount": "",
     "DocumentIntelligenceEndpoint": "",
     "DocumentIntelligenceKey": "",
+    "ContentSafetyEndpoint": "",
+    "ContentSafetyKey": "",
+    "EmbeddingsEndpoint": "",
+    "EmbeddingsDeployment": "text-embedding-3-small",
+    "EmbeddingsKey": "",
     "AdminUids": ""
   }
 }

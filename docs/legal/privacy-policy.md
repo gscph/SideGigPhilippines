@@ -19,6 +19,9 @@
 - **Kung gusto mo ng badge** (ID, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
   photo, tao sa Tarbaho lang ang titingin, at **buburahin pagkatapos i-check**. Ang ID ay binabasa ng AI (pangalan,
   ID number, expiry) para tulungan ang nagche-check. Hindi ito ipinapakita sa customer.
+- **Bawal ang bastos:** chine-check ang sinusulat mo (chat, post, offer, review, pangalan, listing) para sa bastos o
+  malaswang salita, sa sarili naming listahan at sa Microsoft Azure AI Content Safety. Kung meron, hindi ito ise-send
+  at papaayos namin. Text lang ang pinapadala, walang pangalan o number.
 - **Hindi namin binebenta ang data mo.** Walang ads.
 - **Pwede mong burahin lahat:** Me → Delete account. O mag-email sa jcadiao1102@gmail.com.
 
@@ -122,6 +125,24 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
   only the result: which badge you hold, the company and building you named, and when it was decided.
 - Customers never see the photo, your ID number or anything read from it. They see only the badge.
 
+### 3.6 Checking what you write for rude or sexual words
+
+To keep the App safe and respectful, **what you write is checked before it is saved or sent**: chat messages, what
+you need done, offers, reviews, the work you type under "Others", your name, your listing and your suggestions.
+(Reports to us are not checked, so you can quote what someone wrote.)
+
+- First our own list of rude, vulgar and sexual words in English, Tagalog and Taglish checks the text on our server.
+- What passes is sent to **Microsoft Azure AI Content Safety**, which only answers whether the text has sexual,
+  hateful, violent or self-harm content. It does not keep your text for training, and it gets only the text (no name,
+  number or account id).
+- If the text has such words, **nothing is saved or sent** and the App asks you to rewrite it. This is an automatic
+  check of the words only; it does not decide anything else about you, and you can always rewrite and send again.
+- We do not keep the refused text, and we never write any text into our logs.
+
+To see which kinds of work people need that the App doesn't list yet, the texts typed under "Others" (only those
+texts, never names, numbers or account ids) may be sent to **Azure OpenAI** (Microsoft) to group texts that mean the
+same thing. This is used only for our counts.
+
 ## 4. Why we use your data (lawful basis)
 
 Under Sections 12 and 13 of the DPA, we process your data because:
@@ -129,7 +150,7 @@ Under Sections 12 and 13 of the DPA, we process your data because:
 1. **It is needed to provide the App you asked for** (contract): sign-in, your listing, search, chats,
    notifications, reviews.
 2. **Our legitimate interests**, balanced against your rights: preventing fraud and fake accounts (one number per
-   account, duplicate-photo detection), keeping the App safe, ranking search results, fixing errors, improving the
+   account, duplicate-photo detection), keeping the App safe (checking what is written for rude or sexual words, §3.6), ranking search results, fixing errors, improving the
    list of jobs and trades.
 3. **Your consent**: optional data (Customer profile photo, income goal), push notifications, error reports and
    (when active) analytics. You can withdraw consent at any time in the App or by emailing us; this does not affect
@@ -164,7 +185,7 @@ terms:
 | Provider | What they do | Data | Where |
 |---|---|---|---|
 | **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
-| **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
+| **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence); checking what you write for rude or sexual words (Azure AI Content Safety, §3.6); grouping "Others" texts (Azure OpenAI, §3.6) | Everything in §3 except Firebase sign-in data; for Content Safety and Azure OpenAI only the text itself | Southeast Asia region (Singapore); Content Safety and Azure OpenAI in Southeast Asia or, where a service isn't offered there, Japan East (or East US for Azure OpenAI) |
 | **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message; for a post, its budget and first line; for an offer, the Skilled Worker's name and price) | Their own locations |
 
 Some of these providers store data **outside the Philippines**. We remain responsible for your data under the DPA
