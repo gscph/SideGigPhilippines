@@ -1,21 +1,20 @@
 namespace SideGigPh.Maui.Models;
 
 /// <summary>
-/// What happened when someone picked photos (work photos or a profile photo). <see cref="Duplicates"/> counts photos
-/// skipped because they were already added (anti-fraud rule 2: SHA-256 duplicate check); <see cref="Problem"/> says
-/// why nothing (or not everything) was added, so the notice can say what to do.
+/// What happened when someone picked photos (work photos or a profile photo): how many were added, and
+/// <see cref="Problem"/> says why nothing (or not everything) was added, so the notice can say what to do.
 /// </summary>
-public sealed record PhotoAddResult(int Added, int Duplicates, PhotoProblem Problem = PhotoProblem.None)
+public sealed record PhotoAddResult(int Added, PhotoProblem Problem = PhotoProblem.None)
 {
     public bool Failed => Problem != PhotoProblem.None;
 
     /// <summary>The upload failed in a way the same photo may get through on another go (no internet, server trouble).</summary>
     public bool CanRetry => Problem is PhotoProblem.NoInternet or PhotoProblem.ServerError;
 
-    public static PhotoAddResult Nothing { get; } = new(0, 0);
+    public static PhotoAddResult Nothing { get; } = new(0);
 
     /// <summary>A pick that brought no photos back: cancelled (no problem), no permission, or the gallery failed.</summary>
-    public static PhotoAddResult From(PhotoPickStatus status) => new(0, 0, status switch
+    public static PhotoAddResult From(PhotoPickStatus status) => new(0, status switch
     {
         PhotoPickStatus.Picked or PhotoPickStatus.Cancelled => PhotoProblem.None,
         PhotoPickStatus.PermissionDenied => PhotoProblem.NoPermission,
@@ -23,12 +22,11 @@ public sealed record PhotoAddResult(int Added, int Duplicates, PhotoProblem Prob
         _ => PhotoProblem.CouldNotOpen,
     });
 
-    /// <summary>An upload that failed: no internet, server trouble, a photo the server can't use, or one another account has.</summary>
-    public static PhotoAddResult From(PhotoStoreException ex) => new(0, 0, ex.Failure switch
+    /// <summary>An upload that failed: no internet, server trouble, or a photo the server can't use.</summary>
+    public static PhotoAddResult From(PhotoStoreException ex) => new(0, ex.Failure switch
     {
         PhotoStoreFailure.NoInternet => PhotoProblem.NoInternet,
         PhotoStoreFailure.Rejected => PhotoProblem.Rejected,
-        PhotoStoreFailure.Taken => PhotoProblem.Taken,
         _ => PhotoProblem.ServerError,
     });
 }
@@ -55,7 +53,4 @@ public enum PhotoProblem
 
     /// <summary>The server can't use this photo (too big, not a readable picture): another photo is needed.</summary>
     Rejected,
-
-    /// <summary>Another account already uses this photo (anti-fraud rule 2).</summary>
-    Taken,
 }

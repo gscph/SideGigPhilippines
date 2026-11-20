@@ -124,12 +124,12 @@ public class JobBoardTests
     }
 
     [Fact]
-    public async Task Photos_AreUploadedAsPicked_UpToThree_WithoutRepeats()
+    public async Task Photos_AreUploadedAsPicked_UpToThree()
     {
         var draft = Complete();
 
-        var first = await _board.AddPhotosAsync(draft, Picked(1, 2, 1));
-        first.Should().Be(new PhotoAddResult(Added: 2, Duplicates: 1));
+        var first = await _board.AddPhotosAsync(draft, Picked(1, 2));
+        first.Should().Be(new PhotoAddResult(Added: 2));
         JobBoard.PhotoRoom(draft).Should().Be(1);
 
         var second = await _board.AddPhotosAsync(draft, Picked(3, 4));

@@ -1,5 +1,4 @@
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using SideGigPh.Api;
 using SideGigPh.AzureSQL;
@@ -126,52 +125,5 @@ public class AbuseTests(ApiTestHost api)
             .GetFromJsonAsync($"search/professionals?categoryId={Uri.EscapeDataString("DROP TABLE; " + new string('x', 500))}", ApiJson.Default.SearchPageDto);
 
         page!.Hits.Should().BeEmpty();
-    }
-
-    // --- Anti-fraud rule 2 across tables ----------------------------------------------
-
-    [IntegrationFact]
-    public async Task ProfilePhoto_ThatIsAnotherWorkersWorkPhoto_IsLeftOff()
-    {
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Owner");
-        await worker.Pro.PublishAsync();
-        var listing = await api.Client(api.Tokens.For(worker.Uid)).GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto);
-        var stolen = listing!.WorkPhotos[0].Id;
-        var thief = NewUid("thief");
-
-        using var response = await api.Client(api.Tokens.For(thief)).PutAsJsonAsync("users/me",
-            new UserDto(thief, "Thief", null, null, Wire.English, Wire.Seeker, null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, stolen),
-            ApiJson.Default.UserDto);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        (await response.Content.ReadFromJsonAsync(ApiJson.Default.UserDto))!.ProfilePhotoId.Should().BeNull();
-    }
-
-    [IntegrationFact]
-    public async Task Publish_WithAnotherAccountsProfilePhoto_IsPhotoInUse()
-    {
-        // A Seeker's own profile photo, stored in Users.
-        var seekerUid = NewUid("photo-seeker");
-        var seekerClient = api.Client(api.Tokens.For(seekerUid));
-        using var upload = new ByteArrayContent(TestImages.Jpeg());
-        upload.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-        using var uploaded = await seekerClient.PostAsync("photos", upload);
-        var photo = (await uploaded.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto))!.Id;
-        using (await seekerClient.PutAsJsonAsync("users/me",
-            new UserDto(seekerUid, "Ana", null, null, Wire.English, Wire.Seeker, null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, photo),
-            ApiJson.Default.UserDto)) { }
-
-        // A worker republishing their listing with that photo as their own.
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Borrower");
-        await worker.Pro.PublishAsync();
-        var workerClient = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
-        var listing = (await workerClient.GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!;
-        var request = new PublishListingRequest(listing.DisplayName, listing.CategoryId, listing.AreaId, listing.ServiceIds, listing.CityIds,
-            listing.ExperienceId, listing.RatePesos, photo, [.. listing.WorkPhotos.Select(p => p.Id)]);
-
-        using var response = await workerClient.PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
-
-        response.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.PhotoInUse);
     }
 }

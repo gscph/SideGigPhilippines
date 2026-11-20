@@ -30,30 +30,17 @@ public class PhotosAndAccountTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task SamePhotoAgain_BySameAccount_IsFine_ByAnotherAccount_IsTaken()
+    public async Task SamePhotoAgain_ByTheSameOrAnotherAccount_IsANewPhoto()
     {
         var photo = TestImages.Jpeg();
         var owner = new TestPhone(api, "Ugo");
         var id = await owner.Get<IPhotoStore>().SaveAsync(photo);
 
-        (await owner.Get<IPhotoStore>().SaveAsync(photo)).Should().Be(id);
+        var again = await owner.Get<IPhotoStore>().SaveAsync(photo);
+        var other = await new TestPhone(api, "Vic").Get<IPhotoStore>().SaveAsync(photo);
 
-        var thief = new TestPhone(api, "Vic");
-        var steal = () => thief.Get<IPhotoStore>().SaveAsync(photo);
-        (await steal.Should().ThrowAsync<PhotoStoreException>()).Which.Taken.Should().BeTrue();
-    }
-
-    [IntegrationFact]
-    public async Task WorkerAddsPhotoUsedByAnotherAccount_SeesTheTakenNotice()
-    {
-        var photo = TestImages.Jpeg();
-        await new TestPhone(api, "Wally").Get<IPhotoStore>().SaveAsync(photo);
-        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Xena");
-        worker.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [photo]);
-
-        var result = await worker.Pro.AddWorkPhotosAsync();
-
-        result.Problem.Should().Be(PhotoProblem.Taken);
+        new[] { id, again, other }.Should().OnlyHaveUniqueItems();
+        api.Blobs.Blobs[$"{other}.jpg"].Metadata["owner"].Should().NotBe(owner.Uid);
     }
 
     [IntegrationFact]

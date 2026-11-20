@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Services.Api;
 
 /// <summary>
 /// <see cref="IPhotoStore"/> on SideGigPh.Api: <c>POST photos</c> uploads the bytes, <c>DELETE photos/{id}</c>
-/// removes a photo. The server decides the photo's id (the SHA-256 of the JPEG it stores) and the
+/// removes a photo. The server decides the photo's id (a new random one per upload) and the
 /// phone shows the photo straight from its public blob URL, so the WebView caches it like any image.
 /// </summary>
 public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<ApiPhotoStore> logger) : IPhotoStore
@@ -24,11 +24,6 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
             var content = new ByteArrayContent(bytes);
             content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
             using var response = await api.SendAsync(HttpMethod.Post, "photos", content);
-            if (response.StatusCode == HttpStatusCode.Conflict)
-            {
-                throw new PhotoStoreException("This photo already belongs to another account.", PhotoStoreFailure.Taken);
-            }
-
             await api.EnsureWrittenAsync(response, "upload a photo");
             var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto)
                 ?? throw new PhotoStoreException("The photo server sent an empty answer.", PhotoStoreFailure.ServerError);

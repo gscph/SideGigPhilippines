@@ -182,7 +182,7 @@ public class PublishingRulesTests(ApiTestHost api)
     [IntegrationFact]
     public async Task WorkPhotoOfAnotherListing_IsPhotoInUse()
     {
-        // Anti-fraud rule 2 at the database: even if a photo id is sent by hand, one photo belongs to one listing.
+        // The database's unique key: even if a photo id is copied by hand, one photo belongs to one listing.
         var first = await TestPhone.WorkerReadyToPublishAsync(api, "Sara");
         await first.Pro.PublishAsync();
         var second = await TestPhone.WorkerReadyToPublishAsync(api, "Sam");
