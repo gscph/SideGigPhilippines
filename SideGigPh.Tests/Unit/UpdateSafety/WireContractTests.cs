@@ -151,6 +151,17 @@ public class WireContractTests
         JobOfferStatuses.Sent.Should().Be("sent");
         JobOfferStatuses.Picked.Should().Be("picked");
         JobOfferStatuses.Withdrawn.Should().Be("withdrawn");
+        JobOfferStatuses.Cancelled.Should().Be("cancelled");
+    }
+
+    // Calling off a picked job: the reason ids are stored in JobOffers.CancelReason and the 409 is read by the app.
+    [Fact]
+    public void Cancel_reasons_and_the_completed_error_keep_their_words()
+    {
+        PickCancelReasons.All.Should().Equal("cant-make-it", "no-reply", "no-show", "not-needed", "price", "other");
+        PickCancelSides.Household.Should().Be("household");
+        PickCancelSides.Worker.Should().Be("worker");
+        ApiErrors.JobCompleted.Should().Be("job-completed");
     }
 
     // The feedback board: an installed app reads these fields and shows a status by these words.

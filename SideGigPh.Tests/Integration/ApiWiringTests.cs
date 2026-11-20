@@ -31,7 +31,7 @@ public class ApiWiringTests(ApiTestHost api)
             "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report",
             "POST verifications/{kind}", "GET verifications/mine",
             "POST job-posts", "PUT job-posts/{id}", "GET job-posts/mine", "GET offers/mine", "GET job-posts/feed", "DELETE job-posts/{id}", "POST job-posts/{id}/report",
-            "POST job-posts/{id}/offers", "DELETE job-posts/{id}/offers/mine", "GET job-posts/{id}/offers", "POST job-posts/{id}/offers/{offerId}/pick", "GET contacts/{otherUid}", "GET picked-jobs/{otherUid}", "POST picked-jobs/{postId}/done", "PUT household-reviews",
+            "POST job-posts/{id}/offers", "DELETE job-posts/{id}/offers/mine", "GET job-posts/{id}/offers", "POST job-posts/{id}/offers/{offerId}/pick", "GET contacts/{otherUid}", "GET picked-jobs/{otherUid}", "POST picked-jobs/{postId}/done", "POST picked-jobs/{postId}/cancel", "PUT household-reviews",
             "GET ops/me", "GET ops/verifications", "GET ops/verifications/{id}/document", "POST ops/verifications/{id}/decision",
             "GET ops/stats", "GET ops/users", "GET ops/seekers", "GET ops/workers", "GET ops/error-reports", "GET ops/other-jobs");
 

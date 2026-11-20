@@ -86,6 +86,13 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.PickedJobDto))!.ToModel();
     }
 
+    public async Task CancelPickAsync(long postId, string reason, string? note)
+    {
+        using var response = await api.SendJsonAsync(HttpMethod.Post, $"picked-jobs/{postId}/cancel",
+            new CancelPickRequest(reason, note), ApiJson.Default.CancelPickRequest);
+        await api.EnsureWrittenAsync(response, "cancel the picked job");
+    }
+
     public async Task RateHouseholdAsync(string seekerUid, int rating, string? comment)
     {
         using var response = await api.SendJsonAsync(HttpMethod.Put, "household-reviews",

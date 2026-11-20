@@ -17,6 +17,20 @@ public enum HouseholdReviewOutcome
     Invalid,
 }
 
+/// <summary>What became of calling a picked job off (<see cref="PickedJobStore.CancelAsync"/>).</summary>
+public enum CancelPickOutcome
+{
+    Cancelled,
+
+    /// <summary>Nothing picked on that post with the caller as its household or worker.</summary>
+    NotFound,
+
+    /// <summary>Both sides already marked it done: a completed job stays.</summary>
+    Completed,
+
+    Invalid,
+}
+
 /// <summary>
 /// Picked jobs: the record behind verified reviews (brief item 12). A household's picked offer is a job between the
 /// two; each side marks it done, in any order. Both marks make it a <b>completed job</b>: the household's review of
@@ -119,6 +133,56 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
 
         var other = job.SeekerUid == uid ? job.Offer.ProUid : job.SeekerUid;
         return (await BetweenAsync(uid, other, cancellationToken)).FirstOrDefault(j => j.PostId == postId);
+    }
+
+    /// <summary>
+    /// The caller (the household that posted it, or the picked worker) calls off the picked job on
+    /// <paramref name="postId"/> before both marked it done: the offer becomes <c>cancelled</c> with who, when and why
+    /// (any one-sided done mark is dropped), and the post opens again so its other offers can be picked (a hidden post
+    /// stays hidden). The numbers stop showing (<see cref="JobPostStore.ContactNumberAsync"/> needs a pick); the chat stays.
+    /// </summary>
+    public async Task<CancelPickOutcome> CancelAsync(string uid, long postId, CancelPickRequest request, CancellationToken cancellationToken)
+    {
+        if (!PickCancelReasons.IsKnown(request.Reason) || !PickCancelRules.IsNote(request.Note))
+        {
+            return CancelPickOutcome.Invalid;
+        }
+
+        return await db.InTransactionAsync(async ct =>
+        {
+            var job = await (from o in db.JobOffers
+                             join p in db.JobPosts on o.PostId equals p.Id
+                             where o.PostId == postId && o.Status == JobOfferStatuses.Picked && (p.SeekerUid == uid || o.ProUid == uid)
+                             select new { Offer = o, Post = p })
+                .FirstOrDefaultAsync(ct);
+            if (job is null)
+            {
+                return CancelPickOutcome.NotFound;
+            }
+
+            if (job.Offer.HouseholdDoneAt is not null && job.Offer.WorkerDoneAt is not null)
+            {
+                return CancelPickOutcome.Completed;
+            }
+
+            var now = DateTimeOffset.UtcNow;
+            job.Offer.Status = JobOfferStatuses.Cancelled;
+            job.Offer.CancelledAt = now;
+            job.Offer.CancelledBy = job.Post.SeekerUid == uid ? PickCancelSides.Household : PickCancelSides.Worker;
+            job.Offer.CancelReason = request.Reason;
+            job.Offer.CancelNote = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+            job.Offer.HouseholdDoneAt = null;
+            job.Offer.WorkerDoneAt = null;
+            job.Offer.UpdatedAt = now;
+            if (job.Post.Status == JobPostStatuses.Closed)
+            {
+                job.Post.Status = JobPostStatuses.Open;
+                job.Post.ClosedAt = null;
+            }
+
+            await db.SaveChangesAsync(ct);
+            return CancelPickOutcome.Cancelled;
+        }, cancellationToken);
     }
 
     /// <summary>

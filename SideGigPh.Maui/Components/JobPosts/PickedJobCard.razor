@@ -59,6 +59,45 @@
             }
         }
 
+        @if (PickCancel.CanCancel(Job))
+        {
+            @if (!_cancelling)
+            {
+                <MudStack Row="true">
+                    <MudButton Variant="Variant.Text" Class="app-link-button" Disabled="_busy" OnClick="StartCancel">
+                        @T.Get(Copy.CancelPickLink)
+                    </MudButton>
+                </MudStack>
+            }
+            else
+            {
+                <MudDivider />
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.subtitle2">@T.Get(Copy.CancelPickTitle)</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Job.IAmTheHousehold ? Copy.CancelPickHousehold : Copy.CancelPickWorker)</MudText>
+                </MudStack>
+                <MudRadioGroup T="string" @bind-Value="_reason" Disabled="_busy">
+                    @foreach (var reason in PickCancel.ReasonsFor(Job.IAmTheHousehold))
+                    {
+                        <MudRadio T="string" Value="reason" Color="Color.Dark" LabelPlacement="Placement.Start" Class="app-choice-radio py-1" @key="reason">
+                            @T.CancelReason(reason)
+                        </MudRadio>
+                    }
+                </MudRadioGroup>
+                <MudTextField T="string" @bind-Value="_note" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                              Class="app-field" Lines="2" MaxLength="@PickCancel.MaxNote" Label="@T.Get(Copy.CancelPickNote)" />
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Outlined" Class="app-button-ink flex-1" Disabled="_busy" OnClick="KeepIt">
+                        @T.Get(Copy.CancelPickKeep)
+                    </MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Error" Class="flex-1"
+                               Disabled="@(_busy || !PickCancel.IsReady(Job.IAmTheHousehold, _reason, _note))" OnClick="CancelAsync">
+                        @T.Get(Copy.CancelPickConfirm)
+                    </MudButton>
+                </MudStack>
+            }
+        }
+
         @if (_error is not null)
         {
             <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>

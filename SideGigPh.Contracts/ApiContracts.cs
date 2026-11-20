@@ -77,6 +77,9 @@ public static class ApiErrors
     /// <summary>403 on <c>PUT household-reviews</c>: no completed job (picked, both marked done) between the two.</summary>
     public const string NoCompletedJob = "no-completed-job";
 
+    /// <summary>409 on <c>POST picked-jobs/{postId}/cancel</c>: both sides already marked the job done, so it can't be called off.</summary>
+    public const string JobCompleted = "job-completed";
+
     /// <summary>403 on an <c>ops/…</c> route: the caller isn't an operator.</summary>
     public const string NotAdmin = "not-admin";
 

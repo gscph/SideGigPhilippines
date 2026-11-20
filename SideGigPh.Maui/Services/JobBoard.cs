@@ -151,6 +151,38 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>
+    /// This person calls off a picked job (<see cref="PickCancel"/>): on the household's side its post is open again in
+    /// <see cref="Mine"/> (no pick). <see cref="CancelPickResult.Completed"/> when both had already marked it done.
+    /// </summary>
+    public async Task<CancelPickResult> CancelPickAsync(PickedJob job, string reason, string? note)
+    {
+        if (!PickCancel.CanCancel(job) || !PickCancel.IsReady(job.IAmTheHousehold, reason, note))
+        {
+            return CancelPickResult.Failed;
+        }
+
+        try
+        {
+            await posts.CancelPickAsync(job.PostId, reason, PickCancel.CleanNote(note));
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            return CancelPickResult.Completed;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return CancelPickResult.Failed;
+        }
+
+        if (_mine.FindIndex(post => post.Id == job.PostId) is var index and >= 0)
+        {
+            _mine[index] = _mine[index] with { IsOpen = true, PickedProId = null };
+        }
+
+        return CancelPickResult.Cancelled;
+    }
+
+    /// <summary>
     /// A worker rates the household of a completed job (1–5 stars, an optional comment). False when it didn't send or
     /// isn't allowed yet.
     /// </summary>

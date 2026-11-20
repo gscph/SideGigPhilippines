@@ -119,6 +119,18 @@ public partial class ProChatPage : ComponentBase, IDisposable
     /// <summary>The card's own change (Mark done, a rating): the newest job as the server answered.</summary>
     private void JobChanged(PickedJob job) => WatchJobs([job, .. _jobs.Skip(1)]);
 
+    /// <summary>
+    /// The card called the job off: drop it, re-read the number (Call shows only while a pick links the two) and send
+    /// the customer the reason in this chat.
+    /// </summary>
+    private async Task JobCancelledAsync(string message)
+    {
+        WatchJobs([.. _jobs.Skip(1)]);
+        _number = await Board.ContactNumberAsync(_chat!.SeekerId);
+        _message = message;
+        await SendAsync();
+    }
+
     private async Task LoadAsync()
     {
         _chat = Workspace.Chats.FirstOrDefault(c => c.Id == ChatId) ?? await Workspace.GetChatAsync(ChatId);

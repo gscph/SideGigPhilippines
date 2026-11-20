@@ -338,6 +338,18 @@ public sealed class JobOfferRow
 
     /// <summary>When the worker marked the picked job done. Both set: a completed job.</summary>
     public DateTimeOffset? WorkerDoneAt { get; set; }
+
+    /// <summary>When a picked job was called off (<c>026-schema-cancel-pick.sql</c>, status <c>cancelled</c>).</summary>
+    public DateTimeOffset? CancelledAt { get; set; }
+
+    /// <summary>Who called it off: <c>household</c> or <c>worker</c> (<see cref="SideGigPh.Contracts.PickCancelSides"/>).</summary>
+    public string? CancelledBy { get; set; }
+
+    /// <summary>Why, an id from <see cref="SideGigPh.Contracts.PickCancelReasons"/>.</summary>
+    public string? CancelReason { get; set; }
+
+    /// <summary>Optional words with the reason.</summary>
+    public string? CancelNote { get; set; }
 }
 
 /// <summary>
