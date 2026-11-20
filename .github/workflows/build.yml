@@ -3,6 +3,7 @@ name: Build Android & iOS
 # The version comes from Directory.Build.props (AppVersionNumber + AppVersionStage) plus this run's number:
 # run 12 builds "0.1.0" with Android versionCode 12 ("0.1.0-rc.12" while AppVersionStage is rc). To release a new
 # version, change Directory.Build.props and commit; the build number keeps counting up, as the stores require.
+# The download and the file inside carry it too (tarbaho-0.1.0-build34-prod.aab = versionCode 34).
 #
 # beta: an APK for sideloading, signed with the release key when its secrets are set, else the shared dev key.
 # prod: an AAB for Google Play, always signed with the release (upload) key: the run fails without its secrets
@@ -129,8 +130,11 @@ jobs:
       - name: Check the signing key
         id: package
         run: |
-          file="$(ls output/android/*-Signed.${PACKAGE_FORMAT} | head -n 1)"
-          if [ -z "$file" ]; then echo "::error::No signed .${PACKAGE_FORMAT} in output/android"; exit 1; fi
+          signed="$(ls output/android/*-Signed.${PACKAGE_FORMAT} | head -n 1)"
+          if [ -z "$signed" ]; then echo "::error::No signed .${PACKAGE_FORMAT} in output/android"; exit 1; fi
+          # The build number (= Android versionCode) in the file name, so an older download is never uploaded by mistake.
+          file="output/android/tarbaho-${{ steps.version.outputs.label }}-build${BUILD_NUMBER}-${{ inputs.channel }}.${PACKAGE_FORMAT}"
+          mv "$signed" "$file"
           echo "file=$file" >> "$GITHUB_OUTPUT"
           sha1="$(keytool -printcert -jarfile "$file" | awk '/SHA1:/ {print $2; exit}')"
           echo "Signed with SHA-1 \`$sha1\` ($(basename "$file"))" >> "$GITHUB_STEP_SUMMARY"
@@ -141,7 +145,7 @@ jobs:
       - name: Upload Android ${{ env.PACKAGE_FORMAT }}
         uses: actions/upload-artifact@v4
         with:
-          name: tarbaho-${{ steps.version.outputs.label }}-${{ inputs.channel }}-android
+          name: tarbaho-${{ steps.version.outputs.label }}-build${{ env.BUILD_NUMBER }}-${{ inputs.channel }}-android
           path: ${{ steps.package.outputs.file }}
 
       # Google Play: the Play Console must already have the app (its very first bundle is uploaded by hand) and a
