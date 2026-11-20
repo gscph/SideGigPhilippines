@@ -195,6 +195,14 @@ public static class Copy
     public static readonly LocalizedText YourMessage = new("Your message", "Message mo");
     public static readonly LocalizedText WriteAMessage = new("Write a message", "Mag-type ng message");
     public static readonly LocalizedText Send = new("Send", "I-send");
+    /// <summary>
+    /// The server refused what was written (<see cref="TextNotAllowedException"/>): shown wherever people type (chat,
+    /// post, offer, review, "Others", name, listing, suggestion). Says what to do, never repeats the word.
+    /// </summary>
+    public static readonly LocalizedText TextNotAllowed = new(
+        "Please remove rude or sexual words, then try again.",
+        "Pakitanggal ang bastos o malaswang salita, tapos subukan ulit.");
+
     public static readonly LocalizedText SendFailed = new("Your message didn't send. Check your internet and try again.", "Di na-send ang message mo. I-check ang internet mo tapos try ulit.");
     public static readonly LocalizedText ChatCustomer = new("Customer", "Customer");
     public static readonly LocalizedText Call = new("Call", "Tawagan");

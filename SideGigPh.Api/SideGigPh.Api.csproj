@@ -15,6 +15,8 @@
 
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <!-- Azure.Identity: already in the build through Microsoft.Data.SqlClient (1.17); referenced directly at 1.21, which forwards its types to Azure.Core 1.60 (1.17 clashes with it), for the managed identity that calls Content Safety and the embeddings model. -->
+    <PackageReference Include="Azure.Identity" Version="1.21.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.30.1" />
     <PackageReference Include="FirebaseAdmin" Version="3.7.0" />
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="15.1.0" />

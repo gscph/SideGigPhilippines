@@ -215,9 +215,30 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
 
         var body = await response.Content.ReadAsStringAsync();
         var apiVersion = ApiVersionOf(response);
+        if (response.StatusCode == HttpStatusCode.UnprocessableEntity && IsTextNotAllowed(body))
+        {
+            // Not a failure of the app: the person wrote something the server refuses. Logged as a warning, not an error report.
+            logger.LogWarning("API {ApiVersion}: couldn't {What}: the text was refused (text-not-allowed).", apiVersion, what);
+            throw new TextNotAllowedException($"API {apiVersion}: couldn't {what}: {SideGigPh.Contracts.ApiErrors.TextNotAllowed}");
+        }
+
         logger.LogError("API {ApiVersion}: couldn't {What}: {Status} {Reason}\n{Body}", apiVersion, what, (int)response.StatusCode, response.ReasonPhrase, body);
         throw new HttpRequestException(
             $"API {apiVersion}: couldn't {what}: {(int)response.StatusCode} {response.ReasonPhrase}. {body}", null, response.StatusCode);
+    }
+
+    /// <summary>True when an error answer's code is <c>text-not-allowed</c>.</summary>
+    public static bool IsTextNotAllowed(string body)
+    {
+        try
+        {
+            return System.Text.Json.JsonSerializer.Deserialize(body, SideGigPh.Contracts.ApiJson.Default.ApiError)?.Error
+                   == SideGigPh.Contracts.ApiErrors.TextNotAllowed;
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return false;
+        }
     }
 
     /// <summary>The API build that answered (<c>X-Api-Version</c>), or "unknown" (an older API, or an answer from Azure's front door).</summary>

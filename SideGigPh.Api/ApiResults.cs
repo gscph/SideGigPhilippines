@@ -21,6 +21,13 @@ internal static class ApiResults
     public static IActionResult TooMany() =>
         new ObjectResult(new ApiError(ApiErrors.TooManyRequests)) { StatusCode = StatusCodes.Status429TooManyRequests };
 
+    /// <summary>
+    /// <c>422 text-not-allowed</c>: what was written has vulgar, sexual or swear words (<see cref="Moderation.TextModeration"/>);
+    /// nothing was saved and the app asks the person to rewrite it.
+    /// </summary>
+    public static IActionResult TextNotAllowed() =>
+        new UnprocessableEntityObjectResult(new ApiError(ApiErrors.TextNotAllowed));
+
     public static IActionResult Conflict(string error) => new ConflictObjectResult(new ApiError(error));
 
     public static IActionResult Forbidden(string error) => new ObjectResult(new ApiError(error)) { StatusCode = StatusCodes.Status403Forbidden };

@@ -214,6 +214,7 @@ public class WireContractTests
         ApiErrors.ConsentRequired.Should().Be("consent-required");
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
+        ApiErrors.TextNotAllowed.Should().Be("text-not-allowed");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer");
         DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 

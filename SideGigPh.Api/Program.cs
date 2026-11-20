@@ -1,3 +1,4 @@
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Configuration;
@@ -5,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 
 var builder = FunctionsApplication.CreateBuilder(args);
@@ -64,5 +66,21 @@ else
 {
     builder.Services.AddSingleton<IIdDocumentReader, NoIdDocumentReader>();
 }
+
+// Moderation of what people write: Tarbaho's word list always, Azure AI Content Safety when it's set up
+// (azure/cloudshell-content-safety.sh: the endpoint, signed in as the Function App's managed identity; a key only if given).
+if (builder.Configuration[ContentSafetyModerator.EndpointSetting] is { Length: > 0 } safetyEndpoint)
+{
+    var safetyKey = builder.Configuration[ContentSafetyModerator.KeySetting];
+    builder.Services.AddSingleton<ITextModerator>(services => new ContentSafetyModerator(
+        new HttpClient(), safetyEndpoint, safetyKey, string.IsNullOrEmpty(safetyKey) ? new DefaultAzureCredential() : null,
+        services.GetRequiredService<ILogger<ContentSafetyModerator>>()));
+}
+else
+{
+    builder.Services.AddSingleton<ITextModerator, NoTextModerator>();
+}
+
+builder.Services.AddSingleton<TextModeration>();
 
 builder.Build().Run();

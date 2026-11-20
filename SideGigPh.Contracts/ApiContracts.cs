@@ -65,6 +65,12 @@ public static class ApiErrors
     /// <summary>429 on a chat message, new chat, "Others" note, photo upload or review: this account sent too many too fast.</summary>
     public const string TooManyRequests = "too-many-requests";
 
+    /// <summary>
+    /// 422 on a write people type into (chat message, post, offer, review, "Others" text, name, listing, suggestion):
+    /// it has vulgar, sexual or swear words. Nothing was saved; the app asks them to rewrite it.
+    /// </summary>
+    public const string TextNotAllowed = "text-not-allowed";
+
     /// <summary>403 on a chat message: one of the two blocked the other.</summary>
     public const string Blocked = "blocked";
 

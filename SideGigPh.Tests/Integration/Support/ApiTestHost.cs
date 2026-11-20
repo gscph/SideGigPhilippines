@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -43,6 +44,9 @@ public sealed class ApiTestHost : IAsyncLifetime
 
     /// <summary>Azure AI Document Intelligence stand-in: answers <see cref="FakeIdReader.Next"/> and counts its reads.</summary>
     public FakeIdReader IdReader { get; } = new();
+
+    /// <summary>Azure AI Content Safety stand-in: flags any text containing <see cref="FakeTextModerator.Marker"/>.</summary>
+    public FakeTextModerator Moderator { get; } = new();
 
     /// <summary>The one operator account (the Function App setting <c>AdminUids</c>).</summary>
     public const string AdminUid = "test-operator";
@@ -82,6 +86,8 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddScoped<JobAlerts>();
                     services.AddSingleton<IPrivateFiles>(PrivateFiles);
                     services.AddSingleton<IIdDocumentReader>(IdReader);
+                    services.AddSingleton<ITextModerator>(Moderator);
+                    services.AddSingleton<TextModeration>();
                     services.AddSingleton(new AdminList(AdminUid));
                 })
                 .Configure(app =>
