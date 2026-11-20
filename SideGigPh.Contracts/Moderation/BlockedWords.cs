@@ -33,13 +33,13 @@ public static class BlockedWords
     // Look-alikes mapped anywhere in a word ('1' and '|' are handled apart: i in one view, l in another).
     private static readonly Dictionary<char, char> LookAlikes = new()
     {
-        ['4'] = 'a', ['@'] = 'a', ['0'] = 'o', ['3'] = 'e', ['5'] = 's', ['$'] = 's', ['7'] = 't', ['8'] = 'b', ['9'] = 'g',
+        ['4'] = 'a', ['@'] = 'a', ['0'] = 'o', ['3'] = 'e', ['5'] = 's', ['$'] = 's', ['6'] = 'g', ['7'] = 't', ['8'] = 'b', ['9'] = 'g',
     };
 
     // Look-alikes mapped only between two letters or digits (so "gago!" and "(puta)" keep their punctuation).
     private static readonly Dictionary<char, char> InnerLookAlikes = new() { ['!'] = 'i', ['+'] = 't', ['('] = 'c' };
 
-    private const string Separators = ".-_*'’`~^";
+    private const string Separators = ".-_*'’`~^#";
 
     private static readonly char[] TokenBreaks = [' ', '\t', '\r', '\n', ' ', '　', ':', '/'];
 
@@ -250,7 +250,7 @@ public static class BlockedWords
         return (result.ToString(), usedOne);
     }
 
-    // Separators between letters go: "p.u.t.a" → "puta", "tang-ina" → "tangina", "f*ck" → "fck".
+    // Separators between letters go: "p.u.t.a" → "puta", "tang-ina" → "tangina", "f*ck" and "f#ck" → "fck".
     private static string DropSeparators(string token)
     {
         var result = new StringBuilder(token.Length);

@@ -39,6 +39,22 @@ tang na mo
 obob
 ogag
 
+# --- Tagalog / Taglish: joined and dodged spellings ---
+boboka
+gagoka
+tangaka
+tangamo
+tangena
+potaena
+putaena
+pukinangina
+lecheng
+letseng
+kantutero
+tsumupa
+chumupa
+magpakamatay ka
+
 # --- Tagalog: insults ---
 gago
 gaga
@@ -194,6 +210,21 @@ asclown
 kis my as
 douchebag
 dickwad
+azhole
+biotch
+beyotch
+bytch
+fcuk
+fkin
+mthrfckr
+nutsack
+balsack
+kunt
+slvt
+kys
+kil yourself
+kil urself
+kil ur self
 toser
 skank
 skanks
@@ -229,6 +260,8 @@ nigers
 niga
 nigas
 nigah
+niguh
+nigaz
 sand niger
 chink
 chinks
@@ -253,11 +286,15 @@ dyke
 dykes
 homo
 shemale
+trany
+lesbo
+lezbo
 
 # --- English: slurs (ableist, used as insults) ---
 retard
 retards
 retarded
+retarted
 tard
 mongoloid
 
@@ -272,6 +309,9 @@ putangina
 potangina
 tangina
 bwakanangina
+pukinangin
+fcker
+fckin
 punyeta
 tarantad
 hinayupak

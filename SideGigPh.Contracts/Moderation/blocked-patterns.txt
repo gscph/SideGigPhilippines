@@ -15,7 +15,9 @@
 \(\s*_\s*[|.*x]\s*_\s*\)
 
 # --- Middle finger face: t(-_-t)  t(-.-t)  t(^_^t)  t(°_°t)  t(ಠ_ಠt) ---
-\bt\s*\(\s*[-~^°ಠ>]+\s*[._]\s*[-~^°ಠ<]+\s*t\s*\)
+\bt\s*\(\s*[-~^°ಠ>*o0•]+\s*[._]\s*[-~^°ಠ<*o0•]+\s*t\s*\)
+# ╭∩╮  ┌∩┐
+[╭┌]\s*∩\s*[╮┐]
 
 # --- Calculator words: 8008 / 80085 / 58008 / 5318008 (boobs), 0b0b (bobo backwards) ---
 # Plain numbers skip the word lists (they are quantities), so these are matched here.
@@ -37,6 +39,10 @@
 (?:🍆|🍑)\uFE0F?(?:\uD83C[\uDFFB-\uDFFF])?\s*(?:💦|👅)
 (?:💦|👅)\uFE0F?(?:\uD83C[\uDFFB-\uDFFF])?\s*(?:🍆|🍑)
 👉(?:\uD83C[\uDFFB-\uDFFF])?\s*👌
+# eggplant with peach (either order), banana or tongue with drops (either order)
+(?:🍆️?\s*🍑|🍑️?\s*🍆)
+(?:🍌|👅)️?\s*💦
+💦️?\s*(?:🍌|👅)
 
 # --- Words that collapse into normal words, so they are matched before collapsing ---
 # "ass"/"@ss"/"a$$"/"4ss" (collapsed it is "as"). Lookarounds, not \b, because @ and $ are not word characters.
@@ -57,3 +63,6 @@
 (?<!\b(?:may|ng|ang)\s+)\bsupot\s+ka\b(?!\s*(?:ba|bang|pa|rin|din|ng|diyan|dyan)\b)
 # atay ka (Bisaya curse), but not "may atay ka ba?" (atay = liver, a grocery item)
 (?<!\b(?:may|ng|ang|bili|bumili)\s+)\batay\s+ka\b(?!\s*(?:ba|bang|pa|ng)\b)
+
+# --- A star in place of a vowel, too short for the word lists once the star is dropped: p*ta, g*go, b*bo, t*nga, p*ke ---
+(?<![\p{L}\p{N}])(?:p\*+t[a@4]|g\*+g[o0u]|b\*+b[o0]|t\*+ng[a@4]|p\*+k[ei3])(?![\p{L}\p{N}])
