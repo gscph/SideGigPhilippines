@@ -4,7 +4,7 @@ using MobileAppTheme.Localization;
 namespace MobileAppTheme.Components.Shared;
 
 /// <summary>
-/// A destructive action (Start over, Delete account) with a second tap to confirm, since it can't be undone.
+/// A destructive action (e.g. Delete account) with a second tap to confirm, since it can't be undone.
 /// Reports the confirmed tap; the parent does the work.
 /// </summary>
 public partial class ConfirmActionCard : ComponentBase

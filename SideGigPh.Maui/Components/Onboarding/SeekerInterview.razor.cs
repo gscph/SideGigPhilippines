@@ -82,7 +82,7 @@ public partial class SeekerInterview : ComponentBase
                 ?? ReferenceData.FindTrade(Answers.CategoryId)))
             : null;
 
-    private bool IsEditing => _state!.CompletedAt is not null;
+    private bool IsEditing => _state!.HasFinished(UserRole.Seeker);
 
     // Step 1 already shows some progress (endowed progress); the loader step is 100%.
     private double Progress => (int)_step / (double)SeekerStep.Finding;
@@ -235,7 +235,8 @@ public partial class SeekerInterview : ComponentBase
     private async Task FinishAsync()
     {
         var state = _state!;
-        state.CompletedAt = DateTimeOffset.Now;
+        state.Role = UserRole.Seeker;
+        state.SeekerFinishedAt = DateTimeOffset.Now;
         state.ResumePath = null;
         await Busy.RunAsync(() => OnboardingFinish.WaitAsync(SaveAsync(state), Logger, Clock));
         Nav.NavigateTo(Answers.FinishPath(), replace: true);
@@ -247,7 +248,7 @@ public partial class SeekerInterview : ComponentBase
         await Account.SaveProfileAsync();
     }
 
-    private void GoBack() => Nav.NavigateTo(Answers.BackPath(_step, IsEditing));
+    private void GoBack() => Nav.NavigateTo(SideSwitch.BackFrom(_state!, UserRole.Seeker, Answers.BackPath(_step, IsEditing)));
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };

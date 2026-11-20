@@ -1,7 +1,7 @@
 @page "/professional/me"
 @layout ProLayout
 
-<MePage Title="@T.Get(Copy.ProPreviewTitle)" StartOverWarning="@T.Get(Copy.StartOverWarning)">
+<MePage Title="@T.Get(Copy.ProPreviewTitle)">
     <MudStack HtmlTag="section" Spacing="4">
         <ProfileLevelChip Level="Progress.Level" />
         <ProCard Listing="Workspace.Listing" Reviews="Workspace.ReviewSummary" />
@@ -42,6 +42,7 @@
     }
 
     <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
+        <SwitchSideRow To="UserRole.Seeker" />
         <MenuRow Href="/start/pro/1" Icon="@Icons.Material.Rounded.Edit" Text="@T.Get(Copy.ProfileEdit)" />
         <MenuRow Href="@ProRoutes.WorkArea" Icon="@Icons.Material.Rounded.LocationOn"
                  Text="@T.Get(Copy.WorkAreaMenu)" SecondaryText="@T.Format(Copy.WorkAreaMenuHint, Workspace.Draft.RadiusKm ?? WorkArea.DefaultRadiusKm)" />

@@ -38,15 +38,6 @@ public static class CommonCopy
     public static readonly LocalizedText AccountLanguage = new("Language", "Language");
     public static readonly LocalizedText LanguageEnglish = new("English", "English");
     public static readonly LocalizedText LanguageTaglish = new("Taglish", "Taglish");
-    public static readonly LocalizedText StartOver = new("Start over", "Magsimula ulit");
-    public static readonly LocalizedText StartOverWhy = new(
-        "Delete everything on this phone and answer the first questions again.",
-        "Burahin lahat sa phone na ito at sagutin ulit ang mga unang tanong.");
-    public static readonly LocalizedText StartOverAsk = new("Delete everything and start over?", "Burahin lahat at magsimula ulit?");
-    public static readonly LocalizedText StartOverWarning = new(
-        "Everything you added on this phone will be deleted. You can't undo this.",
-        "Mabubura lahat ng nilagay mo sa phone na ito. Hindi na ito maibabalik.");
-    public static readonly LocalizedText StartOverYes = new("Yes, delete and start over", "Oo, burahin at magsimula ulit");
     public static readonly LocalizedText DeleteAccount = new("Delete account", "I-delete ang account");
     public static readonly LocalizedText DeleteAccountWhy = new(
         "Delete your account and everything in it for good. You will be signed out.",
@@ -59,9 +50,6 @@ public static class CommonCopy
     public static readonly LocalizedText DeleteAccountFailed = new(
         "Couldn't delete your account. Check your internet and try again.",
         "Hindi na-delete ang account mo. I-check ang internet mo at subukan ulit.");
-    public static readonly LocalizedText StartOverFailed = new(
-        "Couldn't delete everything. Check your internet and try again.",
-        "Hindi nabura lahat. I-check ang internet mo at subukan ulit.");
 
     // --- A screen that broke (MainLayout's error boundary) -----------------
     public static readonly LocalizedText ScreenBroke = new(

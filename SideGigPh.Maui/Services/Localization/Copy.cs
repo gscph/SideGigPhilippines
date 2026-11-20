@@ -2,7 +2,7 @@
 
 /// <summary>
 /// Every Tarbaho UI string, English and Taglish side by side (the skeleton's shared strings,
-/// e.g. Back, Next, Start over, are in MobileAppTheme's <see cref="CommonCopy"/>). Many of our users are not confident
+/// e.g. Back, Next, Cancel, are in MobileAppTheme's <see cref="CommonCopy"/>). Many of our users are not confident
 /// English readers: keep both versions short and plain, and keep Taglish conversational.
 /// Reference-data labels (jobs, towns, prices) live in <see cref="ReferenceData"/>.
 /// </summary>
@@ -231,9 +231,17 @@ public static class Copy
     public static readonly LocalizedText PushChannelRequests = new("Requests near you", "Mga request malapit sa'yo");
     public static readonly LocalizedText PushChannelOffers = new("Offers on your posts", "Mga offer sa post mo");
     public static readonly LocalizedText AccountTitle = new("Your Account", "Your Account");
-    public static readonly LocalizedText StartOverWarning = new(
-        "Your answers, listing, photos, messages and reviews on this phone will be deleted. You can't undo this.",
-        "Mabubura ang mga sagot, listing, photos, message at review mo sa phone na 'to. Di na 'to mababalik.");
+    // Switching side on the Me page (SwitchSideRow).
+    public static readonly LocalizedText SwitchToSeeker = new("Switch to customer", "Lipat sa customer");
+    public static readonly LocalizedText SwitchToSeekerHint = new("Find someone to do a service for you", "Maghanap ng gagawa para sa'yo");
+    public static readonly LocalizedText SwitchToPro = new("Switch to Skilled Worker", "Lipat sa Skilled Worker");
+    public static readonly LocalizedText SwitchToProHint = new("Your listing, requests and customers", "Listing, requests at customers mo");
+    // A customer who never set up the worker side (BecomeWorkerCard on their Me page, like Airbnb's "Become a host").
+    public static readonly LocalizedText BecomeWorkerTitle = new("Become a Skilled Worker", "Maging Skilled Worker");
+    public static readonly LocalizedText BecomeWorkerWhy = new(
+        "Offer your skills and get customers near you. Your customer side stays the same.",
+        "I-offer ang skills mo at magkaroon ng customers malapit sa'yo. Walang magbabago sa customer side mo.");
+    public static readonly LocalizedText SwitchToSeekerNewHint = new("A few questions, then search. Your listing stays.", "Ilang tanong lang, tapos search na. Hindi mawawala ang listing mo.");
     public static readonly LocalizedText Save = new("Save", "I-save");
     public static readonly LocalizedText Saved = new("Saved", "Na-save");
 

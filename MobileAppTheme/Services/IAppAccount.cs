@@ -3,7 +3,7 @@ using MobileAppTheme.Localization;
 namespace MobileAppTheme.Services;
 
 /// <summary>
-/// The person using this phone, as the shared <c>MePage</c> sees them: their app language, Start over
+/// The person using this phone, as the shared <c>MePage</c> sees them: their app language, sign out
 /// and Delete account. The app implements it (it knows what to save and what to delete) and registers it.
 /// </summary>
 public interface IAppAccount
@@ -28,9 +28,6 @@ public interface IAppAccount
     /// forgets what was loaded for the last account, like <see cref="SignOutAsync"/> without signing out.
     /// </summary>
     Task AccountSwitchedAsync();
-
-    /// <summary>Deletes everything the person made on this phone, so <c>/</c> starts the app fresh.</summary>
-    Task StartOverAsync();
 
     /// <summary>
     /// Deletes the person's account and everything in it, on the server and at the sign-in provider, then signs them

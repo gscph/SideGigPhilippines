@@ -12,7 +12,30 @@ namespace SideGigPh.Maui.Services;
 public static class OnboardingCleanup
 {
     /// <summary>Every cleanup, as the saved answers load.</summary>
-    public static OnboardingState FitToCatalog(this OnboardingState state) => state.DropUnservedTowns().DropUnservedBarangays().MoveMergedTrades().DropRetiredJobs();
+    public static OnboardingState FitToCatalog(this OnboardingState state) => state.MoveOldFinishDate().DropUnservedTowns().DropUnservedBarangays().MoveMergedTrades().DropRetiredJobs();
+
+    /// <summary>
+    /// A file saved before one account could be both sides has one finish date for the side it was on: it becomes that
+    /// side's date, so a finished interview is never asked again. A date with no side is dropped (the role page asks).
+    /// </summary>
+    public static OnboardingState MoveOldFinishDate(this OnboardingState state)
+    {
+        if (state.CompletedAt is { } finished)
+        {
+            if (state.Role == UserRole.Seeker)
+            {
+                state.SeekerFinishedAt ??= finished;
+            }
+            else if (state.Role == UserRole.Professional)
+            {
+                state.ProFinishedAt ??= finished;
+            }
+
+            state.CompletedAt = null;
+        }
+
+        return state;
+    }
 
     /// <summary>
     /// Trades retired by moving them under another trade as one of its jobs (ids are stable, so the old ids stay

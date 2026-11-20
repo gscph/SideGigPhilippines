@@ -59,7 +59,7 @@ public class OthersAnswerTests
         var state = new OnboardingState
         {
             Role = UserRole.Seeker,
-            CompletedAt = DateTimeOffset.Now,
+            SeekerFinishedAt = DateTimeOffset.Now,
             Seeker = { CityId = "taytay", AreaId = "rizal", UrgencyId = ReferenceData.UrgencyToday, BudgetId = ReferenceData.Unsure },
         };
         state.Seeker.PickCategory(Other);
@@ -91,7 +91,7 @@ public class OthersAnswerTests
         var state = new OnboardingState
         {
             Role = UserRole.Professional,
-            CompletedAt = DateTimeOffset.Now,
+            ProFinishedAt = DateTimeOffset.Now,
             Professional = { CityIds = ["taytay"], AreaId = "rizal", ExperienceId = "1-3", RatePesos = 1200 },
         };
         state.Professional.PickTrade(Other);

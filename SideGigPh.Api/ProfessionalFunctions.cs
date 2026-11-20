@@ -51,9 +51,16 @@ public sealed class ProfessionalFunctions(
         var rank = new RankRequest(Optional(query["serviceId"]), Optional(query["cityId"]), Optional(query["budgetId"]),
             Optional(query["otherText"]) is { } typed && typed.Length > OtherWork.MaxText ? typed[..OtherWork.MaxText] : Optional(query["otherText"]),
             query["sort"] == SearchSort.LowestPrice ? SearchSort.LowestPrice : SearchSort.BestMatch);
-        var hidden = await safety.HiddenForAsync(uid, cancellationToken);
+        var hidden = await HiddenInSearchAsync(uid, cancellationToken);
         return new OkObjectResult(await professionals.SearchPageAsync(categoryId, Optional(query["areaId"]), rank, skip, take, hidden, cancellationToken));
     }
+
+    /// <summary>
+    /// Left out of the caller's search: people either of them blocked, and the caller's own listing (one account can be
+    /// a household and a Skilled Worker, and nobody contacts themselves: a chat with yourself is refused).
+    /// </summary>
+    private async Task<IReadOnlySet<string>> HiddenInSearchAsync(string uid, CancellationToken cancellationToken) =>
+        (await safety.HiddenForAsync(uid, cancellationToken)).Append(uid).ToHashSet();
 
     private static string? Optional(string? value) => string.IsNullOrEmpty(value) ? null : value;
 
@@ -79,7 +86,7 @@ public sealed class ProfessionalFunctions(
             return ApiResults.BadRequest("categoryId-required");
         }
 
-        var hidden = await safety.HiddenForAsync(uid, cancellationToken);
+        var hidden = await HiddenInSearchAsync(uid, cancellationToken);
         return new OkObjectResult(await professionals.SearchAsync(categoryId, string.IsNullOrEmpty(areaId) ? null : areaId, hidden, cancellationToken));
     }
 
