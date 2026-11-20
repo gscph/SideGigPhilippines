@@ -40,6 +40,29 @@ says "Tarbaho" in `Copy.cs`.
 
 - **Tests:** **`SideGigPh.Tests`** (plain `net10.0`; xUnit 2, FluentAssertions **7.x** (8+ needs a paid licence for commercial use), `Microsoft.AspNetCore.TestHost`, coverlet). `Unit/` (by feature, fakes in `TestSupport/`, no network or database) and `Integration/` (the real `SideGigPh.Api` functions served in memory at the routes in their `[HttpTrigger]`s, the real stores on a fresh SQL Server database built like live is upgraded (`Sql/001-schema.sql`, then every `NNN-schema-*.sql` in order, then `004-config.sql`; `SchemaScriptTests` re-runs them to prove the guards), the real `FirebaseTokenValidator` with a test signing key, photos in an in-memory blob container, and per test person the app's real services and `AddSideGigPhApi` adapters; trait `Category=Integration`, skipped with a reason when no SQL Server: LocalDB on Windows or `SIDEGIGPH_TEST_SQL`). The app targets only Android/iOS, so the csproj **compiles `SideGigPh.Maui/Models/**` and `Services/**` (plus the `*Routes.cs`) into the tests by link**: keep pages' rules in `Services/` (pages aren't compiled there). Two test seams, unused by the app: `ApiOptions.Handler` (an `HttpMessageHandler` for `ApiClient`) and `FirebaseTokenValidator`'s optional `signingKeys`. Snapshot tests in `Unit/UpdateSafety/` fail on purpose when an id, JSON field name or error code changes. Coverage of the core code is ~100% (`coverage.runsettings`). How to run and what each folder protects: [`SideGigPh.Tests/README.md`](../SideGigPh.Tests/README.md); after a relevant change load the `run-tests` skill
 
+## Claude PR review
+
+`.github/workflows/claude-review.yml` runs on every pull request to `main` (opened, new commits, reopened, ready for
+review; drafts skipped; a newer push cancels the review still running) and posts **one comment** on the PR.
+
+- **Model and effort:** `anthropics/claude-code-action@v1` with `claude_args` `--model claude-opus-5-5 --effort medium`
+  (`--effort` is the Claude Code CLI flag; medium is Opus 5.5's default today, pinned so a default change can't move it).
+- **What it checks, in order:** (1) the PR's own changes for correctness bugs; (2) that the core features still work
+  along the code paths the PR touches: onboarding (language → sign-in → role → interview → publish / search-or-post),
+  search relevance (`SearchRanker`), job posts and offers (`JobBoard`, `JobPostStore`, `JobAlerts`), chat
+  (`ChatHistory`, chats API); (3) CLAUDE.md's hard rules (anti-fraud, schema changes only as new guarded
+  `NNN-schema-*.sql`, MudBlazor-only `.razor` without hex, bilingual `Copy.cs`, no job/hire/employment words, private
+  data never sent). It reads `CLAUDE.md` and the matching sections of this file first.
+- **The comment:** plain words, a verdict line, findings worst first (breaks a core feature > bug > hard rule > risk),
+  each with **evidence** (`path:line`, the code quoted, a concrete failure scenario) and a fix; a finding it can't show
+  is left out. When nothing is found it says "No problems found" and which features it followed.
+- **Read-only:** tools `Read`, `Glob`, `Grep`, `git diff` / `log` / `show`, `gh pr view` / `diff` and `gh pr comment` (its
+  only write); job permissions `contents: read`, `pull-requests: write`, `id-token: write`. It never builds the app or
+  runs tests (`tests.yml` does). It is advice, not a required check: the owner still decides the merge.
+- **Setup:** one repo secret, either `CLAUDE_CODE_OAUTH_TOKEN` (`claude setup-token`, signed in with the Claude plan
+  that pays) or `ANTHROPIC_API_KEY` (pay per token: Opus 5.5 is $4 per million input tokens, $20 per million output).
+  Without either the job fails and nothing else is affected.
+
 ## Key Ports (Interfaces)
 
 **`IIdentityProvider`** (skeleton, `MobileAppTheme/Auth/`) — Auth abstraction; Firebase is one swappable adapter (see Auth → Switching the auth provider)
