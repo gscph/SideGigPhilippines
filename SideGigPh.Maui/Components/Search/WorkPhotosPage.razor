@@ -1,0 +1,19 @@
+@page "/pro/{Id}/photos/{Index:int}"
+
+<MudContainer MaxWidth="MaxWidth.Small" Gutters="false">
+    <MudStack Spacing="0" Class="full-screen">
+        <MudText Typo="Typo.h1" HtmlTag="h1" Class="app-visually-hidden">@T.Get(Copy.ProProfilePhotos)</MudText>
+        <SheetHeader OnClose="CloseAsync" Divider="false" Title="@Title" />
+
+        @if (_photos.Count > 0)
+        {
+            <MudCarousel TData="string" ItemsSource="_photos" @bind-SelectedIndex="_selected"
+                         ShowArrows="@(_photos.Count > 1)" ShowBullets="false" EnableSwipeGesture="true" AutoCycle="false"
+                         ArrowsColor="Color.Dark" Class="app-photo-viewer flex-1">
+                <ItemTemplate>
+                    <MudImage Src="@context" Alt="" ObjectFit="ObjectFit.Contain" Class="app-photo-viewer-image" />
+                </ItemTemplate>
+            </MudCarousel>
+        }
+    </MudStack>
+</MudContainer>
