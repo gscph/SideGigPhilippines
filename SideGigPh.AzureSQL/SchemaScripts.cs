@@ -29,5 +29,6 @@ public static class SchemaScripts
         "023-schema-worker-price",
         "024-schema-post-needed-date",
         "025-schema-feedback-source",
+        "026-schema-other-job-vectors",
     ];
 }

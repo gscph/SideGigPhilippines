@@ -1,0 +1,77 @@
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+}
+<MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3" Wrap="Wrap.Wrap" Class="mud-width-full py-2">
+    <MudSelect T="string" Value="_filter" ValueChanged="OnFilterAsync" Label="Show"
+               Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Class="admin-filter">
+        @foreach (var choice in _filters)
+        {
+            <MudSelectItem Value="choice.Value">@choice.Label</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSelect T="int" Value="_days" ValueChanged="OnDaysAsync" Label="Typed in"
+               Variant="Variant.Outlined" Margin="Margin.Dense" Dense="true" Class="admin-filter">
+        @foreach (var period in OtherJobService.Periods)
+        {
+            <MudSelectItem Value="period.Days">@period.Label</MudSelectItem>
+        }
+    </MudSelect>
+    <MudSpacer />
+    @if (_groups is { } shown)
+    {
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@shown.Groups.Count.Count() kinds of work from @shown.Notes.Count() notes</MudText>
+    }
+</MudStack>
+
+@if (_groups is { UsedAi: false, Notes: > 0 })
+{
+    <MudAlert Severity="Severity.Normal" Dense="true" Class="mb-2">
+        AI grouping is off or didn't answer: only texts that are the same after cleanup (case, accents, punctuation) are grouped, so the same work written two ways shows as two rows.
+    </MudAlert>
+}
+@if (_groups is { Capped: true } capped)
+{
+    <MudAlert Severity="Severity.Warning" Dense="true" Class="mb-2">
+        Only the newest @capped.Notes.Count() notes are grouped. Pick a shorter time or a filter to see the rest.
+    </MudAlert>
+}
+
+<MudDataGrid T="AdminOtherJobGroupDto" Items="_groups?.Groups" Loading="_loading" Hover="true" Dense="true"
+             Elevation="0" Outlined="true" RowsPerPage="AdminLists.DefaultTake">
+    <Columns>
+        <TemplateColumn T="AdminOtherJobGroupDto" Title="What they asked for" Sortable="false">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.subtitle2">@context.Item.Label</MudText>
+                    @if (OtherWays(context.Item) is { Length: > 0 } ways)
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">Also: @ways</MudText>
+                    }
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+        <PropertyColumn Property="x => x.Count" Title="Notes" />
+        <PropertyColumn Property="x => x.Households" Title="Households" />
+        <PropertyColumn Property="x => x.Workers" Title="Skilled workers" />
+        <TemplateColumn T="AdminOtherJobGroupDto" Title="Typed under" Sortable="false">
+            <CellTemplate>
+                <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                    @foreach (var trade in context.Item.Trades)
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                                 Color="@(trade.Id == OtherWork.TradeId ? Color.Primary : Color.Default)">
+                            @(trade.Id == OtherWork.TradeId ? "Own trade" : trade.Label) · @trade.Count.Count()
+                        </MudChip>
+                    }
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Nobody typed anything under "Others" that matches.</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="AdminOtherJobGroupDto" PageSizeOptions="ListPaging.PageSizes" />
+    </PagerContent>
+</MudDataGrid>

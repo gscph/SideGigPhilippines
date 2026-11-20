@@ -1,4 +1,11 @@
 @page "/other-jobs"
 
 <PageHeader Title="&quot;Others&quot; typed" SubTitle="Work we don't list yet: what households and skilled workers typed after picking &quot;Others&quot;. Use it to decide the next trades and jobs." />
-<OtherJobListView Search="@Search" Filter="@Filter" />
+<MudTabs ActivePanelIndex="ActiveTab" ActivePanelIndexChanged="OnTabChanged" Elevation="0" Rounded="true" TabPanelsClass="pt-4">
+    <MudTabPanel Text="Groups" Icon="@Icons.Material.Outlined.AutoAwesome">
+        <OtherJobGroupsView Filter="@Filter" Days="@Days" />
+    </MudTabPanel>
+    <MudTabPanel Text="All entries" Icon="@Icons.Material.Outlined.List">
+        <OtherJobListView Search="@Search" Filter="@Filter" />
+    </MudTabPanel>
+</MudTabs>
