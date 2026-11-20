@@ -10,7 +10,7 @@ namespace SideGigPh.Api;
 /// The operator's web site (<c>SideGigPh.Admin</c>, Blazor WebAssembly) at <c>GET operator/…</c>: static files that
 /// <c>deploy-api.yml</c> publishes into the package's <c>operator-site/</c> folder. Served by the API itself so the page
 /// and the API share one origin (no CORS) and nothing else needs hosting. The files are public and hold no data: every
-/// call the page makes still needs a Firebase ID token, and <c>admin/…</c> only answers the uids in <c>AdminUids</c>.
+/// call the page makes still needs a Firebase ID token, and <c>ops/…</c> only answers the uids in <c>AdminUids</c>.
 /// A path without a file extension is a page of the app, so it gets <c>index.html</c>, whose <c>&lt;base href="/"&gt;</c>
 /// becomes this route's address. Without the folder (a local run, the tests) every address is 404.
 /// </summary>

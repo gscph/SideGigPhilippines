@@ -7,7 +7,7 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
-/// <summary>The operators: the accounts allowed on <c>admin/…</c> routes, from the Function App setting <c>AdminUids</c> (uids, comma separated).</summary>
+/// <summary>The operators: the accounts allowed on <c>ops/…</c> routes, from the Function App setting <c>AdminUids</c> (uids, comma separated).</summary>
 public sealed class AdminList(string? setting)
 {
     public const string Setting = "AdminUids";
@@ -114,19 +114,19 @@ public sealed class VerificationFunctions(
             ? new OkObjectResult(await verifications.MineAsync(uid, cancellationToken))
             : new UnauthorizedResult();
 
-    /// <summary><c>GET admin/me</c>: whether the caller is an operator. No database call: the list is the app setting.</summary>
+    /// <summary><c>GET ops/me</c>: whether the caller is an operator. No database call: the list is the app setting.</summary>
     [Function("AdminMe")]
     public async Task<IActionResult> AdminMe(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/me")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/me")] HttpRequest request,
         CancellationToken cancellationToken) =>
         await auth.GetUidAsync(request, cancellationToken) is { } uid
             ? new OkObjectResult(new AdminStatusDto(admins.Contains(uid)))
             : new UnauthorizedResult();
 
-    /// <summary><c>GET admin/verifications?take=20</c>: the requests waiting for an operator, oldest first.</summary>
+    /// <summary><c>GET ops/verifications?take=20</c>: the requests waiting for an operator, oldest first.</summary>
     [Function("AdminVerifications")]
     public async Task<IActionResult> Pending(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/verifications")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/verifications")] HttpRequest request,
         CancellationToken cancellationToken)
     {
         var (admin, refusal) = await AdminAsync(request, cancellationToken);
@@ -139,10 +139,10 @@ public sealed class VerificationFunctions(
         return new OkObjectResult(await verifications.PendingAsync(take, cancellationToken));
     }
 
-    /// <summary><c>GET admin/verifications/{id}/document</c>: the photo, for the operator's eyes. Every look is logged.</summary>
+    /// <summary><c>GET ops/verifications/{id}/document</c>: the photo, for the operator's eyes. Every look is logged.</summary>
     [Function("AdminVerificationDocument")]
     public async Task<IActionResult> Document(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "admin/verifications/{id}/document")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "ops/verifications/{id}/document")] HttpRequest request,
         string id,
         CancellationToken cancellationToken)
     {
@@ -164,12 +164,12 @@ public sealed class VerificationFunctions(
     }
 
     /// <summary>
-    /// <c>POST admin/verifications/{id}/decision</c>: approve or reject. The photo is deleted either way; only the
+    /// <c>POST ops/verifications/{id}/decision</c>: approve or reject. The photo is deleted either way; only the
     /// result stays.
     /// </summary>
     [Function("AdminVerificationDecision")]
     public async Task<IActionResult> Decide(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "admin/verifications/{id}/decision")] HttpRequest request,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "ops/verifications/{id}/decision")] HttpRequest request,
         string id,
         CancellationToken cancellationToken)
     {

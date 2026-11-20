@@ -39,16 +39,16 @@ public class VerificationTests(ApiTestHost api)
         api.PrivateFiles.Files.Keys.Should().Contain(name => name.StartsWith(worker.Uid + "/"));
 
         // The operator sees what the AI read and the worker's profile photo, and looks at the document.
-        var queue = (await Operator.GetFromJsonAsync("admin/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!;
+        var queue = (await Operator.GetFromJsonAsync("ops/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!;
         var waiting = queue.Single(v => v.Id == request.Id);
         waiting.ScannedName.Should().Be("VINA SANTOS");
         waiting.ScannedExpiry.Should().Be(new DateOnly(2031, 5, 1));
         waiting.ProfilePhotoUrl.Should().NotBeNull();
-        using var document = await Operator.GetAsync($"admin/verifications/{request.Id}/document");
+        using var document = await Operator.GetAsync($"ops/verifications/{request.Id}/document");
         document.StatusCode.Should().Be(HttpStatusCode.OK);
         document.Content.Headers.ContentType!.MediaType.Should().Be("image/jpeg");
 
-        using var decided = await Operator.PostAsJsonAsync($"admin/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
+        using var decided = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
         decided.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
         // The badge is on the listing; the photo and everything read from it are gone; the log says who did what.
@@ -82,7 +82,7 @@ public class VerificationTests(ApiTestHost api)
         worker.Badges.StateOf(BadgeKind.Project).Should().Be(BadgeState.Pending);
 
         var request = worker.Badges.Of(BadgeKind.Project).Single();
-        using var decided = await Operator.PostAsJsonAsync($"admin/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
+        using var decided = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
         decided.StatusCode.Should().Be(HttpStatusCode.NoContent);
         await worker.Badges.LoadAsync();
         worker.Badges.ApprovedKinds.Should().Be(1);
@@ -122,7 +122,7 @@ public class VerificationTests(ApiTestHost api)
         second.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         // Rejected with a reason the worker sees: they can send a better photo.
-        using var rejected = await Operator.PostAsJsonAsync($"admin/verifications/{request.Id}/decision",
+        using var rejected = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision",
             new VerificationDecisionRequest(false, "The certificate number can't be read"), ApiJson.Default.VerificationDecisionRequest);
         rejected.StatusCode.Should().Be(HttpStatusCode.NoContent);
         (await client.GetFromJsonAsync("verifications/mine", ApiJson.Default.ListVerificationDto))!
@@ -174,9 +174,9 @@ public class VerificationTests(ApiTestHost api)
         // Not even the worker who sent it gets the document back.
         foreach (var call in new Func<Task<HttpResponseMessage>>[]
         {
-            () => client.GetAsync("admin/verifications"),
-            () => client.GetAsync($"admin/verifications/{request.Id}/document"),
-            () => client.PostAsJsonAsync($"admin/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest),
+            () => client.GetAsync("ops/verifications"),
+            () => client.GetAsync($"ops/verifications/{request.Id}/document"),
+            () => client.PostAsJsonAsync($"ops/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest),
         })
         {
             using var response = await call();

@@ -21,10 +21,10 @@ public sealed class BadgeService(AdminApi api)
     public IReadOnlyList<AdminVerificationDto> Pending => _pending;
 
     public async Task LoadAsync() =>
-        _pending = await api.GetAsync($"admin/verifications?take={PageSize}", ApiJson.Default.ListAdminVerificationDto);
+        _pending = await api.GetAsync($"ops/verifications?take={PageSize}", ApiJson.Default.ListAdminVerificationDto);
 
     /// <summary>The proof photo as an image source (the API logs every look), or null when it is gone.</summary>
-    public Task<string?> DocumentAsync(AdminVerificationDto request) => api.GetImageAsync($"admin/verifications/{request.Id}/document");
+    public Task<string?> DocumentAsync(AdminVerificationDto request) => api.GetImageAsync($"ops/verifications/{request.Id}/document");
 
     /// <summary>A reason the worker will read: trimmed, at most <see cref="MaxReason"/> characters, or null when empty.</summary>
     public static string? CleanReason(string? reason)
@@ -43,7 +43,7 @@ public sealed class BadgeService(AdminApi api)
             throw new AdminApiException("Write a reason first: the worker reads it.");
         }
 
-        await api.PostAsync($"admin/verifications/{request.Id}/decision",
+        await api.PostAsync($"ops/verifications/{request.Id}/decision",
             new VerificationDecisionRequest(approve, approve ? null : CleanReason(reason)), ApiJson.Default.VerificationDecisionRequest);
         _pending.RemoveAll(item => item.Id == request.Id);
     }

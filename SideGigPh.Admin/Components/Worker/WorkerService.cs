@@ -4,7 +4,7 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.Admin.Components.Worker;
 
-/// <summary>The skilled workers (<c>GET admin/workers</c>): every live listing and the worker accounts not live yet.</summary>
+/// <summary>The skilled workers (<c>GET ops/workers</c>): every live listing and the worker accounts not live yet.</summary>
 public sealed class WorkerService(AdminApi api)
 {
     /// <summary>The API's <c>filter</c> for live listings only.</summary>
@@ -27,7 +27,7 @@ public sealed class WorkerService(AdminApi api)
     /// <summary>A page; <paramref name="filter"/> is <see cref="Live"/>, <see cref="NotLive"/>, a trade id or empty for all.</summary>
     public async Task<GridData<AdminWorkerDto>> GetWorkersAsync(GridState<AdminWorkerDto> state, string? search, string? filter, CancellationToken cancellationToken)
     {
-        var page = await api.GetAsync($"admin/workers?{state.ToAdminQuery(search, Sorts, ("filter", filter))}", ApiJson.Default.AdminWorkerPageDto, cancellationToken);
+        var page = await api.GetAsync($"ops/workers?{state.ToAdminQuery(search, Sorts, ("filter", filter))}", ApiJson.Default.AdminWorkerPageDto, cancellationToken);
         return page.Items.ToGridData(page.Total);
     }
 
