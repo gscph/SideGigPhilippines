@@ -251,11 +251,26 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             Changed?.Invoke();
             return JobPostResult.Posted;
         }
+        catch (TextNotAllowedException)
+        {
+            return JobPostResult.TextNotAllowed;
+        }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
         {
             return JobPostResult.Failed;
         }
     }
+
+    /// <summary>
+    /// What the post form says when posting (or, <paramref name="editing"/>, saving an edit) didn't go through: rude
+    /// words to take out, or try again. Null when there is nothing to say.
+    /// </summary>
+    public static LocalizedText? FailureText(JobPostResult result, bool editing) => result switch
+    {
+        JobPostResult.TextNotAllowed => Copy.TextNotAllowed,
+        JobPostResult.Failed => editing ? Copy.PostSaveFailed : Copy.PostFailed,
+        _ => null,
+    };
 
     /// <summary>
     /// A new post filled in from the household's last search or interview answers: the trade, service, town and
@@ -335,6 +350,10 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 
             Changed?.Invoke();
             return JobPostResult.Posted;
+        }
+        catch (TextNotAllowedException)
+        {
+            return JobPostResult.TextNotAllowed;
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
@@ -489,6 +508,10 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             await write();
             return OfferResult.Done;
         }
+        catch (TextNotAllowedException)
+        {
+            return OfferResult.TextNotAllowed;
+        }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
         {
             return OfferResult.Gone;
@@ -502,7 +525,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     /// <summary>After an offer write: the post changes when it went through, and leaves the feed when it is gone.</summary>
     private void UpdateFeed(long postId, OfferResult result, Func<JobPost, JobPost> change)
     {
-        if (result == OfferResult.Failed)
+        if (result is OfferResult.Failed or OfferResult.TextNotAllowed)
         {
             return;
         }
@@ -527,7 +550,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     private void UpdateMyOffers(long postId, OfferResult result, Func<MyOffer, MyOffer?> change)
     {
         var index = _myOffers.FindIndex(o => o.Post.Id == postId);
-        if (index < 0 || result == OfferResult.Failed)
+        if (index < 0 || result is OfferResult.Failed or OfferResult.TextNotAllowed)
         {
             return;
         }

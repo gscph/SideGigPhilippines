@@ -715,6 +715,9 @@ public sealed class FakeJobPosts : IJobPostRepository
     /// <summary>Every write throws, as with no connection.</summary>
     public bool Fail { get; set; }
 
+    /// <summary>Writes with typed text (post, edit, offer) are refused as rude (<c>422 text-not-allowed</c>).</summary>
+    public bool RefuseText { get; set; }
+
     public bool HasListing { get; set; } = true;
 
     /// <summary>Puts posts in the worker's feed, in this order.</summary>
@@ -723,6 +726,7 @@ public sealed class FakeJobPosts : IJobPostRepository
     public Task<JobPost> AddAsync(JobPostDraft draft)
     {
         ThrowIfOffline();
+        ThrowIfRude();
         Added.Add(draft);
         var post = new JobPost(_mine.Count + 1000, draft.CategoryId!, draft.ServiceId!, draft.Description!.Trim(), draft.BudgetPesos!.Value, draft.CityId!,
             [.. draft.Photos.Select(photo => photo.Url)], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null, DateTimeOffset.UnixEpoch);
@@ -735,6 +739,7 @@ public sealed class FakeJobPosts : IJobPostRepository
     public Task<JobPost> UpdateAsync(long postId, JobPostDraft draft)
     {
         ThrowIfOffline();
+        ThrowIfRude();
         var index = _mine.FindIndex(p => p.Id == postId);
         if (index < 0 || !_mine[index].IsOpen)
         {
@@ -791,6 +796,7 @@ public sealed class FakeJobPosts : IJobPostRepository
     public Task SendOfferAsync(long postId, int pricePesos, string? note)
     {
         ThrowIfOfflineOrGone();
+        ThrowIfRude();
         Offers[postId] = (pricePesos, note);
         return Task.CompletedTask;
     }
@@ -863,6 +869,14 @@ public sealed class FakeJobPosts : IJobPostRepository
         if (Fail)
         {
             throw new HttpRequestException("offline");
+        }
+    }
+
+    private void ThrowIfRude()
+    {
+        if (RefuseText)
+        {
+            throw new TextNotAllowedException("text-not-allowed");
         }
     }
 

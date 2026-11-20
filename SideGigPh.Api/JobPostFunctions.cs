@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -10,9 +11,12 @@ namespace SideGigPh.Api;
 /// Job posts: a household posts the work it needs done and takes it down again; a worker reads the open posts of
 /// their trade within the distance they travel, most relevant first, and can report a fake one. The household's
 /// exact point never leaves the server. Offers (inDrive style): a worker takes the budget or names another price;
-/// the household reads the offers on its post and picks one, which closes the post.
+/// the household reads the offers on its post and picks one, which closes the post. What people write (a post's
+/// description, an offer's note) is checked first (<see cref="TextModeration"/>): a refused text is never saved and
+/// rings nobody.
 /// </summary>
-public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore posts, CallerLimits limits, JobAlerts alerts)
+public sealed class JobPostFunctions(
+    FirebaseTokenValidator auth, JobPostStore posts, CallerLimits limits, JobAlerts alerts, TextModeration moderation)
 {
     /// <summary><c>POST job-posts</c>: the caller's new post, open at once. Answers with it.</summary>
     [Function("AddJobPost")]
@@ -33,6 +37,11 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         if (await ApiResults.ReadAsync<NewJobPostRequest>(request, cancellationToken) is not { } post)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("job post", post.Description, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         var outcome = await posts.AddAsync(uid, post, cancellationToken);
@@ -77,6 +86,11 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         if (await ApiResults.ReadAsync<NewJobPostRequest>(request, cancellationToken) is not { } post)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("job post", post.Description, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         var outcome = await posts.UpdateAsync(uid, postId, post, cancellationToken);
@@ -200,6 +214,11 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
         if (await ApiResults.ReadAsync<SendOfferRequest>(request, cancellationToken) is not { } offer)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("offer note", offer.Note, cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         var sent = await posts.SendOfferAsync(uid, postId, offer, cancellationToken);

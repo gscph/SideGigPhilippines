@@ -54,7 +54,7 @@ public partial class NewPostPage : ComponentBase
     private MudTextField<string>? _description;
     private bool _loaded; // the post (Edit) or the last search's answers are in the draft
     private bool _busy;
-    private bool _failed;
+    private LocalizedText? _failure;
 
     public override Task SetParametersAsync(ParameterView parameters)
     {
@@ -261,7 +261,7 @@ public partial class NewPostPage : ComponentBase
         }
 
         _busy = true;
-        _failed = false;
+        _failure = null;
         try
         {
             if (Editing)
@@ -274,13 +274,14 @@ public partial class NewPostPage : ComponentBase
                     case JobPostResult.Closed:
                         _closed = true;
                         return;
-                    default:
-                        _failed = true;
+                    case var failed:
+                        _failure = JobBoard.FailureText(failed, editing: true);
                         return;
                 }
             }
 
-            if (await Busy.RunAsync(() => Board.PostAsync(_draft)) == JobPostResult.Posted)
+            var result = await Busy.RunAsync(() => Board.PostAsync(_draft));
+            if (result == JobPostResult.Posted)
             {
                 await Workspace.RememberPostAsync(_draft);
                 // Now there are offers to wait for: allow notifications (asked once; the system remembers).
@@ -289,7 +290,8 @@ public partial class NewPostPage : ComponentBase
                 return;
             }
 
-            _failed = true;
+            // The draft stays as typed, so rude words can be taken out and Post tapped again.
+            _failure = JobBoard.FailureText(result, editing: false);
         }
         finally
         {
