@@ -60,7 +60,7 @@ public static class PostReviewText
 
     /// <summary>A row's note while it is missing ("Pick your town."), or null when the row is done.</summary>
     public static string? PostRowMissing(this AppText text, JobPostDraft draft, PostPart part, DateOnly? today = null) =>
-        PostReview.MissingIn(draft, part, today) is { } field ? JobBoard.MissingText(field, text) : null;
+        PostReview.MissingIn(draft, part, today) is { } field ? JobBoard.MissingText(field, text, draft) : null;
 
     /// <summary>Under the Post button: "Still needed: the service, your budget", or null once it can be posted.</summary>
     public static string? PostStillNeeded(this AppText text, JobPostDraft draft, DateOnly? today = null) =>

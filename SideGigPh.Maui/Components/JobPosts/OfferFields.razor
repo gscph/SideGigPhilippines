@@ -4,5 +4,6 @@
                      Label="@T.Get(Copy.OfferYourPrice)" />
     <MudTextField T="string" Value="Note" ValueChanged="NoteChanged" Immediate="true" Disabled="Busy" Variant="Variant.Filled" Underline="false"
                   Class="app-field" Lines="2" MaxLength="@JobBoard.MaxOfferNote"
-                  Label="@T.Get(Copy.OfferNote)" Placeholder="@T.Get(Copy.OfferNoteHint)" />
+                  Label="@T.Get(Copy.OfferNote)" Placeholder="@T.Get(Copy.OfferNoteHint)"
+                  Error="@RudeWords.In(Note)" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
 </MudStack>

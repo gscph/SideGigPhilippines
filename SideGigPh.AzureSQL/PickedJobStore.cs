@@ -128,7 +128,7 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
     public async Task<HouseholdReviewOutcome> SaveHouseholdReviewAsync(string proUid, SaveHouseholdReviewRequest request, CancellationToken cancellationToken)
     {
         if (request.Rating is < 1 or > 5 || string.IsNullOrWhiteSpace(request.SeekerUid) || request.SeekerUid == proUid
-            || (request.Comment?.Trim().Length ?? 0) > 1000)
+            || (request.Comment?.Trim().Length ?? 0) > 1000 || BlockedWords.Contains(request.Comment))
         {
             return HouseholdReviewOutcome.Invalid;
         }

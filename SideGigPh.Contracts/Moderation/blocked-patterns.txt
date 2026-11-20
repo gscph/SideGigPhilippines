@@ -1,0 +1,45 @@
+# .NET regular expressions applied to the RAW text (only Unicode NFKC first; no lowercasing needed:
+# compile with RegexOptions.IgnoreCase | RegexOptions.CultureInvariant). One pattern per line, # comments.
+# Emoji are written literally; .NET regex is UTF-16, so emoji are always in (?:a|b) alternations,
+# never in [character classes]. (?:\uD83C[\uDFFB-\uDFFF])?\uFE0F? = optional skin tone + variation selector.
+
+# --- Phallus art: 8==D, 8===D, 8=D~, 8--D, B==D, 8===> ---
+8\s*=+\s*D
+8\s*={2,}\s*>
+8\s*-{2,}\s*D
+\bB\s*={2,}\s*D
+
+# --- Breasts art: (.)(.)  (o)(o)  ( . Y . )  (.Y.) ---
+\(\s*[.o*•]\s*\)\s*\(\s*[.o*•]\s*\)
+\(\s*[.o*•]\s*Y\s*[.o*•]\s*\)
+
+# --- Middle finger: ..|..  ../..  ..!..  凸  🖕 ---
+\.{2,}\s*[|/!]\s*\.{2,}
+凸
+🖕
+
+# --- Sexual emoji combos (eggplant or peach with drops or tongue, either order; finger into OK hand) ---
+# The eggplant or peach ALONE is allowed: talong and peaches are groceries.
+(?:🍆|🍑)\uFE0F?(?:\uD83C[\uDFFB-\uDFFF])?\s*(?:💦|👅)
+(?:💦|👅)\uFE0F?(?:\uD83C[\uDFFB-\uDFFF])?\s*(?:🍆|🍑)
+👉(?:\uD83C[\uDFFB-\uDFFF])?\s*👌
+
+# --- Words that collapse into normal words, so they are matched before collapsing ---
+# "ass"/"@ss"/"a$$"/"4ss" (collapsed it is "as"). Lookarounds, not \b, because @ and $ are not word characters.
+# Not "asses" (a common typo of "assess") and not "Ass. Foreman" (abbreviation: a dot then a word).
+(?<![\p{L}\p{N}])(?:a|@|4)(?:s|\$|5){2,}(?![\p{L}\p{N}])(?!\.\s*\p{L})
+\barse(?:hole)?s?\b
+# "boob"/"boobs"/"boobies" (collapsed it is "bob", a name)
+\bb[o0]{2,}b(?:s|ies|ie|y)?\b
+
+# --- Words that are fine in one phrase and an insult in another ---
+# leche / letse as a curse, but not leche flan (also the misspelling "leche plan") or tres leches
+(?<!\btres\s)\bl[e3]t?[cs]h[e3]+\b(?!\s*-?\s*(?:flan|plan|fl@n|de|con|frita)\b)
+# cum, but not cum laude
+\bc[u*]m+(?:s|ing|ming)?\b(?!\s*(?:laude|laud)\b)
+# hayop ka (you animal), but not "may hayop ka ba?" / "may alagang hayop ka?" (do you have a pet?)
+(?<!\b(?:may|mga|ng|alagang?)\s+)\bhay[ou]p\s+ka(?:yo)?\b(?!\s*(?:ba|bang|pa|rin|din)\b)
+# supot ka (uncircumcised, insult), but not "may supot ka ba?" (supot = plastic bag)
+(?<!\b(?:may|ng|ang)\s+)\bsupot\s+ka\b(?!\s*(?:ba|bang|pa|rin|din|ng|diyan|dyan)\b)
+# atay ka (Bisaya curse), but not "may atay ka ba?" (atay = liver, a grocery item)
+(?<!\b(?:may|ng|ang|bili|bumili)\s+)\batay\s+ka\b(?!\s*(?:ba|bang|pa|ng)\b)

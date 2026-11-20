@@ -91,7 +91,8 @@ public sealed class FeedbackStore(SideGigPhDb db)
     public async Task<FeedbackPostDto?> AddAsync(
         string uid, NewFeedbackRequest request, CancellationToken cancellationToken, string source = FeedbackSources.App)
     {
-        if (!FeedbackRules.IsTitle(request.Title) || request.Details is { Length: > 4 * FeedbackRules.MaxDetails })
+        if (!FeedbackRules.IsTitle(request.Title) || request.Details is { Length: > 4 * FeedbackRules.MaxDetails }
+            || BlockedWords.AnyIn(request.Title, request.Details))
         {
             return null;
         }

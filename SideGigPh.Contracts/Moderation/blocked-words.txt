@@ -1,0 +1,259 @@
+# Blocked words for user-typed text (names, job posts, offer notes, reviews).
+# Every entry is ALREADY NORMALIZED (see normalize.md): lowercase a-z, single spaces,
+# runs of the same letter collapsed ("asshole" is stored "ashole", "kiss my ass" is "kis my as").
+# [whole] = matches whole tokens / whole token sequences. [part] = substring of any token.
+# Entries that need context (leche/leche flan, cum/cum laude, hayop ka/may hayop ka ba,
+# ass/boobs before collapsing) live in patterns.txt instead.
+
+[whole]
+
+# --- Tagalog / Taglish: putang ina family (joined forms are in [part]) ---
+puta
+putah
+putang
+pota
+potah
+potang
+taena
+taeng ina
+tang ina
+tang ina mo
+putang ina
+potang ina
+puta ng ina
+tangna
+tngina
+tngna
+ptngina
+kingina
+kinangina
+king ina
+inamo
+amputa
+ampota
+
+# --- Tagalog: insults ---
+gago
+gaga
+gagu
+gagong
+gagang
+gaguhan
+kagaguhan
+ginago
+ginagago
+ulol
+ulul
+olol
+tanga
+tangang
+katangahan
+bobo
+kabobohan
+kupal
+ungas
+engot
+gungong
+siraulo
+sira ulo ka
+sira ulo mo
+letse
+lintik ka
+buang ka
+boang ka
+pakyu
+pakyo
+fakyu
+pak u
+pak yu
+fak u
+fuk u
+pakshet
+pakshit
+pakingshet
+pakingsyet
+
+# --- Tagalog: sexual / anatomy (vulgar) ---
+burat
+titi
+tite
+etits
+puke
+puki
+kepyas
+bayag
+tamod
+jabol
+kantut
+kantutan
+kantutin
+kinantut
+kinantot
+nagkantutan
+magkantutan
+chupa
+tsupa
+chupain
+tsupain
+chinupa
+tsinupa
+libog
+malibog
+
+# --- Tagalog: slurs (identity word used as an insult; the word alone is allowed) ---
+bakla ka
+bayot ka
+baluga
+intsik beho
+
+# --- Bisaya / Cebuano ---
+yawa
+yawaa
+piste
+pisti
+pisting
+giatay
+bilat
+oten
+otin
+iyot
+iyotan
+iyutan
+lubot
+animal ka
+
+# --- Ilocano ---
+ukinam
+ukininam
+okinam
+okininam
+
+# --- English: profanity (collapsed spellings) ---
+shit
+shits
+shity
+sht
+shithead
+shithole
+shitface
+batshit
+horseshit
+fck
+fcking
+fcked
+fking
+fuk
+fuking
+fuker
+fvck
+phuck
+phuk
+stfu
+gtfo
+mofo
+mfer
+btch
+biatch
+cunt
+cunts
+cunty
+twat
+wank
+wanker
+bolocks
+dumbas
+jackas
+smartas
+fatas
+aswipe
+ashat
+kis my as
+
+# --- English: sexual / anatomy (vulgar) ---
+pusy
+pusies
+tits
+tities
+dickhead
+dickface
+big dick
+suck my dick
+dick pic
+boner
+horny
+milf
+hentai
+nudes
+send nudes
+blow job
+hand job
+jerk off
+jack off
+
+# --- English: slurs (racial / ethnic) ---
+niger
+nigers
+niga
+nigas
+nigah
+sand niger
+chink
+chinks
+ching chong
+chingchong
+gok
+goks
+coon
+coons
+wetback
+beaner
+raghead
+towelhead
+pajeet
+
+# --- English: slurs (homophobic / transphobic) ---
+fag
+fags
+fagot
+fagots
+dyke
+dykes
+homo
+shemale
+
+# --- English: slurs (ableist, used as insults) ---
+retard
+retards
+retarded
+tard
+mongoloid
+
+[part]
+
+# Long, unambiguous stems only. Each was checked against everyday English/Tagalog words
+# (see normalize.md -> "Part-entry substring checks").
+fuck
+bitch
+bastard
+putangina
+potangina
+tangina
+bwakanangina
+punyeta
+tarantad
+hinayupak
+kantot
+jakol
+salsal
+pekpek
+ashole
+bulshit
+cocksucker
+blowjob
+handjob
+rimjob
+cumshot
+dildo
+porn
+whore
+slut

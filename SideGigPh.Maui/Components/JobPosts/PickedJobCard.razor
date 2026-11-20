@@ -51,9 +51,9 @@
             {
                 <MudText Typo="Typo.subtitle2">@T.Get(Copy.RateCustomerLabel)</MudText>
                 <MudRating @bind-SelectedValue="_stars" Color="Color.Warning" Size="Size.Large" aria-label="@T.Get(Copy.RateCustomerLabel)" />
-                <MudTextField @bind-Value="_comment" Variant="Variant.Filled" Class="app-field" Lines="2" MaxLength="1000"
-                              Label="@T.Get(Copy.RateCustomerComment)" />
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(_busy || _stars == 0)" OnClick="RateAsync">
+                <MudTextField @bind-Value="_comment" Immediate="true" Variant="Variant.Filled" Class="app-field" Lines="2" MaxLength="1000"
+                              Label="@T.Get(Copy.RateCustomerComment)" Error="@RudeWords.In(_comment)" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="@(_busy || _stars == 0 || RudeWords.In(_comment))" OnClick="RateAsync">
                     @T.Get(Copy.RateCustomerSend)
                 </MudButton>
             }

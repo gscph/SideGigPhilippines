@@ -1,0 +1,297 @@
+# One sample per line. [block] must be caught by words.txt or patterns.txt; [allow] must pass both.
+
+[block]
+# --- the user's workaround spellings ---
+put@
+put@ng ina mo
+g@g0
+b0b0
+vovo
+kup@l
+8==D
+8===D
+8=D~
+../..
+..|..
+(.)(.)
+( . Y . )
+🖕
+🖕🏽 ka
+# --- Tagalog / Taglish ---
+putang ina mo
+putangina
+PUTANGINAAA
+tangina
+tanginamo
+tang ina mo
+tang-ina
+taena
+pota
+puta
+puuuuta ka
+p u t a
+p.u.t.a
+p-u-t-a
+p 0 t a
+pu+a ka
+t4ng1n4
+p0t4ng1n4
+potangina
+kingina mo
+amputa
+gago ka
+gaga
+gagu
+G A G O
+gaaaago
+ulol
+ulul
+u1o1
+olol ka
+tanga
+ang tanga mo
+t@nga
+bobo
+bob0 mo
+vovo ka talaga
+tarantado
+tarantadong technician
+punyeta
+punyetang buhay
+letse
+leche ka
+leche!
+kupal
+kupal ka
+pakyu
+pak u
+pakshet
+pakingshet
+hayop ka
+Hayop ka talaga!
+hayop kayo
+hinayupak
+burat
+titi
+tite mo
+puke
+puki
+pekpek
+kantot
+kantutan
+kinantot
+nagkantutan
+jakol
+jakolero
+chupa
+tsupa
+bayag
+etits
+supot ka
+siraulo
+sira-ulo
+sira ulo ka
+ungas
+engot
+gunggong
+bakla ka
+bayot ka
+bwakanangina
+lintik ka
+# --- Bisaya / Cebuano, Ilocano ---
+yawa
+yawa ka
+piste
+pisti
+pisting yawa
+atay ka
+giatay
+bilat
+oten
+iyot
+buang ka
+animal ka
+lubot
+ukinnam
+ukininam
+# --- English ---
+fuck
+f*ck
+fck
+fuk
+fuuuck you
+f.u.c.k
+motherfucker
+mothafucka
+fvck
+phuck
+shit
+sh!t
+$hit
+5hit
+bullshit
+shithead
+bitch
+b!tch
+8itch
+sonofabitch
+bastard
+asshole
+a$$hole
+@sshole
+kiss my ass
+kiss my ass. bye
+such an ass.
+ass
+dumbass
+jackass
+cunt
+twat
+wanker
+dickhead
+suck my dick
+pussy
+tits
+boobs
+b00bs
+cum
+cumshot
+blowjob
+dildo
+porn
+whore
+slut
+milf
+horny
+send nudes
+stfu
+gtfo
+nigger
+n1gger
+nigga
+chink
+ching chong
+faggot
+fag
+dyke
+retard
+retarded
+mongoloid
+# --- emoji combos ---
+🍆💦
+💦🍑
+👉👌
+
+[allow]
+# --- the traps named in the brief ---
+puto
+puto bumbong
+computation
+reputation
+Putatan
+Taytay
+class schedule
+glass repair
+pass the pipe
+assist the foreman
+cucumber
+document delivery
+shoe rack
+leche flan
+Leche plan for the party
+tres leches cake
+hayop sa bubong
+may hayop sa kisame, daga yata
+may hayop ka ba sa bahay?
+may alagang hayop ka ba?
+titser ng anak ko
+titik
+tae ng aso sa garahe, paki-linis
+may supot ka ba? para sa grocery
+ilagay sa supot
+bili ka ng atay ng manok
+may atay ka ba diyan?
+summa cum laude
+cum laude graduate
+inutil na yung lumang aircon
+bwisit na traffic, late ako ng konti
+Kiki Santos
+pinakinggan ko yung sinabi mo
+pakinggan mo muna
+kantutay sa garden, paki-tanggal
+tanggal ng lumang tiles
+tangkad ng pader
+tangke ng tubig
+shiitake mushrooms sa grocery
+Japan surplus na makina
+paki-check yung breaker
+pakikabit po ng ilaw
+spic and span ang linis
+fire retardant paint
+transmission fluid
+cock fight
+Dick Gordon
+Bob Ong
+bubong
+bubo ng semento
+pukpok ng pako
+boba milk tea
+sex ng aso
+penis
+negro
+poso negro
+Pa-siphon ng poso negro
+talong at kamatis 🍆
+peaches 🍑
+gardening tools: hoe, rake, shovel
+asses the damage
+I'll pass
+ass. foreman
+assessment
+massage
+bass guitar
+# --- normal service talk ---
+Linis aircon, 2 units split-type, chemical wash
+Barado ang lababo at CR, kailangan ngayon na
+May tagas ang tubo sa ilalim ng lababo
+Palit ng yero at linis ng alulod bago mag-ulan
+Pakabit ng ilaw o ceiling fan sa sala
+Sira ang breaker, nagta-trip pag ginamit ang aircon
+Kuya, magkano po ang pa-freon?
+Mabait si Manong at malinis gumawa, salamat po!
+Ate, available ka ba bukas ng 10am?
+Ok po, 1500 pesos final na
+₱800-1500 budget, 3pcs na outlet
+Mabilis dumating, maayos ang trabaho, 5 stars
+Medyo late pero ayos naman ang gawa
+Hindi natapos, sana bumalik siya bukas
+Pakisuyo po, grocery sa SM Taytay, 5kg bigas
+I need 4x4 plywood and 2 sacks of cement
+Need welder for gate, 10ft x 6ft
+Repair ng kisame, may tulo galing sa bubong
+Grills sa bintana, 3 windows, 90sqm na bahay
+Bagong Nayon, Antipolo, malapit sa simbahan
+Brgy. San Isidro, Angono
+Angono · Brgy. San Isidro
+Poblacion Itaas, Poblacion Ibaba
+Muntingdilaw, Mayamot, Calawis, Cupang, Dalig, Inarawan
+Mahabang Parang, Mambugan, Dela Paz, Beverly Hills, Ventosa
+Santo Niño, Santa Ana, San Juan, Dolores, Muzon
+Hilot, Foot reflexology, Full body massage
+Pa-weld ng sira, Rehas sa hagdan o balcony
+Tumutulong aircon, Sirang inidoro / CR
+CCTV installation and network cabling
+Wiring o rewiring, Meralco meter / new line
+Tile setting, Semento / palitada, Pader o bakod (hollow blocks)
+Tanga-tanga? Hindi, tangkilikin natin ang local
+Juan Dela Cruz
+Maria Clara Bautista
+Ma. Teresa P. Santos
+Bebot
+Engr. Putong
+Titing Reyes
+Gagolino
+Bobot Mondragon
+Analyn
+Shantal
+Pisay graduate

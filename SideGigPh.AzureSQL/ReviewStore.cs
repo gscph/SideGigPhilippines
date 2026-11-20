@@ -100,7 +100,8 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
     public async Task<ReviewOutcome> SaveAsync(string seekerUid, SaveReviewRequest request, CancellationToken cancellationToken)
     {
         if (request.Rating is < 1 or > 5 || string.IsNullOrWhiteSpace(request.ProfessionalId) || request.ProfessionalId == seekerUid
-            || (request.ServiceId is not null && !StoreText.IsCode(request.ServiceId)))
+            || (request.ServiceId is not null && !StoreText.IsCode(request.ServiceId))
+            || BlockedWords.AnyIn(request.Comment, request.ReviewerName))
         {
             return ReviewOutcome.Invalid;
         }

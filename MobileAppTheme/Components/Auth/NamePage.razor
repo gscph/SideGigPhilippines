@@ -4,9 +4,11 @@
     <MudStack Spacing="2">
         <MudStack Spacing="0" Class="app-field-group">
             <MudTextField T="string" @bind-Value="_firstName" Immediate="true" Variant="Variant.Filled" Underline="false" MaxLength="40"
-                          Label="@T.Get(CommonCopy.AuthFirstName)" Disabled="_busy" Class="app-field" autocomplete="given-name" />
+                          Label="@T.Get(CommonCopy.AuthFirstName)" Disabled="_busy" Class="app-field" autocomplete="given-name"
+                          Error="@FirstRude" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
             <MudTextField T="string" @bind-Value="_lastName" Immediate="true" Variant="Variant.Filled" Underline="false" MaxLength="40"
-                          Label="@T.Get(CommonCopy.AuthLastName)" Disabled="_busy" Class="app-field" autocomplete="family-name" />
+                          Label="@T.Get(CommonCopy.AuthLastName)" Disabled="_busy" Class="app-field" autocomplete="family-name"
+                          Error="@LastRude" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
         </MudStack>
         <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(CommonCopy.AuthNameWhy)</MudText>
     </MudStack>

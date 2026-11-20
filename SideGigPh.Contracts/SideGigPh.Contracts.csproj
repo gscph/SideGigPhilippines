@@ -8,4 +8,10 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <!-- The blocked-words lists (BlockedWords), read from the assembly so the phone and the server use the same ones. -->
+  <ItemGroup>
+    <EmbeddedResource Include="Moderation/blocked-words.txt" LogicalName="SideGigPh.Contracts.blocked-words.txt" />
+    <EmbeddedResource Include="Moderation/blocked-patterns.txt" LogicalName="SideGigPh.Contracts.blocked-patterns.txt" />
+  </ItemGroup>
+
 </Project>

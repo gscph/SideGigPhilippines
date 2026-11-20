@@ -33,7 +33,8 @@ public sealed class FeedbackBoard(IFeedbackRepository feedback, IOnboardingStore
     public bool IsLoaded { get; private set; }
 
     /// <summary>True when <paramref name="title"/> says enough to post (not just a word or two letters) and fits.</summary>
-    public static bool CanPost(string? title) => FeedbackRules.IsTitle(title);
+    public static bool CanPost(string? title, string? details = null) =>
+        FeedbackRules.IsTitle(title) && !RudeWords.In(title) && !RudeWords.In(details);
 
     /// <summary>Reads the board from the top: the first page replaces whatever was loaded.</summary>
     public async Task LoadAsync()

@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<AppText>();
         services.AddSingleton<BusyIndicator>();
         services.TryAddSingleton<ISplashLines, BusySplashLines>();
+        services.TryAddSingleton<ITextCheck, NoTextCheck>();
         services.TryAddSingleton<AppVisibility>();
         services.TryAddSingleton<INetworkStatus, DeviceNetworkStatus>();
         services.TryAddSingleton(TimeProvider.System);

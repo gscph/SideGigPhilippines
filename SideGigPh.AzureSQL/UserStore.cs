@@ -20,7 +20,12 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
             db.Users.Add(row);
         }
 
-        row.DisplayName = StoreText.Limit(profile.DisplayName, 80);
+        // A name with a blocked word never shows on reviews or chats: the one already saved stays (the app's name page
+        // refuses it before sending, so only an old app or a script gets here).
+        if (!BlockedWords.Contains(profile.DisplayName))
+        {
+            row.DisplayName = StoreText.Limit(profile.DisplayName, 80);
+        }
         row.PhoneNumber = StoreText.Limit(profile.PhoneNumber, 16);
         row.Email = StoreText.Limit(profile.Email, 254);
         row.Language = profile.Language == Wire.Taglish ? Wire.Taglish : Wire.English;

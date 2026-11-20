@@ -32,7 +32,7 @@ public partial class WriteReviewPage : ComponentBase
     private string? _name;
     private bool _busy;
 
-    private bool CanSubmit => _rating > 0 && (_name?.Trim().Length ?? 0) >= 2 && !_busy;
+    private bool CanSubmit => _rating > 0 && (_name?.Trim().Length ?? 0) >= 2 && !_busy && !RudeWords.In(_comment) && !RudeWords.In(_name);
 
     protected override async Task OnInitializedAsync()
     {

@@ -285,7 +285,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             return OfferOutcome.InvalidPrice;
         }
 
-        if (!JobOfferRules.IsNote(request.Note))
+        if (!JobOfferRules.IsNote(request.Note) || BlockedWords.Contains(request.Note))
         {
             return OfferOutcome.InvalidNote;
         }
@@ -548,7 +548,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         return knownJob is null ? "categoryId"
             : knownJob == false ? "serviceId"
             : !served.Towns.Any(t => t.Id == request.CityId) ? "cityId"
-            : !JobPostRules.IsDescription(request.Description) ? "description"
+            : !JobPostRules.IsDescription(request.Description) || BlockedWords.Contains(request.Description) ? "description"
             : !JobPostRules.IsBudget(request.BudgetPesos) ? "budgetPesos"
             : !JobPostRules.IsBudgetRange(request.BudgetMinPesos, request.BudgetPesos) ? "budgetMinPesos"
             : request.PhotoIds is { } photos && (photos.Count > JobPostRules.MaxPhotos || !photos.All(StoreText.IsPhotoId)) ? "photoIds"

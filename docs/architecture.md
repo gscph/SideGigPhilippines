@@ -189,6 +189,33 @@ for Android).
 - **Before turning analytics on for testers:** add it to the privacy policy (`docs/legal/privacy-policy.md`) and the
   stores' data forms; the Me page has no analytics switch yet (`IAnalytics.SetEnabled` is there for one).
 
+## Blocked words
+
+Text other people read is checked for vulgarity, sexual words, slurs and insults in English, Tagalog/Taglish and
+common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderation/BlockedWords.cs`.
+
+- **The lists** are embedded text files next to it: `blocked-words.txt` (`[whole]` entries match whole words or
+  phrases, `[part]` entries match inside a word, for words never innocent inside another) and `blocked-patterns.txt`
+  (regexes on the raw text: symbol art like `8==D`, emoji, and words whose rude and normal forms differ by context,
+  like `leche` vs `leche flan`). Edit them like any code change; no SQL, no app config.
+- **Normalizing** comes before matching: NFKC, accents and invisible characters dropped, lower case, Cyrillic/Greek
+  look-alikes mapped, spelled-out runs joined (`p u t a`), digits and symbols read as letters inside a word
+  (`put@`, `g@g0`, `b0b0`; never in a quantity like `1500` or `10am`), separators inside a word dropped (`p.u.t.a`),
+  repeated letters collapsed. `1` and `|` are read as `i` and again as `l`; whole entries are also matched with `v`
+  read as `b` (`vovo`).
+- **Everyday words that look alike pass**: `puto`, `tae`, `bakla`, `atay`, `supot`, `Taytay`, `poso negro`.
+  `SideGigPh.Tests/Unit/Moderation/blocked-words-samples.txt` holds `[block]` and `[allow]` samples that
+  `BlockedWordsTests` runs, and the test also checks that no label in `004-config.sql` is caught, so a new job name
+  can't be refused.
+- **The server** (`JobPostStore`, `ReviewStore`, `PickedJobStore`, `FeedbackStore`, `UserStore`) refuses a rude post
+  description, offer note, review comment or reviewer name, household rating comment and feedback title or details
+  with its usual `invalid` answer; a rude new display name keeps the old one.
+- **The app** checks first so the person can fix it: `Services/RudeWords.In` turns the box red with
+  `CommonCopy.RudeTextNote` ("Please take out the rude words." / "Pakitanggal ang mga bastos na salita.") and keeps
+  send off (`JobBoard.Missing` / `MissingText`, `JobBoard.CanOffer`, `FeedbackBoard.CanPost`, `WriteReviewPage`,
+  `PickedJobCard`). The skeleton's `NamePage` asks the port `ITextCheck` (default `NoTextCheck`; the app registers
+  `RudeWordsCheck`).
+
 ## Feedback board
 
 - **What:** both sides open it from the Me page (`SeekerRoutes.Feedback` / `ProRoutes.Feedback` →
