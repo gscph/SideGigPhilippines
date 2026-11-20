@@ -73,7 +73,7 @@ changing that area.**
   app's `ServerWarmup` calls signed-in `GET warmup` (`WarmupStore`: `SELECT 1`, at most once a minute per instance)
   when it opens and when it comes back after `IdleAfter` (5 min), so the Function App and the auto-pausing database
   wake behind the splash instead of on the first search.
-- **Chats:** only the Seeker starts a chat (id `{proId}_{seekerId}`); the server stamps times and takes the worker's
+- **Chats:** an open chat is a full screen outside the tab shell (`Components/Chats/ChatScreen`: pinned header, one divider per day, "3 hr ago" under the last bubble of each sender's run (`ChatTimeline`), pinned box with a **Send** button). Only the Seeker starts a chat (id `{proId}_{seekerId}`); the server stamps times and takes the worker's
   name from their listing; reviews only 24 h after the chat started (`ReviewRules`, both sides), or at once after a
   **completed job**: a picked offer both sides marked done (`PickedJobStore`, `018-schema-job-done.sql`,
   `picked-jobs/…`; both chat pages show it as `PickedJobCard` with **Mark done**, re-read every 10 s while it waits, `PickedJobWatch`; a pick moves an existing chat to the post's service and town), which shows "Verified service" on the
@@ -197,7 +197,7 @@ changing that area.**
   chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,
   `JobPostStore.ContactNumberAsync`, `JobBoard.ContactNumberAsync`; null with no pick, a block, or no number).
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
-  (`ProLayout`, `SeekerLayout`) sends anyone signed out to sign in (`SignInGate`), loads its workspace and passes the tabs; routes live in `ProRoutes` / `SeekerRoutes`
+  (`ProLayout`, `SeekerLayout`) sends anyone signed out to sign in (`SignInGate`), loads its workspace and passes the tabs (already loaded, `Workspace.IsLoaded`, e.g. Back from a chat: the tabs show on the first render, no blank frame, and the sign-in check runs after); routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.
 - **Pro side:** publishing needs a complete listing (`IsListingComplete`) **and proof** (`HasProof`: the profile photo)
   and a verified number; the server checks the same (`ProfessionalStore.InvalidField`). **Work photos are optional** (0–6;

@@ -193,6 +193,7 @@ public static class Copy
         "We wrote a message for you. Change it if you like, then tap Send.",
         "May ready na message para sa'yo. I-edit mo kung gusto mo, tapos i-tap ang I-send.");
     public static readonly LocalizedText YourMessage = new("Your message", "Message mo");
+    public static readonly LocalizedText WriteAMessage = new("Write a message", "Mag-type ng message");
     public static readonly LocalizedText Send = new("Send", "I-send");
     public static readonly LocalizedText SendFailed = new("Your message didn't send. Check your internet and try again.", "Di na-send ang message mo. I-check ang internet mo tapos try ulit.");
     public static readonly LocalizedText ChatCustomer = new("Customer", "Customer");

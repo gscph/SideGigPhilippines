@@ -87,6 +87,25 @@ public class PerformanceTests
     }
 
     [Fact]
+    public async Task BackFromAChat_TheTabsKnowTheyAreLoaded_UntilStartOver()
+    {
+        // The tab layouts show at once (no blank frame) when the workspace is already loaded.
+        var app = await FakeApp.ProAsync(TestData.ReadyDraft());
+        var seeker = await FakeApp.SeekerAsync();
+        await app.Pro.EnsureLoadedAsync();
+        await seeker.Seeker.EnsureLoadedAsync();
+
+        app.Pro.IsLoaded.Should().BeTrue();
+        seeker.Seeker.IsLoaded.Should().BeTrue();
+
+        app.Pro.Forget();
+        seeker.Seeker.Forget();
+
+        app.Pro.IsLoaded.Should().BeFalse("Start over or sign out loads again through the sign-in check");
+        seeker.Seeker.IsLoaded.Should().BeFalse();
+    }
+
+    [Fact]
     public async Task AfterStartOver_TheNextTabOpenReadsFresh()
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());

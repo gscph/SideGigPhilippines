@@ -49,6 +49,25 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
     {
         Workspace.Changed += OnWorkspaceChanged;
         Account.Changed += OnWorkspaceChanged;
+        if (Workspace.IsLoaded)
+        {
+            // Back from a full-screen page (a chat, a request, Publish): the tabs show on the first render, with no blank
+            // frame, and the phone was registered when they first loaded. A listing that went live since is the reason
+            // to ask for notifications (asked once; the system remembers). The sign-in check still runs.
+            Start();
+            if (Workspace.IsPublished)
+            {
+                _ = Alerts.AskAsync();
+            }
+
+            if (await Gate.RedirectAsync("/") is { } back)
+            {
+                Nav.NavigateTo(back, replace: true);
+            }
+
+            return;
+        }
+
         // Signed out (e.g. "Sign in with this number", then Back): sign in first, as at launch. Without this the pages
         // loaded with nobody signed in, and the add-number link then opened the sign-in page instead.
         if (await Gate.RedirectAsync("/") is { } signIn)
@@ -63,10 +82,7 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
             return;
         }
 
-        _ready = true;
-        // A push is a new message or a new request near them: the Inbox and the Requests feed are read again.
-        _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadFeedAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
-        Alerts.ShowUnread(Workspace.UnreadChatIds);
+        Start();
 
         // A live listing is the reason to want notifications: customers write in. Asks once (the system remembers).
         _ = Workspace.IsPublished ? Alerts.AskAsync() : Alerts.RegisterAsync();
@@ -104,6 +120,15 @@ public partial class ProLayout : LayoutComponentBase, IDisposable
             StateHasChanged();
             PromptPublish();
         });
+    }
+
+    /// <summary>Shows the tabs and listens for notifications.</summary>
+    private void Start()
+    {
+        _ready = true;
+        // A push is a new message or a new request near them: the Inbox and the Requests feed are read again.
+        _alerts = Alerts.Attach(() => Task.WhenAll(Workspace.RefreshActivityAsync(), Board.LoadFeedAsync()), path => InvokeAsync(() => Nav.NavigateTo(path)));
+        Alerts.ShowUnread(Workspace.UnreadChatIds);
     }
 
     /// <summary>The last setup step (photo, work photo, number) was just done: straight to Publish, once.</summary>

@@ -63,7 +63,8 @@ h1:focus {
     align-items: center;
 }
 
-body:has(.app-offline-banner) .app-top-bar {
+body:has(.app-offline-banner) .app-top-bar,
+body:has(.app-offline-banner) .app-chat-header {
     top: calc(env(safe-area-inset-top, 0px) + var(--app-offline-banner-height));
 }
 
@@ -307,6 +308,50 @@ body:has(.app-offline-banner) .app-top-bar {
 
 .app-bubble-theirs {
     border-bottom-left-radius: 4px !important;
+}
+
+/* An open chat as its own screen: the header pinned at the top on white, the message box pinned at the bottom
+   (above the keyboard and the home indicator). */
+.app-chat-header {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: var(--mud-zindex-appbar);
+    background-color: var(--mud-palette-surface);
+    min-height: 4rem;
+}
+
+.app-chat-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+/* The chat's message box: a soft gray rounded box with no outline (MudTextField has no filled-pill look). */
+.app-chat-input .mud-input.mud-input-outlined {
+    background-color: var(--mud-palette-background-gray);
+    border-radius: 24px;
+}
+
+.app-chat-input .mud-input-outlined-border {
+    border-color: transparent;
+    border-radius: 24px;
+}
+
+.app-chat-input .mud-input:focus-within .mud-input-outlined-border {
+    border-width: 1px;
+    border-color: var(--mud-palette-lines-default);
+}
+
+.app-chat-input .mud-input > textarea.mud-input-root {
+    padding-left: 6px;
+}
+
+/* The chat's Send button: as tall as the one-line message box beside it. */
+.app-chat-send {
+    min-height: 44px;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
 }
 
 

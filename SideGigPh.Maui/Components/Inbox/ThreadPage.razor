@@ -1,86 +1,89 @@
 @page "/inbox/{Id}"
-@layout SeekerLayout
 
-<MudStack Spacing="4">
-    @if (_pro is not null)
-    {
-        <ChatHeader BackHref="@SeekerRoutes.Inbox" Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Detail="@T.Trades(_pro)"
-                    ProfileHref="@SeekerRoutes.Pro(_pro.Id)" ProfileLabel="@T.Get(Copy.ViewProfile)">
-            <Actions>
-                @if (_number is not null)
-                {
-                    <MudButton Variant="Variant.Outlined" Class="app-button-ink rounded-pill flex-shrink-0"
-                               StartIcon="@Icons.Material.Rounded.Phone" Disabled="_busy" OnClick="CallAsync">
-                        @T.Get(Copy.Call)
-                    </MudButton>
-                }
-                <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"
-                               Href="@SeekerRoutes.Report(_pro.Id, ReportSubject.Chat, SeekerRoutes.Thread(_pro.Id), Workspace.ChatIdWith(_pro.Id))" />
-            </Actions>
-        </ChatHeader>
-    }
-    else
-    {
-        <MudStack Row="true" AlignItems="AlignItems.Center">
-            <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Dark" Href="@SeekerRoutes.Inbox" aria-label="@T.Get(CommonCopy.Back)" />
-        </MudStack>
-    }
-
-    @if (_loading)
-    {
-        @* The brand splash (BusyOverlay) covers a slow load. *@
-    }
-    else if (_pro is null)
-    {
-        <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.ProNotFoundTitle)</MudText>
-        <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(Copy.ProNotFound)</MudText>
-    }
-    else
-    {
-        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="px-6">
-            @T.Format(Copy.ThreadHowItWorks, _pro.DisplayName)
-            @T.Get(_number is null ? Copy.NumberAfterPick : Copy.NumberShared)
-        </MudText>
-
-        @if (_history.Count == 0)
+<ChatScreen>
+    <Header>
+        @if (_pro is not null)
         {
-            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">@T.Get(Copy.ThreadStart)</MudText>
+            <ChatHeader BackHref="@SeekerRoutes.Inbox" Name="@_pro.DisplayName" PhotoUrl="@_pro.PhotoUrl" Detail="@T.Trades(_pro)"
+                        ProfileHref="@SeekerRoutes.Pro(_pro.Id, SeekerRoutes.Thread(_pro.Id))" ProfileLabel="@T.Get(Copy.ViewProfile)">
+                <Actions>
+                    @if (_number is not null)
+                    {
+                        <MudButton Variant="Variant.Outlined" Class="app-button-ink rounded-pill flex-shrink-0"
+                                   StartIcon="@Icons.Material.Rounded.Phone" Disabled="_busy" OnClick="CallAsync">
+                            @T.Get(Copy.Call)
+                        </MudButton>
+                    }
+                    <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"
+                                   Href="@SeekerRoutes.Report(_pro.Id, ReportSubject.Chat, SeekerRoutes.Thread(_pro.Id), Workspace.ChatIdWith(_pro.Id))" />
+                </Actions>
+            </ChatHeader>
         }
+        else
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Class="app-chat-header px-2">
+                <MudIconButton Icon="@Icons.Material.Rounded.ArrowBack" Color="Color.Dark" Href="@SeekerRoutes.Inbox" aria-label="@T.Get(CommonCopy.Back)" />
+            </MudStack>
+        }
+    </Header>
 
-        <LoadMoreOnScroll Edge="LoadMoreEdge.Top" HasMore="_history.HasOlder" OnLoadMore="LoadOlderAsync" @key="Id" />
-        <MudStack Spacing="3">
-            @foreach (var message in _history.Messages)
+    <ChildContent>
+        @if (_loading)
+        {
+            @* The brand splash (BusyOverlay) covers a slow load. *@
+        }
+        else if (_pro is null)
+        {
+            <MudText Typo="Typo.h4" HtmlTag="h1">@T.Get(Copy.ProNotFoundTitle)</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(Copy.ProNotFound)</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="px-6">
+                @T.Format(Copy.ThreadHowItWorks, _pro.DisplayName)
+                @T.Get(_number is null ? Copy.NumberAfterPick : Copy.NumberShared)
+            </MudText>
+
+            @if (_history.Count == 0)
             {
-                <ChatBubble Message="message" Mine="@(message.SenderId == Workspace.MyId)" @key="message.Id" />
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="py-4">@T.Get(Copy.ThreadStart)</MudText>
             }
-        </MudStack>
 
-        @if (_job is not null)
-        {
-            <PickedJobCard Job="_job" OtherName="@_pro.DisplayName" OtherUid="@_pro.Id" RateHref="@SeekerRoutes.RateAfterJob(_pro.Id)"
-                           OnChanged="JobChanged" />
-        }
+            <LoadMoreOnScroll Edge="LoadMoreEdge.Top" HasMore="_history.HasOlder" OnLoadMore="LoadOlderAsync" @key="Id" />
+            <ChatMessages Messages="_history.Messages" MyId="@Workspace.MyId" />
 
-        @if (_job is { IsCompleted: true })
-        {
-            @* The picked card above has the one review button (or the locked note). *@
-        }
-        else if (_history.Count > 0 && Workspace.ReviewLocked(_pro.Id))
-        {
-            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Get(Copy.ReviewLockedNote)</MudText>
-        }
-        else if (_history.Count > 0 && !Workspace.CanRate(_pro.Id))
-        {
-            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Format(Copy.RateLater, _pro.DisplayName)</MudText>
-        }
-        else if (_history.Count > 0)
-        {
-            <MudButton Variant="Variant.Text" Class="app-link-button align-self-center" StartIcon="@Icons.Material.Rounded.StarOutline"
-                       Href="@SeekerRoutes.Rate(_pro.Id)">
-                @T.Get(Workspace.MyReviewOf(_pro.Id) is null ? Copy.RateThisPro : Copy.EditYourReview)
-            </MudButton>
-        }
+            @if (_job is not null)
+            {
+                <PickedJobCard Job="_job" OtherName="@_pro.DisplayName" OtherUid="@_pro.Id" RateHref="@SeekerRoutes.RateAfterJob(_pro.Id)"
+                               OnChanged="JobChanged" />
+            }
 
-        <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" Error="@_error" />
-    }
-</MudStack>
+            @if (_job is { IsCompleted: true })
+            {
+                @* The picked card above has the one review button (or the locked note). *@
+            }
+            else if (_history.Count > 0 && Workspace.ReviewLocked(_pro.Id))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Get(Copy.ReviewLockedNote)</MudText>
+            }
+            else if (_history.Count > 0 && !Workspace.CanRate(_pro.Id))
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T.Format(Copy.RateLater, _pro.DisplayName)</MudText>
+            }
+            else if (_history.Count > 0)
+            {
+                <MudButton Variant="Variant.Text" Class="app-link-button align-self-center" StartIcon="@Icons.Material.Rounded.StarOutline"
+                           Href="@SeekerRoutes.Rate(_pro.Id)">
+                    @T.Get(Workspace.MyReviewOf(_pro.Id) is null ? Copy.RateThisPro : Copy.EditYourReview)
+                </MudButton>
+            }
+        }
+    </ChildContent>
+
+    <Footer>
+        @if (!_loading && _pro is not null)
+        {
+            <ChatComposer @bind-Message="_message" Busy="_busy" OnSend="SendAsync" Error="@_error" />
+        }
+    </Footer>
+</ChatScreen>

@@ -4,7 +4,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Chats;
 
 /// <summary>
-/// The bottom of a chat, pinned above the tabs: a pill message box and a round send button. The
+/// The bottom of a chat, pinned to the bottom of the screen (above the keyboard): a gray rounded message box and a
+/// purple Send button with the word on it (clearer than an arrow for people who don't read icons). The
 /// parent does the sending (and shows Call in its <see cref="ChatHeader"/>). Its <see cref="Error"/> ("didn't send")
 /// sits inside the pinned box, so the box never covers it.
 /// </summary>
