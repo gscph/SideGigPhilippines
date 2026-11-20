@@ -65,6 +65,22 @@ public class FeedbackBoardTests(ApiTestHost api)
         board.Posts.Count(p => p.Title.EndsWith(tag)).Should().Be(2, "nothing new was posted");
     }
 
+    [IntegrationTheory]
+    [InlineData("Add a map gago ka", null)]
+    [InlineData("Add a map please", "More: " + FakeTextModerator.Marker)]
+    public async Task ARudeSuggestion_IsRefused_AndNeverReachesTheBoard(string title, string? details)
+    {
+        var tag = Tag();
+        var ana = await TestPhone.SeekerAsync(api, "Ana");
+        var board = ana.Get<FeedbackBoard>();
+
+        var post = () => board.PostAsync($"{title} {tag}", details);
+
+        await post.Should().ThrowAsync<TextNotAllowedException>();
+        await LoadAllAsync(board);
+        board.Posts.Should().NotContain(p => p.Title.EndsWith(tag));
+    }
+
     [IntegrationFact]
     public async Task OnePerson_OneVote_AndItCanBeTakenBack()
     {

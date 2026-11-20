@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.Api.Moderation;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
@@ -10,7 +11,7 @@ namespace SideGigPh.Api;
 /// The feedback board: any signed-in person reads it, suggests a feature and votes; the most voted come first.
 /// Suggestions carry no names. The caller only ever changes their own suggestion and their own vote.
 /// </summary>
-public sealed class FeedbackFunctions(FirebaseTokenValidator auth, FeedbackStore feedback, CallerLimits limits)
+public sealed class FeedbackFunctions(FirebaseTokenValidator auth, FeedbackStore feedback, CallerLimits limits, TextModeration moderation)
 {
     /// <summary><c>GET feedback?skip=0&amp;take=20</c>: one page of the board, most voted first.</summary>
     [Function("GetFeedback")]
@@ -42,7 +43,10 @@ public sealed class FeedbackFunctions(FirebaseTokenValidator auth, FeedbackStore
         return new OkObjectResult(await feedback.SimilarAsync(uid, request.Query["q"], cancellationToken));
     }
 
-    /// <summary><c>POST feedback</c>: the caller's new suggestion, with their vote as its first. Answers with it.</summary>
+    /// <summary>
+    /// <c>POST feedback</c>: the caller's new suggestion, with their vote as its first. Answers with it, or <c>422</c>
+    /// when its title or details are rude (everyone reads the board).
+    /// </summary>
     [Function("AddFeedback")]
     public async Task<IActionResult> Add(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "feedback")] HttpRequest request,
@@ -61,6 +65,11 @@ public sealed class FeedbackFunctions(FirebaseTokenValidator auth, FeedbackStore
         if (await ApiResults.ReadAsync<NewFeedbackRequest>(request, cancellationToken) is not { } suggestion)
         {
             return ApiResults.BadRequest();
+        }
+
+        if (!await moderation.AllowsAsync("suggestion", [suggestion.Title, suggestion.Details], cancellationToken))
+        {
+            return ApiResults.TextNotAllowed();
         }
 
         return await feedback.AddAsync(uid, suggestion, cancellationToken) is { } post

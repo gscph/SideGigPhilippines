@@ -63,7 +63,10 @@ public sealed class FeedbackBoard(IFeedbackRepository feedback, IOnboardingStore
     /// <summary>Suggestions already on the board that probably ask for the same thing, closest first.</summary>
     public Task<IReadOnlyList<FeedbackPost>> FindSimilarAsync(string title) => feedback.FindSimilarAsync(title.Trim());
 
-    /// <summary>Posts a suggestion and puts it at the top of the list, where its writer sees it. Throws when it didn't send.</summary>
+    /// <summary>
+    /// Posts a suggestion and puts it at the top of the list, where its writer sees it. Throws when it didn't send:
+    /// <see cref="TextNotAllowedException"/> when the server refused its words (nothing posted, the list unchanged).
+    /// </summary>
     public async Task<FeedbackPost> PostAsync(string title, string? details)
     {
         var role = (await store.LoadAsync()).Role;

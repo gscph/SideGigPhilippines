@@ -112,6 +112,22 @@ public class FeedbackTests
     }
 
     [Fact]
+    public async Task ARefusedSuggestion_SaysSo_AndLeavesTheBoardAsItWas()
+    {
+        var (board, server, analytics) = Board();
+        server.Posts.Add(Post(1, votes: 2));
+        await board.LoadAsync();
+        server.Refuse = true;
+
+        var post = () => board.PostAsync("Rude words here", null);
+
+        await post.Should().ThrowAsync<TextNotAllowedException>("the page shows Copy.TextNotAllowed, not \"didn't send\"");
+        board.Posts.Select(p => p.Id).Should().Equal([1L]);
+        server.Added.Should().BeEmpty();
+        analytics.Events.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ScrollingToTheEnd_AddsTheNextPage_WithoutRepeats()
     {
         var (board, server, _) = Board();

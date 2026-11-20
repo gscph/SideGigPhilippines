@@ -10,7 +10,11 @@
             <MudTextField T="string" @bind-Value="_details" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" Lines="3"
                           MaxLength="@FeedbackBoard.MaxDetails" Label="@T.Get(Copy.SuggestDetails)" />
         </MudStack>
-        @if (_failed)
+        @if (_refused)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.TextNotAllowed)</MudAlert>
+        }
+        else if (_failed)
         {
             <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(Copy.FeedbackFailed)</MudAlert>
         }

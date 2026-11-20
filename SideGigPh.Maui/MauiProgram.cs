@@ -84,6 +84,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<SeekerWorkspace>();
             builder.Services.AddSingleton<LocalAccount>();
             builder.Services.AddSingleton<IAppAccount>(services => services.GetRequiredService<LocalAccount>());
+            builder.Services.AddSingleton<IDisplayNameCheck>(services => services.GetRequiredService<LocalAccount>());
 
             // Error reports (Services/Diagnostics): errors, crashes and stuck loading screens, scrubbed of personal data, kept
             // on the phone (diagnostics.json) and sent in the background while signed in; the Me page's switch turns it off.

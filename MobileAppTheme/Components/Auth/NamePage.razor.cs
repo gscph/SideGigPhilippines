@@ -8,12 +8,14 @@ namespace MobileAppTheme.Components.Auth;
 /// <c>/verify/name</c>: first and last name, asked once when the account has none (a phone
 /// sign-in). Google sign-ins already have a name and never see this. Then goes to <c>then</c>, or
 /// where the app's <see cref="IAuthLanding"/> says. With <c>edit=true</c> (<see cref="AuthRoutes.EditName"/>) it shows the
-/// current name to change and has a Back: a name typed wrong at sign-up was otherwise there for good.
+/// current name to change and has a Back: a name typed wrong at sign-up was otherwise there for good. The app's
+/// <see cref="IDisplayNameCheck"/> sees the name first; a refused one stays in the boxes to rewrite.
 /// </summary>
 public partial class NamePage : ComponentBase
 {
     [Inject] private IIdentityProvider Identity { get; set; } = default!;
     [Inject] private IAuthLanding Landing { get; set; } = default!;
+    [Inject] private IDisplayNameCheck NameCheck { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -62,9 +64,17 @@ public partial class NamePage : ComponentBase
         }
 
         _busy = true;
+        _error = null;
         try
         {
-            var result = await Identity.SetDisplayNameAsync($"{_firstName!.Trim()} {_lastName!.Trim()}");
+            var name = $"{_firstName!.Trim()} {_lastName!.Trim()}";
+            if (!await NameCheck.AllowsAsync(name))
+            {
+                _error = T.Get(CommonCopy.AuthNameNotAllowed);
+                return;
+            }
+
+            var result = await Identity.SetDisplayNameAsync(name);
             if (result is { IsSuccess: true, User: { } user })
             {
                 await GoOnAsync(user);

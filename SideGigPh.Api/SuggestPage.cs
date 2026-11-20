@@ -18,8 +18,15 @@ internal static class SuggestPage
         Posted,
     }
 
-    /// <summary>What the visitor typed, whether it was refused, and the look-alikes offered instead of posting it.</summary>
-    public sealed record Draft(string Title = "", string Details = "", bool Problem = false, IReadOnlyList<FeedbackPostDto>? Similar = null);
+    /// <summary>
+    /// What the visitor typed, whether it was refused (too short or long: <c>Problem</c>; rude words: <c>Rude</c>), and the
+    /// look-alikes offered instead of posting it.
+    /// </summary>
+    public sealed record Draft(
+        string Title = "", string Details = "", bool Problem = false, IReadOnlyList<FeedbackPostDto>? Similar = null, bool Rude = false);
+
+    /// <summary>The note over the form when moderation refused the suggestion (the app's <c>Copy.TextNotAllowed</c>).</summary>
+    public const string RudeNote = "Please remove rude or sexual words, then try again.";
 
     public static ContentResult Html(string root, IReadOnlyList<FeedbackPostDto> board, Draft draft, Notice notice)
     {
@@ -91,6 +98,7 @@ internal static class SuggestPage
                 <form class="card" method="post" action="{Encode(root)}">
                 <label for="title">What would you like Tarbaho to do? / Ano'ng gusto mong idagdag namin?</label>
                 <input type="text" id="title" name="title" maxlength="{FeedbackRules.MaxTitle}" required value="{Encode(draft.Title)}" placeholder="e.g. Pay with GCash">
+                {(draft.Rude ? $"""<p class="problem" role="alert">{RudeNote} / Pakitanggal ang bastos o malaswang salita.</p>""" : "")}
                 {(draft.Problem ? $"""<p class="problem">Write at least {FeedbackRules.MinTitle} characters (and details under {FeedbackRules.MaxDetails}).</p>""" : "")}
                 <label for="details">More details (optional)</label>
                 <textarea id="details" name="details" maxlength="{FeedbackRules.MaxDetails}">{Encode(draft.Details)}</textarea>
@@ -117,7 +125,12 @@ internal static class SuggestPage
         }
 
         html.Append("</main></body></html>");
-        return new ContentResult { Content = html.ToString(), ContentType = "text/html; charset=utf-8", StatusCode = StatusCodes.Status200OK };
+        return new ContentResult
+        {
+            Content = html.ToString(),
+            ContentType = "text/html; charset=utf-8",
+            StatusCode = draft.Rude ? StatusCodes.Status422UnprocessableEntity : StatusCodes.Status200OK,
+        };
     }
 
     /// <summary>One suggestion: its votes with Upvote (or Voted, which takes the vote back), title, details and stage.</summary>

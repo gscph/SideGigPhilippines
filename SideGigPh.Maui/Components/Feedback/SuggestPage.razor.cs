@@ -10,6 +10,7 @@ namespace SideGigPh.Maui.Components.Feedback;
 /// Suggest a feature, in up to three screens: write it (a title, optional details); when the board already has
 /// suggestions that look the same, "Is it one of these?" lets the person add their vote to one instead, or say theirs
 /// is different and post it; then a thank-you that leads back to the board. With no look-alike it posts right away.
+/// A suggestion the server refuses for rude words goes back to the first screen, as typed, to rewrite.
 /// </summary>
 public partial class SuggestPage : ComponentBase
 {
@@ -35,6 +36,7 @@ public partial class SuggestPage : ComponentBase
     private IReadOnlyList<FeedbackPost> _similar = [];
     private bool _busy;
     private bool _failed;
+    private bool _refused;
 
     private bool CanSend => FeedbackBoard.CanPost(_title);
 
@@ -91,9 +93,15 @@ public partial class SuggestPage : ComponentBase
 
         _busy = true;
         _failed = false;
+        _refused = false;
         try
         {
             await Busy.RunAsync(work);
+        }
+        catch (TextNotAllowedException)
+        {
+            _refused = true;
+            _step = Step.Write;
         }
         catch (Exception ex)
         {

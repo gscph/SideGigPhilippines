@@ -101,6 +101,21 @@ public class SuggestPageTests(ApiTestHost api)
         (await response.Content.ReadAsStringAsync()).Should().Contain("Write at least");
     }
 
+    [IntegrationTheory]
+    [InlineData("Add a map gago ka", "")]
+    [InlineData("Add a map please", "Details: " + FakeTextModerator.Marker)]
+    public async Task ARudeIdea_IsRefusedOnThePage_WithWhatWasTyped_AndNothingIsStored(string title, string details)
+    {
+        var tag = Tag();
+
+        using var response = await Visitor().PostAsync("suggest", Form(("title", $"{title} {tag}"), ("details", details), ("step", "post")));
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnprocessableEntity);
+        var html = await response.Content.ReadAsStringAsync();
+        html.Should().Contain("Please remove rude or sexual words, then try again.").And.Contain(tag, "the form keeps the idea to rewrite");
+        (await ScalarAsync("SELECT COUNT(*) FROM FeedbackPosts WHERE Title LIKE @a", $"%{tag}")).Should().Be(0);
+    }
+
     /// <summary>A browser with its own address (and, when given, its saved visitor cookie).</summary>
     private HttpClient Visitor(string? cookie = null)
     {

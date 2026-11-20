@@ -137,6 +137,10 @@ public static class CommonCopy
     public static readonly LocalizedText AuthNameWhy = new("Use your real name. It's the name people you talk to will see.", "Gamitin ang totoong pangalan mo. Ito ang makikita ng mga kausap mo.");
     public static readonly LocalizedText AuthFirstName = new("First name", "Pangalan");
     public static readonly LocalizedText AuthLastName = new("Last name", "Apelyido");
+    /// <summary>The app refused the name (<see cref="Auth.IDisplayNameCheck"/>): says what to do, never repeats the word.</summary>
+    public static readonly LocalizedText AuthNameNotAllowed = new(
+        "Please remove rude or sexual words, then try again.",
+        "Pakitanggal ang bastos o malaswang salita, tapos subukan ulit.");
     public static readonly LocalizedText AuthPhoneTitle = new("Add your mobile number", "Ilagay ang mobile number mo");
     public static readonly LocalizedText AuthPhoneWhy = new("This is the number people reach you on. You only add it once.", "Dito ka nila tatawagan o ite-text. Isang beses mo lang 'to ilalagay.");
     public static readonly LocalizedText AuthErrorTooManyAttempts = new("Too many tries. Wait a while, then try again.", "Sobrang daming try. Maghintay muna bago ulitin.");
