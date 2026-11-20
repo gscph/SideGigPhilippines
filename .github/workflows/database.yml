@@ -1,0 +1,237 @@
+name: Database (Azure SQL)
+
+# Brings the live Azure SQL database up to date: runs the NNN-schema-*.sql scripts it hasn't had (SideGigPh.Migrate).
+# Decides by itself what is needed (.github/scripts/changed.sh holds the one list of files):
+#
+#   push to main changing only the SQL scripts or the migration tool
+#       → tests → db-check → (db-migrate) → is the live API behind main? then start deploy-api.yml
+#   push to main changing the SQL scripts AND the API
+#       → nothing here: deploy-api.yml calls this workflow first, then deploys, so the API never runs ahead of its tables
+#   called by deploy-api.yml (the API changed and SQL changed since the live API's commit)
+#       → db-check → (db-migrate); the caller ran the tests and deploys afterwards
+#   by hand (Actions → Run workflow)
+#       → the same as a push, plus 004-config.sql (trades, jobs, answer lists) when "Also run 004-config.sql" is ticked
+#
+#   db-check: a dry run that lists what the live database hasn't recorded in dbo.SchemaChanges; changes nothing. It
+#             first refuses an edited 001-schema.sql, an unguarded step or a DROP TABLE (migration-check.sh).
+#   db-migrate: runs exactly that, in number order, each script in its own transaction (all or none). No approval
+#             step: merging the script to main IS the approval. A script that fails stops everything after it.
+#
+# Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy" (trusted for runs from main).
+# Needs (azure/README.md → "Database migrations from GitHub"):
+#   repo secrets   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (azure/cloudshell-github-deploy.sh)
+#   repo variables SQL_SERVER, SQL_DATABASE, SQL_RESOURCE_GROUP (optional: default sidegigph / SideGigPh / sidegigph)
+#   the identity as a database user (db_ddladmin, db_datareader, db_datawriter) and SQL Server Contributor on the server
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_config:
+        description: 'Also run 004-config.sql (the trades, jobs and answer lists) on the live database'
+        type: boolean
+        default: false
+  workflow_call:
+    inputs:
+      from_deploy:
+        description: 'Called by deploy-api.yml, which ran the tests and deploys afterwards'
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+    paths:   # the "database" group of .github/scripts/changed.sh
+      - 'SideGigPh.AzureSQL/Sql/**'
+      - 'SideGigPh.Migrate/**'
+      - '.github/workflows/database.yml'
+
+permissions:
+  id-token: write   # lets the run ask GitHub for the OIDC token Azure trusts
+  contents: read
+  actions: write    # starts deploy-api.yml when the live API is behind main
+
+env:
+  SQL_SERVER: ${{ vars.SQL_SERVER || 'sidegigph' }}
+  SQL_DATABASE: ${{ vars.SQL_DATABASE || 'SideGigPh' }}
+  SQL_RESOURCE_GROUP: ${{ vars.SQL_RESOURCE_GROUP || 'sidegigph' }}
+  FIREWALL_RULE: github-db-${{ github.run_id }}-${{ github.run_attempt }}
+  RUN_CONFIG: ${{ github.event_name == 'workflow_dispatch' && inputs.run_config == true }}
+
+jobs:
+  # A push that also changed the API is deploy-api.yml's: it runs this workflow first, then deploys.
+  route:
+    if: ${{ !inputs.from_deploy }}
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.decide.outputs.run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide
+        id: decide
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$(bash .github/scripts/changed.sh api "$BEFORE")" = "true" ]; then
+            echo "::notice::This push also changed the API: deploy-api.yml runs the database scripts, then deploys."
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  # Nothing touches the live database unless every test passes (tests.yml: unit + integration on a real SQL Server).
+  tests:
+    needs: route
+    if: needs.route.outputs.run == 'true'
+    uses: ./.github/workflows/tests.yml
+
+  # What the live database is missing: a dry run of SideGigPh.Migrate. Reads only.
+  db-check:
+    needs: tests
+    if: ${{ always() && (inputs.from_deploy || needs.tests.result == 'success') }}
+    runs-on: ubuntu-latest
+    outputs:
+      pending: ${{ steps.plan.outputs.pending }}
+      scripts: ${{ steps.plan.outputs.scripts }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # migration-check compares 001-schema.sql with the commit before this push
+
+      - name: Check the Azure sign-in secrets
+        env:
+          CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        run: |
+          missing=""
+          [ -z "$CLIENT_ID" ] && missing="$missing AZURE_CLIENT_ID"
+          [ -z "$TENANT_ID" ] && missing="$missing AZURE_TENANT_ID"
+          [ -z "$SUBSCRIPTION_ID" ] && missing="$missing AZURE_SUBSCRIPTION_ID"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing secrets:$missing (paste azure/cloudshell-github-deploy.sh, see azure/README.md)"; exit 1
+          fi
+
+      - name: Check the scripts are safe for the live database
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          base="HEAD~1"
+          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then base="$BEFORE"; fi
+          bash .claude/skills/db-migration/scripts/migration-check.sh "$base"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build the migration tool
+        run: dotnet build SideGigPh.Migrate/SideGigPh.Migrate.csproj -c Release -o ${{ github.workspace }}/output/migrate
+
+      - name: Sign in to Azure (OIDC, managed identity)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Open the database firewall to this run
+        run: |
+          # Optional: needs "SQL Server Contributor" on the server. Without it the run still connects when the server
+          # allows Azure services (GitHub's runners are Azure machines, like the Function App).
+          ip=$(curl -fsS https://api.ipify.org)
+          if az sql server firewall-rule create -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-check" \
+            --start-ip-address "$ip" --end-ip-address "$ip" --output none; then
+            sleep 15   # a new rule takes a few seconds to apply
+          else
+            echo "::warning::Could not open the SQL firewall to this run (no SQL Server Contributor on the server). Trying anyway, which works when the server allows Azure services."
+          fi
+
+      - name: List the scripts the database hasn't had
+        id: plan
+        env:
+          SQL_CONNECTION: Server=tcp:${{ env.SQL_SERVER }}.database.windows.net,1433;Database=${{ env.SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;Connect Timeout=60;
+        run: |
+          config=""
+          [ "$RUN_CONFIG" = "true" ] && config="--config"
+          dotnet ${{ github.workspace }}/output/migrate/SideGigPh.Migrate.dll --sql SideGigPh.AzureSQL/Sql --dry-run $config
+
+      - name: Close the database firewall
+        if: always()
+        run: az sql server firewall-rule delete -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-check" --output none || true
+
+  # Runs what db-check listed, straight on the live database: the new schema scripts (and 004-config when ticked).
+  db-migrate:
+    needs: db-check
+    if: needs.db-check.outputs.pending == 'true'
+    concurrency:
+      group: database-migrate
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: What will run
+        run: |
+          echo "::notice::Running on the live database: ${{ needs.db-check.outputs.scripts }}"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build the migration tool
+        run: dotnet build SideGigPh.Migrate/SideGigPh.Migrate.csproj -c Release -o ${{ github.workspace }}/output/migrate
+
+      - name: Sign in to Azure (OIDC, managed identity)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Open the database firewall to this run
+        run: |
+          # Optional: needs "SQL Server Contributor" on the server. Without it the run still connects when the server
+          # allows Azure services (GitHub's runners are Azure machines, like the Function App).
+          ip=$(curl -fsS https://api.ipify.org)
+          if az sql server firewall-rule create -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-migrate" \
+            --start-ip-address "$ip" --end-ip-address "$ip" --output none; then
+            sleep 15   # a new rule takes a few seconds to apply
+          else
+            echo "::warning::Could not open the SQL firewall to this run (no SQL Server Contributor on the server). Trying anyway, which works when the server allows Azure services."
+          fi
+
+      - name: Run the scripts
+        env:
+          SQL_CONNECTION: Server=tcp:${{ env.SQL_SERVER }}.database.windows.net,1433;Database=${{ env.SQL_DATABASE }};Authentication=Active Directory Default;Encrypt=True;Connect Timeout=60;
+        run: |
+          config=""
+          [ "$RUN_CONFIG" = "true" ] && config="--config"
+          dotnet ${{ github.workspace }}/output/migrate/SideGigPh.Migrate.dll --sql SideGigPh.AzureSQL/Sql $config
+
+      - name: Close the database firewall
+        if: always()
+        run: az sql server firewall-rule delete -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-migrate" --output none || true
+
+  # A push that changed only the database: if the live API's commit is behind main's API code (e.g. an earlier
+  # deploy stopped because its script failed, and this push fixes the script), start deploy-api.yml now.
+  then-api:
+    needs: [db-check, db-migrate]
+    if: ${{ always() && !inputs.from_deploy && needs.db-check.result == 'success' && (needs.db-check.outputs.pending == 'false' || needs.db-migrate.result == 'success') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Deploy the API if the live one is behind main
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(bash .github/scripts/changed.sh api live-api)" = "true" ]; then
+            gh workflow run deploy-api.yml --ref "$GITHUB_REF_NAME"
+            echo "::notice::The live API is behind main: started deploy-api.yml."
+          else
+            echo "The live API already runs main's API code: nothing to deploy."
+          fi
