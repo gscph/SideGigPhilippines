@@ -184,8 +184,16 @@ for Android).
 - **App (`Services/FeedbackBoard`, singleton, port `IFeedbackRepository`, adapter `ApiFeedbackRepository`):** holds
   the loaded pages; a vote shows at once and is put back if it didn't reach the server; a new suggestion goes on top
   of the list; the order otherwise stays put while on screen and is re-sorted on the next load.
+- **On the web (`SideGigPh.Api/SuggestFunctions`, `SuggestPage`, public `GET` / `POST suggest`, `POST suggest/{id}/vote`):**
+  the same board as a plain HTML page (no script, the legal pages' look), the "Feedback URL" Play testers get:
+  `https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/suggest`. Upvote on every row; a new
+  idea first shows its look-alikes to upvote and only "None of these, post mine" posts it. No sign-in: a visitor is
+  a random id in the cookie `tarbaho_voter` (1 year), stored as `web-<id>`, so one browser has one vote per
+  suggestion. Posts are marked `Source = 'web'` and show at once, like the app's; spam is held back by a hidden
+  field bots fill in and by `CallerLimits` per IP (the last `X-Forwarded-For` entry; 5 posts and 60 votes an hour)
+  and in total (60 posts an hour). The operator hides what doesn't belong with `Status = 'hidden'`.
 - **Operator:** `UPDATE dbo.FeedbackPosts SET Status = 'planned' WHERE Id = …` (or `done`, `declined`, `hidden`);
-  top of the board: `SELECT Id, Votes, Status, Side, Title FROM dbo.FeedbackPosts ORDER BY Votes DESC`.
+  top of the board: `SELECT Id, Votes, Status, Side, Source, Title FROM dbo.FeedbackPosts ORDER BY Votes DESC`.
 
 ## Job posts
 

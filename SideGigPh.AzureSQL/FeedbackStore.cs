@@ -3,6 +3,16 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.AzureSQL;
 
+/// <summary>Where a suggestion was written (<c>FeedbackPosts.Source</c>).</summary>
+public static class FeedbackSources
+{
+    /// <summary>The app's feedback board (signed in).</summary>
+    public const string App = "app";
+
+    /// <summary>The public web page (<c>GET suggest</c>, the Play testers' feedback link); the writer is a cookie id.</summary>
+    public const string Web = "web";
+}
+
 /// <summary>
 /// The feedback board (<c>FeedbackPosts</c>, <c>FeedbackVotes</c>): signed-in people suggest features and vote for
 /// the ones they want, and the board shows the most voted first, so the loudest wish is on top and repeats don't
@@ -76,8 +86,10 @@ public sealed class FeedbackStore(SideGigPhDb db)
     /// <summary>
     /// Posts the caller's suggestion with their own vote as its first. Null when the title is too short or too long.
     /// The same title from the same person again (a retry, a double tap) answers with the one already there.
+    /// <paramref name="source"/> says where it was written (<see cref="FeedbackSources"/>).
     /// </summary>
-    public async Task<FeedbackPostDto?> AddAsync(string uid, NewFeedbackRequest request, CancellationToken cancellationToken)
+    public async Task<FeedbackPostDto?> AddAsync(
+        string uid, NewFeedbackRequest request, CancellationToken cancellationToken, string source = FeedbackSources.App)
     {
         if (!FeedbackRules.IsTitle(request.Title) || request.Details is { Length: > 4 * FeedbackRules.MaxDetails })
         {
@@ -100,6 +112,7 @@ public sealed class FeedbackStore(SideGigPhDb db)
                 Title = title,
                 Details = StoreText.Limit(request.Details, FeedbackRules.MaxDetails),
                 Votes = 1,
+                Source = source,
                 CreatedAt = now,
             };
             db.FeedbackPosts.Add(post);

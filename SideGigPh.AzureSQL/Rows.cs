@@ -260,6 +260,9 @@ public sealed class FeedbackPostRow
     /// <summary>How many <see cref="FeedbackVoteRow"/>s it has, kept here so the board sorts without counting.</summary>
     public int Votes { get; set; }
     public string Status { get; set; } = "open";
+
+    /// <summary>Where it was written (<see cref="FeedbackSources"/>, <c>025-schema-feedback-source.sql</c>).</summary>
+    public string Source { get; set; } = FeedbackSources.App;
     public DateTimeOffset CreatedAt { get; set; }
 }
 

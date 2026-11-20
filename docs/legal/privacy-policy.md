@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 19, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 20, 2026
 
 ---
 
@@ -80,6 +80,7 @@ Interview answers you have not finished are kept **only on your phone**.
 | **Last active time** (at most once an hour, Skilled Workers) | Search ranking ("replies fast", "active recently") |
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
 | **Usage analytics** (see §3.3) | **Not active yet** |
+| **Ideas page on the web** (`…/api/suggest`, the feedback link for testers): a cookie holding a random ID, and your IP address | The cookie lets the page count **one vote per browser**; it holds no name or account and is kept 1 year. The IP address is used **only in our server's memory** to limit how many ideas and votes come from one place in an hour, and is never stored. What you type there is shown to everyone, without a name |
 
 We read your phone's location **only when you tap Use my location** (see the table above), only while the App is
 open, never in the background; you can say no and the App still works with your town. We do **not** collect your
