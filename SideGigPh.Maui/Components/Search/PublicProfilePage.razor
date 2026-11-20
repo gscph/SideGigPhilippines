@@ -37,9 +37,14 @@
             <MudStack Spacing="4">
                 <MudText Typo="Typo.h5" HtmlTag="h2">@T.Get(Copy.ProProfilePhotos)</MudText>
                 <MudStack Row="true" Spacing="2" Class="overflow-x-auto flex-nowrap" role="list" aria-label="@T.Get(Copy.ProProfilePhotos)">
-                    @foreach (var url in _pro.WorkPhotoUrls)
+                    @for (var i = 0; i < _pro.WorkPhotoUrls.Count; i++)
                     {
-                        <MudImage Src="@url" Alt="" ObjectFit="ObjectFit.Cover" Class="work-thumb-small" role="listitem" @key="url" />
+                        var index = i;
+                        var url = _pro.WorkPhotoUrls[index];
+                        <MudLink Href="@SeekerRoutes.ProPhotos(Id, index)" role="listitem" @key="url"
+                                 aria-label="@T.Format(Copy.WorkPhotoOpen, index + 1, _pro.WorkPhotoUrls.Count)">
+                            <MudImage Src="@url" Alt="" ObjectFit="ObjectFit.Cover" Class="work-thumb-small" />
+                        </MudLink>
                     }
                 </MudStack>
             </MudStack>

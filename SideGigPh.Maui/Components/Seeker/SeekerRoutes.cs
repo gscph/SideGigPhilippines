@@ -31,6 +31,9 @@ public static class SeekerRoutes
     /// <summary>All of a pro's reviews ("Show all" on the profile); Back returns to the profile.</summary>
     public static string ProReviews(string professionalId) => $"{Pro(professionalId)}/reviews";
 
+    /// <summary>A pro's work photos full screen, opened on the <paramref name="index"/>th (0 = first); X goes back.</summary>
+    public static string ProPhotos(string professionalId, int index) => $"{Pro(professionalId)}/photos/{index}";
+
     /// <summary><paramref name="back"/> when it is a page of this app (starts with one slash), else the results.</summary>
     public static string BackOrSearch(string? back) =>
         back is { Length: > 1 } path && path[0] == '/' && path[1] != '/' && path[1] != '\\' ? path : Search;

@@ -163,6 +163,8 @@ public static class Copy
     public static readonly LocalizedText TrustPhone = new("Phone number verified", "Verified ang phone number");
     public static readonly LocalizedText TrustPhoneNote = new("Checked with an SMS code.", "Na-check gamit ang SMS code.");
     public static readonly LocalizedText ProProfilePhotos = new("Photos of their work", "Photos ng mga gawa nila");
+    public static readonly LocalizedText WorkPhotoOpen = new("Open photo {0} of {1}", "Buksan ang photo {0} sa {1}");
+    public static readonly LocalizedText WorkPhotoCount = new("{0} of {1}", "{0} sa {1}");
     public static readonly LocalizedText ProProfileNoReviews = new("No reviews yet", "Wala pang review");
     public static readonly LocalizedText ProNotFoundTitle = new("Skilled worker not found", "Di mahanap ang skilled worker");
     public static readonly LocalizedText ProNotFound = new("This listing isn't available anymore.", "Wala na 'tong listing.");

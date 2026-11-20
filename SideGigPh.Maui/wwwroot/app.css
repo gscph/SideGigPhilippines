@@ -152,6 +152,16 @@
     border-radius: 12px !important;
 }
 
+/* A work photo full screen (WorkPhotosPage): the carousel fills the space under the header, each photo whole. */
+.app-photo-viewer {
+    min-height: 70vh;
+}
+
+.app-photo-viewer-image {
+    width: 100%;
+    height: 100%;
+}
+
 /* One review card in the profile's sideways row (ReviewCard): most of the width, so the next one peeks in. */
 .review-peek {
     flex: 0 0 82%;
