@@ -233,6 +233,7 @@ public class JobPostTests(ApiTestHost api)
         (NewJobPostRequest Request, string Error)[] cases =
         [
             (new("construction", "construction-plumbing", "Tulo", 800, "taytay"), "invalid-description"),
+            (new("construction", "construction-plumbing", "Barado ang lababo, put@ng ina", 800, "taytay"), "invalid-description"),
             (new("construction", "aircon-cleaning", Problem, 800, "taytay"), "invalid-serviceId"),
             (new("karaoke", "construction-plumbing", Problem, 800, "taytay"), "invalid-categoryId"),
             (new("construction", "construction-plumbing", Problem, 800, "makati"), "invalid-cityId"),

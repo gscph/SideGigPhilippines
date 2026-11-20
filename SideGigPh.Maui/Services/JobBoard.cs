@@ -94,7 +94,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             missing.Add(JobPostField.Budget);
         }
 
-        if (!JobPostRules.IsDescription(draft.Description))
+        if (!IsDescriptionOk(draft.Description))
         {
             missing.Add(JobPostField.Description);
         }
@@ -112,10 +112,11 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     /// What to do about one missing field, in a few words (on its row of the card, or under the problem's box), so a
     /// too-short description or a small budget doesn't leave the household guessing.
     /// </summary>
-    public static string MissingText(JobPostField field, AppText text) => field switch
+    public static string MissingText(JobPostField field, AppText text, JobPostDraft? draft = null) => field switch
     {
         JobPostField.Trade => text.Get(Copy.PostMissingTrade),
         JobPostField.Service => text.Get(Copy.PostMissingService),
+        JobPostField.Description when RudeWords.In(draft?.Description) => text.Get(CommonCopy.RudeTextNote),
         JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
         JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
         JobPostField.When => text.Get(Copy.PostMissingWhen),
@@ -123,7 +124,11 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     };
 
     /// <summary>True when a worker can send <paramref name="pricePesos"/> with <paramref name="note"/> (no note is fine).</summary>
-    public static bool CanOffer(int? pricePesos, string? note) => JobOfferRules.IsPrice(pricePesos) && JobOfferRules.IsNote(note);
+    public static bool CanOffer(int? pricePesos, string? note) =>
+        JobOfferRules.IsPrice(pricePesos) && JobOfferRules.IsNote(note) && !RudeWords.In(note);
+
+    /// <summary>Long enough, and no rude words (<see cref="RudeWords"/>): the server refuses the same.</summary>
+    public static bool IsDescriptionOk(string? description) => JobPostRules.IsDescription(description) && !RudeWords.In(description);
 
     /// <summary>How many more photos fit on <paramref name="draft"/>.</summary>
     public static int PhotoRoom(JobPostDraft draft) => Math.Max(0, MaxPhotos - draft.Photos.Count);

@@ -157,7 +157,7 @@ public partial class PickedJobCard : ComponentBase
 
     private async Task RateAsync()
     {
-        if (_busy || _stars == 0)
+        if (_busy || _stars == 0 || RudeWords.In(_comment))
         {
             return; // a second tap before the button re-rendered as disabled
         }

@@ -68,6 +68,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSideGigPhApi(new ApiOptions(ApiUrl, PhotoBaseUrl, ClientVersion: build.ClientHeader));
             builder.Services.AddSingleton<IOnboardingStore, FileOnboardingStore>();
             builder.Services.AddSingleton<ISplashLines, RoleSplashLines>();
+            builder.Services.AddSingleton<ITextCheck, RudeWordsCheck>();
             // The app config (trades and jobs, towns, prices…): loaded once while the splash shows (LaunchRouter), kept
             // on the phone (config.json) and used with no network call for 12 hours, then re-checked by ETag.
             builder.Services.AddSingleton<IConfigCache<AppConfig>>(services => new FileConfigCache<AppConfig>(

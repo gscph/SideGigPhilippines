@@ -13,8 +13,9 @@
             }
         </MudStack>
         <MudTextField T="string" @bind-Value="_comment" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" Lines="3" MaxLength="300"
-                      Label="@T.Get(Copy.ReviewCommentPlaceholder)" />
+                      Label="@T.Get(Copy.ReviewCommentPlaceholder)" Error="@RudeWords.In(_comment)" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
         <MudTextField T="string" @bind-Value="_name" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" MaxLength="40"
-                      Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" autocomplete="name" />
+                      Label="@T.Get(Copy.ReviewNameLabel)" Placeholder="@T.Get(Copy.ReviewNamePlaceholder)" autocomplete="name"
+                      Error="@RudeWords.In(_name)" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
     </InterviewStep>
 }

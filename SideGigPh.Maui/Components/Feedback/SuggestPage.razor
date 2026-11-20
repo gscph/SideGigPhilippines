@@ -6,9 +6,11 @@
                    OnBack="GoBack" OnNext="CheckAsync" CanContinue="@(CanSend && !_busy)">
         <MudStack Spacing="3">
             <MudTextField T="string" @bind-Value="_title" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field"
-                          MaxLength="@FeedbackBoard.MaxTitle" Label="@T.Get(Copy.SuggestLabel)" Placeholder="@T.Get(Copy.SuggestPlaceholder)" />
+                          MaxLength="@FeedbackBoard.MaxTitle" Label="@T.Get(Copy.SuggestLabel)" Placeholder="@T.Get(Copy.SuggestPlaceholder)"
+                          Error="@RudeWords.In(_title)" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
             <MudTextField T="string" @bind-Value="_details" Immediate="true" Variant="Variant.Filled" Underline="false" Class="app-field" Lines="3"
-                          MaxLength="@FeedbackBoard.MaxDetails" Label="@T.Get(Copy.SuggestDetails)" />
+                          MaxLength="@FeedbackBoard.MaxDetails" Label="@T.Get(Copy.SuggestDetails)"
+                          Error="@RudeWords.In(_details)" ErrorText="@T.Get(CommonCopy.RudeTextNote)" />
         </MudStack>
         @if (_failed)
         {

@@ -124,6 +124,7 @@ public static class CommonCopy
     public static readonly LocalizedText AuthNameTitle = new("Finish signing up", "Tapusin ang sign up");
     public static readonly LocalizedText AuthNameEditTitle = new("Change your name", "Palitan ang pangalan mo");
     public static readonly LocalizedText AuthSave = new("Save", "I-save");
+    public static readonly LocalizedText RudeTextNote = new("Please take out the rude words.", "Pakitanggal ang mga bastos na salita.");
     public static readonly LocalizedText AuthNameWhy = new("Use your real name. It's the name people you talk to will see.", "Gamitin ang totoong pangalan mo. Ito ang makikita ng mga kausap mo.");
     public static readonly LocalizedText AuthFirstName = new("First name", "Pangalan");
     public static readonly LocalizedText AuthLastName = new("Last name", "Apelyido");

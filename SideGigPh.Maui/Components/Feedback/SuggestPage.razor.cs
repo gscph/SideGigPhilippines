@@ -36,7 +36,7 @@ public partial class SuggestPage : ComponentBase
     private bool _busy;
     private bool _failed;
 
-    private bool CanSend => FeedbackBoard.CanPost(_title);
+    private bool CanSend => FeedbackBoard.CanPost(_title, _details);
 
     private void GoBack() => Nav.NavigateTo(FeedbackRoutes.Board(Side));
 

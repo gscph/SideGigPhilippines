@@ -233,9 +233,9 @@ public partial class NewPostPage : ComponentBase
 
     private Task RemovePhotoAsync(string photoId) => Board.RemovePhotoAsync(_draft, photoId);
 
-    private bool DescriptionMissing => !JobPostRules.IsDescription(_draft.Description);
+    private bool DescriptionMissing => !JobBoard.IsDescriptionOk(_draft.Description);
 
-    private string DescriptionNote => JobBoard.MissingText(JobPostField.Description, T);
+    private string DescriptionNote => JobBoard.MissingText(JobPostField.Description, T, _draft);
 
     private async Task PostAsync()
     {

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MobileAppTheme.Auth;
 using MobileAppTheme.Localization;
+using MobileAppTheme.Services;
 
 namespace MobileAppTheme.Components.Auth;
 
@@ -16,6 +17,7 @@ public partial class NamePage : ComponentBase
     [Inject] private IAuthLanding Landing { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ITextCheck TextCheck { get; set; } = default!;
 
     [SupplyParameterFromQuery(Name = "then")] public string? Then { get; set; }
 
@@ -27,7 +29,11 @@ public partial class NamePage : ComponentBase
     private bool _busy;
 
     private bool CanSave =>
-        !_busy && !string.IsNullOrWhiteSpace(_firstName) && !string.IsNullOrWhiteSpace(_lastName);
+        !_busy && !string.IsNullOrWhiteSpace(_firstName) && !string.IsNullOrWhiteSpace(_lastName) && !FirstRude && !LastRude;
+
+    private bool FirstRude => TextCheck.IsRude(_firstName);
+
+    private bool LastRude => TextCheck.IsRude(_lastName);
 
     protected override async Task OnInitializedAsync()
     {
