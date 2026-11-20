@@ -32,6 +32,15 @@ public enum Limited
     /// <summary>A vote added or taken back on the feedback board.</summary>
     FeedbackVote,
 
+    /// <summary>A suggestion posted on the public web board (<c>POST suggest</c>), counted per visitor's IP address.</summary>
+    WebFeedback,
+
+    /// <summary>All suggestions posted on the public web board, whoever sends them (one key), so a flood stays small.</summary>
+    WebFeedbackTotal,
+
+    /// <summary>A vote on the public web board (<c>POST suggest/{id}/vote</c>), counted per visitor's IP address.</summary>
+    WebFeedbackVote,
+
     /// <summary>A listing published, changed or taken down (each one clears the shared search cache).</summary>
     Listing,
 
@@ -71,6 +80,9 @@ public sealed class CallerLimits : IDisposable
         [Limited.Report] = (10, TimeSpan.FromHours(1)),
         [Limited.Feedback] = (10, TimeSpan.FromHours(1)),
         [Limited.FeedbackVote] = (120, TimeSpan.FromHours(1)),
+        [Limited.WebFeedback] = (5, TimeSpan.FromHours(1)),
+        [Limited.WebFeedbackTotal] = (60, TimeSpan.FromHours(1)),
+        [Limited.WebFeedbackVote] = (60, TimeSpan.FromHours(1)),
         [Limited.Listing] = (20, TimeSpan.FromHours(1)),
         [Limited.Profile] = (60, TimeSpan.FromHours(1)),
         [Limited.Verification] = (12, TimeSpan.FromHours(1)),

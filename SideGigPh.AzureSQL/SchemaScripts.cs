@@ -28,5 +28,6 @@ public static class SchemaScripts
         "022-schema-construction-trades",
         "023-schema-worker-price",
         "024-schema-post-needed-date",
+        "025-schema-feedback-source",
     ];
 }

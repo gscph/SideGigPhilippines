@@ -27,6 +27,7 @@ public class ApiWiringTests(ApiTestHost api)
             "GET config", "POST other-jobs", "POST error-reports", "GET warmup",
             "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}",
             "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",
+            "GET suggest", "POST suggest", "POST suggest/{id}/vote",
             "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report",
             "POST verifications/{kind}", "GET verifications/mine",
             "POST job-posts", "PUT job-posts/{id}", "GET job-posts/mine", "GET offers/mine", "GET job-posts/feed", "DELETE job-posts/{id}", "POST job-posts/{id}/report",
@@ -34,10 +35,11 @@ public class ApiWiringTests(ApiTestHost api)
             "GET admin/me", "GET admin/verifications", "GET admin/verifications/{id}/document", "POST admin/verifications/{id}/decision");
 
     /// <summary>
-    /// Public: the reference data (the trades and jobs, read before the account is ready) and the legal pages (the app
-    /// stores need them open to anyone). Nothing else is public: error reports are read in SQL (<c>dbo.ErrorReports</c>).
+    /// Public: the reference data (the trades and jobs, read before the account is ready), the legal pages (the app
+    /// stores need them open to anyone) and the feedback board's web page (the Play testers' feedback link; visitors
+    /// are a cookie id, limited per IP address). Nothing else is public: error reports are read in SQL (<c>dbo.ErrorReports</c>).
     /// </summary>
-    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}"];
+    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}", "GET suggest", "POST suggest", "POST suggest/{id}/vote"];
 
     [IntegrationFact]
     public async Task EveryRoute_WithoutAToken_Is401()

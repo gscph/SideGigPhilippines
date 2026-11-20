@@ -296,6 +296,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             post.Property(p => p.Title).HasMaxLength(100).IsUnicode();
             post.Property(p => p.Details).HasMaxLength(600).IsUnicode();
             post.Property(p => p.Status).HasMaxLength(10);
+            post.Property(p => p.Source).HasMaxLength(10).HasDefaultValue(FeedbackSources.App);
             post.HasIndex(p => new { p.Status, p.Votes, p.CreatedAt }).IsDescending(false, true, true).HasDatabaseName("IX_FeedbackPosts_Top");
             post.HasIndex(p => p.AuthorUid).HasFilter("[AuthorUid] IS NOT NULL").HasDatabaseName("IX_FeedbackPosts_Author");
         });
