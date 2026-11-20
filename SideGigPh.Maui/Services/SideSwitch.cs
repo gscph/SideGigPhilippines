@@ -23,6 +23,14 @@ public static class SideSwitch
     /// Makes <paramref name="role"/> the side the app opens on and says where to go: that side's home (or, for a worker
     /// not live yet, the step they left) when its interview is finished, else its first question.
     /// </summary>
+    /// <summary>
+    /// Back from <paramref name="role"/>'s interview: where it would go (<paramref name="path"/>), except that the first
+    /// question's Back (the role fork) returns to the other side when that side is set up: someone who tapped "Become a
+    /// Skilled Worker" and changed their mind is back on their customer pages, never asked to pick a side again.
+    /// </summary>
+    public static string BackFrom(OnboardingState state, UserRole role, string path) =>
+        path == OnboardingSteps.RolePath && state.HasFinished(role.Other()) ? PathTo(role.Other()) : path;
+
     public static string MoveTo(OnboardingState state, UserRole role)
     {
         state.Role = role;

@@ -1,0 +1,14 @@
+<MudLink Href="@SideSwitch.PathTo(UserRole.Professional)" Underline="Underline.None" Color="Color.Inherit" Class="d-block">
+    <MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+            <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="category-icon mud-background-gray rounded-lg flex-shrink-0">
+                <MudImage Src="@AppImages.Worker" Alt="" Width="36" Height="36" aria-hidden="true" />
+            </MudStack>
+            <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+                <MudText Typo="Typo.subtitle1">@T.Get(Copy.BecomeWorkerTitle)</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.BecomeWorkerWhy)</MudText>
+            </MudStack>
+            <MudIcon Icon="@Icons.Material.Rounded.ChevronRight" Color="Color.Dark" aria-hidden="true" />
+        </MudStack>
+    </MudPaper>
+</MudLink>

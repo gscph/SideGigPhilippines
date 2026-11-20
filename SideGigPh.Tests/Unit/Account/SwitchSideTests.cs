@@ -116,6 +116,42 @@ public class SwitchSideTests
         SideSwitch.MoveTo(state, UserRole.Professional).Should().Be(draft.AfterInterviewPath());
     }
 
+    [Fact]
+    public void CustomerTriedTheWorkerSide_BackFromItsFirstQuestion_ReturnsToTheCustomerSide()
+    {
+        var state = TestData.FinishedSeeker(TestData.AirconCleaningInTaytay());
+        SideSwitch.MoveTo(state, UserRole.Professional);
+
+        SideSwitch.BackFrom(state, UserRole.Professional, OnboardingSteps.RolePath)
+            .Should().Be(SideSwitch.PathTo(UserRole.Seeker), "they changed their mind: no role fork, straight back to their side");
+    }
+
+    [Fact]
+    public void WorkerTriedTheCustomerSide_BackFromItsFirstQuestion_ReturnsToTheWorkerSide()
+    {
+        var state = LivePro();
+        SideSwitch.MoveTo(state, UserRole.Seeker);
+
+        SideSwitch.BackFrom(state, UserRole.Seeker, OnboardingSteps.RolePath).Should().Be(SideSwitch.PathTo(UserRole.Professional));
+    }
+
+    [Fact]
+    public void NewPerson_BackFromTheFirstQuestion_StillGoesToTheRoleFork()
+    {
+        var state = new OnboardingState { Role = UserRole.Professional };
+
+        SideSwitch.BackFrom(state, UserRole.Professional, OnboardingSteps.RolePath).Should().Be(OnboardingSteps.RolePath);
+    }
+
+    [Fact]
+    public void BackFromALaterQuestion_IsUnchanged()
+    {
+        var state = TestData.FinishedSeeker(TestData.AirconCleaningInTaytay());
+        var previous = OnboardingSteps.FirstPath(UserRole.Professional);
+
+        SideSwitch.BackFrom(state, UserRole.Professional, previous).Should().Be(previous);
+    }
+
     [Theory]
     [InlineData("seeker", UserRole.Seeker)]
     [InlineData("professional", UserRole.Professional)]

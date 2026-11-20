@@ -207,7 +207,8 @@ public partial class ProfessionalInterview : ComponentBase
         await Workspace.ListingEditedAsync(); // Edit listing on a live listing: customers see the new answers.
     }
 
-    private void GoBack() => Nav.NavigateTo(Draft.BackPath(_step, finished: _state!.HasFinished(UserRole.Professional), _asksNumber));
+    private void GoBack() => Nav.NavigateTo(SideSwitch.BackFrom(_state!, UserRole.Professional,
+        Draft.BackPath(_step, finished: _state!.HasFinished(UserRole.Professional), _asksNumber)));
 
     private void CodeSent(string? number) => _codeSent = number is not null;
 

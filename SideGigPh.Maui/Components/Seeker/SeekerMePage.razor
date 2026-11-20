@@ -18,8 +18,16 @@
         </MudButton>
     </MudStack>
 
+    @if (!_workerSetUp)
+    {
+        <BecomeWorkerCard />
+    }
+
     <MudStack Spacing="0" Class="border-t border-solid mud-border-lines-default">
-        <SwitchSideRow To="UserRole.Professional" />
+        @if (_workerSetUp)
+        {
+            <SwitchSideRow To="UserRole.Professional" />
+        }
         <MenuRow Href="@SeekerRoutes.Reviews" Icon="@Icons.Material.Rounded.StarOutline"
                  Text="@T.Get(Copy.YourReviews)" SecondaryText="@ReviewsLabel" Badge="@Workspace.ToRate.Count" />
         <MenuRow Href="@SeekerRoutes.Feedback" Icon="@Icons.Material.Rounded.Lightbulb"

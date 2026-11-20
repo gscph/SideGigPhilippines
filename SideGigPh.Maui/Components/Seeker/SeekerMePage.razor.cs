@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.Seeker;
 /// <summary>
 /// The Seeker's Me tab (also the avatar in the top bar): their one profile photo (add or change; a new one
 /// replaces the old), their name (shown on their reviews), a link to their reviews (and pros still to rate), then the
-/// switch to the worker side (<c>SwitchSideRow</c>), then the
+/// "Become a Skilled Worker" (<c>BecomeWorkerCard</c>) or, once that side is set up, the switch row (<c>SwitchSideRow</c>), then the
 /// shared <see cref="Shared.MePage"/> parts (language, Delete account). No "preferences": what they need changes with every
 /// search, so it is the search itself (Home's box, filters and recent searches), never a setting.
 /// </summary>
@@ -18,11 +18,15 @@ public partial class SeekerMePage : ComponentBase
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
+    [Inject] private IOnboardingStore Store { get; set; } = default!;
 
     private string? _name;
     private bool _saved;
     private PhotoAddResult? _photoResult;
     private bool _busy;
+
+    // The worker side is set up: a plain switch row; until then the "Become a Skilled Worker" card offers it.
+    private bool _workerSetUp;
 
     private bool NameChanged => (_name?.Trim() ?? string.Empty) != (Workspace.Answers.ReviewerName ?? string.Empty);
 
@@ -31,7 +35,11 @@ public partial class SeekerMePage : ComponentBase
         ? T.Format(Copy.ToRateCount, Workspace.ToRate.Count)
         : Workspace.MyReviews.Count == 1 ? T.Get(Copy.ReviewsCountOne) : T.Format(Copy.ReviewsCount, Workspace.MyReviews.Count);
 
-    protected override void OnInitialized() => _name = Workspace.Answers.ReviewerName;
+    protected override async Task OnInitializedAsync()
+    {
+        _name = Workspace.Answers.ReviewerName;
+        _workerSetUp = (await Store.LoadAsync()).HasFinished(UserRole.Professional);
+    }
 
     private async Task SaveNameAsync()
     {

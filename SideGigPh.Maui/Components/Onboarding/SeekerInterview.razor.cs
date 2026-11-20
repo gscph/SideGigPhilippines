@@ -248,7 +248,7 @@ public partial class SeekerInterview : ComponentBase
         await Account.SaveProfileAsync();
     }
 
-    private void GoBack() => Nav.NavigateTo(Answers.BackPath(_step, IsEditing));
+    private void GoBack() => Nav.NavigateTo(SideSwitch.BackFrom(_state!, UserRole.Seeker, Answers.BackPath(_step, IsEditing)));
 
     private static IReadOnlyCollection<string> Selected(string? id) =>
         id is null ? Array.Empty<string>() : new[] { id };
