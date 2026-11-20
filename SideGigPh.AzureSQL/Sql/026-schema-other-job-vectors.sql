@@ -8,7 +8,8 @@
      each distinct text is sent to Azure once, not on every look at the page. TextKey is the cleaned text (no uid,
      nothing about who typed it; Delete account has nothing to remove here), Model the deployment and size that made
      the vector (a new model makes new rows, the old ones are simply not read), Vector the numbers as float32
-     little-endian bytes.
+     little-endian bytes. TextKey compares byte for byte (BIN2): the database's usual case-, width- and kana-blind
+     comparison would make two different cleaned texts one key, and the second's vector could never be stored.
 
    How: run AFTER every earlier schema script and BEFORE deploying the API that uses it. Use the portal
    Query editor and run the WHOLE file. Safe to run again: every step checks first and skips what
@@ -33,7 +34,7 @@ IF OBJECT_ID(N'dbo.OtherJobTextVectors', N'U') IS NULL
 BEGIN
     CREATE TABLE dbo.OtherJobTextVectors
     (
-        TextKey    nvarchar(100)     NOT NULL,
+        TextKey    nvarchar(100)     COLLATE Latin1_General_100_BIN2 NOT NULL,
         Model      varchar(64)       NOT NULL,
         Vector     varbinary(max)    NOT NULL,
         CreatedAt  datetimeoffset(3) NOT NULL CONSTRAINT DF_OtherJobTextVectors_CreatedAt DEFAULT (SYSDATETIMEOFFSET()),

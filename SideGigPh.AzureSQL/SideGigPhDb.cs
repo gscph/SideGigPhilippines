@@ -223,7 +223,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
         {
             vector.ToTable("OtherJobTextVectors");
             vector.HasKey(v => new { v.TextKey, v.Model }).HasName("PK_OtherJobTextVectors");
-            vector.Property(v => v.TextKey).HasMaxLength(100).IsUnicode();
+            vector.Property(v => v.TextKey).HasMaxLength(100).IsUnicode().UseCollation("Latin1_General_100_BIN2");
             vector.Property(v => v.Model).HasMaxLength(64).IsUnicode(false);
             vector.Property(v => v.Vector).HasColumnType("varbinary(max)");
         });
