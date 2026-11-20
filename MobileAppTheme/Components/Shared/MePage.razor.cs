@@ -8,9 +8,8 @@ namespace MobileAppTheme.Components.Shared;
 /// <summary>
 /// The Me page frame every side of the app shares: the page title, the side's own sections
 /// (<see cref="ChildContent"/>), then what every user has: the app language, the legal pages
-/// (<see cref="AppBrand.Legal"/>), Start over, which deletes what they made and starts the app again
-/// (<see cref="IAppAccount.StartOverAsync"/>), and Delete account (<see cref="IAppAccount.DeleteAccountAsync"/>).
-/// Both send them back to <c>/</c>.
+/// (<see cref="AppBrand.Legal"/>) and Delete account (<see cref="IAppAccount.DeleteAccountAsync"/>), which sends them
+/// back to <c>/</c>. There is no Start over: an app that lets one account be several sides switches on its own pages.
 /// </summary>
 public partial class MePage : ComponentBase
 {
@@ -25,45 +24,14 @@ public partial class MePage : ComponentBase
     /// <summary>The side's own sections, e.g. a profile photo or the name shown to others.</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    /// <summary>What Start over deletes, in the app's words; defaults to a generic "everything on this phone".</summary>
-    [Parameter] public string? StartOverWarning { get; set; }
-
     private bool _busy;
     private string? _deleteError;
-    private string? _startOverError;
-
-    private async Task StartOverAsync()
-    {
-        if (_busy)
-        {
-            return; // a second tap before the buttons re-rendered as disabled
-        }
-
-        _busy = true;
-        _startOverError = null;
-        try
-        {
-            await Busy.RunAsync(Account.StartOverAsync);
-        }
-        catch (Exception)
-        {
-            // The adapters logged it (and it goes into the error report); the person can try again.
-            _startOverError = T.Get(CommonCopy.StartOverFailed);
-            return;
-        }
-        finally
-        {
-            _busy = false;
-        }
-
-        Nav.NavigateTo("/", replace: true);
-    }
 
     private async Task DeleteAccountAsync()
     {
         if (_busy)
         {
-            return;
+            return; // a second tap before the button re-rendered as disabled
         }
 
         _busy = true;

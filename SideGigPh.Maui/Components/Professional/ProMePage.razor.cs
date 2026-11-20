@@ -10,7 +10,8 @@ namespace SideGigPh.Maui.Components.Professional;
 /// The pro's Me tab (also the avatar in the top bar): their photo (add or change), their profile level (red, green,
 /// verified blue), Edit listing and Publish, the amber badge reminder, rows for work photos and badges
 /// each with its mark (<see cref="ProfileProgress"/>), their card exactly as customers see
-/// it, then the shared <see cref="Shared.MePage"/> parts (language, Start over).
+/// it, the switch to the customer side (<c>SwitchSideRow</c>),
+/// then the shared <see cref="Shared.MePage"/> parts (language, Delete account).
 /// </summary>
 public partial class ProMePage : ComponentBase
 {

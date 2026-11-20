@@ -36,7 +36,7 @@ public static class TestData
     {
         Language = AppLanguage.Taglish,
         Role = UserRole.Professional,
-        CompletedAt = DateTimeOffset.Now,
+        ProFinishedAt = DateTimeOffset.Now,
         Professional = draft,
     };
 
@@ -60,7 +60,7 @@ public static class TestData
     {
         Language = AppLanguage.English,
         Role = UserRole.Seeker,
-        CompletedAt = DateTimeOffset.Now,
+        SeekerFinishedAt = DateTimeOffset.Now,
         Seeker = answers,
     };
 

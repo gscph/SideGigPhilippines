@@ -37,7 +37,7 @@ public class ListingRestoreTests
 
         OnboardingSteps.LaunchPath(state).Should().Be(ProRoutes.Home);
         state.Role.Should().Be(UserRole.Professional);
-        state.CompletedAt.Should().NotBeNull();
+        state.ProFinishedAt.Should().NotBeNull();
         state.Professional.PublishedAt.Should().NotBeNull();
         state.Professional.ListingOutOfDate.Should().BeFalse("the phone holds exactly what is live");
         state.Professional.IsListingComplete.Should().BeTrue();
@@ -134,7 +134,7 @@ public class ListingRestoreTests
         state.Professional.Should().BeSameAs(draft);
         draft.ServiceIds.Should().Equal("aircon-cleaning");
         draft.ListingOutOfDate.Should().BeTrue();
-        midInterview.CompletedAt.Should().BeNull();
+        midInterview.ProFinishedAt.Should().BeNull();
         app.Profiles.OwnDraftReads.Should().BeEmpty("no network call once a side is picked");
     }
 
@@ -174,7 +174,7 @@ public class ListingRestoreTests
         (await restore.RestoreAsync(state)).Should().Be(ListingRestoreResult.Unchanged);
 
         state.Professional.CategoryId.Should().Be("plumbing");
-        state.CompletedAt.Should().BeNull();
+        state.ProFinishedAt.Should().BeNull();
         app.Profiles.OwnDraftReads.Should().BeEmpty();
     }
 

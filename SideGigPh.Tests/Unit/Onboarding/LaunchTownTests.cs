@@ -128,7 +128,7 @@ public class LaunchTownTests
     [Fact]
     public void SavedBarangay_RetiredOrOfAnotherTown_IsDropped_WithoutAskingAgain()
     {
-        var retired = new OnboardingState { Seeker = { CityId = "angono", BarangayId = "angono-retired" }, CompletedAt = DateTimeOffset.UnixEpoch };
+        var retired = new OnboardingState { Seeker = { CityId = "angono", BarangayId = "angono-retired" }, SeekerFinishedAt = DateTimeOffset.UnixEpoch };
         var otherTown = new OnboardingState { Seeker = { CityId = "taytay", BarangayId = "angono-san-isidro" } };
         var kept = new OnboardingState { Seeker = { CityId = "taytay", BarangayId = "taytay-dolores" } };
 

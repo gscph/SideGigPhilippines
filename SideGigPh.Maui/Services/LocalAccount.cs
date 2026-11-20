@@ -6,7 +6,7 @@ namespace SideGigPh.Maui.Services;
 
 /// <summary>
 /// SideGigPh's <see cref="IAppAccount"/>: the person on this phone, whichever side they're on: their app language,
-/// their saved profile (<see cref="IUserRepository"/>) and Start over, on the Me page of each side.
+/// their saved profile (<see cref="IUserRepository"/>), switching side and Delete account, on the Me page of each side.
 /// Only ports are used here, never adapters.
 /// </summary>
 public sealed class LocalAccount(
@@ -67,7 +67,10 @@ public sealed class LocalAccount(
                 state.Role,
                 now,
                 now,
-                state.Role == UserRole.Professional ? state.Professional.ProfilePhotoId : state.Seeker.ProfilePhotoId));
+                // The side's own photo; one person on both sides keeps the other side's until this side has one.
+                state.Role == UserRole.Professional
+                    ? state.Professional.ProfilePhotoId ?? state.Seeker.ProfilePhotoId
+                    : state.Seeker.ProfilePhotoId ?? state.Professional.ProfilePhotoId));
         }
         catch (Exception ex)
         {
@@ -78,9 +81,19 @@ public sealed class LocalAccount(
     }
 
     /// <summary>
-    /// Deletes everything this person made (answers, profile, listing, photos, chats, reviews)
-    /// so <c>/</c> starts the onboarding again from the language screen. They stay signed in.
+    /// Switches the side the app opens on (the Me page's switch row): the other side's answers, listing, chats and
+    /// reviews stay as they are. Returns where to go (<see cref="SideSwitch.MoveTo"/>). The server's copy of the side is
+    /// a backup, saved without waiting.
     /// </summary>
+    public async Task<string> SwitchSideAsync(UserRole role)
+    {
+        var state = await store.LoadAsync();
+        var path = SideSwitch.MoveTo(state, role);
+        await store.SaveAsync(state);
+        _ = SaveProfileAsync();
+        return path;
+    }
+
     public async Task SignOutAsync()
     {
         await identity.SignOutAsync();
@@ -100,6 +113,11 @@ public sealed class LocalAccount(
         seeker.Forget();
     }
 
+    /// <summary>
+    /// Deletes everything this person made (answers, profile, listing, photos, chats, reviews) so <c>/</c> starts the
+    /// app fresh. No longer on the Me page (one account can be both sides, switched there): Delete account uses it when
+    /// there is no sign-in provider, where the phone is the account.
+    /// </summary>
     public async Task StartOverAsync()
     {
         var state = await store.LoadAsync();

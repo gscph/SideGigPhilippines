@@ -491,7 +491,7 @@ public sealed class SeekerWorkspace(
     private async Task<bool> LoadAsync()
     {
         _state = await store.LoadAsync();
-        if (_state.Role != UserRole.Seeker || _state.CompletedAt is null)
+        if (!_state.HasFinished(UserRole.Seeker))
         {
             return false;
         }

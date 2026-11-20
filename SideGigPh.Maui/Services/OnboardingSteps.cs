@@ -403,7 +403,7 @@ public static class OnboardingSteps
             return RolePath;
         }
 
-        if (state.CompletedAt is null)
+        if (!state.HasFinished(role))
         {
             return state.ResumePath ?? (role == UserRole.Seeker ? "/start/seeker" : "/start/pro");
         }

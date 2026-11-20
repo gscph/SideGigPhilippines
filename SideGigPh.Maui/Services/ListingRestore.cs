@@ -58,7 +58,7 @@ public sealed class ListingRestore(
         state.Professional = draft;
         state.Role = UserRole.Professional;
         state.ResumePath = null;
-        state.CompletedAt = now;
+        state.ProFinishedAt = now;
         try
         {
             await store.SaveAsync(state);
@@ -80,7 +80,7 @@ public sealed class ListingRestore(
     private static bool HoldsNoAnswers(OnboardingState state) =>
         state.Role is null
         || (state.Role == UserRole.Professional
-            && state.CompletedAt is null
+            && !state.HasFinished(UserRole.Professional)
             && (state.ResumePath is null || state.ResumePath == OnboardingSteps.FirstPath(UserRole.Professional))
             && state.Professional is { CategoryId: null, PublishedAt: null, ProfilePhotoId: null, WorkPhotoIds.Count: 0 });
 }

@@ -9,7 +9,7 @@ namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
 /// The Professional's pages inside the shared <see cref="AppShell"/>: tabs Home, Requests (what customers nearby posted for their trade), Inbox (with an
-/// unread badge), Reviews and Me (profile, work photos, language, Start over); the avatar opens
+/// unread badge), Reviews and Me (profile, work photos, switch to customer, language); the avatar opens
 /// Me too, with a green dot once published; until then a red <see cref="NotLiveBanner"/> under the top bar links to the next thing publishing needs. Sends anyone signed out to sign in (<see cref="SignInGate"/>), loads <see cref="ProWorkspace"/> and sends anyone who hasn't finished the
 /// Professional interview back to <c>/</c>. When the setup checklist gets finished it opens the Publish page once.
 /// </summary>

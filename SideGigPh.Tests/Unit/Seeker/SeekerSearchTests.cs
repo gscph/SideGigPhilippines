@@ -42,12 +42,12 @@ public class SeekerSearchTests
     public async Task Load_SeekerMidInterview_IsSentBack_AndLoadsOnceFinished()
     {
         var state = TestData.FinishedSeeker(TestData.AirconCleaningInTaytay());
-        state.CompletedAt = null;
+        state.SeekerFinishedAt = null;
         var app = new FakeApp(state, TestData.SeekerUser());
 
         (await app.Seeker.EnsureLoadedAsync()).Should().BeFalse();
 
-        state.CompletedAt = DateTimeOffset.Now;
+        state.SeekerFinishedAt = DateTimeOffset.Now;
         (await app.Seeker.EnsureLoadedAsync()).Should().BeTrue("a finished interview loads on the next try");
     }
 

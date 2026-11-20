@@ -378,7 +378,7 @@ public class OnboardingStepsTests
         var seeker = FullSeeker();
         seeker.FindBy = null;
 
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = seeker })
             .Should().Be(SeekerRoutes.Home);
     }
 
@@ -408,7 +408,7 @@ public class OnboardingStepsTests
 
     [Fact]
     public void LaunchPath_FinishedSeeker_OpensSeekerHome() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = FullSeeker() })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = FullSeeker() })
             .Should().Be("/seeker");
 
     [Fact]
@@ -417,7 +417,7 @@ public class OnboardingStepsTests
         var seeker = FullSeeker();
         seeker.CityId = null;
 
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = seeker })
             .Should().Be(OnboardingSteps.SeekerTownPath);
     }
 
@@ -427,7 +427,7 @@ public class OnboardingStepsTests
         var seeker = FullSeeker();
         seeker.ServiceId = null; // a trade tapped on Home: all its jobs, not a lost answer
 
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = seeker })
             .Should().Be(SeekerRoutes.Home);
     }
 
@@ -438,7 +438,7 @@ public class OnboardingStepsTests
         seeker.ServiceId = null;
         seeker.CityId = null;
 
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = seeker })
             .Should().Be(OnboardingSteps.SeekerTownPath);
     }
 
@@ -449,7 +449,7 @@ public class OnboardingStepsTests
         seeker.CategoryId = null;
         seeker.ServiceId = null;
 
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, CompletedAt = DateTimeOffset.Now, Seeker = seeker })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = seeker })
             .Should().Be(OnboardingSteps.PathOf(SeekerStep.Category));
     }
 
@@ -459,18 +459,18 @@ public class OnboardingStepsTests
         var draft = WithProof(FullyAnsweredDraft());
         draft.PublishedAt = DateTimeOffset.Now;
 
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = draft })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now, Professional = draft })
             .Should().Be("/professional");
     }
 
     [Fact]
     public void LaunchPath_FinishedWorkerNotLive_ResumesTheSetup() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = FullyAnsweredDraft() })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now, Professional = FullyAnsweredDraft() })
             .Should().Be("/start/pro/6");
 
     [Fact]
     public void LaunchPath_FinishedWorkerWithProofNotLive_OpensPublish() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
             .Should().Be("/professional/publish");
 
     [Fact]
@@ -488,7 +488,7 @@ public class OnboardingStepsTests
 
     [Fact]
     public void LaunchPath_FinishedWorkerMissingAnAnswer_ReopensTheInterview() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now })
             .Should().Be(OnboardingSteps.ProFirstUnansweredPath);
 
     [Fact]
@@ -565,6 +565,6 @@ public class OnboardingStepsTests
 
     [Fact]
     public void LaunchPath_WorkerKilledOnTheReadyStep_ResumesAtThePromises() =>
-        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, CompletedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now, Professional = WithProof(FullyAnsweredDraft()) })
             .Should().Be(OnboardingSteps.PathOf(PublishStep.Checklist), "the ticks live only in memory, so they are asked again");
 }

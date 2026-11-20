@@ -8,7 +8,8 @@ namespace SideGigPh.Maui.Components.Seeker;
 /// <summary>
 /// The Seeker's Me tab (also the avatar in the top bar): their one profile photo (add or change; a new one
 /// replaces the old), their name (shown on their reviews), a link to their reviews (and pros still to rate), then the
-/// shared <see cref="Shared.MePage"/> parts (language, Start over). No "preferences": what they need changes with every
+/// switch to the worker side (<c>SwitchSideRow</c>), then the
+/// shared <see cref="Shared.MePage"/> parts (language, Delete account). No "preferences": what they need changes with every
 /// search, so it is the search itself (Home's box, filters and recent searches), never a setting.
 /// </summary>
 public partial class SeekerMePage : ComponentBase

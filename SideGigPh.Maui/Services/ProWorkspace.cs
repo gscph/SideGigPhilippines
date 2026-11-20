@@ -43,7 +43,7 @@ public sealed class ProWorkspace(
     public ProfessionalDraft Draft => _state?.Professional ?? new ProfessionalDraft();
 
     /// <summary>When the pro finished the interview.</summary>
-    public DateTimeOffset? JoinedAt => _state?.CompletedAt;
+    public DateTimeOffset? JoinedAt => _state?.ProFinishedAt;
 
     public bool IsPublished => Draft.PublishedAt is not null;
 
@@ -505,7 +505,7 @@ public sealed class ProWorkspace(
     private async Task<bool> LoadAsync()
     {
         _state = await store.LoadAsync();
-        if (_state.Role != UserRole.Professional || _state.CompletedAt is null)
+        if (!_state.HasFinished(UserRole.Professional))
         {
             return false;
         }

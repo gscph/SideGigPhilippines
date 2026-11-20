@@ -45,19 +45,9 @@ public partial class RolePage : ComponentBase
         _busy = true;
         var state = _state;
         var role = Enum.Parse<UserRole>(id);
-        if (state.Role != role)
-        {
-            // Switching sides starts that side's interview; answers for the other side are kept.
-            state.Role = role;
-            state.CompletedAt = null;
-        }
-
-        var path = OnboardingSteps.FirstPath(role);
-        if (state.CompletedAt is null)
-        {
-            state.ResumePath = path;
-        }
-
+        // A side never set up starts its interview; one already set up (the same account on both sides) opens its home.
+        // The other side's answers are kept either way.
+        var path = SideSwitch.MoveTo(state, role);
         await Store.SaveAsync(state);
         // The server's copy is a backup (it logs its own failure and the interview's last step saves it again), so
         // the tap never waits on it: a cold server or weak 4G used to leave this screen frozen for up to a minute.

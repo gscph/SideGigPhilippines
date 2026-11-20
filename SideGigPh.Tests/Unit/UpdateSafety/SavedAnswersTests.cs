@@ -73,7 +73,7 @@ public class SavedAnswersTests
 
         state.Professional.CategoryId.Should().Be("construction");
         state.Professional.ServiceIds.Should().Equal("construction-plumbing");
-        state.CompletedAt.Should().NotBeNull("the worker isn't sent back through the interview");
+        state.HasFinished(UserRole.Professional).Should().BeTrue("the worker isn't sent back through the interview");
     }
 
     [Fact]

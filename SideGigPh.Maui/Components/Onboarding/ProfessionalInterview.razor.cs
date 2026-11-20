@@ -168,7 +168,7 @@ public partial class ProfessionalInterview : ComponentBase
 
         var state = _state!;
         var path = Draft.NextPath(_step, _asksNumber);
-        if (state.CompletedAt is null)
+        if (!state.HasFinished(UserRole.Professional))
         {
             state.ResumePath = path;
         }
@@ -198,7 +198,8 @@ public partial class ProfessionalInterview : ComponentBase
     private async Task SaveAndLoadHomeAsync()
     {
         var state = _state!;
-        state.CompletedAt ??= DateTimeOffset.Now;
+        state.Role = UserRole.Professional;
+        state.ProFinishedAt ??= DateTimeOffset.Now;
         state.ResumePath = null;
         await Store.SaveAsync(state);
         await Account.SaveProfileAsync(); // Their side.
@@ -206,7 +207,7 @@ public partial class ProfessionalInterview : ComponentBase
         await Workspace.ListingEditedAsync(); // Edit listing on a live listing: customers see the new answers.
     }
 
-    private void GoBack() => Nav.NavigateTo(Draft.BackPath(_step, finished: _state!.CompletedAt is not null, _asksNumber));
+    private void GoBack() => Nav.NavigateTo(Draft.BackPath(_step, finished: _state!.HasFinished(UserRole.Professional), _asksNumber));
 
     private void CodeSent(string? number) => _codeSent = number is not null;
 

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SideGigPh.Maui.Models;
 
 /// <summary>
@@ -8,17 +10,40 @@ public sealed class OnboardingState
 {
     public AppLanguage? Language { get; set; }
 
+    /// <summary>
+    /// The side the app opens on. One account can be both: the other side's answers are kept, and the Me page switches
+    /// (<c>LocalAccount.SwitchSideAsync</c>).
+    /// </summary>
     public UserRole? Role { get; set; }
 
-    /// <summary>The interview step to reopen if the app is closed mid-interview.</summary>
+    /// <summary>The interview step to reopen if the app is closed mid-interview (of the <see cref="Role"/> side).</summary>
     public string? ResumePath { get; set; }
 
     public SeekerAnswers Seeker { get; set; } = new();
 
     public ProfessionalDraft Professional { get; set; } = new();
 
-    /// <summary>Set when the user finishes the interview for their current role.</summary>
+    /// <summary>Set when the user finishes the household interview; kept when they switch to the worker side.</summary>
+    public DateTimeOffset? SeekerFinishedAt { get; set; }
+
+    /// <summary>Set when the user finishes the worker interview; kept when they switch to the household side.</summary>
+    public DateTimeOffset? ProFinishedAt { get; set; }
+
+    /// <summary>
+    /// Only in files saved before one account could be both sides: when the then-current side's interview was finished.
+    /// <c>OnboardingCleanup.MoveOldFinishDate</c> moves it to that side's date as the file loads; never written again.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public DateTimeOffset? CompletedAt { get; set; }
+
+    /// <summary>When that side's interview was finished, or null while it isn't.</summary>
+    public DateTimeOffset? FinishedAt(UserRole role) => role == UserRole.Seeker ? SeekerFinishedAt : ProFinishedAt;
+
+    /// <summary>That side's interview is finished: the app opens its home, not its questions.</summary>
+    public bool HasFinished(UserRole role) => FinishedAt(role) is not null;
+
+    /// <summary>The side the app opens on (<see cref="Role"/>) has finished its interview.</summary>
+    public bool HasFinishedRole() => Role is { } role && HasFinished(role);
 }
 
 /// <summary>A household's answers: what job, where, when, for how much, and whether to search or post.</summary>
