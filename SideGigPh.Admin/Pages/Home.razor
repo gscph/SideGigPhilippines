@@ -1,0 +1,38 @@
+@page "/"
+
+<PageTitle>Badge requests · Tarbaho operator</PageTitle>
+
+@switch (_state)
+{
+    case HomeState.Loading:
+        <MudStack AlignItems="AlignItems.Center" Class="py-12">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+        </MudStack>
+        break;
+
+    case HomeState.NotConfigured:
+        <MudText Typo="Typo.h4" HtmlTag="h1" Class="mb-4">Not set up yet</MudText>
+        <MudAlert Severity="Severity.Warning">
+            Fill in the Firebase web app's ApiKey and AppId in wwwroot/appsettings.json (docs/architecture.md → Operator site).
+        </MudAlert>
+        break;
+
+    case HomeState.SignedOut:
+        <SignInPanel OnSignIn="SignInAsync" Busy="_busy" Error="_error" />
+        break;
+
+    case HomeState.NotOperator:
+        <NotOperatorPanel User="_user!" Error="_error" OnSignOut="SignOutAsync" OnRetry="CheckOperatorAsync" />
+        break;
+
+    case HomeState.Operator:
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="mb-4" Wrap="Wrap.Wrap">
+            <MudText Typo="Typo.h4" HtmlTag="h1">Badge requests</MudText>
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@(_user?.Email ?? _user?.Uid)</MudText>
+                <MudButton Variant="Variant.Outlined" Color="Color.Dark" OnClick="SignOutAsync">Sign out</MudButton>
+            </MudStack>
+        </MudStack>
+        <BadgeRequestList />
+        break;
+}

@@ -25,7 +25,7 @@ public class ApiWiringTests(ApiTestHost api)
             "POST chats/{chatId}/read", "DELETE chats/mine",
             "POST photos", "DELETE photos/{id}",
             "GET config", "POST other-jobs", "POST error-reports", "GET warmup",
-            "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}",
+            "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}", "GET operator/{*path}",
             "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",
             "GET suggest", "POST suggest", "POST suggest/{id}/vote",
             "PUT feedback/{id}/vote", "DELETE feedback/{id}/vote", "POST feedback/{id}/report",
@@ -36,10 +36,10 @@ public class ApiWiringTests(ApiTestHost api)
 
     /// <summary>
     /// Public: the reference data (the trades and jobs, read before the account is ready), the legal pages (the app
-    /// stores need them open to anyone) and the feedback board's web page (the Play testers' feedback link; visitors
+    /// stores need them open to anyone), the operator site's static files (no data: its calls need a token) and the feedback board's web page (the Play testers' feedback link; visitors
     /// are a cookie id, limited per IP address). Nothing else is public: error reports are read in SQL (<c>dbo.ErrorReports</c>).
     /// </summary>
-    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}", "GET suggest", "POST suggest", "POST suggest/{id}/vote"];
+    private static readonly string[] PublicRoutes = ["GET config", "GET legal/{page}", "GET operator/{*path}", "GET suggest", "POST suggest", "POST suggest/{id}/vote"];
 
     [IntegrationFact]
     public async Task EveryRoute_WithoutAToken_Is401()

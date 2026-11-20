@@ -1,0 +1,42 @@
+/* The operator site's few rules MudBlazor has no parameter for. Colors come from the theme (AdminTheme.cs). */
+.admin-loading {
+    font-family: "DM Sans", sans-serif;
+    padding: 2rem;
+    text-align: center;
+}
+
+#blazor-error-ui {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    background: var(--mud-palette-error, #b00020);
+    color: #fff;
+    font-family: "DM Sans", sans-serif;
+    z-index: 2000;
+}
+
+#blazor-error-ui .reload {
+    color: #fff;
+}
+
+/* A proof photo: never wider than the card, never taller than the screen. */
+.admin-proof {
+    max-width: 100%;
+    max-height: 70vh;
+    object-fit: contain;
+}
+
+.admin-profile-photo {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+/* A hairline under the white top bar, like the phone app. */
+.admin-appbar {
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+}

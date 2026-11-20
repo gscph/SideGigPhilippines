@@ -1,0 +1,14 @@
+<MudStack AlignItems="AlignItems.Center" Spacing="4" Class="py-12">
+    <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">Operator sign-in</MudText>
+    <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">
+        Only operator accounts can check badge requests.
+    </MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large"
+               StartIcon="@Icons.Custom.Brands.Google" Disabled="Busy" OnClick="OnSignIn">
+        Sign in with Google
+    </MudButton>
+    @if (Error is not null)
+    {
+        <MudAlert Severity="Severity.Error">@Error</MudAlert>
+    }
+</MudStack>

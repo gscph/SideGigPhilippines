@@ -430,8 +430,44 @@ worker; each company is its own badge, with an optional building name).
 - **App, the customer:** `ListingDto.Badges` → `ProfessionalListing.Badges`; `BadgeChips` on the search result card
   and the worker's own preview, and one `TrustRow` per badge under "What we checked" on the public profile.
 - **Search:** a bonus on top of the score (`docs/search-ranking.md`).
-- **Not built yet:** an operator screen (approvals are API calls for now), taking the ID photo with the rear
-  camera from inside the app (the worker picks a photo from the gallery), and a push when a badge is decided.
+- **Web, the operator:** the same review on a computer: the operator site (below), `Badges/BadgeRequestCard`.
+- **Not built yet:** taking the ID photo with the rear camera from inside the app (the worker picks a photo from the
+  gallery), and a push when a badge is decided.
+
+## Operator site (`SideGigPh.Admin`)
+
+The operator's web dashboard: a **standalone Blazor WebAssembly** app (static files, MudBlazor only, no server of its
+own) whose backend is `SideGigPh.Api`. First screen: the badge review, the same as the phone's `BadgeReviewPage`.
+
+- **Hosted by the Function App itself:** `deploy-api.yml` publishes `SideGigPh.Admin` and copies its `wwwroot` into
+  the API package as `operator-site/`; `OperatorSiteFunctions` (`GET operator/{*path}`, public: files only, no data)
+  serves it at **`…/api/operator/`**. A path without a file extension gets `index.html` with its `<base href="/">`
+  rewritten to the route; files come only from that folder (`Resolve`, nothing outside it); the Brotli copy
+  (`.br`) goes to browsers that accept it; `no-cache` + ETag; `X-Frame-Options: DENY`. Without the folder (a local
+  run, the tests) every address is 404. The page and the API share one origin, so **production needs no CORS**.
+  The Function App is the one web host: legal pages (`LegalFunctions`), the feedback board (`SuggestFunctions`) and
+  this site; a public **landing page** is planned as its own project (not built).
+- **Calls:** `Services/AdminApi` (one `HttpClient`, the Firebase ID token as Bearer on each call, JSON through
+  `SideGigPh.Contracts`' `ApiJson`; failures throw `AdminApiException` with a message the page shows, a browser's
+  CORS refusal reads as "can't reach the API"). Its base address is `Api:BaseUrl` in `wwwroot/appsettings.json`;
+  empty means the page's own `../` (= `/api/`); `appsettings.Development.json` points a local run at the live API.
+- **Sign-in:** port `Services/IAdminSignIn`, adapter `FirebaseWebSignIn` → `wwwroot/js/firebase-auth.js` (the Firebase
+  JS SDK from Google's CDN, Google pop-up, `authStateReady` keeps the sign-in across reloads). Settings: section
+  `Firebase` of `wwwroot/appsettings.json` (`ApiKey`, `AuthDomain`, `ProjectId`, `AppId` of the Firebase **Web** app:
+  not secrets; the page says "Not set up yet" while one is empty).
+- **Who gets in:** `Pages/Home` signs in, then `GET admin/me`: an account in the Function App setting **`AdminUids`**
+  (comma-separated uids; the only list of operators, never in the site) sees `Badges/BadgeRequestList`; anyone else
+  sees `NotOperatorPanel` with their uid to add. The API refuses non-operators anyway (`403 not-admin`).
+- **Badge review:** `Services/BadgeQueue` (the phone's `BadgeReview` rules: 20 oldest first, a rejection needs a
+  reason trimmed to 200), one `BadgeRequestCard` per request: profile photo, badge (`BadgeText`), what the AI read,
+  the proof photo only on a click (every look is audited), Approve / Reject, each confirmed once.
+- **Look:** `Layout/AdminTheme` (the Tarbaho colors and DM Sans, the site's one place for colors), MudBlazor only,
+  English only (operators, not the app's audience), a few helpers in `wwwroot/css/admin.css`.
+- **Set up once:** Firebase console → Project settings → Your apps → **Add app → Web** (no Hosting), copy `apiKey` and
+  `appId` into `wwwroot/appsettings.json`; Authentication → Settings → **Authorized domains** → add the Function App's
+  host (`sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net`; `localhost` is there by default). For a
+  local run against the live API, paste `azure/cloudshell-operator-cors.sh` (adds `https://localhost:7265` and
+  `http://localhost:5027` to the Function App's CORS; never `*`).
 
 ## Cold starts and double taps
 
