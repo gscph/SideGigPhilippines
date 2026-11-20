@@ -19,7 +19,7 @@ namespace SideGigPh.Maui
         private const string GoogleWebClientId = "742654871295-4slv8fpgpbrllq8aoe3vbiphv3e64q3f.apps.googleusercontent.com";
 
         // SideGigPh.Api (Azure Functions) and the public blob container its photos are readable from. Not secrets.
-        internal const string ApiUrl = "https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/";
+        internal const string ApiUrl = "https://api.tarbaho.com/api/";
         private const string PhotoBaseUrl = "https://sidegigphbfb9.blob.core.windows.net/photos/";
 
         public static MauiApp CreateMauiApp()

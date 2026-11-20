@@ -5,9 +5,9 @@ The three public pages, what the app does to meet the Play Store and App Store r
 
 | Page | File (the one source) | Public address (served by the API, `GET legal/{page}`) |
 |---|---|---|
-| Privacy Policy | [`privacy-policy.md`](privacy-policy.md) | https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/privacy |
-| Terms of Service | [`terms-of-service.md`](terms-of-service.md) | https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/terms |
-| Your data / delete your account | [`data-handling.md`](data-handling.md) | https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/data |
+| Privacy Policy | [`privacy-policy.md`](privacy-policy.md) | https://api.tarbaho.com/api/legal/privacy |
+| Terms of Service | [`terms-of-service.md`](terms-of-service.md) | https://api.tarbaho.com/api/legal/terms |
+| Your data / delete your account | [`data-handling.md`](data-handling.md) | https://api.tarbaho.com/api/legal/data |
 
 `SideGigPh.Api` embeds the three Markdown files and serves them as HTML (`LegalFunctions`), so editing a file and
 pushing to `main` redeploys the page (`deploy-api.yml` watches them). They must stay free of `[placeholders]`

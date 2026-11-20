@@ -234,7 +234,7 @@ ask you to confirm the number with an SMS code. We answer within **5 business da
 
 - **In the App:** Me → **Delete account** → confirm. This deletes your sign-in account, profile, listing, photos,
   any references you gave before November 18, 2026, chats (for both people in each chat), reviews you wrote and reviews about you, and your push tokens.
-- **Without the App:** follow the steps at **https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/data** or email jcadiao1102@gmail.com with your mobile number.
+- **Without the App:** follow the steps at **https://api.tarbaho.com/api/legal/data** or email jcadiao1102@gmail.com with your mobile number.
   We delete the account within **5 business days**.
 
 Deleted data leaves backups within 35 days. "Others" text, feature suggestions and error reports are kept without
@@ -251,7 +251,7 @@ anything linking them to you.
 
 ## 11. Changes to this Policy
 
-We will post the new version in the App and at https://sidegigphapi-hrb9bgerbgcgawbm.southeastasia-01.azurewebsites.net/api/legal/privacy and change the "Last updated" date. If a change
+We will post the new version in the App and at https://api.tarbaho.com/api/legal/privacy and change the "Last updated" date. If a change
 materially affects how we use your data, we will tell you in the App before it takes effect and, where the law
 requires, ask for your consent again.
 
