@@ -27,7 +27,7 @@
         <!-- App Identifier -->
         <ApplicationId>com.tarbaho.app</ApplicationId>
 
-        <!-- Versions: set once in ../Directory.Build.props (AppVersionNumber, AppVersionStage) plus CI's BuildNumber.
+        <!-- Versions: set once in ../Directory.Build.props (AppVersionBase, AppVersionStage) plus CI's AppVersionNumber and BuildNumber.
              Android shows the whole label (0.1.0-rc.12) in Settings > Apps; iOS only allows numbers there (0.1.0).
              The store build number (Android versionCode, iOS CFBundleVersion) is the CI run number, 1 on a PC. -->
         <ApplicationDisplayVersion>$(AppVersionNumber)</ApplicationDisplayVersion>

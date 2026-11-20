@@ -102,11 +102,19 @@ for Android).
 
 ## Versioning
 
-- **One source:** `Directory.Build.props` at the repo root. `AppVersionNumber` is SemVer `major.minor.patch` (now
-  `0.1.0`), `AppVersionStage` the pre-release stage (empty since the Play Store launch; `rc` for a pre-release), and
-  `BuildNumber` comes from CI (`-p:BuildNumber=${{ github.run_number }}`; `0` on a PC). Together they make
-  `AppVersionLabel`: `0.1.0-rc.12` from CI, `0.1.0-rc` on a PC, `0.1.0` for a final release. To ship a new version,
-  change the two properties there and commit; nothing else holds a version.
+- **One source:** `Directory.Build.props` at the repo root. `AppVersionNumber` is SemVer `major.minor.patch`:
+  **worked out from the PRs squashed into `main`**: a PR with the label **`minor`** (or a `feat: …` title) is the next
+  minor (`0.1.4` → `0.2.0`), **`major`** (or `feat!: …`, any `type!:`) the next major (→ `1.0.0`), any other PR the
+  next patch (`0.2.0` → `0.2.1`). `.github/scripts/app-version.sh` walks the merges from the last commit that changed
+  `AppVersionBase` (`major.minor`, now `0.1`; editing it sets the version by hand), asking GitHub for each one's PR
+  labels (`GH_TOKEN`; titles only without it), and the app build (`build.yml`, full history checked out) passes the
+  result as `AppVersionNumber`, so each build knows the version it ships. **App only:** the API deploy doesn't pass
+  it, so the API (and a PC build) is `AppVersionBase.0`.
+  **When opening a PR:** label it `minor` for a feature people will notice, nothing for anything smaller, `major`
+  only for a breaking change or a milestone (the owner can change the label before squashing). `AppVersionStage` is the pre-release stage
+  (empty since the Play Store launch; `rc` for a pre-release), and `BuildNumber` comes from CI
+  (`-p:BuildNumber=${{ github.run_number }}`; `0` on a PC). Together they make `AppVersionLabel`: `0.2.3` from CI,
+  `0.1.0` on a PC, `0.2.3-rc.12` in a pre-release. Nothing else holds a version.
 - **Where it goes:** the app's csproj maps it to the store fields (Android `versionName` = the whole label and
   `versionCode` = the build number; iOS `CFBundleShortVersionString` = the three numbers, since Apple allows nothing
   else, and `CFBundleVersion` = the build number). `Directory.Build.targets` (`StampBuildInfo`, on for the app and the
