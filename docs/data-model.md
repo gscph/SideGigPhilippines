@@ -145,6 +145,7 @@ Every error answers `{ "error": "<code>", "detail": "<why>" }`. While `ApiResult
 | `GET ops/users?role=&search=&sort=&desc=&skip=&take=` | Operators only: every account, a page at a time (`AdminUserPageDto`: `items`, `total`; `take` at most 100). `role` = `seeker`, `professional` or `none`. Numbers and emails masked (`AdminMask`) |
 | `GET ops/seekers?town=&…` | Operators only: the households with their posts, chats, jobs done and reviews written (`AdminSeekerPageDto`); the town is their latest post's or chat's |
 | `GET ops/workers?filter=&…` | Operators only: every live listing and worker accounts not live yet, with photos, badges, stars, chats, offers and jobs done (`AdminWorkerPageDto`); `filter` = `live`, `not-live` or a trade id |
+| `GET ops/other-jobs?filter=&search=&desc=&skip=&take=` | Operators only: `OtherJobNotes` rows newest first (`AdminOtherJobPageDto`: the text, the trade it was under or `other` = typed as their own trade, the side, the writer's uid and name; uid null once they deleted their account); `filter` = `seeker`, `professional` or a trade id; search in the text, uid and name |
 | `GET ops/error-reports?filter=&…` | Operators only: `ErrorReports` rows newest first (`AdminErrorReportPageDto`), the install id cut to 8; `filter` = an error kind or a channel |
 | `GET legal/{page}` | Public HTML: `privacy`, `terms`, `data` (from `docs/legal/*.md`, `LegalFunctions`) |
 | `PUT users/me/devices` | This phone gets the caller's notifications (`SaveDeviceRequest`: `token`, `platform`). `400` for an empty token or unknown platform |

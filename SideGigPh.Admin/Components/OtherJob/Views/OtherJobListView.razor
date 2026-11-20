@@ -1,0 +1,50 @@
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+}
+<MudDataGrid @ref="_grid" T="AdminOtherJobDto" ServerData="LoadAsync" Hover="true" Dense="true" SortMode="SortMode.Single"
+             RowsPerPage="AdminLists.DefaultTake" Elevation="0" Outlined="true">
+    <ToolBarContent>
+        <ListToolbar Search="@_search" SearchChanged="OnSearchAsync" SearchHint="What they typed, a name or uid"
+                     Filter="@_filter" FilterChanged="OnFilterAsync" FilterLabel="Show" Filters="_filters" Total="_total" />
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.CreatedAt" Title="When">
+            <CellTemplate>@context.Item.CreatedAt.ToManila()</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Text" Title="What they typed" Sortable="false">
+            <CellTemplate>
+                <MudText Typo="Typo.body2">@context.Item.Text</MudText>
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Trade" Title="Under" Sortable="false">
+            <CellTemplate>
+                @if (context.Item.TradeId == OtherWork.TradeId)
+                {
+                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">Own trade</MudChip>
+                }
+                else
+                {
+                    <MudText Typo="Typo.body2">@context.Item.Trade</MudText>
+                }
+            </CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Side" Title="Side" Sortable="false">
+            <CellTemplate>@OtherJobService.SideLabel(context.Item.Side)</CellTemplate>
+        </PropertyColumn>
+        <PropertyColumn Property="x => x.Name" Title="Who" Sortable="false">
+            <CellTemplate>
+                <MudStack Spacing="0">
+                    <MudText Typo="Typo.body2">@(context.Item.Name ?? (context.Item.Uid is null ? "(account deleted)" : "(no name)"))</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Item.Uid</MudText>
+                </MudStack>
+            </CellTemplate>
+        </PropertyColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">Nobody typed anything under "Others" that matches.</MudText>
+    </NoRecordsContent>
+    <PagerContent>
+        <MudDataGridPager T="AdminOtherJobDto" PageSizeOptions="ListPaging.PageSizes" />
+    </PagerContent>
+</MudDataGrid>

@@ -12,4 +12,5 @@ public static class AdminRoutes
     public const string Workers = "workers";
     public const string Badges = "badges";
     public const string ErrorReports = "error-reports";
+    public const string OtherJobs = "other-jobs";
 }

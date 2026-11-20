@@ -56,8 +56,8 @@ public static class AdminMask
 }
 
 /// <summary>
-/// The operator site's reads (<c>ops/…</c>): the dashboard's numbers and the lists of accounts, households, workers
-/// and error reports, a page at a time. Read only, no tracking. Contact details leave here masked
+/// The operator site's reads (<c>ops/…</c>): the dashboard's numbers and the lists of accounts, households, workers,
+/// error reports and what people typed under "Others", a page at a time. Read only, no tracking. Contact details leave here masked
 /// (<see cref="AdminMask"/>); review counts include blind reviews still hidden from the public.
 /// </summary>
 public sealed class AdminStore(SideGigPhDb db)
@@ -385,7 +385,7 @@ public sealed class AdminStore(SideGigPhDb db)
         return new AdminWorkerPageDto(
             page.Select(w => new AdminWorkerDto(
                 w.Uid, w.Name, AdminMask.Phone(w.Phone), w.TradeId,
-                w.TradeId is { } trade ? trades.GetValueOrDefault(trade, trade == "other" ? "Others" : trade) : null,
+                w.TradeId is { } trade ? TradeLabel(trades, trade) : null,
                 w.OtherWork, townsOf[w.Uid].Any() ? string.Join(", ", townsOf[w.Uid].Order()) : null,
                 w.RatePesos, w.ExperienceId, w.Live, w.HasPhoto, w.WorkPhotos, w.Badges, w.PendingBadges, w.Reviews,
                 w.Rating is { } rating ? Math.Round(rating, 2) : null,
@@ -432,11 +432,70 @@ public sealed class AdminStore(SideGigPhDb db)
             total);
     }
 
+    /// <summary>
+    /// What people typed after picking "Others" (<c>OtherJobNotes</c>), newest first by default, with the writer's name
+    /// when their account still exists. <see cref="AdminListQuery.Filter"/>: a side (<c>seeker</c> / <c>professional</c>)
+    /// or a trade id (<see cref="OtherWork.TradeId"/> = typed as their own trade). Search looks in the text, the uid and the name.
+    /// </summary>
+    public async Task<AdminOtherJobPageDto> OtherJobsAsync(AdminListQuery query, CancellationToken cancellationToken)
+    {
+        var rows =
+            from n in db.OtherJobNotes.AsNoTracking()
+            join u in db.Users.AsNoTracking() on n.Uid equals u.Uid into account
+            from u in account.DefaultIfEmpty()
+            select new OtherJobLine
+            {
+                Id = n.Id,
+                Side = n.Side,
+                TradeId = n.CategoryId,
+                Text = n.Text,
+                Uid = n.Uid,
+                Name = u != null ? u.DisplayName : null,
+                CreatedAt = n.CreatedAt,
+            };
+
+        rows = query.Filter switch
+        {
+            null or "" => rows,
+            Wire.Seeker or Wire.Professional => rows.Where(n => n.Side == query.Filter),
+            var trade => rows.Where(n => n.TradeId == trade),
+        };
+
+        if (query.Words is { } words)
+        {
+            rows = rows.Where(n => n.Text.Contains(words) || (n.Uid != null && n.Uid.Contains(words)) || (n.Name != null && n.Name.Contains(words)));
+        }
+
+        rows = query.Desc ? rows.OrderByDescending(n => n.Id) : rows.OrderBy(n => n.Id);
+
+        var total = await rows.CountAsync(cancellationToken);
+        var page = await rows.Skip(query.SafeSkip).Take(query.SafeTake).ToListAsync(cancellationToken);
+        var trades = await db.Categories.AsNoTracking().ToDictionaryAsync(c => c.Id, c => c.LabelEnglish, cancellationToken);
+        return new AdminOtherJobPageDto(
+            page.Select(n => new AdminOtherJobDto(n.Id, n.Side, n.TradeId, TradeLabel(trades, n.TradeId), n.Text, n.Uid, n.Name, n.CreatedAt)).ToList(),
+            total);
+    }
+
+    /// <summary>A trade's English label; "Others" for the interviews' own "Others" tile, the id when it has none.</summary>
+    private static string TradeLabel(IReadOnlyDictionary<string, string> trades, string id) =>
+        trades.GetValueOrDefault(id, id == OtherWork.TradeId ? "Others" : id);
+
     // Projections EF can sort and filter on (member init, not constructors).
     private sealed class CountLine
     {
         public required string Id { get; init; }
         public int Count { get; init; }
+    }
+
+    private sealed class OtherJobLine
+    {
+        public long Id { get; init; }
+        public required string Side { get; init; }
+        public required string TradeId { get; init; }
+        public required string Text { get; init; }
+        public string? Uid { get; init; }
+        public string? Name { get; init; }
+        public DateTimeOffset CreatedAt { get; init; }
     }
 
     private sealed class UserLine

@@ -33,7 +33,7 @@ public class ApiWiringTests(ApiTestHost api)
             "POST job-posts", "PUT job-posts/{id}", "GET job-posts/mine", "GET offers/mine", "GET job-posts/feed", "DELETE job-posts/{id}", "POST job-posts/{id}/report",
             "POST job-posts/{id}/offers", "DELETE job-posts/{id}/offers/mine", "GET job-posts/{id}/offers", "POST job-posts/{id}/offers/{offerId}/pick", "GET contacts/{otherUid}", "GET picked-jobs/{otherUid}", "POST picked-jobs/{postId}/done", "PUT household-reviews",
             "GET ops/me", "GET ops/verifications", "GET ops/verifications/{id}/document", "POST ops/verifications/{id}/decision",
-            "GET ops/stats", "GET ops/users", "GET ops/seekers", "GET ops/workers", "GET ops/error-reports");
+            "GET ops/stats", "GET ops/users", "GET ops/seekers", "GET ops/workers", "GET ops/error-reports", "GET ops/other-jobs");
 
     // The Azure Functions host keeps every route starting with "admin" for its own admin API and never loads such a
     // function (live it answers 404), while this in-memory host serves it: so the test host can't catch it, this can.

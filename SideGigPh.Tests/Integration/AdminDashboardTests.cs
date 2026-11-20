@@ -10,7 +10,7 @@ namespace SideGigPh.Tests.Integration;
 
 /// <summary>
 /// The operator site's reads on the real API and database (<c>ops/stats</c>, <c>ops/users</c>, <c>ops/seekers</c>,
-/// <c>ops/workers</c>, <c>ops/error-reports</c>): new people show up in the lists and the counts, contact details
+/// <c>ops/workers</c>, <c>ops/error-reports</c>, <c>ops/other-jobs</c>): new people show up in the lists and the counts, contact details
 /// come masked, and nobody but an operator gets anything.
 /// </summary>
 [Collection(ApiCollection.Name)]
@@ -111,12 +111,43 @@ public class AdminDashboardTests(ApiTestHost api)
         (await Operator.GetFromJsonAsync($"ops/error-reports?search={marker}&filter=crash", ApiJson.Default.AdminErrorReportPageDto))!.Items.Should().ContainSingle();
     }
 
+    [IntegrationFact]
+    public async Task OtherJobNotes_AreListedNewestFirst_WithTheTradeAndWho()
+    {
+        var marker = $"gate-{Guid.NewGuid():N}"[..30];
+        var uid = await SeekerProfileAsync("Nora");
+        var client = api.Client(api.Tokens.For(uid));
+        foreach (var note in new[]
+                 {
+                     new OtherJobRequest("construction", Wire.Seeker, $"{marker} sliding gate"),
+                     new OtherJobRequest(OtherWork.TradeId, Wire.Professional, $"{marker} pool cleaning"),
+                 })
+        {
+            using var sent = await client.PostAsJsonAsync("other-jobs", note, ApiJson.Default.OtherJobRequest);
+            sent.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+
+        var page = (await Operator.GetFromJsonAsync($"ops/other-jobs?search={marker}", ApiJson.Default.AdminOtherJobPageDto))!;
+
+        page.Total.Should().Be(2);
+        page.Items.Select(n => (n.Text, n.TradeId, n.Trade, n.Side, n.Uid, n.Name)).Should().Equal(
+            ($"{marker} pool cleaning", OtherWork.TradeId, "Others", Wire.Professional, uid, "Nora"),
+            ($"{marker} sliding gate", "construction", "Construction", Wire.Seeker, uid, "Nora"));
+        (await Operator.GetFromJsonAsync($"ops/other-jobs?search={marker}&filter=seeker", ApiJson.Default.AdminOtherJobPageDto))!
+            .Items.Should().ContainSingle().Which.TradeId.Should().Be("construction");
+        (await Operator.GetFromJsonAsync($"ops/other-jobs?search={marker}&filter={OtherWork.TradeId}", ApiJson.Default.AdminOtherJobPageDto))!
+            .Items.Should().ContainSingle().Which.Side.Should().Be(Wire.Professional);
+        (await Operator.GetFromJsonAsync($"ops/other-jobs?search={marker}&sort=joined&desc=false", ApiJson.Default.AdminOtherJobPageDto))!
+            .Items[0].Text.Should().EndWith("sliding gate");
+    }
+
     [IntegrationTheory]
     [InlineData("ops/stats")]
     [InlineData("ops/users")]
     [InlineData("ops/seekers")]
     [InlineData("ops/workers")]
     [InlineData("ops/error-reports")]
+    [InlineData("ops/other-jobs")]
     public async Task OnlyOperators_GetAnything(string route)
     {
         using var signedOut = await api.Client().GetAsync(route);

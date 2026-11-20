@@ -68,7 +68,7 @@ else
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <StatTile Label="&quot;Others&quot; typed" Value="@activity.OtherJobNotes.Count()" Icon="@Icons.Material.Outlined.EditNote"
-                      Caption="work we don't list yet, typed in the interviews" />
+                      Caption="work we don't list yet, typed in the interviews" Href="@AdminRoutes.OtherJobs" LinkText="See what they typed" />
         </MudItem>
         <MudItem xs="12" sm="6" md="3">
             <StatTile Label="Suggestions" Value="@activity.FeedbackPosts.Count()" Icon="@Icons.Material.Outlined.Lightbulb"
