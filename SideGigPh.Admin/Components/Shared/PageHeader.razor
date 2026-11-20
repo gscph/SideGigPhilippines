@@ -1,0 +1,16 @@
+<PageTitle>@Title · Tarbaho operator</PageTitle>
+<MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap" Class="mb-4">
+    <MudStack Spacing="0">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@Title</MudText>
+        @if (SubTitle is not null)
+        {
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@SubTitle</MudText>
+        }
+    </MudStack>
+    @if (ChildContent is not null)
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            @ChildContent
+        </MudStack>
+    }
+</MudStack>

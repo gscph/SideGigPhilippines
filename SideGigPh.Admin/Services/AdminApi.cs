@@ -1,67 +1,56 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization.Metadata;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Admin.Services;
 
 /// <summary>
-/// The operator's calls to SideGigPh.Api (base address <c>Api:BaseUrl</c> in <c>wwwroot/appsettings.json</c>): the
-/// signed-in account's Firebase ID token as Bearer on every call, JSON through the shared source-generated
-/// <see cref="ApiJson"/>. Failures throw <see cref="AdminApiException"/> with a message the page can show.
+/// The site's one way to SideGigPh.Api (base address <c>Api:BaseUrl</c>, else the page's own <c>../</c>): the signed-in
+/// account's Firebase ID token as Bearer on every call, JSON through the shared source-generated <see cref="ApiJson"/>.
+/// Transport only: each feature's service (<c>Components/&lt;Feature&gt;/&lt;Feature&gt;Service</c>) says what to ask.
+/// Failures throw <see cref="AdminApiException"/> with a message the page can show.
 /// </summary>
 public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
 {
-    /// <summary><c>GET admin/me</c>: whether this account is in the API's <c>AdminUids</c> setting.</summary>
-    public async Task<bool> IsOperatorAsync()
+    public async Task<T> GetAsync<T>(string path, JsonTypeInfo<T> type, CancellationToken cancellationToken = default)
     {
-        using var response = await SendAsync(HttpMethod.Get, "admin/me");
-        await EnsureOkAsync(response);
-        return (await response.Content.ReadFromJsonAsync(ApiJson.Default.AdminStatusDto))?.IsOperator == true;
+        using var response = await SendAsync(HttpMethod.Get, path, null, cancellationToken);
+        await EnsureOkAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync(type, cancellationToken)
+               ?? throw new AdminApiException("The API answered with nothing. Try again.");
     }
 
-    /// <summary><c>GET admin/verifications</c>: the badge requests waiting, oldest first.</summary>
-    public async Task<IReadOnlyList<AdminVerificationDto>> PendingAsync(int take)
+    /// <summary>An image the API sends (e.g. a proof photo) as a <c>data:</c> URL, or null when it is gone (404).</summary>
+    public async Task<string?> GetImageAsync(string path, CancellationToken cancellationToken = default)
     {
-        using var response = await SendAsync(HttpMethod.Get, $"admin/verifications?take={take}");
-        await EnsureOkAsync(response);
-        return await response.Content.ReadFromJsonAsync(ApiJson.Default.ListAdminVerificationDto) ?? [];
-    }
-
-    /// <summary>
-    /// <c>GET admin/verifications/{id}/document</c>: the proof photo as an image source (the API logs every look),
-    /// or null when it is gone.
-    /// </summary>
-    public async Task<string?> DocumentAsync(long id)
-    {
-        using var response = await SendAsync(HttpMethod.Get, $"admin/verifications/{id}/document");
+        using var response = await SendAsync(HttpMethod.Get, path, null, cancellationToken);
         if (response.StatusCode == HttpStatusCode.NotFound)
         {
             return null;
         }
 
-        await EnsureOkAsync(response);
-        var bytes = await response.Content.ReadAsByteArrayAsync();
+        await EnsureOkAsync(response, cancellationToken);
+        var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
         var type = response.Content.Headers.ContentType?.MediaType ?? "image/jpeg";
         return bytes.Length == 0 ? null : $"data:{type};base64,{Convert.ToBase64String(bytes)}";
     }
 
-    /// <summary><c>POST admin/verifications/{id}/decision</c>. The API deletes the photo either way.</summary>
-    public async Task DecideAsync(long id, bool approve, string? reason)
+    public async Task PostAsync<TBody>(string path, TBody body, JsonTypeInfo<TBody> type, CancellationToken cancellationToken = default)
     {
-        using var response = await SendAsync(HttpMethod.Post, $"admin/verifications/{id}/decision",
-            JsonContent.Create(new VerificationDecisionRequest(approve, reason), ApiJson.Default.VerificationDecisionRequest));
-        await EnsureOkAsync(response);
+        using var response = await SendAsync(HttpMethod.Post, path, JsonContent.Create(body, type), cancellationToken);
+        await EnsureOkAsync(response, cancellationToken);
     }
 
-    private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null)
+    private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content, CancellationToken cancellationToken)
     {
         var token = await signIn.IdTokenAsync() ?? throw new AdminApiException("You're signed out. Sign in again.");
         using var request = new HttpRequestMessage(method, path) { Content = content };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
         try
         {
-            return await http.SendAsync(request);
+            return await http.SendAsync(request, cancellationToken);
         }
         catch (HttpRequestException ex)
         {
@@ -71,7 +60,7 @@ public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
         }
     }
 
-    private static async Task EnsureOkAsync(HttpResponseMessage response)
+    private static async Task EnsureOkAsync(HttpResponseMessage response, CancellationToken cancellationToken)
     {
         if (response.IsSuccessStatusCode)
         {
@@ -79,14 +68,14 @@ public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
         }
 
         var code = response.Content.Headers.ContentType?.MediaType == "application/json"
-            ? (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))?.Error
+            ? (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError, cancellationToken))?.Error
             : null;
         var status = (int)response.StatusCode;
         throw new AdminApiException(response.StatusCode switch
         {
             HttpStatusCode.Unauthorized => "The API didn't accept the sign-in. Sign out and in again.",
             HttpStatusCode.Forbidden when code == ApiErrors.NotAdmin => "This account isn't an operator.",
-            HttpStatusCode.NotFound => "That request is gone (already decided?). Reload the list.",
+            HttpStatusCode.NotFound => "Not there any more (already decided or removed?). Reload.",
             HttpStatusCode.TooManyRequests => "Too many tries. Wait a minute.",
             _ when code is null => $"The API answered {status}. Try again.",
             _ => $"The API answered {status} ({code}). Try again.",

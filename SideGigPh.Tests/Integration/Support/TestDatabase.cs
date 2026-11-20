@@ -126,3 +126,15 @@ public sealed class IntegrationFactAttribute : FactAttribute
         }
     }
 }
+
+/// <summary>A theory that needs the database; skipped (with the reason) when no SQL Server is available.</summary>
+public sealed class IntegrationTheoryAttribute : TheoryAttribute
+{
+    public IntegrationTheoryAttribute()
+    {
+        if (!TestDatabase.IsAvailable)
+        {
+            Skip = TestDatabase.WhyUnavailable;
+        }
+    }
+}

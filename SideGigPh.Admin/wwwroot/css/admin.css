@@ -40,3 +40,35 @@
 .admin-appbar {
     border-bottom: 1px solid var(--mud-palette-lines-default);
 }
+
+/* A hairline beside the side menu instead of a shadow. */
+.admin-drawer {
+    border-right: 1px solid var(--mud-palette-lines-default);
+}
+
+/* Stack traces, trails and error messages: keep their line breaks, wrap long lines. */
+.admin-mono {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* A long message in a grid cell: two lines at most (open the row for all of it). */
+.admin-clip {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 480px;
+}
+
+/* A list's search box and filter: a sensible width on a wide screen, full width on a phone. */
+.admin-search {
+    min-width: 240px;
+    max-width: 420px;
+}
+
+.admin-filter {
+    min-width: 200px;
+    max-width: 260px;
+}

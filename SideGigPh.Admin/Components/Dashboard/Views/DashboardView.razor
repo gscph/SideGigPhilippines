@@ -1,0 +1,123 @@
+<PageHeader Title="Dashboard" SubTitle="@SubTitle">
+    <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Filled.Refresh" Disabled="_loading" OnClick="LoadAsync">Refresh</MudButton>
+</PageHeader>
+
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-4">@_error</MudAlert>
+}
+
+@if (_stats is null)
+{
+    @if (_loading)
+    {
+        <MudGrid Spacing="3">
+            @for (var i = 0; i < 8; i++)
+            {
+                <MudItem xs="12" sm="6" md="3">
+                    <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="120px" />
+                </MudItem>
+            }
+        </MudGrid>
+    }
+}
+else
+{
+    var users = _stats.Users;
+    var activity = _stats.Activity;
+    var trust = _stats.Trust;
+
+    <MudText Typo="Typo.h6" Class="mb-2">People</MudText>
+    <MudGrid Spacing="3" Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="All users" Value="@users.Total.Count()" Icon="@Icons.Material.Outlined.People"
+                      Caption="@($"{users.NewToday.Count()} new today · {users.New7Days.Count()} this week · {users.New30Days.Count()} in 30 days")"
+                      Href="@AdminRoutes.Users" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Came back this week" Value="@users.Active7Days.Count()" Icon="@Icons.Material.Outlined.Replay"
+                      Caption="@($"{users.Active7Days.PercentOf(users.Total)} of all users · {users.Active30Days.Count()} in 30 days")" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Households" Value="@users.Seekers.Count()" Icon="@Icons.Material.Outlined.Home"
+                      Caption="@($"{users.NoRole.Count()} accounts haven't picked a side yet")" Href="@AdminRoutes.Seekers" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Skilled workers" Value="@users.Workers.Count()" Icon="@Icons.Material.Outlined.Handyman"
+                      Caption="@($"{users.LiveListings.Count()} live listings ({users.LiveListings.PercentOf(users.Workers)})")" Href="@AdminRoutes.Workers" />
+        </MudItem>
+    </MudGrid>
+
+    <MudText Typo="Typo.h6" Class="mb-2">What people did</MudText>
+    <MudGrid Spacing="3" Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Posts" Value="@activity.Posts.Count()" Icon="@Icons.Material.Outlined.PostAdd"
+                      Caption="@($"{activity.OpenPosts.Count()} open · {activity.Posts7Days.Count()} this week")" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Offers" Value="@activity.Offers.Count()" Icon="@Icons.Material.Outlined.LocalOffer"
+                      Caption="@($"{activity.PickedOffers.Count()} picked ({activity.PickedOffers.PercentOf(activity.Posts)} of posts)")" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Jobs done" Value="@activity.CompletedJobs.Count()" Icon="@Icons.Material.Outlined.TaskAlt" IconColor="Color.Success"
+                      Caption="@($"both sides marked done · {activity.Reviews.Count()} reviews")" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Chats" Value="@activity.Chats.Count()" Icon="@Icons.Material.Outlined.Forum"
+                      Caption="@($"{activity.Chats7Days.Count()} started this week · {activity.Messages7Days.Count()} messages")" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="&quot;Others&quot; typed" Value="@activity.OtherJobNotes.Count()" Icon="@Icons.Material.Outlined.EditNote"
+                      Caption="work we don't list yet, typed in the interviews" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Suggestions" Value="@activity.FeedbackPosts.Count()" Icon="@Icons.Material.Outlined.Lightbulb"
+                      Caption="on the feedback board (app and web)" />
+        </MudItem>
+    </MudGrid>
+
+    <MudText Typo="Typo.h6" Class="mb-2">Needs you</MudText>
+    <MudGrid Spacing="3" Class="mb-6">
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Badge requests waiting" Value="@trust.PendingBadges.Count()" Icon="@Icons.Material.Outlined.VerifiedUser"
+                      IconColor="@(trust.PendingBadges > 0 ? Color.Info : Color.Success)"
+                      Caption="@($"{trust.ApprovedBadges.Count()} badges approved so far")" Href="@AdminRoutes.Badges" LinkText="Check them" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Error reports" Value="@trust.ErrorReports24Hours.Count()" Icon="@Icons.Material.Outlined.BugReport"
+                      IconColor="@(trust.ErrorReports24Hours > 0 ? Color.Error : Color.Success)"
+                      Caption="@($"in the last 24 hours · {trust.ErrorReports7Days.Count()} this week")" Href="@AdminRoutes.ErrorReports" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Open reports" Value="@trust.OpenReports.Count()" Icon="@Icons.Material.Outlined.Flag"
+                      IconColor="@(trust.OpenReports > 0 ? Color.Error : Color.Success)"
+                      Caption="answer within 5 business days (SQL: dbo.Reports)" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatTile Label="Blocks" Value="@trust.Blocks.Count()" Icon="@Icons.Material.Outlined.Block" IconColor="Color.Secondary"
+                      Caption="one person blocked another" />
+        </MudItem>
+    </MudGrid>
+
+    <MudStack Spacing="3" Class="mb-6">
+        <SignUpChart Days="_stats.SignUps" />
+    </MudStack>
+
+    <MudGrid Spacing="3">
+        <MudItem xs="12" md="4">
+            <CountTable Title="Live listings by trade" Rows="_stats.WorkersByTrade" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <CountTable Title="Live listings by town served" Rows="_stats.WorkersByTown" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <CountTable Title="Posts by trade" Rows="_stats.PostsByTrade" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <CountTable Title="Households that posted, by town" Rows="_stats.SeekersByTown" />
+        </MudItem>
+        <MudItem xs="12" md="4">
+            <CountTable Title="Language picked" Rows="_stats.Languages" />
+        </MudItem>
+    </MudGrid>
+}

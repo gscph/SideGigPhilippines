@@ -32,7 +32,8 @@ public class ApiWiringTests(ApiTestHost api)
             "POST verifications/{kind}", "GET verifications/mine",
             "POST job-posts", "PUT job-posts/{id}", "GET job-posts/mine", "GET offers/mine", "GET job-posts/feed", "DELETE job-posts/{id}", "POST job-posts/{id}/report",
             "POST job-posts/{id}/offers", "DELETE job-posts/{id}/offers/mine", "GET job-posts/{id}/offers", "POST job-posts/{id}/offers/{offerId}/pick", "GET contacts/{otherUid}", "GET picked-jobs/{otherUid}", "POST picked-jobs/{postId}/done", "PUT household-reviews",
-            "GET admin/me", "GET admin/verifications", "GET admin/verifications/{id}/document", "POST admin/verifications/{id}/decision");
+            "GET admin/me", "GET admin/verifications", "GET admin/verifications/{id}/document", "POST admin/verifications/{id}/decision",
+            "GET admin/stats", "GET admin/users", "GET admin/seekers", "GET admin/workers", "GET admin/error-reports");
 
     /// <summary>
     /// Public: the reference data (the trades and jobs, read before the account is ready), the legal pages (the app
