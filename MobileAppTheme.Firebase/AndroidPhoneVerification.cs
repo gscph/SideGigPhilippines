@@ -23,8 +23,12 @@ namespace MobileAppTheme.Firebase;
 /// </summary>
 internal sealed class AndroidPhoneVerification
 {
-    /// <summary>How long Android waits to read the SMS by itself before giving up (Firebase's own limit).</summary>
-    private const long AutoReadSeconds = 60;
+    /// <summary>
+    /// How long Android waits to read the SMS by itself (Firebase's default is 60 s). When "code sent" was lost (the
+    /// person left the app before it came), the end of this wait is what still brings the session id, so it is kept
+    /// short: the SMS almost always arrives within 10 s.
+    /// </summary>
+    private const long AutoReadSeconds = 30;
 
     // The provider is a singleton, so there is one of these; the activity's OnStart reaches it through this.
     private static AndroidPhoneVerification? s_instance;
