@@ -4,6 +4,7 @@ using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Local;
+using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.Account;
 
