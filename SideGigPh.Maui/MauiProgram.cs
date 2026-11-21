@@ -59,6 +59,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<AppAnalytics>();
             builder.Services.AddSingleton<FeedbackBoard>();
             builder.Services.AddSingleton<JobBoard>();
+            builder.Services.AddSingleton<PickedContact>();
             builder.Services.AddSingleton<ChatAlerts>();
             builder.Services.AddSingleton<IPhoneNumberFormat, PhilippinePhoneNumberFormat>();
             // Users, listings, reviews, chats and the trades and jobs (Azure SQL) and photos (Blob Storage), all through SideGigPh.Api.

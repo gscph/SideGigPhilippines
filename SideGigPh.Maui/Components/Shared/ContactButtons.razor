@@ -1,0 +1,8 @@
+<MudButton Variant="Variant.Outlined" Class="app-button-ink rounded-pill flex-shrink-0"
+           StartIcon="@Icons.Material.Rounded.Phone" Disabled="_busy" OnClick="CallAsync">
+    @T.Get(Copy.Call)
+</MudButton>
+<MudButton Variant="Variant.Outlined" Class="app-button-ink rounded-pill flex-shrink-0"
+           StartIcon="@Icons.Material.Rounded.Sms" Disabled="_busy" OnClick="TextAsync">
+    @T.Get(Copy.TextThem)
+</MudButton>

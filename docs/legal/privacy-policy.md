@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 20, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 21, 2026
 
 ---
 
@@ -14,8 +14,9 @@
   isang account).
 - **Sino ang nakakakita:** ang listing ng Skilled Worker (pangalan, photo, trabaho, bayan, presyo, review) ay
   **public sa lahat ng user**. Ang chat ay kayong dalawa lang.
-  **Private ang mobile number** ng worker at ng customer hanggang piliin ng customer ang offer ng worker sa post
-  niya; saka lang nila makikita ang number ng isa't isa.
+  **Private ang mobile number** ng worker at ng customer. Kapag pinili ng customer ang offer ng worker sa post
+  niya, may **Call** at **Text** na sa chat: hindi ipinapakita ng app ang number, pero makikita ito sa sariling
+  tawag o text app ng phone mo.
 - **Kung gusto mo ng badge** (ID, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
   photo, tao sa Tarbaho lang ang titingin, at **buburahin pagkatapos i-check**. Ang ID ay binabasa ng AI (pangalan,
   ID number, expiry) para tulungan ang nagche-check. Hindi ito ipinapakita sa customer.
@@ -48,7 +49,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 
 | Data | Who gives it | Why we need it |
 |---|---|---|
-| **Mobile number** (verified by SMS code) | Skilled Workers (needed to publish), and Customers who choose to sign in with their number | Sign-in; anti-fraud rule "one number, one account". Kept private until a Customer picks a Skilled Worker's offer on a post; then the two of them can see each other's number to call |
+| **Mobile number** (verified by SMS code) | Skilled Workers (needed to publish), and Customers who choose to sign in with their number | Sign-in; anti-fraud rule "one number, one account". Kept private until a Customer picks a Skilled Worker's offer on a post; then the two of them get **Call** and **Text** buttons. The App itself never shows the number, but your phone's own calling or SMS app does once you tap them |
 | **Full name** | Everyone | Shown on your listing, chats and reviews (reviews show a short form, e.g. "Maricel D.") |
 | **Email address and Google profile name** | Only if you sign in with Google | Sign-in |
 | **Language** (English / Taglish) and **role** (Customer / Skilled Worker) | Everyone | To show the App in your language and the right screens |
@@ -60,7 +61,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Posts of what you need done** (optional): the kind of work, your description of the problem, your budget, your town and up to 3 photos | Customers who post | To show your post to Skilled Workers of that trade near you. Do not put your address, phone number or anyone's face in the description or photos |
 | **Precise location** (optional, only when you tap **Use my location**): a Skilled Worker's base point, or the place of a Customer's post. Without it we use the middle of your town | Skilled Workers, Customers who post | To match posts with Skilled Workers who travel that far. **Never shown to anyone**: others see only your town and a distance in whole kilometres. Read once, when you tap; never in the background. Deleted with your listing, your post or your account |
 | **Offers on a post** (optional): your price and a short note, and which offer the customer picked | Skilled Workers who answer a post, and the customer who picks | To show your offer to the customer who posted, and to open a chat with the worker they pick |
-| **Chat messages** and a note that you tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
+| **Chat messages** and a note that a Customer tapped "Call" | Both sides of a chat | To deliver your messages and show the chat history. We do **not** record phone calls or SMS made outside the App |
 | **Reviews** (star rating, comment, the job) | Customers | Shown on the Skilled Worker's listing. Marked "Verified service" when the Customer picked that Skilled Worker's offer on a post and both marked the work done. After such a service, the review is shown only once the Skilled Worker has rated the Customer too, or 14 days after the service, so neither side sees the other's rating first; until then only its writer sees it |
 | **Ratings of Customers** (star rating, optional comment) | Skilled Workers, only after a job both of you marked done | Other Skilled Workers see the Customer's average stars on the Customer's posts (never the comment or who wrote it). A rating counts only once the Customer has reviewed the Skilled Worker too, or 14 days after the service; the Customer sees the stars they got once both have rated |
 | **Done marks** on a picked post | Customers and Skilled Workers | To show completed jobs on the Skilled Worker's listing and to mark reviews as verified |
@@ -145,7 +146,7 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | What | Who can see it |
 |---|---|
 | A Skilled Worker's **published listing**: name, photo, work photos, trade, jobs, towns, experience, prices, reviews, star rating, badges, "phone number verified" | **Every signed-in user** of the App |
-| A Skilled Worker's or Customer's **mobile number** | **Nobody**, until a Customer picks a Skilled Worker's offer on one of their posts. Then only those two see each other's number (a Customer who signed in with Google may have none). Before that, you talk only in the App's chat. A block hides it again |
+| A Skilled Worker's or Customer's **mobile number** | **Nobody**, until a Customer picks a Skilled Worker's offer on one of their posts. Then only those two can call or text each other: the App shows a **Call** and a **Text** button, never the number, but the phone's own calling or SMS app shows it when they tap (a Customer who signed in with Google may have none). Before that, you talk only in the App's chat. A block hides it again |
 | **Photos** you upload | Stored at a web address that is hard to guess. Anyone who has that address can open the photo, even outside the App |
 | **Chat messages** | The two people in the chat. Our authorised staff may read a chat **only** when one of you reports it, to answer a legal order, or to stop fraud or abuse |
 | **Reviews** | Every signed-in user; the reviewer's name is shortened |

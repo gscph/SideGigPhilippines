@@ -208,14 +208,14 @@ public class JobOfferTests(ApiTestHost api)
 
         var board = household.Get<JobBoard>();
         (await household.Seeker.GetProAsync(picked.Uid))!.MobileNumber.Should().BeEmpty("profiles never carry the number");
-        (await board.ContactNumberAsync(picked.Uid)).Should().BeNull("no pick yet: they chat in the app");
-        (await picked.Get<JobBoard>().ContactNumberAsync(household.Uid)).Should().BeNull();
+        (await household.DialedAsync(picked.Uid)).Should().BeNull("no pick yet: they chat in the app");
+        (await picked.DialedAsync(household.Uid)).Should().BeNull();
 
         var offers = await board.LoadOffersAsync(post.Id);
         (await board.PickAsync(offers.Single(o => o.Pro.Id == picked.Uid))).Should().Be(OfferResult.Done);
 
-        (await board.ContactNumberAsync(picked.Uid)).Should().Be(picked.PhoneNumber);
-        (await picked.Get<JobBoard>().ContactNumberAsync(household.Uid)).Should().BeNull("this household signed in without a number");
+        (await household.DialedAsync(picked.Uid)).Should().Be(picked.PhoneNumber);
+        (await picked.DialedAsync(household.Uid)).Should().BeNull("this household signed in without a number");
         // A household signed in with its phone: the account's number is the token's.
         using (var saved = await api.Client(api.Tokens.For(household.Uid, "+639170000417")).PutAsJsonAsync("users/me",
                    new UserDto(household.Uid, "Lihim", null, null, Wire.English, Wire.Seeker, null, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow),
@@ -224,14 +224,14 @@ public class JobOfferTests(ApiTestHost api)
             saved.StatusCode.Should().Be(HttpStatusCode.OK);
         }
 
-        (await picked.Get<JobBoard>().ContactNumberAsync(household.Uid)).Should().Be("+639170000417");
-        (await board.ContactNumberAsync(other.Uid)).Should().BeNull("only the picked worker");
-        (await other.Get<JobBoard>().ContactNumberAsync(household.Uid)).Should().BeNull();
+        (await picked.DialedAsync(household.Uid)).Should().Be("+639170000417");
+        (await household.DialedAsync(other.Uid)).Should().BeNull("only the picked worker");
+        (await other.DialedAsync(household.Uid)).Should().BeNull();
         (await other.Get<IProfessionalProfileRepository>().GetByIdAsync(other.Uid))!.MobileNumber
             .Should().Be(other.PhoneNumber, "a worker still sees their own number");
 
         await household.Seeker.BlockAsync(picked.Uid);
-        (await picked.Get<JobBoard>().ContactNumberAsync(household.Uid)).Should().BeNull("a block hides the number again");
+        (await picked.DialedAsync(household.Uid)).Should().BeNull("a block hides the number again");
     }
 
     [IntegrationFact]

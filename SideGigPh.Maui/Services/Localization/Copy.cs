@@ -181,16 +181,16 @@ public static class Copy
         "Makikita ni {0} ang message mo dito sa app, at dito rin siya sasagot.");
 
     public static readonly LocalizedText NumberAfterPick = new(
-        "Numbers stay private until you pick their offer on one of your posts. Then you can call.",
-        "Private muna ang mga number hanggang piliin mo ang offer nila sa post mo. Saka kayo pwedeng magtawagan.");
+        "Numbers stay private. Once you pick their offer on one of your posts, you can call or text from here.",
+        "Private ang mga number. Kapag pinili mo ang offer nila sa post mo, pwede na kayong magtawagan o mag-text dito.");
 
     public static readonly LocalizedText NumberShared = new(
-        "You picked their offer, so you can call each other now.",
-        "Pinili mo ang offer nila, kaya pwede na kayong magtawagan.");
+        "You picked their offer, so you can call or text each other now. Chatting here keeps a record for both of you.",
+        "Pinili mo ang offer nila, kaya pwede na kayong magtawagan o mag-text. Mas okay dito pa rin mag-chat para may record kayong dalawa.");
 
     public static readonly LocalizedText CustomerNumberShared = new(
-        "They picked your offer, so you can call each other now.",
-        "Pinili nila ang offer mo, kaya pwede na kayong magtawagan.");
+        "They picked your offer, so you can call or text each other now. Chatting here keeps a record for both of you.",
+        "Pinili nila ang offer mo, kaya pwede na kayong magtawagan o mag-text. Mas okay dito pa rin mag-chat para may record kayong dalawa.");
     public static readonly LocalizedText ThreadStart = new(
         "We wrote a message for you. Change it if you like, then tap Send.",
         "May ready na message para sa'yo. I-edit mo kung gusto mo, tapos i-tap ang I-send.");
@@ -200,6 +200,13 @@ public static class Copy
     public static readonly LocalizedText SendFailed = new("Your message didn't send. Check your internet and try again.", "Di na-send ang message mo. I-check ang internet mo tapos try ulit.");
     public static readonly LocalizedText ChatCustomer = new("Customer", "Customer");
     public static readonly LocalizedText Call = new("Call", "Tawagan");
+    public static readonly LocalizedText TextThem = new("Text", "I-text");
+    public static readonly LocalizedText TextHello = new(
+        "Hi {0}! About the service we agreed on in Tarbaho: ",
+        "Hi {0}! Tungkol sa serbisyong napagkasunduan natin sa Tarbaho: ");
+    public static readonly LocalizedText ContactClosed = new(
+        "You can't call or text them now. Check your internet. If their pick was cancelled, chat here instead.",
+        "Di mo sila matawagan o ma-text ngayon. I-check ang internet mo. Kung na-cancel ang pick, dito na lang mag-chat.");
     public static readonly LocalizedText ViewProfile = new("View profile", "Tingnan ang profile");
     public static readonly LocalizedText RateThisPro = new("Rate this skilled worker", "I-rate ang skilled worker na 'to");
     public static readonly LocalizedText RateLater = new(

@@ -9,8 +9,8 @@ namespace SideGigPh.Maui.Components.Inbox;
 
 /// <summary>
 /// The Seeker's chat with one skilled worker, where Contact lands. The first message is already
-/// written from their search (job, town, how soon), so starting is one tap on Send. Call opens
-/// the dialer and is logged in the chat. The worker's replies appear here as they arrive. A full screen outside the
+/// written from their search (job, town, how soon), so starting is one tap on Send. Once they pick the
+/// worker's offer, Call and Text open the phone's apps (the number is never shown here) and a call is logged in the chat. The worker's replies appear here as they arrive. A full screen outside the
 /// tab shell (<see cref="ChatScreen"/>), so it loads <see cref="SeekerWorkspace"/> and listens for notifications itself.
 /// </summary>
 public partial class ThreadPage : ComponentBase, IDisposable
@@ -22,6 +22,7 @@ public partial class ThreadPage : ComponentBase, IDisposable
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
+    [Inject] private PickedContact Contact { get; set; } = default!;
     [Inject] private AppVisibility Visibility { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
@@ -30,8 +31,8 @@ public partial class ThreadPage : ComponentBase, IDisposable
 
     private ProfessionalListing? _pro;
 
-    /// <summary>The pro's number, only once the Seeker picked their offer on a post (numbers stay private until then).</summary>
-    private string? _number;
+    /// <summary>Call and Text show: the Seeker picked their offer on a post. The page never holds the number (<see cref="PickedContact"/>).</summary>
+    private bool _canContact;
 
     /// <summary>The newest picked job with this pro (null when the Seeker never picked their offer).</summary>
     private PickedJob? _job;
@@ -86,17 +87,17 @@ public partial class ThreadPage : ComponentBase, IDisposable
     private async Task LoadAsync()
     {
         _pro = Workspace.ThreadWith(Id)?.Pro ?? await Workspace.GetProAsync(Id);
-        _number = null;
+        _canContact = false;
         _job = null;
         if (_pro is not null)
         {
             var read = Workspace.MarkReadAsync(Id);
-            var number = Board.ContactNumberAsync(Id);
+            var canContact = Contact.IsOpenAsync(Id);
             var jobs = Board.PickedJobsAsync(Id);
             _history = await Workspace.GetMessagesAsync(Id);
             _message = _history.Count == 0 ? Workspace.DefaultMessage(_pro) : null;
             _watch = Workspace.WatchChat(Id, _history.LastId, chat => InvokeAsync(() => ReloadAsync(chat)));
-            _number = await number;
+            _canContact = await canContact;
             WatchJobs(await jobs);
             await read;
         }
@@ -130,31 +131,20 @@ public partial class ThreadPage : ComponentBase, IDisposable
         }
     }
 
-    private async Task CallAsync()
+    /// <summary>The dialer opened (<see cref="ContactButtons"/>): the call is logged in the chat.</summary>
+    private async Task CalledAsync()
     {
-        if (_busy)
-        {
-            return; // a second tap before the button re-rendered as disabled
-        }
-
-        _busy = true;
-        _error = null;
         try
         {
-            if (await Workspace.CallAsync(_pro!, _number!) is { } call)
-            {
-                Show(call);
-            }
-            else
-            {
-                _error = T.Get(Copy.ContactFailed);
-            }
+            Show(await Workspace.LogCallAsync(_pro!));
         }
-        finally
+        catch (Exception ex)
         {
-            _busy = false;
+            Logger.LogWarning(ex, "The call wasn't logged in the chat");
         }
     }
+
+    private void ShowProblem(string? message) => _error = message;
 
     /// <summary>
     /// The picked jobs as the server now has them: the card shows the newest, any completed one (an earlier job too)
@@ -188,13 +178,13 @@ public partial class ThreadPage : ComponentBase, IDisposable
     private void JobChanged(PickedJob job) => WatchJobs([job, .. _jobs.Skip(1)]);
 
     /// <summary>
-    /// The card called the job off: drop it, re-read the number (Call shows only while a pick links the two) and send
+    /// The card called the job off: drop it, check again whether Call and Text show (only while a pick links the two) and send
     /// the worker the reason in this chat.
     /// </summary>
     private async Task JobCancelledAsync(string message)
     {
         WatchJobs([.. _jobs.Skip(1)]);
-        _number = await Board.ContactNumberAsync(Id);
+        _canContact = await Contact.IsOpenAsync(Id);
         _message = message;
         await SendAsync();
     }
