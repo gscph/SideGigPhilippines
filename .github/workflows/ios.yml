@@ -29,6 +29,12 @@ on:
 
 env:
   PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
+  # GitHub's Macs lag Apple: no Xcode 27 yet (26.0-26.6). The newest .NET iOS workload needs Xcode 27, so CI pins the
+  # .NET 10.0.4xx SDK (the image's default dotnet is .NET 11) and workload set 10.0.401: iOS 26.5 + MAUI 10.0.20,
+  # built with Xcode 26.5, whose simulator runtime the image has (the asset compiler needs one). Move both up together
+  # once the image has Xcode 27 (docs/testflight.md).
+  DOTNET_SDK: '10.0.400'
+  WORKLOAD_VERSION: '10.0.401'
   BUNDLE_ID: com.tarbaho.app
   BUILD_NUMBER: ${{ github.run_number }}
   FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
@@ -61,10 +67,20 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '10.0.4xx'
+
+      # A global.json for this run only (not committed: Visual Studio keeps its own SDK and workloads), so every dotnet
+      # call below uses .NET 10.0.4xx and its workloads come from the pinned workload set.
+      - name: Pin the .NET SDK and workload set
+        run: |
+          echo "{ \"sdk\": { \"version\": \"$DOTNET_SDK\", \"rollForward\": \"latestPatch\", \"workloadVersion\": \"$WORKLOAD_VERSION\" } }" > global.json
+          cat global.json
+          dotnet --version
 
       - name: Install MAUI workloads
-        run: dotnet workload restore ${{ env.PROJECT }}
+        run: |
+          dotnet workload restore ${{ env.PROJECT }}
+          dotnet workload list
 
       # The .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"), and its pack folder
       # is named after it (packs/Microsoft.iOS.Sdk.net10.0_26.0). The image's default Xcode can be another one, and
