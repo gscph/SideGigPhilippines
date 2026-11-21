@@ -70,6 +70,8 @@ Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
 
 ## When it fails
 
+- *actool: SDK "…/Xcode_26.6.0.app/…/MacOSX.sdk" cannot be located*: Xcode was selected through the image's
+  `Xcode_X.0.app` symlink; the workflow resolves it to the real folder, so this means that step changed.
 - *The iOS workload needs Xcode X, which this runner doesn't have*: `WORKLOAD_VERSION` points at a workload newer than
   the image's Xcode. Pick a workload set whose iOS version matches an installed Xcode.
 - *actool: No simulator runtime version … available*: the selected Xcode has no simulator runtime on the image (the

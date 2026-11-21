@@ -94,6 +94,9 @@ jobs:
           if [ -z "$xcode" ]; then
             echo "::error::The iOS workload needs Xcode $wanted, which this runner doesn't have. Installed:"; ls -d /Applications/Xcode*.app; exit 1
           fi
+          # Xcode_26.6.0.app is a symlink to Xcode_26.6.app on the image; selected through the link, actool can't
+          # find the SDKs ("SDK … MacOSX.sdk cannot be located"), so select the real folder.
+          xcode="$(cd -P "$xcode" && pwd)"
           sudo xcode-select -s "$xcode"
           xcodebuild -version
           echo "Xcode \`$(basename "$xcode")\` for the iOS workload ($wanted)" >> "$GITHUB_STEP_SUMMARY"
