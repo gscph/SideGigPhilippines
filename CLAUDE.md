@@ -195,9 +195,12 @@ changing that area.**
   the chat (the Seeker still starts every chat). A worker sees their own offers under Requests → **My offers**
   (`GET offers/mine`, `MyOffersPage`: waiting, picked with Open chat, or not picked). Offers need the worker's published listing of that trade; a block
   either way hides them. **Phone numbers stay private until a pick:** `ListingDto.MobileNumber` is empty for everyone
-  but the listing's owner (search, profiles, offers); the two sides talk in the app's chat, and Call shows on both
+  but the listing's owner (search, profiles, offers); the two sides talk in the app's chat, and **Call and Text** show on both
   chat pages only once a picked offer links them (`GET contacts/{otherUid}` → `ContactDto`,
-  `JobPostStore.ContactNumberAsync`, `JobBoard.ContactNumberAsync`; null with no pick, a block, or no number).
+  `JobPostStore.ContactNumberAsync`; null with no pick, a block, or no number). **The app never shows the number:** pages
+  know only whether they may contact (`PickedContact.IsOpenAsync`); each tap (`Components/Shared/ContactButtons`) reads it
+  then and hands it straight to the dialer / SMS app (`PickedContact.CallAsync` / `TextAsync`), which still show it
+  (UI-only on purpose, free: in-app VoIP calls like Messenger, e.g. Agora, were offered and deferred).
 - **App shell:** skeleton `AppShell` (top bar, optional banner, bottom tabs); each side's thin layout
   (`ProLayout`, `SeekerLayout`) sends anyone signed out to sign in (`SignInGate`), loads its workspace and passes the tabs (already loaded, `Workspace.IsLoaded`, e.g. Back from a chat: the tabs show on the first render, no blank frame, and the sign-in check runs after); routes live in `ProRoutes` / `SeekerRoutes`
   (link through them, never a literal path); full-screen steps use `InterviewStep` outside the shell.

@@ -17,7 +17,6 @@ public sealed class SeekerWorkspace(
     IProfessionalProfileRepository profiles,
     IChatRepository chats,
     IReviewRepository reviews,
-    IContactLauncher phone,
     IIdentityProvider identity,
     IPhotoPicker picker,
     IPhotoStore photos,
@@ -302,19 +301,10 @@ public sealed class SeekerWorkspace(
         PostAsync(pro, ChatMessageKind.Text, message.Trim(), serviceId, cityId);
 
     /// <summary>
-    /// Opens the dialer on <paramref name="number"/> (the pro's, given once the Seeker picked their offer:
-    /// <see cref="JobBoard.ContactNumberAsync"/>) and logs the call in the chat: the logged message, or null if the
-    /// dialer couldn't open.
+    /// Logs in the chat that the Seeker called the pro (after <see cref="PickedContact.CallAsync"/> opened the dialer):
+    /// the logged message.
     /// </summary>
-    public async Task<ChatMessage?> CallAsync(ProfessionalListing pro, string number)
-    {
-        if (!await phone.CallAsync(number))
-        {
-            return null;
-        }
-
-        return await PostAsync(pro, ChatMessageKind.Call, null);
-    }
+    public Task<ChatMessage> LogCallAsync(ProfessionalListing pro) => PostAsync(pro, ChatMessageKind.Call, null);
 
     /// <summary>
     /// "Customer's location" in the chat with <paramref name="pro"/>, after the Seeker sent the picked worker its exact

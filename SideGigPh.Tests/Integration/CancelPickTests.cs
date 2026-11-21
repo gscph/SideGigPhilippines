@@ -68,7 +68,7 @@ public class CancelPickTests(ApiTestHost api)
         var other = await PlumberAsync("Maaasahan");
         var post = await PickedAsync(household, picked, other);
         var board = household.Get<JobBoard>();
-        (await board.ContactNumberAsync(picked.Uid)).Should().Be(picked.PhoneNumber);
+        (await household.DialedAsync(picked.Uid)).Should().Be(picked.PhoneNumber);
         var job = (await board.PickedJobsAsync(picked.Uid)).Single();
 
         (await board.CancelPickAsync(job, PickCancelReasons.NoShow, "  Hindi po dumating kahapon  ")).Should().Be(CancelPickResult.Cancelled);
@@ -81,13 +81,13 @@ public class CancelPickTests(ApiTestHost api)
         mine.OfferCount.Should().Be(1, "the cancelled offer no longer counts; the other worker's still waits");
         (await board.PickedJobsAsync(picked.Uid)).Should().BeEmpty();
         (await picked.Get<JobBoard>().PickedJobsAsync(household.Uid)).Should().BeEmpty();
-        (await board.ContactNumberAsync(picked.Uid)).Should().BeNull("no pick links them any more");
+        (await household.DialedAsync(picked.Uid)).Should().BeNull("no pick links them any more");
         (await InFeedAsync(other, post.Id)).Should().NotBeNull("open again in workers' feeds");
 
         var offers = await board.LoadOffersAsync(post.Id);
         offers.Should().ContainSingle().Which.Pro.Id.Should().Be(other.Uid);
         (await board.PickAsync(offers[0])).Should().Be(OfferResult.Done);
-        (await board.ContactNumberAsync(other.Uid)).Should().Be(other.PhoneNumber);
+        (await household.DialedAsync(other.Uid)).Should().Be(other.PhoneNumber);
     }
 
     [IntegrationFact]

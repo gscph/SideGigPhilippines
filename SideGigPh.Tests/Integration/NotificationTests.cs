@@ -76,7 +76,7 @@ public class NotificationTests(ApiTestHost api)
         await worker.Account.SaveProfileAsync(); // the switch saves the server's copy in the background: wait for it here
         await worker.Get<ChatAlerts>().RegisterAsync();
 
-        await seeker.Seeker.CallAsync((await seeker.Seeker.GetProAsync(worker.Uid))!, worker.PhoneNumber!);
+        await seeker.Seeker.LogCallAsync((await seeker.Seeker.GetProAsync(worker.Uid))!);
 
         var push = api.Pushes.To(worker.Push.Token!).Should().ContainSingle().Subject;
         push.Title.Should().Be("Bagong customer: Ella");

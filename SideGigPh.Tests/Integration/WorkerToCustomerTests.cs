@@ -71,10 +71,9 @@ public class WorkerToCustomerTests(ApiTestHost api)
         var seeker = await TestPhone.SeekerAsync(api, "Dina");
         var listing = (await seeker.Seeker.GetProAsync(worker.Uid))!;
 
-        var logged = await seeker.Seeker.CallAsync(listing, worker.PhoneNumber!);
+        var logged = await seeker.Seeker.LogCallAsync(listing);
 
-        seeker.Dialer.Called.Should().Equal(worker.PhoneNumber);
-        logged!.Kind.Should().Be(ChatMessageKind.Call);
+        logged.Kind.Should().Be(ChatMessageKind.Call);
         await worker.Pro.RefreshActivityAsync();
         worker.Pro.Chats.Single().LastMessage.Kind.Should().Be(ChatMessageKind.Call);
     }
