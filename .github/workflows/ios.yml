@@ -173,11 +173,18 @@ jobs:
           -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppVersionNumber=${{ env.APP_VERSION }} -p:AppChannel=prod
           -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
 
-      - name: Find the .ipa
+      - name: Find and check the .ipa
         id: package
         run: |
           ipa="$(find SideGigPh.Maui/bin/Release/net10.0-ios -name '*.ipa' | head -n 1)"
           if [ -z "$ipa" ]; then echo "::error::No .ipa under SideGigPh.Maui/bin/Release/net10.0-ios"; exit 1; fi
+          # Firebase reads its settings only from the top of the app bundle; anywhere else it never starts and the app
+          # dies at launch (FirebaseAuth assertion). Don't upload such a build.
+          if ! unzip -l "$ipa" | grep -qE ' Payload/[^/]+\.app/GoogleService-Info\.plist$'; then
+            echo "::error::GoogleService-Info.plist is not at the top of the app bundle (csproj BundleResource LogicalName)"
+            unzip -l "$ipa" | grep GoogleService || true
+            exit 1
+          fi
           file="$RUNNER_TEMP/tarbaho-${{ steps.version.outputs.label }}-build${BUILD_NUMBER}-ios.ipa"
           mv "$ipa" "$file"
           echo "file=$file" >> "$GITHUB_OUTPUT"

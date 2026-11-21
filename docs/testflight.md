@@ -70,6 +70,11 @@ Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
 
 ## When it fails
 
+- *The app shows the logo and closes at once* (crash log: `_assertionFailure` in `FirebaseAuth`): Firebase didn't
+  start, nearly always because `GoogleService-Info.plist` isn't at the top of the app bundle. The csproj's
+  `BundleResource` puts it there (`LogicalName`), and the workflow's *Find and check the .ipa* step refuses a build
+  without it. Get crash logs from the iPhone: Settings → Privacy & Security → Analytics & Improvements → Analytics
+  Data → `SideGigPh.Maui-….ips`.
 - *actool: SDK "…/Xcode_26.6.0.app/…/MacOSX.sdk" cannot be located*: Xcode was selected through the image's
   `Xcode_X.0.app` symlink; the workflow resolves it to the real folder, so this means that step changed.
 - *The iOS workload needs Xcode X, which this runner doesn't have*: `WORKLOAD_VERSION` points at a workload newer than
