@@ -421,7 +421,7 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
   or no number (a worker's is their listing's, a household's the account's, which a Google sign-in may lack). **The app
   never shows or keeps the number** (to make taking the deal offline harder; it can't stop it): `Services/PickedContact`
   is the only reader. Both chat pages ask on open only whether they may contact (`PickedContact.IsOpenAsync`) and then
-  show **Call** and **Text** (`Components/Shared/ContactButtons`, outlined pills in `ChatHeader`'s actions); each tap
+  show **Call** and **Text** (`Components/Shared/ContactButtons`, phone and message icon buttons in `ChatHeader`'s actions, so the name keeps its room); each tap
   reads the number from the server right then (so a block or a cancelled pick since the page opened is honoured:
   `ContactOutcome.NotLinked` → `Copy.ContactClosed`) and passes it straight to `IContactLauncher` (dialer, or the SMS
   app with `Copy.TextHello` written in). The phone's own app still shows the number, and `ContactDto` still carries it
