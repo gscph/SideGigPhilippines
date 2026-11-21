@@ -70,6 +70,17 @@ Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
 
 ## When it fails
 
+- *Google / Apple open, you pick an account, then sign-in fails*: Firebase Auth couldn't store the user in the
+  keychain. `Entitlements.plist` needs `keychain-access-groups` = `$(AppIdentifierPrefix)com.tarbaho.app`, and the
+  workflow refuses an `.ipa` without it. Apple also needs the Apple provider enabled in Firebase → Authentication.
+- *The app says it's offline, and Safari shows "This connection is not private" issued by "Sinkhole Intermediate CA"*:
+  the network's DNS (an ISP filter, ClearPath in PH) blocks `tarbaho.com`. On that iPhone: Settings → Wi-Fi → (i) →
+  Configure DNS → Manual → `8.8.8.8`, `8.8.4.4`. Ask the ISP to unblock the domain.
+- *The app shows the logo and closes at once* (crash log: `_assertionFailure` in `FirebaseAuth`): Firebase didn't
+  start, nearly always because `GoogleService-Info.plist` isn't at the top of the app bundle. The csproj's
+  `BundleResource` puts it there (`LogicalName`), and the workflow's *Find and check the .ipa* step refuses a build
+  without it. Get crash logs from the iPhone: Settings → Privacy & Security → Analytics & Improvements → Analytics
+  Data → `SideGigPh.Maui-….ips`.
 - *actool: SDK "…/Xcode_26.6.0.app/…/MacOSX.sdk" cannot be located*: Xcode was selected through the image's
   `Xcode_X.0.app` symlink; the workflow resolves it to the real folder, so this means that step changed.
 - *The iOS workload needs Xcode X, which this runner doesn't have*: `WORKLOAD_VERSION` points at a workload newer than

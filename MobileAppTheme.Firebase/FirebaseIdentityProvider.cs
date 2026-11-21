@@ -50,7 +50,14 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     /// </summary>
     public static readonly TimeSpan VerifyCodeLimit = TimeSpan.FromSeconds(30);
 
-    private static IFirebaseAuth Auth => CrossFirebaseAuth.Current;
+    /// <summary>
+    /// The Firebase Auth instance, only while the SDK runs. On iOS, touching Auth when Firebase didn't start (its config
+    /// file missing) isn't an exception but a Swift assertion that kills the app at launch, so it throws here instead
+    /// and the callers' catch blocks treat it as signed out or a failed sign-in.
+    /// </summary>
+    private static IFirebaseAuth Auth => FirebaseCore.IsRunning
+        ? CrossFirebaseAuth.Current
+        : throw new InvalidOperationException("Firebase is not running (GoogleService-Info.plist / google-services.json missing).");
 
     /// <summary>The number the last code went to (E.164), to recognise an automatic sign-in with it.</summary>
     private string? _pendingPhone;
@@ -171,6 +178,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         {
             // Google sign-in lives on its own cross instance and needs
             // FirebaseAuthGoogleImplementation.Initialize(...) at startup (FirebaseAuthSetup).
+            _ = Auth; // Google sign-in goes through Firebase Auth: not without the SDK running (see Auth)
             FirebaseAuthSetup.GoogleSignInPending = true;
             var user = await CrossFirebaseAuthGoogle.Current.SignInWithGoogleAsync();
             return AuthResult.Ok(Map(user));
@@ -264,7 +272,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         }
     }
 
-    public Task SignOutAsync() => Auth.SignOutAsync();
+    public Task SignOutAsync() => FirebaseCore.IsRunning ? Auth.SignOutAsync() : Task.CompletedTask;
 
     /// <summary>
     /// True when the account behind the cached session is gone (deleted, disabled) or its session was revoked. The

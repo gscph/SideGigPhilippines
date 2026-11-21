@@ -108,7 +108,9 @@
         <GoogleServicesJson Include="Platforms\Android\google-services.json" Condition="Exists('Platforms\Android\google-services.json')" />
     </ItemGroup>
     <ItemGroup Condition="$(TargetFramework.Contains('-ios'))">
-        <BundleResource Include="Platforms\iOS\GoogleService-Info.plist" Condition="Exists('Platforms\iOS\GoogleService-Info.plist')" />
+        <!-- At the top of the app bundle (LogicalName): Firebase only looks there. Without it the file lands in
+             Platforms/iOS/ inside the app, Firebase never starts, and FirebaseAuth stops the app at launch. -->
+        <BundleResource Include="Platforms\iOS\GoogleService-Info.plist" LogicalName="GoogleService-Info.plist" Condition="Exists('Platforms\iOS\GoogleService-Info.plist')" />
     </ItemGroup>
 
     <!-- iOS capabilities (Sign in with Apple). -->
