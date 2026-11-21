@@ -23,12 +23,21 @@ on:
         type: boolean
         default: true
       xcode:
-        description: 'Xcode version to use (empty = the one the installed .NET iOS workload asks for; the newest installed one starting with this is used)'
+        description: 'Xcode version to use (empty = XCODE_VERSION, the one the pinned iOS workload asks for; the newest installed one starting with this is used)'
         type: string
         default: ''
 
 env:
   PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
+  # GitHub's Macs lag Apple: no Xcode 27 yet (26.0-26.6). The newest .NET iOS workload needs Xcode 27, so CI pins the
+  # .NET 10.0.4xx SDK (the image's default dotnet is .NET 11) and workload set 10.0.401: iOS 26.5 + MAUI 10.0.20,
+  # built with Xcode 26.6 (iOS 26.5 SDK), whose simulator runtime the image has (the asset compiler needs one). Move all three up together
+  # once the image has Xcode 27 (docs/testflight.md).
+  DOTNET_SDK: '10.0.400'
+  WORKLOAD_VERSION: '10.0.401'
+  # The Xcode that workload asks for ("iOS 26.5.10318 requires Xcode 26.6"; Xcode 26.6 carries the iOS 26.5 SDK). Not
+  # derivable from the workload's number, so it is pinned with it: change the two together.
+  XCODE_VERSION: '26.6'
   BUNDLE_ID: com.tarbaho.app
   BUILD_NUMBER: ${{ github.run_number }}
   FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
@@ -61,26 +70,33 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '10.0.x'
+          dotnet-version: '10.0.4xx'
+
+      # A global.json for this run only (not committed: Visual Studio keeps its own SDK and workloads), so every dotnet
+      # call below uses .NET 10.0.4xx and its workloads come from the pinned workload set.
+      - name: Pin the .NET SDK and workload set
+        run: |
+          echo "{ \"sdk\": { \"version\": \"$DOTNET_SDK\", \"rollForward\": \"latestPatch\", \"workloadVersion\": \"$WORKLOAD_VERSION\" } }" > global.json
+          cat global.json
+          dotnet --version
 
       - name: Install MAUI workloads
-        run: dotnet workload restore ${{ env.PROJECT }}
+        run: |
+          dotnet workload restore ${{ env.PROJECT }}
+          dotnet workload list
 
-      # The .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"), and its pack folder
-      # is named after it (packs/Microsoft.iOS.Sdk.net10.0_26.0). The image's default Xcode can be another one, and
-      # the workload version moves with the .NET SDK, so the Xcode is read from what was just installed.
+      # The .NET iOS workload builds only with the Xcode it was made for; the image's default can be another one.
       - name: Select the Xcode the iOS workload needs
         run: |
           wanted="${{ inputs.xcode }}"
-          if [ -z "$wanted" ]; then
-            pack="$(ls -d "$DOTNET_ROOT"/packs/Microsoft.iOS.Sdk.net10.0_* 2>/dev/null | sort -V | tail -n 1)"
-            if [ -z "$pack" ]; then echo "::error::No .NET iOS workload under $DOTNET_ROOT/packs"; exit 1; fi
-            wanted="${pack##*_}"
-          fi
+          wanted="${wanted:-$XCODE_VERSION}"
           xcode="$(ls -d /Applications/Xcode_${wanted}*.app 2>/dev/null | sort -V | tail -n 1)"
           if [ -z "$xcode" ]; then
             echo "::error::The iOS workload needs Xcode $wanted, which this runner doesn't have. Installed:"; ls -d /Applications/Xcode*.app; exit 1
           fi
+          # Xcode_26.6.0.app is a symlink to Xcode_26.6.app on the image; selected through the link, actool can't
+          # find the SDKs ("SDK … MacOSX.sdk cannot be located"), so select the real folder.
+          xcode="$(cd -P "$xcode" && pwd)"
           sudo xcode-select -s "$xcode"
           xcodebuild -version
           echo "Xcode \`$(basename "$xcode")\` for the iOS workload ($wanted)" >> "$GITHUB_STEP_SUMMARY"

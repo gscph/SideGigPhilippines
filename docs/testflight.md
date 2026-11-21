@@ -7,10 +7,13 @@ manual only), signed for the App Store and uploaded to TestFlight. Nobody needs 
   (`CFBundleVersion`) is this workflow's own run number, so it goes up with every run as App Store Connect requires.
 - **Cost:** the repo is private, so macOS minutes count 10x against the free Actions minutes (about 200 macOS minutes
   a month on the free plan). One build takes about 20-30 minutes. Untick *upload* to build an `.ipa` without sending it.
-- **Xcode:** the .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"). The run reads
-  that version from the installed workload (its pack folder `Microsoft.iOS.Sdk.net10.0_26.0`) and selects the matching
-  Xcode on the runner. The `xcode` input overrides it; leave it empty. If the runner lacks that Xcode, the run lists
-  what is installed.
+- **Pinned .NET:** GitHub's Mac images lag Apple (no Xcode 27 yet), and the newest .NET iOS workload needs Xcode 27,
+  so the workflow pins the .NET 10.0.4xx SDK (the image's default `dotnet` is .NET 11) and workload set `10.0.401`
+  (iOS 26.5, MAUI 10.0.20, built with Xcode 26.6) in a `global.json` written for the run only (`DOTNET_SDK`, `WORKLOAD_VERSION` in
+  `ios.yml`). Visual Studio on a PC keeps its own. Raise both once the image has Xcode 27.
+- **Xcode:** the .NET iOS workload builds only with the Xcode it was made for (iOS 26.5.10318 "requires Xcode 26.6",
+  which carries the iOS 26.5 SDK). That isn't derivable from the workload's number, so `XCODE_VERSION` in `ios.yml` is
+  pinned next to `WORKLOAD_VERSION`: change them together. The `xcode` input overrides it for one run.
 
 ## Set up once
 
@@ -67,8 +70,12 @@ Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
 
 ## When it fails
 
-- *The iOS workload needs Xcode X, which this runner doesn't have*: the .NET SDK moved ahead of GitHub's Mac images
-  (they lag Apple by a few months). Wait for the image, or pin an older iOS workload in the workflow.
+- *actool: SDK "…/Xcode_26.6.0.app/…/MacOSX.sdk" cannot be located*: Xcode was selected through the image's
+  `Xcode_X.0.app` symlink; the workflow resolves it to the real folder, so this means that step changed.
+- *The iOS workload needs Xcode X, which this runner doesn't have*: `WORKLOAD_VERSION` points at a workload newer than
+  the image's Xcode. Pick a workload set whose iOS version matches an installed Xcode.
+- *actool: No simulator runtime version … available*: the selected Xcode has no simulator runtime on the image (the
+  asset catalog compiler needs one); pick a workload set whose Xcode has one (the image README lists them).
 - *No App Store provisioning profile*: make it (step 4).
 - *Provisioning profile doesn't include the aps-environment / Sign in with Apple entitlement*: tick the capability on
   the App ID, then edit and save the profile.
