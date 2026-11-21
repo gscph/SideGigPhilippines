@@ -536,7 +536,13 @@ public sealed class FakeContactLauncher : IContactLauncher
         return Task.FromResult(Opens);
     }
 
-    public Task<bool> TextAsync(string phoneNumber, string message) => Task.FromResult(Opens);
+    public List<(string Number, string Message)> Texted { get; } = [];
+
+    public Task<bool> TextAsync(string phoneNumber, string message)
+    {
+        Texted.Add((phoneNumber, message));
+        return Task.FromResult(Opens);
+    }
 }
 
 /// <summary>

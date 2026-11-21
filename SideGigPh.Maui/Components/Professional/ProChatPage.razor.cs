@@ -22,7 +22,7 @@ public partial class ProChatPage : ComponentBase, IDisposable
     [Inject] private ILogger<ProChatPage> Logger { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private JobBoard Board { get; set; } = default!;
-    [Inject] private IContactLauncher Phone { get; set; } = default!;
+    [Inject] private PickedContact Contact { get; set; } = default!;
     [Inject] private AppVisibility Visibility { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
@@ -31,8 +31,8 @@ public partial class ProChatPage : ComponentBase, IDisposable
 
     private Chat? _chat;
 
-    /// <summary>The customer's number, only once they picked this worker's offer on a post (numbers stay private until then).</summary>
-    private string? _number;
+    /// <summary>Call and Text show: the customer picked this worker's offer on a post. The page never holds the number (<see cref="PickedContact"/>).</summary>
+    private bool _canContact;
 
     /// <summary>The newest picked job with this customer (null when they never picked this worker's offer).</summary>
     private PickedJob? _job;
@@ -120,13 +120,13 @@ public partial class ProChatPage : ComponentBase, IDisposable
     private void JobChanged(PickedJob job) => WatchJobs([job, .. _jobs.Skip(1)]);
 
     /// <summary>
-    /// The card called the job off: drop it, re-read the number (Call shows only while a pick links the two) and send
+    /// The card called the job off: drop it, check again whether Call and Text show (only while a pick links the two) and send
     /// the customer the reason in this chat.
     /// </summary>
     private async Task JobCancelledAsync(string message)
     {
         WatchJobs([.. _jobs.Skip(1)]);
-        _number = await Board.ContactNumberAsync(_chat!.SeekerId);
+        _canContact = await Contact.IsOpenAsync(_chat!.SeekerId);
         _message = message;
         await SendAsync();
     }
@@ -140,36 +140,16 @@ public partial class ProChatPage : ComponentBase, IDisposable
         }
 
         var read = Workspace.MarkReadAsync(ChatId);
-        var number = Board.ContactNumberAsync(_chat.SeekerId);
+        var canContact = Contact.IsOpenAsync(_chat.SeekerId);
         var jobs = Board.PickedJobsAsync(_chat.SeekerId);
         _history = await Workspace.GetMessagesAsync(ChatId);
-        _number = await number;
+        _canContact = await canContact;
         _jobs = await jobs;
         _job = _jobs.FirstOrDefault();
         await read;
     }
 
-    private async Task CallAsync()
-    {
-        if (_busy)
-        {
-            return; // a second tap before the button re-rendered as disabled
-        }
-
-        _busy = true;
-        _error = null;
-        try
-        {
-            if (!await Phone.CallAsync(_number!))
-            {
-                _error = T.Get(Copy.ContactFailed);
-            }
-        }
-        finally
-        {
-            _busy = false;
-        }
-    }
+    private void ShowProblem(string? message) => _error = message;
 
     private async Task SendAsync()
     {

@@ -90,25 +90,15 @@ public class InboxTests
     }
 
     [Fact]
-    public async Task Call_DialerOpens_LogsTheCallInTheChat()
+    public async Task LogCall_PutsTheCallInTheChat()
     {
         var app = await FakeApp.SeekerAsync();
 
-        var logged = await app.Seeker.CallAsync(Ana(), TestData.WorkerNumber);
+        var logged = await app.Seeker.LogCallAsync(Ana());
 
-        app.Phone.Called.Should().Equal(TestData.WorkerNumber);
-        logged!.Kind.Should().Be(ChatMessageKind.Call);
+        logged.Kind.Should().Be(ChatMessageKind.Call);
         logged.Text.Should().BeNull();
-    }
-
-    [Fact]
-    public async Task Call_DialerDoesNotOpen_LogsNothing()
-    {
-        var app = await FakeApp.SeekerAsync();
-        app.Phone.Opens = false;
-
-        (await app.Seeker.CallAsync(Ana(), TestData.WorkerNumber)).Should().BeNull();
-        app.Chats.Sent.Should().BeEmpty();
+        app.Chats.Sent.Should().ContainSingle();
     }
 
     [Fact]

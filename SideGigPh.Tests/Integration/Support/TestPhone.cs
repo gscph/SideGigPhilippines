@@ -46,6 +46,7 @@ public sealed class TestPhone
         services.AddSingleton<SideGigPh.Maui.Services.Analytics.AppAnalytics>();
         services.AddSingleton<FeedbackBoard>();
         services.AddSingleton<JobBoard>();
+        services.AddSingleton<PickedContact>();
         services.AddSingleton<ProWorkspace>();
         services.AddSingleton<ListingRestore>();
         services.AddSingleton<ProBadges>();
@@ -83,6 +84,13 @@ public sealed class TestPhone
     public LocalAccount Account => _services.GetRequiredService<LocalAccount>();
 
     public T Get<T>() where T : notnull => _services.GetRequiredService<T>();
+
+    /// <summary>
+    /// Taps Call on the chat with <paramref name="otherUid"/> (<see cref="PickedContact"/>): the number the dialer got,
+    /// or null when no pick links the two (the page never sees the number itself).
+    /// </summary>
+    public async Task<string?> DialedAsync(string otherUid) =>
+        await Get<PickedContact>().CallAsync(otherUid) == ContactOutcome.Opened ? Dialer.Called[^1] : null;
 
     /// <summary>A Philippine mobile number no other test person has.</summary>
     public static string UniqueNumber() => $"+639{(Base + Interlocked.Increment(ref _nextNumber)) % 1_000_000_000:D9}";
