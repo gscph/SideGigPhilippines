@@ -22,7 +22,7 @@ public enum ShareLocationOutcome
 {
     Shared,
 
-    /// <summary>Nothing picked on that post with the caller as its household (a worker can't send one).</summary>
+    /// <summary>Nothing picked on that post with the caller as its household (a worker can't send one), or a block either way.</summary>
     NotFound,
 
     /// <summary>Both sides already marked it done: nobody needs to find the house any more.</summary>
@@ -84,6 +84,10 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
             return [];
         }
 
+        // A block either way hides the household's exact point from the other side, as it hides the phone number.
+        var blocked = await db.Blocks.AnyAsync(b => (b.BlockerUid == uid && b.BlockedUid == otherUid)
+                                                    || (b.BlockerUid == otherUid && b.BlockedUid == uid), cancellationToken);
+
         // The reviews between the two either way round (household → worker, worker → household), for the blind-review rule.
         var ofWorkers = await db.Reviews.AsNoTracking()
             .Where(r => (r.SeekerId == uid && r.ProfessionalId == otherUid) || (r.SeekerId == otherUid && r.ProfessionalId == uid))
@@ -109,10 +113,11 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                 TheyReviewed: theirs is not null && completedAt is { } done && theirs.At >= done,
                 TheirRating: theirs is not null && !ReviewRules.IsHidden(theirs.At, mine?.At, completed, now) ? theirs.Rating : null,
                 MyReviewLocked: mine is not null && ReviewRules.IsLocked(mine.At, theirs?.At, completed, now),
-                // The household's exact point, only while the job is open (it is cleared once completed anyway).
-                MeetLatitude: completedAt is null ? r.MeetLatitude : null,
-                MeetLongitude: completedAt is null ? r.MeetLongitude : null,
-                MeetSharedAt: completedAt is null && r.MeetLatitude is not null ? r.MeetSharedAt : null);
+                // The household's exact point, only while the job is open (it is cleared once completed anyway) and
+                // neither side has blocked the other.
+                MeetLatitude: completedAt is null && !blocked ? r.MeetLatitude : null,
+                MeetLongitude: completedAt is null && !blocked ? r.MeetLongitude : null,
+                MeetSharedAt: completedAt is null && !blocked && r.MeetLatitude is not null ? r.MeetSharedAt : null);
         })];
     }
 
@@ -231,7 +236,8 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                            where o.PostId == postId && o.Status == JobOfferStatuses.Picked && p.SeekerUid == uid
                            select o)
             .FirstOrDefaultAsync(cancellationToken);
-        if (offer is null)
+        if (offer is null || await db.Blocks.AnyAsync(b => (b.BlockerUid == uid && b.BlockedUid == offer.ProUid)
+                                                           || (b.BlockerUid == offer.ProUid && b.BlockedUid == uid), cancellationToken))
         {
             return (ShareLocationOutcome.NotFound, null);
         }

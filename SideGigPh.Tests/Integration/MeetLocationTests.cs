@@ -22,6 +22,7 @@ public class MeetLocationTests(ApiTestHost api)
     {
         CategoryId = "construction",
         ServiceId = "construction-plumbing",
+        Title = "Barado ang lababo",
         CityId = "angono",
         BudgetPesos = 900,
         Description = $"Barado ang lababo sa kusina {Guid.NewGuid():N}"[..40],
@@ -104,6 +105,20 @@ public class MeetLocationTests(ApiTestHost api)
         }
 
         (await stranger.Get<JobBoard>().PickedJobsAsync(household.Uid)).Should().BeEmpty();
+    }
+
+    [IntegrationFact]
+    public async Task ABlock_EitherWay_HidesThePlace_AndTakesNoNewOne()
+    {
+        var household = await TestPhone.SeekerAsync(api, "Marites");
+        var worker = await PlumberAsync("Tubero Ben");
+        var (mine, _) = await PickedAsync(household, worker);
+        var sent = await household.Get<JobBoard>().ShareMeetLocationAsync(mine, House);
+
+        await worker.Pro.BlockAsync(household.Uid);
+
+        (await worker.Get<JobBoard>().PickedJobsAsync(household.Uid)).Should().OnlyContain(j => j.MeetPoint == null);
+        (await household.Get<JobBoard>().ShareMeetLocationAsync(sent!, House)).Should().BeNull("a block refuses a new place");
     }
 
     [IntegrationFact]
