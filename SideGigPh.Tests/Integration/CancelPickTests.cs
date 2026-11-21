@@ -24,6 +24,7 @@ public class CancelPickTests(ApiTestHost api)
         ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = 900,
+        Title = "Ayusin ang problema",
         Description = $"Tumutulo ang gripo sa labas {tag}",
     };
 

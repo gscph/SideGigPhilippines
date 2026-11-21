@@ -21,6 +21,7 @@ public class JobAlertTests(ApiTestHost api)
         ServiceId = "construction-masonry",
         CityId = "taytay",
         BudgetPesos = 1500,
+        Title = "Ayusin ang problema",
         Description = $"May bitak ang pader sa sala {tag}",
     };
 

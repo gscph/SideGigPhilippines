@@ -23,6 +23,7 @@ public class JobBoardTests
         ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = 800,
+        Title = "Barado ang lababo",
         Description = "Barado ang lababo sa kusina",
     };
 
@@ -40,6 +41,10 @@ public class JobBoardTests
         var draft = Complete();
         draft.ServiceId = "aircon-cleaning";
         JobBoard.FirstMissing(draft).Should().Be(JobPostField.Service, "a service of another trade");
+
+        draft = Complete();
+        draft.Title = "  Sira ";
+        JobBoard.FirstMissing(draft).Should().Be(JobPostField.Title, "too short to be a title");
 
         draft = Complete();
         draft.Description = "  Tulo   ";
@@ -96,8 +101,8 @@ public class JobBoardTests
     {
         JobBoard.Missing(Complete()).Should().BeEmpty();
         JobBoard.Missing(new JobPostDraft()).Should().Equal(
-            JobPostField.Trade, JobPostField.Town, JobPostField.Budget, JobPostField.Description);
-        JobBoard.Missing(new JobPostDraft { CategoryId = "aircon", CityId = "angono", BudgetPesos = 800 }).Should().Equal(
+            JobPostField.Trade, JobPostField.Town, JobPostField.Budget, JobPostField.Title, JobPostField.Description);
+        JobBoard.Missing(new JobPostDraft { CategoryId = "aircon", CityId = "angono", BudgetPesos = 800, Title = "Tumutulo ang aircon" }).Should().Equal(
             [JobPostField.Service, JobPostField.Description], "the trade is picked, its exact service is not");
     }
 
@@ -106,6 +111,7 @@ public class JobBoardTests
     {
         var text = new AppText();
         JobBoard.MissingText(JobPostField.Description, text).Should().Be("Describe the problem in at least 10 letters.");
+        JobBoard.MissingText(JobPostField.Title, text).Should().Be("Give your post a title, at least 5 letters.");
         JobBoard.MissingText(JobPostField.Budget, text).Should().Contain("₱50 – ₱1,000,000").And.Contain("not less than");
         JobBoard.MissingText(JobPostField.Trade, text).Should().Be("Pick the kind of work.");
         JobBoard.MissingText(JobPostField.Town, text).Should().Be("Pick your town.");
@@ -397,7 +403,7 @@ public class JobBoardTests
     private static JobPost Open(long id, int offers = 0) => new(
         id, "construction", "construction-plumbing", "Barado ang lababo sa kusina", 800, "taytay",
         [FakePhotoStore.Url("p1"), FakePhotoStore.Url("p2")], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null,
-        DateTimeOffset.UnixEpoch, OfferCount: offers, BudgetMinPesos: 500, BarangayId: "taytay-san-isidro", PhotoIds: ["p1", "p2"]);
+        DateTimeOffset.UnixEpoch, OfferCount: offers, BudgetMinPesos: 500, BarangayId: "taytay-san-isidro", PhotoIds: ["p1", "p2"], Title: "Barado ang lababo");
 
     [Fact]
     public void AnEditDraft_HoldsThePostAsItIs()
@@ -406,6 +412,7 @@ public class JobBoardTests
 
         draft.EditsPostId.Should().Be(7);
         draft.ServiceId.Should().Be("construction-plumbing");
+        draft.Title.Should().Be("Barado ang lababo");
         draft.BudgetMinPesos.Should().Be(500);
         draft.BarangayId.Should().Be("taytay-san-isidro");
         draft.Photos.Select(p => p.Id).Should().Equal("p1", "p2");

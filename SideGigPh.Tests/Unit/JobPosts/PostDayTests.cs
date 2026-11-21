@@ -22,7 +22,7 @@ public class PostDayTests
 
     private static JobPostDraft Filled(DateOnly? day = null) => new()
     {
-        CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "angono", Description = "Hindi lumalamig ang aircon",
+        CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "angono", Title = "Hindi lumalamig", Description = "Hindi lumalamig ang aircon",
         BudgetPesos = 1500, NeededOn = day,
     };
 

@@ -725,7 +725,7 @@ public sealed class FakeJobPosts : IJobPostRepository
         ThrowIfOffline();
         Added.Add(draft);
         var post = new JobPost(_mine.Count + 1000, draft.CategoryId!, draft.ServiceId!, draft.Description!.Trim(), draft.BudgetPesos!.Value, draft.CityId!,
-            [.. draft.Photos.Select(photo => photo.Url)], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null, DateTimeOffset.UnixEpoch);
+            [.. draft.Photos.Select(photo => photo.Url)], IsOpen: true, Mine: true, OffersService: false, DistanceKm: null, DateTimeOffset.UnixEpoch, Title: draft.Title?.Trim());
         _mine.Insert(0, post);
         return Task.FromResult(post);
     }
@@ -744,7 +744,7 @@ public sealed class FakeJobPosts : IJobPostRepository
         Updated.Add((postId, draft));
         _mine[index] = _mine[index] with
         {
-            CategoryId = draft.CategoryId!, ServiceId = draft.ServiceId!, Description = draft.Description!.Trim(),
+            CategoryId = draft.CategoryId!, ServiceId = draft.ServiceId!, Description = draft.Description!.Trim(), Title = draft.Title?.Trim(),
             BudgetPesos = draft.BudgetPesos!.Value, BudgetMinPesos = draft.BudgetMinPesos, CityId = draft.CityId!, BarangayId = draft.BarangayId,
             PhotoUrls = [.. draft.Photos.Select(photo => photo.Url)], PhotoIds = [.. draft.Photos.Select(photo => photo.Id)],
         };

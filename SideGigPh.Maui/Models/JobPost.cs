@@ -17,6 +17,7 @@ namespace SideGigPh.Maui.Models;
 /// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked, or null (not sure).</param>
 /// <param name="PhotoIds">The stored ids of <paramref name="PhotoUrls"/>, same order (Edit post keeps them); null when unknown.</param>
 /// <param name="NeededOn">The day the household needs it done (Philippine date), or null for any day.</param>
+/// <param name="Title">The household's own short title, the post's header; null only on posts made before titles.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -37,7 +38,8 @@ public sealed record JobPost(
     ReviewSummary? HouseholdStars = null,
     string? BarangayId = null,
     IReadOnlyList<string>? PhotoIds = null,
-    DateOnly? NeededOn = null);
+    DateOnly? NeededOn = null,
+    string? Title = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.
@@ -51,6 +53,9 @@ public sealed class JobPostDraft
     public string? CategoryId { get; set; }
 
     public string? ServiceId { get; set; }
+
+    /// <summary>The household's own short title, the post's header (the service shows under it).</summary>
+    public string? Title { get; set; }
 
     public string? Description { get; set; }
 
