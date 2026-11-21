@@ -9,12 +9,11 @@ manual only), signed for the App Store and uploaded to TestFlight. Nobody needs 
   a month on the free plan). One build takes about 20-30 minutes. Untick *upload* to build an `.ipa` without sending it.
 - **Pinned .NET:** GitHub's Mac images lag Apple (no Xcode 27 yet), and the newest .NET iOS workload needs Xcode 27,
   so the workflow pins the .NET 10.0.4xx SDK (the image's default `dotnet` is .NET 11) and workload set `10.0.401`
-  (iOS 26.5, MAUI 10.0.20) in a `global.json` written for the run only (`DOTNET_SDK`, `WORKLOAD_VERSION` in
+  (iOS 26.5, MAUI 10.0.20, built with Xcode 26.6) in a `global.json` written for the run only (`DOTNET_SDK`, `WORKLOAD_VERSION` in
   `ios.yml`). Visual Studio on a PC keeps its own. Raise both once the image has Xcode 27.
-- **Xcode:** the .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"). The run reads
-  that version from the installed workload (the iOS version in the pinned workload set) and selects the matching
-  Xcode on the runner. The `xcode` input overrides it; leave it empty. If the runner lacks that Xcode, the run lists
-  what is installed.
+- **Xcode:** the .NET iOS workload builds only with the Xcode it was made for (iOS 26.5.10318 "requires Xcode 26.6",
+  which carries the iOS 26.5 SDK). That isn't derivable from the workload's number, so `XCODE_VERSION` in `ios.yml` is
+  pinned next to `WORKLOAD_VERSION`: change them together. The `xcode` input overrides it for one run.
 
 ## Set up once
 
