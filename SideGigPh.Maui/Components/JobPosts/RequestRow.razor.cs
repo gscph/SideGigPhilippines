@@ -6,8 +6,9 @@ namespace SideGigPh.Maui.Components.JobPosts;
 
 /// <summary>
 /// One customer request as a short row in the worker's lists (Requests, My offers, Pro home), Airbnb Trips style:
-/// a small picture (the customer's first photo, else the service's own), the service with the budget on the right in
-/// money green, the place and distance, then the day the customer needs it (when they picked one), how long ago and
+/// a small picture (the customer's first photo, else the service's own), the post's title with the budget on the right in
+/// money green, the service under it as a hint (older posts without a title show the service instead),
+/// the place and distance, then the day the customer needs it (when they picked one), how long ago and
 /// where it stands, and one button, "Offer" or "My offer".
 /// The whole row is one tap target: it opens the request's own page (<see cref="RequestDetailPage"/>), where the
 /// description, the photos and every offer action live. Lists put a <c>MudDivider</c> between rows.

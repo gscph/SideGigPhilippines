@@ -26,7 +26,11 @@
     else
     {
         <MudStack Spacing="1">
-            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@ServiceLabel</MudText>
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="app-wrap-text">@T.PostTitle(_post)</MudText>
+            @if (T.PostServiceHint(_post) is { } service)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">@service</MudText>
+            }
             <ProCardFact Icon="@Icons.Material.Filled.Payments" IconColor="Color.Success" Highlight="true"
                          Text="@T.Format(Copy.PostBudgetFact, Pricing.PostBudget(_post))" />
             <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.OffersWhy)</MudText>

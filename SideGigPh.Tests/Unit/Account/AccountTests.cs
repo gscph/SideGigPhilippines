@@ -159,7 +159,7 @@ public class AccountTests
 
     private static JobPostDraft Request(string description) => new()
     {
-        CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "taytay", Description = description, BudgetPesos = 1000,
+        CategoryId = "aircon", ServiceId = "aircon-cleaning", CityId = "taytay", Title = "Hindi lumalamig", Description = description, BudgetPesos = 1000,
     };
 
     [Fact]

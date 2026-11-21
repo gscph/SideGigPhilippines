@@ -36,9 +36,6 @@ public partial class JobPostCard : ComponentBase
         var n => T.Format(Copy.PostOffersMany, n),
     };
 
-    private string ServiceLabel =>
-        ReferenceData.FindService(Post.ServiceId) is { } service ? T.Get(service.Label) : TradeLabel ?? Post.ServiceId;
-
     /// <summary>The trade's name, or null for a trade we no longer offer.</summary>
     private string? TradeLabel =>
         ReferenceData.FindTrade(Post.CategoryId) is { } trade ? T.Get(trade.Label) : null;

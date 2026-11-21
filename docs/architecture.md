@@ -268,13 +268,19 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
   to the trades; Save, Cancel and ← go back through the WebView history (`history.go`, `PostReview.SheetDepth`), so
   Back on the form afterwards leaves it as before (`PostPartFields`: What is two pages: picture tiles for the kind of work, and a tap opens that trade's own page of services titled with the trade, ← back to the trades (`PostReview.HasJobChoice`; "Others" stays, it is its own job), Save greyed until a service is picked (`PostReview.CanSave`), so a trade alone never leaves Post grey; town + barangay + "Use my location"; When: a static `MudDatePicker` from today (Philippine date) to `JobPostRules.MaxDaysAhead` (90) days ahead plus "Any day is fine"; budget from / up to
   with the guide), with Cancel (link, puts the answers back from a `PostSnapshot`) and Save pinned at the bottom.
-  Under the card: "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
+  Under the card: the post's **Title** (5–80 letters, required, no rude words; `JobPostRules.IsTitle`, `JobBoard.IsTitleOk`),
+  "Describe the problem" (10–600 letters) and up to 3 photos, uploaded as they are picked
   (`JobBoard.AddPhotosAsync`); Post pinned at the bottom, never greyed for a missing answer: under it "Still needed: the
   service, your budget" names everything left (`JobBoard.Missing`, in the card's order: What, Where, When, Your budget, the
-  problem; `PostReviewText.PostStillNeeded`), and a tap with something missing turns the notes red and opens the first
-  one's sheet (`PostReview.PartOf`), or focuses the problem's box, which then shows its own error. Trade, service and town
+  title, the problem; `PostReviewText.PostStillNeeded`), and a tap with something missing turns the notes red and opens the first
+  one's sheet (`PostReview.PartOf`), or focuses the title's or the problem's box, which then shows its own error. Trade, service and town
   start from their last search. Closing with ✕ keeps a draft with typed words or photos for the next open (`JobBoard.KeepUnsent` / `TakeUnsent`, in memory). **Edit post:** an open post's card (`JobPostCard`) has Edit beside Take down, opening the same page at `JobPostRoutes.Edit(id)` = `/posts/{id}/edit` filled in (`JobBoard.EditDraft`: title "Change your post", button "Save changes"; ✕ drops the edit, no kept draft). `PUT job-posts/{id}` (`JobPostStore.UpdateAsync`, limit `Limited.JobPostEdit`) takes the whole post like `POST job-posts`, replaces the photos, keeps the point unless the phone sent one or the town changed, and alerts nobody again; once offers came in the trade and service stay (`JobPostDraft.WhatLocked` hides What's Change; the server refuses `invalid-categoryId` / `invalid-serviceId`). A photo already on the post stays stored when taken off the draft (`SavedPhotoIds`), so Cancel loses nothing. A post closed meanwhile answers `404` → `JobPostResult.Closed`, and the page says it can't change. Rules: `Services/PostReview`, `Services/Localization/PostReviewText`, tested in
   `Unit/JobPosts/PostReviewTests`.
+  **The post's title** (`027-schema-post-title.sql`, `JobPosts.Title` nvarchar(80) NULL, `JobPostDto` / `NewJobPostRequest.Title`):
+  the household's own words are **the post's header on both sides** (`JobPostCard`, `OffersPage`, `RequestRow`,
+  `RequestSummary`, via `RequestText.PostTitle`), with the service under it as a gray hint (`RequestText.PostServiceHint`).
+  The server refuses a new or edited post without one (`invalid-title`); NULL only on posts made before titles, which
+  show the service as the header (and Edit asks for a title). The picked-job card and the pick message still name the service.
   **The post's day** (`024-schema-post-needed-date.sql`, `JobPosts.NeededOn` date NULL, `JobPostDto` / `NewJobPostRequest.NeededOn`,
   rules `Services/PostDay` + `JobPostRules.IsNeededOn`, tested in `Unit/JobPosts/PostDayTests`): optional, in the
   Philippines' dates (UTC+8, `JobPostRules.PhilippineToday`); the server refuses a new day before yesterday or past 90
