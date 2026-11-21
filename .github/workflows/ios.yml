@@ -185,6 +185,13 @@ jobs:
             unzip -l "$ipa" | grep GoogleService || true
             exit 1
           fi
+          # Firebase Auth needs the keychain entitlement on iOS, expanded to the team's group (not the raw variable).
+          app="$(unzip -l "$ipa" | grep -oE 'Payload/[^/]+\.app/' | head -n 1)"
+          unzip -p "$ipa" "${app}archived-expanded-entitlements.xcent" > "$RUNNER_TEMP/entitlements.plist"
+          if ! grep -qE '<string>[A-Z0-9]{10}\.com\.tarbaho\.app</string>' "$RUNNER_TEMP/entitlements.plist"; then
+            echo "::error::The keychain-access-groups entitlement is missing or not expanded (Entitlements.plist)"
+            cat "$RUNNER_TEMP/entitlements.plist"; exit 1
+          fi
           file="$RUNNER_TEMP/tarbaho-${{ steps.version.outputs.label }}-build${BUILD_NUMBER}-ios.ipa"
           mv "$ipa" "$file"
           echo "file=$file" >> "$GITHUB_OUTPUT"
