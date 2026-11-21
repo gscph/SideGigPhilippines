@@ -400,7 +400,7 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
   job's `MeetPoint` down (`ChatMessages.Place`), so the pin carries no coordinates and says "No longer shared" once the
   point is deleted. The Inbox row previews it the same way. Afterwards the card says "Location sent to Juan · 5 min ago" with
   **Send again**. `PickedJobDto.MeetLatitude` / `MeetLongitude` / `MeetSharedAt` (model `PickedJob.MeetPoint`) go
-  only to the household and the picked worker and only before completion; the server **deletes** the point when either
+  only to the household and the picked worker, only before completion and never across a block (either way; a block also refuses a new point); the server **deletes** the point when either
   side cancels and when the second side marks it done. The worker's card shows "Where to go": a small map with a pin
   (skeleton `MapFrame`: OpenStreetMap's embed page in a frame, free, no key, lazy, no referrer; chosen over Google's
   embed or static maps, which need a billed key), the straight-line distance and compass direction from the worker's
