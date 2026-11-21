@@ -1,0 +1,5 @@
+<MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Color="Color.Dark" Class="@ButtonClass" Href="@BackHref" aria-label="@T.Get(CommonCopy.Back)" />
+@if (ReportHref is not null)
+{
+    <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" Class="@ButtonClass" aria-label="@T.Get(Copy.ReportButton)" Href="@ReportHref" />
+}

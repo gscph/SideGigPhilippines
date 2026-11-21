@@ -7,11 +7,11 @@
             <MudText Typo="Typo.subtitle2">@T.Format(Copy.MeetSendTitle, OtherName)</MudText>
             <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Format(Copy.MeetSendWhy, OtherName)</MudText>
         </MudStack>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="_busy"
+        <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" Disabled="_busy"
                    StartIcon="@Icons.Material.Rounded.MyLocation" OnClick="SendAsync">
             @if (_busy)
             {
-                <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Default" />
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
             }
             else
             {
@@ -24,7 +24,7 @@
         <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
             <MudIcon Icon="@Icons.Material.Rounded.CheckCircle" Color="Color.Success" Size="Size.Small" aria-hidden="true" />
             <MudText Typo="Typo.body2" Class="flex-1">@T.Format(Copy.MeetSent, OtherName, T.Ago(Job.MeetSharedAt ?? Job.PickedAt))</MudText>
-            <MudButton Variant="Variant.Text" Color="Color.Dark" Class="flex-shrink-0" Disabled="_busy" OnClick="SendAsync">
+            <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button flex-shrink-0" Disabled="_busy" OnClick="SendAsync">
                 @T.Get(Copy.MeetSendAgain)
             </MudButton>
         </MudStack>
@@ -56,8 +56,8 @@ else if (MeetLocation.CanSee(Job) && Job.MeetPoint is { } place)
     }
     else
     {
-        <MudStack Spacing="1">
-            <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" Disabled="_busy"
+        <MudStack Spacing="0" AlignItems="AlignItems.Start">
+            <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button" Disabled="_busy"
                        StartIcon="@Icons.Material.Rounded.Explore" OnClick="HowFarAsync">
                 @if (_busy)
                 {
@@ -72,7 +72,7 @@ else if (MeetLocation.CanSee(Job) && Job.MeetPoint is { } place)
         </MudStack>
     }
 
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" StartIcon="@Icons.Material.Rounded.Navigation"
+    <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" StartIcon="@Icons.Material.Rounded.Navigation"
                OnClick="@(() => OpenAsync(place))">
         @T.Get(Copy.PinOpen)
     </MudButton>

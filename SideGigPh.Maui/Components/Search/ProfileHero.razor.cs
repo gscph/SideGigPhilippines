@@ -8,7 +8,7 @@ namespace SideGigPh.Maui.Components.Search;
 /// <summary>
 /// The top of a worker's public profile, centered like Airbnb's detail page: the photo, the name (the page's h1), one
 /// line saying what and where ("Aircon Technician in Angono", the Seeker's own town first) and one muted line with the
-/// other towns.
+/// other towns. Under a worker's work photos (<see cref="OnCover"/>) the photo overlaps the cover's bottom edge.
 /// </summary>
 public partial class ProfileHero : ComponentBase
 {
@@ -18,6 +18,11 @@ public partial class ProfileHero : ComponentBase
 
     /// <summary>The Seeker's town, named first when the worker goes there.</summary>
     [Parameter] public string? SeekerTownId { get; set; }
+
+    /// <summary>True under a <see cref="ProfileCover"/>: the photo rides up over the cover's bottom edge.</summary>
+    [Parameter] public bool OnCover { get; set; }
+
+    private string PhotoClass => OnCover ? "profile-photo profile-photo-overlap mb-3" : "profile-photo mb-3";
 
     private IReadOnlyList<string> Towns => ProfileFacts.Towns(Listing, SeekerTownId);
 
