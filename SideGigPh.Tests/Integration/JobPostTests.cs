@@ -29,6 +29,7 @@ public class JobPostTests(ApiTestHost api)
         ServiceId = service,
         CityId = town,
         BudgetPesos = budget,
+        Title = "Barado ang lababo",
         Description = $"Barado ang lababo sa kusina {tag}",
     };
 
@@ -232,14 +233,14 @@ public class JobPostTests(ApiTestHost api)
         var household = await TestPhone.SeekerAsync(api, "Kulang");
         (NewJobPostRequest Request, string Error)[] cases =
         [
-            (new("construction", "construction-plumbing", "Tulo", 800, "taytay"), "invalid-description"),
-            (new("construction", "construction-plumbing", "Barado ang lababo, put@ng ina", 800, "taytay"), "invalid-description"),
-            (new("construction", "aircon-cleaning", Problem, 800, "taytay"), "invalid-serviceId"),
-            (new("karaoke", "construction-plumbing", Problem, 800, "taytay"), "invalid-categoryId"),
-            (new("construction", "construction-plumbing", Problem, 800, "makati"), "invalid-cityId"),
-            (new("construction", "construction-plumbing", Problem, 5, "taytay"), "invalid-budgetPesos"),
-            (new("construction", "construction-plumbing", Problem, 800, "taytay", ["not-a-photo"]), "invalid-photoIds"),
-            (new("construction", "construction-plumbing", Problem, 800, "taytay", null, 0, 0), "invalid-latitude"),
+            (new("construction", "construction-plumbing", "Tulo", 800, "taytay", Title: "Barado ang lababo"), "invalid-description"),
+            (new("construction", "construction-plumbing", "Barado ang lababo, put@ng ina", 800, "taytay", Title: "Barado ang lababo"), "invalid-description"),
+            (new("construction", "aircon-cleaning", Problem, 800, "taytay", Title: "Barado ang lababo"), "invalid-serviceId"),
+            (new("karaoke", "construction-plumbing", Problem, 800, "taytay", Title: "Barado ang lababo"), "invalid-categoryId"),
+            (new("construction", "construction-plumbing", Problem, 800, "makati", Title: "Barado ang lababo"), "invalid-cityId"),
+            (new("construction", "construction-plumbing", Problem, 5, "taytay", Title: "Barado ang lababo"), "invalid-budgetPesos"),
+            (new("construction", "construction-plumbing", Problem, 800, "taytay", ["not-a-photo"], Title: "Barado ang lababo"), "invalid-photoIds"),
+            (new("construction", "construction-plumbing", Problem, 800, "taytay", null, 0, 0, Title: "Barado ang lababo"), "invalid-latitude"),
         ];
 
         foreach (var (request, error) in cases)
@@ -252,12 +253,33 @@ public class JobPostTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task APostWithoutATitle_OrAShortOrRudeOne_IsRefused()
+    {
+        const string Problem = "Barado ang lababo sa kusina";
+        var household = await TestPhone.SeekerAsync(api, "Walang title");
+        NewJobPostRequest[] cases =
+        [
+            new("construction", "construction-plumbing", Problem, 800, "taytay"),
+            new("construction", "construction-plumbing", Problem, 800, "taytay", Title: "Sira"),
+            new("construction", "construction-plumbing", Problem, 800, "taytay", Title: "Put@ng ina lababo"),
+        ];
+
+        foreach (var request in cases)
+        {
+            using var response = await api.Client(api.Tokens.For(household.Uid)).PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
+
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest, request.Title);
+            (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be("invalid-title");
+        }
+    }
+
+    [IntegrationFact]
     public async Task TheHouseholdsPoint_IsStoredButNeverSent()
     {
         var tag = Tag();
         var household = await TestPhone.SeekerAsync(api, "Pribado");
         var plumber = await PlumberAsync(api, "Tubero");
-        var request = new NewJobPostRequest("construction", "construction-plumbing", $"Barado ang lababo sa kusina {tag}", 800, "taytay", null, 14.5601, 121.1352);
+        var request = new NewJobPostRequest("construction", "construction-plumbing", $"Barado ang lababo sa kusina {tag}", 800, "taytay", null, 14.5601, 121.1352, Title: "Barado ang lababo");
         using var response = await api.Client(api.Tokens.For(household.Uid)).PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var id = (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.Id;
@@ -287,6 +309,27 @@ public class JobPostTests(ApiTestHost api)
 
         posted.BarangayId.Should().Be("angono-san-isidro");
         (await FeedAsync(plumber, tag)).Should().ContainSingle().Which.BarangayId.Should().Be("angono-san-isidro");
+    }
+
+    [IntegrationFact]
+    public async Task ThePostsTitle_IsKept_AndWorkersSeeIt_AndAnEditChangesIt()
+    {
+        var tag = Tag();
+        var household = await TestPhone.SeekerAsync(api, "Pamagat");
+        var plumber = await PlumberAsync(api, "Tubero", towns: ["taytay"]);
+        var draft = Draft(tag);
+        draft.Title = "  Barado ang lababo sa kusina  ";
+
+        var posted = await PostAsync(household, draft);
+
+        posted.Title.Should().Be("Barado ang lababo sa kusina", "trimmed");
+        (await FeedAsync(plumber, tag)).Should().ContainSingle().Which.Title.Should().Be("Barado ang lababo sa kusina");
+
+        var edit = JobBoard.EditDraft(posted);
+        edit.Title.Should().Be("Barado ang lababo sa kusina", "Edit post opens with it");
+        edit.Title = "Tumutulo ang gripo";
+        (await household.Get<JobBoard>().SaveEditAsync(edit)).Should().Be(JobPostResult.Posted);
+        (await FeedAsync(plumber, tag)).Should().ContainSingle().Which.Title.Should().Be("Tumutulo ang gripo");
     }
 
     [IntegrationFact]
@@ -320,7 +363,7 @@ public class JobPostTests(ApiTestHost api)
 
         foreach (var day in new[] { today.AddDays(-3), today.AddDays(JobPostRules.MaxDaysAhead + 1) })
         {
-            var request = new NewJobPostRequest("construction", "construction-plumbing", $"Barado ang lababo sa kusina {tag}", 800, "taytay", NeededOn: day);
+            var request = new NewJobPostRequest("construction", "construction-plumbing", $"Barado ang lababo sa kusina {tag}", 800, "taytay", NeededOn: day, Title: "Barado ang lababo");
             using var response = await client.PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
             response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             (await response.Content.ReadAsStringAsync()).Should().Contain("neededOn");
@@ -336,7 +379,7 @@ public class JobPostTests(ApiTestHost api)
 
         async Task<string?> PostWith(string? barangayId, string words)
         {
-            var request = new NewJobPostRequest("construction", "construction-plumbing", $"{words} {tag}", 800, "taytay", BarangayId: barangayId);
+            var request = new NewJobPostRequest("construction", "construction-plumbing", $"{words} {tag}", 800, "taytay", BarangayId: barangayId, Title: "Barado ang lababo");
             using var response = await client.PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
             response.StatusCode.Should().Be(HttpStatusCode.OK, "a barangay is optional and never stops a post");
             return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.BarangayId;
@@ -399,7 +442,7 @@ public class JobPostTests(ApiTestHost api)
         var client = api.Client(api.Tokens.For(household.Uid));
         var moved = Draft(tag, service: "construction-tiles");
         using (var refused = await client.PutAsJsonAsync($"job-posts/{posted.Id}", new NewJobPostRequest(
-            moved.CategoryId!, moved.ServiceId!, moved.Description!, 800, "taytay"), ApiJson.Default.NewJobPostRequest))
+            moved.CategoryId!, moved.ServiceId!, moved.Description!, 800, "taytay", Title: moved.Title), ApiJson.Default.NewJobPostRequest))
         {
             refused.StatusCode.Should().Be(HttpStatusCode.BadRequest);
             (await refused.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.Invalid("serviceId"));
@@ -417,7 +460,7 @@ public class JobPostTests(ApiTestHost api)
         var household = await TestPhone.SeekerAsync(api, "Akin");
         var stranger = await TestPhone.SeekerAsync(api, "Iba");
         var posted = await PostAsync(household, Draft(tag));
-        var body = new NewJobPostRequest("construction", "construction-plumbing", $"Hindi ko ito post {tag}", 800, "taytay");
+        var body = new NewJobPostRequest("construction", "construction-plumbing", $"Hindi ko ito post {tag}", 800, "taytay", Title: "Barado ang lababo");
 
         (await api.Client(api.Tokens.For(stranger.Uid)).PutAsJsonAsync($"job-posts/{posted.Id}", body, ApiJson.Default.NewJobPostRequest))
             .StatusCode.Should().Be(HttpStatusCode.NotFound, "someone else's post");

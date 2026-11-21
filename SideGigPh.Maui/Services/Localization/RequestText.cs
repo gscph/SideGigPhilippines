@@ -15,6 +15,14 @@ public static class RequestText
         : ReferenceData.FindTrade(post.CategoryId) is { } trade ? text.Get(trade.Label)
         : post.ServiceId;
 
+    /// <summary>The post's header: the household's own title, else (a post made before titles) the service.</summary>
+    public static string PostTitle(this AppText text, JobPost post) =>
+        string.IsNullOrWhiteSpace(post.Title) ? text.ServiceLabel(post) : post.Title;
+
+    /// <summary>The service as a hint under the title ("Linis ng aircon"), or null when the service is already the header.</summary>
+    public static string? PostServiceHint(this AppText text, JobPost post) =>
+        string.IsNullOrWhiteSpace(post.Title) ? null : text.ServiceLabel(post);
+
     /// <summary>"Angono · Brgy. San Isidro · 3 km away": the town, its barangay when given, and how far when known.</summary>
     public static string RequestPlace(this AppText text, JobPost post)
     {

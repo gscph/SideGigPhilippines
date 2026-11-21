@@ -55,6 +55,7 @@ public class BlindReviewTests(ApiTestHost api)
             ServiceId = "construction-plumbing",
             CityId = "taytay",
             BudgetPesos = 900,
+            Title = "Ayusin ang problema",
             Description = $"Tumutulo ang gripo {Tag()}",
         })).Should().Be(JobPostResult.Posted);
         return board.Mine[0].Id;

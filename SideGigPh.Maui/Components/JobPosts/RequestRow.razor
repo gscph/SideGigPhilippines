@@ -3,9 +3,13 @@
         <PostThumb PhotoUrl="@Item.Post.PhotoUrls.FirstOrDefault()" Fallback="@AppImages.For(Item.Post.ServiceId)" />
         <MudStack Spacing="0" Class="flex-1 app-min-w-0">
             <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-                <MudText Typo="Typo.subtitle1" Class="one-line">@T.ServiceLabel(Item.Post)</MudText>
+                <MudText Typo="Typo.subtitle1" Class="one-line">@T.PostTitle(Item.Post)</MudText>
                 <MudText Typo="Typo.subtitle2" Color="Color.Success" Class="flex-shrink-0">@Pricing.PostBudget(Item.Post)</MudText>
             </MudStack>
+            @if (T.PostServiceHint(Item.Post) is { } service)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@service</MudText>
+            }
             <MudText Typo="Typo.body2" Color="Color.Secondary" Class="one-line">@T.RequestPlace(Item.Post)</MudText>
             <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                 <MudText Typo="Typo.caption" Color="Color.Secondary" Class="one-line">@TimeLine</MudText>

@@ -15,7 +15,7 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// <see cref="PostDay"/>) and Your budget (from–to, the suggested minimum price
 /// as a guide only), each changed on its own full-screen sheet (Cancel / Save, <see cref="PostReview"/>) with its own URL
 /// (<see cref="JobPostRoutes.Sheet"/>), so the phone's Back closes it like Cancel, or goes from a trade's jobs back to the
-/// trades; then what is wrong and up to three photos. Each row still missing says what to do, the footer names everything
+/// trades; then the post's own title (its header for both sides, the service shown under it), what is wrong and up to three photos. Each row still missing says what to do, the footer names everything
 /// still needed, and Post stays tappable: a tap with something missing turns the notes red and opens the first one. It starts with the trade, service, town and barangay
 /// from their last search or post, so most people only type the problem and a number. Post leads back to their posts.
 /// The same form at <c>/posts/{id}/edit</c> changes an open post (<see cref="JobBoard.EditDraft"/>): filled in, "Save
@@ -51,6 +51,7 @@ public partial class NewPostPage : ComponentBase
     private bool _saved; // Save was tapped: the answers stay when the form comes back
     private bool _leaving; // a sheet is going back to the form (waiting for the browser's history)
     private bool _tried; // Post was tapped with something missing: the notes turn red
+    private MudTextField<string>? _title;
     private MudTextField<string>? _description;
     private bool _loaded; // the post (Edit) or the last search's answers are in the draft
     private bool _busy;
@@ -233,6 +234,10 @@ public partial class NewPostPage : ComponentBase
 
     private Task RemovePhotoAsync(string photoId) => Board.RemovePhotoAsync(_draft, photoId);
 
+    private bool TitleMissing => !JobBoard.IsTitleOk(_draft.Title);
+
+    private string TitleNote => JobBoard.MissingText(JobPostField.Title, T, _draft);
+
     private bool DescriptionMissing => !JobBoard.IsDescriptionOk(_draft.Description);
 
     private string DescriptionNote => JobBoard.MissingText(JobPostField.Description, T, _draft);
@@ -252,9 +257,9 @@ public partial class NewPostPage : ComponentBase
             {
                 OpenSheet(part);
             }
-            else if (_description is not null)
+            else if ((missing == JobPostField.Title ? _title : _description) is { } field)
             {
-                await _description.FocusAsync();
+                await field.FocusAsync();
             }
 
             return;

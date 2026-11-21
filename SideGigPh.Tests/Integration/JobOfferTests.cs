@@ -27,6 +27,7 @@ public class JobOfferTests(ApiTestHost api)
         ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = budget,
+        Title = "Ayusin ang problema",
         Description = $"Barado ang lababo sa kusina {tag}",
     };
 

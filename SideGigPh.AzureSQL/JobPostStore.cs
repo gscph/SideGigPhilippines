@@ -80,6 +80,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             CategoryId = request.CategoryId,
             ServiceId = request.ServiceId,
             Description = description,
+            Title = request.Title!.Trim(),
             BudgetPesos = request.BudgetPesos,
             BudgetMinPesos = request.BudgetMinPesos,
             CityId = request.CityId,
@@ -134,6 +135,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         row.CategoryId = request.CategoryId;
         row.ServiceId = request.ServiceId;
         row.Description = request.Description.Trim();
+        row.Title = request.Title!.Trim();
         row.BudgetPesos = request.BudgetPesos;
         row.BudgetMinPesos = request.BudgetMinPesos;
         row.CityId = request.CityId;
@@ -548,6 +550,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         return knownJob is null ? "categoryId"
             : knownJob == false ? "serviceId"
             : !served.Towns.Any(t => t.Id == request.CityId) ? "cityId"
+            : !JobPostRules.IsTitle(request.Title) || BlockedWords.Contains(request.Title) ? "title"
             : !JobPostRules.IsDescription(request.Description) || BlockedWords.Contains(request.Description) ? "description"
             : !JobPostRules.IsBudget(request.BudgetPesos) ? "budgetPesos"
             : !JobPostRules.IsBudgetRange(request.BudgetMinPesos, request.BudgetPesos) ? "budgetMinPesos"
@@ -587,7 +590,8 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         row.BudgetMinPesos,
         householdReviews,
         row.BarangayId,
-        row.NeededOn);
+        row.NeededOn,
+        row.Title);
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

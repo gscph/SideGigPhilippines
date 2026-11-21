@@ -88,6 +88,14 @@
                 </MudPaper>
 
                 <MudStack Spacing="2">
+                    <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.PostTitleLabel)</MudText>
+                    <MudTextField T="string" @ref="_title" @bind-Value="_draft.Title" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
+                                  Class="app-field" MaxLength="@JobBoard.MaxTitle"
+                                  Placeholder="@T.Get(Copy.PostTitleHint)" aria-label="@T.Get(Copy.PostTitleLabel)"
+                                  Error="@(_tried && TitleMissing)" ErrorText="@TitleNote" />
+                </MudStack>
+
+                <MudStack Spacing="2">
                     <MudText Typo="Typo.h6" HtmlTag="h2">@T.Get(Copy.PostDescription)</MudText>
                     <MudTextField T="string" @ref="_description" @bind-Value="_draft.Description" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                                   Class="app-field" Lines="4" MaxLength="@JobBoard.MaxDescription"

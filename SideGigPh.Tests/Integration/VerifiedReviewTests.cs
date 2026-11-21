@@ -24,6 +24,7 @@ public class VerifiedReviewTests(ApiTestHost api)
         ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = 900,
+        Title = "Ayusin ang problema",
         Description = $"Barado ang CR sa taas {tag}",
     };
 

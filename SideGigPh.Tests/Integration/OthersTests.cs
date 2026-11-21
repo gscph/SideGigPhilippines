@@ -73,6 +73,7 @@ public class OthersTests(ApiTestHost api)
             CityId = "taytay",
             BudgetMinPesos = 800,
             BudgetPesos = 1500,
+            Title = "Ayusin ang problema",
             Description = $"Ayusin ang sirang gate {tag}",
         })).Should().Be(JobPostResult.Posted);
 
@@ -86,7 +87,7 @@ public class OthersTests(ApiTestHost api)
     public async Task ABudgetFromAboveTheTop_IsRefused()
     {
         var household = await TestPhone.SeekerAsync(api, "Mali");
-        var request = new NewJobPostRequest("construction", "construction-plumbing", "Barado ang lababo sa kusina", 800, "taytay", BudgetMinPesos: 900);
+        var request = new NewJobPostRequest("construction", "construction-plumbing", "Barado ang lababo sa kusina", 800, "taytay", BudgetMinPesos: 900, Title: "Barado ang lababo");
 
         using var response = await api.Client(api.Tokens.For(household.Uid)).PostAsJsonAsync("job-posts", request, ApiJson.Default.NewJobPostRequest);
 

@@ -14,6 +14,7 @@ namespace SideGigPh.Contracts;
 /// <param name="PickedProId">For the household: the worker whose offer they picked (the post is closed then), else null.</param>
 /// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked (config <c>Barangays</c>), or null.</param>
 /// <param name="NeededOn">The day the household needs it done (Philippine date), or null for any day.</param>
+/// <param name="Title">The household's own short title, the post's header; null only on posts made before titles.</param>
 public sealed record JobPostDto(
     long Id,
     string CategoryId,
@@ -33,14 +34,16 @@ public sealed record JobPostDto(
     int? BudgetMinPesos = null,
     ReviewSummaryDto? HouseholdReviews = null,
     string? BarangayId = null,
-    DateOnly? NeededOn = null);
+    DateOnly? NeededOn = null,
+    string? Title = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the
 /// phone's point when it has one; without them the post sits at the centre of <paramref name="CityId"/>.
 /// <paramref name="BarangayId"/> is optional: a barangay of <paramref name="CityId"/> we serve (anything else is left off).
 /// <paramref name="NeededOn"/> is optional: the day they need it, from today to <see cref="JobPostRules.MaxDaysAhead"/>
-/// days ahead (Philippine date); null = any day.
+/// days ahead (Philippine date); null = any day. <paramref name="Title"/> is required: the household's own short title
+/// (<see cref="JobPostRules.IsTitle"/>), shown as the post's header with the service under it.
 /// </summary>
 public sealed record NewJobPostRequest(
     string CategoryId,
@@ -53,7 +56,8 @@ public sealed record NewJobPostRequest(
     double? Longitude = null,
     int? BudgetMinPesos = null,
     string? BarangayId = null,
-    DateOnly? NeededOn = null);
+    DateOnly? NeededOn = null,
+    string? Title = null);
 
 /// <summary>
 /// <c>GET job-posts/feed</c>: one page of the open posts a worker can take: their own trade, within the distance they
@@ -78,6 +82,13 @@ public static class JobPostStatuses
 /// <summary>The limits both sides keep for a job post (the columns of <c>JobPosts</c>).</summary>
 public static class JobPostRules
 {
+    /// <summary>The shortest title that says something ("Sira ang gripo").</summary>
+    public const int MinTitle = 5;
+    public const int MaxTitle = 80;
+
+    /// <summary>True when <paramref name="title"/>, trimmed, says enough and fits.</summary>
+    public static bool IsTitle(string? title) => title?.Trim() is { Length: >= MinTitle and <= MaxTitle };
+
     /// <summary>The shortest description that says something ("Tulo ang gripo").</summary>
     public const int MinDescription = 10;
     public const int MaxDescription = 600;

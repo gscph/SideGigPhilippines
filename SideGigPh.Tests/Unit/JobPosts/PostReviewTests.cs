@@ -191,16 +191,19 @@ public class PostReviewTests
     {
         var text = English();
 
-        text.PostStillNeeded(new JobPostDraft()).Should().Be("Still needed: the service, your town, your budget, the problem");
+        text.PostStillNeeded(new JobPostDraft()).Should().Be("Still needed: the service, your town, your budget, a title, the problem");
 
         var draft = Filled();
+        text.PostStillNeeded(draft).Should().Be("Still needed: a title, the problem");
+
+        draft.Title = "Hindi lumalamig ang aircon";
         text.PostStillNeeded(draft).Should().Be("Still needed: the problem");
 
         draft.Description = "Hindi na malamig ang aircon";
         text.PostStillNeeded(draft).Should().BeNull("Post works");
 
         text.Use(AppLanguage.Taglish);
-        text.PostStillNeeded(new JobPostDraft { Description = draft.Description, CityId = "angono" })
+        text.PostStillNeeded(new JobPostDraft { Title = draft.Title, Description = draft.Description, CityId = "angono" })
             .Should().Be("Kulang pa: ang service, budget mo");
     }
 }
