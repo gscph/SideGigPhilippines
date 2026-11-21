@@ -57,5 +57,18 @@ public sealed class DeviceLocation(ILogger<DeviceLocation> logger) : IDeviceLoca
         }
     }
 
+    public async Task<bool> IsAllowedAsync()
+    {
+        try
+        {
+            return await MainThread.InvokeOnMainThreadAsync(Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>) == PermissionStatus.Granted;
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Couldn't check the location permission.");
+            return false;
+        }
+    }
+
     public void OpenAppSettings() => AppInfo.Current.ShowSettingsUI();
 }

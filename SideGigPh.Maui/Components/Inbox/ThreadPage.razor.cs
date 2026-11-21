@@ -189,6 +189,24 @@ public partial class ThreadPage : ComponentBase, IDisposable
         await SendAsync();
     }
 
+    /// <summary>
+    /// The household sent the worker its exact place: "Customer's location" in the chat, which the worker taps to open
+    /// it in a map app, and which rings the worker's phone.
+    /// </summary>
+    private async Task LocationSharedAsync()
+    {
+        try
+        {
+            Show(await Workspace.SendPinAsync(_pro!));
+        }
+        catch (Exception ex)
+        {
+            // The place is on the worker's card already; only the chat line didn't go.
+            Logger.LogError(ex, "Sending the location message to {ProfessionalId} failed.", Id);
+            _error = T.Get(Copy.SendFailed);
+        }
+    }
+
     /// <summary>The message the server just saved, added under the others (no need to read them all again).</summary>
     private void Show(ChatMessage message)
     {

@@ -47,12 +47,12 @@
             }
 
             <LoadMoreOnScroll Edge="LoadMoreEdge.Top" HasMore="_history.HasOlder" OnLoadMore="LoadOlderAsync" @key="Id" />
-            <ChatMessages Messages="_history.Messages" MyId="@Workspace.MyId" />
+            <ChatMessages Messages="_history.Messages" MyId="@Workspace.MyId" Place="_job?.MeetPoint" />
 
             @if (_job is not null)
             {
                 <PickedJobCard Job="_job" OtherName="@_pro.DisplayName" OtherUid="@_pro.Id" RateHref="@SeekerRoutes.RateAfterJob(_pro.Id)"
-                               OnChanged="JobChanged" OnCancelled="JobCancelledAsync" />
+                               OnChanged="JobChanged" OnCancelled="JobCancelledAsync" OnLocationShared="LocationSharedAsync" />
             }
 
             @if (_job is { IsCompleted: true })

@@ -155,6 +155,17 @@ public sealed class ApiTestHost : IAsyncLifetime
         (await command.ExecuteNonQueryAsync()).Should().Be(1);
     }
 
+    /// <summary>Whether any offer on <paramref name="postId"/> still holds a household's exact place (<c>MeetLatitude</c>, <c>MeetSharedAt</c>).</summary>
+    public async Task<bool> HoldsMeetLocationAsync(long postId)
+    {
+        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
+            "SELECT COUNT(*) FROM JobOffers WHERE PostId = @postId AND (MeetLatitude IS NOT NULL OR MeetLongitude IS NOT NULL OR MeetSharedAt IS NOT NULL)", connection);
+        command.Parameters.AddWithValue("@postId", postId);
+        return (int)(await command.ExecuteScalarAsync())! > 0;
+    }
+
     /// <summary>How many reference rows the database holds for <paramref name="uid"/>.</summary>
     public async Task<int> ReferenceRowsAsync(string uid)
     {

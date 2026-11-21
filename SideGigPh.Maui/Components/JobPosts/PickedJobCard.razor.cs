@@ -14,7 +14,8 @@ namespace SideGigPh.Maui.Components.JobPosts;
 /// person's review is locked: no Change button, <see cref="PickedJob.MyReviewLocked"/>). Raises
 /// <see cref="OnChanged"/> with the job as the server now has it. Until both marked it done, "Cancel this" opens a
 /// reason (<see cref="PickCancel"/>) and an optional note; once called off it raises <see cref="OnCancelled"/> with
-/// the chat message to send the other person.
+/// the chat message to send the other person. Until it is done, the household can send the worker its exact place and
+/// the worker sees it on a map with Waze / Google Maps (<see cref="MeetLocationSection"/>).
 /// </summary>
 public partial class PickedJobCard : ComponentBase
 {
@@ -36,6 +37,9 @@ public partial class PickedJobCard : ComponentBase
 
     /// <summary>The job was called off: the message telling the other person why (the page sends it in the chat).</summary>
     [Parameter] public EventCallback<string> OnCancelled { get; set; }
+
+    /// <summary>The household sent the worker its exact place (<see cref="MeetLocationSection"/>): the page says so in the chat.</summary>
+    [Parameter] public EventCallback OnLocationShared { get; set; }
 
     private bool _busy;
     private bool _editing;

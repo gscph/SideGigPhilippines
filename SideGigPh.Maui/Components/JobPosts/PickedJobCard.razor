@@ -16,6 +16,8 @@
             <MudText Typo="Typo.body2" Color="Color.Secondary">@note</MudText>
         }
 
+        <MeetLocationSection Job="Job" OtherName="@OtherName" OnChanged="OnChanged" OnShared="OnLocationShared" />
+
         @if (!Job.DoneByMe)
         {
             <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="_busy"

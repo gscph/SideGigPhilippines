@@ -42,7 +42,9 @@ Checked against build `0.1.0` (the beta APK of CI run 29 and the prod AAB of run
 - Category: **All other app types** (a directory; not a game, not social media).
 - Violence, fear, sexuality, gambling, drugs, alcohol, tobacco, crude humour, bad language: **No** to every one.
 - Users can interact or exchange content (chat, reviews, photos, posts): **Yes**.
-- Users can share their location with other users: **No** (others see only a town and whole kilometres).
+- Users can share their location with other users: **Yes** (a customer who picked an offer can tap "Send my
+  location" to send that one Skilled Worker their exact place, for directions; it is removed when the job is done or
+  cancelled. Everyone else sees only a town and whole kilometres).
 - Shares users' personal information with third parties: **No** (two people see each other's number only after a
   customer picks an offer; that is the users sharing, not us).
 - Digital purchases: **No**.
@@ -84,7 +86,7 @@ Check again when Firebase Analytics is turned on (`FirebaseAnalytics` build flag
 | Category → type | Collected | Required or optional | Purposes |
 |---|---|---|---|
 | Location → **Approximate location** | Yes | Required (the town everyone picks; Play counts the city a user is in) | App functionality |
-| Location → **Precise location** | Yes | Optional (only on "Use my location") | App functionality |
+| Location → **Precise location** | Yes | Optional (only on "Use my location", "Send my location" and "Show how far I am") | App functionality |
 | Personal info → **Name** | Yes | Required | App functionality, Account management |
 | Personal info → **Email address** | Yes | Optional (Google sign-in only) | Account management |
 | Personal info → **User IDs** | Yes | Required (the sign-in account id) | App functionality, Account management, Fraud prevention, security, and compliance |

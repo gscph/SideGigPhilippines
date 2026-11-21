@@ -17,6 +17,21 @@ public enum HouseholdReviewOutcome
     Invalid,
 }
 
+/// <summary>What became of sending the picked worker the household's location (<see cref="PickedJobStore.ShareLocationAsync"/>).</summary>
+public enum ShareLocationOutcome
+{
+    Shared,
+
+    /// <summary>Nothing picked on that post with the caller as its household (a worker can't send one), or a block either way.</summary>
+    NotFound,
+
+    /// <summary>Both sides already marked it done: nobody needs to find the house any more.</summary>
+    Completed,
+
+    /// <summary>Not a point in the Philippines.</summary>
+    Invalid,
+}
+
 /// <summary>What became of calling a picked job off (<see cref="PickedJobStore.CancelAsync"/>).</summary>
 public enum CancelPickOutcome
 {
@@ -57,13 +72,21 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                           where o.Status == JobOfferStatuses.Picked
                                 && ((p.SeekerUid == uid && o.ProUid == otherUid) || (p.SeekerUid == otherUid && o.ProUid == uid))
                           orderby o.UpdatedAt descending, o.Id descending
-                          select new { o.PostId, p.ServiceId, o.PricePesos, o.UpdatedAt, o.HouseholdDoneAt, o.WorkerDoneAt, Household = p.SeekerUid == uid })
+                          select new
+                          {
+                              o.PostId, p.ServiceId, o.PricePesos, o.UpdatedAt, o.HouseholdDoneAt, o.WorkerDoneAt, Household = p.SeekerUid == uid,
+                              o.MeetLatitude, o.MeetLongitude, o.MeetSharedAt,
+                          })
             .Take(MaxBetween)
             .ToListAsync(cancellationToken);
         if (rows.Count == 0)
         {
             return [];
         }
+
+        // A block either way hides the household's exact point from the other side, as it hides the phone number.
+        var blocked = await db.Blocks.AnyAsync(b => (b.BlockerUid == uid && b.BlockedUid == otherUid)
+                                                    || (b.BlockerUid == otherUid && b.BlockedUid == uid), cancellationToken);
 
         // The reviews between the two either way round (household → worker, worker → household), for the blind-review rule.
         var ofWorkers = await db.Reviews.AsNoTracking()
@@ -89,7 +112,12 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                 completedAt,
                 TheyReviewed: theirs is not null && completedAt is { } done && theirs.At >= done,
                 TheirRating: theirs is not null && !ReviewRules.IsHidden(theirs.At, mine?.At, completed, now) ? theirs.Rating : null,
-                MyReviewLocked: mine is not null && ReviewRules.IsLocked(mine.At, theirs?.At, completed, now));
+                MyReviewLocked: mine is not null && ReviewRules.IsLocked(mine.At, theirs?.At, completed, now),
+                // The household's exact point, only while the job is open (it is cleared once completed anyway) and
+                // neither side has blocked the other.
+                MeetLatitude: completedAt is null && !blocked ? r.MeetLatitude : null,
+                MeetLongitude: completedAt is null && !blocked ? r.MeetLongitude : null,
+                MeetSharedAt: completedAt is null && !blocked && r.MeetLatitude is not null ? r.MeetSharedAt : null);
         })];
     }
 
@@ -123,6 +151,11 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
         else
         {
             job.Offer.WorkerDoneAt ??= now;
+        }
+
+        if (job.Offer.HouseholdDoneAt is not null && job.Offer.WorkerDoneAt is not null)
+        {
+            ForgetMeetLocation(job.Offer); // the worker found the house: the exact point isn't kept
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -173,6 +206,7 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
             job.Offer.CancelNote = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
             job.Offer.HouseholdDoneAt = null;
             job.Offer.WorkerDoneAt = null;
+            ForgetMeetLocation(job.Offer);
             job.Offer.UpdatedAt = now;
             if (job.Post.Status == JobPostStatuses.Closed)
             {
@@ -183,6 +217,48 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
             await db.SaveChangesAsync(ct);
             return CancelPickOutcome.Cancelled;
         }, cancellationToken);
+    }
+
+    /// <summary>
+    /// The caller, the household that posted <paramref name="postId"/>, sends the worker it picked the exact place to
+    /// come to (sending again replaces it). Only those two ever get it (<see cref="BetweenAsync"/>), and it is cleared
+    /// when the job is called off or both mark it done. Answers with the job as the caller now sees it.
+    /// </summary>
+    public async Task<(ShareLocationOutcome Outcome, PickedJobDto? Job)> ShareLocationAsync(string uid, long postId, ShareMeetLocationRequest request, CancellationToken cancellationToken)
+    {
+        if (GeoRules.Point(request.Latitude, request.Longitude) is not { } point)
+        {
+            return (ShareLocationOutcome.Invalid, null);
+        }
+
+        var offer = await (from o in db.JobOffers
+                           join p in db.JobPosts on o.PostId equals p.Id
+                           where o.PostId == postId && o.Status == JobOfferStatuses.Picked && p.SeekerUid == uid
+                           select o)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (offer is null || await db.Blocks.AnyAsync(b => (b.BlockerUid == uid && b.BlockedUid == offer.ProUid)
+                                                           || (b.BlockerUid == offer.ProUid && b.BlockedUid == uid), cancellationToken))
+        {
+            return (ShareLocationOutcome.NotFound, null);
+        }
+
+        if (offer.HouseholdDoneAt is not null && offer.WorkerDoneAt is not null)
+        {
+            return (ShareLocationOutcome.Completed, null);
+        }
+
+        offer.MeetLatitude = point.Latitude;
+        offer.MeetLongitude = point.Longitude;
+        offer.MeetSharedAt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(cancellationToken);
+        return (ShareLocationOutcome.Shared, (await BetweenAsync(uid, offer.ProUid, cancellationToken)).FirstOrDefault(j => j.PostId == postId));
+    }
+
+    private static void ForgetMeetLocation(JobOfferRow offer)
+    {
+        offer.MeetLatitude = null;
+        offer.MeetLongitude = null;
+        offer.MeetSharedAt = null;
     }
 
     /// <summary>

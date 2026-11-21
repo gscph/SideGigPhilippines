@@ -43,9 +43,12 @@ public sealed class ChatNotifier(PushDeviceStore devices, IPushSender sender, IL
         var title = toWorker && last.At == chat.CreatedAt
             ? (taglish ? $"Bagong customer: {from}" : $"New customer: {from}")
             : from;
-        var body = last.Kind == Wire.Call
-            ? (taglish ? "Tumawag sa'yo" : "Called you")
-            : Preview(last.Text);
+        var body = last.Kind switch
+        {
+            Wire.Call => taglish ? "Tumawag sa'yo" : "Called you",
+            Wire.Pin => taglish ? "Na-send ang location niya. I-tap para sa directions." : "Sent you their location. Tap for directions.",
+            _ => Preview(last.Text),
+        };
 
         return new PushMessage(
             target.Tokens,

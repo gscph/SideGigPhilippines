@@ -50,7 +50,8 @@
             @if (_loaded)
             {
                 <LoadMoreOnScroll Edge="LoadMoreEdge.Top" HasMore="_history.HasOlder" OnLoadMore="LoadOlderAsync" @key="ChatId" />
-                <ChatMessages Messages="_history.Messages" MyId="@Workspace.MyId" />
+                <ChatMessages Messages="_history.Messages" MyId="@Workspace.MyId" Place="_job?.MeetPoint"
+                              PlaceLabel="@T.Format(Copy.PinLabel, T.SeekerName(_chat))" />
             }
         }
     </ChildContent>

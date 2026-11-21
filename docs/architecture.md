@@ -106,7 +106,8 @@ review; drafts skipped; a newer push cancels the review still running) and posts
 `GetCurrentAsync` asks for `Permissions.LocationWhenInUse` only when called, never throws, and answers a `LocationFix`
 (`Found` + `GeoPoint` + accuracy in metres, `Denied`, `Off`, `Failed`); `OpenAppSettings()`. Android declares
 `ACCESS_FINE_LOCATION` and `ACCESS_COARSE_LOCATION` (location hardware not required), iOS
-`NSLocationWhenInUseUsageDescription`; **never background location**. The app's rules are `Services/WorkArea`
+`NSLocationWhenInUseUsageDescription`; **never background location**. `IsAllowedAsync()` checks the permission
+without asking (the picked worker's distance is read by itself only then). The app's rules are `Services/WorkArea`
 (`Read`: only a point in the Philippines box the server takes and within `RoughAfterMeters`, 1 km, is used, so a
 phone allowed only "approximate location" gets `Rough` and a message; `RadiusChoices` 3/5/10/20/30/50 km). The one
 place the permission is asked is the app-generic `Components/Shared/LocationButton` ("Use my location": set or "we
@@ -384,6 +385,35 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
   numbers stop showing (`ContactNumberAsync` needs a pick), the worker's My offers reads it as not picked and the
   household's offer count leaves it out. The chat stays: the page drops the card, re-reads the number and sends the
   other person "I cancelled this: Plumbing. Reason: …" (`PickCancelText.CancelMessage`), which is also their alert.
+  **The household's exact place for the picked worker** (`028-schema-meet-location.sql`, `PickedJobStore.ShareLocationAsync`,
+  `PUT picked-jobs/{postId}/location` with `ShareMeetLocationRequest`): the one exception to "a point never leaves the
+  server", by the household's own tap and to one person. On the card (`Components/JobPosts/MeetLocationSection`, rules
+  `Services/MeetLocation`, words `MeetLocationText`), until both marked it done, the household gets "Send my exact
+  location to Juan" with why and who sees it; **Send my location** calls `IDeviceLocation.GetCurrentAsync` (the
+  permission prompt only when the app doesn't have it yet) and keeps only a precise point (`WorkArea.Read`: a rough or
+  foreign one shows the reason, with Open Settings for a refusal or "approximate location"), then
+  `JobBoard.ShareMeetLocationAsync`; the thread page then adds a **pin** message to the chat
+  (`SeekerWorkspace.SendPinAsync`, wire kind `pin`, `ChatMessageKind.Pin`, `Text` null like a call; only the household
+  may send one, `ChatStore.SendAsync`, and never as a chat's first message), which rings the worker ("Sent you their
+  location. Tap for directions.", `ChatNotifier`). `ChatBubble` draws it as **"Customer's location"** with **Open in Maps
+  or Waze** on the worker's side ("You sent your exact location" on the household's); the page passes the picked
+  job's `MeetPoint` down (`ChatMessages.Place`), so the pin carries no coordinates and says "No longer shared" once the
+  point is deleted. The Inbox row previews it the same way. Afterwards the card says "Location sent to Juan · 5 min ago" with
+  **Send again**. `PickedJobDto.MeetLatitude` / `MeetLongitude` / `MeetSharedAt` (model `PickedJob.MeetPoint`) go
+  only to the household and the picked worker, only before completion and never across a block (either way; a block also refuses a new point); the server **deletes** the point when either
+  side cancels and when the second side marks it done. The worker's card shows "Where to go": a small map with a pin
+  (skeleton `MapFrame`: OpenStreetMap's embed page in a frame, free, no key, lazy, no referrer; chosen over Google's
+  embed or static maps, which need a billed key), the straight-line distance and compass direction from the worker's
+  phone ("About 4.2 km to the northeast of you", `MeetLocation.DistanceKm` haversine, `Direction` eight points,
+  `Rounded`: 50 m steps under 1 km, one decimal under 10), read by itself when `IDeviceLocation.IsAllowedAsync` says
+  location is already allowed (no prompt), else on **Show how far I am**, never sent anywhere, and one **Open in Maps
+  or Waze** button (skeleton `IMapLauncher.OpenAsync` → `DeviceMapLauncher`, MAUI `Launcher`): whichever map app is
+  installed opens, else the browser. On Android a `geo:0,0?q=lat,lng(label)` link (`MapLinks.Geo`; Google Maps, Waze
+  and any map app answer it, Android asks which when there are several; the manifest's `<queries>` lists the `geo`
+  VIEW intent so `TryOpenAsync` can see them); on iOS `waze://?ll=…&navigate=yes`, then
+  `comgooglemaps://?daddr=…` (both in `LSApplicationQueriesSchemes`); then Google Maps' web directions
+  (`MapLinks.Web`). The road distance and time come from those apps, so there is no routing API to pay for. Before the household sends it, the worker sees "Juan hasn't sent their exact location yet". The
+  card's 10 s re-read (`PickedJobWatch`) brings the point to an open chat.
 - **Blind two-way reviews** (no schema change, computed from the existing times): if one side's review showed first,
   the other could answer it in kind, so people would inflate their stars out of fear. After a completed job, a review
   either side writes (or changes) from then on stays **hidden until the other side has reviewed since that job too, or

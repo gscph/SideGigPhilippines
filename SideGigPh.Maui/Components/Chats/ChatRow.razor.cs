@@ -39,6 +39,11 @@ public partial class ChatRow : ComponentBase
                 return T.Get(mine ? Copy.YouCalled : Copy.CalledYou);
             }
 
+            if (LastMessage.Kind == ChatMessageKind.Pin)
+            {
+                return T.Get(mine ? Copy.PinMine : Copy.PinTheirs);
+            }
+
             return mine ? T.Format(Copy.InboxYouWrote, LastMessage.Text ?? string.Empty) : LastMessage.Text ?? string.Empty;
         }
     }

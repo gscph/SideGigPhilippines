@@ -12,6 +12,9 @@ public static class Wire
     public const string Professional = "professional";
     public const string Text = "text";
     public const string Call = "call";
+
+    /// <summary>A chat message saying the household sent the picked worker its exact place (no coordinates in it).</summary>
+    public const string Pin = "pin";
     public const string Android = "android";
     public const string Ios = "ios";
 }

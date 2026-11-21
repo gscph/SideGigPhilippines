@@ -88,6 +88,42 @@ public sealed class PickedJobFunctions(FirebaseTokenValidator auth, PickedJobSto
     }
 
     /// <summary>
+    /// <c>PUT picked-jobs/{postId}/location</c>: the caller, the household, sends the worker it picked the exact place
+    /// to come to. Answers with the job; <c>404</c> when the caller isn't that post's household or nothing is picked
+    /// there; <c>409 job-completed</c> once both marked it done; <c>400</c> for a point outside the Philippines.
+    /// </summary>
+    [Function("ShareMeetLocation")]
+    public async Task<IActionResult> ShareLocation(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "picked-jobs/{postId}/location")] HttpRequest request,
+        string postId,
+        CancellationToken cancellationToken)
+    {
+        if (await auth.GetUidAsync(request, cancellationToken) is not { } uid)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.JobOffer, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        if (!long.TryParse(postId, out var id) || await ApiResults.ReadAsync<ShareMeetLocationRequest>(request, cancellationToken) is not { } share)
+        {
+            return ApiResults.BadRequest();
+        }
+
+        var (outcome, job) = await jobs.ShareLocationAsync(uid, id, share, cancellationToken);
+        return outcome switch
+        {
+            ShareLocationOutcome.Shared when job is not null => new OkObjectResult(job),
+            ShareLocationOutcome.NotFound => new NotFoundResult(),
+            ShareLocationOutcome.Completed => ApiResults.Conflict(ApiErrors.JobCompleted),
+            _ => ApiResults.BadRequest(),
+        };
+    }
+
+    /// <summary>
     /// <c>PUT household-reviews</c>: the caller, a worker, rates a household after a completed job between them.
     /// <c>403 no-completed-job</c> before that.
     /// </summary>

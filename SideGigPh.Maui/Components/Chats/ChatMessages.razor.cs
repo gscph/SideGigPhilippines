@@ -20,5 +20,11 @@ public partial class ChatMessages : ComponentBase
     /// <summary>The id of the person reading, whose messages sit on the right.</summary>
     [Parameter, EditorRequired] public string MyId { get; set; } = string.Empty;
 
+    /// <summary>The customer's place a "Customer's location" message opens (the picked job's; null when none is shared).</summary>
+    [Parameter] public GeoPoint? Place { get; set; }
+
+    /// <summary>The name the map app shows on that place.</summary>
+    [Parameter] public string? PlaceLabel { get; set; }
+
     private DateOnly Today => ChatTimeline.DayOf(Clock.GetUtcNow());
 }

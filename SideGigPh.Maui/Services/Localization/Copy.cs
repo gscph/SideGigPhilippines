@@ -522,6 +522,43 @@ public static class Copy
     public static readonly LocalizedText CancelReasonNotNeeded = new("I don't need it anymore", "Hindi ko na kailangan");
     public static readonly LocalizedText CancelReasonPrice = new("We didn't agree on the price", "Hindi kami nagkasundo sa presyo");
     public static readonly LocalizedText CancelReasonOther = new("Other reason", "Iba pang dahilan");
+
+    // --- Meet location: the household sends the picked worker its exact place (MeetLocationSection) ---
+    public static readonly LocalizedText MeetSendTitle = new("Send {0} your exact location", "I-send kay {0} ang exact location mo");
+    public static readonly LocalizedText MeetSendWhy = new(
+        "So {0} can find your place with Waze or Google Maps. Only {0} sees it, and it's removed when the service is done or cancelled.",
+        "Para mahanap ni {0} ang lugar mo gamit ang Waze o Google Maps. Si {0} lang ang makakakita, at buburahin ito pag tapos o na-cancel ang service.");
+    public static readonly LocalizedText MeetSendButton = new("Send my location", "I-send ang location ko");
+    public static readonly LocalizedText MeetSent = new("Location sent to {0} · {1}", "Na-send kay {0} ang location · {1}");
+    public static readonly LocalizedText MeetSendAgain = new("Send again", "I-send ulit");
+    public static readonly LocalizedText MeetSendFailed = new("Didn't send. Check your internet and try again.", "Hindi na-send. I-check ang internet mo tapos try ulit.");
+    public static readonly LocalizedText PinTheirs = new("Customer's location", "Location ng customer");
+    public static readonly LocalizedText PinMine = new("You sent your exact location", "Na-send mo ang exact location mo");
+    public static readonly LocalizedText PinOpen = new("Open in Maps or Waze", "Buksan sa Maps o Waze");
+    public static readonly LocalizedText PinGone = new("No longer shared", "Hindi na naka-share");
+    public static readonly LocalizedText PinLabel = new("{0} (customer)", "{0} (customer)");
+    public static readonly LocalizedText MeetWaiting = new(
+        "{0} hasn't sent their exact location yet. You can ask in the chat.",
+        "Hindi pa nase-send ni {0} ang exact location nila. Pwede mong itanong sa chat.");
+    public static readonly LocalizedText MeetWhereTitle = new("Where to go", "Saan pupunta");
+    public static readonly LocalizedText MeetMapTitle = new("Map of {0}'s location", "Mapa ng location ni {0}");
+    public static readonly LocalizedText MeetSentAgo = new("Sent {0}", "Na-send {0}");
+    public static readonly LocalizedText MeetDistance = new("About {0} to the {1} of you, in a straight line.", "Mga {0} papuntang {1} mula sa'yo, straight line.");
+    public static readonly LocalizedText MeetKm = new("{0} km", "{0} km");
+    public static readonly LocalizedText MeetMetres = new("{0} m", "{0} m");
+    public static readonly LocalizedText MeetHowFar = new("Show how far I am", "Tingnan kung gaano kalayo ako");
+    public static readonly LocalizedText MeetHowFarWhy = new(
+        "Uses your precise location on this phone only. It isn't sent to anyone.",
+        "Gagamitin ang precise location mo dito lang sa phone. Hindi ito ise-send kahit kanino.");
+    public static readonly LocalizedText MeetOpenFailed = new("Couldn't open the map app.", "Hindi mabuksan ang map app.");
+    public static readonly LocalizedText CompassNorth = new("north", "north");
+    public static readonly LocalizedText CompassNorthEast = new("northeast", "northeast");
+    public static readonly LocalizedText CompassEast = new("east", "east");
+    public static readonly LocalizedText CompassSouthEast = new("southeast", "southeast");
+    public static readonly LocalizedText CompassSouth = new("south", "south");
+    public static readonly LocalizedText CompassSouthWest = new("southwest", "southwest");
+    public static readonly LocalizedText CompassWest = new("west", "west");
+    public static readonly LocalizedText CompassNorthWest = new("northwest", "northwest");
     public static readonly LocalizedText PickedDidNotSend = new("Didn't send. Check your internet and try again.", "Di na-send. I-check ang internet mo tapos try ulit.");
 
     // --- Blind reviews: hidden until both review, or 14 days ---------------
