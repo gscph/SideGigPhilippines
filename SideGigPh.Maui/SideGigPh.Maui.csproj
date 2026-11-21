@@ -77,6 +77,17 @@
         <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
     </ItemGroup>
 
+    <!-- Android Release: R8 shrinks the Java side (MAUI's glue, AndroidX, Firebase, Play services) and renames its
+         private members, which Google Play scores ("DEX code optimization", obfuscation under 25% hurts visibility).
+         "private-members" is the most .NET for Android allows (public names stay, .NET calls Java by them). The
+         libraries bring their own keep rules; a missing one shows as a crash at run time, so a Release APK is tried on
+         a phone before it goes to Play. R8 also writes mapping.txt (CI keeps it; upload it to Play for readable
+         crash reports). Debug builds from Visual Studio are unchanged. -->
+    <PropertyGroup Condition="$(TargetFramework.Contains('-android')) And '$(Configuration)' == 'Release'">
+        <AndroidLinkTool>r8</AndroidLinkTool>
+        <AndroidR8ObfuscationMode>private-members</AndroidR8ObfuscationMode>
+    </PropertyGroup>
+
     <!-- Android signing: one fingerprint everywhere, so Firebase (Google sign-in, phone attestation)
          recognises the APK on every PC and in CI. See docs/android-signing.md.
          - Default (Debug and Release on any machine): the shared dev key committed in
