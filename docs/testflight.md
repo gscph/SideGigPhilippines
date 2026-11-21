@@ -7,8 +7,10 @@ manual only), signed for the App Store and uploaded to TestFlight. Nobody needs 
   (`CFBundleVersion`) is this workflow's own run number, so it goes up with every run as App Store Connect requires.
 - **Cost:** the repo is private, so macOS minutes count 10x against the free Actions minutes (about 200 macOS minutes
   a month on the free plan). One build takes about 20-30 minutes. Untick *upload* to build an `.ipa` without sending it.
-- **Xcode:** the .NET iOS workload builds only with the Xcode it was made for. The run's `xcode` input (default
-  `27.1`) picks the newest installed Xcode starting with that. If the runner has none, the run lists what is installed.
+- **Xcode:** the .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"). The run reads
+  that version from the installed workload (its pack folder `Microsoft.iOS.Sdk.net10.0_26.0`) and selects the matching
+  Xcode on the runner. The `xcode` input overrides it; leave it empty. If the runner lacks that Xcode, the run lists
+  what is installed.
 
 ## Set up once
 
@@ -65,7 +67,8 @@ Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
 
 ## When it fails
 
-- *No Xcode 27.1 on this runner*: run again with the `xcode` input set to one the log lists that the workload accepts.
+- *The iOS workload needs Xcode X, which this runner doesn't have*: the .NET SDK moved ahead of GitHub's Mac images
+  (they lag Apple by a few months). Wait for the image, or pin an older iOS workload in the workflow.
 - *No App Store provisioning profile*: make it (step 4).
 - *Provisioning profile doesn't include the aps-environment / Sign in with Apple entitlement*: tick the capability on
   the App ID, then edit and save the profile.

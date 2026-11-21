@@ -23,9 +23,9 @@ on:
         type: boolean
         default: true
       xcode:
-        description: 'Xcode version the .NET iOS workload needs (the newest installed one starting with this is used)'
+        description: 'Xcode version to use (empty = the one the installed .NET iOS workload asks for; the newest installed one starting with this is used)'
         type: string
-        default: '27.1'
+        default: ''
 
 env:
   PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
@@ -58,16 +58,6 @@ jobs:
         with:
           fetch-depth: 0   # the version is counted from the merged PRs (.github/scripts/app-version.sh)
 
-      # The .NET iOS workload builds only with the Xcode it was made for; the image's default can be another one.
-      - name: Select Xcode ${{ inputs.xcode }}
-        run: |
-          xcode="$(ls -d /Applications/Xcode_${{ inputs.xcode }}*.app 2>/dev/null | sort -V | tail -n 1)"
-          if [ -z "$xcode" ]; then
-            echo "::error::No Xcode ${{ inputs.xcode }} on this runner. Installed:"; ls -d /Applications/Xcode*.app; exit 1
-          fi
-          sudo xcode-select -s "$xcode"
-          xcodebuild -version
-
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -75,6 +65,25 @@ jobs:
 
       - name: Install MAUI workloads
         run: dotnet workload restore ${{ env.PROJECT }}
+
+      # The .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"), and its pack folder
+      # is named after it (packs/Microsoft.iOS.Sdk.net10.0_26.0). The image's default Xcode can be another one, and
+      # the workload version moves with the .NET SDK, so the Xcode is read from what was just installed.
+      - name: Select the Xcode the iOS workload needs
+        run: |
+          wanted="${{ inputs.xcode }}"
+          if [ -z "$wanted" ]; then
+            pack="$(ls -d "$DOTNET_ROOT"/packs/Microsoft.iOS.Sdk.net10.0_* 2>/dev/null | sort -V | tail -n 1)"
+            if [ -z "$pack" ]; then echo "::error::No .NET iOS workload under $DOTNET_ROOT/packs"; exit 1; fi
+            wanted="${pack##*_}"
+          fi
+          xcode="$(ls -d /Applications/Xcode_${wanted}*.app 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$xcode" ]; then
+            echo "::error::The iOS workload needs Xcode $wanted, which this runner doesn't have. Installed:"; ls -d /Applications/Xcode*.app; exit 1
+          fi
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+          echo "Xcode \`$(basename "$xcode")\` for the iOS workload ($wanted)" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Read the version
         id: version
