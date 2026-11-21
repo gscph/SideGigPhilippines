@@ -1,15 +1,13 @@
 namespace MobileAppTheme.Services;
 
 /// <summary>
-/// Keeps the user's photos. A photo's id is the SHA-256 of its bytes, so the same
-/// image always gets the same id and apps can reject duplicates. Files on the device
-/// (<c>FilePhotoStore</c>) or a cloud store such as blob storage behind an API, where the
-/// duplicate check runs across all users.
+/// Keeps the user's photos: files on the device (<c>FilePhotoStore</c>) or a cloud store such as blob storage behind an
+/// API. Every save gets a new id, so the same picture saved twice is two photos.
 /// </summary>
 public interface IPhotoStore
 {
     /// <summary>
-    /// Saves the photo and returns its id. Saving the same bytes again returns the same id.
+    /// Saves the photo and returns its new id.
     /// Throws <see cref="PhotoStoreException"/> when the photo can't be stored (e.g. no network).
     /// </summary>
     Task<string> SaveAsync(byte[] bytes);
@@ -28,9 +26,6 @@ public interface IPhotoStore
 public sealed class PhotoStoreException(string message, PhotoStoreFailure failure, Exception? inner = null) : Exception(message, inner)
 {
     public PhotoStoreFailure Failure { get; } = failure;
-
-    /// <summary>The store refused it because another account already has the same photo (duplicate check).</summary>
-    public bool Taken => Failure == PhotoStoreFailure.Taken;
 }
 
 /// <summary>Why a photo could not be stored.</summary>
@@ -44,7 +39,4 @@ public enum PhotoStoreFailure
 
     /// <summary>The store refused this photo itself (too big, not a picture it can read): another photo is needed.</summary>
     Rejected,
-
-    /// <summary>Another account already has the same photo (duplicate check).</summary>
-    Taken,
 }

@@ -27,7 +27,7 @@ public class PhotoTests
 
         var result = await app.Pro.ChangeProfilePhotoAsync();
 
-        result.Should().Be(new PhotoAddResult(1, 0));
+        result.Should().Be(new PhotoAddResult(1));
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(50));
         app.Pro.ProfilePhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
         app.Photos.Deleted.Should().Equal(TestData.PhotoId(1));
@@ -55,7 +55,7 @@ public class PhotoTests
 
         var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
-        result.Should().Be(new PhotoAddResult(1, 0));
+        result.Should().Be(new PhotoAddResult(1));
         app.Picker.Selfies.Should().Be(1);
         app.Picker.LastMaxCount.Should().BeNull("the camera opened, not the gallery");
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(50));
@@ -92,7 +92,6 @@ public class PhotoTests
     [InlineData(PhotoStoreFailure.NoInternet, PhotoProblem.NoInternet)]
     [InlineData(PhotoStoreFailure.ServerError, PhotoProblem.ServerError)]
     [InlineData(PhotoStoreFailure.Rejected, PhotoProblem.Rejected)]
-    [InlineData(PhotoStoreFailure.Taken, PhotoProblem.Taken)] // anti-fraud rule 2: another account has this photo
     public async Task ChangeProfilePhoto_UploadRefused_SaysWhyAndKeepsTheOldPhoto(PhotoStoreFailure failure, PhotoProblem expected)
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
@@ -110,11 +109,10 @@ public class PhotoTests
     [InlineData(PhotoProblem.NoInternet, true)]
     [InlineData(PhotoProblem.ServerError, true)]
     [InlineData(PhotoProblem.Rejected, false)] // the same photo would be refused again
-    [InlineData(PhotoProblem.Taken, false)]
     [InlineData(PhotoProblem.NoCamera, false)]
     [InlineData(PhotoProblem.None, false)]
     public void ASelfieIsKeptForTryAgain_OnlyWhenTheSamePhotoMayGetThrough(PhotoProblem problem, bool canRetry) =>
-        new PhotoAddResult(0, 0, problem).CanRetry.Should().Be(canRetry);
+        new PhotoAddResult(0, problem).CanRetry.Should().Be(canRetry);
 
     [Fact]
     public async Task ASelfieThatFailedForWantOfInternet_GoesThroughOnTryAgain_WithTheSamePhoto()
@@ -140,23 +138,11 @@ public class PhotoTests
 
         var result = await app.Pro.AddWorkPhotosAsync();
 
-        result.Should().Be(new PhotoAddResult(2, 0));
+        result.Should().Be(new PhotoAddResult(2));
         app.Picker.LastMaxCount.Should().Be(4, "a listing has at most 6 work photos");
         app.Pro.Draft.WorkPhotoIds.Take(2).Should().Equal(TestData.PhotoId(61), TestData.PhotoId(60));
         app.Pro.WorkPhotos.Should().HaveCount(4);
         app.Store.Saves.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
-    public async Task AddWorkPhotos_SamePhotoAgain_IsSkippedAndCounted()
-    {
-        var app = await FakeApp.ProAsync(DraftWithPhotos(2));
-        app.Picker.Picks(10); // PhotoId(10) is already in the gallery
-
-        var result = await app.Pro.AddWorkPhotosAsync();
-
-        result.Should().Be(new PhotoAddResult(0, 1));
-        app.Pro.Draft.WorkPhotoIds.Should().HaveCount(2);
     }
 
     [Fact]
@@ -177,7 +163,7 @@ public class PhotoTests
 
         var result = await app.Pro.AddWorkPhotosAsync();
 
-        result.Should().Be(new PhotoAddResult(0, 0));
+        result.Should().Be(new PhotoAddResult(0));
         app.Store.Saves.Should().Be(0);
     }
 
@@ -259,7 +245,7 @@ public class PhotoTests
 
         var result = await app.Seeker.ChangeProfilePhotoAsync();
 
-        result.Should().Be(new PhotoAddResult(1, 0));
+        result.Should().Be(new PhotoAddResult(1));
         app.Seeker.Answers.ProfilePhotoId.Should().Be(TestData.PhotoId(70));
         app.Seeker.ProfilePhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(70)));
         app.Photos.Deleted.Should().Equal(TestData.PhotoId(5));
@@ -297,16 +283,5 @@ public class PhotoTests
         app.Picker.Next = PhotoPick.PermissionDenied;
 
         (await app.Seeker.ChangeProfilePhotoAsync()).Problem.Should().Be(PhotoProblem.NoPermission);
-    }
-
-    [Fact]
-    public async Task SeekerChangeProfilePhoto_TakenByAnotherAccount_SaysSo()
-    {
-        var app = await FakeApp.SeekerAsync();
-        app.Picker.Picks(70);
-        app.Photos.Refuse = new PhotoStoreException("taken", PhotoStoreFailure.Taken);
-
-        (await app.Seeker.ChangeProfilePhotoAsync()).Problem.Should().Be(PhotoProblem.Taken);
-        app.Seeker.Answers.ProfilePhotoId.Should().BeNull();
     }
 }

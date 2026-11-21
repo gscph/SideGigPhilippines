@@ -99,7 +99,7 @@ Then comes the **labor-illusion loader** (about 2 seconds): "Finding pros for Li
 
 **Pro home** (Phase 1) shows the saved card and "Edit listing". It also says honestly: *"Saved on this phone. Not visible to customers yet."*
 
-**Not in the interview:** work photos. They are optional (never needed to publish) and added on Pro home or from the Me tab (`/professional/me/photos`), where the app encourages them ("customers pick workers with photos first"; they rank higher in search). They are kept on the phone with a SHA-256 duplicate check (anti-fraud rule #2); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
+**Not in the interview:** work photos. They are optional (never needed to publish) and added on Pro home or from the Me tab (`/professional/me/photos`), where the app encourages them ("customers pick workers with photos first"; they rank higher in search). Every photo gets a new random id (no duplicate check); upload to Azure Blob Storage through `SideGigPh.Api` comes with the cloud adapters (data-model step 5).
 
 ### 2.3 The money hooks: what was proposed, with three adjustments
 
@@ -241,7 +241,7 @@ Blazor Hybrid code runs as **native .NET**, not in a browser. The WebView's `loc
 |------|----------|---------------|---------|
 | Small flags | `Preferences` | SharedPreferences / NSUserDefaults | Tiny independent flags (none yet) |
 | A document | JSON file in `FileSystem.AppDataDirectory` | App-private files | **The interview state** (`onboarding.json`) |
-| Photos | Files in `AppDataDirectory/photos` | App-private files | The pro's own and work photos, named by their SHA-256 |
+| Photos | Files in `AppDataDirectory/photos` | App-private files | The pro's own and work photos, each named by a new random id |
 | Secrets | `SecureStorage` | Keystore / Keychain | Nothing yet. Firebase keeps its own session. |
 | Queryable data | SQLite (`sqlite-net-pcl`) | — | **Later:** favorites, recently viewed, offline cache |
 | Server cache | — | — | **Later:** recent listings and chats for offline use |
@@ -266,7 +266,6 @@ A silent anonymous session at launch gives a UID for API calls and App Check wit
 
 ### 6.4 Anti-fraud tie-ins
 - **Rule 1:** enforced **server-side** when a pro goes live, keyed by E.164 phone (and later the GCash number). The local draft is never trusted for this.
-- **Rule 2:** compute SHA-256 when a photo is picked (later), and re-check on the server at upload.
 
 ## 7. What to measure
 - Drop-off per step, for both interviews and the language and role screens.

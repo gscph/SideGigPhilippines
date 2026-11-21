@@ -31,11 +31,7 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
         row.Language = profile.Language == Wire.Taglish ? Wire.Taglish : Wire.English;
         row.Role = profile.Role is Wire.Seeker or Wire.Professional ? profile.Role : null;
         row.IncomeGoalId = StoreText.IsCode(profile.IncomeGoalId) ? profile.IncomeGoalId : null;
-        // Anti-fraud rule 2: a photo another account uses (its profile, listing or work photo) is left off.
-        row.ProfilePhotoId = StoreText.IsPhotoId(profile.ProfilePhotoId)
-            && !await db.UsedByAnotherAsync(uid, [profile.ProfilePhotoId!], cancellationToken)
-                ? profile.ProfilePhotoId
-                : null;
+        row.ProfilePhotoId = StoreText.IsPhotoId(profile.ProfilePhotoId) ? profile.ProfilePhotoId : null;
         row.UpdatedAt = now;
         try
         {
@@ -43,8 +39,8 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
         }
         catch (DbUpdateException ex) when (SqlErrors.Violates(ex, Constraints.UserProfilePhoto))
         {
-            // Anti-fraud rule 2: another account has this photo (the upload API already refuses that, so this is
-            // a race). Keep the rest of the profile and leave the photo off.
+            // Another account has this photo id (only a copied id can do that: every upload gets a new id). Keep the
+            // rest of the profile and leave the photo off.
             row.ProfilePhotoId = null;
             await db.SaveChangesAsync(cancellationToken);
         }

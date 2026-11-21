@@ -665,7 +665,6 @@ public static class Copy
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");
-    public static readonly LocalizedText PhotosDuplicate = new("Skipped photos you already added.", "Di na sinama ang photos na nandito na.");
     public static readonly LocalizedText PhotosFailed = new("Couldn't open your photos. Please try again.", "Di mabuksan ang photos mo. Try ulit.");
     public static readonly LocalizedText PhotosNoPermission = new("Tarbaho can't see your photos. Allow Photos in Settings, then try again.", "Di makita ng Tarbaho ang photos mo. I-allow ang Photos sa Settings, tapos try ulit.");
     public static readonly LocalizedText CameraNoPermission = new("Tarbaho can't use your camera. Allow Camera in Settings, or choose a photo instead.", "Di magamit ng Tarbaho ang camera mo. I-allow ang Camera sa Settings, o pumili na lang ng photo.");
@@ -680,7 +679,6 @@ public static class Copy
     public static readonly LocalizedText PhotosNoInternet = new("No internet, so your photo wasn't uploaded. Connect, then try again.", "Walang internet kaya di na-upload ang photo. Mag-connect, tapos try ulit.");
     public static readonly LocalizedText PhotosServerError = new("Our server couldn't take your photo right now. Please try again in a moment.", "Di natanggap ng server ang photo ngayon. Try ulit maya-maya.");
     public static readonly LocalizedText PhotosRejected = new("This photo can't be used (too big, or not a clear picture). Please try another photo.", "Di pwede ang photo na ito (masyadong malaki, o di malinaw). Try ng ibang photo.");
-    public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");
 
     // --- Profile ----------------------------------------------------------
     public static readonly LocalizedText ProfilePhotoAdd = new("Add your photo", "Maglagay ng photo mo");

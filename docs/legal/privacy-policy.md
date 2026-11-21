@@ -129,7 +129,7 @@ Under Sections 12 and 13 of the DPA, we process your data because:
 1. **It is needed to provide the App you asked for** (contract): sign-in, your listing, search, chats,
    notifications, reviews.
 2. **Our legitimate interests**, balanced against your rights: preventing fraud and fake accounts (one number per
-   account, duplicate-photo detection), keeping the App safe, ranking search results, fixing errors, improving the
+   account), keeping the App safe, ranking search results, fixing errors, improving the
    list of jobs and trades.
 3. **Your consent**: optional data (Customer profile photo, income goal), push notifications, error reports and
    (when active) analytics. You can withdraw consent at any time in the App or by emailing us; this does not affect

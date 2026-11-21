@@ -109,8 +109,8 @@ public sealed class TestPhone
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
         (await phone.Pro.ChangeProfilePhotoAsync()).Failed.Should().BeFalse();
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg(), TestImages.Jpeg()]);
-        // The whole result, so a failure says why (Taken = another account has these bytes, Rejected or ServerError = the server refused).
-        (await phone.Pro.AddWorkPhotosAsync()).Should().Be(new PhotoAddResult(2, 0));
+        // The whole result, so a failure says why (Rejected or ServerError = the server refused).
+        (await phone.Pro.AddWorkPhotosAsync()).Should().Be(new PhotoAddResult(2));
         return phone;
     }
 
@@ -128,10 +128,8 @@ public static class TestImages
 {
     public static byte[] Jpeg()
     {
-        // A random colour and size, like real photos. A plain colour alone isn't enough: after the server re-encodes
-        // it, two of the hundreds of test photos sometimes came out byte for byte the same (same size, colours that
-        // encode alike), and the second account got 409 photo-in-use. A fresh Guid drawn as gray pixels across the
-        // top rows makes every photo different by construction.
+        // A random colour and size, like real photos, with a fresh Guid drawn as gray pixels across the top rows so
+        // every photo is different by construction.
         var color = new ImageMagick.MagickColor((byte)Random.Shared.Next(256), (byte)Random.Shared.Next(256), (byte)Random.Shared.Next(256));
         using var image = new ImageMagick.MagickImage(color, (uint)Random.Shared.Next(40, 400), (uint)Random.Shared.Next(30, 300)) { Format = ImageMagick.MagickFormat.Jpeg };
         using var pixels = image.GetPixels();

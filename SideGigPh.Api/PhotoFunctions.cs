@@ -12,11 +12,9 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Api;
 
 /// <summary>
-/// Work photos and profile photos, stored in Azure Blob Storage as photos/{sha256}.jpg.
-/// Anyone can view a photo by its URL (the id is an unguessable hash); only its owner adds or deletes it.
-///
-/// Anti-fraud rule 2: the server hashes the bytes itself and keeps one blob per hash, owned by the
-/// account that uploaded it first. Another account uploading the same photo gets 409 photo-in-use.
+/// Work photos and profile photos, stored in Azure Blob Storage as photos/{id}.jpg. Every upload is a new blob with a
+/// random id (64 hex characters), so the same picture sent twice, or by two accounts, is simply two photos.
+/// Anyone can view a photo by its URL (the id is unguessable); only the account that uploaded it deletes it.
 /// </summary>
 public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseTokenValidator auth, CallerLimits limits)
 {
@@ -40,7 +38,7 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             return new UnauthorizedResult();
         }
 
-        // Each distinct photo is a new blob, so uploads are limited per account.
+        // Each upload is a new blob, so uploads are limited per account.
         if (!limits.TryTake(Limited.PhotoUpload, uid))
         {
             return ApiResults.TooMany();
@@ -57,8 +55,8 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             return new BadRequestObjectResult(new { error = "unsupported-format" });
         }
 
-        // iPhone HEIC and PNG become JPEG; the id is the hash of what is stored. A photo bigger than any phone camera
-        // takes is refused from its header, before its pixels are decoded.
+        // iPhone HEIC and PNG become JPEG. A photo bigger than any phone camera takes is refused from its header, before
+        // its pixels are decoded.
         try
         {
             if (PhotoImage.IsTooBig(bytes, kind))
@@ -75,30 +73,19 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
 
         await EnsureContainerAsync(cancellationToken);
 
-        var id = Convert.ToHexStringLower(SHA256.HashData(bytes));
+        var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
         var blob = photos.GetBlobClient($"{id}.jpg");
-        try
+        await blob.UploadAsync(BinaryData.FromBytes(bytes), new BlobUploadOptions
         {
-            await blob.UploadAsync(BinaryData.FromBytes(bytes), new BlobUploadOptions
+            HttpHeaders = new BlobHttpHeaders
             {
-                HttpHeaders = new BlobHttpHeaders
-                {
-                    ContentType = "image/jpeg",
-                    // Same id = same bytes forever, so phones can cache it for good.
-                    CacheControl = "public, max-age=31536000, immutable",
-                },
-                Metadata = new Dictionary<string, string> { [OwnerKey] = uid },
-                Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All },
-            }, cancellationToken);
-        }
-        catch (RequestFailedException e) when (e.Status == StatusCodes.Status409Conflict)
-        {
-            // Already stored: fine if it's this account's own photo (saving the same bytes again).
-            if (await OwnerOfAsync(blob, cancellationToken) != uid)
-            {
-                return new ConflictObjectResult(new { error = "photo-in-use" });
-            }
-        }
+                ContentType = "image/jpeg",
+                // An id is never reused, so phones can cache it for good.
+                CacheControl = "public, max-age=31536000, immutable",
+            },
+            Metadata = new Dictionary<string, string> { [OwnerKey] = uid },
+            Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All },
+        }, cancellationToken);
 
         return new OkObjectResult(new PhotoDto(id, blob.Uri.ToString()));
     }

@@ -57,7 +57,7 @@ Razor page → ProWorkspace / SeekerWorkspace → port (IProfessionalProfileRepo
 
 ## 4. Tables
 
-All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql`, recorded in `dbo.SchemaChanges`; the first, `005-schema-ranking-signals.sql`, added `Chats.ProfessionalRepliedAt` and `Users.LastActiveAt`). Ids are `varchar`: Firebase uids, catalog ids (`aircon`, `aircon-cleaning`, rows of `Categories` / `Services`), `ReferenceData` ids (`rizal`, `taytay`, `500-1000`…), and SHA-256 hex for photos. All these ids are stable. Listings, chats and reviews keep category/service ids as plain text with no foreign key, so a retired trade's old rows still read. Times are `datetimeoffset(3)` UTC.
+All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql`, recorded in `dbo.SchemaChanges`; the first, `005-schema-ranking-signals.sql`, added `Chats.ProfessionalRepliedAt` and `Users.LastActiveAt`). Ids are `varchar`: Firebase uids, catalog ids (`aircon`, `aircon-cleaning`, rows of `Categories` / `Services`), `ReferenceData` ids (`rizal`, `taytay`, `500-1000`…), and 64 random hex characters for photos. All these ids are stable. Listings, chats and reviews keep category/service ids as plain text with no foreign key, so a retired trade's old rows still read. Times are `datetimeoffset(3)` UTC.
 
 | Table | Key | What | Notes |
 |---|---|---|---|
@@ -65,7 +65,7 @@ All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql
 | `Professionals` | `Id` = uid | The published listing: name, `MobileNumber`, one `CategoryId` (or `other`), one `AreaId`, `ExperienceId`, `RatePesos` int (their average price per service, ₱1–₱1,000,000, `CK_Professionals_RatePesos`; `023-schema-worker-price.sql` replaced the old text `RateTierId`), `ProfilePhotoId`, `PublishedAt` (first went live), `UpdatedAt`; `OtherWorkText` ≤ 100 (`017-schema-others-and-ranges.sql`: what they typed under "Others", sent as `ListingDto.OtherWork` and matched in search) | **`UQ_Professionals_MobileNumber`** (anti-fraud rule 1); the number is the token's verified `phone_number`. `IX_Professionals_Category_Area` serves search. The row exists only while published. |
 | `ProfessionalServices` | (`ProfessionalId`, `ServiceId`) | The jobs they do | Cascade delete with the listing |
 | `ProfessionalCities` | (`ProfessionalId`, `CityId`) | Towns they go to, inside the area | Cascade delete |
-| `ProfessionalWorkPhotos` | `PhotoId` | 0–6 work photos, optional (the check allows 12), `Position` 0 = newest | **The PK is global** (anti-fraud rule 2), as is `UX_Professionals_ProfilePhoto`. URLs are built from the id. |
+| `ProfessionalWorkPhotos` | `PhotoId` | 0–6 work photos, optional (the check allows 12), `Position` 0 = newest | **The PK is global**, as is `UX_Professionals_ProfilePhoto` (every upload gets a new id, so only a copied id can collide: `409 photo-in-use`). URLs are built from the id. |
 | `ProfessionalReferences` | (`ProfessionalId`, `Position`) | **Legacy, no longer written or read** (references were dropped on 18 Nov 2026): `Name`, `MobileNumber` (+639…) saved by older apps. Only Delete account touches it, to purge a person's rows (it also cascades with the listing). To be dropped by a later guarded `NNN-schema-*.sql` once the owner agrees. |
 | `Reviews` | (`ProfessionalId`, `SeekerId`) | One per Seeker per worker: `ReviewerName`, `Rating` 1–5, `Comment` ≤ 1000, `ServiceId` | Only after a chat between the two exists. **No FK to `Professionals`**, so a worker who starts over can't wipe their reviews. Averages come from one `GROUP BY` and travel on each listing (`ListingDto.Reviews`). |
 | `Chats` | `Id` = `{proId}_{seekerId}` | Both names, the job (`ServiceId`, `CityId`, `UrgencyId`, `BudgetId`), a copy of the last message, `SeekerReadAt` / `ProfessionalReadAt`, `ProfessionalRepliedAt` (the worker's first reply; search ranking) | Unread = the other person wrote last after my read time. Each Inbox is one index seek (`IX_Chats_Seeker`, `IX_Chats_Professional`). Only the Seeker can start a chat. |
@@ -95,8 +95,8 @@ All created by `001-schema.sql` plus the later schema changes (`NNN-schema-*.sql
 
 ## 5. Photos (Azure Blob Storage, through `SideGigPh.Api`)
 
-- **Where:** the storage account `sidegigphbfb9` (also the Function App's own storage; only `photos` is public), container `photos`. A photo is `https://sidegigphbfb9.blob.core.windows.net/photos/{sha256}.jpg`: readable by exact URL, not listable.
-- **`POST /api/photos`** (a JPEG, PNG or iPhone HEIC, ≤ 10 MB): `PhotoImage` makes a JPEG of at most 1280px, upright, with EXIF/GPS stripped. The API hashes the stored bytes, saves `{sha}.jpg` with `owner = uid` in metadata, and returns `{id, url}` (`PhotoDto`). Another account sending a stored photo gets `409 photo-in-use` (anti-fraud rule 2).
+- **Where:** the storage account `sidegigphbfb9` (also the Function App's own storage; only `photos` is public), container `photos`. A photo is `https://sidegigphbfb9.blob.core.windows.net/photos/{id}.jpg` (a new random id per upload): readable by exact URL, not listable.
+- **`POST /api/photos`** (a JPEG, PNG or iPhone HEIC, ≤ 10 MB): `PhotoImage` makes a JPEG of at most 1280px, upright, with EXIF/GPS stripped. The API saves it as `{id}.jpg` under a new random id with `owner = uid` in metadata, and returns `{id, url}` (`PhotoDto`). There is no duplicate check: the same picture twice is two photos.
 - **`DELETE /api/photos/{id}`:** the owner only.
 - **Listings** keep only photo ids (`ProfilePhotoId`, `ProfessionalWorkPhotos`); the API turns them into URLs.
 

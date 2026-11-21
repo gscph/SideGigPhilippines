@@ -7,8 +7,9 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// One promise on the Publish checklist (<see cref="PublishChecklist"/>): its icon, a checkbox with its words, and for
-/// the Terms a link to read them (<see cref="AppBrand.Legal"/>, as the sign-in consent line does).
+/// One promise on the Publish checklist (<see cref="PublishChecklist"/>): its icon, a checkbox, and its words beside it in
+/// one column that lines up with the box's top (a tap on the words ticks it too), with, for the Terms, a link to read them
+/// under the words (<see cref="AppBrand.Legal"/>, as the sign-in consent line does).
 /// </summary>
 public partial class CommitmentCheck : ComponentBase
 {
@@ -20,6 +21,8 @@ public partial class CommitmentCheck : ComponentBase
     [Parameter] public bool Ticked { get; set; }
 
     [Parameter] public EventCallback<bool> TickedChanged { get; set; }
+
+    private Task ToggleAsync() => TickedChanged.InvokeAsync(!Ticked);
 
     // A picture beside each promise for readers who go by icons; the words stay the promise.
     private string Icon => Item.Id switch

@@ -392,7 +392,7 @@ public sealed class SeekerWorkspace(
             await photos.DeleteAsync(oldId);
         }
 
-        return new PhotoAddResult(1, 0);
+        return new PhotoAddResult(1);
     }
 
     /// <summary>
