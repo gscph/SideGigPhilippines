@@ -11,7 +11,7 @@ The architecture rule (ports & adapters, no vendor lock-in) is in `CLAUDE.md`. T
 
 | Layer | Where | Rule |
 |---|---|---|
-| Schema (source of truth) | `SideGigPh.AzureSQL/Sql/001-schema.sql` (frozen: the database is live) + the numbered `NNN-schema-*.sql` changes | **Load `db-migration`.** A change is a new script, every step guarded (`IF OBJECT_ID(...) IS NULL`, `COL_LENGTH(...) IS NULL`). Named constraints. Ids are `varchar` (Firebase uids, `ReferenceData` ids, SHA-256 hex), text people type is `nvarchar`, times are `datetimeoffset(3)` UTC. An index for every read the app makes. There are no EF migrations. |
+| Schema (source of truth) | `SideGigPh.AzureSQL/Sql/001-schema.sql` (frozen: the database is live) + the numbered `NNN-schema-*.sql` changes | **Load `db-migration`.** A change is a new script, every step guarded (`IF OBJECT_ID(...) IS NULL`, `COL_LENGTH(...) IS NULL`). Named constraints. Ids are `varchar` (Firebase uids, `ReferenceData` ids, random hex photo ids), text people type is `nvarchar`, times are `datetimeoffset(3)` UTC. An index for every read the app makes. There are no EF migrations. |
 | Sample data | `SideGigPh.AzureSQL/Sql/002-seed.sql` | Every sample id starts `seed-`, and the script deletes those first, so it can run again. Phone numbers use the unassigned `+63 900` prefix. No chats, no photos. |
 | Row + mapping | `SideGigPh.AzureSQL/Rows.cs`, `SideGigPhDb.cs` | One `*Row` class per table. `OnModelCreating` repeats the script's lengths, unicode, keys and index names. Strings default to `varchar` (`ConfigureConventions`), so mark `nvarchar` columns `.IsUnicode()`. |
 | Store | `SideGigPh.AzureSQL/<Thing>Store.cs` | The data rules: validation, who may write what, anti-fraud. Takes the caller's uid, never trusts an id in the body. Answers with `SideGigPh.Contracts` records or an outcome enum. Multi-row writes go through `db.InTransactionAsync` (retry-safe). A unique-key race is caught with `SqlErrors.Violates(ex, Constraints.X)`. Register it in `AddSideGigPhSql`. |
@@ -42,7 +42,7 @@ A signed-in person's id is their Firebase uid: `ProWorkspace.MyId` (also the lis
 ## Anti-fraud rules are enforced in the database and the store
 
 - **One number, one listing:** `UQ_Professionals_MobileNumber`. The listing's number is the token's `phone_number`, so publishing needs a verified phone (`403 phone-required`). A clash gives `409 phone-taken` → `PublishResult.PhoneTaken`.
-- **No duplicate images:** the photo id is the SHA-256 of the stored JPEG. `PK_ProfessionalWorkPhotos` (global) and `UX_Professionals_ProfilePhoto` stop two listings sharing a photo (`409 photo-in-use`). The upload API also refuses a photo another account stored.
+- **Photo ids:** every upload gets a new random id (no duplicate-photo check). `PK_ProfessionalWorkPhotos` (global) and `UX_Professionals_ProfilePhoto` still stop two listings sharing one id, which only a copied id can do (`409 photo-in-use`).
 
 ## Gotchas
 

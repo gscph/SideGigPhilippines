@@ -262,17 +262,6 @@ public class ApiAdapterTests
         (await photos.GetUrlAsync("other")).Should().Be($"{FakePhotoStore.BaseUrl}other.jpg", "older photos show from the public container");
     }
 
-    [Fact]
-    public async Task PhotoUpload_PhotoOfAnotherAccount_IsTaken()
-    {
-        var server = new StubServer();
-        server.Answer("POST photos", HttpStatusCode.Conflict, Error(ApiErrors.PhotoInUse));
-
-        var upload = () => Photos(server).SaveAsync([1]);
-
-        (await upload.Should().ThrowAsync<PhotoStoreException>()).Which.Taken.Should().BeTrue();
-    }
-
     [Theory]
     [InlineData(HttpStatusCode.InternalServerError, "{}")]
     [InlineData(HttpStatusCode.TooManyRequests, "{}")]

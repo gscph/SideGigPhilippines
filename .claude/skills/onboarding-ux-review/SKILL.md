@@ -46,7 +46,7 @@ The source of truth is `docs/onboarding.md`. §3 maps each research source to th
 - **No fake numbers:** no fake counters, scarcity, social proof or demand signals. Any number shown is the user's own or real data. Before data exists, show none.
 - **No fake competitors:** use skeletons, not invented listings, in previews. Sample pros only come from `SideGigPh.AzureSQL/Sql/002-seed.sql` (ids `seed-…`, numbers on the unassigned +63 900 prefix), deleted before go-live.
 - **Ask for permissions in context only,** behind a benefit pre-prompt. "Not now" never blocks the flow. Never during the interview without a reason.
-- **Anti-fraud rules are non-negotiable:** 1 Phone or Email = 1 Registration, and duplicate-image rejection. They are enforced server-side, never trusting the local draft.
+- **Anti-fraud rules are non-negotiable:** 1 Phone or Email = 1 Registration. They are enforced server-side, never trusting the local draft.
 - **Say plainly what isn't built** rather than implying it works.
 
 ## Output format

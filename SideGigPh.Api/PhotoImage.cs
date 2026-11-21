@@ -15,7 +15,6 @@ public enum PhotoKind
 /// upright (EXIF rotation baked in), sRGB, at most 1280px on the long side (never enlarged: blowing a small photo up
 /// only makes it blurry), JPEG at quality 82, with EXIF and GPS removed. The screens crop it to fit with
 /// object-fit: cover (square avatars, square work thumbnails), so any shape of photo fills them.
-/// Re-encoding is deterministic, so the same upload still gets the same id (anti-fraud rule 2).
 /// </summary>
 public static class PhotoImage
 {

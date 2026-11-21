@@ -230,8 +230,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>
-    /// Uploads the photos the page picked and adds them to <paramref name="draft"/> (at most <see cref="PhotoRoom"/>,
-    /// skipping one already added). Photos that uploaded before a failure stay.
+    /// Uploads the photos the page picked and adds them to <paramref name="draft"/> (at most <see cref="PhotoRoom"/>).
+    /// Photos that uploaded before a failure stay.
     /// </summary>
     public async Task<PhotoAddResult> AddPhotosAsync(JobPostDraft draft, PhotoPick pick)
     {
@@ -240,19 +240,13 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             return PhotoAddResult.From(pick.Status);
         }
 
-        int added = 0, duplicates = 0;
+        var added = 0;
         var problem = PhotoProblem.None;
         foreach (var bytes in pick.Photos.Take(PhotoRoom(draft)))
         {
             try
             {
                 var id = await photos.SaveAsync(bytes);
-                if (draft.Photos.Any(photo => photo.Id == id))
-                {
-                    duplicates++;
-                    continue;
-                }
-
                 draft.Photos.Add(new WorkPhoto(id, (await photos.GetUrlAsync(id))!));
                 added++;
             }
@@ -263,7 +257,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             }
         }
 
-        return new PhotoAddResult(added, duplicates, problem);
+        return new PhotoAddResult(added, problem);
     }
 
     /// <summary>

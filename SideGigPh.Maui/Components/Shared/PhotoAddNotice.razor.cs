@@ -6,7 +6,7 @@ namespace SideGigPh.Maui.Components.Shared;
 
 /// <summary>
 /// Tells the person why photos weren't added (no permission, with a Settings link; no internet; server trouble; a photo the server can't use;
-/// photo used by another account; gallery didn't open), or that duplicates were skipped. Silent otherwise.
+/// gallery didn't open). Silent otherwise.
 /// </summary>
 public partial class PhotoAddNotice : ComponentBase
 {
@@ -21,7 +21,6 @@ public partial class PhotoAddNotice : ComponentBase
         PhotoProblem.NoInternet => Copy.PhotosNoInternet,
         PhotoProblem.ServerError => Copy.PhotosServerError,
         PhotoProblem.Rejected => Copy.PhotosRejected,
-        PhotoProblem.Taken => Copy.PhotosTaken,
         _ => Copy.PhotosFailed,
     };
 }
