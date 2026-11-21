@@ -8,11 +8,35 @@
                 <MudText Typo="Typo.body1">@T.Get(Mine ? Copy.YouCalled : Copy.CalledYou)</MudText>
             </MudStack>
         }
+        else if (Message.Kind == ChatMessageKind.Pin)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Rounded.LocationOn" Color="Color.Inherit" aria-hidden="true" />
+                <MudStack Spacing="0" Class="app-min-w-0">
+                    <MudText Typo="Typo.subtitle2">@T.Get(Mine ? Copy.PinMine : Copy.PinTheirs)</MudText>
+                    @if (Place is null)
+                    {
+                        <MudText Typo="Typo.caption">@T.Get(Copy.PinGone)</MudText>
+                    }
+                    else if (!Mine)
+                    {
+                        <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="app-link-button" Disabled="_busy"
+                                   StartIcon="@Icons.Material.Rounded.Navigation" OnClick="OpenAsync">
+                            @T.Get(Copy.PinOpen)
+                        </MudButton>
+                    }
+                </MudStack>
+            </MudStack>
+        }
         else
         {
             <MudText Typo="Typo.body1">@Message.Text</MudText>
         }
     </MudPaper>
+    @if (_failed)
+    {
+        <MudText Typo="Typo.caption" Color="Color.Error" Class="px-1 pt-1" role="alert">@T.Get(Copy.MeetOpenFailed)</MudText>
+    }
     @if (ShowTime)
     {
         <MudText Typo="Typo.caption" Color="Color.Secondary" Class="px-1 pt-1">@T.Ago(Message.At)</MudText>

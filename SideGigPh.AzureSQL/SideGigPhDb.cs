@@ -389,6 +389,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             offer.Property(o => o.CancelledBy).HasMaxLength(10);
             offer.Property(o => o.CancelReason).HasMaxLength(20);
             offer.Property(o => o.CancelNote).HasMaxLength(300).IsUnicode();
+            // 028-schema-meet-location: MeetLatitude / MeetLongitude (float) and MeetSharedAt map by convention.
         });
 
         model.Entity<HouseholdReviewRow>(review =>

@@ -142,16 +142,18 @@ public sealed class ChatStore(SideGigPhDb db)
     public async Task<SendResult> SendAsync(
         string chatId, string uid, SendMessageRequest request, Func<bool> canStartChat, CancellationToken cancellationToken)
     {
-        var isCall = request.Kind == Wire.Call;
-        var text = isCall ? null : StoreText.Limit(request.Text, MaxText);
+        // A call or a pin ("Customer's location") carries no text.
+        var noText = request.Kind is Wire.Call or Wire.Pin;
+        var text = noText ? null : StoreText.Limit(request.Text, MaxText);
         if (request.ProfessionalId is not { Length: > 0 and <= MaxUid } || request.SeekerId is not { Length: > 0 and <= MaxUid }
             || chatId != IdFor(request.ProfessionalId, request.SeekerId) || request.MessageId is not { Length: > 0 and <= 64 }
-            || (request.Kind is not (Wire.Text or Wire.Call)) || (!isCall && text is null) || request.ProfessionalId == request.SeekerId)
+            || (request.Kind is not (Wire.Text or Wire.Call or Wire.Pin)) || (!noText && text is null) || request.ProfessionalId == request.SeekerId)
         {
             return new SendResult(SendOutcome.Invalid);
         }
 
-        if (uid != request.SeekerId && uid != request.ProfessionalId)
+        // Only the household sends its place (PickedJobStore.ShareLocationAsync); the pin only says so in the chat.
+        if ((uid != request.SeekerId && uid != request.ProfessionalId) || (request.Kind == Wire.Pin && uid != request.SeekerId))
         {
             return new SendResult(SendOutcome.Forbidden);
         }
@@ -173,7 +175,7 @@ public sealed class ChatStore(SideGigPhDb db)
             var now = DateTimeOffset.UtcNow;
             if (chat is null)
             {
-                if (uid != request.SeekerId)
+                if (uid != request.SeekerId || request.Kind == Wire.Pin)
                 {
                     return new SendResult(SendOutcome.Forbidden);
                 }

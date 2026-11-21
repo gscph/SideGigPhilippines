@@ -86,6 +86,14 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.PickedJobDto))!.ToModel();
     }
 
+    public async Task<PickedJob> ShareMeetLocationAsync(long postId, GeoPoint point)
+    {
+        using var response = await api.SendJsonAsync(HttpMethod.Put, $"picked-jobs/{postId}/location",
+            new ShareMeetLocationRequest(point.Latitude, point.Longitude), ApiJson.Default.ShareMeetLocationRequest);
+        await api.EnsureWrittenAsync(response, "send the location");
+        return (await response.Content.ReadFromJsonAsync(ApiJson.Default.PickedJobDto))!.ToModel();
+    }
+
     public async Task CancelPickAsync(long postId, string reason, string? note)
     {
         using var response = await api.SendJsonAsync(HttpMethod.Post, $"picked-jobs/{postId}/cancel",

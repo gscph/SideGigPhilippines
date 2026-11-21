@@ -77,7 +77,8 @@ transferred encrypted, users can request deletion):
 | Other user content (listing, reviews, reports, "Others" text) | Yes | No | App functionality, safety, analytics (Others) | Yes | — |
 | Crash logs / diagnostics | Yes | No | Analytics (app stability) | **No** | Yes (switch) |
 | Device or other IDs (push token, random install id) | Yes | No | App functionality | Yes (push) / No (install id) | — |
-| Location, contacts, financial info, browsing history, health | **No** | — | — | — | — |
+| Precise location (optional: "Use my location"; a customer's "Send my location" to the worker they picked, removed when the job is done or cancelled) | Yes | No (sent on the user's own tap to one other user) | App functionality | Yes | Yes |
+| Contacts, financial info, browsing history, health | **No** | — | — | — | — |
 
 \* Firebase and Azure are **service providers** processing on our behalf, which both stores count as "not shared".
 When Google Analytics is added, add "App interactions / App activity: Analytics, not linked" and update the policy

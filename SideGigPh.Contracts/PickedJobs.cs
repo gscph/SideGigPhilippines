@@ -13,6 +13,9 @@ namespace SideGigPh.Contracts;
 /// <param name="TheyReviewed">The other person has reviewed the caller since this job was completed (their stars stay hidden until the caller reviews too).</param>
 /// <param name="TheirRating">The other person's stars for the caller, only once they show (<see cref="ReviewRules.IsHidden"/>), else null.</param>
 /// <param name="MyReviewLocked">The caller's review of the other can't be changed any more (<see cref="ReviewRules.IsLocked"/>).</param>
+/// <param name="MeetLatitude">The exact point the household sent the picked worker (<c>PUT picked-jobs/{postId}/location</c>),
+/// only to those two and only until the job is called off or completed; null when none was sent.</param>
+/// <param name="MeetSharedAt">When the household sent it.</param>
 public sealed record PickedJobDto(
     long PostId,
     string ServiceId,
@@ -25,7 +28,17 @@ public sealed record PickedJobDto(
     DateTimeOffset? CompletedAt = null,
     bool TheyReviewed = false,
     int? TheirRating = null,
-    bool MyReviewLocked = false);
+    bool MyReviewLocked = false,
+    double? MeetLatitude = null,
+    double? MeetLongitude = null,
+    DateTimeOffset? MeetSharedAt = null);
+
+/// <summary>
+/// <c>PUT picked-jobs/{postId}/location</c>: the household sends the worker it picked the exact place to come to (the
+/// phone's precise location, sent only on the household's tap). Sending again replaces it. Private to the two; cleared
+/// when the job is called off or both mark it done.
+/// </summary>
+public sealed record ShareMeetLocationRequest(double Latitude, double Longitude);
 
 /// <summary>
 /// <c>POST picked-jobs/{postId}/cancel</c>: the household or the picked worker calls the job off before both marked it

@@ -1,0 +1,99 @@
+@if (MeetLocation.CanSend(Job))
+{
+    <MudDivider />
+    @if (Job.MeetPoint is null)
+    {
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.subtitle2">@T.Format(Copy.MeetSendTitle, OtherName)</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Format(Copy.MeetSendWhy, OtherName)</MudText>
+        </MudStack>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Disabled="_busy"
+                   StartIcon="@Icons.Material.Rounded.MyLocation" OnClick="SendAsync">
+            @if (_busy)
+            {
+                <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Default" />
+            }
+            else
+            {
+                @T.Get(Copy.MeetSendButton)
+            }
+        </MudButton>
+    }
+    else
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Rounded.CheckCircle" Color="Color.Success" Size="Size.Small" aria-hidden="true" />
+            <MudText Typo="Typo.body2" Class="flex-1">@T.Format(Copy.MeetSent, OtherName, T.Ago(Job.MeetSharedAt ?? Job.PickedAt))</MudText>
+            <MudButton Variant="Variant.Text" Color="Color.Dark" Class="flex-shrink-0" Disabled="_busy" OnClick="SendAsync">
+                @T.Get(Copy.MeetSendAgain)
+            </MudButton>
+        </MudStack>
+    }
+}
+else if (MeetLocation.IsWaiting(Job))
+{
+    <MudDivider />
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudIcon Icon="@Icons.Material.Rounded.LocationOn" Color="Color.Secondary" Size="Size.Small" aria-hidden="true" />
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Class="flex-1">@T.Format(Copy.MeetWaiting, OtherName)</MudText>
+    </MudStack>
+}
+else if (MeetLocation.CanSee(Job) && Job.MeetPoint is { } place)
+{
+    <MudDivider />
+    <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+        <MudText Typo="Typo.subtitle2" Class="flex-1">@T.Get(Copy.MeetWhereTitle)</MudText>
+        <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Format(Copy.MeetSentAgo, T.Ago(Job.MeetSharedAt ?? Job.PickedAt))</MudText>
+    </MudStack>
+    <MapFrame Point="place" Title="@T.Format(Copy.MeetMapTitle, OtherName)" />
+
+    @if (_mine is { } here)
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Rounded.Explore" Color="Color.Dark" Size="Size.Small" aria-hidden="true" />
+            <MudText Typo="Typo.body2" Class="flex-1">@T.MeetDistance(here, place)</MudText>
+        </MudStack>
+    }
+    else
+    {
+        <MudStack Spacing="1">
+            <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" Disabled="_busy"
+                       StartIcon="@Icons.Material.Rounded.Explore" OnClick="HowFarAsync">
+                @if (_busy)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Primary" />
+                }
+                else
+                {
+                    @T.Get(Copy.MeetHowFar)
+                }
+            </MudButton>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.MeetHowFarWhy)</MudText>
+        </MudStack>
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" StartIcon="@Icons.Material.Rounded.Navigation"
+               OnClick="@(() => OpenAsync(place))">
+        @T.Get(Copy.PinOpen)
+    </MudButton>
+}
+
+@if (Problem is { } problem)
+{
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Text" Dense="true" Class="app-alert-wide" role="alert">
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Spacing="3">
+            <MudText Typo="Typo.body2" Class="flex-1">@T.Get(problem)</MudText>
+            @if (_problem is LocationOutcome.Denied or LocationOutcome.Rough)
+            {
+                <MudButton Variant="Variant.Text" Color="Color.Dark" Class="app-link-button flex-shrink-0" OnClick="Location.OpenAppSettings">
+                    @T.Get(Copy.LocationOpenSettings)
+                </MudButton>
+            }
+        </MudStack>
+    </MudAlert>
+}
+
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@_error</MudAlert>
+}

@@ -12,6 +12,12 @@ public interface IDeviceLocation
     /// </summary>
     Task<LocationFix> GetCurrentAsync();
 
+    /// <summary>
+    /// Whether the app already has the location permission, checked without asking: a page may then read the location
+    /// by itself (<see cref="GetCurrentAsync"/> won't prompt), else it waits for a tap that says why.
+    /// </summary>
+    Task<bool> IsAllowedAsync();
+
     /// <summary>Opens this app's page in the phone's Settings, where a denied permission can be turned on.</summary>
     void OpenAppSettings();
 }

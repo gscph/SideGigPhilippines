@@ -316,6 +316,12 @@ public sealed class SeekerWorkspace(
         return await PostAsync(pro, ChatMessageKind.Call, null);
     }
 
+    /// <summary>
+    /// "Customer's location" in the chat with <paramref name="pro"/>, after the Seeker sent the picked worker its exact
+    /// place (<see cref="JobBoard.ShareMeetLocationAsync"/>): the logged message, which also rings the worker.
+    /// </summary>
+    public Task<ChatMessage> SendPinAsync(ProfessionalListing pro) => PostAsync(pro, ChatMessageKind.Pin, null);
+
     /// <summary>The Seeker opened the chat: the pro's messages are read.</summary>
     public async Task MarkReadAsync(string professionalId)
     {

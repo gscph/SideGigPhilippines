@@ -13,9 +13,15 @@ public enum ChatMessageKind
 
     /// <summary>The sender tapped Call, which opened their phone's dialer. Logged so both sides see it.</summary>
     Call,
+
+    /// <summary>
+    /// "Customer's location": the household sent the picked worker its exact place (<c>Services/MeetLocation</c>). It
+    /// holds no coordinates; a tap opens the place kept on the picked job, so it says so once that is gone.
+    /// </summary>
+    Pin,
 }
 
-/// <summary>One message in a <see cref="Chat"/>. <see cref="Text"/> is null for a <see cref="ChatMessageKind.Call"/>.</summary>
+/// <summary>One message in a <see cref="Chat"/>. <see cref="Text"/> is null for a <see cref="ChatMessageKind.Call"/> or <see cref="ChatMessageKind.Pin"/>.</summary>
 public sealed record ChatMessage(
     string Id,
     string ChatId,

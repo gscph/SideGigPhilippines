@@ -75,7 +75,9 @@ internal static partial class ApiMapping
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
         new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating,
-            dto.CompletedAt, dto.TheyReviewed, dto.TheirRating, dto.MyReviewLocked);
+            dto.CompletedAt, dto.TheyReviewed, dto.TheirRating, dto.MyReviewLocked,
+            dto.MeetLatitude is { } lat && dto.MeetLongitude is { } lon ? new GeoPoint(lat, lon) : null,
+            dto.MeetSharedAt);
 
     public static JobOffer ToModel(this JobOfferDto dto) => new(
         dto.Id,
@@ -304,7 +306,12 @@ internal static partial class ApiMapping
         new(review.ProfessionalId, review.ReviewerName, review.Rating, review.Comment, review.ServiceId);
 
     public static ChatMessage ToModel(this MessageDto dto) =>
-        new(dto.Id, dto.ChatId, dto.SenderId, dto.Kind == Wire.Call ? ChatMessageKind.Call : ChatMessageKind.Text, dto.Text, dto.At);
+        new(dto.Id, dto.ChatId, dto.SenderId, dto.Kind switch
+        {
+            Wire.Call => ChatMessageKind.Call,
+            Wire.Pin => ChatMessageKind.Pin,
+            _ => ChatMessageKind.Text,
+        }, dto.Text, dto.At);
 
     public static Chat ToModel(this ChatDto dto) => new(
         dto.Id,
@@ -325,8 +332,13 @@ internal static partial class ApiMapping
         message.Id,
         chat.ProfessionalId,
         chat.SeekerId,
-        message.Kind == ChatMessageKind.Call ? Wire.Call : Wire.Text,
-        message.Kind == ChatMessageKind.Call ? null : message.Text,
+        message.Kind switch
+        {
+            ChatMessageKind.Call => Wire.Call,
+            ChatMessageKind.Pin => Wire.Pin,
+            _ => Wire.Text,
+        },
+        message.Kind == ChatMessageKind.Text ? message.Text : null,
         chat.ProfessionalName,
         chat.SeekerName,
         chat.ServiceId,

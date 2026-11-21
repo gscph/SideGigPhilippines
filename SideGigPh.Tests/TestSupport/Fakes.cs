@@ -838,6 +838,26 @@ public sealed class FakeJobPosts : IJobPostRepository
     /// <summary>The picked jobs called off: post, reason, note.</summary>
     public List<(long PostId, string Reason, string? Note)> Cancelled { get; } = [];
 
+    /// <summary>The places sent with <see cref="ShareMeetLocationAsync"/>: post id and point.</summary>
+    public List<(long PostId, GeoPoint Point)> MeetLocations { get; } = [];
+
+    public Task<PickedJob> ShareMeetLocationAsync(long postId, GeoPoint point)
+    {
+        ThrowIfOfflineOrGone();
+        foreach (var jobs in PickedWith.Values)
+        {
+            var index = jobs.FindIndex(j => j.PostId == postId);
+            if (index >= 0)
+            {
+                MeetLocations.Add((postId, point));
+                jobs[index] = jobs[index] with { MeetPoint = point, MeetSharedAt = DateTimeOffset.UtcNow };
+                return Task.FromResult(jobs[index]);
+            }
+        }
+
+        throw new HttpRequestException("not found", null, System.Net.HttpStatusCode.NotFound);
+    }
+
     public Task CancelPickAsync(long postId, string reason, string? note)
     {
         ThrowIfOfflineOrGone();

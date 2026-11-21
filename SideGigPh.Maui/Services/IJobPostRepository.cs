@@ -63,6 +63,12 @@ public interface IJobPostRepository
     Task<PickedJob> MarkDoneAsync(long postId);
 
     /// <summary>
+    /// The household sends the worker it picked on <paramref name="postId"/> its exact place (<see cref="MeetLocation"/>);
+    /// answers with the job. Throws when it didn't send.
+    /// </summary>
+    Task<PickedJob> ShareMeetLocationAsync(long postId, GeoPoint point);
+
+    /// <summary>
     /// This person (the household or the picked worker) calls off the picked job on <paramref name="postId"/> with a
     /// reason (<c>PickCancelReasons</c>) and an optional note; the post opens again. Throws when it didn't send; an
     /// <see cref="HttpRequestException"/> with status 409 when both had already marked it done.

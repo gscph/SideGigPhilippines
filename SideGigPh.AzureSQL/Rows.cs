@@ -350,6 +350,17 @@ public sealed class JobOfferRow
 
     /// <summary>Optional words with the reason.</summary>
     public string? CancelNote { get; set; }
+
+    /// <summary>
+    /// The exact point the household sent the picked worker (<c>028-schema-meet-location.sql</c>). Private to the two,
+    /// cleared when the job is called off or completed.
+    /// </summary>
+    public double? MeetLatitude { get; set; }
+
+    public double? MeetLongitude { get; set; }
+
+    /// <summary>When the household sent it.</summary>
+    public DateTimeOffset? MeetSharedAt { get; set; }
 }
 
 /// <summary>

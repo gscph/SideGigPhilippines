@@ -156,6 +156,27 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>
+    /// The household sends the picked worker its exact place (<see cref="MeetLocation"/>): the job as it is now, or null
+    /// when it didn't send (or this person may not send it).
+    /// </summary>
+    public async Task<PickedJob?> ShareMeetLocationAsync(PickedJob job, GeoPoint point)
+    {
+        if (!MeetLocation.CanSend(job) || !WorkArea.InPhilippines(point))
+        {
+            return null;
+        }
+
+        try
+        {
+            return await posts.ShareMeetLocationAsync(job.PostId, point);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
     /// This person calls off a picked job (<see cref="PickCancel"/>): on the household's side its post is open again in
     /// <see cref="Mine"/> (no pick). <see cref="CancelPickResult.Completed"/> when both had already marked it done.
     /// </summary>

@@ -164,6 +164,16 @@ public class WireContractTests
         ApiErrors.JobCompleted.Should().Be("job-completed");
     }
 
+    // The household's exact place for the picked worker: an installed app sends and reads these fields.
+    [Fact]
+    public void Meet_location_field_names_never_change()
+    {
+        FieldNames(new ShareMeetLocationRequest(14.5, 121.1), ApiJson.Default.ShareMeetLocationRequest).Should().Equal("latitude", "longitude");
+        FieldNames(new PickedJobDto(1, "plumbing-clog", 900, At, true, false, false, MeetLatitude: 14.5, MeetLongitude: 121.1, MeetSharedAt: At),
+                ApiJson.Default.PickedJobDto)
+            .Should().Contain(["meetLatitude", "meetLongitude", "meetSharedAt"]);
+    }
+
     // The feedback board: an installed app reads these fields and shows a status by these words.
     [Fact]
     public void FeedbackFieldNamesAndStatuses_NeverChange()
@@ -234,6 +244,7 @@ public class WireContractTests
         Wire.Professional.Should().Be("professional");
         Wire.Text.Should().Be("text");
         Wire.Call.Should().Be("call");
+        Wire.Pin.Should().Be("pin");
         Wire.Android.Should().Be("android");
         Wire.Ios.Should().Be("ios");
     }
