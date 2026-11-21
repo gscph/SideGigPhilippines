@@ -58,6 +58,16 @@ chat, a push notification, post a request, delete the account.
 Every run's number is the Android versionCode, so each upload is higher than the last, as Play requires.
 **Start a new run** for each upload: "Re-run jobs" keeps the run number, and Play refuses a versionCode it has seen.
 
+## R8 (code shrinking and obfuscation)
+
+Play's "DEX code optimization is below our threshold … Obfuscation (2%)" means the Java side of the app (MAUI's glue,
+AndroidX, Firebase, Play services) wasn't run through R8; under 25% may hurt visibility. Release builds now run R8
+(`AndroidLinkTool` `r8`, `AndroidR8ObfuscationMode` `private-members` in `SideGigPh.Maui.csproj`, the most .NET for
+Android allows). Each build keeps `mapping.txt` (artifact `…-r8-mapping`) and the Play upload sends it with the bundle;
+for a bundle uploaded by hand, add it in the Play Console (App bundle explorer → the version → Downloads →
+ReTrace mapping file) so crash stacks show real names. A missing keep rule only shows as a crash at run time: after
+adding an Android library, install a `beta` APK on a phone and try sign-in, notifications, photos and chat.
+
 ## 3. Before production (the launch checklist)
 
 **Server**
