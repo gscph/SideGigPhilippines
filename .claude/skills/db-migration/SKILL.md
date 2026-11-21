@@ -47,12 +47,12 @@ testers write rows to it. So:
    every `NNN-schema-*.sql` in order, then 004-config), and `SchemaScriptTests` runs every schema script a second
    time to prove the guards.
 6. Update `docs/data-model.md` (the table's columns) and `CLAUDE.md` if the change matters to the architecture.
-7. **Deploy order:** add the script's name to `SchemaScripts.Required` (`SchemaCheckTests` fails otherwise). The
-   push to `main` runs `database.yml` (called by `deploy-api.yml` first when the push also changes the API; `.github/scripts/changed.sh` decides): `db-check` lists the pending scripts, `db-migrate` (tool
-   `SideGigPh.Migrate`) runs them straight on the live database, then the API deploys. There is no approval step
-   any more (the owner asked for scripts to go straight to Azure SQL): merging to `main` is the approval, so say in
-   your report and in the PR which scripts the merge will run on the live database. A script that fails stops the
-   run before the API deploys. `004-config.sql` runs only on a manual run of `database.yml` with *Also run 004-config.sql* ticked.
+7. **Deploy order:** add the script's name to `SchemaScripts.Required` (`SchemaCheckTests` fails otherwise). Merging
+   deploys nothing: after the merge the owner runs *Deploy API* by hand (Actions), which runs `database.yml` first
+   when `Sql/` changed since the live API's commit (`.github/scripts/changed.sh`): `db-check` lists the pending
+   scripts, `db-migrate` (tool `SideGigPh.Migrate`) runs them straight on the live database, then the API deploys.
+   Pressing Run workflow is the approval, so say in your report and in the PR which scripts the next deploy will run
+   on the live database. A script that fails stops the run before the API deploys. `004-config.sql` runs only on a manual run of `database.yml` with *Also run 004-config.sql* ticked.
 
 ## Data scripts are different
 

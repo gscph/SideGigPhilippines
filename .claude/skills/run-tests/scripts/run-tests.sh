@@ -21,7 +21,7 @@ coverage=0
 rest=()
 
 # Paths the tests compile or read. A change anywhere else (CSS, images, .razor markup, docs) can't change a result.
-test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Migrate/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$|\.github/workflows/)'
+test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Migrate/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$)'
 
 for arg in "$@"; do
   case "$arg" in

@@ -14,7 +14,7 @@ The storage account is also the Function App's own storage (its deployment packa
 | File | What it is |
 |---|---|
 | `cloudshell-setup.sh` | Paste into **Azure Cloud Shell** (https://shell.azure.com, Bash). Creates the resource group, the storage account and its `photos` container and the Function App, and puts the storage connection string into the Function App's settings. Safe to run again. It doesn't create the database (see Azure SQL below). |
-| `cloudshell-github-deploy.sh` | Paste the same way, once: lets the GitHub workflow deploy `SideGigPh.Api` as a managed identity (no publish profile). See Automatic deploy from GitHub below. |
+| `cloudshell-github-deploy.sh` | Paste the same way, once: lets the GitHub workflow deploy `SideGigPh.Api` as a managed identity (no publish profile). See Deploy from GitHub below. |
 | `cloudshell-verify.sh` | A read-only check, pasted the same way, after publishing `SideGigPh.Api`: storage, public photo URLs, settings present, and that the API answers. Prints PASS / FAIL with what to do. |
 
 ## The address: api.tarbaho.com
@@ -90,9 +90,9 @@ The schema and sample data are T-SQL scripts in [`SideGigPh.AzureSQL/Sql/`](../S
    No restart is needed. To check the mapping: `SELECT name, CONVERT(uniqueidentifier, sid) FROM sys.database_principals WHERE type = 'E';` should show `SideGigPhApi` with the app's identity's **client (application) id** (`az ad sp show --id <principalId from Identity blade> --query appId -o tsv`).
 5. **Changing the schema:** the database is live, so `001-schema.sql` is frozen. Add a new guarded `NNN-schema-<what>.sql` (the `db-migration` skill: `new-migration.sh`) and change `Rows.cs` / `SideGigPhDb.cs` to match. Run the script in the Query editor as the admin **first**, then deploy the API (an API deployed first fails on the missing column).
 
-## Automatic deploy from GitHub
+## Deploy from GitHub
 
-`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` on its own when a push to `main` changes the server's code (`SideGigPh.Api/`, `SideGigPh.AzureSQL/` but not `Sql/`, `SideGigPh.Contracts/`, `SideGigPh.Admin/`, or the workflow file; SQL scripts alone go to `database.yml`, below), and when you run it by hand: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Before the API deploys, the database gets the schema scripts it is missing, on its own (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
+`.github/workflows/deploy-api.yml` builds and deploys `SideGigPh.Api` **only when you run it by hand**: GitHub → **Actions** → *Deploy API (Azure Functions)* → **Run workflow** (on `main`). Merging a PR deploys nothing. Before the API deploys, the database gets the schema scripts it is missing (Database migrations from GitHub below). It signs in to Azure as the **managed identity `sidegigph-github-deploy`** through OpenID Connect: GitHub proves "this is a run of `maryjuano/SideGigPhilippines` on `main`" and Azure trusts that. There is no password or publish profile anywhere, so it keeps working with the Function App's own managed identity on and basic auth off.
 
 There are **two identities**, each with one job:
 - the Function App's **system-assigned identity**: the running API uses it to reach Azure SQL (`Authentication=Active Directory Managed Identity`);
@@ -114,16 +114,15 @@ Set it up once:
 
 ## Database migrations from GitHub
 
-The database has its own workflow, `.github/workflows/database.yml` (`tests` → `db-check` → (`db-migrate`)), and the two decide by themselves which runs (`.github/scripts/changed.sh` holds the one list of files):
+The database has its own workflow, `.github/workflows/database.yml` (`db-check` → (`db-migrate`)), and like the deploy it runs **only by hand**:
 
-- **A push that changes only `Sql/` or `SideGigPh.Migrate/`:** `database.yml` runs alone; afterwards, if the live API's commit (`X-Api-Version`) is behind `main`'s API code (say an earlier deploy stopped on a failed script), it starts `deploy-api.yml`.
-- **A push that changes the API:** `deploy-api.yml` runs. If `Sql/` or the tool changed since the live API's commit, it calls `database.yml` first and deploys only after it; otherwise it deploys without asking the database.
-- **By hand:** either workflow (Actions → Run workflow).
+- **Deploy API (by hand):** if `Sql/` or `SideGigPh.Migrate/` changed since the live API's commit (`X-Api-Version`, `.github/scripts/changed.sh`), it calls `database.yml` first and deploys only after it; otherwise it deploys without asking the database.
+- **Database (by hand):** the SQL scripts only (and `004-config.sql` when ticked); it doesn't deploy the API.
 
 The database jobs:
 
 - **db-check** (changes nothing): a dry run of `SideGigPh.Migrate`, which lists the `NNN-schema-*.sql` scripts the live database hasn't recorded in `dbo.SchemaChanges`. Nothing pending: nothing more to do.
-- **Scripts pending (a new `NNN-schema-*.sql` reached `main`):** **db-migrate** runs exactly what `db-check` listed, straight on the live database, in number order, each script in its own transaction (all of it or none), stopping at the first failure (then the API doesn't deploy). The API deploys after it, so it never runs ahead of its tables. There is no approval step: **merging the script to `main` is the approval**, so read a PR's `Sql/` changes before merging it. `db-check` first refuses an edited `001-schema.sql`, an unguarded step and any `DROP TABLE` (`migration-check.sh`).
+- **Scripts pending (a new `NNN-schema-*.sql` merged into `main`):** **db-migrate** runs exactly what `db-check` listed, straight on the live database, in number order, each script in its own transaction (all of it or none), stopping at the first failure (then the API doesn't deploy). The API deploys after it, so it never runs ahead of its tables. **Pressing Run workflow is the approval**, so read what `db-check` lists (and the PR's `Sql/` changes) before deploying. `db-check` first refuses an edited `001-schema.sql`, an unguarded step and any `DROP TABLE` (`migration-check.sh`).
 - **`004-config.sql`** (the trades, jobs and answer lists) runs only when you tick **Also run 004-config.sql** on a manual run of `database.yml`. Sample data (`002`, `003`, `006`) and `001-schema.sql` never run.
 - Each job opens the SQL firewall to its own runner's IP only while it runs, and removes the rule afterwards.
 

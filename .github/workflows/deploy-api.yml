@@ -1,14 +1,13 @@
 name: Deploy API (Azure Functions)
 
 # Builds SideGigPh.Api (with the operator site, SideGigPh.Admin, at …/api/operator/) and deploys it to the Function
-# App SideGigPhApi. Runs on its own when a push to main changes what the API is made of (the "api" group of
-# .github/scripts/changed.sh: the API, its stores, the contracts, the operator site, the legal pages it serves, the
-# version files, this file), when database.yml finds the live API behind main, and by hand.
+# App SideGigPhApi. Manual only (Actions → Run workflow): merging to main deploys nothing. Tests run locally before
+# each PR (the pr-qa / run-tests skills), not here.
 #
-#   tests → plan: did the SQL scripts or the migration tool change since the commit the live API runs?
-#         → no:  deploy (the database is not touched or even asked)
-#         → yes: database.yml (db-check, then db-migrate if scripts are pending), then deploy; a script that fails
-#                stops the run and the API does NOT deploy. So an API never goes live before the tables it needs.
+#   plan: did the SQL scripts or the migration tool change since the commit the live API runs?
+#     → no:  deploy (the database is not touched or even asked)
+#     → yes: database.yml (db-check, then db-migrate if scripts are pending), then deploy; a script that fails
+#            stops the run and the API does NOT deploy. So an API never goes live before the tables it needs.
 # The SQL scripts alone (and 004-config.sql, by hand) are database.yml's.
 #
 # Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy" (trusted for runs from main):
@@ -17,20 +16,6 @@ name: Deploy API (Azure Functions)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:   # the "api" group of .github/scripts/changed.sh
-      - 'SideGigPh.Api/**'
-      - 'SideGigPh.AzureSQL/**'
-      - '!SideGigPh.AzureSQL/Sql/**'
-      - 'SideGigPh.Contracts/**'
-      - 'SideGigPh.Admin/**'
-      - 'docs/legal/privacy-policy.md'
-      - 'docs/legal/terms-of-service.md'
-      - 'docs/legal/data-handling.md'
-      - 'Directory.Build.props'
-      - 'Directory.Build.targets'
-      - '.github/workflows/deploy-api.yml'
 
 concurrency:
   group: deploy-api
@@ -39,7 +24,6 @@ concurrency:
 permissions:
   id-token: write   # lets the run ask GitHub for the OIDC token Azure trusts
   contents: read
-  actions: write    # database.yml (called below) declares it to start this workflow; unused when called from here
 
 env:
   PROJECT: SideGigPh.Api/SideGigPh.Api.csproj
@@ -49,10 +33,6 @@ env:
   FUNCTION_SKU: flexconsumption
 
 jobs:
-  # Nothing is deployed unless every test passes (tests.yml: unit + integration on a real SQL Server).
-  tests:
-    uses: ./.github/workflows/tests.yml
-
   # Does the database need a look first? Compared with what is live, not with the last push, so a database run that
   # failed or never happened is still caught.
   plan:
@@ -76,7 +56,7 @@ jobs:
           fi
 
   database:
-    needs: [tests, plan]
+    needs: plan
     if: needs.plan.outputs.database == 'true'
     uses: ./.github/workflows/database.yml
     with:
@@ -84,9 +64,9 @@ jobs:
     secrets: inherit
 
   deploy:
-    needs: [tests, plan, database]
+    needs: [plan, database]
     # Only once the database is up to date: nothing changed there, or database.yml checked (and migrated) it.
-    if: ${{ always() && needs.tests.result == 'success' && needs.plan.result == 'success' && (needs.database.result == 'success' || (needs.database.result == 'skipped' && needs.plan.outputs.database == 'false')) }}
+    if: ${{ always() && needs.plan.result == 'success' && (needs.database.result == 'success' || (needs.database.result == 'skipped' && needs.plan.outputs.database == 'false')) }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

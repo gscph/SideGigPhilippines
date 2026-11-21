@@ -14,7 +14,7 @@ Do these in order. Steps 1–4 make the build; 5–8 make sign-in work on the Pl
 2. **Add the GitHub secrets** (repo → Settings → Secrets and variables → Actions): `ANDROID_KEYSTORE_BASE64`,
    `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD` (and `GOOGLE_SERVICES_JSON_BASE64`,
    already there). A prod run fails if any is missing.
-3. **Run the build**: Actions → *Build Android* → Run workflow → channel `prod`, play_track `none`.
+3. **Run the build**: Actions → *Build Android* → Run workflow → channel `prod`.
    The run page shows the signing SHA-1; it must be the upload key's, not the dev key's (the run checks).
    Download the artifact `tarbaho-0.1.0-build34-prod-android` (`tarbaho-0.1.0-build34-prod.aab`); the build number in the name is its versionCode, so pick the newest (Play refuses a code it has seen).
 4. **Create the app in the Play Console** (Create app → name *Tarbaho*, app, free), then Testing →
@@ -37,23 +37,14 @@ Do these in order. Steps 1–4 make the build; 5–8 make sign-in work on the Pl
    the number and the code). Reviewers can't get past the sign-in screen without it. Tell testers too: the app still allows only 3
    codes a day per phone and a 6-minute wait after a restart (`SmsSendLimit`), test number or not, so they shouldn't sign out and in again and again.
 
-Then run the build again (step 3) and upload it as a second internal release, or let CI upload it (below).
+Then run the build again (step 3) and upload it by hand as a second internal release.
 Install from the testers' opt-in link and check: phone sign-in, Google sign-in, publish a listing, search,
 chat, a push notification, post a request, delete the account.
 
-## 2. Let CI upload to Internal testing (optional, after step 4)
+## 2. Each new release
 
-1. Google Cloud console (any project, the Firebase one is fine) → enable **Google Play Android Developer API**
-   → IAM → Service accounts → create one (e.g. `play-upload`) → Keys → Add key → JSON.
-2. Play Console → **Users and permissions** → Invite new user → the service account's email → app
-   *Tarbaho* → permissions *Release to testing tracks* (add *Release to production* only when you want CI to
-   do that too). It can take a few minutes to work.
-3. Repo secret **`PLAY_SERVICE_ACCOUNT_JSON`** = the whole JSON file (plain text, not base64).
-4. Run the workflow with channel `prod`, play_track `internal` (a run with a Play track stops at once if the
-   channel isn't `prod` or this secret is missing):
-   - play_status `draft` (default): the release waits in the Play Console; press *Review release* →
-     *Start rollout*. Play requires `draft` until the app has passed its first review.
-   - play_status `completed`: testers get it at once (only after that first review).
+CI never uploads to Play: run *Build Android* with channel `prod`, download the AAB from the run, and upload it in
+the Play Console (Testing → Internal testing → Create new release, or the track you want).
 
 Every run's number is the Android versionCode, so each upload is higher than the last, as Play requires.
 **Start a new run** for each upload: "Re-run jobs" keeps the run number, and Play refuses a versionCode it has seen.

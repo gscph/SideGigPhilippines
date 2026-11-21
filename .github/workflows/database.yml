@@ -1,21 +1,18 @@
 name: Database (Azure SQL)
 
 # Brings the live Azure SQL database up to date: runs the NNN-schema-*.sql scripts it hasn't had (SideGigPh.Migrate).
-# Decides by itself what is needed (.github/scripts/changed.sh holds the one list of files):
+# Manual only: nothing runs on a push or a merge. Tests run locally before each PR (the pr-qa / run-tests skills).
 #
-#   push to main changing only the SQL scripts or the migration tool
-#       → tests → db-check → (db-migrate) → is the live API behind main? then start deploy-api.yml
-#   push to main changing the SQL scripts AND the API
-#       → nothing here: deploy-api.yml calls this workflow first, then deploys, so the API never runs ahead of its tables
-#   called by deploy-api.yml (the API changed and SQL changed since the live API's commit)
-#       → db-check → (db-migrate); the caller ran the tests and deploys afterwards
 #   by hand (Actions → Run workflow)
-#       → the same as a push, plus 004-config.sql (trades, jobs, answer lists) when "Also run 004-config.sql" is ticked
+#       → db-check → (db-migrate), plus 004-config.sql (trades, jobs, answer lists) when "Also run 004-config.sql" is
+#         ticked. It does not deploy the API: run "Deploy API" for that (it runs this workflow first when needed).
+#   called by deploy-api.yml (SQL changed since the live API's commit)
+#       → db-check → (db-migrate); the caller deploys afterwards
 #
 #   db-check: a dry run that lists what the live database hasn't recorded in dbo.SchemaChanges; changes nothing. It
 #             first refuses an edited 001-schema.sql, an unguarded step or a DROP TABLE (migration-check.sh).
 #   db-migrate: runs exactly that, in number order, each script in its own transaction (all or none). No approval
-#             step: merging the script to main IS the approval. A script that fails stops everything after it.
+#             step: pressing Run workflow IS the approval. A script that fails stops everything after it.
 #
 # Signs in to Azure with OpenID Connect as the managed identity "sidegigph-github-deploy" (trusted for runs from main).
 # Needs (azure/README.md → "Database migrations from GitHub"):
@@ -33,20 +30,13 @@ on:
   workflow_call:
     inputs:
       from_deploy:
-        description: 'Called by deploy-api.yml, which ran the tests and deploys afterwards'
+        description: 'Called by deploy-api.yml, which deploys afterwards'
         type: boolean
         default: true
-  push:
-    branches: [main]
-    paths:   # the "database" group of .github/scripts/changed.sh
-      - 'SideGigPh.AzureSQL/Sql/**'
-      - 'SideGigPh.Migrate/**'
-      - '.github/workflows/database.yml'
 
 permissions:
   id-token: write   # lets the run ask GitHub for the OIDC token Azure trusts
   contents: read
-  actions: write    # starts deploy-api.yml when the live API is behind main
 
 env:
   SQL_SERVER: ${{ vars.SQL_SERVER || 'sidegigph' }}
@@ -56,39 +46,8 @@ env:
   RUN_CONFIG: ${{ github.event_name == 'workflow_dispatch' && inputs.run_config == true }}
 
 jobs:
-  # A push that also changed the API is deploy-api.yml's: it runs this workflow first, then deploys.
-  route:
-    if: ${{ !inputs.from_deploy }}
-    runs-on: ubuntu-latest
-    outputs:
-      run: ${{ steps.decide.outputs.run }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Decide
-        id: decide
-        env:
-          BEFORE: ${{ github.event.before }}
-        run: |
-          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$(bash .github/scripts/changed.sh api "$BEFORE")" = "true" ]; then
-            echo "::notice::This push also changed the API: deploy-api.yml runs the database scripts, then deploys."
-            echo "run=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "run=true" >> "$GITHUB_OUTPUT"
-          fi
-
-  # Nothing touches the live database unless every test passes (tests.yml: unit + integration on a real SQL Server).
-  tests:
-    needs: route
-    if: needs.route.outputs.run == 'true'
-    uses: ./.github/workflows/tests.yml
-
   # What the live database is missing: a dry run of SideGigPh.Migrate. Reads only.
   db-check:
-    needs: tests
-    if: ${{ always() && (inputs.from_deploy || needs.tests.result == 'success') }}
     runs-on: ubuntu-latest
     outputs:
       pending: ${{ steps.plan.outputs.pending }}
@@ -96,7 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # migration-check compares 001-schema.sql with the commit before this push
+          fetch-depth: 0   # migration-check compares 001-schema.sql with the commit before
 
       - name: Check the Azure sign-in secrets
         env:
@@ -213,25 +172,3 @@ jobs:
       - name: Close the database firewall
         if: always()
         run: az sql server firewall-rule delete -g "$SQL_RESOURCE_GROUP" -s "$SQL_SERVER" -n "$FIREWALL_RULE-migrate" --output none || true
-
-  # A push that changed only the database: if the live API's commit is behind main's API code (e.g. an earlier
-  # deploy stopped because its script failed, and this push fixes the script), start deploy-api.yml now.
-  then-api:
-    needs: [db-check, db-migrate]
-    if: ${{ always() && !inputs.from_deploy && needs.db-check.result == 'success' && (needs.db-check.outputs.pending == 'false' || needs.db-migrate.result == 'success') }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Deploy the API if the live one is behind main
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ "$(bash .github/scripts/changed.sh api live-api)" = "true" ]; then
-            gh workflow run deploy-api.yml --ref "$GITHUB_REF_NAME"
-            echo "::notice::The live API is behind main: started deploy-api.yml."
-          else
-            echo "The live API already runs main's API code: nothing to deploy."
-          fi

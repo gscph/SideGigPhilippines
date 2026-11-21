@@ -19,7 +19,7 @@ the app, no change that makes it slow. `SideGigPh.Tests/README.md` says what eac
 | A `.razor.cs` page with new rules in it | move the rule into `Services/` first (see below), then yes |
 
 `run-tests.sh --changed` makes this call for you from `git diff`: it exits 0 with "tests skipped" when nothing the
-tests can see changed. CI (`.github/workflows/tests.yml`) uses the same paths, so CSS-only pushes don't run it.
+tests can see changed. GitHub runs no tests: this (through the `pr-qa` skill on every PR) is the only test run.
 
 ## How to run
 

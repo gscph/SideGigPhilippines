@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# Prints "true" when a group of files changed since a commit, else "false". The one list deploy-api.yml and
-# database.yml decide from (their push "paths:" mirror it):
+# Prints "true" when a group of files changed since a commit, else "false". deploy-api.yml decides from it whether
+# to run database.yml before deploying:
 #   database   the SQL scripts and the migration tool (database.yml runs the scripts the live database hasn't had)
-#   api        what deploy-api.yml builds and deploys: the API, its stores, the contracts, the operator site, the
-#              legal pages it serves, the version files (not the SQL scripts)
-# Usage: changed.sh <database|api> <since>
-#   since = a commit (e.g. github.event.before; empty, all zeros or unknown compares with the commit before HEAD,
-#   like the push "paths:" filter), or "live-api": the commit the live API runs, read from the X-Api-Version
-#   header of its public GET config (0.4.2+9b830bc). When the live commit can't be known (API down, not in the
+# Usage: changed.sh database <since>
+#   since = a commit (empty or unknown compares with the commit before HEAD), or "live-api": the commit the live
+#   API runs, read from the X-Api-Version header of its public GET config (0.4.2+9b830bc). When the live commit can't be known (API down, not in the
 #   history) it prints "true": doing the work is the safe answer.
 # Needs the full history (actions/checkout with fetch-depth: 0).
 set -euo pipefail
@@ -18,12 +15,8 @@ API_URL="${API_URL:-https://api.tarbaho.com/api/}"
 case "${1:-}" in
   database)
     paths=(SideGigPh.AzureSQL/Sql SideGigPh.Migrate .github/workflows/database.yml) ;;
-  api)
-    paths=(SideGigPh.Api SideGigPh.AzureSQL ':(exclude)SideGigPh.AzureSQL/Sql' SideGigPh.Contracts SideGigPh.Admin
-      docs/legal/privacy-policy.md docs/legal/terms-of-service.md docs/legal/data-handling.md
-      Directory.Build.props Directory.Build.targets .github/workflows/deploy-api.yml) ;;
   *)
-    echo "Usage: changed.sh <database|api> <commit|live-api>" >&2; exit 2 ;;
+    echo "Usage: changed.sh database <commit|live-api>" >&2; exit 2 ;;
 esac
 
 since="${2:-}"

@@ -10,7 +10,7 @@ The three public pages, what the app does to meet the Play Store and App Store r
 | Your data / delete your account | [`data-handling.md`](data-handling.md) | https://api.tarbaho.com/api/legal/data |
 
 `SideGigPh.Api` embeds the three Markdown files and serves them as HTML (`LegalFunctions`), so editing a file and
-pushing to `main` redeploys the page (`deploy-api.yml` watches them). They must stay free of `[placeholders]`
+running *Deploy API* (Actions, by hand) after the merge publishes the page. They must stay free of `[placeholders]`
 (`ApiWiringTests.LegalPages_AreWebPagesForAnyone`). The app links to the same addresses (`AppTheme.Legal`).
 
 **Operator:** Joseph F. Cadiao, an individual doing business as Tarbaho; Data Protection Officer: the same; address
