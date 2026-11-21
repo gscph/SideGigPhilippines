@@ -71,6 +71,7 @@ public static class PostReviewText
                 JobPostField.Town => Copy.PostNeedTown,
                 JobPostField.When => Copy.PostNeedDay,
                 JobPostField.Budget => Copy.PostNeedBudget,
+                JobPostField.Title => Copy.PostNeedTitle,
                 _ => Copy.PostNeedProblem,
             }))))
             : null;

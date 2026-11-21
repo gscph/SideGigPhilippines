@@ -7,7 +7,7 @@ SideGigPh's server side in Azure:
 
 The data model is in [`docs/data-model.md`](../docs/data-model.md).
 
-Photo URLs: `https://sidegigphbfb9.blob.core.windows.net/photos/{sha256}.jpg`. The API takes the account from its connection string. The database keeps only photo ids, and the API builds the URLs. **If the account changes:** change `STORAGE_ACCOUNT` in both `cloudshell-*.sh` files and `PhotoBaseUrl` in `MauiProgram`, then paste the setup script again.
+Photo URLs: `https://sidegigphbfb9.blob.core.windows.net/photos/{id}.jpg` (a new random id per upload). The API takes the account from its connection string. The database keeps only photo ids, and the API builds the URLs. **If the account changes:** change `STORAGE_ACCOUNT` in both `cloudshell-*.sh` files and `PhotoBaseUrl` in `MauiProgram`, then paste the setup script again.
 
 The storage account is also the Function App's own storage (its deployment package and runtime files). The setup script allows public read on the account, but only the `photos` container uses it. The Function App's containers stay private.
 

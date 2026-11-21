@@ -286,6 +286,10 @@ public sealed class JobPostRow
     public required string CategoryId { get; set; }
     public required string ServiceId { get; set; }
     public required string Description { get; set; }
+
+    /// <summary>The household's own title, the post's header (<c>027-schema-post-title.sql</c>); null only on older posts.</summary>
+    public string? Title { get; set; }
+
     /// <summary>The top of the budget ("up to").</summary>
     public int BudgetPesos { get; set; }
 

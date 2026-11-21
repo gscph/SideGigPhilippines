@@ -5,8 +5,7 @@ namespace SideGigPh.Tests.Unit.Photos;
 
 /// <summary>
 /// The server re-encodes every uploaded photo the same way (<see cref="PhotoImage"/>): small enough for prepaid data,
-/// upright, and with the GPS location removed (a worker's job photo must not reveal a customer's home). It must also
-/// be deterministic, because the duplicate-photo check (anti-fraud rule 2) hashes the result.
+/// upright, and with the GPS location removed (a worker's job photo must not reveal a customer's home).
 /// </summary>
 public class PhotoImageTests
 {
@@ -110,14 +109,6 @@ public class PhotoImageTests
         var pixel = image.GetPixels().GetPixel(10, 10).ToColor()!;
         pixel.R.Should().BeGreaterThan(250);
         pixel.G.Should().BeGreaterThan(250);
-    }
-
-    [Fact]
-    public void ToStoredJpeg_SameUpload_GivesTheSameBytes_SoDuplicatesAreCaught()
-    {
-        var upload = Image(1600, 1200, MagickFormat.Jpeg);
-
-        PhotoImage.ToStoredJpeg(upload, PhotoKind.Jpeg).Should().Equal(PhotoImage.ToStoredJpeg(upload, PhotoKind.Jpeg));
     }
 
     [Fact]

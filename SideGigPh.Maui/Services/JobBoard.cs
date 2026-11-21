@@ -16,6 +16,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 {
     public const int MinDescription = JobPostRules.MinDescription;
     public const int MaxDescription = JobPostRules.MaxDescription;
+    public const int MinTitle = JobPostRules.MinTitle;
+    public const int MaxTitle = JobPostRules.MaxTitle;
     public const int MaxPhotos = JobPostRules.MaxPhotos;
     public const int MaxOfferNote = JobOfferRules.MaxNote;
 
@@ -49,7 +51,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 
     /// <summary>The first field of <paramref name="draft"/> still missing or not valid, or null when it can be posted.</summary>
     /// <summary>True when the household typed the problem or added photos: closing the form keeps it.</summary>
-    public static bool HasWork(JobPostDraft draft) => !string.IsNullOrWhiteSpace(draft.Description) || draft.Photos.Count > 0;
+    public static bool HasWork(JobPostDraft draft) =>
+        !string.IsNullOrWhiteSpace(draft.Title) || !string.IsNullOrWhiteSpace(draft.Description) || draft.Photos.Count > 0;
 
     /// <summary>The form was closed without posting: keep the draft when it holds the household's own work.</summary>
     public void KeepUnsent(JobPostDraft draft) => _unsent = HasWork(draft) ? draft : null;
@@ -64,7 +67,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
 
     /// <summary>
     /// Everything still missing before Post works, in the order the form shows it (What, Where, When, Your budget, then
-    /// the problem), so the card can mark each empty row and the footer can name them all; empty when it can be posted.
+    /// the title and the problem), so the card can mark each empty row and the footer can name them all; empty when it can be posted.
     /// </summary>
     /// <param name="today">The Philippines' date (<see cref="PostDay.Today"/>); null: the phone's clock now.</param>
     public static IReadOnlyList<JobPostField> Missing(JobPostDraft draft, DateOnly? today = null)
@@ -94,6 +97,11 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             missing.Add(JobPostField.Budget);
         }
 
+        if (!IsTitleOk(draft.Title))
+        {
+            missing.Add(JobPostField.Title);
+        }
+
         if (!IsDescriptionOk(draft.Description))
         {
             missing.Add(JobPostField.Description);
@@ -116,6 +124,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     {
         JobPostField.Trade => text.Get(Copy.PostMissingTrade),
         JobPostField.Service => text.Get(Copy.PostMissingService),
+        JobPostField.Title when RudeWords.In(draft?.Title) => text.Get(CommonCopy.RudeTextNote),
+        JobPostField.Title => text.Format(Copy.PostMissingTitle, MinTitle),
         JobPostField.Description when RudeWords.In(draft?.Description) => text.Get(CommonCopy.RudeTextNote),
         JobPostField.Description => text.Format(Copy.PostMissingDescription, MinDescription),
         JobPostField.Budget => text.Format(Copy.PostMissingBudget, Money.Peso(JobPostRules.MinBudgetPesos), Money.Peso(JobPostRules.MaxBudgetPesos)),
@@ -126,6 +136,9 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     /// <summary>True when a worker can send <paramref name="pricePesos"/> with <paramref name="note"/> (no note is fine).</summary>
     public static bool CanOffer(int? pricePesos, string? note) =>
         JobOfferRules.IsPrice(pricePesos) && JobOfferRules.IsNote(note) && !RudeWords.In(note);
+
+    /// <summary>A title long enough that fits, with no rude words (<see cref="RudeWords"/>): the server refuses the same.</summary>
+    public static bool IsTitleOk(string? title) => JobPostRules.IsTitle(title) && !RudeWords.In(title);
 
     /// <summary>Long enough, and no rude words (<see cref="RudeWords"/>): the server refuses the same.</summary>
     public static bool IsDescriptionOk(string? description) => JobPostRules.IsDescription(description) && !RudeWords.In(description);
@@ -238,8 +251,8 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
     }
 
     /// <summary>
-    /// Uploads the photos the page picked and adds them to <paramref name="draft"/> (at most <see cref="PhotoRoom"/>,
-    /// skipping one already added). Photos that uploaded before a failure stay.
+    /// Uploads the photos the page picked and adds them to <paramref name="draft"/> (at most <see cref="PhotoRoom"/>).
+    /// Photos that uploaded before a failure stay.
     /// </summary>
     public async Task<PhotoAddResult> AddPhotosAsync(JobPostDraft draft, PhotoPick pick)
     {
@@ -248,19 +261,13 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             return PhotoAddResult.From(pick.Status);
         }
 
-        int added = 0, duplicates = 0;
+        var added = 0;
         var problem = PhotoProblem.None;
         foreach (var bytes in pick.Photos.Take(PhotoRoom(draft)))
         {
             try
             {
                 var id = await photos.SaveAsync(bytes);
-                if (draft.Photos.Any(photo => photo.Id == id))
-                {
-                    duplicates++;
-                    continue;
-                }
-
                 draft.Photos.Add(new WorkPhoto(id, (await photos.GetUrlAsync(id))!));
                 added++;
             }
@@ -271,7 +278,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             }
         }
 
-        return new PhotoAddResult(added, duplicates, problem);
+        return new PhotoAddResult(added, problem);
     }
 
     /// <summary>
@@ -352,6 +359,7 @@ public sealed class JobBoard(IJobPostRepository posts, IPhotoStore photos)
             EditsPostId = post.Id,
             CategoryId = post.CategoryId,
             ServiceId = post.ServiceId,
+            Title = post.Title,
             Description = post.Description,
             BudgetPesos = post.BudgetPesos,
             BudgetMinPesos = post.BudgetMinPesos,
@@ -660,5 +668,6 @@ public enum JobPostField
     /// <summary>The picked day has passed (a draft kept overnight): pick another, or any day.</summary>
     When,
     Budget,
+    Title,
     Description,
 }

@@ -43,6 +43,18 @@ public class RequestRowsTests
     }
 
     [Fact]
+    public void ThePostsTitle_IsTheHeader_WithTheServiceUnderIt()
+    {
+        var titled = Post(1) with { Title = "Barado ang lababo" };
+        _text.PostTitle(titled).Should().Be("Barado ang lababo");
+        _text.PostServiceHint(titled).Should().Be(_text.ServiceLabel(titled));
+
+        var older = Post(2);
+        _text.PostTitle(older).Should().Be(_text.ServiceLabel(older), "a post made before titles shows its service");
+        _text.PostServiceHint(older).Should().BeNull("the service is already the header");
+    }
+
+    [Fact]
     public void AnOwnOffer_StandsAsTheCustomerDecided()
     {
         RequestItem.From(Mine(1, MyOfferState.Waiting)).State.Should().Be(RequestState.Offered);

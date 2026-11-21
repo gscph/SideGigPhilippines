@@ -328,6 +328,8 @@ public static class Copy
     public static readonly LocalizedText PostNeededOn = new("Needed {0}", "Kailangan sa {0}");
     public static readonly LocalizedText PostTrade = new("Kind of work", "Klase ng work");
     public static readonly LocalizedText PostService = new("What exactly", "Ano mismo");
+    public static readonly LocalizedText PostTitleLabel = new("Title", "Title");
+    public static readonly LocalizedText PostTitleHint = new("e.g. Aircon in the living room drips water", "hal. Tumutulo ang aircon sa sala");
     public static readonly LocalizedText PostDescription = new("Describe the problem", "Ano'ng problema?");
     public static readonly LocalizedText PostDescriptionHint = new("e.g. The kitchen faucet leaks even when closed", "hal. Tumutulo ang gripo sa kusina kahit sarado");
     public static readonly LocalizedText PostBudget = new("Your budget", "Budget mo");
@@ -341,6 +343,8 @@ public static class Copy
     // On each row of the post card still missing an answer, and under the problem's box (JobBoard.MissingText).
     public static readonly LocalizedText PostMissingTrade = new("Pick the kind of work.", "Pumili ng klase ng work.");
     public static readonly LocalizedText PostMissingService = new("Pick what exactly you need.", "Piliin kung ano mismo ang ipapagawa mo.");
+    /// <summary>{0} = the fewest letters the title needs.</summary>
+    public static readonly LocalizedText PostMissingTitle = new("Give your post a title, at least {0} letters.", "Lagyan ng title ang post, at least {0} letters.");
     /// <summary>{0} = the fewest letters the description needs.</summary>
     public static readonly LocalizedText PostMissingDescription = new("Describe the problem in at least {0} letters.", "I-describe ang problema, at least {0} letters.");
     /// <summary>{0} = the smallest budget, e.g. "₱50"; {1} = the largest.</summary>
@@ -354,6 +358,7 @@ public static class Copy
     public static readonly LocalizedText PostNeedTown = new("your town", "bayan mo");
     public static readonly LocalizedText PostNeedBudget = new("your budget", "budget mo");
     public static readonly LocalizedText PostNeedDay = new("another day", "ibang araw");
+    public static readonly LocalizedText PostNeedTitle = new("a title", "title");
     public static readonly LocalizedText PostNeedProblem = new("the problem", "ang problema");
     public static readonly LocalizedText PostFailed = new("It didn't post. Check your internet and try again.", "Di na-post. I-check ang internet tapos try ulit.");
     public static readonly LocalizedText PostShowing = new("Workers can see it", "Nakikita na ng mga worker");
@@ -702,7 +707,6 @@ public static class Copy
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");
-    public static readonly LocalizedText PhotosDuplicate = new("Skipped photos you already added.", "Di na sinama ang photos na nandito na.");
     public static readonly LocalizedText PhotosFailed = new("Couldn't open your photos. Please try again.", "Di mabuksan ang photos mo. Try ulit.");
     public static readonly LocalizedText PhotosNoPermission = new("Tarbaho can't see your photos. Allow Photos in Settings, then try again.", "Di makita ng Tarbaho ang photos mo. I-allow ang Photos sa Settings, tapos try ulit.");
     public static readonly LocalizedText CameraNoPermission = new("Tarbaho can't use your camera. Allow Camera in Settings, or choose a photo instead.", "Di magamit ng Tarbaho ang camera mo. I-allow ang Camera sa Settings, o pumili na lang ng photo.");
@@ -717,7 +721,6 @@ public static class Copy
     public static readonly LocalizedText PhotosNoInternet = new("No internet, so your photo wasn't uploaded. Connect, then try again.", "Walang internet kaya di na-upload ang photo. Mag-connect, tapos try ulit.");
     public static readonly LocalizedText PhotosServerError = new("Our server couldn't take your photo right now. Please try again in a moment.", "Di natanggap ng server ang photo ngayon. Try ulit maya-maya.");
     public static readonly LocalizedText PhotosRejected = new("This photo can't be used (too big, or not a clear picture). Please try another photo.", "Di pwede ang photo na ito (masyadong malaki, o di malinaw). Try ng ibang photo.");
-    public static readonly LocalizedText PhotosTaken = new("This photo is already on another account, so it can't be used. Please use your own photo.", "Gamit na ng ibang account ang photo na ito, kaya hindi pwede. Gamitin ang sarili mong photo.");
 
     // --- Profile ----------------------------------------------------------
     public static readonly LocalizedText ProfilePhotoAdd = new("Add your photo", "Maglagay ng photo mo");

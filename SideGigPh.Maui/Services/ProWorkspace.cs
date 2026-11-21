@@ -222,19 +222,18 @@ public sealed class ProWorkspace(
 
         await SaveAsync(listingChanged: true);
         await DeleteIfUnusedAsync(oldId);
-        return new PhotoAddResult(1, 0);
+        return new PhotoAddResult(1);
     }
 
     /// <summary>How many more work photos fit in the gallery.</summary>
     public int WorkPhotoRoom => Math.Max(0, MaxWorkPhotos - Draft.WorkPhotoIds.Count);
 
-    /// <summary>Lets the pro pick work photos, skipping any already in their gallery.</summary>
+    /// <summary>Lets the pro pick work photos.</summary>
     public async Task<PhotoAddResult> AddWorkPhotosAsync() =>
         WorkPhotoRoom > 0 ? await AddWorkPhotosAsync(await picker.PickAsync(WorkPhotoRoom)) : PhotoAddResult.Nothing;
 
     /// <summary>
-    /// Saves work photos the page already picked (at most <see cref="WorkPhotoRoom"/>), skipping any already in the
-    /// gallery. Split from picking so the loading screen covers only the upload, not the phone's photo picker.
+    /// Saves work photos the page already picked (at most <see cref="WorkPhotoRoom"/>). Split from picking so the loading screen covers only the upload, not the phone's photo picker.
     /// </summary>
     public async Task<PhotoAddResult> AddWorkPhotosAsync(PhotoPick pick)
     {
@@ -243,7 +242,7 @@ public sealed class ProWorkspace(
             return PhotoAddResult.From(pick.Status);
         }
 
-        int added = 0, duplicates = 0;
+        var added = 0;
         var problem = PhotoProblem.None;
         foreach (var bytes in pick.Photos)
         {
@@ -259,12 +258,6 @@ public sealed class ProWorkspace(
                 break;
             }
 
-            if (Draft.WorkPhotoIds.Contains(id))
-            {
-                duplicates++;
-                continue;
-            }
-
             Draft.WorkPhotoIds.Insert(0, id);
             added++;
         }
@@ -274,7 +267,7 @@ public sealed class ProWorkspace(
             await SaveAsync(listingChanged: true);
         }
 
-        return new PhotoAddResult(added, duplicates, problem);
+        return new PhotoAddResult(added, problem);
     }
 
     /// <summary>Work photos are optional, so any of them can be removed, even the last one of a published listing.</summary>

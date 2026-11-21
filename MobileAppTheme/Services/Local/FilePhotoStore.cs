@@ -6,7 +6,7 @@ namespace MobileAppTheme.Services.Local;
 
 /// <summary>
 /// Photos as files in app-private storage (<see cref="FileSystem.AppDataDirectory"/>/photos),
-/// named by the SHA-256 of their bytes. The WebView can't read those files, so photos are
+/// each named by a new random id. The WebView can't read those files, so photos are
 /// handed to the UI as data URLs, cached in memory after the first read.
 /// </summary>
 public sealed class FilePhotoStore : IPhotoStore
@@ -16,15 +16,12 @@ public sealed class FilePhotoStore : IPhotoStore
 
     public async Task<string> SaveAsync(byte[] bytes)
     {
-        var id = Convert.ToHexStringLower(SHA256.HashData(bytes));
+        var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
         var path = PathOf(id);
-        if (!File.Exists(path))
-        {
-            Directory.CreateDirectory(_folder);
-            var tempPath = path + ".tmp";
-            await File.WriteAllBytesAsync(tempPath, bytes);
-            File.Move(tempPath, path, overwrite: true);
-        }
+        Directory.CreateDirectory(_folder);
+        var tempPath = path + ".tmp";
+        await File.WriteAllBytesAsync(tempPath, bytes);
+        File.Move(tempPath, path, overwrite: true);
 
         _urls[id] = ToDataUrl(bytes);
         return id;
@@ -53,7 +50,7 @@ public sealed class FilePhotoStore : IPhotoStore
         return Task.CompletedTask;
     }
 
-    // Ids are hex hashes, so they are always safe file names.
+    // Ids are hex, so they are always safe file names.
     private string PathOf(string photoId) => Path.Combine(_folder, photoId);
 
     private static string ToDataUrl(byte[] bytes) => $"data:{MimeType(bytes)};base64,{Convert.ToBase64String(bytes)}";

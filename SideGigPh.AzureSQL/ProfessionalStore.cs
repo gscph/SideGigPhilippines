@@ -10,7 +10,7 @@ public enum PublishOutcome
     /// <summary>Anti-fraud rule 1: another listing took this number at the same moment (a race; see <see cref="ProfessionalStore.PublishAsync"/>).</summary>
     PhoneTaken,
 
-    /// <summary>Anti-fraud rule 2: another listing has one of these photos.</summary>
+    /// <summary>Another listing has one of these photo ids (only a copied id can do that: every upload gets a new id).</summary>
     PhotoInUse,
 
     /// <summary>A required field is missing or isn't a valid id.</summary>
@@ -145,7 +145,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>
     /// Makes <paramref name="uid"/>'s listing live, or replaces it. The number is the account's verified number
     /// (from the sign-in token), so one phone gets one listing and one account (anti-fraud rule 1; a stale account
-    /// still showing the number loses it); a photo can be on one listing only (rule 2).
+    /// still showing the number loses it). A photo id can be on one listing only (the tables' unique keys).
     /// </summary>
     public async Task<PublishOutcome> PublishAsync(string uid, string mobileNumber, PublishListingRequest request, CancellationToken cancellationToken)
     {
@@ -157,11 +157,6 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         var services = request.ServiceIds.Distinct().ToList();
         var cities = request.CityIds.Distinct().ToList();
         var workPhotos = request.WorkPhotoIds.Distinct().Take(MaxWorkPhotos).ToList();
-
-        if (await db.UsedByAnotherAsync(uid, [request.ProfilePhotoId!, .. workPhotos], cancellationToken))
-        {
-            return PublishOutcome.PhotoInUse;
-        }
 
         try
         {

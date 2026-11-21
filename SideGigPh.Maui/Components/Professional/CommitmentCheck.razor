@@ -1,11 +1,12 @@
 <MudPaper Outlined="true" Class="pa-2 app-rounded mud-width-full">
     <MudStack Row="true" Spacing="1" AlignItems="AlignItems.Start">
         <MudIcon Icon="@Icon" Color="Color.Primary" Class="mt-2 ml-1 flex-shrink-0" aria-hidden="true" />
-        <MudStack Spacing="0" Class="flex-1">
-            <MudCheckBox T="bool" Value="Ticked" ValueChanged="TickedChanged" Color="Color.Primary" Label="@T.Get(Item.Text)" />
+        <MudCheckBox T="bool" Value="Ticked" ValueChanged="TickedChanged" Color="Color.Primary" AriaLabel="@T.Get(Item.Text)" Class="flex-shrink-0" />
+        <MudStack Spacing="1" Class="flex-1 pt-2 pr-2 pb-1">
+            <MudText Typo="Typo.body1" Class="cursor-pointer" @onclick="ToggleAsync">@T.Get(Item.Text)</MudText>
             @if (Item.LinksTerms && Brand.Legal is { } legal)
             {
-                <MudLink Href="@legal.TermsUrl" Typo="Typo.body2" Color="Color.Dark" Underline="Underline.Always" Class="ml-3 mb-2">
+                <MudLink Href="@legal.TermsUrl" Typo="Typo.body2" Color="Color.Dark" Underline="Underline.Always" Class="mb-1">
                     @T.Get(Copy.CommitReadTerms)
                 </MudLink>
             }

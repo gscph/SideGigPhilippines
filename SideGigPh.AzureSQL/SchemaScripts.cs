@@ -30,6 +30,7 @@ public static class SchemaScripts
         "024-schema-post-needed-date",
         "025-schema-feedback-source",
         "026-schema-cancel-pick",
+        "027-schema-post-title",
         "028-schema-meet-location",
     ];
 }

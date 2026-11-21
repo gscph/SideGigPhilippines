@@ -355,6 +355,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             post.Property(p => p.CategoryId).HasMaxLength(40);
             post.Property(p => p.ServiceId).HasMaxLength(40);
             post.Property(p => p.Description).HasMaxLength(600).IsUnicode();
+            post.Property(p => p.Title).HasMaxLength(80).IsUnicode();
             post.Property(p => p.CityId).HasMaxLength(40);
             post.Property(p => p.BarangayId).HasMaxLength(40);
             post.Property(p => p.NeededOn).HasColumnType("date");

@@ -23,6 +23,7 @@ public class RudeWordsFormTests
         ServiceId = "construction-plumbing",
         CityId = "taytay",
         BudgetPesos = 800,
+        Title = "Barado ang lababo",
         Description = description,
     };
 
@@ -34,6 +35,16 @@ public class RudeWordsFormTests
         JobBoard.FirstMissing(draft).Should().Be(JobPostField.Description);
         JobBoard.MissingText(JobPostField.Description, English(), draft).Should().Be("Please take out the rude words.");
         JobBoard.CanPost(Draft("Barado ang lababo sa kusina")).Should().BeTrue();
+    }
+
+    [Fact]
+    public void A_rude_title_is_missing_and_says_why()
+    {
+        var draft = Draft("Barado ang lababo sa kusina");
+        draft.Title = "Put@ng ina lababo";
+
+        JobBoard.FirstMissing(draft).Should().Be(JobPostField.Title);
+        JobBoard.MissingText(JobPostField.Title, English(), draft).Should().Be("Please take out the rude words.");
     }
 
     [Fact]
