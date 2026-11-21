@@ -27,12 +27,7 @@ on:
         description: 'Also run 004-config.sql (the trades, jobs and answer lists) on the live database'
         type: boolean
         default: false
-  workflow_call:
-    inputs:
-      from_deploy:
-        description: 'Called by deploy-api.yml, which deploys afterwards'
-        type: boolean
-        default: true
+  workflow_call:   # deploy-api.yml calls it before deploying
 
 permissions:
   id-token: write   # lets the run ask GitHub for the OIDC token Azure trusts
@@ -55,7 +50,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # migration-check compares 001-schema.sql with the commit before
+          fetch-depth: 0   # migration-check compares 001-schema.sql with the commit the live API runs
 
       - name: Check the Azure sign-in secrets
         env:
@@ -72,11 +67,13 @@ jobs:
           fi
 
       - name: Check the scripts are safe for the live database
-        env:
-          BEFORE: ${{ github.event.before }}
         run: |
-          base="HEAD~1"
-          if [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ] && git cat-file -e "$BEFORE" 2>/dev/null; then base="$BEFORE"; fi
+          # Runs are by hand and may cover several merges: compare with what is live, not just the last commit.
+          base="$(bash .github/scripts/changed.sh live-commit)"
+          if [ -z "$base" ]; then
+            base="HEAD~1"
+            echo "::warning::The live API's commit is unknown: checking 001-schema.sql against the last commit only."
+          fi
           bash .claude/skills/db-migration/scripts/migration-check.sh "$base"
 
       - name: Setup .NET

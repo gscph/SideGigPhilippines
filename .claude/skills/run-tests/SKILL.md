@@ -28,6 +28,7 @@ runs there:
 
 ```bash
 bash .claude/skills/run-tests/scripts/run-tests.sh --changed     # usual: skips when only styling/docs changed
+bash .claude/skills/run-tests/scripts/run-tests.sh --changed=origin/main   # a branch / PR: everything since main
 bash .claude/skills/run-tests/scripts/run-tests.sh --unit        # quick loop while fixing (no database)
 bash .claude/skills/run-tests/scripts/run-tests.sh --coverage    # all tests + coverage per file + every missed line
 bash .claude/skills/run-tests/scripts/run-tests.sh --filter "FullyQualifiedName~Publishing"
@@ -78,6 +79,6 @@ Services/Models): copy the projects without bin/obj to a short path and `dotnet 
 
 ## Scripts
 
-- `scripts/run-tests.sh`: copy + run (`--changed`, `--unit`, `--coverage`, extra `dotnet test` args).
+- `scripts/run-tests.sh`: copy + run (`--changed`, `--changed=<base>`, `--unit`, `--coverage`, extra `dotnet test` args).
 - `scripts/coverage-summary.awk`: per-file line coverage from the Cobertura report (CI uses it too).
 - `scripts/uncovered-lines.awk`: every line the tests never ran (`path:line`).

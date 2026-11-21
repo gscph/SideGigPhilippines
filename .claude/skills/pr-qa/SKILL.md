@@ -66,13 +66,21 @@ Check in this order and report in these sections:
    If a core feature's expected behavior is unclear, say so instead of guessing.
 
 3. PLATFORMS, Android and iOS:
-   - Run the tests: `bash .claude/skills/run-tests/scripts/run-tests.sh --changed` (from <folder>).
+   Use this PR's own throwaway copies, so parallel QA agents never share one:
+   `export TEST_COPY="$TEMP/sidegigph-tests-pr<n>" BUILD_COPY="$TEMP/sidegigph-build-pr<n>"`.
+   - Run the tests: `git fetch origin main`, then
+     `bash .claude/skills/run-tests/scripts/run-tests.sh --changed=origin/main` (from <folder>). Plain
+     `--changed` only sees uncommitted files and would skip every PR. "tests skipped" is right only when the PR
+     touches nothing the tests see; say which files made that call.
    - Compile-check: `bash .claude/skills/build-check/scripts/build-check.sh` (Android app + API; run in the
-     background, it takes minutes). Never build in the repo folder itself.
+     background, it takes minutes) when app or API code changed. Never build in the repo folder itself.
    - Android on a device, only when the PR changes the app (SideGigPh.Maui, MobileAppTheme*, .razor, csproj)
      AND `adb devices` already lists an emulator or phone: install from the build-check copy and walk the
-     core flows the PR touches (see the run-tests / build-check skills and memory "reference-emulator-drive";
-     Debug with -p:EmbedAssembliesIntoApk=true). Never start an emulator or adb server yourself; if none is
+     core flows the PR touches. build-check's Debug build can't be installed as it is (Fast Deployment "No
+     assemblies found" crash at launch): in $BUILD_COPY run `dotnet build -t:Install -f net10.0-android -c Debug
+     -p:EmbedAssembliesIntoApk=true "-p:AdbTarget=-s <device>"` on SideGigPh.Maui (background, minutes; the
+     build-check script shows how it reaches the copy through a short drive alias), then launch it. Never
+     start an emulator or adb server yourself; if none is
      running, write "Android not run on a device: no emulator running".
      After the walk: `adb logcat -d | grep " E SideGigPh"` for errors.
    - iOS can't be built or run on this Windows PC. Check it by reading: everything under
