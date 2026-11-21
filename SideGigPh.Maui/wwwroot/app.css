@@ -144,12 +144,75 @@
     height: 3.5rem;
 }
 
-/* Small square work photos in one sideways row on the public profile: Tarbaho is not a photo product. */
-.work-thumb-small {
-    width: 6rem;
-    height: 6rem;
-    flex: 0 0 6rem;
-    border-radius: 12px !important;
+/* Worker profile cover (ProfileCover): the work photos edge to edge at the very top, swiped sideways one at a time.
+   The negative margins undo the shell's top padding and MudContainer's gutters (16px, 24px from 600px). */
+.profile-cover {
+    position: relative;
+    height: 17rem;
+    margin: -1rem -16px 0;
+}
+
+.profile-cover-strip {
+    height: 100%;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+}
+
+    .profile-cover-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+.profile-cover-photo {
+    display: block;
+    flex: 0 0 100%;
+    height: 100%;
+    scroll-snap-align: start;
+}
+
+/* Back and Report over the photo's top corners; the row lets swipes through, only the buttons take taps. */
+.profile-cover-actions {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    right: 0.75rem;
+    pointer-events: none;
+}
+
+    .profile-cover-actions > * {
+        pointer-events: auto;
+    }
+
+.profile-cover-button {
+    background-color: var(--mud-palette-surface) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+}
+
+/* The white sheet that rises over the cover's bottom edge with rounded top corners, full width like the cover. */
+.profile-sheet {
+    position: relative;
+    margin: -1.5rem -16px 0;
+    padding: 0 16px;
+    border-radius: 24px 24px 0 0;
+    background-color: var(--mud-palette-surface);
+}
+
+@media (min-width: 600px) {
+    .profile-cover {
+        margin-left: -24px;
+        margin-right: -24px;
+    }
+
+    .profile-sheet {
+        margin-left: -24px;
+        margin-right: -24px;
+        padding: 0 24px;
+    }
+}
+
+/* The profile photo riding half over the cover, with a white ring. */
+.profile-photo-overlap {
+    margin-top: -3rem;
+    border: 4px solid var(--mud-palette-surface);
 }
 
 /* A work photo full screen (WorkPhotosPage): the carousel fills the space under the header, each photo whole. */

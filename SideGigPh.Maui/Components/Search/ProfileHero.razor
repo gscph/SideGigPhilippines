@@ -1,5 +1,5 @@
-<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="pt-2">
-    <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Class="profile-photo mb-3" />
+<MudStack AlignItems="AlignItems.Center" Spacing="1" Class="@(OnCover ? null : "pt-2")">
+    <PersonAvatar Name="@Listing.DisplayName" PhotoUrl="@Listing.PhotoUrl" Class="@PhotoClass" />
     <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">@Listing.DisplayName</MudText>
     @if (TradeIn.Length > 0)
     {

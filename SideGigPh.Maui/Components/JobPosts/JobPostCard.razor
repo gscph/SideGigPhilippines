@@ -4,7 +4,7 @@
             <MudStack Row="true" Spacing="3" AlignItems="AlignItems.Center">
                 <PostThumb PhotoUrl="@Post.PhotoUrls.FirstOrDefault()" />
                 <MudStack Spacing="1" Class="flex-1 app-min-w-0">
-                    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="app-wrap-text">@T.PostTitle(Post)</MudText>
+                    <MudText Typo="Typo.h6" HtmlTag="h2" Class="app-wrap-text">@T.PostTitle(Post)</MudText>
                     @if (T.PostServiceHint(Post) is { } service)
                     {
                         <MudText Typo="Typo.body2" Color="Color.Secondary">@service</MudText>

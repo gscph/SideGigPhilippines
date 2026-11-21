@@ -2,14 +2,24 @@
 @layout SeekerLayout
 
 <MudStack Spacing="6">
-    <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
-        <MudIconButton Icon="@Icons.Material.Filled.ArrowBack" Href="@SeekerRoutes.BackOrSearch(Back)" aria-label="@T.Get(CommonCopy.Back)" />
-        @if (_pro is not null && _pro.Id != Workspace.MyId)
-        {
-            <MudIconButton Icon="@Icons.Material.Rounded.OutlinedFlag" Color="Color.Dark" aria-label="@T.Get(Copy.ReportButton)"
-                           Href="@SeekerRoutes.Report(_pro.Id, ReportSubject.Listing, SeekerRoutes.Pro(_pro.Id))" />
-        }
-    </MudStack>
+    @if (HasCover)
+    {
+        <MudStack Spacing="0">
+            <ProfileCover ProId="@Id" Photos="_pro!.WorkPhotoUrls">
+                <ProfileActions BackHref="@BackHref" ReportHref="@ReportHref" OnPhoto="true" />
+            </ProfileCover>
+            <MudStack Spacing="5" Class="profile-sheet">
+                <ProfileHero Listing="_pro" SeekerTownId="@Workspace.Request.CityId" OnCover="true" />
+                <ProfileStatRow Listing="_pro" Reviews="@ProfileFacts.Summary(_reviews)" />
+            </MudStack>
+        </MudStack>
+    }
+    else
+    {
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+            <ProfileActions BackHref="@BackHref" ReportHref="@ReportHref" />
+        </MudStack>
+    }
 
     @if (_loading)
     {
@@ -22,33 +32,17 @@
     }
     else
     {
-        <MudStack Spacing="5">
-            <ProfileHero Listing="_pro" SeekerTownId="@Workspace.Request.CityId" />
-            <ProfileStatRow Listing="_pro" Reviews="@ProfileFacts.Summary(_reviews)" />
-        </MudStack>
+        @if (!HasCover)
+        {
+            <MudStack Spacing="5">
+                <ProfileHero Listing="_pro" SeekerTownId="@Workspace.Request.CityId" />
+                <ProfileStatRow Listing="_pro" Reviews="@ProfileFacts.Summary(_reviews)" />
+            </MudStack>
+        }
         <MudDivider />
         <ProfileTrust Listing="_pro" />
         <MudDivider />
         <JobList Listing="_pro" />
-
-        @if (_pro.WorkPhotoUrls.Count > 0)
-        {
-            <MudDivider />
-            <MudStack Spacing="4">
-                <MudText Typo="Typo.h5" HtmlTag="h2">@T.Get(Copy.ProProfilePhotos)</MudText>
-                <MudStack Row="true" Spacing="2" Class="overflow-x-auto flex-nowrap" role="list" aria-label="@T.Get(Copy.ProProfilePhotos)">
-                    @for (var i = 0; i < _pro.WorkPhotoUrls.Count; i++)
-                    {
-                        var index = i;
-                        var url = _pro.WorkPhotoUrls[index];
-                        <MudLink Href="@SeekerRoutes.ProPhotos(Id, index)" role="listitem" @key="url"
-                                 aria-label="@T.Format(Copy.WorkPhotoOpen, index + 1, _pro.WorkPhotoUrls.Count)">
-                            <MudImage Src="@url" Alt="" ObjectFit="ObjectFit.Cover" Class="work-thumb-small" />
-                        </MudLink>
-                    }
-                </MudStack>
-            </MudStack>
-        }
 
         <MudDivider />
         <ReviewStrip Reviews="_reviews" AllHref="@SeekerRoutes.ProReviews(_pro.Id)" />

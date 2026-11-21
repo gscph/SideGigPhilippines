@@ -53,7 +53,7 @@ h1:focus {
    border (MudBlazor has no web-frame component). */
 .app-map-frame {
     overflow: hidden;
-    border-radius: var(--mud-default-borderradius);
+    border-radius: 12px;
     height: 180px;
 }
 
@@ -313,6 +313,12 @@ body:has(.app-offline-banner) .app-chat-header {
 }
 
 /* EmptyState picture: an icon in a soft brand-tinted circle (Airbnb's pink bell, in the brand color). */
+/* An icon button on a soft gray circle, like Airbnb's header actions (a chat's Call and Text). */
+.app-icon-soft {
+    background-color: var(--mud-palette-background-gray) !important;
+    margin-left: 4px;
+}
+
 .app-empty-icon {
     width: 4.5rem;
     height: 4.5rem;
