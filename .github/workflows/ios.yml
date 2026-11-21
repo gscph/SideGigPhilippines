@@ -1,0 +1,176 @@
+name: Build iOS to TestFlight
+run-name: "Tarbaho iOS to TestFlight from ${{ github.ref_name }}"
+
+# The iPhone build, signed for the App Store and uploaded to TestFlight (App Store Connect). Manual only: macOS
+# minutes cost 10x on a private repo, so it runs when someone wants a new TestFlight build, not on every push.
+# Same version as Android (.github/scripts/app-version.sh); this workflow's own run number is the iOS build number
+# (CFBundleVersion), which App Store Connect needs to go up for every upload.
+#
+# Set up once (docs/testflight.md): the App ID com.tarbaho.app with Sign in with Apple + Push Notifications, an
+# "App Store Connect" provisioning profile for it, and these repo secrets:
+#   APPLE_CERTIFICATE              base64 of the Apple Distribution .p12
+#   APPLE_CERTIFICATE_PASSPHRASE   its password
+#   APP_STORE_CONNECT_KEY_ID       the Team API key's Key ID (App Manager role)
+#   APP_STORE_CONNECT_ISSUER_ID    the Issuer ID above the keys table
+#   APP_STORE_CONNECT_PRIVATE_KEY  the whole .p8, BEGIN/END lines included
+#   GOOGLE_SERVICE_INFO_PLIST_BASE64  base64 of the Firebase iOS app's GoogleService-Info.plist
+
+on:
+  workflow_dispatch:
+    inputs:
+      upload:
+        description: 'Upload the .ipa to TestFlight (off = build and keep it as a download only)'
+        type: boolean
+        default: true
+      xcode:
+        description: 'Xcode version the .NET iOS workload needs (the newest installed one starting with this is used)'
+        type: string
+        default: '27.1'
+
+env:
+  PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
+  BUNDLE_ID: com.tarbaho.app
+  BUILD_NUMBER: ${{ github.run_number }}
+  FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
+  FIREBASE_EXPERIMENTS: ${{ vars.FIREBASE_EXPERIMENTS == 'true' && 'true' || 'false' }}
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+    steps:
+      # A missing secret stops the run here, not after a 20-minute build.
+      - name: Check the secrets
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSPHRASE: ${{ secrets.APPLE_CERTIFICATE_PASSPHRASE }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          missing=0
+          for name in APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSPHRASE APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_PRIVATE_KEY GOOGLE_SERVICE_INFO_PLIST_BASE64; do
+            if [ -z "${!name}" ]; then echo "::error::Secret $name is missing (docs/testflight.md)"; missing=1; fi
+          done
+          exit $missing
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # the version is counted from the merged PRs (.github/scripts/app-version.sh)
+
+      # The .NET iOS workload builds only with the Xcode it was made for; the image's default can be another one.
+      - name: Select Xcode ${{ inputs.xcode }}
+        run: |
+          xcode="$(ls -d /Applications/Xcode_${{ inputs.xcode }}*.app 2>/dev/null | sort -V | tail -n 1)"
+          if [ -z "$xcode" ]; then
+            echo "::error::No Xcode ${{ inputs.xcode }} on this runner. Installed:"; ls -d /Applications/Xcode*.app; exit 1
+          fi
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install MAUI workloads
+        run: dotnet workload restore ${{ env.PROJECT }}
+
+      - name: Read the version
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}   # app-version.sh reads the merged PRs' minor / major labels
+        run: |
+          version="$(bash .github/scripts/app-version.sh)"
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
+          label="$(dotnet msbuild SideGigPh.Contracts/SideGigPh.Contracts.csproj -getProperty:AppVersionLabel -p:BuildNumber=$BUILD_NUMBER -p:AppVersionNumber=$version)"
+          if [ -z "$label" ]; then echo "::error::No AppVersionLabel (Directory.Build.props)"; exit 1; fi
+          echo "label=$label" >> "$GITHUB_OUTPUT"
+          echo "### Tarbaho iOS $label (build $BUILD_NUMBER, commit ${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
+
+      # GoogleService-Info.plist is git-ignored. Google sign-in comes back to the app through its REVERSED_CLIENT_ID
+      # URL scheme, and phone sign-in's web check through the Encoded App ID ("app-" + GOOGLE_APP_ID with "-" for
+      # ":"); both are read from this plist into Info.plist here, so no Firebase id is committed.
+      - name: Write GoogleService-Info.plist and its URL schemes
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          firebase=SideGigPh.Maui/Platforms/iOS/GoogleService-Info.plist
+          info=SideGigPh.Maui/Platforms/iOS/Info.plist
+          echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 -d > "$firebase"
+          bundle="$(/usr/libexec/PlistBuddy -c 'Print :BUNDLE_ID' "$firebase")"
+          if [ "$bundle" != "$BUNDLE_ID" ]; then
+            echo "::error::GoogleService-Info.plist is for '$bundle', not $BUNDLE_ID (add the iOS app with that bundle id in Firebase)"; exit 1
+          fi
+          reversed="$(/usr/libexec/PlistBuddy -c 'Print :REVERSED_CLIENT_ID' "$firebase")"
+          encoded="app-$(/usr/libexec/PlistBuddy -c 'Print :GOOGLE_APP_ID' "$firebase" | tr ':' '-')"
+          /usr/libexec/PlistBuddy \
+            -c 'Add :CFBundleURLTypes array' \
+            -c 'Add :CFBundleURLTypes:0 dict' \
+            -c 'Add :CFBundleURLTypes:0:CFBundleURLSchemes array' \
+            -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string $reversed" \
+            -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:1 string $encoded" \
+            "$info"
+
+      - name: Import the signing certificate
+        uses: apple-actions/import-codesign-certs@v3
+        with:
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSPHRASE }}
+
+      # The "App Store Connect" profile made for com.tarbaho.app in the developer portal (docs/testflight.md). After
+      # a capability changes on the App ID, edit and save the profile there, or signing fails.
+      - name: Download the App Store provisioning profile
+        id: profile
+        uses: apple-actions/download-provisioning-profiles@v4
+        with:
+          bundle-id: ${{ env.BUNDLE_ID }}
+          profile-type: IOS_APP_STORE
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+
+      - name: Pick the profile
+        env:
+          PROFILES: ${{ steps.profile.outputs.profiles }}
+        run: |
+          name="$(echo "$PROFILES" | jq -r '.[0].name // empty')"
+          if [ -z "$name" ]; then
+            echo "::error::No App Store provisioning profile for $BUNDLE_ID: make one in the developer portal (docs/testflight.md)"; exit 1
+          fi
+          echo "PROFILE_NAME=$name" >> "$GITHUB_ENV"
+          echo "Signed with profile \`$name\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build the .ipa
+        run: >-
+          dotnet publish ${{ env.PROJECT }} -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64 -p:ArchiveOnBuild=true
+          -p:CodesignKey="Apple Distribution" -p:CodesignProvision="${{ env.PROFILE_NAME }}"
+          -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppVersionNumber=${{ env.APP_VERSION }} -p:AppChannel=prod
+          -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
+
+      - name: Find the .ipa
+        id: package
+        run: |
+          ipa="$(find SideGigPh.Maui/bin/Release/net10.0-ios -name '*.ipa' | head -n 1)"
+          if [ -z "$ipa" ]; then echo "::error::No .ipa under SideGigPh.Maui/bin/Release/net10.0-ios"; exit 1; fi
+          file="$RUNNER_TEMP/tarbaho-${{ steps.version.outputs.label }}-build${BUILD_NUMBER}-ios.ipa"
+          mv "$ipa" "$file"
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+
+      - name: Keep the .ipa as a download
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarbaho-${{ steps.version.outputs.label }}-build${{ env.BUILD_NUMBER }}-ios
+          path: ${{ steps.package.outputs.file }}
+
+      # App Store Connect processes it for 5-30 minutes, then it shows under TestFlight. The app must already exist
+      # there (Apps > + New App, bundle id com.tarbaho.app).
+      - name: Upload to TestFlight
+        if: inputs.upload
+        uses: apple-actions/upload-testflight-build@v3
+        with:
+          app-path: ${{ steps.package.outputs.file }}
+          app-type: ios
+          issuer-id: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          api-key-id: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          api-private-key: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}

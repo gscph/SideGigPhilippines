@@ -59,6 +59,8 @@ nunit-*.xml
 *.suo
 *.config
 *.json
+# The Firebase iOS app settings (like google-services.json): in CI from a secret, never committed.
+SideGigPh.Maui/Platforms/iOS/GoogleService-Info.plist
 !SideGigPh.Api/host.json
 !SideGigPh.Api/local.settings.example.json
 # The operator site's settings: the API address and the Firebase Web app's public ids (no secrets).

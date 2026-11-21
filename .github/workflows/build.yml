@@ -1,4 +1,4 @@
-name: Build Android & iOS
+name: Build Android
 # The run's title in the Actions list: what is built and from where (the run number shows beside it).
 run-name: "Tarbaho ${{ inputs.channel }}${{ inputs.play_track != 'none' && format(' to Play {0} ({1})', inputs.play_track, inputs.play_status) || '' }} from ${{ github.ref_name }}"
 
@@ -175,23 +175,3 @@ jobs:
           releaseName: ${{ steps.version.outputs.label }} (${{ env.BUILD_NUMBER }})
           track: ${{ inputs.play_track }}
           status: ${{ inputs.play_status }}
-
-  # build-ios:
-  #   runs-on: xcode-27
-  #   steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: '10.0.x'
-
-  #     # The .NET for iOS workload (27.1.x) requires Xcode 27.1; the image default can rotate
-  #     - name: Select Xcode 27.1
-  #       run: sudo xcode-select -s /Applications/Xcode_27.1.app
-
-  #     - name: Install MAUI workloads
-  #       run: dotnet workload restore ${{ env.PROJECT }}
-
-  #     - name: Build iOS
-  #       run: dotnet build ${{ env.PROJECT }} -f net10.0-ios -c Release /p:ArchiveOnBuild=false

@@ -14,7 +14,7 @@ Do these in order. Steps 1–4 make the build; 5–8 make sign-in work on the Pl
 2. **Add the GitHub secrets** (repo → Settings → Secrets and variables → Actions): `ANDROID_KEYSTORE_BASE64`,
    `ANDROID_KEY_ALIAS`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_PASSWORD` (and `GOOGLE_SERVICES_JSON_BASE64`,
    already there). A prod run fails if any is missing.
-3. **Run the build**: Actions → *Build Android & iOS* → Run workflow → channel `prod`, play_track `none`.
+3. **Run the build**: Actions → *Build Android* → Run workflow → channel `prod`, play_track `none`.
    The run page shows the signing SHA-1; it must be the upload key's, not the dev key's (the run checks).
    Download the artifact `tarbaho-0.1.0-build34-prod-android` (`tarbaho-0.1.0-build34-prod.aab`); the build number in the name is its versionCode, so pick the newest (Play refuses a code it has seen).
 4. **Create the app in the Play Console** (Create app → name *Tarbaho*, app, free), then Testing →
