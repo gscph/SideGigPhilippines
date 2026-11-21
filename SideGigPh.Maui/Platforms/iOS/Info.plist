@@ -54,6 +54,9 @@
     <string>When you tap Use my location: show your post to workers nearby, or show you requests near where you work (others see only your town and how many km away). When you tap Send my location: send your exact place to the worker you picked, for directions. When you tap Show how far I am: show a worker how far the customer is.</string>
     <key>NSPhotoLibraryUsageDescription</key>
     <string>Choose photos of you and your work to show customers on your listing.</string>
+    <!-- Only HTTPS (exempt encryption): App Store Connect skips the export-compliance question on every build. -->
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
     <key>XSAppIconAssets</key>
     <string>Assets.xcassets/appicon.appiconset</string>
 </dict>
