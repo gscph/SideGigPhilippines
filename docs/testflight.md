@@ -12,7 +12,7 @@ manual only), signed for the App Store and uploaded to TestFlight. Nobody needs 
   (iOS 26.5, MAUI 10.0.20) in a `global.json` written for the run only (`DOTNET_SDK`, `WORKLOAD_VERSION` in
   `ios.yml`). Visual Studio on a PC keeps its own. Raise both once the image has Xcode 27.
 - **Xcode:** the .NET iOS workload builds only with the Xcode it was made for ("requires Xcode 26.0"). The run reads
-  that version from the installed workload (its pack folder `Microsoft.iOS.Sdk.net10.0_26.0`) and selects the matching
+  that version from the installed workload (the iOS version in the pinned workload set) and selects the matching
   Xcode on the runner. The `xcode` input overrides it; leave it empty. If the runner lacks that Xcode, the run lists
   what is installed.
 
