@@ -46,6 +46,24 @@ chat, a push notification, post a request, delete the account.
 CI never uploads to Play: run *Build Android* with channel `prod`, download the AAB from the run, and upload it in
 the Play Console (Testing → Internal testing → Create new release, or the track you want).
 
+**Or build it on your PC** (no GitHub needed, e.g. while Actions is blocked): from the repo folder in PowerShell,
+
+```powershell
+.\scripts\build-aab.ps1 -Keystore D:\keys\sidegigph-release.keystore
+```
+
+It does what the `prod` run does: builds a clean copy of `origin/main` in a git worktree under `C:\tbuild` (so
+Visual Studio can stay open and uncommitted edits never ship), asks for the two keystore passwords (kept in memory
+only), refuses a bundle not signed with the upload key, and leaves `tarbaho-<version>-build<N>-prod.aab` and its
+`…-r8-mapping.txt` in `artifacts\android\` (git-ignored). Needs the .NET 10 SDK with the MAUI Android workload,
+Git for Windows, the upload keystore and `SideGigPh.Maui\Platforms\Android\google-services.json`.
+`-Ref`, `-Version` and `-BuildNumber` override the commit, the version and the versionCode.
+
+**versionCode on your PC:** the script uses one more than the last number it used on that PC
+(`artifacts\android\last-build-number.txt`), starting at 46 (GitHub's last *Build Android* run was 45).
+GitHub's run numbers don't know about local builds: before going back to a GitHub `prod` run, check that its next
+run number is higher than the last bundle uploaded, or Play refuses it.
+
 Every run's number is the Android versionCode, so each upload is higher than the last, as Play requires.
 **Start a new run** for each upload: "Re-run jobs" keeps the run number, and Play refuses a versionCode it has seen.
 

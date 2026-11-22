@@ -130,6 +130,9 @@ for Android).
   (empty since the Play Store launch; `rc` for a pre-release), and `BuildNumber` comes from CI
   (`-p:BuildNumber=${{ github.run_number }}`; `0` on a PC). Together they make `AppVersionLabel`: `0.2.3` from CI,
   `0.1.0` on a PC, `0.2.3-rc.12` in a pre-release. Nothing else holds a version.
+  **A store bundle built on a PC** (`scripts/build-aab.ps1`) runs the same `app-version.sh` (labels through the `gh`
+  CLI when it is signed in) and passes its own `BuildNumber` (the last one it used on that PC + 1, from 46), so it
+  is versioned like a CI `prod` run ([`play-store.md`](play-store.md#2-each-new-release)).
 - **Where it goes:** the app's csproj maps it to the store fields (Android `versionName` = the whole label and
   `versionCode` = the build number; iOS `CFBundleShortVersionString` = the three numbers, since Apple allows nothing
   else, and `CFBundleVersion` = the build number). `Directory.Build.targets` (`StampBuildInfo`, on for the app and the

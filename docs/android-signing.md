@@ -81,6 +81,9 @@ dotnet publish SideGigPh.Maui -f net10.0-android -c Release -p:ReleaseKeystore=D
 
 (Or set `SIDEGIGPH_KEYSTORE` and `SIDEGIGPH_KEY_ALIAS` as environment variables instead of the `-p:` options.)
 
+For a Play bundle use `scripts\build-aab.ps1` instead: it builds a clean copy of `origin/main`, asks for the passwords
+without echoing them, and refuses a bundle whose SHA-1 isn't the upload key's above ([`play-store.md`](play-store.md#2-each-new-release)).
+
 ## CI (GitHub Actions secrets)
 
 Repository → Settings → Secrets and variables → Actions:
