@@ -97,7 +97,7 @@ changing that area.**
   sends them in the background while signed in, 5 s after a problem and when the app is hidden (`SendSoonAfter`, `AppHidden`), else every 10 min (`POST error-reports` → `ErrorReports`, with app and code version,
   channel `dev`/`beta`/`prod` (csproj `AppChannel`; store builds pass `-p:AppChannel=prod`), OS and phone; install id never the uid,
   deleted after 90 days). On by default, disclosed in the privacy policy, off with the Me page's `ErrorReportsSwitch`.
-  **Every failed API call is logged once by `ApiClient`** (no answer or an error status; the report send itself passes `logFailure: false`), so callers turn failures into results without logging them. Never log message text, names or numbers on purpose; the scrubber is the safety net, not the plan. A page that
+  **Every failed API call is logged once by `ApiClient`** (no answer or an error status; the report send itself passes `logFailure: false`), and marked (`ErrorLog.MarkReported`), so a caller that logs it again adds a trail line, not a second report. Never log message text, names or numbers on purpose; the scrubber is the safety net, not the plan. A page that
   throws (render or tap handler) is caught by the skeleton's `AppErrorBoundary` in `MainLayout`: logged (so
   reported; BlazorWebView alone only writes it to the WebView console) and replaced by a "back to the start" screen.
   On Android, `Platforms/Android/AndroidCrashCapture` (from `MainApplication.OnCreate`) also records Java exceptions

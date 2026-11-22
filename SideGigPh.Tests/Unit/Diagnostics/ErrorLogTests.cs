@@ -159,6 +159,26 @@ public class ErrorLogTests
     }
 
     [Fact]
+    public async Task Logger_AnErrorAlreadyReported_IsATrailLine_NotASecondReport()
+    {
+        var log = NewLog();
+        await log.LoadAsync();
+        using var provider = new ErrorLogLoggerProvider(log);
+        var api = provider.CreateLogger("SideGigPh.Maui.Services.Api.ApiClient");
+        var page = provider.CreateLogger("SideGigPh.Maui.Components.Inbox.ThreadPage");
+        var failure = new HttpRequestException("The network connection was lost.");
+
+        api.LogError(failure, "API: no answer to POST chats/x/messages");
+        ErrorLog.MarkReported(failure);
+        page.LogError(failure, "Sending a chat message failed.");
+        page.LogError(new InvalidOperationException("bug"), "Sending a chat message failed.");
+
+        log.Queued.Select(report => report.Message).Should().BeEquivalentTo(
+            ["API: no answer to POST chats/x/messages", "Sending a chat message failed."], "the bug is still its own report");
+        log.Queued.Last().Trail.Should().Contain("Error: Sending a chat message failed.");
+    }
+
+    [Fact]
     public async Task Logger_RecordsErrors_AndKeepsTheAppsOwnLinesAsTrail()
     {
         var log = NewLog();

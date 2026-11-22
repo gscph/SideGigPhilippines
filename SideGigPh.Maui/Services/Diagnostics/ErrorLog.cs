@@ -38,6 +38,38 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
     /// </summary>
     public event Action? Recorded;
 
+    private const string ReportedKey = "SideGigPh.ErrorReported";
+
+    /// <summary>
+    /// Marks an exception already reported where it happened (<c>ApiClient</c> logs every failed call), so a page or
+    /// workspace that logs it again as an error adds a trail line instead of a second report (<see cref="WasReported"/>).
+    /// </summary>
+    public static void MarkReported(Exception exception)
+    {
+        try
+        {
+            exception.Data[ReportedKey] = true;
+        }
+        catch (Exception)
+        {
+            // Best effort: a read-only Data only means the second log is a second report.
+        }
+    }
+
+    /// <summary>True when <paramref name="exception"/> or one it wraps was already reported (<see cref="MarkReported"/>).</summary>
+    public static bool WasReported(Exception? exception)
+    {
+        for (var e = exception; e is not null; e = e.InnerException)
+        {
+            if (e.Data.Contains(ReportedKey))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /// <summary>The screen on now, e.g. <c>/start/pro/done</c>.</summary>
     public string? Route { get; private set; }
 

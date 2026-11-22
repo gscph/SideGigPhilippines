@@ -28,7 +28,8 @@ public class FailedCallLoggingTests
 
         var send = () => api.SendAsync(HttpMethod.Post, "job-posts?draft=1");
 
-        await send.Should().ThrowAsync<Exception>();
+        var thrown = (await send.Should().ThrowAsync<Exception>()).Which;
+        SideGigPh.Maui.Services.Diagnostics.ErrorLog.WasReported(thrown).Should().BeTrue("a caller that logs it again must not make a second report");
         var error = logger.Errors.Should().ContainSingle().Subject;
         error.Should().Contain("POST").And.Contain("job-posts").And.NotContain("draft=1");
     }
@@ -54,7 +55,8 @@ public class FailedCallLoggingTests
         using var response = await api.SendAsync(HttpMethod.Post, "job-posts");
         var check = () => api.EnsureWrittenAsync(response, "post the work needed");
 
-        await check.Should().ThrowAsync<HttpRequestException>();
+        var thrown = (await check.Should().ThrowAsync<HttpRequestException>()).Which;
+        SideGigPh.Maui.Services.Diagnostics.ErrorLog.WasReported(thrown).Should().BeTrue();
         logger.Errors.Should().ContainSingle().Which.Should().Contain("500");
     }
 
@@ -68,8 +70,9 @@ public class FailedCallLoggingTests
         var send = () => reports.SendAsync(Guid.NewGuid().ToString(), new("1.0 (1)", "abc1234", "beta", "ios 26.5", "Apple iPhone"),
             [new(SideGigPh.Maui.Models.ErrorKind.Error, "Test", "boom", null, null, null, 1, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow)]);
 
-        await send.Should().ThrowAsync<HttpRequestException>();
+        var thrown = (await send.Should().ThrowAsync<HttpRequestException>()).Which;
         logger.Errors.Should().BeEmpty("a failed send of the reports must not record a report");
+        SideGigPh.Maui.Services.Diagnostics.ErrorLog.WasReported(thrown).Should().BeFalse();
     }
 
     [Fact]

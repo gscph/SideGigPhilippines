@@ -103,8 +103,9 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// <para>
     /// This is the one place a request that got no answer is logged (an answer with an error status is logged by
     /// <see cref="ThrowIfFailedAsync"/>), so every failed call reaches the error reports, whatever the caller does with
-    /// the exception: pages turn it into "didn't send" and workspaces into a result, and neither logs it again. Only a
-    /// cancel the caller asked for is not a failure.
+    /// the exception: pages turn it into "didn't send" and workspaces into a result. The exception is marked reported
+    /// (<see cref="Diagnostics.ErrorLog.MarkReported"/>), so a caller that logs it again adds a trail line, not a second
+    /// report. Only a cancel the caller asked for is not a failure.
     /// </para>
     /// </summary>
     private async Task<HttpResponseMessage> SendWithRetryAsync(HttpMethod method, string path, bool logFailure,
@@ -128,6 +129,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
             if (logFailure)
             {
                 logger.LogError(ex, "API: no answer to {Method} {Path}: {Reason}", method, path.Split('?')[0], ex.GetBaseException().Message);
+                Diagnostics.ErrorLog.MarkReported(ex); // a caller that logs it again adds a trail line, not a second report
             }
 
             throw;
@@ -239,8 +241,10 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         var body = await response.Content.ReadAsStringAsync();
         var apiVersion = ApiVersionOf(response);
         logger.LogError("API {ApiVersion}: couldn't {What}: {Status} {Reason}\n{Body}", apiVersion, what, (int)response.StatusCode, response.ReasonPhrase, body);
-        throw new HttpRequestException(
+        var failure = new HttpRequestException(
             $"API {apiVersion}: couldn't {what}: {(int)response.StatusCode} {response.ReasonPhrase}. {body}", null, response.StatusCode);
+        Diagnostics.ErrorLog.MarkReported(failure);
+        throw failure;
     }
 
     /// <summary>The API build that answered (<c>X-Api-Version</c>), or "unknown" (an older API, or an answer from Azure's front door).</summary>
