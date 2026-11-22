@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services.Diagnostics;
@@ -136,6 +136,26 @@ public class ErrorLogTests
         var left = log.Queued.Should().ContainSingle().Subject;
         left.Message.Should().Be("Counted up while sending");
         left.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Recorded_IsRaisedForAProblem_NotForTrailLines_NorWithTheSwitchOff()
+    {
+        var log = NewLog();
+        await log.LoadAsync();
+        var raised = 0;
+        log.Recorded += () => raised++;
+
+        log.Visit("/seeker/posts/new");
+        log.Step("Tapped Post");
+        raised.Should().Be(0, "screens and steps are only the trail");
+
+        log.Record(ErrorKind.Error, "SideGigPh.Maui.Services.Api.ApiClient", "API: no answer to POST job-posts");
+        raised.Should().Be(1, "a new problem is sent soon, not at the next periodic try");
+
+        await log.SetSendReportsAsync(false);
+        log.Record(ErrorKind.Error, "SideGigPh.Maui.Services.Api.ApiClient", "API: no answer to POST job-posts");
+        raised.Should().Be(1, "with the switch off nothing is kept, so there is nothing to send");
     }
 
     [Fact]

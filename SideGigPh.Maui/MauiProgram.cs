@@ -111,7 +111,12 @@ namespace SideGigPh.Maui
     		builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            var app = builder.Build();
+#if IOS
+            // Objective-C exceptions and .NET exceptions thrown into native code go into the error reports too.
+            Platforms.iOS.IosCrashCapture.Install(app.Services.GetRequiredService<ErrorLog>());
+#endif
+            return app;
         }
     }
 }

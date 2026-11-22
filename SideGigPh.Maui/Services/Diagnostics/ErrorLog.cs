@@ -32,6 +32,12 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
     private Task? _loading;
     private bool _saveScheduled;
 
+    /// <summary>
+    /// A problem was just kept (not a trail line), so <see cref="ErrorReporting"/> sends it soon instead of at the next
+    /// periodic try. Raised outside the lock; a handler that throws is ignored.
+    /// </summary>
+    public event Action? Recorded;
+
     /// <summary>The screen on now, e.g. <c>/start/pro/done</c>.</summary>
     public string? Route { get; private set; }
 
@@ -148,6 +154,14 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
         }
 
         ScheduleSave();
+        try
+        {
+            Recorded?.Invoke();
+        }
+        catch (Exception)
+        {
+            // Best effort: recording never throws (it is the logger's own sink).
+        }
     }
 
     /// <summary>Writes the log now. Never throws.</summary>

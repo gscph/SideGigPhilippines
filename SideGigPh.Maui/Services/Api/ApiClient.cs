@@ -35,11 +35,16 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// <summary>A read (GET) is safe to repeat, so one that got no answer goes once more; writes are sent once.</summary>
     public const int ReadTries = 2;
 
-    /// <summary>Sends the request with the sign-in token. The caller disposes the response.</summary>
-    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// Sends the request with the sign-in token. The caller disposes the response. A request that gets no answer is
+    /// logged here (so it becomes an error report), unless <paramref name="logFailure"/> is false: only the error-report
+    /// send itself passes that, or a failed send would record a report about sending reports.
+    /// </summary>
+    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null,
+        CancellationToken cancellationToken = default, bool logFailure = true)
     {
         var token = await identity.GetIdTokenAsync();
-        return await SendWithRetryAsync(() =>
+        return await SendWithRetryAsync(method, path, logFailure, () =>
         {
             var request = new HttpRequestMessage(method, path) { Content = content };
             if (token is not null)
@@ -72,7 +77,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     public async Task<(T? Value, string? Version)> GetIfChangedAsync<T>(string path, string? knownVersion, JsonTypeInfo<T> type, CancellationToken cancellationToken)
         where T : class
     {
-        using var response = await SendWithRetryAsync(() =>
+        using var response = await SendWithRetryAsync(HttpMethod.Get, path, logFailure: true, () =>
         {
             var request = new HttpRequestMessage(HttpMethod.Get, path);
             if (knownVersion is not null && EntityTagHeaderValue.TryParse(knownVersion, out var tag))
@@ -95,8 +100,15 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// Sends the request. A connection that drops or times out is an <see cref="HttpRequestException"/> with no status
     /// code on every platform: Android's handler throws <see cref="WebException"/> / <see cref="IOException"/>
     /// ("Socket closed", "Canceled") instead, which reads didn't catch, so a flaky 4G signal broke whole screens.
+    /// <para>
+    /// This is the one place a request that got no answer is logged (an answer with an error status is logged by
+    /// <see cref="ThrowIfFailedAsync"/>), so every failed call reaches the error reports, whatever the caller does with
+    /// the exception: pages turn it into "didn't send" and workspaces into a result, and neither logs it again. Only a
+    /// cancel the caller asked for is not a failure.
+    /// </para>
     /// </summary>
-    private async Task<HttpResponseMessage> SendWithRetryAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage> SendWithRetryAsync(HttpMethod method, string path, bool logFailure,
+        Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
     {
         try
         {
@@ -104,13 +116,18 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
             network?.Answered();
             return response;
         }
-        catch (Exception ex) when (NetworkErrors.IsNetwork(ex))
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
             // A request that ran out of time says nothing about the connection (a cold server, a paused database):
             // only one that couldn't reach the server at all counts the phone as offline.
-            if (!TimedOut(ex))
+            if (NetworkErrors.IsNetwork(ex) && !TimedOut(ex))
             {
                 network?.NoAnswer();
+            }
+
+            if (logFailure)
+            {
+                logger.LogError(ex, "API: no answer to {Method} {Path}: {Reason}", method, path.Split('?')[0], ex.GetBaseException().Message);
             }
 
             throw;
@@ -176,16 +193,18 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// Sends <paramref name="body"/> as JSON with a Content-Length (not streamed/chunked, which the Functions host
     /// may hand over as an empty body). The caller checks the status and disposes the response.
     /// </summary>
-    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type)
+    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type, bool logFailure = true)
     {
         var content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body, type));
         content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
-        return SendAsync(method, path, content);
+        return SendAsync(method, path, content, logFailure: logFailure);
     }
 
     /// <summary>
-    /// A read that can't reach the API (offline, server error) shows as "nothing there", logged: the screens
-    /// already have empty states. Writes don't use this: they throw, and the pages say "didn't send / didn't publish".
+    /// A read that can't reach the API (offline, server error) shows as "nothing there": the screens already have
+    /// empty states. The failed request was already logged by the send (no answer) or <see cref="ThrowIfFailedAsync"/>
+    /// (an error status), so only an answer that can't be read is logged here. Writes don't use this: they throw, and
+    /// the pages say "didn't send / didn't publish".
     /// </summary>
     public async Task<T> ReadAsync<T>(Func<Task<T>> read, T fallback, string what)
     {
@@ -193,9 +212,13 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         {
             return await read();
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        catch (JsonException ex)
         {
             logger.LogError(ex, "API: couldn't read {What}.", what);
+            return fallback;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
             return fallback;
         }
     }
