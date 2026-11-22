@@ -229,6 +229,27 @@ CHANGELOG = [
     "12:00 rewrite in local lingo (households Taglish, workers Tagalog trade words: Maestro, arawan, walang lamig); "
     "\"errands\" is now \"pakisuyo\"; every post tagged by awareness stage and season; 12 new posts (inflation, gas, "
     "baha, Pasko, lipat-bahay, GC, why Tarbaho, komisyon, aircon season, download now); plan built from seasons",
+    "13:00 5 new posts (pasukan, bagyo check, number stays private, tag-ulan walang arawan, chat before the biyahe); "
+    "tighter lines on lipat-bahay, why Tarbaho and welder",
+    "13:20 4 new posts (hidden leak and the water bill, pay after the work, suki from sabi-sabi, make your profile now); shorter answers on GC, pakisuyo and Maestro",
+    "13:40 4 new posts (CCTV at the gate, carwash at home, TESDA badge, solar season); tighter overprice, ten-years and aircon-season lines; the CTA button that wrapped on stories (overprice, roof, tiles) is now one line",
+    "14:00 4 new posts (posting for Mama, stain on the kisame, weekend sideline, tile setter); tighter aircon cleaning, gas and extra lines",
+    "14:20 4 new posts (Christmas lights, damo sa bakuran, kabit-ilaw season, \"helper lang\"); tighter Pasko, breaker and carwash lines",
+    "14:40 4 new posts (printer before a deadline, \"PM for price\", mekaniko, you set your price); tighter GC, pasukan and water-bill lines",
+    "15:00 4 new posts (amoy kanal sa lababo, Pasko general cleaning, Ate sa linis, after the baha); tighter Mama, bakuran and tile-setter lines",
+    "15:20 4 new posts (kalampag ng gate, mainit na saksakan, foreman renovation, why Tarbaho for workers); aircon cleaning no longer says \"book\"; tighter Pasko cleaning and mekaniko lines",
+    "15:40 4 new posts (kotse sa baha, one post many offers, uwi galing abroad, tag-ulan profile now); tighter aircon, waiting and baha answers",
+    "16:00 4 new posts (bitak sa pader, PasaBuy, tubero sa tag-ulan, sabay-sabay na bayarin); tighter tag-ulan, tiles and roof answers",
+    "16:20 4 new posts (WFH WiFi, Pasko ipaayos na, karpintero, reviews on your profile); tighter inflation, Ate sa linis and foreman lines",
+    "16:40 4 new posts (maingay na aircon, CR ni Lola, summer profile now, customers who passed you by); tighter plumbing, pasukan and saksakan answers",
+    "17:00 4 new posts (₱1,500 budget, yero sa bagyo, garden sa tag-ulan, customers message you first); tighter kisame, Pasko and solar answers",
+    "17:20 4 new posts (mahinang shower, reviews first, Disyembre tigil ang site, IT for WFH homes); tighter cleaning, lababo and bilihin lines",
+    "17:40 4 new posts (aircon pull-out when moving, due date, pakisuyo tuwing umaga, one profile three towns); tighter IT, gate and suki lines",
+    "18:00 4 new posts (basang saksakan after baha, Sabado lang free, car wash kit, work photos on the profile); shorter number, bills and solar-tech lines",
+    "18:20 4 new posts (tulo ng gripo, ikaw ang pipili, tapos na ang project, ID badge); shorter printer line; bayarin no longer repeats the bilihin answer",
+    "18:40 4 new posts (kwarto ni bunso, amoy kulob na aircon, mason, libreng profile); tighter overprice and extra lines",
+    "19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others",
+    "19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)",
 ]
 
 
