@@ -12,33 +12,23 @@ namespace MobileAppTheme.Firebase;
 /// </summary>
 internal static class AndroidPhoneLink
 {
-    /// <summary>What happened to the number.</summary>
-    public enum Outcome
-    {
-        /// <summary>The number is now on the signed-in account (same uid).</summary>
-        Linked,
-
-        /// <summary>The number was on another account, which is now signed in instead.</summary>
-        SwitchedAccount,
-    }
-
     /// <summary>
     /// Adds the number to the signed-in account; when another account has it, signs in to that account with the same
     /// code. Throws Firebase's own exception otherwise (a wrong or expired code, no signal), for the caller to map.
     /// </summary>
-    public static async Task<Outcome> LinkOrSignInAsync(PhoneAuthCredential credential)
+    public static async Task<PhoneLinkOutcome> LinkOrSignInAsync(PhoneAuthCredential credential)
     {
         var auth = FirebaseAuth.Instance;
         var user = auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in.");
         try
         {
             await user.LinkWithCredentialAsync(credential);
-            return Outcome.Linked;
+            return PhoneLinkOutcome.Linked;
         }
         catch (FirebaseAuthUserCollisionException collision) when (collision.UpdatedCredential is { } proven)
         {
             await auth.SignInWithCredentialAsync(proven);
-            return Outcome.SwitchedAccount;
+            return PhoneLinkOutcome.SwitchedAccount;
         }
     }
 }

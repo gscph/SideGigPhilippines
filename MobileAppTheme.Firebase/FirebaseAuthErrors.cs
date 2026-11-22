@@ -81,6 +81,14 @@ public static partial class FirebaseAuthErrors
         FirebaseAuthException { Reason: FIRAuthError.InvalidCredential } => AuthError.InvalidCode,
         // The same from Firebase's own Android SDK (AndroidPhoneVerification / AndroidPhoneLink): wrong or expired code.
         _ when ex.GetType().Name is "FirebaseAuthInvalidCredentialsException" => AuthError.InvalidCode,
+#if IOS
+        // The same from Firebase's own iOS SDK (IosPhoneVerification): wrong code (17044), lost or expired session
+        // (17046, 17051); too many sends (17010) or today's SMS quota used (17052).
+        Foundation.NSErrorException { Error.Code: 17044 or 17046 or 17051 } => AuthError.InvalidCode,
+        Foundation.NSErrorException { Error.Code: 17010 or 17052 } => AuthError.TooManyAttempts,
+        // The person closed Firebase's reCAPTCHA page (17058): a cancel, not an error to show.
+        Foundation.NSErrorException { Error.Code: 17058 } => AuthError.Cancelled,
+#endif
         // Our own limits (VerifyCodeLimit, SendCodeLimit), Firebase's network exception, or a message that says so.
         _ when IsNetwork(ex) => AuthError.Network,
         // Firebase's Android SDK: "We have blocked all requests from this device due to unusual activity" (no "too many").
@@ -88,6 +96,21 @@ public static partial class FirebaseAuthErrors
             || ex.Message.Contains("too many", StringComparison.OrdinalIgnoreCase) => AuthError.TooManyAttempts,
         _ => AuthError.Unknown,
     };
+
+    /// <summary>
+    /// Firebase's own code for a failure, for the logs (and so the error reports): on iOS the NSError's domain and number
+    /// (17044 wrong code, 17025 number on another account…), on Android the exception's type name.
+    /// </summary>
+    public static string CodeOf(Exception ex)
+    {
+#if IOS
+        if (ex is Foundation.NSErrorException { Error: { } error })
+        {
+            return $"{error.Domain} {error.Code}";
+        }
+#endif
+        return ex.GetType().Name;
+    }
 
     [GeneratedRegex(@"^\s*(\d+)\s*:")]
     private static partial Regex StatusCode();

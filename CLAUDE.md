@@ -41,7 +41,7 @@ changing that area.**
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
   `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board), `IJobPostRepository` (job posts),
-  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers, `AccountSwitchedAsync` (adding a number that is another account's signs in to that account with the same code, never a second one: `AuthResult.SwitchedAccount`, Android `MobileAppTheme.Firebase/AndroidPhoneLink`; on Android SMS codes are sent and checked through Firebase's own SDK, `AndroidPhoneVerification`, never the plugin, which loses Firebase's answers; "Sign in with this number" stays only where the provider can't, e.g. iOS for now), `SwitchSideAsync` (household ↔ Skilled Worker, below), Delete account; no Start over on the Me page), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
+  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers, `AccountSwitchedAsync` (adding a number that is another account's signs in to that account with the same code, never a second one: `AuthResult.SwitchedAccount`, Android `MobileAppTheme.Firebase/AndroidPhoneLink`, iOS `IosPhoneLink`; SMS codes are sent and checked through Firebase's own SDK, `AndroidPhoneVerification` / `IosPhoneVerification`, never the plugin, which loses Firebase's answers; "Sign in with this number" stays only for a provider that can't), `SwitchSideAsync` (household ↔ Skilled Worker, below), Delete account; no Start over on the Me page), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
 - **API adapters** (`Services/Api/`, the only app code that talks HTTP): `ApiClient` (one `HttpClient`, the Firebase
   ID token on every request, asks for gzip) and one `Api*Repository` per port, registered by `AddSideGigPhApi`
   after `AddMobileAppTheme`; `ApiMapping` converts contracts ↔ `Models/` (models never get contract types). Failed
@@ -228,7 +228,11 @@ changing that area.**
   SDK from a page, workspace or service. Adapters log the full exception and map it to an `AuthError`; the UI shows
   `AppText.Describe(error)`. Android needs `MainActivity.OnActivityResult` → `FirebaseAuthSetup.HandleActivityResult`
   and the SHA-1/SHA-256 in Firebase. **Sign in with Apple is iOS only** (`AuthMethods.Apple`, App Store 4.8 because
-  Google is offered; `Platforms/iOS/Entitlements.plist`). Load the `maui-firebase-auth` skill.
+  Google is offered; `Platforms/iOS/Entitlements.plist`). **On iOS, phone codes and Apple go through Firebase's own SDK**, never the
+  plugin (`IosPhoneVerification`, `IosAppleSignIn`: Apple with a SHA-256 nonce): the app is scene-based, so
+  `FirebaseAuthSetup` hands Firebase the phone check's return URL (`SceneOpenUrl` / `OpenUrl`) and `AppDelegate` its push
+  token and silent push (`HandleApnsToken` / `HandleRemoteNotification`, `UIBackgroundModes` `remote-notification`).
+  Load the `maui-firebase-auth` skill.
 - **Legal and store rules** ([`docs/legal/`](docs/legal/README.md)): the Privacy Policy, Terms and data page are
   `docs/legal/*.md`, served as public web pages by `LegalFunctions` (`GET legal/privacy|terms|data`, embedded at
   build; no `[placeholders]`) and linked from `AppBrand.Legal` (sign-in `LegalConsent` line, Me page). **Delete

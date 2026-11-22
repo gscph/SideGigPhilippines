@@ -6,6 +6,8 @@ using Plugin.Firebase.Auth.Google;
 #if ANDROID
 using Android.App;
 using Android.Content;
+#elif IOS
+using Foundation;
 #endif
 
 namespace MobileAppTheme.Firebase;
@@ -33,12 +35,18 @@ public static class FirebaseAuthSetup
                 FirebaseCore.TryRun("Emulator phone check", UseRecaptchaOnEmulator);
             }).OnStart(activity => FirebaseCore.TryRun("Phone code send", () => AndroidPhoneVerification.ScreenBack(activity))));
 #elif IOS
-            events.AddiOS(ios => ios.WillFinishLaunching((_, __) =>
-            {
-                FirebaseCore.Start();
-                FirebaseCore.TryRun("Google sign-in", FirebaseAuthGoogleImplementation.Initialize);
-                return false;
-            }));
+            events.AddiOS(ios => ios
+                .WillFinishLaunching((_, __) =>
+                {
+                    FirebaseCore.Start();
+                    FirebaseCore.TryRun("Google sign-in", FirebaseAuthGoogleImplementation.Initialize);
+                    return false;
+                })
+                // Phone sign-in's web check (reCAPTCHA) comes back through the Encoded App ID URL scheme. MAUI's iOS app
+                // is scene-based, so the URL reaches the scene, which Firebase's app-delegate hooks may never see: handed
+                // over here, sending the code can't wait for it until it times out.
+                .SceneOpenUrl((_, contexts) => contexts.ToArray().Any(context => HandleUrl(context.Url)))
+                .OpenUrl((_, url, _) => HandleUrl(url)));
 #endif
         });
 
@@ -85,6 +93,29 @@ public static class FirebaseAuthSetup
             System.Diagnostics.Debug.WriteLine($"[Firebase] activity result not handled: {ex}");
         }
     }
+#endif
+
+#if IOS
+    /// <summary>
+    /// Call from <c>AppDelegate.RegisteredForRemoteNotifications</c>. Firebase proves phone sign-in comes from this app
+    /// with a silent push; it needs Apple's push token for that, or it falls back to the slower web check.
+    /// </summary>
+    public static void HandleApnsToken(NSData deviceToken)
+    {
+        if (FirebaseCore.IsRunning)
+        {
+            global::Firebase.Auth.Auth.DefaultInstance?.SetApnsToken(deviceToken, global::Firebase.Auth.AuthApnsTokenType.Unknown);
+        }
+    }
+
+    /// <summary>
+    /// Call from <c>AppDelegate.DidReceiveRemoteNotification</c>; true when it was Firebase's silent phone-sign-in push.
+    /// </summary>
+    public static bool HandleRemoteNotification(NSDictionary userInfo) =>
+        FirebaseCore.IsRunning && global::Firebase.Auth.Auth.DefaultInstance?.CanHandleNotification(userInfo) == true;
+
+    private static bool HandleUrl(NSUrl? url) =>
+        url is not null && FirebaseCore.IsRunning && global::Firebase.Auth.Auth.DefaultInstance?.CanHandleUrl(url) == true;
 #endif
 
     /// <summary>True while a Google sign-in is waiting for the account picker's result.</summary>

@@ -73,6 +73,11 @@ Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
 - *Google / Apple open, you pick an account, then sign-in fails*: Firebase Auth couldn't store the user in the
   keychain. `Entitlements.plist` needs `keychain-access-groups` = `$(AppIdentifierPrefix)com.tarbaho.app`, and the
   workflow refuses an `.ipa` without it. Apple also needs the Apple provider enabled in Firebase → Authentication.
+- *The phone number's code never comes, or "couldn't send" after a long wait*: check Firebase → Authentication →
+  Sign-in method → Phone is on, and Project settings → Cloud Messaging → Apple app configuration has the **APNs
+  auth key** (.p8). Without the key Firebase falls back to a reCAPTCHA page, which comes back through the Encoded
+  App ID URL scheme the workflow writes into `Info.plist`. Test numbers (Authentication → Phone → test numbers)
+  skip both.
 - *The app says it's offline, and Safari shows "This connection is not private" issued by "Sinkhole Intermediate CA"*:
   the network's DNS (an ISP filter, ClearPath in PH) blocks `tarbaho.com`. On that iPhone: Settings → Wi-Fi → (i) →
   Configure DNS → Manual → `8.8.8.8`, `8.8.4.4`. Ask the ISP to unblock the domain.
