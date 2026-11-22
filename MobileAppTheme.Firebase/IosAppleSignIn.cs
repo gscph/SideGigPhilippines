@@ -20,6 +20,9 @@ internal static class IosAppleSignIn
     /// <summary>Apple's code for the person closing the sheet (ASAuthorizationError.Canceled).</summary>
     private const long CanceledCode = 1001;
 
+    /// <summary>The sheet waiting for Apple's answer and its controller, held until it comes.</summary>
+    private static (ASAuthorizationController Controller, AppleSheet Sheet)? s_open;
+
     /// <summary>Signs in to Firebase with Apple. Throws <see cref="OperationCanceledException"/> when the person closed the sheet.</summary>
     public static async Task SignInAsync()
     {
@@ -50,11 +53,22 @@ internal static class IosAppleSignIn
             Delegate = sheet,
             PresentationContextProvider = sheet,
         };
+        // The controller holds its delegate weakly: keep both until Apple answers.
+        s_open = (controller, sheet);
         controller.PerformRequests();
+        return AnswerAsync(sheet);
+    }
 
-        // The controller holds its delegate weakly: keep both alive until Apple answers.
-        return sheet.Answer.Task.ContinueWith(answer => { GC.KeepAlive(controller); GC.KeepAlive(sheet); return answer; })
-            .Unwrap();
+    private static async Task<ASAuthorizationAppleIdCredential> AnswerAsync(AppleSheet sheet)
+    {
+        try
+        {
+            return await sheet.Answer.Task;
+        }
+        finally
+        {
+            s_open = null;
+        }
     }
 
     private static string NewNonce() =>

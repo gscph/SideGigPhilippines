@@ -43,8 +43,8 @@ public static class FirebaseAuthSetup
                     return false;
                 })
                 // Phone sign-in's web check (reCAPTCHA) comes back through the Encoded App ID URL scheme. MAUI's iOS app
-                // is scene-based, so the URL reaches the scene, which Firebase's app-delegate hooks never see: without
-                // handing it over, sending the code waited until it timed out.
+                // is scene-based, so the URL reaches the scene, which Firebase's app-delegate hooks may never see: handed
+                // over here, sending the code can't wait for it until it times out.
                 .SceneOpenUrl((_, contexts) => contexts.ToArray().Any(context => HandleUrl(context.Url)))
                 .OpenUrl((_, url, _) => HandleUrl(url)));
 #endif

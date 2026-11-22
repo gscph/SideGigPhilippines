@@ -86,6 +86,8 @@ public static partial class FirebaseAuthErrors
         // (17046, 17051); too many sends (17010) or today's SMS quota used (17052).
         Foundation.NSErrorException { Error.Code: 17044 or 17046 or 17051 } => AuthError.InvalidCode,
         Foundation.NSErrorException { Error.Code: 17010 or 17052 } => AuthError.TooManyAttempts,
+        // The person closed Firebase's reCAPTCHA page (17058): a cancel, not an error to show.
+        Foundation.NSErrorException { Error.Code: 17058 } => AuthError.Cancelled,
 #endif
         // Our own limits (VerifyCodeLimit, SendCodeLimit), Firebase's network exception, or a message that says so.
         _ when IsNetwork(ex) => AuthError.Network,
