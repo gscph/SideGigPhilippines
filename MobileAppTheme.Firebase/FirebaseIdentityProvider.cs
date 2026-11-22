@@ -30,6 +30,9 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 #if ANDROID
     // Android sends and checks SMS codes through Firebase's own SDK: the plugin loses its answers (AndroidPhoneVerification).
     private readonly AndroidPhoneVerification _android = new(logger);
+#else
+    // iOS too: the plugin shows Firebase's phone check over a window a scene-based app may not have (IosPhoneVerification).
+    private readonly IosPhoneVerification _ios = new();
 #endif
 
     /// <summary>
@@ -80,7 +83,8 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 #if ANDROID
             await _android.SendAsync(phoneNumber).WaitAsync(SendCodeLimit);
 #else
-            await Auth.VerifyPhoneNumberAsync(phoneNumber).WaitAsync(SendCodeLimit);
+            _ = Auth; // not without the SDK running (see Auth)
+            await _ios.SendAsync(phoneNumber).WaitAsync(SendCodeLimit);
 #endif
             return new PhoneVerification { VerificationId = string.Empty };
         }
@@ -104,7 +108,9 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
             await FirebaseAuth.Instance.SignInWithCredentialAsync(_android.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
             var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after the code was accepted.");
 #else
-            var user = await Auth.SignInWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
+            _ = Auth; // not without the SDK running (see Auth)
+            await global::Firebase.Auth.Auth.DefaultInstance!.SignInWithCredentialAsync(_ios.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
+            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after the code was accepted.");
 #endif
             return AuthResult.Ok(Map(user));
         }
@@ -140,7 +146,11 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
 
             return AuthResult.Ok(Map(current));
 #else
-            var user = await Auth.LinkWithPhoneNumberVerificationCodeAsync(userEnteredCode).WaitAsync(VerifyCodeLimit);
+            _ = Auth; // not without the SDK running (see Auth)
+            var signedIn = global::Firebase.Auth.Auth.DefaultInstance?.CurrentUser
+                ?? throw new InvalidOperationException("Nobody is signed in to add the number to.");
+            await signedIn.LinkAsync(_ios.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
+            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after adding the number.");
 
             // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
             // and a backend may read the claim from the token.
@@ -200,7 +210,13 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         try
         {
             // Apple shares the name only the first time; with none, the sign-in sheet asks for it (NamePage).
+#if IOS
+            _ = Auth; // not without the SDK running (see Auth)
+            await IosAppleSignIn.SignInAsync();
+            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after Sign in with Apple.");
+#else
             var user = await Auth.SignInWithAppleAsync();
+#endif
             return AuthResult.Ok(Map(user));
         }
         catch (Exception ex)

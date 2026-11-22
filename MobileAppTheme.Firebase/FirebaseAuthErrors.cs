@@ -81,6 +81,12 @@ public static partial class FirebaseAuthErrors
         FirebaseAuthException { Reason: FIRAuthError.InvalidCredential } => AuthError.InvalidCode,
         // The same from Firebase's own Android SDK (AndroidPhoneVerification / AndroidPhoneLink): wrong or expired code.
         _ when ex.GetType().Name is "FirebaseAuthInvalidCredentialsException" => AuthError.InvalidCode,
+#if IOS
+        // The same from Firebase's own iOS SDK (IosPhoneVerification): wrong code (17044), lost or expired session
+        // (17046, 17051); too many sends (17010) or today's SMS quota used (17052).
+        Foundation.NSErrorException { Error.Code: 17044 or 17046 or 17051 } => AuthError.InvalidCode,
+        Foundation.NSErrorException { Error.Code: 17010 or 17052 } => AuthError.TooManyAttempts,
+#endif
         // Our own limits (VerifyCodeLimit, SendCodeLimit), Firebase's network exception, or a message that says so.
         _ when IsNetwork(ex) => AuthError.Network,
         // Firebase's Android SDK: "We have blocked all requests from this device due to unusual activity" (no "too many").

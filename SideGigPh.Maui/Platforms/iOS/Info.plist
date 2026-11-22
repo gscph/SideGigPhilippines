@@ -43,6 +43,11 @@
             </array>
         </dict>
     </dict>
+    <!-- Firebase phone sign-in proves the app with a silent push (FirebaseAuthSetup.HandleRemoteNotification). -->
+    <key>UIBackgroundModes</key>
+    <array>
+        <string>remote-notification</string>
+    </array>
     <key>NSCameraUsageDescription</key>
     <string>Take a photo of you for your listing, so customers see who is coming.</string>
     <key>LSApplicationQueriesSchemes</key>

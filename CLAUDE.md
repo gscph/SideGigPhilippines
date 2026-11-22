@@ -228,7 +228,11 @@ changing that area.**
   SDK from a page, workspace or service. Adapters log the full exception and map it to an `AuthError`; the UI shows
   `AppText.Describe(error)`. Android needs `MainActivity.OnActivityResult` → `FirebaseAuthSetup.HandleActivityResult`
   and the SHA-1/SHA-256 in Firebase. **Sign in with Apple is iOS only** (`AuthMethods.Apple`, App Store 4.8 because
-  Google is offered; `Platforms/iOS/Entitlements.plist`). Load the `maui-firebase-auth` skill.
+  Google is offered; `Platforms/iOS/Entitlements.plist`). **On iOS, phone codes and Apple go through Firebase's own SDK**, never the
+  plugin (`IosPhoneVerification`, `IosAppleSignIn`: Apple with a SHA-256 nonce): the app is scene-based, so
+  `FirebaseAuthSetup` hands Firebase the phone check's return URL (`SceneOpenUrl` / `OpenUrl`) and `AppDelegate` its push
+  token and silent push (`HandleApnsToken` / `HandleRemoteNotification`, `UIBackgroundModes` `remote-notification`).
+  Load the `maui-firebase-auth` skill.
 - **Legal and store rules** ([`docs/legal/`](docs/legal/README.md)): the Privacy Policy, Terms and data page are
   `docs/legal/*.md`, served as public web pages by `LegalFunctions` (`GET legal/privacy|terms|data`, embedded at
   build; no `[placeholders]`) and linked from `AppBrand.Legal` (sign-in `LegalConsent` line, Me page). **Delete
