@@ -136,3 +136,20 @@ jobs:
         with:
           name: tarbaho-${{ steps.version.outputs.label }}-build${{ env.BUILD_NUMBER }}-${{ inputs.channel }}-android
           path: ${{ steps.package.outputs.file }}
+
+      # R8 (csproj, Release) renames the Java side's private members; mapping.txt turns crash stacks back into real
+      # names. Kept with the build: upload it in the Play Console with the bundle (App bundle explorer → Downloads →
+      # ReTrace mapping file). No mapping means R8 didn't run: stop.
+      - name: Find the R8 mapping
+        id: mapping
+        run: |
+          mapping="$(find SideGigPh.Maui/bin/Release -name mapping.txt -path '*android*' | head -n 1)"
+          if [ -z "$mapping" ]; then echo "::error::No R8 mapping.txt: R8 didn't run (AndroidLinkTool in the csproj)"; exit 1; fi
+          echo "file=$mapping" >> "$GITHUB_OUTPUT"
+          echo "R8 mapping: $(wc -l < "$mapping") lines" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the R8 mapping
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarbaho-${{ steps.version.outputs.label }}-build${{ env.BUILD_NUMBER }}-${{ inputs.channel }}-r8-mapping
+          path: ${{ steps.mapping.outputs.file }}
