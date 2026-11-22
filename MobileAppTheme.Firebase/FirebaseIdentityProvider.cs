@@ -95,7 +95,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Firebase could not send the SMS code.");
+            logger.LogError(ex, "Firebase could not send the SMS code ({Code}).", FirebaseAuthErrors.CodeOf(ex));
             throw new AuthException(FirebaseAuthErrors.FromPhone(ex), ex.Message, ex);
         }
     }
@@ -123,7 +123,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Firebase phone sign-in failed.");
+            logger.LogError(ex, "Firebase phone sign-in failed ({Code}).", FirebaseAuthErrors.CodeOf(ex));
             return AuthResult.Fail(FirebaseAuthErrors.FromPhone(ex), ex.Message);
         }
     }
@@ -132,35 +132,30 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
     {
         try
         {
-#if ANDROID
             // The number may already be on another account (often the person's own earlier phone sign-in): Firebase's
-            // SDK then signs in to it with this same code, never a second one (AndroidPhoneLink).
+            // SDK then signs in to it with this same code, never a second one (AndroidPhoneLink, IosPhoneLink).
+#if ANDROID
             var outcome = await AndroidPhoneLink.LinkOrSignInAsync(_android.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
+#else
+            _ = Auth; // not without the SDK running (see Auth)
+            var outcome = await IosPhoneLink.LinkOrSignInAsync(_ios.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
+#endif
             var current = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after adding the number.");
+
+            // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
+            // and a backend may read the claim from the token.
             await current.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
-            if (outcome == AndroidPhoneLink.Outcome.SwitchedAccount)
+            if (outcome == PhoneLinkOutcome.SwitchedAccount)
             {
                 logger.LogInformation("The number belonged to another account; signed in to it with the same code.");
                 return AuthResult.SwitchedTo(Map(current));
             }
 
             return AuthResult.Ok(Map(current));
-#else
-            _ = Auth; // not without the SDK running (see Auth)
-            var signedIn = global::Firebase.Auth.Auth.DefaultInstance?.CurrentUser
-                ?? throw new InvalidOperationException("Nobody is signed in to add the number to.");
-            await signedIn.LinkAsync(_ios.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
-            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after adding the number.");
-
-            // The cached ID token doesn't carry the new phone_number claim until it's refreshed,
-            // and a backend may read the claim from the token.
-            await user.GetIdTokenResultAsync(forceRefresh: true).WaitAsync(TokenLimit);
-            return AuthResult.Ok(Map(user));
-#endif
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Firebase could not add the phone number to the account.");
+            logger.LogError(ex, "Firebase could not add the phone number to the account ({Code}).", FirebaseAuthErrors.CodeOf(ex));
             return AuthResult.Fail(FirebaseAuthErrors.FromPhone(ex), ex.Message);
         }
     }
@@ -222,7 +217,7 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         catch (Exception ex)
         {
             var error = FirebaseAuthErrors.FromApple(ex);
-            logger.LogError(ex, "Sign in with Apple failed: {Error}.", error);
+            logger.LogError(ex, "Sign in with Apple failed: {Error} ({Code}).", error, FirebaseAuthErrors.CodeOf(ex));
             return AuthResult.Fail(error, ex.Message);
         }
     }

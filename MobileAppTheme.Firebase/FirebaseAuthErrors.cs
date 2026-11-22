@@ -97,6 +97,21 @@ public static partial class FirebaseAuthErrors
         _ => AuthError.Unknown,
     };
 
+    /// <summary>
+    /// Firebase's own code for a failure, for the logs (and so the error reports): on iOS the NSError's domain and number
+    /// (17044 wrong code, 17025 number on another account…), on Android the exception's type name.
+    /// </summary>
+    public static string CodeOf(Exception ex)
+    {
+#if IOS
+        if (ex is Foundation.NSErrorException { Error: { } error })
+        {
+            return $"{error.Domain} {error.Code}";
+        }
+#endif
+        return ex.GetType().Name;
+    }
+
     [GeneratedRegex(@"^\s*(\d+)\s*:")]
     private static partial Regex StatusCode();
 }
