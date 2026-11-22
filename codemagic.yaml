@@ -1,0 +1,164 @@
+# The iPhone build on Codemagic's Macs (500 free macOS M2 minutes a month on a personal account), signed for the App
+# Store and uploaded to TestFlight. It does what .github/workflows/ios.yml does, for when GitHub Actions can't run.
+# Manual only (no `triggering:`): Codemagic → the app → Start new build → pick a workflow.
+#
+#   ios-testflight   builds the .ipa and uploads it to App Store Connect (shows under TestFlight after processing)
+#   ios-ipa-only     builds the .ipa and keeps it as a download only
+#
+# Set up once in Codemagic (docs/testflight.md → Build on Codemagic):
+#   - Team integrations → Developer Portal: the App Store Connect API key, named "Tarbaho" (integrations below)
+#   - Code signing identities: the Apple Distribution .p12, and the App Store profile for com.tarbaho.app
+#   - Environment variable group "tarbaho_ios" (secret): GOOGLE_SERVICE_INFO_PLIST_BASE64, and optionally GH_TOKEN
+#     (a read-only GitHub token, so the version counts the PRs' minor / major labels like the Android build does)
+
+definitions:
+  ios_build: &ios_build
+    instance_type: mac_mini_m2   # the free tier's machine
+    max_build_duration: 60
+    integrations:
+      app_store_connect: Tarbaho
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.tarbaho.app
+      # The Xcode the pinned .NET iOS workload asks for ("iOS 26.5.10318 requires Xcode 26.6"): change with
+      # WORKLOAD_VERSION, as in ios.yml.
+      xcode: "26.6"
+      groups:
+        - tarbaho_ios
+      vars:
+        PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
+        BUNDLE_ID: com.tarbaho.app
+        DOTNET_CHANNEL: 10.0.4xx
+        DOTNET_SDK: 10.0.400
+        WORKLOAD_VERSION: 10.0.401
+        # TestFlight needs the build number (CFBundleVersion) to go up. GitHub's iOS builds used its run numbers, so
+        # Codemagic's start above them: build 7 here is 1007.
+        BUILD_NUMBER_OFFSET: 1000
+        GITHUB_REPOSITORY: maryjuano/SideGigPhilippines
+        FIREBASE_ANALYTICS: "false"
+        FIREBASE_EXPERIMENTS: "false"
+    scripts:
+      # A missing secret stops the build here, not after a 20-minute build.
+      - name: Check the secrets
+        script: |
+          if [ -z "${GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]; then
+            echo "GOOGLE_SERVICE_INFO_PLIST_BASE64 is missing: add it to the tarbaho_ios group (docs/testflight.md)"; exit 1
+          fi
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "No GH_TOKEN: the version counts PR titles only (feat: …), not their minor / major labels"
+          fi
+
+      # Codemagic's Macs have no .NET. The 10.0.4xx SDK and workload set 10.0.401 (iOS 26.5, MAUI 10.0.20) are the ones
+      # ios.yml pins; global.json is written for this build only (Visual Studio keeps its own).
+      - name: Install .NET and the MAUI workloads
+        script: |
+          curl -sSL https://dot.net/v1/dotnet-install.sh -o "$HOME/dotnet-install.sh"
+          bash "$HOME/dotnet-install.sh" --channel "$DOTNET_CHANNEL" --install-dir "$HOME/.dotnet"
+          echo "DOTNET_ROOT=$HOME/.dotnet" >> "$CM_ENV"
+          echo "PATH=$HOME/.dotnet:$HOME/.dotnet/tools:$PATH" >> "$CM_ENV"
+          export DOTNET_ROOT="$HOME/.dotnet" PATH="$HOME/.dotnet:$PATH"
+          echo "{ \"sdk\": { \"version\": \"$DOTNET_SDK\", \"rollForward\": \"latestPatch\", \"workloadVersion\": \"$WORKLOAD_VERSION\" } }" > global.json
+          cat global.json
+          dotnet --version
+          dotnet workload restore "$PROJECT"
+          dotnet workload list
+          xcodebuild -version
+
+      - name: Read the version
+        script: |
+          if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then git fetch --unshallow --quiet; fi
+          git fetch --quiet origin main
+          ios_build=$((BUILD_NUMBER + BUILD_NUMBER_OFFSET))
+          version="$(bash .github/scripts/app-version.sh)"
+          echo "APP_VERSION=$version" >> "$CM_ENV"
+          echo "IOS_BUILD_NUMBER=$ios_build" >> "$CM_ENV"
+          echo "Tarbaho iOS $version (build $ios_build, commit ${CM_COMMIT:0:7})"
+
+      # GoogleService-Info.plist is git-ignored. Google sign-in comes back to the app through its REVERSED_CLIENT_ID
+      # URL scheme, and phone sign-in's web check through the Encoded App ID ("app-" + GOOGLE_APP_ID with "-" for
+      # ":"); both are read from this plist into Info.plist here, so no Firebase id is committed.
+      - name: Write GoogleService-Info.plist and its URL schemes
+        script: |
+          firebase=SideGigPh.Maui/Platforms/iOS/GoogleService-Info.plist
+          info=SideGigPh.Maui/Platforms/iOS/Info.plist
+          echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 -D > "$firebase"
+          bundle="$(/usr/libexec/PlistBuddy -c 'Print :BUNDLE_ID' "$firebase")"
+          if [ "$bundle" != "$BUNDLE_ID" ]; then
+            echo "GoogleService-Info.plist is for '$bundle', not $BUNDLE_ID (add the iOS app with that bundle id in Firebase)"; exit 1
+          fi
+          reversed="$(/usr/libexec/PlistBuddy -c 'Print :REVERSED_CLIENT_ID' "$firebase")"
+          encoded="app-$(/usr/libexec/PlistBuddy -c 'Print :GOOGLE_APP_ID' "$firebase" | tr ':' '-')"
+          /usr/libexec/PlistBuddy \
+            -c 'Add :CFBundleURLTypes array' \
+            -c 'Add :CFBundleURLTypes:0 dict' \
+            -c 'Add :CFBundleURLTypes:0:CFBundleURLSchemes array' \
+            -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:0 string $reversed" \
+            -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:1 string $encoded" \
+            "$info"
+
+      # ios_signing put the certificate in the keychain and the profile in ~/Library/MobileDevice; dotnet needs the
+      # profile's name. After a capability changes on the App ID, edit and save the profile, then fetch it again in
+      # Codemagic's Code signing identities.
+      - name: Pick the provisioning profile
+        script: |
+          name=""
+          for profile in "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision; do
+            [ -e "$profile" ] || continue
+            security cms -D -i "$profile" > "$HOME/profile.plist"
+            app_id="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$HOME/profile.plist")"
+            if [[ "$app_id" == *".$BUNDLE_ID" ]]; then
+              name="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$HOME/profile.plist")"
+              break
+            fi
+          done
+          if [ -z "$name" ]; then
+            echo "No App Store provisioning profile for $BUNDLE_ID: add it in Codemagic's Code signing identities (docs/testflight.md)"; exit 1
+          fi
+          echo "PROFILE_NAME=$name" >> "$CM_ENV"
+          echo "Signed with profile '$name'"
+
+      - name: Build the .ipa
+        script: |
+          dotnet publish "$PROJECT" -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64 -p:ArchiveOnBuild=true \
+            -p:CodesignKey="Apple Distribution" -p:CodesignProvision="$PROFILE_NAME" \
+            -p:BuildNumber="$IOS_BUILD_NUMBER" -p:AppVersionNumber="$APP_VERSION" -p:AppChannel=prod \
+            -p:FirebaseAnalytics="$FIREBASE_ANALYTICS" -p:FirebaseExperiments="$FIREBASE_EXPERIMENTS"
+
+      - name: Find and check the .ipa
+        script: |
+          ipa="$(find SideGigPh.Maui/bin/Release/net10.0-ios -name '*.ipa' | head -n 1)"
+          if [ -z "$ipa" ]; then echo "No .ipa under SideGigPh.Maui/bin/Release/net10.0-ios"; exit 1; fi
+          # Firebase reads its settings only from the top of the app bundle; anywhere else it never starts and the app
+          # dies at launch (FirebaseAuth assertion). Don't upload such a build.
+          if ! unzip -l "$ipa" | grep -qE ' Payload/[^/]+\.app/GoogleService-Info\.plist$'; then
+            echo "GoogleService-Info.plist is not at the top of the app bundle (csproj BundleResource LogicalName)"
+            unzip -l "$ipa" | grep GoogleService || true
+            exit 1
+          fi
+          # Firebase Auth needs the keychain entitlement on iOS, expanded to the team's group (not the raw variable).
+          app="$(unzip -l "$ipa" | grep -oE 'Payload/[^/]+\.app/' | head -n 1)"
+          unzip -p "$ipa" "${app}archived-expanded-entitlements.xcent" > "$HOME/entitlements.plist"
+          if ! grep -qE '<string>[A-Z0-9]{10}\.com\.tarbaho\.app</string>' "$HOME/entitlements.plist"; then
+            echo "The keychain-access-groups entitlement is missing or not expanded (Entitlements.plist)"
+            cat "$HOME/entitlements.plist"; exit 1
+          fi
+          mkdir -p "$CM_BUILD_DIR/out"
+          mv "$ipa" "$CM_BUILD_DIR/out/tarbaho-$APP_VERSION-build$IOS_BUILD_NUMBER-ios.ipa"
+    artifacts:
+      - out/*.ipa
+
+workflows:
+  ios-testflight:
+    name: Tarbaho iOS to TestFlight
+    <<: *ios_build
+    # App Store Connect processes the upload for 5-30 minutes, then it shows under TestFlight (internal testers get it
+    # without review). Post-processing uses no build minutes.
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: false
+
+  ios-ipa-only:
+    name: Tarbaho iOS .ipa (no upload)
+    <<: *ios_build

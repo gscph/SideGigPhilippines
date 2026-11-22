@@ -1,7 +1,8 @@
 # iOS: TestFlight
 
 The iPhone build is made in GitHub Actions on a Mac runner (`.github/workflows/ios.yml`, **Build iOS to TestFlight**,
-manual only), signed for the App Store and uploaded to TestFlight. Nobody needs a Mac.
+manual only), signed for the App Store and uploaded to TestFlight. Nobody needs a Mac. The same build also runs on
+Codemagic (`codemagic.yaml`, [below](#build-on-codemagic-when-github-actions-cant-run)) when GitHub Actions can't.
 
 - **Version:** the same `major.minor.patch` as Android (`.github/scripts/app-version.sh`). The iOS build number
   (`CFBundleVersion`) is this workflow's own run number, so it goes up with every run as App Store Connect requires.
@@ -67,6 +68,32 @@ Never commit `.key`, `.csr`, `.p12`, `.p8` or `GoogleService-Info.plist`.
    first build of each version goes to Beta App Review (usually 1-2 days).
 
 Builds expire after 90 days. Testers need the TestFlight app on their iPhone.
+
+## Build on Codemagic (when GitHub Actions can't run)
+
+`codemagic.yaml` at the repo root does the same build on Codemagic's Macs: 500 free macOS M2 minutes a month on a
+personal account (not a team), so about 15-20 builds. It doesn't use GitHub Actions, so GitHub billing doesn't matter.
+Two workflows, both manual only: **Tarbaho iOS to TestFlight** (`ios-testflight`) and **Tarbaho iOS .ipa (no upload)**
+(`ios-ipa-only`). Codemagic has no .NET, so the build installs the same SDK and workload set `ios.yml` pins, with
+Xcode 26.6: change `WORKLOAD_VERSION` and `xcode` in `codemagic.yaml` together, as in `ios.yml`.
+
+Set up once (steps 1-7 above are still needed; the files are the same ones):
+
+1. Sign up at codemagic.io with a **personal** account and add the repo (GitHub app, or Git URL with a deploy key).
+2. **Team integrations → Developer Portal → Manage keys:** add the App Store Connect API key (step 5) and name it
+   **`Tarbaho`** (the name `codemagic.yaml` asks for).
+3. **codemagic.yaml settings → Code signing identities:** upload the `.p12` (step 3) with its password under iOS
+   certificates, then under iOS provisioning profiles fetch the App Store profile for `com.tarbaho.app` from the
+   Developer Portal (or upload the `.mobileprovision`).
+4. **Environment variables:** a group named **`tarbaho_ios`** with, ticked *Secret*:
+   - `GOOGLE_SERVICE_INFO_PLIST_BASE64`: base64 of `GoogleService-Info.plist` (same as the GitHub secret).
+   - `GH_TOKEN` (optional): a fine-grained GitHub token with read access to this repo's pull requests. Without it the
+     version counts PR titles only (`feat: …`), not their `minor` / `major` labels, so it can come out lower than the
+     Android build's.
+
+Each build: Codemagic → the app → **Start new build** → branch `main` → pick the workflow. The `.ipa` is kept under the
+build's Artifacts. The iOS build number is Codemagic's own build number plus `BUILD_NUMBER_OFFSET` (1000), so it stays
+above the numbers GitHub's builds already used.
 
 ## When it fails
 
