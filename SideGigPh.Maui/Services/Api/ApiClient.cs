@@ -20,9 +20,11 @@ public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl, HttpMessageH
 /// <c>SideGigPh.Contracts.ApiJson</c> types. Every request also names the app build (<c>X-App-Version</c>) and a
 /// failed one is logged with the API build that answered (<c>X-Api-Version</c>), so an error report says which
 /// versions met. Each request also tells <see cref="INetworkStatus"/> whether it got an answer, so a phone whose network
-/// is "connected" but reaches nothing (broken DNS, a captive Wi-Fi) still shows as offline.
+/// is "connected" but reaches nothing (broken DNS, a captive Wi-Fi) still shows as offline; a request that failed only
+/// because the app went to the background on its way (iOS drops a suspended app's connections) or ran out of time
+/// says nothing about the connection.
 /// </summary>
-public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger, INetworkStatus? network = null)
+public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger, INetworkStatus? network = null, AppVisibility? visibility = null)
 {
     private readonly HttpClient _http = CreateHttp(options);
 
@@ -34,6 +36,14 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
 
     /// <summary>A read (GET) is safe to repeat, so one that got no answer goes once more; writes are sent once.</summary>
     public const int ReadTries = 2;
+
+    /// <summary>
+    /// A write the server takes twice without harm (<see cref="SendRepeatableAsync"/>) goes once more when the connection
+    /// dropped before any answer. iOS sends a write on a kept-alive connection the server has already closed after a
+    /// pause (the photo picker, a long form) and, unlike for a read, doesn't try again itself: "The network connection
+    /// was lost", though the internet works.
+    /// </summary>
+    public const int RepeatableWriteTries = 2;
 
     /// <summary>
     /// Sends the request with the sign-in token. The caller disposes the response. A request that gets no answer is
@@ -54,6 +64,28 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
 
             return request;
         }, cancellationToken);
+    }
+
+    /// <summary>
+    /// Sends <paramref name="body"/> as a write the server takes twice without harm (a photo upload: at worst one unused
+    /// file; a job post: the server answers a resend with the post already there), so a connection that dropped before
+    /// any answer gets one more try (<see cref="RepeatableWriteTries"/>), with a fresh copy of the body.
+    /// </summary>
+    public async Task<HttpResponseMessage> SendRepeatableAsync(HttpMethod method, string path, byte[] body, string contentType)
+    {
+        var token = await identity.GetIdTokenAsync();
+        return await SendWithRetryAsync(method, path, logFailure: true, () =>
+        {
+            var content = new ByteArrayContent(body);
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+            var request = new HttpRequestMessage(method, path) { Content = content };
+            if (token is not null)
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+
+            return request;
+        }, CancellationToken.None, repeatable: true);
     }
 
     /// <summary>The JSON answer to a GET, or null for 404. Throws for any other failure.</summary>
@@ -109,19 +141,21 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// </para>
     /// </summary>
     private async Task<HttpResponseMessage> SendWithRetryAsync(HttpMethod method, string path, bool logFailure,
-        Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+        Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken, bool repeatable = false)
     {
+        var timesHidden = visibility?.TimesHidden;
         try
         {
-            var response = await SendTriesAsync(makeRequest, cancellationToken);
+            var response = await SendTriesAsync(makeRequest, cancellationToken, repeatable);
             network?.Answered();
             return response;
         }
         catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            // A request that ran out of time says nothing about the connection (a cold server, a paused database):
-            // only one that couldn't reach the server at all counts the phone as offline.
-            if (NetworkErrors.IsNetwork(ex) && !TimedOut(ex))
+            // A request that ran out of time says nothing about the connection (a cold server, a paused database), nor
+            // one the app's trip to the background broke: only one that couldn't reach the server at all counts the
+            // phone as offline.
+            if (NetworkErrors.IsNetwork(ex) && !TimedOut(ex) && !WentToBackground(timesHidden))
             {
                 network?.NoAnswer();
             }
@@ -136,11 +170,14 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         }
     }
 
+    private bool WentToBackground(int? timesHiddenAtStart) =>
+        visibility is not null && (!visibility.IsVisible || visibility.TimesHidden != timesHiddenAtStart);
+
     private static bool TimedOut(Exception exception)
     {
         for (var e = exception; e is not null; e = e.InnerException)
         {
-            if (e is OperationCanceledException or TimeoutException)
+            if (e is OperationCanceledException or TimeoutException || IsPlatformTimeout(e))
             {
                 return true;
             }
@@ -149,16 +186,34 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         return false;
     }
 
-    private async Task<HttpResponseMessage> SendTriesAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+    // iOS's NSUrlSession reports its own timeout as an NSError (NSURLErrorTimedOut, -1001) inside an
+    // HttpRequestException, not as a TimeoutException.
+    private static bool IsPlatformTimeout(Exception exception) =>
+#if IOS
+        exception is Foundation.NSErrorException { Domain: "NSURLErrorDomain", Code: -1001 };
+#else
+        false;
+#endif
+
+    private async Task<HttpResponseMessage> SendTriesAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken, bool repeatable)
     {
         for (var attempt = 1; ; attempt++)
         {
             var request = makeRequest();
             if (request.Method != HttpMethod.Get)
             {
-                using (request)
+                try
                 {
-                    return await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                    using (request)
+                    {
+                        return await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                    }
+                }
+                catch (Exception ex) when (repeatable && attempt < RepeatableWriteTries && !cancellationToken.IsCancellationRequested
+                    && ex is HttpRequestException { StatusCode: null } && !TimedOut(ex))
+                {
+                    logger.LogWarning("API: the connection dropped on {Method} {Path} ({Reason}); sending once more.", request.Method, request.RequestUri?.OriginalString.Split('?')[0], ex.Message);
+                    continue;
                 }
             }
 
@@ -195,8 +250,14 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// Sends <paramref name="body"/> as JSON with a Content-Length (not streamed/chunked, which the Functions host
     /// may hand over as an empty body). The caller checks the status and disposes the response.
     /// </summary>
-    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type, bool logFailure = true)
+    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type,
+        bool logFailure = true, bool repeatable = false)
     {
+        if (repeatable)
+        {
+            return SendRepeatableAsync(method, path, JsonSerializer.SerializeToUtf8Bytes(body, type), "application/json; charset=utf-8");
+        }
+
         var content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body, type));
         content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
         return SendAsync(method, path, content, logFailure: logFailure);

@@ -148,6 +148,39 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
         }
     }
 
+    /// <summary>
+    /// A flow that leaves the app (the camera, the photo picker) started: kept in the file at once, so if the app never
+    /// comes back from it, the next launch reports it (<see cref="LoadAsync"/>). Ended by <see cref="FlowEnded"/>.
+    /// </summary>
+    public void FlowStarted(string name)
+    {
+        lock (_gate)
+        {
+            _state.OpenFlows.RemoveAll(f => f.Name == name);
+            _state.OpenFlows.Add(new OpenFlow(name, clock.GetUtcNow(), Route));
+        }
+
+        Step($"{name} opened");
+        _ = SaveAsync();
+    }
+
+    /// <summary>The flow <see cref="FlowStarted"/> began came back, however it ended.</summary>
+    public void FlowEnded(string name)
+    {
+        lock (_gate)
+        {
+            if (_state.OpenFlows.RemoveAll(f => f.Name == name) == 0)
+            {
+                return;
+            }
+        }
+
+        ScheduleSave();
+    }
+
+    /// <summary>Source of a report about a flow (<see cref="FlowStarted"/>), e.g. <c>Flow.Camera</c>.</summary>
+    public static string FlowSource(string name) => $"Flow.{name}";
+
     /// <summary>Keeps one problem (scrubbed), or counts it up when the same one is already waiting.</summary>
     public void Record(ErrorKind kind, string source, string message, Exception? exception = null) =>
         RecordText(kind, source, message, exception?.ToString());
@@ -203,7 +236,13 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
         lock (_gate)
         {
             _saveScheduled = false;
-            copy = new DiagnosticsState { InstallId = _state.InstallId ??= Guid.NewGuid().ToString(), SendReports = _state.SendReports, Reports = [.. _state.Reports] };
+            copy = new DiagnosticsState
+            {
+                InstallId = _state.InstallId ??= Guid.NewGuid().ToString(),
+                SendReports = _state.SendReports,
+                Reports = [.. _state.Reports],
+                OpenFlows = [.. _state.OpenFlows],
+            };
         }
 
         try
@@ -270,10 +309,14 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
         }
 
         var oldest = clock.GetUtcNow() - KeepFor;
+        List<OpenFlow> leftOpen;
         lock (_gate)
         {
             var recorded = _state.Reports;
+            var openNow = _state.OpenFlows;
+            leftOpen = saved?.OpenFlows ?? [];
             _state = saved ?? new DiagnosticsState();
+            _state.OpenFlows = openNow; // the last run's are reported below; this run's stay
             _state.InstallId ??= Guid.NewGuid().ToString();
             _state.Reports = [.. (_state.Reports ?? []).Where(r => r.LastAt >= oldest)];
             if (!_state.SendReports)
@@ -284,6 +327,13 @@ public sealed class ErrorLog(IErrorLogStore store, TimeProvider clock)
             {
                 recorded.ForEach(Merge);
             }
+        }
+
+        // A flow the last run never came back from: the app closed (or was closed) while the camera or picker was open.
+        foreach (var flow in leftOpen)
+        {
+            Add(ErrorKind.Error, FlowSource(flow.Name), $"The app closed while the {flow.Name.ToLowerInvariant()} was open.",
+                flow.Route is null ? null : $"Opened on {flow.Route}", flow.StartedAt, withScreen: false);
         }
 
         await SaveAsync();

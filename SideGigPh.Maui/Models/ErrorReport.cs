@@ -50,4 +50,13 @@ public sealed class DiagnosticsState
     public bool SendReports { get; set; } = true;
 
     public List<ErrorReport> Reports { get; set; } = [];
+
+    /// <summary>
+    /// Flows open right now (the camera, the photo picker), saved as they start: one still here at the next launch means
+    /// the app closed while it was open (<c>FlowWatch</c>).
+    /// </summary>
+    public List<OpenFlow> OpenFlows { get; set; } = [];
 }
+
+/// <summary>A flow that started and hasn't ended yet, e.g. <c>Camera</c>, with the screen it started on.</summary>
+public sealed record OpenFlow(string Name, DateTimeOffset StartedAt, string? Route);

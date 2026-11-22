@@ -61,6 +61,59 @@ public class DroppedConnectionTests
     }
 
     [Fact]
+    public async Task RepeatableWrite_WhenTheConnectionDrops_GoesOnceMoreWithTheSameBody()
+    {
+        // iOS sends a write on a kept-alive connection the server already closed (after the photo picker, a long form)
+        // and doesn't try again itself; a photo upload or a job post is safe to send twice.
+        var handler = new FailsFirst(new HttpRequestException("The network connection was lost."));
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/", handler), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
+
+        using var response = await api.SendRepeatableAsync(HttpMethod.Post, "photos", [1, 2, 3], "image/jpeg");
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        handler.Calls.Should().Be(ApiClient.RepeatableWriteTries);
+        handler.Bodies.Should().HaveCount(2).And.AllSatisfy(body => body.Should().Equal(1, 2, 3));
+        handler.ContentTypes.Should().AllBe("image/jpeg");
+    }
+
+    [Fact]
+    public async Task RepeatableJsonWrite_WhenTheConnectionDrops_GoesOnceMore()
+    {
+        var handler = new FailsFirst(new WebException("Socket closed"));
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/", handler), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
+
+        using var response = await api.SendJsonAsync(HttpMethod.Post, "job-posts", new SideGigPh.Contracts.PhotoDto("id", "url"), SideGigPh.Contracts.ApiJson.Default.PhotoDto, repeatable: true);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        handler.Calls.Should().Be(2);
+        handler.ContentTypes.Should().AllBe("application/json");
+    }
+
+    [Fact]
+    public async Task RepeatableWrite_ThatDropsTwice_FailsAsNoAnswer()
+    {
+        var handler = new Counting(new HttpRequestException("The network connection was lost."));
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/", handler), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
+
+        var send = () => api.SendRepeatableAsync(HttpMethod.Post, "photos", [1], "image/jpeg");
+
+        (await send.Should().ThrowAsync<HttpRequestException>()).Which.StatusCode.Should().BeNull();
+        handler.Calls.Should().Be(ApiClient.RepeatableWriteTries);
+    }
+
+    [Fact]
+    public async Task RepeatableWrite_ThatTimedOut_IsNotSentAgain()
+    {
+        var handler = new Counting(new TaskCanceledException("timed out", new TimeoutException()));
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/", handler), new FakeIdentity(null), NullLogger<ApiClient>.Instance);
+
+        var send = () => api.SendRepeatableAsync(HttpMethod.Post, "photos", [1], "image/jpeg");
+
+        await send.Should().ThrowAsync<HttpRequestException>();
+        handler.Calls.Should().Be(1, "a slow server may still be working on it");
+    }
+
+    [Fact]
     public async Task Read_ThatNeverAnswers_FailsAsNoAnswerInsteadOfACancel()
     {
         var api = Client(new TaskCanceledException("timed out"));
@@ -82,7 +135,30 @@ public class DroppedConnectionTests
     {
         public int Calls { get; private set; }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-            ++Calls == 1 ? throw failure : Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK));
+        public List<byte[]> Bodies { get; } = [];
+
+        public List<string?> ContentTypes { get; } = [];
+
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            if (request.Content is not null)
+            {
+                Bodies.Add(await request.Content.ReadAsByteArrayAsync(cancellationToken));
+                ContentTypes.Add(request.Content.Headers.ContentType?.MediaType);
+            }
+
+            return ++Calls == 1 ? throw failure : new HttpResponseMessage(HttpStatusCode.OK);
+        }
+    }
+
+    private sealed class Counting(Exception failure) : HttpMessageHandler
+    {
+        public int Calls { get; private set; }
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            Calls++;
+            throw failure;
+        }
     }
 }

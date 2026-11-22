@@ -24,14 +24,20 @@ The tests run here, never on GitHub.
 2. **Start the QA agent** with the Agent tool (`subagent_type: general-purpose`, fresh, not a fork, so it reads the
    PR with new eyes). Fill in the brief below: PR number, branch, worktree/folder, and one line on what the PR is
    for. Several PRs: one agent each, in parallel.
-3. **While it runs**, don't touch the PR's branch.
-4. **Read its report critically.** Check each finding against the code yourself before acting; drop what you can't
+3. **A device is required when the PR changes the app** (SideGigPh.Maui, MobileAppTheme*, .razor, csproj). Before
+   starting the agent, run `adb devices`. If it lists nothing, ask the owner to start the emulator from Visual Studio
+   or plug in a phone with USB debugging (never start an emulator yourself), and start QA once one is listed. QA that
+   could not run the app on a device is **not done**: say "QA not done: no device" on the PR and to the owner, never
+   "no problems found". Reading code and unit tests miss what only a phone shows (the camera, a dropped connection,
+   "you're offline" while online, a Release-only crash), and those reached testers on 22 Nov 2026.
+4. **While it runs**, don't touch the PR's branch.
+5. **Read its report critically.** Check each finding against the code yourself before acting; drop what you can't
    confirm. A finding is a fact with `path:line` and a failure scenario, not a worry.
-5. **Fix confirmed problems** on the PR's branch (root cause, never weaken a test), push, and run a short second
+6. **Fix confirmed problems** on the PR's branch (root cause, never weaken a test), push, and run a short second
    QA pass on the fix only.
-6. **Post one QA comment** on the PR (`gh pr comment <n> --body-file -` with a quoted heredoc), shape below. On a
+7. **Post one QA comment** on the PR (`gh pr comment <n> --body-file -` with a quoted heredoc), shape below. On a
    re-run, post a new short comment ("QA after fixes"), don't edit the old one.
-7. **Tell the owner** in plain words: verdict, what was fixed, and exactly what was **not** checked (e.g. iOS not
+8. **Tell the owner** in plain words: verdict, what was fixed, and exactly what was **not** checked (e.g. iOS not
    run on a device). Never say "works on iOS" when only the code was read.
 
 ## The QA agent brief (copy, fill the <…>)
@@ -74,15 +80,22 @@ Check in this order and report in these sections:
      touches nothing the tests see; say which files made that call.
    - Compile-check: `bash .claude/skills/build-check/scripts/build-check.sh` (Android app + API; run in the
      background, it takes minutes) when app or API code changed. Never build in the repo folder itself.
-   - Android on a device, only when the PR changes the app (SideGigPh.Maui, MobileAppTheme*, .razor, csproj)
-     AND `adb devices` already lists an emulator or phone: install from the build-check copy and walk the
-     core flows the PR touches. build-check's Debug build can't be installed as it is (Fast Deployment "No
+   - Android on a device, REQUIRED when the PR changes the app (SideGigPh.Maui, MobileAppTheme*, .razor, csproj):
+     `adb devices` must list an emulator or phone (the main session made sure). Install from the build-check copy
+     and walk, tapping through the real screens: the flows the PR touches, then onboarding as a worker through
+     the selfie (take one with the camera, and once with "Choose from your photos") and Ready, a Seeker search,
+     a job post with a photo, an offer, and a chat message. Leave the app in the background for 2+ minutes (open
+     the camera or Home) and come back, then post or upload: a write after a pause must not say "offline".
+     Watch for "you're offline" or "No internet" on a working connection: that is a bug, never a pass. build-check's Debug build can't be installed as it is (Fast Deployment "No
      assemblies found" crash at launch): in $BUILD_COPY run `dotnet build -t:Install -f net10.0-android -c Debug
      -p:EmbedAssembliesIntoApk=true "-p:AdbTarget=-s <device>"` on SideGigPh.Maui (background, minutes; the
      build-check script shows how it reaches the copy through a short drive alias), then launch it. Never
-     start an emulator or adb server yourself; if none is
-     running, write "Android not run on a device: no emulator running".
-     After the walk: `adb logcat -d | grep " E SideGigPh"` for errors.
+     start an emulator or adb server yourself; if none is running, stop and report "QA not done: no device".
+     When the PR touches Release-only settings (csproj PropertyGroups for Release, R8/proguard, a new Android
+     library), also install a Release APK (`dotnet publish -f net10.0-android -c Release` in $BUILD_COPY, then
+     `adb install -r` the signed APK) and walk sign-in, the selfie and a post on it: R8 breaks only Release builds.
+     After the walk: `adb logcat -d | grep -E " E (SideGigPh|AndroidRuntime|chromium)"` for errors, and list every
+     error the app logged (each one is an error report testers would send).
    - iOS can't be built or run on this Windows PC. Check it by reading: everything under
      SideGigPh.Maui/Platforms/iOS (Info.plist, Entitlements.plist, AppDelegate, SceneDelegate), every
      `#if ANDROID` / `#if IOS` the PR adds or touches (does iOS get a working path, not a silent no-op that
@@ -111,7 +124,7 @@ One line: what the PR changes and the verdict ("No problems found" / "N problems
 ### Core features
 Onboarding: … · Search: … · Job posts and offers: … · Chat: …
 ### Android
-Tests: N passed · Build: OK · Device: walked <flows> / not run (why)
+Tests: N passed · Build: OK · Device: walked <flows> on <device> (Debug / Release) · or "QA not done: no device"
 ### iOS
 Code read (<what>) · not built or run on this PC
 ### Not checked

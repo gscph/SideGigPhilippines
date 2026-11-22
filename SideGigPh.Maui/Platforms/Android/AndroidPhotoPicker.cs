@@ -63,9 +63,18 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
             var taken = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             _pending = taken;
             await MainThread.InvokeOnMainThreadAsync(() => activity.StartActivityForResult(intent, SelfieRequestCode));
-            if (!await taken.Task || !file.Exists() || file.Length() == 0)
+            if (!await taken.Task)
             {
+                logger.LogInformation("The camera closed without a photo.");
                 return PhotoPick.Cancelled;
+            }
+
+            if (!file.Exists() || file.Length() == 0)
+            {
+                // The camera app said it took the photo but didn't save it where it was asked: looks like nothing
+                // happened to the person, so it must reach the error reports.
+                logger.LogError("The camera said OK but saved no photo (file {State}).", file.Exists() ? "empty" : "missing");
+                return PhotoPick.Failed;
             }
 
             try

@@ -33,9 +33,17 @@ namespace SideGigPh.Maui
             // --- MobileAppTheme skeleton: MudBlazor, brand/theme, AppText, and the on-device
             // adapters for IContactLauncher, IPhotoPicker and IPhotoStore ---
             builder.Services.AddMobileAppTheme(AppTheme.Brand);
+            // The camera and photo picker leave the app: watched, so one that never comes back is reported (FlowWatch).
 #if ANDROID
             // The selfie opens on the front camera (the skeleton's MAUI camera call can't choose the lens).
-            builder.Services.AddSingleton<IPhotoPicker, SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker>();
+            builder.Services.AddSingleton<SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker>();
+            builder.Services.AddSingleton<IPhotoPicker>(services => new WatchedPhotoPicker(
+                services.GetRequiredService<SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker>(),
+                services.GetRequiredService<FlowWatch>(), services.GetRequiredService<ILogger<WatchedPhotoPicker>>()));
+#else
+            builder.Services.AddSingleton<IPhotoPicker>(services => new WatchedPhotoPicker(
+                services.GetRequiredService<MobileAppTheme.Services.Local.DevicePhotoPicker>(),
+                services.GetRequiredService<FlowWatch>(), services.GetRequiredService<ILogger<WatchedPhotoPicker>>()));
 #endif
 
             // --- Ports & Adapters (see CLAUDE.md) ---
@@ -97,6 +105,7 @@ namespace SideGigPh.Maui
                 $"{DeviceInfo.Manufacturer} {DeviceInfo.Model}"));
             builder.Services.AddSingleton<IErrorLogStore, FileErrorLogStore>();
             builder.Services.AddSingleton<ErrorLog>();
+            builder.Services.AddSingleton<FlowWatch>();
             builder.Services.AddSingleton<ErrorReportSender>();
             builder.Services.AddSingleton<ErrorReporting>();
             builder.Services.AddSingleton<ILoggerProvider>(services => new ErrorLogLoggerProvider(services.GetRequiredService<ErrorLog>()));
