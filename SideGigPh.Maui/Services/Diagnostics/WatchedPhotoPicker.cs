@@ -41,6 +41,17 @@ public sealed class WatchedPhotoPicker(IPhotoPicker inner, FlowWatch watch, ILog
 
     public void OpenAppSettings() => inner.OpenAppSettings();
 
+    public async Task<PhotoPick?> RecoverSelfieAsync()
+    {
+        var pick = await inner.RecoverSelfieAsync();
+        if (pick is not null)
+        {
+            logger.LogInformation("{Flow}: a selfie taken while the app was closed, {Status}.", CameraFlow, pick.Status);
+        }
+
+        return pick;
+    }
+
     private async Task<PhotoPick> WatchAsync(string flow, Func<Task<PhotoPick>> open)
     {
         using (watch.Start(flow, StuckAfter))

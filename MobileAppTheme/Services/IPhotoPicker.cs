@@ -17,6 +17,13 @@ public interface IPhotoPicker
 
     /// <summary>Opens this app's page in the phone's Settings, where a denied permission can be turned on.</summary>
     void OpenAppSettings();
+
+    /// <summary>
+    /// The selfie the camera took while the phone closed this app (a phone short of memory closes an app in the
+    /// background, and the camera is another app): saved where it was asked, but nobody was waiting for it. Picked once,
+    /// resized like a taken one; null when there is none, or where the camera never runs as another app.
+    /// </summary>
+    Task<PhotoPick?> RecoverSelfieAsync() => Task.FromResult<PhotoPick?>(null);
 }
 
 /// <summary>What a <see cref="IPhotoPicker.PickAsync"/> call ended with.</summary>

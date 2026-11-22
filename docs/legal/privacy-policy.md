@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 21, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 22, 2026
 
 ---
 
@@ -252,7 +252,7 @@ anything linking them to you.
 
 | Permission | When | Why | If you say no |
 |---|---|---|---|
-| **Camera** | Skilled Worker setup, when you take your selfie | Take your profile photo | Pick a photo from your gallery instead |
+| **Camera** (iPhone; on Android your camera app takes the photo, so no permission is asked) | Skilled Worker setup, when you take your selfie | Take your profile photo | Pick a photo from your gallery instead |
 | **Photos / storage** (older Android only) | When you add photos | Choose work photos | You can't add photos from the gallery |
 | **Location** (approximate and precise) | Only when you tap **Use my location**, **Send my location** or **Show how far I am**, while the App is open; never in the background | Set a Skilled Worker's base point or the place of a post; send your exact place to the Skilled Worker you picked; show a Skilled Worker how far that place is | We use the middle of your town instead; the Skilled Worker asks for directions in the chat |
 | **Notifications** | After you publish a listing or send your first message, never at first launch | Tell you about new messages | You won't be alerted; messages still arrive in the Inbox |

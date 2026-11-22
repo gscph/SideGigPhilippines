@@ -13,11 +13,22 @@ namespace SideGigPh.Maui.Platforms.Android;
 
 /// <summary>
 /// The skeleton's <see cref="DevicePhotoPicker"/> with a selfie that opens on the front camera. MAUI's camera call can't
-/// choose the lens, so this asks for the camera permission, then starts the phone's camera app itself with the
-/// front-camera hints most camera apps (Samsung's included) read; one that ignores them opens its last-used lens and
-/// the person flips it. The photo comes back upright, at most <see cref="MaxSide"/> pixels, as a JPEG, like a picked
-/// one. Needs <c>MainActivity.OnActivityResult</c> to call <see cref="HandleActivityResult"/>, the CAMERA permission and
-/// the IMAGE_CAPTURE query in the manifest; the file goes through MAUI's own file provider (its cache path).
+/// choose the lens, so this starts the phone's camera app itself with the front-camera hints most camera apps (Samsung's
+/// included) read; one that ignores them opens its last-used lens and the person flips it. The photo comes back upright,
+/// at most <see cref="MaxSide"/> pixels, as a JPEG, like a picked one. Needs <c>MainActivity.OnActivityResult</c> to call
+/// <see cref="HandleActivityResult"/> and the IMAGE_CAPTURE query in the manifest; the file goes through MAUI's own file
+/// provider (its cache path).
+/// <para>
+/// The camera app takes the photo, so this app asks for no camera permission (the manifest has none: with CAMERA
+/// declared, Android would refuse the camera app until it was granted). That also matters because Android closes an app
+/// holding an "Only this time" permission about a minute after it goes to the background, which is while the person
+/// poses: the selfie came back to a fresh app and was lost (22 Nov 2026).
+/// </para>
+/// <para>
+/// A phone short of memory can still close the app while the camera is open. The photo's path is kept in
+/// <see cref="Preferences"/> before the camera opens, so the selfie question picks the photo up when the app starts
+/// again (<see cref="RecoverSelfieAsync"/>).
+/// </para>
 /// </summary>
 public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<AndroidPhotoPicker> logger) : IPhotoPicker
 {
@@ -29,6 +40,12 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
 
     private static TaskCompletionSource<bool>? _pending;
 
+    // Where the camera was asked to save the selfie, kept until it came back (see RecoverSelfieAsync).
+    private const string PendingSelfieKey = "selfie.pendingPath";
+
+    /// <summary>A selfie older than this when the app comes back is not picked up (the person moved on).</summary>
+    private static readonly TimeSpan RecoverFor = TimeSpan.FromHours(1);
+
     public Task<PhotoPick> PickAsync(int maxCount) => device.PickAsync(maxCount);
 
     public void OpenAppSettings() => device.OpenAppSettings();
@@ -37,17 +54,6 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
     {
         try
         {
-            var status = await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                var current = await Permissions.CheckStatusAsync<Permissions.Camera>();
-                return current == PermissionStatus.Granted ? current : await Permissions.RequestAsync<Permissions.Camera>();
-            });
-            if (status != PermissionStatus.Granted)
-            {
-                logger.LogWarning("Camera permission denied.");
-                return PhotoPick.CameraDenied;
-            }
-
             var activity = Platform.CurrentActivity ?? throw new InvalidOperationException("No activity to open the camera from.");
             var context = Application.Context;
             var file = new File(context.CacheDir, $"selfie-{Guid.NewGuid():N}.jpg");
@@ -62,8 +68,11 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
 
             var taken = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             _pending = taken;
+            Preferences.Default.Set(PendingSelfieKey, file.AbsolutePath);
             await MainThread.InvokeOnMainThreadAsync(() => activity.StartActivityForResult(intent, SelfieRequestCode));
-            if (!await taken.Task)
+            var ok = await taken.Task;
+            Preferences.Default.Remove(PendingSelfieKey);
+            if (!ok)
             {
                 logger.LogInformation("The camera closed without a photo.");
                 return PhotoPick.Cancelled;
@@ -95,6 +104,41 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
         {
             logger.LogError(ex, "Could not take a selfie.");
             return PhotoPick.Failed;
+        }
+    }
+
+    public async Task<PhotoPick?> RecoverSelfieAsync()
+    {
+        try
+        {
+            var path = Preferences.Default.Get<string?>(PendingSelfieKey, null);
+            if (path is null || _pending is not null)
+            {
+                return null; // none waiting, or the camera is open now and its answer will come the usual way
+            }
+
+            Preferences.Default.Remove(PendingSelfieKey);
+            var file = new File(path);
+            try
+            {
+                var age = DateTimeOffset.UtcNow - DateTimeOffset.FromUnixTimeMilliseconds(file.LastModified());
+                if (!file.Exists() || file.Length() == 0 || age > RecoverFor)
+                {
+                    return null;
+                }
+
+                logger.LogWarning("The app was closed while the camera was open; picking up the selfie it took.");
+                return new PhotoPick(PhotoPickStatus.Picked, [await Task.Run(() => Shrink(path))]);
+            }
+            finally
+            {
+                file.Delete();
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Could not pick up the selfie taken while the app was closed.");
+            return null;
         }
     }
 

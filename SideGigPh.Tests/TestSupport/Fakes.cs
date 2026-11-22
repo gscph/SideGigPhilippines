@@ -194,6 +194,16 @@ public sealed class FakePhotoPicker : IPhotoPicker
         return Task.FromResult(Next);
     }
 
+    /// <summary>A selfie the camera took while the app was closed, handed back once by <see cref="RecoverSelfieAsync"/>.</summary>
+    public PhotoPick? Recovered { get; set; }
+
+    public Task<PhotoPick?> RecoverSelfieAsync()
+    {
+        var pick = Recovered;
+        Recovered = null;
+        return Task.FromResult(pick);
+    }
+
     /// <summary>How many times the camera was opened for a selfie.</summary>
     public int Selfies { get; private set; }
 

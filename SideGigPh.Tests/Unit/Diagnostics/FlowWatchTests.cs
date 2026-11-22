@@ -89,6 +89,22 @@ public class FlowWatchTests
     }
 
     [Fact]
+    public async Task ASelfieTakenWhileTheAppWasClosed_IsHandedBackOnce_AndNoted()
+    {
+        var log = NewLog();
+        await log.LoadAsync();
+        var camera = new FakePhotoPicker();
+        camera.Recovered = new PhotoPick(PhotoPickStatus.Picked, [[1, 2]]);
+        var picker = Watched(camera, log, _clock);
+
+        (await picker.RecoverSelfieAsync())!.Status.Should().Be(PhotoPickStatus.Picked);
+        (await picker.RecoverSelfieAsync()).Should().BeNull();
+
+        log.Record(ErrorKind.Error, "Test", "next problem");
+        log.Queued.Single().Trail.Should().Contain("a selfie taken while the app was closed");
+    }
+
+    [Fact]
     public async Task APhotoInBetween_StartsTheCountAgain()
     {
         var log = NewLog();
