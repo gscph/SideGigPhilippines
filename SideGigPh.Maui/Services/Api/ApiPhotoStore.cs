@@ -21,7 +21,7 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
         try
         {
             // A resend after a dropped connection at worst leaves one unused file.
-            using var response = await api.SendRepeatableAsync(HttpMethod.Post, "photos", bytes, "image/jpeg");
+            using var response = await api.SendAsync(HttpMethod.Post, "photos", bytes, "image/jpeg");
             await api.EnsureWrittenAsync(response, "upload a photo");
             var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto)
                 ?? throw new PhotoStoreException("The photo server sent an empty answer.", PhotoStoreFailure.ServerError);

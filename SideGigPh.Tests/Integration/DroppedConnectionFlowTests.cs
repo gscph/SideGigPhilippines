@@ -30,6 +30,7 @@ public class DroppedConnectionFlowTests(ApiTestHost api)
     {
         var worker = new TestPhone(api, "Selfie", state: WorkerInTheInterview());
         await worker.Pro.LoadInterviewDraftAsync();
+        worker.Connection.LoseFirstAnswers = false; // only the drop before the server, here
         worker.Connection.DropWrites = 1;
 
         var result = await worker.Pro.SetProfilePhotoAsync(new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]));
@@ -45,6 +46,7 @@ public class DroppedConnectionFlowTests(ApiTestHost api)
     {
         var household = await TestPhone.SeekerAsync(api, "Poster");
         var tag = $"zq{Guid.NewGuid():N}"[..10];
+        household.Connection.LoseFirstAnswers = false;
         household.Connection.DropWrites = 1;
 
         var board = household.Get<JobBoard>();

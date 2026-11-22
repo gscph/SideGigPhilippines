@@ -12,14 +12,14 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
 
     public async Task<JobPost> AddAsync(JobPostDraft draft)
     {
-        using var response = await api.SendJsonAsync(HttpMethod.Post, "job-posts", draft.ToRequest(), ApiJson.Default.NewJobPostRequest, repeatable: true);
+        using var response = await api.SendJsonAsync(HttpMethod.Post, "job-posts", draft.ToRequest(), ApiJson.Default.NewJobPostRequest);
         await api.EnsureWrittenAsync(response, "post the work needed");
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.ToModel();
     }
 
     public async Task<JobPost> UpdateAsync(long postId, JobPostDraft draft)
     {
-        using var response = await api.SendJsonAsync(HttpMethod.Put, $"job-posts/{postId}", draft.ToRequest(), ApiJson.Default.NewJobPostRequest, repeatable: true);
+        using var response = await api.SendJsonAsync(HttpMethod.Put, $"job-posts/{postId}", draft.ToRequest(), ApiJson.Default.NewJobPostRequest);
         await api.EnsureWrittenAsync(response, "change the job post");
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.JobPostDto))!.ToModel();
     }

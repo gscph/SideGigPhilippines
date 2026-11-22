@@ -38,54 +38,66 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     public const int ReadTries = 2;
 
     /// <summary>
-    /// A write the server takes twice without harm (<see cref="SendRepeatableAsync"/>) goes once more when the connection
-    /// dropped before any answer. iOS sends a write on a kept-alive connection the server has already closed after a
-    /// pause (the photo picker, a long form) and, unlike for a read, doesn't try again itself: "The network connection
-    /// was lost", though the internet works.
+    /// <b>Every write goes once more when the connection dropped before any answer</b>, unless its caller says it isn't
+    /// repeatable (a new feedback post, the error reports: a repeat would make a second one). Android and iOS send a
+    /// write on a kept-alive connection the server or the mobile network closed during a pause (the camera, the photo
+    /// picker, a long form, a minute in another app) and, unlike for a read, don't try again themselves: "unexpected end
+    /// of stream" / "The network connection was lost", though the internet works, and the person saw "No internet".
+    /// So the server takes every repeatable write twice without harm: PUTs and DELETEs set a state, a chat message
+    /// carries its own id, an offer is one per worker per post, a pick or a cancel already done answers as done, a
+    /// second badge proof answers "already sent". The integration tests lose the answer to every write's first try
+    /// (<c>DroppingConnection.LoseFirstAnswers</c>), so a new write that isn't safe twice fails there, not on a phone.
     /// </summary>
-    public const int RepeatableWriteTries = 2;
+    public const int WriteTries = 2;
+
+    private static readonly HttpRequestOptionsKey<bool> RepeatedKey = new("tarbaho.repeated");
 
     /// <summary>
-    /// Sends the request with the sign-in token. The caller disposes the response. A request that gets no answer is
-    /// logged here (so it becomes an error report), unless <paramref name="logFailure"/> is false: only the error-report
-    /// send itself passes that, or a failed send would record a report about sending reports.
+    /// Whether <paramref name="response"/> answers a write sent once more (<see cref="WriteTries"/>): the first may have
+    /// gone through, so a refusal like "already sent" can be the first one's doing.
     /// </summary>
-    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null,
-        CancellationToken cancellationToken = default, bool logFailure = true)
+    public static bool WasRepeated(HttpResponseMessage response) =>
+        response.RequestMessage?.Options.TryGetValue(RepeatedKey, out var repeated) == true && repeated;
+
+    /// <summary>
+    /// Sends a request with no body, with the sign-in token. The caller disposes the response. A write goes once more
+    /// when the connection dropped before any answer (<see cref="WriteTries"/>). A request that gets no answer is logged
+    /// here (so it becomes an error report).
+    /// </summary>
+    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, CancellationToken cancellationToken = default)
+    {
+        var token = await identity.GetIdTokenAsync();
+        return await SendWithRetryAsync(method, path, logFailure: true, () => NewRequest(method, path, token, null), cancellationToken, repeatable: true);
+    }
+
+    /// <summary>
+    /// Sends <paramref name="body"/> (with a Content-Length, never streamed: the Functions host may hand a chunked body
+    /// over empty) and the sign-in token. A write goes once more, with a fresh copy of the body, when the connection
+    /// dropped before any answer (<see cref="WriteTries"/>), unless <paramref name="repeatable"/> is false. A request
+    /// that gets no answer is logged here (so it becomes an error report), unless <paramref name="logFailure"/> is false:
+    /// only the error-report send itself passes that, or a failed send would record a report about sending reports.
+    /// </summary>
+    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, byte[] body, string contentType,
+        bool logFailure = true, bool repeatable = true)
     {
         var token = await identity.GetIdTokenAsync();
         return await SendWithRetryAsync(method, path, logFailure, () =>
         {
-            var request = new HttpRequestMessage(method, path) { Content = content };
-            if (token is not null)
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
-
-            return request;
-        }, cancellationToken);
-    }
-
-    /// <summary>
-    /// Sends <paramref name="body"/> as a write the server takes twice without harm (a photo upload: at worst one unused
-    /// file; a job post: the server answers a resend with the post already there), so a connection that dropped before
-    /// any answer gets one more try (<see cref="RepeatableWriteTries"/>), with a fresh copy of the body.
-    /// </summary>
-    public async Task<HttpResponseMessage> SendRepeatableAsync(HttpMethod method, string path, byte[] body, string contentType)
-    {
-        var token = await identity.GetIdTokenAsync();
-        return await SendWithRetryAsync(method, path, logFailure: true, () =>
-        {
             var content = new ByteArrayContent(body);
             content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
-            var request = new HttpRequestMessage(method, path) { Content = content };
-            if (token is not null)
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
+            return NewRequest(method, path, token, content);
+        }, CancellationToken.None, repeatable);
+    }
 
-            return request;
-        }, CancellationToken.None, repeatable: true);
+    private static HttpRequestMessage NewRequest(HttpMethod method, string path, string? token, HttpContent? content)
+    {
+        var request = new HttpRequestMessage(method, path) { Content = content };
+        if (token is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        return request;
     }
 
     /// <summary>The JSON answer to a GET, or null for 404. Throws for any other failure.</summary>
@@ -206,10 +218,17 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
                 {
                     using (request)
                     {
-                        return await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                        var response = await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                        if (attempt > 1)
+                        {
+                            request.Options.Set(RepeatedKey, true);
+                            response.RequestMessage = request;
+                        }
+
+                        return response;
                     }
                 }
-                catch (Exception ex) when (repeatable && attempt < RepeatableWriteTries && !cancellationToken.IsCancellationRequested
+                catch (Exception ex) when (repeatable && attempt < WriteTries && !cancellationToken.IsCancellationRequested
                     && ex is HttpRequestException { StatusCode: null } && !TimedOut(ex))
                 {
                     logger.LogWarning("API: the connection dropped on {Method} {Path} ({Reason}); sending once more.", request.Method, request.RequestUri?.OriginalString.Split('?')[0], ex.Message);
@@ -247,21 +266,12 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     }
 
     /// <summary>
-    /// Sends <paramref name="body"/> as JSON with a Content-Length (not streamed/chunked, which the Functions host
-    /// may hand over as an empty body). The caller checks the status and disposes the response.
+    /// Sends <paramref name="body"/> as JSON (see the byte <see cref="SendAsync(HttpMethod, string, byte[], string, bool, bool)"/>).
+    /// The caller checks the status and disposes the response.
     /// </summary>
     public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type,
-        bool logFailure = true, bool repeatable = false)
-    {
-        if (repeatable)
-        {
-            return SendRepeatableAsync(method, path, JsonSerializer.SerializeToUtf8Bytes(body, type), "application/json; charset=utf-8");
-        }
-
-        var content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body, type));
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
-        return SendAsync(method, path, content, logFailure: logFailure);
-    }
+        bool logFailure = true, bool repeatable = true) =>
+        SendAsync(method, path, JsonSerializer.SerializeToUtf8Bytes(body, type), "application/json; charset=utf-8", logFailure, repeatable);
 
     /// <summary>
     /// A read that can't reach the API (offline, server error) shows as "nothing there": the screens already have

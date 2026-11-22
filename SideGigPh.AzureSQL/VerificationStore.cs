@@ -179,6 +179,9 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         return blob;
     }
 
+    /// <summary>How long after a decision the same decision sent again answers as decided instead of "not found".</summary>
+    public static readonly TimeSpan RepeatWindow = TimeSpan.FromMinutes(2);
+
     /// <summary>
     /// The operator approves or rejects a waiting request. The file's name and everything read from it are cleared in
     /// the same transaction (logged as "deleted"); the caller deletes the file named in the answer. Null when the
@@ -189,12 +192,19 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         var decided = await db.InTransactionAsync(async ct =>
         {
             var row = await db.WorkerVerifications.FirstOrDefaultAsync(v => v.Id == id && v.Status == VerificationStatuses.Pending, ct);
+            var now = DateTimeOffset.UtcNow;
             if (row is null)
             {
-                return null;
+                // The phone sends a write once more when its answer was lost on the way (ApiClient.WriteTries): the
+                // same operator's same decision a moment ago answers as decided, with nothing left to delete.
+                var since = now - RepeatWindow;
+                var status = decision.Approve ? VerificationStatuses.Approved : VerificationStatuses.Rejected;
+                return await db.WorkerVerifications.AsNoTracking()
+                    .Where(v => v.Id == id && v.Status == status && v.DecidedBy == adminUid && v.DecidedAt >= since)
+                    .Select(v => new Decided(v.Uid, null))
+                    .FirstOrDefaultAsync(ct);
             }
 
-            var now = DateTimeOffset.UtcNow;
             var blob = row.DocumentBlob;
             row.Status = decision.Approve ? VerificationStatuses.Approved : VerificationStatuses.Rejected;
             row.RejectReason = decision.Approve ? null : StoreText.Limit(decision.Reason, MaxRejectReason);

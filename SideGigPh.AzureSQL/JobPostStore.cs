@@ -17,6 +17,9 @@ public enum OfferOutcome
 {
     Sent,
 
+    /// <summary>The worker's offer was already this price and note (a repeat whose answer was lost): nothing changed.</summary>
+    Unchanged,
+
     /// <summary>The post isn't open, is the worker's own, isn't their trade, or one of the two blocked the other.</summary>
     NotFound,
 
@@ -298,6 +301,12 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         }
 
         var note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim();
+        if (await db.JobOffers.AnyAsync(o => o.PostId == postId && o.ProUid == uid && o.Status == JobOfferStatuses.Sent
+                                             && o.PricePesos == request.PricePesos && o.Note == note, cancellationToken))
+        {
+            return OfferOutcome.Unchanged;
+        }
+
         var now = DateTimeOffset.UtcNow;
         var changed = await db.JobOffers.Where(o => o.PostId == postId && o.ProUid == uid && o.Status != JobOfferStatuses.Picked)
             .ExecuteUpdateAsync(set => set
@@ -391,7 +400,10 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
                 .ExecuteUpdateAsync(set => set.SetProperty(p => p.Status, JobPostStatuses.Closed).SetProperty(p => p.ClosedAt, now), ct);
             if (closed == 0)
             {
-                return false;
+                // The phone sends a pick once more when the answer was lost on the way (ApiClient.WriteTries): one that
+                // already went through answers as picked.
+                return await db.JobOffers.AnyAsync(o => o.Id == offerId && o.PostId == postId && o.Status == JobOfferStatuses.Picked
+                                                        && db.JobPosts.Any(p => p.Id == postId && p.SeekerUid == uid), ct);
             }
 
             await db.JobOffers.Where(o => o.Id == offerId)
