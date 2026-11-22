@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging.Abstractions;
+using MobileAppTheme.Services.Local;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Api;
@@ -28,6 +29,7 @@ public sealed class TestPhone
         Identity = new FakeIdentity(new AuthUser { Uid = Uid, DisplayName = name, PhoneNumber = PhoneNumber });
         Identity.TokenFor = user => api.Tokens.For(user.Uid, user.PhoneNumber);
         Store = new FakeOnboardingStore(state ?? new OnboardingState());
+        Connection = new DroppingConnection(api.Server.CreateHandler());
 
         var services = new ServiceCollection();
         services.AddLogging();
@@ -37,8 +39,9 @@ public sealed class TestPhone
         services.AddSingleton<IContactLauncher>(Dialer);
         services.AddSingleton<IPushNotifications>(Push);
         services.AddSingleton<ChatAlerts>();
+        services.AddSingleton<INetworkStatus>(Network);
         services.AddSingleton<AppText>();
-        services.AddSideGigPhApi(new ApiOptions(new Uri(api.Server.BaseAddress, "api/").ToString(), $"{InMemoryBlobContainer.ContainerUri}/", api.Server.CreateHandler()));
+        services.AddSideGigPhApi(new ApiOptions(new Uri(api.Server.BaseAddress, "api/").ToString(), $"{InMemoryBlobContainer.ContainerUri}/", Connection));
         services.AddSingleton<ProfessionalSearch>();
         services.AddSingleton<IAnalytics, NoAnalytics>();
         services.AddSingleton<IExperiments, NoExperiments>();
@@ -65,6 +68,12 @@ public sealed class TestPhone
     public string? PhoneNumber { get; }
 
     public FakeIdentity Identity { get; }
+
+    /// <summary>The phone's connection to the API: set <see cref="DroppingConnection.DropWrites"/> to break the next writes.</summary>
+    public DroppingConnection Connection { get; }
+
+    /// <summary>What the app shows as online / offline (the real <c>DeviceNetworkStatus</c>; no platform here, so connected).</summary>
+    public DeviceNetworkStatus Network { get; } = new();
 
     public FakeOnboardingStore Store { get; }
 
