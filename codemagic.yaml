@@ -14,7 +14,7 @@
 definitions:
   ios_build: &ios_build
     instance_type: mac_mini_m2   # the free tier's machine
-    max_build_duration: 60
+    max_build_duration: 120   # the first run downloads .NET and the iOS workload
     integrations:
       app_store_connect: Tarbaho
     environment:
@@ -42,6 +42,7 @@ definitions:
       # A missing secret stops the build here, not after a 20-minute build.
       - name: Check the secrets
         script: |
+          set -euo pipefail
           if [ -z "${GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]; then
             echo "GOOGLE_SERVICE_INFO_PLIST_BASE64 is missing: add it to the tarbaho_ios group (docs/testflight.md)"; exit 1
           fi
@@ -53,6 +54,7 @@ definitions:
       # ios.yml pins; global.json is written for this build only (Visual Studio keeps its own).
       - name: Install .NET and the MAUI workloads
         script: |
+          set -euo pipefail
           curl -sSL https://dot.net/v1/dotnet-install.sh -o "$HOME/dotnet-install.sh"
           bash "$HOME/dotnet-install.sh" --channel "$DOTNET_CHANNEL" --install-dir "$HOME/.dotnet"
           echo "DOTNET_ROOT=$HOME/.dotnet" >> "$CM_ENV"
@@ -67,10 +69,12 @@ definitions:
 
       - name: Read the version
         script: |
+          set -euo pipefail
           if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then git fetch --unshallow --quiet; fi
           git fetch --quiet origin main
           ios_build=$((BUILD_NUMBER + BUILD_NUMBER_OFFSET))
           version="$(bash .github/scripts/app-version.sh)"
+          if [ -z "$version" ]; then echo "No version from app-version.sh"; exit 1; fi
           echo "APP_VERSION=$version" >> "$CM_ENV"
           echo "IOS_BUILD_NUMBER=$ios_build" >> "$CM_ENV"
           echo "Tarbaho iOS $version (build $ios_build, commit ${CM_COMMIT:0:7})"
@@ -80,6 +84,7 @@ definitions:
       # ":"); both are read from this plist into Info.plist here, so no Firebase id is committed.
       - name: Write GoogleService-Info.plist and its URL schemes
         script: |
+          set -euo pipefail
           firebase=SideGigPh.Maui/Platforms/iOS/GoogleService-Info.plist
           info=SideGigPh.Maui/Platforms/iOS/Info.plist
           echo "$GOOGLE_SERVICE_INFO_PLIST_BASE64" | base64 -D > "$firebase"
@@ -97,16 +102,18 @@ definitions:
             -c "Add :CFBundleURLTypes:0:CFBundleURLSchemes:1 string $encoded" \
             "$info"
 
-      # ios_signing put the certificate in the keychain and the profile in ~/Library/MobileDevice; dotnet needs the
+      # ios_signing put the certificate in the keychain and the profile on disk; dotnet needs the
       # profile's name. After a capability changes on the App ID, edit and save the profile, then fetch it again in
       # Codemagic's Code signing identities.
       - name: Pick the provisioning profile
         script: |
+          set -euo pipefail
           name=""
-          for profile in "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision; do
+          # Xcode 16+ reads profiles from UserData; older tools used MobileDevice. Look in both.
+          for profile in "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision                          "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles/"*.mobileprovision; do
             [ -e "$profile" ] || continue
             security cms -D -i "$profile" > "$HOME/profile.plist"
-            app_id="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$HOME/profile.plist")"
+            app_id="$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' "$HOME/profile.plist" 2> /dev/null || true)"
             if [[ "$app_id" == *".$BUNDLE_ID" ]]; then
               name="$(/usr/libexec/PlistBuddy -c 'Print :Name' "$HOME/profile.plist")"
               break
@@ -120,6 +127,7 @@ definitions:
 
       - name: Build the .ipa
         script: |
+          set -euo pipefail
           dotnet publish "$PROJECT" -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64 -p:ArchiveOnBuild=true \
             -p:CodesignKey="Apple Distribution" -p:CodesignProvision="$PROFILE_NAME" \
             -p:BuildNumber="$IOS_BUILD_NUMBER" -p:AppVersionNumber="$APP_VERSION" -p:AppChannel=prod \
@@ -127,19 +135,21 @@ definitions:
 
       - name: Find and check the .ipa
         script: |
-          ipa="$(find SideGigPh.Maui/bin/Release/net10.0-ios -name '*.ipa' | head -n 1)"
+          set -euo pipefail
+          ipa="$(find SideGigPh.Maui/bin/Release/net10.0-ios -name '*.ipa' -print -quit)"
           if [ -z "$ipa" ]; then echo "No .ipa under SideGigPh.Maui/bin/Release/net10.0-ios"; exit 1; fi
           # Firebase reads its settings only from the top of the app bundle; anywhere else it never starts and the app
           # dies at launch (FirebaseAuth assertion). Don't upload such a build.
-          if ! unzip -l "$ipa" | grep -qE ' Payload/[^/]+\.app/GoogleService-Info\.plist$'; then
+          listing="$(unzip -l "$ipa")"
+          if ! grep -E ' Payload/[^/]+\.app/GoogleService-Info\.plist$' <<< "$listing" > /dev/null; then
             echo "GoogleService-Info.plist is not at the top of the app bundle (csproj BundleResource LogicalName)"
-            unzip -l "$ipa" | grep GoogleService || true
+            grep GoogleService <<< "$listing" || true
             exit 1
           fi
           # Firebase Auth needs the keychain entitlement on iOS, expanded to the team's group (not the raw variable).
-          app="$(unzip -l "$ipa" | grep -oE 'Payload/[^/]+\.app/' | head -n 1)"
+          app="$(grep -m 1 -oE 'Payload/[^/]+\.app/' <<< "$listing")"
           unzip -p "$ipa" "${app}archived-expanded-entitlements.xcent" > "$HOME/entitlements.plist"
-          if ! grep -qE '<string>[A-Z0-9]{10}\.com\.tarbaho\.app</string>' "$HOME/entitlements.plist"; then
+          if ! grep -E '<string>[A-Z0-9]{10}\.com\.tarbaho\.app</string>' "$HOME/entitlements.plist" > /dev/null; then
             echo "The keychain-access-groups entitlement is missing or not expanded (Entitlements.plist)"
             cat "$HOME/entitlements.plist"; exit 1
           fi

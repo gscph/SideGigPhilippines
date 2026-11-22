@@ -87,13 +87,15 @@ Set up once (steps 1-7 above are still needed; the files are the same ones):
    Developer Portal (or upload the `.mobileprovision`).
 4. **Environment variables:** a group named **`tarbaho_ios`** with, ticked *Secret*:
    - `GOOGLE_SERVICE_INFO_PLIST_BASE64`: base64 of `GoogleService-Info.plist` (same as the GitHub secret).
-   - `GH_TOKEN` (optional): a fine-grained GitHub token with read access to this repo's pull requests. Without it the
+   - `GH_TOKEN` (optional): a fine-grained GitHub token for this repo with **Contents: Read** and **Pull requests:
+     Read**. A token missing one is ignored without a message. Without it the
      version counts PR titles only (`feat: …`), not their `minor` / `major` labels, so it can come out lower than the
      Android build's.
 
 Each build: Codemagic → the app → **Start new build** → branch `main` → pick the workflow. The `.ipa` is kept under the
 build's Artifacts. The iOS build number is Codemagic's own build number plus `BUILD_NUMBER_OFFSET` (1000), so it stays
-above the numbers GitHub's builds already used.
+above the numbers GitHub's builds already used. That works one way only: after a Codemagic upload, a GitHub
+`ios.yml` upload of the same app version is refused (its run number is lower), so build the next version there.
 
 ## When it fails
 
