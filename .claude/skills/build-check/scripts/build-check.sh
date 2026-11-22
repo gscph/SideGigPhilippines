@@ -30,6 +30,15 @@ for project in MobileAppTheme MobileAppTheme.Firebase SideGigPh.Contracts SideGi
 done
 # The API embeds the public legal pages (LegalFunctions).
 rm -rf "$copy/docs/legal" && mkdir -p "$copy/docs" && cp -r "$repo/docs/legal" "$copy/docs/"
+# The Firebase settings files are git-ignored, so a worktree has none: take them from the main checkout. Without
+# google-services.json the app still builds (the csproj's Condition skips it) but Firebase never starts, and sign-in
+# fails on every QA install ("Default FirebaseApp is not initialized").
+main="$(cd "$repo" && cd "$(git rev-parse --git-common-dir)/.." 2>/dev/null && pwd)"
+for file in SideGigPh.Maui/Platforms/Android/google-services.json SideGigPh.Maui/Platforms/iOS/GoogleService-Info.plist; do
+  if [ ! -f "$copy/$file" ] && [ -n "$main" ] && [ -f "$main/$file" ]; then cp "$main/$file" "$copy/$file"; fi
+done
+[ -f "$copy/SideGigPh.Maui/Platforms/Android/google-services.json" ] \
+  || echo "build-check: warning: no google-services.json, so sign-in won't work on this build"
 cp "$repo"/*.slnx "$copy/" 2>/dev/null
 cp "$repo"/Directory.* "$copy/" 2>/dev/null
 

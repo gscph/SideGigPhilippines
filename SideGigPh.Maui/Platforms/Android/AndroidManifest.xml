@@ -15,7 +15,6 @@
          permission; Android 12 and lower need storage read access to pick from the gallery. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <!-- The Skilled Worker's selfie in the setup after the interview (asked there, with the reason on screen). -->
-    <uses-permission android:name="android.permission.CAMERA" />
     <!-- "Use my location" (a worker's base, a post's place): only while the app is open, never in the background. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

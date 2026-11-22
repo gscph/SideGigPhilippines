@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Contracts;
@@ -21,9 +20,8 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
     {
         try
         {
-            var content = new ByteArrayContent(bytes);
-            content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-            using var response = await api.SendAsync(HttpMethod.Post, "photos", content);
+            // A resend after a dropped connection at worst leaves one unused file.
+            using var response = await api.SendAsync(HttpMethod.Post, "photos", bytes, "image/jpeg");
             await api.EnsureWrittenAsync(response, "upload a photo");
             var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto)
                 ?? throw new PhotoStoreException("The photo server sent an empty answer.", PhotoStoreFailure.ServerError);

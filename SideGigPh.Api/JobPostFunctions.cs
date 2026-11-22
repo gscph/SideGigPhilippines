@@ -210,7 +210,7 @@ public sealed class JobPostFunctions(FirebaseTokenValidator auth, JobPostStore p
 
         return sent switch
         {
-            OfferOutcome.Sent => new NoContentResult(),
+            OfferOutcome.Sent or OfferOutcome.Unchanged => new NoContentResult(),
             OfferOutcome.InvalidPrice => ApiResults.BadRequest(ApiErrors.Invalid("pricePesos")),
             OfferOutcome.InvalidNote => ApiResults.BadRequest(ApiErrors.Invalid("note")),
             _ => new NotFoundResult(),

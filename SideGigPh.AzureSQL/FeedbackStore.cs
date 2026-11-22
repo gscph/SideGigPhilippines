@@ -168,7 +168,9 @@ public sealed class FeedbackStore(SideGigPhDb db)
         var deleted = await db.FeedbackPosts
             .Where(p => p.Id == postId && p.AuthorUid == uid && !db.FeedbackVotes.Any(v => v.PostId == p.Id && v.VoterUid != uid))
             .ExecuteDeleteAsync(cancellationToken);
-        return deleted > 0;
+        // The phone sends a write once more when its answer was lost on the way (ApiClient.WriteTries): one already
+        // gone is removed.
+        return deleted > 0 || !await db.FeedbackPosts.AnyAsync(p => p.Id == postId, cancellationToken);
     }
 
     /// <summary>
@@ -183,12 +185,18 @@ public sealed class FeedbackStore(SideGigPhDb db)
             return false;
         }
 
+        var subject = $"{ReportSubjectPrefix}{postId}";
+        if (await db.Reports.AnyAsync(r => r.ReporterUid == uid && r.SubjectId == subject, cancellationToken))
+        {
+            return true; // reported already (a repeat of a report whose answer was lost, or a second tap)
+        }
+
         db.Reports.Add(new ReportRow
         {
             ReporterUid = uid,
             TargetUid = post.AuthorUid ?? NoAuthor,
             Kind = ReportKinds.User,
-            SubjectId = $"{ReportSubjectPrefix}{postId}",
+            SubjectId = subject,
             Reason = ReportReasons.Inappropriate,
             Note = StoreText.Limit(post.Title, SafetyStore.MaxNote),
             CreatedAt = DateTimeOffset.UtcNow,

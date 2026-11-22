@@ -12,7 +12,8 @@ public sealed class ApiErrorReportRepository(ApiClient api) : IErrorReportReposi
 {
     public async Task<bool> SendAsync(string installId, DeviceStamp device, IReadOnlyList<ErrorReport> reports)
     {
-        using var response = await api.SendJsonAsync(HttpMethod.Post, "error-reports", reports.ToBatch(installId, device), ApiJson.Default.ErrorReportBatch);
+        using var response = await api.SendJsonAsync(HttpMethod.Post, "error-reports", reports.ToBatch(installId, device), ApiJson.Default.ErrorReportBatch,
+            logFailure: false, repeatable: false); // the next send carries them again: a repeat would count them twice
         if (response.IsSuccessStatusCode)
         {
             return true;

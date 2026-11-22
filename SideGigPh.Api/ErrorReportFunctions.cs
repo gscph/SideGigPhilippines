@@ -9,13 +9,12 @@ namespace SideGigPh.Api;
 /// <summary>The problems the app had on people's phones, sent in the background (diagnostics, no personal data).</summary>
 public sealed class ErrorReportFunctions(FirebaseTokenValidator auth, ErrorReportStore reports, CallerLimits limits)
 {
-    /// <summary>The largest batch read: 20 full reports fit in well under it.</summary>
-    public const int MaxBodyBytes = 256 * 1024;
-
     /// <summary>
     /// <c>POST error-reports</c>: up to <see cref="ErrorReportRules.MaxReports"/> reports from one phone. Signed in only (a
     /// phone keeps what happened before sign-in and sends it after), so nobody can fill the table anonymously; the uid
-    /// only counts the limit and is never stored.
+    /// only counts the limit and is never stored. A body without a Content-Length (HTTP/2 and HTTP/3 may leave it out:
+    /// iPhones through Cloudflare) is read like every other route's, up to <see cref="ApiResults.MaxJsonBytes"/>; refusing
+    /// it lost every iPhone's reports.
     /// </summary>
     [Function("SendErrorReports")]
     public async Task<IActionResult> Send(
@@ -32,8 +31,7 @@ public sealed class ErrorReportFunctions(FirebaseTokenValidator auth, ErrorRepor
             return ApiResults.TooMany();
         }
 
-        if (request.ContentLength is null or > MaxBodyBytes
-            || await ApiResults.ReadAsync<ErrorReportBatch>(request, cancellationToken) is not { } batch)
+        if (await ApiResults.ReadAsync<ErrorReportBatch>(request, cancellationToken) is not { } batch)
         {
             return ApiResults.BadRequest();
         }

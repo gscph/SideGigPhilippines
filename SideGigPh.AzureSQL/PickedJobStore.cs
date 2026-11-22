@@ -168,6 +168,9 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
         return (await BetweenAsync(uid, other, cancellationToken)).FirstOrDefault(j => j.PostId == postId);
     }
 
+    /// <summary>How long after a cancel the same cancel sent again answers as cancelled instead of "not found".</summary>
+    public static readonly TimeSpan RepeatWindow = TimeSpan.FromMinutes(2);
+
     /// <summary>
     /// The caller (the household that posted it, or the picked worker) calls off the picked job on
     /// <paramref name="postId"/> before both marked it done: the offer becomes <c>cancelled</c> with who, when and why
@@ -190,7 +193,18 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                 .FirstOrDefaultAsync(ct);
             if (job is null)
             {
-                return CancelPickOutcome.NotFound;
+                // The phone sends a cancel once more when the answer was lost on the way (ApiClient.WriteTries): the
+                // caller's own cancel of this post a moment ago, for the same reason, answers as cancelled.
+                var since = DateTimeOffset.UtcNow - RepeatWindow;
+                var repeat = await (from o in db.JobOffers
+                                    join p in db.JobPosts on o.PostId equals p.Id
+                                    where o.PostId == postId && o.Status == JobOfferStatuses.Cancelled && o.CancelledAt >= since
+                                          && o.CancelReason == request.Reason
+                                          && ((p.SeekerUid == uid && o.CancelledBy == PickCancelSides.Household)
+                                              || (o.ProUid == uid && o.CancelledBy == PickCancelSides.Worker))
+                                    select o.Id)
+                    .AnyAsync(ct);
+                return repeat ? CancelPickOutcome.Cancelled : CancelPickOutcome.NotFound;
             }
 
             if (job.Offer.HouseholdDoneAt is not null && job.Offer.WorkerDoneAt is not null)
@@ -279,12 +293,16 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
         }
 
         var now = DateTimeOffset.UtcNow;
+        var row = await db.HouseholdReviews.FirstOrDefaultAsync(r => r.ProUid == proUid && r.SeekerUid == request.SeekerUid, cancellationToken);
         if (await BlindReviewFilter.IsLockedAsync(db, request.SeekerUid, proUid, byHousehold: false, now, cancellationToken))
         {
-            return HouseholdReviewOutcome.Locked;
+            // The phone sends a write once more when its answer was lost on the way (ApiClient.WriteTries): the
+            // same rating, which locked it, answers as saved.
+            return row is not null && row.Rating == request.Rating && row.Comment == StoreText.Limit(request.Comment, 1000)
+                ? HouseholdReviewOutcome.Saved
+                : HouseholdReviewOutcome.Locked;
         }
 
-        var row = await db.HouseholdReviews.FirstOrDefaultAsync(r => r.ProUid == proUid && r.SeekerUid == request.SeekerUid, cancellationToken);
         if (row is null)
         {
             row = new HouseholdReviewRow { ProUid = proUid, SeekerUid = request.SeekerUid, CreatedAt = now };

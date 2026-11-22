@@ -38,7 +38,7 @@ public sealed class ErrorLogLoggerProvider(ErrorLog log) : ILoggerProvider
             }
 
             var message = formatter(state, exception);
-            if (logLevel >= LogLevel.Error)
+            if (logLevel >= LogLevel.Error && !ErrorLog.WasReported(exception))
             {
                 log.Record(ErrorKind.Error, category, message, exception);
             }

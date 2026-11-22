@@ -57,6 +57,23 @@ public class ErrorReportTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task Batch_WithoutAContentLength_IsKept()
+    {
+        // HTTP/2 and HTTP/3 may leave the length out (iPhones through Cloudflare): refusing that lost every iPhone's reports.
+        var client = api.Client(api.Tokens.For($"nolength-{Guid.NewGuid():N}"));
+        var installId = Guid.NewGuid().ToString();
+        var batch = new ErrorReportBatch(installId, "0.2.3 (45)", "61b7067", AppChannels.Prod, "ios 26.5", "Apple iPhone17,1",
+            [new ErrorReportDto("error", "s", "m", null, null, null, 1, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow)]);
+        using var content = new StreamContent(new UnknownLengthStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(batch, ApiJson.Default.ErrorReportBatch)));
+        content.Headers.ContentType = new("application/json");
+
+        using var response = await client.PostAsync("error-reports", content);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+        (await Scalar($"SELECT COUNT(*) FROM dbo.ErrorReports WHERE InstallId = '{installId}' AND Platform = 'ios 26.5'")).Should().Be(1);
+    }
+
+    [IntegrationFact]
     public async Task UnknownKind_IsRefused()
     {
         var client = api.Client(api.Tokens.For($"kind-{Guid.NewGuid():N}"));
@@ -114,5 +131,11 @@ public class ErrorReportTests(ApiTestHost api)
         await connection.OpenAsync();
         await using var command = new SqlCommand(sql, connection);
         await command.ExecuteNonQueryAsync();
+    }
+
+    /// <summary>A body whose length HttpClient can't know, so it goes without a Content-Length.</summary>
+    private sealed class UnknownLengthStream(byte[] bytes) : MemoryStream(bytes)
+    {
+        public override bool CanSeek => false;
     }
 }

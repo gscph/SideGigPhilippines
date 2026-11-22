@@ -17,7 +17,8 @@ public sealed class ApiFeedbackRepository(ApiClient api) : IFeedbackRepository
 
     public async Task<FeedbackPost> AddAsync(string title, string? details, UserRole? role)
     {
-        using var response = await api.SendJsonAsync(HttpMethod.Post, "feedback", ApiMapping.ToFeedbackRequest(title, details, role), ApiJson.Default.NewFeedbackRequest);
+        using var response = await api.SendJsonAsync(HttpMethod.Post, "feedback", ApiMapping.ToFeedbackRequest(title, details, role), ApiJson.Default.NewFeedbackRequest,
+            repeatable: false); // a repeat would post it twice
         await api.EnsureWrittenAsync(response, "post the suggestion");
         return (await response.Content.ReadFromJsonAsync(ApiJson.Default.FeedbackPostDto))!.ToModel();
     }

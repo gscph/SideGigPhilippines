@@ -32,6 +32,16 @@ public partial class SelfieField : ComponentBase
     // The photo whose upload failed in a way worth repeating, kept for "Try again"; null otherwise.
     private PhotoPick? _unsent;
 
+    // The phone closed the app while the camera was open (short of memory): the selfie it took is saved for us, so the
+    // question picks it up instead of asking for it again.
+    protected override async Task OnInitializedAsync()
+    {
+        if (await Picker.RecoverSelfieAsync() is { Status: PhotoPickStatus.Picked } recovered)
+        {
+            await SaveAsync(recovered);
+        }
+    }
+
     private Task TakeSelfieAsync() => PickThenSaveAsync(Picker.TakeSelfieAsync);
 
     private Task ChoosePhotoAsync() => PickThenSaveAsync(() => Picker.PickAsync(1));

@@ -17,12 +17,11 @@ public sealed class ApiVerificationRepository(ApiClient api) : IVerificationRepo
 
     public async Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo)
     {
-        var content = new ByteArrayContent(photo);
-        content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-        using var response = await api.SendAsync(HttpMethod.Post, ApiMapping.ToSubmitPath(badge), content);
+        using var response = await api.SendAsync(HttpMethod.Post, ApiMapping.ToSubmitPath(badge), photo, "image/jpeg");
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            return BadgeSubmitResult.AlreadySent;
+            // Sent once more after a lost answer: the "already sent" is the first one, which went through.
+            return ApiClient.WasRepeated(response) ? BadgeSubmitResult.Sent : BadgeSubmitResult.AlreadySent;
         }
 
         await api.EnsureWrittenAsync(response, "send a badge proof");

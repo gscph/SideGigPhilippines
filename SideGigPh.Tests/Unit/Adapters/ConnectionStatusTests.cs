@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
+using MobileAppTheme.Services;
 using MobileAppTheme.Services.Local;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Tests.TestSupport;
@@ -92,5 +93,62 @@ public class ConnectionStatusTests
 
         await read.Should().ThrowAsync<OperationCanceledException>();
         status.IsOnline.Should().BeTrue("the person left the page; the connection may be fine");
+    }
+
+    [Fact]
+    public async Task ApiClient_ARequestTheBackgroundBroke_SaysNothingAboutTheConnection()
+    {
+        // iOS suspends a hidden app and drops its connections: the request fails though the internet works.
+        var status = new DeviceNetworkStatus();
+        var visibility = new AppVisibility();
+        var handler = new HidesThenFails(visibility);
+        var options = new ApiOptions("https://api.test/api/", "https://photos.test/", handler);
+        var api = new ApiClient(options, new FakeIdentity(null), NullLogger<ApiClient>.Instance, status, visibility);
+
+        var write = () => api.SendAsync(HttpMethod.Post, "chats");
+
+        await write.Should().ThrowAsync<HttpRequestException>();
+        status.IsOnline.Should().BeTrue();
+
+        visibility.Set(true);
+        await write.Should().ThrowAsync<HttpRequestException>();
+        status.IsOnline.Should().BeTrue("the app went to the background again on the way");
+    }
+
+    [Fact]
+    public async Task ApiClient_ARequestThatFailsWhileOnScreen_StillCountsAsOffline()
+    {
+        var status = new DeviceNetworkStatus();
+        var visibility = new AppVisibility();
+        var server = new StubServer { Offline = true };
+        var api = new ApiClient(server.Options, new FakeIdentity(null), NullLogger<ApiClient>.Instance, status, visibility);
+
+        var read = () => api.SendAsync(HttpMethod.Get, "config");
+
+        await read.Should().ThrowAsync<HttpRequestException>();
+        status.IsOnline.Should().BeFalse();
+    }
+
+    [Fact]
+    public void AppVisibility_CountsEachTripToTheBackground()
+    {
+        var visibility = new AppVisibility();
+
+        visibility.Set(false);
+        visibility.Set(false);
+        visibility.Set(true);
+        visibility.Set(false);
+
+        visibility.TimesHidden.Should().Be(2);
+        visibility.IsVisible.Should().BeFalse();
+    }
+
+    private sealed class HidesThenFails(AppVisibility visibility) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            visibility.Set(false);
+            throw new HttpRequestException("The network connection was lost.");
+        }
     }
 }

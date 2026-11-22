@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services.Diagnostics;
@@ -136,6 +136,46 @@ public class ErrorLogTests
         var left = log.Queued.Should().ContainSingle().Subject;
         left.Message.Should().Be("Counted up while sending");
         left.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task Recorded_IsRaisedForAProblem_NotForTrailLines_NorWithTheSwitchOff()
+    {
+        var log = NewLog();
+        await log.LoadAsync();
+        var raised = 0;
+        log.Recorded += () => raised++;
+
+        log.Visit("/seeker/posts/new");
+        log.Step("Tapped Post");
+        raised.Should().Be(0, "screens and steps are only the trail");
+
+        log.Record(ErrorKind.Error, "SideGigPh.Maui.Services.Api.ApiClient", "API: no answer to POST job-posts");
+        raised.Should().Be(1, "a new problem is sent soon, not at the next periodic try");
+
+        await log.SetSendReportsAsync(false);
+        log.Record(ErrorKind.Error, "SideGigPh.Maui.Services.Api.ApiClient", "API: no answer to POST job-posts");
+        raised.Should().Be(1, "with the switch off nothing is kept, so there is nothing to send");
+    }
+
+    [Fact]
+    public async Task Logger_AnErrorAlreadyReported_IsATrailLine_NotASecondReport()
+    {
+        var log = NewLog();
+        await log.LoadAsync();
+        using var provider = new ErrorLogLoggerProvider(log);
+        var api = provider.CreateLogger("SideGigPh.Maui.Services.Api.ApiClient");
+        var page = provider.CreateLogger("SideGigPh.Maui.Components.Inbox.ThreadPage");
+        var failure = new HttpRequestException("The network connection was lost.");
+
+        api.LogError(failure, "API: no answer to POST chats/x/messages");
+        ErrorLog.MarkReported(failure);
+        page.LogError(failure, "Sending a chat message failed.");
+        page.LogError(new InvalidOperationException("bug"), "Sending a chat message failed.");
+
+        log.Queued.Select(report => report.Message).Should().BeEquivalentTo(
+            ["API: no answer to POST chats/x/messages", "Sending a chat message failed."], "the bug is still its own report");
+        log.Queued.Last().Trail.Should().Contain("Error: Sending a chat message failed.");
     }
 
     [Fact]

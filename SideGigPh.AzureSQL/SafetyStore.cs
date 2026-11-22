@@ -18,6 +18,9 @@ public sealed class SafetyStore(SideGigPhDb db)
 {
     public const int MaxNote = 500;
 
+    /// <summary>How long after a report the same report sent again is not kept a second time.</summary>
+    public static readonly TimeSpan RepeatWindow = TimeSpan.FromMinutes(2);
+
     /// <summary>The caller reports another person, and blocks them too when asked.</summary>
     public async Task<ReportOutcome> ReportAsync(string uid, ReportRequest request, CancellationToken cancellationToken)
     {
@@ -28,17 +31,26 @@ public sealed class SafetyStore(SideGigPhDb db)
             return ReportOutcome.Invalid;
         }
 
-        db.Reports.Add(new ReportRow
+        var now = DateTimeOffset.UtcNow;
+        var since = now - RepeatWindow;
+        var subject = StoreText.Limit(request.SubjectId, 260);
+        // The phone sends a write once more when its answer was lost on the way (ApiClient.WriteTries): the same
+        // report a moment ago is kept once.
+        if (!await db.Reports.AnyAsync(r => r.ReporterUid == uid && r.TargetUid == request.TargetUid && r.Kind == request.Kind
+                                            && r.SubjectId == subject && r.Reason == request.Reason && r.CreatedAt >= since, cancellationToken))
         {
-            ReporterUid = uid,
-            TargetUid = request.TargetUid,
-            Kind = request.Kind,
-            SubjectId = StoreText.Limit(request.SubjectId, 260),
-            Reason = request.Reason,
-            Note = StoreText.Limit(request.Note, MaxNote),
-            CreatedAt = DateTimeOffset.UtcNow,
-        });
-        await db.SaveChangesAsync(cancellationToken);
+            db.Reports.Add(new ReportRow
+            {
+                ReporterUid = uid,
+                TargetUid = request.TargetUid,
+                Kind = request.Kind,
+                SubjectId = subject,
+                Reason = request.Reason,
+                Note = StoreText.Limit(request.Note, MaxNote),
+                CreatedAt = now,
+            });
+            await db.SaveChangesAsync(cancellationToken);
+        }
         if (request.AlsoBlock)
         {
             await BlockAsync(uid, request.TargetUid, cancellationToken);

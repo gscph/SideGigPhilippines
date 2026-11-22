@@ -20,9 +20,11 @@ public sealed record ApiOptions(string ApiUrl, string PhotoBaseUrl, HttpMessageH
 /// <c>SideGigPh.Contracts.ApiJson</c> types. Every request also names the app build (<c>X-App-Version</c>) and a
 /// failed one is logged with the API build that answered (<c>X-Api-Version</c>), so an error report says which
 /// versions met. Each request also tells <see cref="INetworkStatus"/> whether it got an answer, so a phone whose network
-/// is "connected" but reaches nothing (broken DNS, a captive Wi-Fi) still shows as offline.
+/// is "connected" but reaches nothing (broken DNS, a captive Wi-Fi) still shows as offline; a request that failed only
+/// because the app went to the background on its way (iOS drops a suspended app's connections) or ran out of time
+/// says nothing about the connection.
 /// </summary>
-public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger, INetworkStatus? network = null)
+public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, ILogger<ApiClient> logger, INetworkStatus? network = null, AppVisibility? visibility = null)
 {
     private readonly HttpClient _http = CreateHttp(options);
 
@@ -35,20 +37,67 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// <summary>A read (GET) is safe to repeat, so one that got no answer goes once more; writes are sent once.</summary>
     public const int ReadTries = 2;
 
-    /// <summary>Sends the request with the sign-in token. The caller disposes the response.</summary>
-    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content = null, CancellationToken cancellationToken = default)
+    /// <summary>
+    /// <b>Every write goes once more when the connection dropped before any answer</b>, unless its caller says it isn't
+    /// repeatable (a new feedback post, the error reports: a repeat would make a second one). Android and iOS send a
+    /// write on a kept-alive connection the server or the mobile network closed during a pause (the camera, the photo
+    /// picker, a long form, a minute in another app) and, unlike for a read, don't try again themselves: "unexpected end
+    /// of stream" / "The network connection was lost", though the internet works, and the person saw "No internet".
+    /// So the server takes every repeatable write twice without harm: PUTs and DELETEs set a state, a chat message
+    /// carries its own id, an offer is one per worker per post, a pick or a cancel already done answers as done, a
+    /// second badge proof answers "already sent". The integration tests lose the answer to every write's first try
+    /// (<c>DroppingConnection.LoseFirstAnswers</c>), so a new write that isn't safe twice fails there, not on a phone.
+    /// </summary>
+    public const int WriteTries = 2;
+
+    private static readonly HttpRequestOptionsKey<bool> RepeatedKey = new("tarbaho.repeated");
+
+    /// <summary>
+    /// Whether <paramref name="response"/> answers a write sent once more (<see cref="WriteTries"/>): the first may have
+    /// gone through, so a refusal like "already sent" can be the first one's doing.
+    /// </summary>
+    public static bool WasRepeated(HttpResponseMessage response) =>
+        response.RequestMessage?.Options.TryGetValue(RepeatedKey, out var repeated) == true && repeated;
+
+    /// <summary>
+    /// Sends a request with no body, with the sign-in token. The caller disposes the response. A write goes once more
+    /// when the connection dropped before any answer (<see cref="WriteTries"/>). A request that gets no answer is logged
+    /// here (so it becomes an error report).
+    /// </summary>
+    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, CancellationToken cancellationToken = default)
     {
         var token = await identity.GetIdTokenAsync();
-        return await SendWithRetryAsync(() =>
-        {
-            var request = new HttpRequestMessage(method, path) { Content = content };
-            if (token is not null)
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            }
+        return await SendWithRetryAsync(method, path, logFailure: true, () => NewRequest(method, path, token, null), cancellationToken, repeatable: true);
+    }
 
-            return request;
-        }, cancellationToken);
+    /// <summary>
+    /// Sends <paramref name="body"/> (with a Content-Length, never streamed: the Functions host may hand a chunked body
+    /// over empty) and the sign-in token. A write goes once more, with a fresh copy of the body, when the connection
+    /// dropped before any answer (<see cref="WriteTries"/>), unless <paramref name="repeatable"/> is false. A request
+    /// that gets no answer is logged here (so it becomes an error report), unless <paramref name="logFailure"/> is false:
+    /// only the error-report send itself passes that, or a failed send would record a report about sending reports.
+    /// </summary>
+    public async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, byte[] body, string contentType,
+        bool logFailure = true, bool repeatable = true)
+    {
+        var token = await identity.GetIdTokenAsync();
+        return await SendWithRetryAsync(method, path, logFailure, () =>
+        {
+            var content = new ByteArrayContent(body);
+            content.Headers.ContentType = MediaTypeHeaderValue.Parse(contentType);
+            return NewRequest(method, path, token, content);
+        }, CancellationToken.None, repeatable);
+    }
+
+    private static HttpRequestMessage NewRequest(HttpMethod method, string path, string? token, HttpContent? content)
+    {
+        var request = new HttpRequestMessage(method, path) { Content = content };
+        if (token is not null)
+        {
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+
+        return request;
     }
 
     /// <summary>The JSON answer to a GET, or null for 404. Throws for any other failure.</summary>
@@ -72,7 +121,7 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     public async Task<(T? Value, string? Version)> GetIfChangedAsync<T>(string path, string? knownVersion, JsonTypeInfo<T> type, CancellationToken cancellationToken)
         where T : class
     {
-        using var response = await SendWithRetryAsync(() =>
+        using var response = await SendWithRetryAsync(HttpMethod.Get, path, logFailure: true, () =>
         {
             var request = new HttpRequestMessage(HttpMethod.Get, path);
             if (knownVersion is not null && EntityTagHeaderValue.TryParse(knownVersion, out var tag))
@@ -95,33 +144,52 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     /// Sends the request. A connection that drops or times out is an <see cref="HttpRequestException"/> with no status
     /// code on every platform: Android's handler throws <see cref="WebException"/> / <see cref="IOException"/>
     /// ("Socket closed", "Canceled") instead, which reads didn't catch, so a flaky 4G signal broke whole screens.
+    /// <para>
+    /// This is the one place a request that got no answer is logged (an answer with an error status is logged by
+    /// <see cref="ThrowIfFailedAsync"/>), so every failed call reaches the error reports, whatever the caller does with
+    /// the exception: pages turn it into "didn't send" and workspaces into a result. The exception is marked reported
+    /// (<see cref="Diagnostics.ErrorLog.MarkReported"/>), so a caller that logs it again adds a trail line, not a second
+    /// report. Only a cancel the caller asked for is not a failure.
+    /// </para>
     /// </summary>
-    private async Task<HttpResponseMessage> SendWithRetryAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+    private async Task<HttpResponseMessage> SendWithRetryAsync(HttpMethod method, string path, bool logFailure,
+        Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken, bool repeatable = false)
     {
+        var timesHidden = visibility?.TimesHidden;
         try
         {
-            var response = await SendTriesAsync(makeRequest, cancellationToken);
+            var response = await SendTriesAsync(makeRequest, cancellationToken, repeatable);
             network?.Answered();
             return response;
         }
-        catch (Exception ex) when (NetworkErrors.IsNetwork(ex))
+        catch (Exception ex) when (!cancellationToken.IsCancellationRequested)
         {
-            // A request that ran out of time says nothing about the connection (a cold server, a paused database):
-            // only one that couldn't reach the server at all counts the phone as offline.
-            if (!TimedOut(ex))
+            // A request that ran out of time says nothing about the connection (a cold server, a paused database), nor
+            // one the app's trip to the background broke: only one that couldn't reach the server at all counts the
+            // phone as offline.
+            if (NetworkErrors.IsNetwork(ex) && !TimedOut(ex) && !WentToBackground(timesHidden))
             {
                 network?.NoAnswer();
+            }
+
+            if (logFailure)
+            {
+                logger.LogError(ex, "API: no answer to {Method} {Path}: {Reason}", method, path.Split('?')[0], ex.GetBaseException().Message);
+                Diagnostics.ErrorLog.MarkReported(ex); // a caller that logs it again adds a trail line, not a second report
             }
 
             throw;
         }
     }
 
+    private bool WentToBackground(int? timesHiddenAtStart) =>
+        visibility is not null && (!visibility.IsVisible || visibility.TimesHidden != timesHiddenAtStart);
+
     private static bool TimedOut(Exception exception)
     {
         for (var e = exception; e is not null; e = e.InnerException)
         {
-            if (e is OperationCanceledException or TimeoutException)
+            if (e is OperationCanceledException or TimeoutException || IsPlatformTimeout(e))
             {
                 return true;
             }
@@ -130,16 +198,41 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         return false;
     }
 
-    private async Task<HttpResponseMessage> SendTriesAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken)
+    // iOS's NSUrlSession reports its own timeout as an NSError (NSURLErrorTimedOut, -1001) inside an
+    // HttpRequestException, not as a TimeoutException.
+    private static bool IsPlatformTimeout(Exception exception) =>
+#if IOS
+        exception is Foundation.NSErrorException { Domain: "NSURLErrorDomain", Code: -1001 };
+#else
+        false;
+#endif
+
+    private async Task<HttpResponseMessage> SendTriesAsync(Func<HttpRequestMessage> makeRequest, CancellationToken cancellationToken, bool repeatable)
     {
         for (var attempt = 1; ; attempt++)
         {
             var request = makeRequest();
             if (request.Method != HttpMethod.Get)
             {
-                using (request)
+                try
                 {
-                    return await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                    using (request)
+                    {
+                        var response = await SendOrThrowAsync(request, cancellationToken, cancellationToken);
+                        if (attempt > 1)
+                        {
+                            request.Options.Set(RepeatedKey, true);
+                            response.RequestMessage = request;
+                        }
+
+                        return response;
+                    }
+                }
+                catch (Exception ex) when (repeatable && attempt < WriteTries && !cancellationToken.IsCancellationRequested
+                    && ex is HttpRequestException { StatusCode: null } && !TimedOut(ex))
+                {
+                    logger.LogWarning("API: the connection dropped on {Method} {Path} ({Reason}); sending once more.", request.Method, request.RequestUri?.OriginalString.Split('?')[0], ex.Message);
+                    continue;
                 }
             }
 
@@ -173,19 +266,18 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
     }
 
     /// <summary>
-    /// Sends <paramref name="body"/> as JSON with a Content-Length (not streamed/chunked, which the Functions host
-    /// may hand over as an empty body). The caller checks the status and disposes the response.
+    /// Sends <paramref name="body"/> as JSON (see the byte <see cref="SendAsync(HttpMethod, string, byte[], string, bool, bool)"/>).
+    /// The caller checks the status and disposes the response.
     /// </summary>
-    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type)
-    {
-        var content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(body, type));
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/json") { CharSet = "utf-8" };
-        return SendAsync(method, path, content);
-    }
+    public Task<HttpResponseMessage> SendJsonAsync<T>(HttpMethod method, string path, T body, JsonTypeInfo<T> type,
+        bool logFailure = true, bool repeatable = true) =>
+        SendAsync(method, path, JsonSerializer.SerializeToUtf8Bytes(body, type), "application/json; charset=utf-8", logFailure, repeatable);
 
     /// <summary>
-    /// A read that can't reach the API (offline, server error) shows as "nothing there", logged: the screens
-    /// already have empty states. Writes don't use this: they throw, and the pages say "didn't send / didn't publish".
+    /// A read that can't reach the API (offline, server error) shows as "nothing there": the screens already have
+    /// empty states. The failed request was already logged by the send (no answer) or <see cref="ThrowIfFailedAsync"/>
+    /// (an error status), so only an answer that can't be read is logged here. Writes don't use this: they throw, and
+    /// the pages say "didn't send / didn't publish".
     /// </summary>
     public async Task<T> ReadAsync<T>(Func<Task<T>> read, T fallback, string what)
     {
@@ -193,9 +285,13 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         {
             return await read();
         }
-        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        catch (JsonException ex)
         {
             logger.LogError(ex, "API: couldn't read {What}.", what);
+            return fallback;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+        {
             return fallback;
         }
     }
@@ -216,8 +312,10 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         var body = await response.Content.ReadAsStringAsync();
         var apiVersion = ApiVersionOf(response);
         logger.LogError("API {ApiVersion}: couldn't {What}: {Status} {Reason}\n{Body}", apiVersion, what, (int)response.StatusCode, response.ReasonPhrase, body);
-        throw new HttpRequestException(
+        var failure = new HttpRequestException(
             $"API {apiVersion}: couldn't {what}: {(int)response.StatusCode} {response.ReasonPhrase}. {body}", null, response.StatusCode);
+        Diagnostics.ErrorLog.MarkReported(failure);
+        throw failure;
     }
 
     /// <summary>The API build that answered (<c>X-Api-Version</c>), or "unknown" (an older API, or an answer from Azure's front door).</summary>

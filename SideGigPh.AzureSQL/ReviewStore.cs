@@ -122,7 +122,11 @@ public sealed class ReviewStore(SideGigPhDb db, ListingCache listings)
         if (row is not null && completed
             && await BlindReviewFilter.IsLockedAsync(db, seekerUid, request.ProfessionalId, byHousehold: true, now, cancellationToken))
         {
-            return ReviewOutcome.Locked;
+            // The phone sends a write once more when its answer was lost on the way (ApiClient.WriteTries): the
+            // same review, which locked it, answers as saved.
+            return row.Rating == request.Rating && row.Comment == StoreText.Limit(request.Comment, 1000)
+                ? ReviewOutcome.Saved
+                : ReviewOutcome.Locked;
         }
 
         if (row is null)
