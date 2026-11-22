@@ -1,6 +1,6 @@
 name: Build Android
 # The run's title in the Actions list: what is built and from where (the run number shows beside it).
-run-name: "Tarbaho ${{ inputs.channel }}${{ inputs.play_track != 'none' && format(' to Play {0} ({1})', inputs.play_track, inputs.play_status) || '' }} from ${{ github.ref_name }}"
+run-name: "Tarbaho ${{ inputs.channel }} from ${{ github.ref_name }}"
 
 # The version is major.minor.patch, worked out from the PRs squashed into main (.github/scripts/app-version.sh: the
 # "minor" / "major" label or a "feat:" / "feat!:" title, else the next patch), and this run's number is the Android
@@ -10,8 +10,8 @@ run-name: "Tarbaho ${{ inputs.channel }}${{ inputs.play_track != 'none' && forma
 #
 # beta: an APK for sideloading, signed with the release key when its secrets are set, else the shared dev key.
 # prod: an AAB for Google Play, always signed with the release (upload) key: the run fails without its secrets
-#       or if the bundle came out signed with the dev key. With play_track = internal it also goes to the Play
-#       Console's Internal testing track (secret PLAY_SERVICE_ACCOUNT_JSON). See docs/play-store.md.
+#       or if the bundle came out signed with the dev key. Download it from the run and upload it in the Play
+#       Console by hand. See docs/play-store.md.
 
 on:
   workflow_dispatch:
@@ -21,20 +21,9 @@ on:
         type: choice
         options: [beta, prod]
         default: beta
-      play_track:
-        description: 'prod only: also upload the AAB to this Google Play track'
-        type: choice
-        options: [none, internal]
-        default: none
-      play_status:
-        description: 'Play release status: draft (you press "Review release" in the Play Console; needed until the app is first reviewed) or completed (goes out to testers at once)'
-        type: choice
-        options: [draft, completed]
-        default: draft
 
 env:
   PROJECT: SideGigPh.Maui/SideGigPh.Maui.csproj
-  PACKAGE_ID: com.tarbaho.app
   BUILD_NUMBER: ${{ github.run_number }}
   PACKAGE_FORMAT: ${{ inputs.channel == 'prod' && 'aab' || 'apk' }}
   # The shared dev key's SHA-1 (docs/android-signing.md): a prod bundle signed with it is refused.
@@ -48,21 +37,6 @@ jobs:
   build-android:
     runs-on: ubuntu-latest
     steps:
-      # Wrong inputs or a missing Play secret stop the run here, not after a 5-minute build (and a beta run with a
-      # Play track would otherwise skip the upload without a word).
-      - name: Check the inputs
-        env:
-          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-        run: |
-          if [ "${{ inputs.play_track }}" != "none" ]; then
-            if [ "${{ inputs.channel }}" != "prod" ]; then
-              echo "::error::play_track ${{ inputs.play_track }} needs channel prod (Play takes only the signed AAB)"; exit 1
-            fi
-            if [ -z "$PLAY_SERVICE_ACCOUNT_JSON" ]; then
-              echo "::error::Secret PLAY_SERVICE_ACCOUNT_JSON is missing: upload the first AAB by hand, or set it up (docs/play-store.md, part 2)"; exit 1
-            fi
-          fi
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0   # the version is counted from the merged PRs (.github/scripts/app-version.sh)
@@ -164,7 +138,8 @@ jobs:
           path: ${{ steps.package.outputs.file }}
 
       # R8 (csproj, Release) renames the Java side's private members; mapping.txt turns crash stacks back into real
-      # names. Kept with the build, and sent to Play with the bundle below. No mapping means R8 didn't run: stop.
+      # names. Kept with the build: upload it in the Play Console with the bundle (App bundle explorer → Downloads →
+      # ReTrace mapping file). No mapping means R8 didn't run: stop.
       - name: Find the R8 mapping
         id: mapping
         run: |
@@ -178,17 +153,3 @@ jobs:
         with:
           name: tarbaho-${{ steps.version.outputs.label }}-build${{ env.BUILD_NUMBER }}-${{ inputs.channel }}-r8-mapping
           path: ${{ steps.mapping.outputs.file }}
-
-      # Google Play: the Play Console must already have the app (its very first bundle is uploaded by hand) and a
-      # service account with release rights (secret PLAY_SERVICE_ACCOUNT_JSON). See docs/play-store.md.
-      - name: Upload to Google Play (${{ inputs.play_track }})
-        if: inputs.channel == 'prod' && inputs.play_track != 'none'
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
-          packageName: ${{ env.PACKAGE_ID }}
-          releaseFiles: ${{ steps.package.outputs.file }}
-          mappingFile: ${{ steps.mapping.outputs.file }}
-          releaseName: ${{ steps.version.outputs.label }} (${{ env.BUILD_NUMBER }})
-          track: ${{ inputs.play_track }}
-          status: ${{ inputs.play_status }}

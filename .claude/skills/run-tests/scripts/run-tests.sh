@@ -6,6 +6,9 @@
 #   run-tests.sh --coverage    all tests + line coverage of the core code, per file
 #   run-tests.sh --changed     first checks what changed since the last commit; if nothing the tests can see
 #                              changed (only CSS, images, docs, .razor markup), prints why and exits 0
+#   run-tests.sh --changed=origin/main
+#                              the same, but for a branch: everything since it left origin/main (committed or not);
+#                              the pr-qa skill uses this, since a PR's changes are already committed
 #   Any other argument goes to `dotnet test`, e.g. --filter "FullyQualifiedName~Search".
 #
 # The copy lives in $TEST_COPY (default: $TEMP/sidegigph-tests). Source is refreshed on every run; bin/obj are
@@ -21,17 +24,25 @@ coverage=0
 rest=()
 
 # Paths the tests compile or read. A change anywhere else (CSS, images, .razor markup, docs) can't change a result.
-test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Migrate/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$|\.github/workflows/)'
+test_relevant='^(SideGigPh\.Maui/(Models|Services)/|SideGigPh\.Maui/Components/.*Routes\.cs$|SideGigPh\.Maui/GlobalUsings\.cs$|SideGigPh\.Api/|SideGigPh\.AzureSQL/|SideGigPh\.Contracts/|SideGigPh\.Migrate/|SideGigPh\.Tests/|MobileAppTheme/.*\.cs$|.*\.csproj$|Directory\.[^/]*$|global\.json$|docs/legal/[^/]*-[^/]*\.md$)'
 
 for arg in "$@"; do
   case "$arg" in
     --unit) filter=(--filter "Category!=Integration") ;;
     --coverage) coverage=1 ;;
-    --changed)
-      changed="$( (git -C "$repo" diff --name-only HEAD; git -C "$repo" ls-files --others --exclude-standard) | sort -u)"
+    --changed|--changed=*)
+      base="${arg#--changed}"; base="${base#=}"
+      if [ -n "$base" ]; then
+        committed="$(git -C "$repo" diff --name-only "$base...HEAD")"
+        since="since $base"
+      else
+        committed=""
+        since="since the last commit"
+      fi
+      changed="$( (echo "$committed"; git -C "$repo" diff --name-only HEAD; git -C "$repo" ls-files --others --exclude-standard) | sed '/^$/d' | sort -u)"
       relevant="$(echo "$changed" | grep -E "$test_relevant" | grep -vE '\.(css|scss|md)$' || true)"
       if [ -z "$relevant" ]; then
-        echo "No test-relevant change since the last commit (only styling, markup, images or docs): tests skipped."
+        echo "No test-relevant change $since (only styling, markup, images or docs): tests skipped."
         exit 0
       fi
       echo "Test-relevant changes:"; echo "$relevant" | sed 's/^/  /'

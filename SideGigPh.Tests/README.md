@@ -34,8 +34,8 @@ bash .claude/skills/run-tests/scripts/run-tests.sh --coverage
 
 That script builds a copy in your temp folder, so it never fights with Visual Studio over open files.
 
-**On GitHub:** the *Tests* workflow runs on every push or pull request to `main` that changes code, and before every
-API deploy (a failing test stops the deploy). Changes to only CSS, images, `.razor` markup or docs don't start it.
+**GitHub runs no tests.** They run only on a PC: after a change (`run-tests` skill) and on every pull request (the
+`pr-qa` skill runs `run-tests.sh --changed=origin/main`). Deploys are by hand, so run them before you deploy.
 
 ## What each folder protects
 
