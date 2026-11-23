@@ -49,6 +49,7 @@ INSERT INTO @Categories (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, Hint
 ('it',             N'IT',                     N'IT',                      N'💻', N'Computers, software, networks, AI',     N'Computer, software, network, AI',               4, 1),
 ('car_mechanic',   N'Car Mechanic',           N'Mekaniko',                N'🚗', N'Suspension, engine, electronics',       N'Suspension, makina, electronics',               5, 1),
 ('solar_cleaning', N'Solar Panel Technician', N'Solar Panel Technician',  N'☀️', N'Panel cleaning and check-up',           N'Linis at check-up ng solar panel',              6, 1),
+('pest_control',   N'Pest Control',           N'Pest Control',            N'🪳', N'Termites, cockroaches, rats, bed bugs',  N'Anay, ipis, daga, surot',                       7, 1),
 -- Retired: moved under Construction as its jobs (019, 020 and 022-schema-construction-trades.sql moved the data).
 ('electrical',     N'Electrician',            N'Electrician',             N'⚡', N'Power, breaker, outlets, lights',       N'Kuryente, breaker, saksakan, ilaw',            93, 0),
 ('carpentry',      N'Carpentry',              N'Karpintero',              N'🔨', N'Furniture, doors, cabinets',            N'Custom furniture, pinto, cabinet',             94, 0),
@@ -164,6 +165,15 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('solar-checkup',            'solar_cleaning', N'Solar check-up',                            N'Solar check-up',                             N'📋', 2, 1,  1000,  1800,  3000),
 ('solar-inverter',           'solar_cleaning', N'Inverter check',                            N'Inverter check',                             N'🔋', 3, 1,  1000,  2000,  3500),
 ('solar-other',              'solar_cleaning', N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,  1000,  2000,  3500),
+
+('pest-termites',            'pest_control',   N'Termites',                                  N'Anay',                                       N'🐜', 1, 1,  2500,  5000,  9000),
+('pest-cockroaches',         'pest_control',   N'Cockroaches',                               N'Ipis',                                       N'🪳', 2, 1,  1200,  2000,  3500),
+('pest-rats',                'pest_control',   N'Rats and mice',                             N'Daga',                                       N'🐀', 3, 1,  1500,  2500,  4000),
+('pest-bedbugs',             'pest_control',   N'Bed bugs',                                  N'Surot',                                      N'🛏️', 4, 1,  2000,  3500,  6000),
+('pest-mosquitoes',          'pest_control',   N'Mosquito misting',                          N'Lamok (misting)',                            N'🦟', 5, 1,  1200,  2000,  3500),
+('pest-ants',                'pest_control',   N'Ants',                                      N'Langgam',                                    N'🐜', 6, 1,  1000,  1800,  3000),
+('pest-general',             'pest_control',   N'Whole-house spray',                         N'Spray sa buong bahay',                       N'🧴', 7, 1,  1500,  2500,  4500),
+('pest-other',               'pest_control',   N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,  1200,  2000,  3500),
 
 ('it-software',              'it',             N'Software',                                  N'Software',                                   N'💾', 1, 1,   755,  1200,  2000),
 ('it-hardware',              'it',             N'Hardware',                                  N'Hardware',                                   N'🖥️', 2, 1,   755,  1500,  2500),

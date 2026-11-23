@@ -52,6 +52,7 @@ public static partial class SearchIntentParser
             "mason", "masonry", "tile", "tiles", "semento", "cement", "palitada", "hollow", "blocks", "bakod", "fence", "pader", "bitak", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
+        ["pest_control"] = ["pest", "peste", "exterminator", "fumigation", "fumigate", "pesticide", "insecticide", "termite", "cockroach", "roach", "rat", "mouse", "mice", "bedbug", "mosquito", "misting", "fogging", "ant"],
         // "it" is never a typed word (it's a filler): Parse adds it when the text names the trade (ItIsTheTrade).
         ["it"] = ["it", "computer", "laptop", "pc", "desktop", "printer", "wifi", "internet", "router", "website", "programmer", "developer", "virus", "reformat"],
         ["car_mechanic"] = ["mechanic", "mekaniko", "car", "repair", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
