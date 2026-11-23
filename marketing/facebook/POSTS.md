@@ -1266,7 +1266,7 @@ Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. Naka-iPhone? Pwede rin sa TestFlight.
+Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt
 
 Angono, Antipolo at Taytay muna.
 
@@ -1287,7 +1287,7 @@ Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 Di pa bukas ung app pero pwede ka na mauna. Fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.
+Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt
 
 Angono, Antipolo at Taytay muna.
 
@@ -2012,7 +2012,7 @@ Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.
+Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt
 
 #Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```

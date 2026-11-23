@@ -145,7 +145,7 @@ CAROUSELS = [
             "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
             "Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.\n\n"
+            "Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt\n\n"
             "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),
     ),

@@ -3,7 +3,7 @@
 Ready to type into Google Forms. About 2–3 minutes to answer.
 
 Form settings (Settings tab):
-- **Collect email addresses: Do not collect** (we ask for the Play Store / Apple ID email ourselves, with a tip).
+- **Collect email addresses: Do not collect** (we ask for the Play Store email ourselves, with a tip).
 - **Limit to 1 response: off** (it would force a Google sign-in, which loses people).
 - Presentation → confirmation message: see the end of this file.
 - Make the link short (Send → link → "Shorten URL") and put it in place of `[GOOGLE FORM LINK]`.
@@ -13,7 +13,7 @@ Sections (branching is set on question 3, "Go to section based on answer"):
 
 1. **Section 1: Ikaw** (questions 1–3)
 2. **Section 2: Android** (question 4a) → after section: *Continue to section 4*
-3. **Section 3: iPhone** (question 4b) → after section: *Continue to section 4*
+3. **Section 3: iPhone** (TestFlight link, no question) → after section: *Continue to section 4*
 4. **Section 4: Trabaho mo** (questions 5–13) → *Submit form*
 
 ---
@@ -32,7 +32,7 @@ Fill up mo lang to para sa early access. Ung mga mauuna, sila unang makakapag-se
 ng profile pag bukas na ung app. Libre mag-sign up at mag-setup ng profile ngayon.
 Mga 3 mins lang.
 
-Privacy: Kukunin namin ung pangalan, number, email ng Play Store o Apple ID,
+Privacy: Kukunin namin ung pangalan, number, email ng Play Store,
 trade, bayan at iba pang sagot mo dito. Gagamitin lang namin to para i-contact ka
 pag labas ng Tarbaho at para isend ung early access invite mo
 (Google Play testing o TestFlight). Di namin to ibebenta o ibibigay sa iba.
@@ -83,17 +83,13 @@ Section description: `Para ma-install mo ung app bago pa sa lahat, kailangan nam
 
 ## Section 3: iPhone
 
-Section description: `Sa iPhone, sa TestFlight ung early access (libreng app ng Apple).`
-
-**4b. Apple ID email mo** (Apple ID email)
-- Type: Short answer
-- Required: yes
-- Validation: Text → Email address
-- Helper:
-  ```
-  Pano makita: Settings → tap mo ung pangalan mo sa pinakataas → ung email dun.
-  Magsesend kami ng TestFlight invite. Install mo ung libreng "TestFlight" app sa App Store.
-  ```
+No question here, just this section description (iPhone users install right away from the public TestFlight link, no email needed):
+```
+Sa iPhone, pwede ka na mag-install ngayon:
+1. Install mo ung libreng "TestFlight" app sa App Store
+2. Open mo to: https://testflight.apple.com/join/1CNn1Ywt
+Tuloy mo lang ung form para alam namin trade at bayan mo.
+```
 - After section 3: **Continue to Section 4**
 
 ---
@@ -174,13 +170,13 @@ Section description: `Sa iPhone, sa TestFlight ung early access (libreng app ng 
 Salamat! Kasama ka na sa early access list.
 Itetext o imemessage ka namin pag ready na ung invite mo.
 Android: may link kang matatanggap para ma-install sa Play Store.
-iPhone: may TestFlight invite na darating sa Apple ID email mo.
+iPhone: pag di mo pa na-install, dito: https://testflight.apple.com/join/1CNn1Ywt
 Share mo rin sa mga kasama mo sa site.
 ```
 
 ## How we use the answers (for the owner)
 
 - **Android:** add each 4a email to the Play Console tester list (Internal testing allows up to 100 testers; use Closed testing with an email list or Google Group for more), then send them the opt-in link.
-- **iPhone:** add each 4b email as an external tester in App Store Connect → TestFlight (needs one Beta App Review for the first build).
+- **iPhone:** nothing to do per person: they join through the public TestFlight link https://testflight.apple.com/join/1CNn1Ywt. Watch the link's tester limit in App Store Connect → TestFlight.
 - Delete a person's row from the sheet (and the tester lists) when they ask, and delete the whole sheet once early access is over and the app is public.
 - Keep the sheet private: it holds names, numbers and emails.

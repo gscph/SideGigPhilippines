@@ -52,8 +52,8 @@ para alam namin san susunod: [GOOGLE FORM LINK]
 
 **"iPhone?"**
 ```
-Pwede, sa TestFlight (libreng app ng Apple).
-Sa form pili ka ng "iPhone" tapos lagay mo Apple ID email mo: [GOOGLE FORM LINK]
+Pwede, sa TestFlight. Install mo muna ung "TestFlight" app sa App Store, tapos open mo to: https://testflight.apple.com/join/1CNn1Ywt
+Fill up mo rin ung form para alam namin trade at bayan mo: [GOOGLE FORM LINK]
 ```
 
 **"Legit ba 'to?" / "Scam?"**

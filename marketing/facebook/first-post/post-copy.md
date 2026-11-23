@@ -28,7 +28,7 @@ Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. Naka-iPhone? Pwede rin sa TestFlight.
+Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt
 
 Angono, Antipolo at Taytay muna.
 
@@ -44,7 +44,7 @@ Angono, Antipolo at Taytay muna.
 | Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo. | Here on Tarbaho, you can find your own customers at the price you want. |
 | Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to | The app isn't open yet. If you want to be first, just fill this up. |
 | Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. | Put the Gmail you use on the Play Store; that's where we'll send early access. |
-| Naka-iPhone? Pwede rin sa TestFlight. | On iPhone? TestFlight works too. |
+| Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt | On iPhone? Go straight to TestFlight: https://testflight.apple.com/join/1CNn1Ywt |
 | Angono, Antipolo at Taytay muna. | Angono, Antipolo and Taytay for now. |
 
 ---
@@ -61,7 +61,7 @@ Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 Di pa bukas ung app pero pwede ka na mauna. Fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.
+Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt
 
 Angono, Antipolo at Taytay muna.
 
@@ -76,7 +76,7 @@ Angono, Antipolo at Taytay muna.
 | Wag mo na hintayin ung tawag. | Don't wait for the call anymore. |
 | Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo. | Here on Tarbaho, you can find your own customers at the price you want. |
 | Di pa bukas ung app pero pwede ka na mauna. Fill up mo lang to | The app isn't open yet but you can get in first. Just fill this up. |
-| Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight. | Put the Gmail you use on the Play Store. On iPhone? TestFlight works too. |
+| Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt | Put the Gmail you use on the Play Store. On iPhone? Go straight to TestFlight: https://testflight.apple.com/join/1CNn1Ywt |
 | Angono, Antipolo at Taytay muna. | Angono, Antipolo and Taytay for now. |
 
 ---

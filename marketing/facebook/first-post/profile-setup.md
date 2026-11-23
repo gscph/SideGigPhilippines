@@ -41,12 +41,12 @@ Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.
+Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Sa TestFlight ka na diretso: https://testflight.apple.com/join/1CNn1Ywt
 
 #Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```
 
-English gloss: "This is how to set up a Tarbaho profile once the app is open. Just swipe. 1 English or Taglish; 2 your number, then the SMS code; 3 pick "Skilled worker", then your trade and services; 4 your price, from ₱… to ₱… or "depends on the work"; 5 the towns you go to; 6 how many years you've been doing the work; 7 your selfie, face clearly visible; 8 confirm your number by SMS; 9 check your card, tick the promises, then "Game!". Here on Tarbaho, you can find your own customers at the price you want. The app isn't open yet. If you want to be first, just fill this up. Put the Gmail you use on the Play Store. On iPhone? TestFlight works too."
+English gloss: "This is how to set up a Tarbaho profile once the app is open. Just swipe. 1 English or Taglish; 2 your number, then the SMS code; 3 pick "Skilled worker", then your trade and services; 4 your price, from ₱… to ₱… or "depends on the work"; 5 the towns you go to; 6 how many years you've been doing the work; 7 your selfie, face clearly visible; 8 confirm your number by SMS; 9 check your card, tick the promises, then "Game!". Here on Tarbaho, you can find your own customers at the price you want. The app isn't open yet. If you want to be first, just fill this up. Put the Gmail you use on the Play Store. On iPhone? Go straight to TestFlight: https://testflight.apple.com/join/1CNn1Ywt"
 
 ---
 
