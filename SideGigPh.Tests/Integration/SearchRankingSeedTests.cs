@@ -65,20 +65,20 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     [IntegrationFact]
     public async Task S7_CheaperFirst_OverTheBudgetLower_NobodyHidden()
     {
-        // Inverter or battery check: guide ₱1,000 low, ₱2,000 average, ₱3,500 high; Tipid budget ₱1,000–₱2,000.
+        // Cockroaches: guide ₱1,200 low, ₱2,000 average, ₱3,500 high; Tipid budget ₱1,200–₱2,000.
         string[] cheapestFirst =
         [
             "S7 ₱1,000", "S7 ₱1,500", "S7 ₱2,000 (budget top)",     // in budget: cheaper earns more
             "S7 ₱2,500 (25% over)", "S7 ₱3,000 (50% over)", "S7 ₱4,000 (double)", // over: lower, still shown
         ];
-        (await InTown("solar_cleaning", "solar-inverter")).Should().Equal(cheapestFirst);
-        (await InTown("solar_cleaning", "solar-inverter", budget: "1000-1500")).Should().Equal(cheapestFirst, "far over scores 0 but still shows");
-        (await InTown("solar_cleaning", "solar-inverter", budget: "unsure")).Should().Equal(cheapestFirst, "no budget: measured against the guide");
+        (await InTown("pest_control", "pest-cockroaches")).Should().Equal(cheapestFirst);
+        (await InTown("pest_control", "pest-cockroaches", budget: "1000-1500")).Should().Equal(cheapestFirst, "far over scores 0 but still shows");
+        (await InTown("pest_control", "pest-cockroaches", budget: "unsure")).Should().Equal(cheapestFirst, "no budget: measured against the guide");
     }
 
     [IntegrationFact]
     public async Task S8_MoreExperienceFirst() =>
-        (await InTown("solar_cleaning", "solar-cleaning")).Should().Equal(
+        (await InTown("pest_control", "pest-rats")).Should().Equal(
             "S8 10+ Years", "S8 3 to 10 Years", "S8 1 to 3 Years", "S8 Under 1 Year");
 
     [IntegrationFact]
@@ -114,7 +114,8 @@ public sealed class SearchRankingSeedTests(SearchRankingSeedTests.SeededDatabase
     [InlineData("pakabit tiles", "construction", "construction-tiles")]
     [InlineData("makina kotse", "car_mechanic", "mechanic-engine")]
     [InlineData("tulo sa bubong", "construction", "construction-roofing")]
-    [InlineData("linis solar panel", "solar_cleaning", "solar-cleaning")]
+    [InlineData("may anay", "pest_control", "pest-termites")]
+    [InlineData("maraming ipis", "pest_control", "pest-cockroaches")]
     [InlineData("linis aircon", "aircon", "aircon-cleaning")]
     [InlineData("pakabit aircon", "aircon", "aircon-install")]
     [InlineData("hinang rehas", "construction", "construction-welding")]

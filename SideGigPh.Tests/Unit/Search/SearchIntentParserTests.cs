@@ -22,7 +22,10 @@ public class SearchIntentParserTests
     [InlineData("karpintero", "construction")]
     [InlineData("tiles", "construction")]
     [InlineData("pasabuy", "errand_runner")]
-    [InlineData("solar panel", "solar_cleaning")]
+    [InlineData("anay", "pest_control")]
+    [InlineData("maraming daga", "pest_control")]
+    [InlineData("surot sa kama", "pest_control")]
+    [InlineData("exterminator", "pest_control")]
     [InlineData("AIRCON!!", "aircon")]
     [InlineData("airc", "aircon")] // typed only the start of the word
     [InlineData("IT", "it")] // "it" is also an English filler word: the trade's own name still finds it
@@ -31,14 +34,14 @@ public class SearchIntentParserTests
     [InlineData("sira laptop", "it")]
     [InlineData("wifi", "it")]
     [InlineData("aircon technician", "aircon")]
-    [InlineData("solar technician", "solar_cleaning")]
+    [InlineData("pest control technician", "pest_control")]
     [InlineData("IT support", "it")] // "IT" in capitals names the trade inside a longer search
     [InlineData("IT tech", "it")]
     [InlineData("I.T.", "it")]
     [InlineData("sira IT ko", "it")]
     [InlineData("car repair", "car_mechanic")] // "car" is also the start of "carpentry": the exact word wins
     [InlineData("kotse repair", "car_mechanic")]
-    [InlineData("tune up", "car_mechanic")] // "up" is a filler, not the solar "check-up"
+    [InlineData("tune up", "car_mechanic")] // "up" is a filler word
     [InlineData("sira ang gripo", "construction")]
     [InlineData("faucet", "construction")]
     public void Parse_EverydayWords_FindTheTrade(string typed, string expectedTrade) =>

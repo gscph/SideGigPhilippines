@@ -38,7 +38,7 @@ public static partial class SearchIntentParser
     [
         "repair", "fix", "broken", "sira", "sirang", "ayos", "ayusin", "install", "installation", "pakabit", "kabit",
         "palit", "replace", "replacement", "check", "checkup", "maintenance", "service", "gawa", "pagawa", "bago",
-        // In more than one trade's name ("Aircon Technician", "Solar Panel Technician"): "computer technician" is IT.
+        // Often typed with a trade ("aircon technician"), so alone it picks none: "computer technician" is IT.
         "technician", "tech",
     ];
 
@@ -51,7 +51,7 @@ public static partial class SearchIntentParser
             "carpenter", "karpintero", "wood", "kahoy", "furniture", "aparador", "mesa", "upuan", "door", "pinto", "cabinet", "kisame", "ceiling",
             "mason", "masonry", "tile", "tiles", "semento", "cement", "palitada", "hollow", "blocks", "bakod", "fence", "pader", "bitak", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
-        ["solar_cleaning"] = ["solar", "panel", "panels", "battery"],
+        ["pest_control"] = ["pest", "peste", "insekto", "exterminator", "fumigation", "fumigate", "pesticide", "insecticide", "termite", "anay", "cockroach", "roach", "ipis", "rat", "mouse", "mice", "daga", "bedbug", "surot", "mosquito", "lamok", "misting", "fogging", "dengue", "ant", "langgam", "kulisap"],
         // "it" is never a typed word (it's a filler): Parse adds it when the text names the trade (ItIsTheTrade).
         ["it"] = ["it", "computer", "laptop", "pc", "desktop", "printer", "wifi", "internet", "router", "website", "programmer", "developer", "virus", "reformat"],
         ["car_mechanic"] = ["mechanic", "mekaniko", "car", "repair", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],

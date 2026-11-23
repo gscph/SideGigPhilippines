@@ -67,7 +67,7 @@ Copy rules for everything after this screen, because many readers aren't fluent 
 
 | Step | Question (EN / Taglish) | Input | "Why we ask" | Answer reused at |
 |------|--------------------------|-------|--------------|------------------|
-| S1 | What do you need done? / Ano'ng ipapagawa mo? | 10 category tiles with icon and hint (aircon, tubero, electrician, bubong at alulod, karpintero, welder, mason & tiles, errands/PasaBuy, solar cleaning, home service massage) | none | Results chip, search |
+| S1 | What do you need done? / Ano'ng ipapagawa mo? | 10 category tiles with icon and hint (aircon, tubero, electrician, bubong at alulod, karpintero, welder, mason & tiles, errands/PasaBuy, pest control, home service massage) | none | Results chip, search |
 | S2 | What kind of job? / Anong klaseng trabaho? | The category's jobs, most-requested first, ending with "Iba pa" | "So you only see pros who do exactly this." | Chip, ranking, **pre-filled text** |
 | S3 | Where's the job? / Saan ang trabaho? | One home town: Angono · Antipolo · Taytay, stacked tiles (`TownPicker`; sets the area), the server's default town (Angono) shown picked. A town with barangays shows the optional `BarangayField` ("Not sure / skip" first) and waits for Next; a town without moves on when tapped | "See skilled workers near you." | Chip, search, pre-filled text |
 | S4 | When do you need it? / Kailan mo kailangan? | Today (urgent) · This week · Tumitingin-tingin lang | "We'll tell the pro when you need it." | Chip, pre-filled text |

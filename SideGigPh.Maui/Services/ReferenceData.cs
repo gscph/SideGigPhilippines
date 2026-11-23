@@ -170,7 +170,7 @@ public static class ReferenceData
         new("errand_runner", new("Errands", "Errands"), AppImages.For("errand_runner"), new("House cleaning, grocery, bills, gardening", "Linis ng bahay, pa-grocery, bills, halaman")),
         new("it", new("IT", "IT"), AppImages.For("it"), new("Computers, software, networks, AI", "Computer, software, network, AI")),
         new("car_mechanic", new("Car Mechanic", "Mekaniko"), AppImages.For("car_mechanic"), new("Suspension, engine, electronics", "Suspension, makina, electronics")),
-        new("solar_cleaning", new("Solar Panel Technician", "Solar Panel Technician"), AppImages.For("solar_cleaning"), new("Panel cleaning and check-up", "Linis at check-up ng solar panel")),
+        new("pest_control", new("Pest Control", "Pest Control"), AppImages.For("pest_control"), new("Termites, cockroaches, rats, mosquitoes", "Anay, ipis, daga, lamok, surot")),
     ],
     new Dictionary<string, IReadOnlyList<CatalogOption>>
     {
@@ -227,12 +227,16 @@ public static class ReferenceData
             new("it-enterprise", new("Enterprise Solutions", "Enterprise Solutions"), AppImages.For("it-enterprise")),
             new("it-other", OtherJob, AppImages.For("it-other")),
         ],
-        ["solar_cleaning"] =
+        ["pest_control"] =
         [
-            new("solar-cleaning", new("Solar panel cleaning", "Pa-linis ng solar panel"), AppImages.For("solar-cleaning")),
-            new("solar-checkup", new("Solar check-up / maintenance", "Check-up o maintenance ng solar"), AppImages.For("solar-checkup")),
-            new("solar-inverter", new("Inverter or battery check", "Check ng inverter o battery"), AppImages.For("solar-inverter")),
-            new("solar-other", OtherJob, AppImages.For("solar-other")),
+            new("pest-termites", new("Termites", "Anay"), AppImages.For("pest-termites")),
+            new("pest-cockroaches", new("Cockroaches", "Ipis"), AppImages.For("pest-cockroaches")),
+            new("pest-rats", new("Rats and mice", "Daga"), AppImages.For("pest-rats")),
+            new("pest-mosquitoes", new("Mosquito misting", "Pa-misting sa lamok"), AppImages.For("pest-mosquitoes")),
+            new("pest-bedbugs", new("Bed bugs", "Surot"), AppImages.For("pest-bedbugs")),
+            new("pest-ants", new("Ants", "Langgam"), AppImages.For("pest-ants")),
+            new("pest-general", new("Whole-house treatment", "Spray sa buong bahay"), AppImages.For("pest-general")),
+            new("pest-other", OtherJob, AppImages.For("pest-other")),
         ],
     },
     Cities:
@@ -301,10 +305,14 @@ public static class ReferenceData
         ["it-ai"] = new(1500, 3000, 5000),
         ["it-enterprise"] = new(3000, 6000, 10000),
         ["it-other"] = new(755, 1500, 2500),
-        ["solar-cleaning"] = new(1000, 2000, 3500),
-        ["solar-checkup"] = new(1000, 1800, 3000),
-        ["solar-inverter"] = new(1000, 2000, 3500),
-        ["solar-other"] = new(1000, 2000, 3500),
+        ["pest-termites"] = new(2500, 5000, 9000),
+        ["pest-cockroaches"] = new(1200, 2000, 3500),
+        ["pest-rats"] = new(1500, 2500, 4000),
+        ["pest-mosquitoes"] = new(1200, 2000, 3500),
+        ["pest-bedbugs"] = new(2000, 3500, 6000),
+        ["pest-ants"] = new(1000, 1800, 3000),
+        ["pest-general"] = new(1500, 2500, 4500),
+        ["pest-other"] = new(1200, 2000, 3500),
     },
     DefaultTownId: "angono",
     BarangaysByTown: new Dictionary<string, IReadOnlyList<CatalogOption>>
