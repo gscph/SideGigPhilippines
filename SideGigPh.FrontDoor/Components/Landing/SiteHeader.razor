@@ -1,21 +1,21 @@
 @inherits LandingComponent
 
 <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="fd-header">
-    <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-plain-button" OnClick="ToTopAsync" aria-label="@T(Copy.Header.Home)">
+    <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-plain-button" OnClick="ToTopAsync" data-scroll-to="@Sections.Top" aria-label="@T(Copy.Header.Home)">
         <BrandMark OnDark="true" />
     </MudButton>
     <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
         <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
-            <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-nav-link" OnClick="@(() => ScrollAsync(Sections.HowItWorks))">@T(Copy.Header.HowItWorks)</MudButton>
-            <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-nav-link" OnClick="@(() => ScrollAsync(Sections.Trades))">@T(Copy.Header.Trades)</MudButton>
-            <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-nav-link" OnClick="@(() => ScrollAsync(Sections.Faq))">@T(Copy.Header.Faq)</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-nav-link" OnClick="@(() => ScrollAsync(Sections.HowItWorks))" data-scroll-to="@Sections.HowItWorks">@T(Copy.Header.HowItWorks)</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-nav-link" OnClick="@(() => ScrollAsync(Sections.Trades))" data-scroll-to="@Sections.Trades">@T(Copy.Header.Trades)</MudButton>
+            <MudButton Variant="Variant.Text" Color="Color.Inherit" Class="fd-nav-link" OnClick="@(() => ScrollAsync(Sections.Faq))" data-scroll-to="@Sections.Faq">@T(Copy.Header.Faq)</MudButton>
         </MudStack>
     </MudHidden>
     <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
         <LanguageToggle OnDark="true" />
         @if (!_formOnScreen)
         {
-            <MudButton Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Small" Class="fd-pill fd-pill-light fd-header-cta" OnClick="ToFormAsync">
+            <MudButton Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Small" Class="fd-pill fd-pill-light fd-header-cta" OnClick="ToFormAsync" data-scroll-to="@Sections.EarlyAccess">
                 @T(Copy.Header.EarlyAccess)
             </MudButton>
         }

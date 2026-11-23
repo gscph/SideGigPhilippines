@@ -8,6 +8,12 @@ public static class Sections
     public const string Trades = "trades";
     public const string Faq = "faq";
 
+    /// <summary>
+    /// The top of the page. Not an element id: the buttons carry their target as <c>data-scroll-to</c> so the
+    /// prerendered page's own script (index.html) can scroll before Blazor has started.
+    /// </summary>
+    public const string Top = "top";
+
     /// <summary>What gets focus (wide screens only) when a button scrolls to the form.</summary>
     public const string EmailFieldSelector = "input[type=email]";
 

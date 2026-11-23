@@ -26,6 +26,9 @@ export function isOnline() {
 
 // Scrolls a section into view. The form is centred so the button stays above a phone's keyboard; the field gets
 // focus only on wide screens (opening the keyboard by surprise hides the card on a phone).
+// Blazor runs the scroll buttons from here on, so index.html's early click handler stands down.
+window.fdReady = true;
+
 export function scrollToSection(id, focusSelector) {
     const target = document.getElementById(id);
     if (!target) return;

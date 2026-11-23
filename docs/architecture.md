@@ -623,6 +623,15 @@ TestFlight beta.
   serves `wwwroot` (`staticwebapp.config.json`: the fallback to `index.html`, security headers, no cache for
   `index.html` and `appsettings.json`). `index.html` carries the Open Graph tags (Facebook / Messenger previews read them
   before any script) and a plain-HTML hero that shows while the page loads, the only raw HTML.
+- **Instant first view (prerendered):** `dotnet publish` runs the page once (`BlazorWasmPreRendering.Build`,
+  `BlazorWasmPrerenderingMode` `WebAssemblyPrerendered`) and writes the finished HTML into `index.html`, so a visitor
+  (and Google) sees the whole page at once instead of "Loading…" while about 2.5 MB of .NET downloads (~9 s on mobile
+  data); Blazor then takes the same page over. So services are registered in `Program.cs`'s static local
+  `ConfigureServices(IServiceCollection, IConfiguration)` (the prerender calls it too), root components are added only
+  when the HTML names none, and browser calls stay in `OnAfterRenderAsync` (none run while prerendering). Until Blazor
+  has started, `index.html`'s small click handler scrolls for any button with `data-scroll-to` (a `Sections` id, or
+  `Sections.Top`); `frontdoor.js` sets `window.fdReady` and it stands down. The prerender is English: a Taglish visitor
+  sees it switch when Blazor starts, and the toggle and form work only from then.
 - **Brand, linked not copied:** the csproj links the app's DM Sans font, every `SideGigPh.Maui/wwwroot/images/icons/*.svg`
   (`LinkBase`) and `docs/store-assets/feature-graphic.png` as `images/og.png`, so a new icon or font reaches both.
   `Theme/FrontDoorTheme` builds the `MudTheme` with `AppTheme`'s colors and the same Folded T path (`Logo`): change
