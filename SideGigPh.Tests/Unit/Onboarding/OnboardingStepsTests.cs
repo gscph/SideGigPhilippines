@@ -168,8 +168,8 @@ public class OnboardingStepsTests
     [Fact]
     public void ToggleAllJobs_TicksEveryListedJobButOthers_ThenRemovesAll()
     {
-        var draft = new ProfessionalDraft { CategoryId = "it", ServiceIds = ["it-software"] };
-        var listed = ReferenceData.ServicesOf("it").Select(job => job.Id).Where(id => !ReferenceData.IsOtherJob(id)).ToList();
+        var draft = new ProfessionalDraft { CategoryId = "driver", ServiceIds = ["driver-family"] };
+        var listed = ReferenceData.ServicesOf("driver").Select(job => job.Id).Where(id => !ReferenceData.IsOtherJob(id)).ToList();
 
         draft.ToggleAllJobs();
         draft.ServiceIds.Should().BeEquivalentTo(listed, "\"Others\" asks them to type the work, so it isn't ticked for them");
@@ -183,11 +183,11 @@ public class OnboardingStepsTests
     [Fact]
     public void ToggleAllJobs_KeepsATickedOthers_AndRemoveAllForgetsItsText()
     {
-        var draft = new ProfessionalDraft { CategoryId = "it", ServiceIds = ["it-other"], OtherJobText = "Drone repair" };
+        var draft = new ProfessionalDraft { CategoryId = "driver", ServiceIds = ["driver-other"], OtherJobText = "Wedding car" };
 
         draft.ToggleAllJobs();
-        draft.ServiceIds.Should().Contain("it-other");
-        draft.OtherJobText.Should().Be("Drone repair");
+        draft.ServiceIds.Should().Contain("driver-other");
+        draft.OtherJobText.Should().Be("Wedding car");
 
         draft.ToggleAllJobs();
         draft.ServiceIds.Should().BeEmpty();

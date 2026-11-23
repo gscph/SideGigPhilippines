@@ -72,7 +72,7 @@ public class PostReviewTests
         draft.Description = "Hindi na malamig";
         var before = PostReview.Take(draft);
 
-        PostReview.PickTrade(draft, "it");
+        PostReview.PickTrade(draft, "driver");
         PostReview.PickTown(draft, "taytay");
         draft.BudgetPesos = 99;
         PostReview.Restore(draft, before);
@@ -88,7 +88,7 @@ public class PostReviewTests
 
         PostReview.PickTrade(draft, "aircon");
         draft.ServiceId.Should().Be("aircon-cleaning", "the same trade keeps its service");
-        PostReview.PickTrade(draft, "it");
+        PostReview.PickTrade(draft, "driver");
         draft.ServiceId.Should().BeNull();
         PostReview.PickTrade(draft, ReferenceData.OtherTradeId);
         draft.ServiceId.Should().Be(ReferenceData.OtherTradeId, "\"Others\" has one service, picked for them");

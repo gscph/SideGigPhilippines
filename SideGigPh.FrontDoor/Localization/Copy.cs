@@ -32,8 +32,8 @@ public static class Copy
         public static readonly Say Eyebrow = new("Powered by AI · Early access", "Powered by AI · Early access");
         public static readonly Say Headline = new("Finding skilled workers has never been easier.", "Mas madali na ngayong humanap ng skilled worker.");
         public static readonly Say Sub = new(
-            "Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: Aircon, Construction, Pasabay, Auto, Pest Control and IT. See their prices, chat in the app.",
-            "Kinokonekta ng Tarbaho ang mga bahay sa Angono, Antipolo at Taytay sa mga skilled worker na malapit: Aircon, Construction, Pasabay, Auto, Pest Control at IT. Kita agad ang presyo, chat sa app.");
+            "Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: Aircon, Construction, Pasabay, Driver, Auto and Pest Control. See their prices, chat in the app.",
+            "Kinokonekta ng Tarbaho ang mga bahay sa Angono, Antipolo at Taytay sa mga skilled worker na malapit: Aircon, Construction, Pasabay, Driver, Auto at Pest Control. Kita agad ang presyo, chat sa app.");
         public static readonly Say Cta = new("Get early access", "Mag-early access");
         public static readonly Say WorkerLink = new("Skilled worker? Get more customers", "Skilled worker ka? Dagdag kliyente");
         public static readonly Say ShotSearch = new("The app: Aircon Technicians in Angono, each with a price", "Ang app: mga Aircon Technician sa Angono, may presyo bawat isa");
@@ -55,7 +55,7 @@ public static class Copy
     public static class Numbers
     {
         public static readonly Say TradesTitle = new("Trades", "Klase ng serbisyo");
-        public static readonly Say TradesText = new("Aircon, construction, errands, IT, car mechanic and pest control.", "Aircon, construction, errands, IT, mekaniko at pest control.");
+        public static readonly Say TradesText = new("Aircon, construction, errands, on-call driver, car mechanic and pest control.", "Aircon, construction, errands, driver, mekaniko at pest control.");
         public static readonly Say ConstructionTitle = new("Construction services", "Serbisyo sa construction");
         public static readonly Say ConstructionText = new("Foreman to helper: carpentry, electrical, plumbing, roofing and more.", "Foreman hanggang helper: karpintero, electrical, tubero, bubong at iba pa.");
         public static readonly Say TownsTitle = new("Towns in Rizal", "Bayan sa Rizal");
@@ -191,8 +191,8 @@ public static class Copy
             (new("Is Tarbaho free?", "Libre ba ang Tarbaho?"),
              new("Yes. Free to post and free to list.", "Oo. Libre mag-post at libre mag-lista.")),
             (new("What can I find on Tarbaho?", "Ano'ng makikita sa Tarbaho?"),
-             new("Aircon cleaning, repair, freon and installation; construction: plumbers (tubero), electricians, carpenters (karpintero), masons, tiles, welding and roof repair; pest control for termites (anay), cockroaches, rats and mosquitoes; errands like house cleaning, grocery and PasaBuy; car mechanics (mekaniko); and IT: computers, software and networks.",
-                 "Linis aircon, repair, pa-freon at pakabit; construction: tubero, electrician, karpintero, mason, tiles, welding at ayos bubong; pest control sa anay, ipis, daga at lamok; errands gaya ng linis bahay, pa-grocery at PasaBuy; mekaniko ng kotse; at IT: computer, software at network.")),
+             new("Aircon cleaning, repair, freon and installation; construction: plumbers (tubero), electricians, carpenters (karpintero), masons, tiles, welding and roof repair; pest control for termites (anay), cockroaches, rats and mosquitoes; errands like house cleaning, grocery and PasaBuy; on-call drivers for the day, out-of-town trips and airport transfers; and car mechanics (mekaniko).",
+                 "Linis aircon, repair, pa-freon at pakabit; construction: tubero, electrician, karpintero, mason, tiles, welding at ayos bubong; pest control sa anay, ipis, daga at lamok; errands gaya ng linis bahay, pa-grocery at PasaBuy; driver per araw, pang-out of town at hatid-sundo sa airport; at mekaniko ng kotse.")),
             (new("How do I pay?", "Paano magbayad?"),
              new("You pay the worker directly after the work, at the price you both agreed. The money never passes through the app.", "Diretso mong babayaran si Kuya o Ate pagkatapos ng gawa, sa presyong napagkasunduan. Hindi dumadaan sa app ang bayad.")),
             (new("Where does it work?", "Saan ito pwede?"),

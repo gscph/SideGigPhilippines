@@ -64,7 +64,7 @@ public static class AppImages
         ["car_mechanic"] = "mechanic",
         ["errand_runner"] = "errand",
         ["pest_control"] = "pest-control",
-        ["it"] = "it",
+        ["driver"] = "driver",
 
         // Jobs
         ["aircon-cleaning"] = "clean",
@@ -102,11 +102,10 @@ public static class AppImages
         ["pest-bedbugs"] = "bedbug",
         ["pest-ants"] = "ant",
         ["pest-general"] = "spray",
-        ["it-software"] = "software",
-        ["it-hardware"] = "chip",
-        ["it-cybersecurity"] = "cyber-lock",
-        ["it-ai"] = "robot",
-        ["it-enterprise"] = "building",
+        ["driver-family"] = "family-car",
+        ["driver-out-of-town"] = "road-trip",
+        ["driver-airport"] = "airplane",
+        ["driver-motorcycle"] = "motorcycle",
 
         // Experience
         ["under-1"] = "level-1",

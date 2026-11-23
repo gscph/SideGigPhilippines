@@ -46,7 +46,7 @@ INSERT INTO @Categories (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, Hint
 ('aircon',         N'Aircon Technician',      N'Aircon Technician',       N'❄️', N'Cleaning, repair, installation',        N'Linis, repair, pakabit',                        1, 1),
 ('construction',   N'Construction',           N'Construction',            N'🏗️', N'Carpenter, electrician, plumber, mason, welder', N'Karpintero, electrician, tubero, mason, welder', 2, 1),
 ('errand_runner',  N'Errands',                N'Errands',                 N'🛵', N'House cleaning, grocery, bills, gardening', N'Linis ng bahay, pa-grocery, bills, halaman', 3, 1),
-('it',             N'IT',                     N'IT',                      N'💻', N'Computers, software, networks, AI',     N'Computer, software, network, AI',               4, 1),
+('driver',         N'Driver (On-Call)',       N'Driver (On-Call)',        N'🚘', N'Family, out of town, airport, motorcycle', N'Family driver, out of town, airport, motor',  4, 1),
 ('car_mechanic',   N'Car Mechanic',           N'Mekaniko',                N'🚗', N'Suspension, engine, electronics',       N'Suspension, makina, electronics',               5, 1),
 ('pest_control',   N'Pest Control',           N'Pest Control',            N'🪳', N'Termites, cockroaches, rats, mosquitoes',  N'Anay, ipis, daga, lamok, surot',             6, 1),
 -- Retired: moved under Construction as its jobs (019, 020 and 022-schema-construction-trades.sql moved the data).
@@ -56,6 +56,8 @@ INSERT INTO @Categories (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, Hint
 ('plumbing',       N'Plumber',                N'Tubero',                  N'🚰', N'Clogs, leaks, faucets, CR',             N'Barado, tagas, gripo, CR',                     97, 0),
 ('roofing',        N'Roofing & Gutter',       N'Roofing & Gutter',        N'🏠', N'Roof leaks, gutters, waterproofing',    N'Tulo sa bubong, yero, alulod, waterproofing',  96, 0),
 ('welder',         N'Welder',                 N'Welder',                  N'🔥', N'Gates, grills, railings',               N'Gate, grills, rehas, pa-weld',                 98, 0),
+-- Retired: no longer offered (Driver (On-Call) took its place). Old listings and reviews keep the id.
+('it',             N'IT',                     N'IT',                      N'💻', N'Computers, software, networks, AI',     N'Computer, software, network, AI',              91, 0),
 -- Retired: no longer offered (Pest Control took its place). Old listings and reviews keep the id.
 ('solar_cleaning', N'Solar Panel Technician', N'Solar Panel Technician',  N'☀️', N'Panel cleaning and check-up',           N'Linis at check-up ng solar panel',             92, 0),
 -- Retired: no longer offered. Old listings and reviews keep the id.
@@ -162,12 +164,11 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('errand-gardening',         'errand_runner',  N'Gardening',                                 N'Paghahalaman',                               N'🌱', 8, 1,   755,  1000,  1500),
 ('errand-other',             'errand_runner',  N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,   755,   900,  1200),
 
-('it-software',              'it',             N'Software',                                  N'Software',                                   N'💾', 1, 1,   755,  1200,  2000),
-('it-hardware',              'it',             N'Hardware',                                  N'Hardware',                                   N'🖥️', 2, 1,   755,  1500,  2500),
-('it-cybersecurity',         'it',             N'Cybersecurity',                             N'Cybersecurity',                              N'🔒', 3, 1,  1000,  2000,  3500),
-('it-ai',                    'it',             N'AI',                                        N'AI',                                         N'🤖', 4, 1,  1500,  3000,  5000),
-('it-enterprise',            'it',             N'Enterprise Solutions',                      N'Enterprise Solutions',                       N'🏢', 5, 1,  3000,  6000, 10000),
-('it-other',                 'it',             N'Others',                                    N'Iba pa',                                     N'➕', 99, 1,   755,  1500,  2500),
+('driver-family',            'driver',         N'Family driver for the day',                 N'Family driver (per araw)',                   N'🚗', 1, 1,  1000,  1500,  2500),
+('driver-out-of-town',       'driver',         N'Out-of-town trip (Tagaytay, Baguio…)',      N'Out of town (Tagaytay, Baguio…)',            N'🛣️', 2, 1,  1500,  2500,  4000),
+('driver-airport',           'driver',         N'Airport transfer (NAIA)',                   N'Hatid-sundo sa airport (NAIA)',              N'✈️', 3, 1,   800,  1200,  2000),
+('driver-motorcycle',        'driver',         N'Motorcycle rider (hatid-sundo)',            N'Rider ng motor (hatid-sundo)',               N'🏍️', 4, 1,   300,   600,  1000),
+('driver-other',             'driver',         N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,   800,  1500,  2500),
 
 ('pest-termites',            'pest_control',   N'Termites',                                  N'Anay',                                       N'🐜', 1, 1,  2500,  5000,  9000),
 ('pest-cockroaches',         'pest_control',   N'Cockroaches',                               N'Ipis',                                       N'🪳', 2, 1,  1200,  2000,  3500),
@@ -177,6 +178,14 @@ INSERT INTO @Services (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrd
 ('pest-ants',                'pest_control',   N'Ants',                                      N'Langgam',                                    N'🐜', 6, 1,  1000,  1800,  3000),
 ('pest-general',             'pest_control',   N'Whole-house treatment',                     N'Spray sa buong bahay',                       N'🧴', 7, 1,  1500,  2500,  4500),
 ('pest-other',               'pest_control',   N'Others',                                    N'Wala sa nabanggit',                          N'➕', 99, 1,  1200,  2000,  3500),
+
+-- Retired with it.
+('it-software',              'it',             N'Software',                                  N'Software',                                   N'💾', 1, 0,   755,  1200,  2000),
+('it-hardware',              'it',             N'Hardware',                                  N'Hardware',                                   N'🖥️', 2, 0,   755,  1500,  2500),
+('it-cybersecurity',         'it',             N'Cybersecurity',                             N'Cybersecurity',                              N'🔒', 3, 0,  1000,  2000,  3500),
+('it-ai',                    'it',             N'AI',                                        N'AI',                                         N'🤖', 4, 0,  1500,  3000,  5000),
+('it-enterprise',            'it',             N'Enterprise Solutions',                      N'Enterprise Solutions',                       N'🏢', 5, 0,  3000,  6000, 10000),
+('it-other',                 'it',             N'Others',                                    N'Iba pa',                                     N'➕', 99, 0,   755,  1500,  2500),
 
 -- Retired with solar_cleaning.
 ('solar-cleaning',           'solar_cleaning', N'Panel cleaning',                            N'Linis panel',                                N'🧽', 1, 0,  1000,  2000,  3500),
