@@ -36,7 +36,6 @@ To move the API to another Function App, point the `api` record at it; the app n
 - `SqlDatabase` (Azure SQL): you add it (see Azure SQL below).
 - `DocumentIntelligenceEndpoint` / `DocumentIntelligenceKey` (the AI read of a worker's ID photo, free tier): paste [`cloudshell-document-intelligence.sh`](cloudshell-document-intelligence.sh) into Cloud Shell; it also makes the private `verification` container for ID photos and proofs. Optional: without them an ID still reaches the operator, just not read by AI.
 - `AdminUids` (the operators who approve verifications): you add it, the Firebase uids of the operator accounts, comma separated (Firebase console → Authentication → Users → User UID). Empty = nobody can open `ops/…` routes.
-- `EmailConnection`, `EarlyAccessFrom`, `EarlyAccessTo` (the landing page's Early Access sign-ups, emailed): see The landing page below. Without them the form answers "didn't send".
 - `FirebaseServiceAccount` (sends new-message notifications): you add it, see [`firebase/README.md`](../firebase/README.md) → Notifications. Optional on a PC (leave it empty in `local.settings.json`: messages still send, nobody is notified).
 
 To see or change them: Azure portal → Function App `SideGigPhApi` → Settings → **Environment variables**.
@@ -148,25 +147,15 @@ SQL_CONNECTION="Server=tcp:sidegigph.database.windows.net,1433;Database=SideGigP
 ## The landing page: tarbaho.com
 
 `SideGigPh.FrontDoor` is a static site on an **Azure Static Web App** (Free plan, deployment source *Other*); its
-Early Access form calls the API, which emails each sign-up. Once:
+Early Access form calls the API, which keeps each sign-up in Azure SQL (`dbo.EarlyAccessSignups`, one row per email). Once:
 
 1. **Static Web App:** create it (Free, deployment source *Other*). Overview → **Manage deployment token** → copy it
    straight into GitHub → Settings → Secrets → Actions as `FRONTDOOR_SWA_TOKEN` (never paste it anywhere else).
    Run *Deploy website* in Actions (or push a change to the site on `main`).
 2. **Domain:** Static Web App → **Custom domains**: add `tarbaho.com` (Cloudflare: the TXT record it asks for, then
    an apex `CNAME`/flattened record to the Static Web App's address, **DNS only**) and `www.tarbaho.com` (`CNAME www`).
-3. **Email (Azure Communication Services):**
-   - Create an **Email Communication Services** resource → Provision domains → **Add custom domain** `tarbaho.com`;
-     add the TXT (verification), SPF (TXT) and the two DKIM `CNAME` records it shows at Cloudflare (DNS only), then
-     Verify each. If `tarbaho.com` already has an SPF record, merge `include:spf.protection.outlook.com` into it:
-     one SPF record per domain.
-   - Create a **Communication Services** resource (data location: Asia Pacific) → Email → Domains → **Connect
-     domain** → the verified `tarbaho.com`. The sender `DoNotReply@tarbaho.com` exists by default.
-   - Communication Services → Settings → **Keys** → copy the primary connection string.
-4. **Function App settings** (`SideGigPhApi` → Environment variables):
-   - `EmailConnection` = that connection string
-   - `EarlyAccessFrom` = `DoNotReply@tarbaho.com`
-   - `EarlyAccessTo` = the mailbox that gets the sign-ups (only here: the repo is public)
-5. **CORS** (Function App → API → CORS): add `https://tarbaho.com`, `https://www.tarbaho.com` and the Static Web App's
-   `https://….azurestaticapps.net` address. Never `*`.
-6. Run *Deploy API* so `POST early-access` is live, then send yourself a test sign-up.
+3. **CORS:** paste [`cloudshell-landing-cors.sh`](cloudshell-landing-cors.sh) into Cloud Shell. It allows
+   `https://www.tarbaho.com`, `https://tarbaho.com` and the Static Web App's own address. Never `*`.
+4. Run *Deploy API* (it runs `030-schema-early-access.sql` first), then send yourself a test sign-up and read it:
+   `SELECT * FROM dbo.EarlyAccessSignups ORDER BY CreatedAt DESC` (portal Query editor). Someone who asks to be taken
+   off the list: `DELETE dbo.EarlyAccessSignups WHERE Email = '…'`.

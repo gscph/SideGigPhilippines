@@ -1,20 +1,21 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Api;
 
 /// <summary>
 /// The landing page's Early Access form (SideGigPh.FrontDoor, a Static Web App on tarbaho.com). Public: no sign-in.
-/// Each sign-up is emailed to the team (<see cref="IEarlyAccessMailer"/>); nothing is stored here. Limited per visitor's
+/// Each sign-up is kept in Azure SQL (<see cref="EarlyAccessStore"/>, one row per email). Limited per visitor's
 /// IP address and in total, and a hidden field bots fill in is answered as done with nothing sent.
 /// </summary>
-public sealed class EarlyAccessFunctions(IEarlyAccessMailer mailer, CallerLimits limits, TimeProvider clock)
+public sealed class EarlyAccessFunctions(EarlyAccessStore store, CallerLimits limits, TimeProvider clock)
 {
     /// <summary>
-    /// <c>POST early-access</c> (<see cref="EarlyAccessRequest"/>): 204 when the email went out; 400 <c>invalid-email</c> or
-    /// <c>invalid-phone</c>; 429 past the limits; 503 <c>not-sent</c> when the mail service refused it (the page asks to try again).
+    /// <c>POST early-access</c> (<see cref="EarlyAccessRequest"/>): 204 when it is kept (the same address again too); 400
+    /// <c>invalid-email</c> or <c>invalid-phone</c>; 429 past the limits.
     /// </summary>
     [Function("JoinEarlyAccess")]
     public async Task<IActionResult> Join(
@@ -47,9 +48,8 @@ public sealed class EarlyAccessFunctions(IEarlyAccessMailer mailer, CallerLimits
         }
 
         var signup = new EarlyAccessSignup(
-            EarlyAccessRules.Normalize(body.Email), phone, EarlyAccessRules.CleanRole(body.Role), EarlyAccessRules.CleanLanguage(body.Language), clock.GetUtcNow());
-        return await mailer.SendAsync(signup, cancellationToken)
-            ? new NoContentResult()
-            : new ObjectResult(new ApiError(ApiErrors.NotSent)) { StatusCode = StatusCodes.Status503ServiceUnavailable };
+            EarlyAccessRules.Normalize(body.Email), phone, EarlyAccessRules.CleanRole(body.Role), EarlyAccessRules.CleanLanguage(body.Language));
+        await store.SaveAsync(signup, clock.GetUtcNow(), cancellationToken);
+        return new NoContentResult();
     }
 }

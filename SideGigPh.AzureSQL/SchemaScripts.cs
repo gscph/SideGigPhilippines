@@ -33,5 +33,6 @@ public static class SchemaScripts
         "027-schema-post-title",
         "028-schema-meet-location",
         "029-schema-catalog-names",
+        "030-schema-early-access",
     ];
 }

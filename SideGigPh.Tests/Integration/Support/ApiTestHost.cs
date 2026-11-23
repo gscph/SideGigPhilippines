@@ -44,9 +44,6 @@ public sealed class ApiTestHost : IAsyncLifetime
     /// <summary>Azure AI Document Intelligence stand-in: answers <see cref="FakeIdReader.Next"/> and counts its reads.</summary>
     public FakeIdReader IdReader { get; } = new();
 
-    /// <summary>Every Early Access sign-up the API emailed (Azure Communication Services stand-in).</summary>
-    public RecordingEarlyAccessMailer EarlyAccessMails { get; } = new();
-
     /// <summary>The one operator account (the Function App setting <c>AdminUids</c>).</summary>
     public const string AdminUid = "test-operator";
 
@@ -86,7 +83,6 @@ public sealed class ApiTestHost : IAsyncLifetime
                     services.AddSingleton<IPrivateFiles>(PrivateFiles);
                     services.AddSingleton<IIdDocumentReader>(IdReader);
                     services.AddSingleton(new AdminList(AdminUid));
-                    services.AddSingleton<IEarlyAccessMailer>(EarlyAccessMails);
                     services.AddSingleton(TimeProvider.System);
                 })
                 .Configure(app =>

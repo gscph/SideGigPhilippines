@@ -652,13 +652,18 @@ TestFlight beta.
   `tarbaho.early-access`) and then offers Share.
 - **Server:** `POST early-access` (`EarlyAccessFunctions`, public): 400 `invalid-email` / `invalid-phone`, a filled bot
   field answers 204 and sends nothing, `CallerLimits` `EarlyAccess` (20 an hour per IP, since phones share carrier addresses, `ClientAddress`) and
-  `EarlyAccessTotal` (300 an hour in all) answer 429. **Nothing is stored:** `IEarlyAccessMailer` emails each sign-up
-  to the owner (`AcsEarlyAccessMailer`: Azure Communication Services Email, sender `EarlyAccessFrom` on tarbaho.com,
-  recipient `EarlyAccessTo`, reply-to the person, connection `EmailConnection`). Without those settings
-  `NoEarlyAccessMailer` answers 503 `not-sent` and the page says it didn't send. The recipient is only a setting (the
-  repo is public), and no sign-up address is ever logged. Privacy policy §3.6.
+  `EarlyAccessTotal` (300 an hour in all) answer 429. **Kept in Azure SQL:** `EarlyAccessStore` upserts
+  `dbo.EarlyAccessSignups` (`030-schema-early-access.sql`), one row per lower-cased email, so the same address again
+  (a repeat, another visit) updates its row (phone, and side / language when given) and answers 204. The team reads
+  the list in SQL (portal Query editor) and deletes a row on request. No sign-up address is ever logged. Privacy
+  policy §3.6.
 - **CORS:** the page and the API are on different origins, so the Function App's CORS lists `https://tarbaho.com`,
-  `https://www.tarbaho.com` and the Static Web App's own address.
+  `https://www.tarbaho.com` and the Static Web App's own address (`azure/cloudshell-landing-cors.sh`).
+- **App screens:** the hero and each How it works step show real app screens, the store's phone screenshots
+  (`docs/store-assets/phone/`, linked by the csproj as `images/app/`) cropped to the phone by `PhoneShot`.
+- **Browser calls:** `PageScript` has two helpers with different names, `RunAsync` (no answer) and
+  `ReadValueAsync<T>` (an answer with a fallback). Never one overloaded name: `CallAsync("scrollToSection", id, selector)`
+  once bound to the generic overload, took the id as the fallback, and every scroll button did nothing.
 - **Deploy:** `.github/workflows/deploy-website.yml`, by itself on a push to `main` that changes the site, the contracts,
   the app's icons, font or `AppTheme.cs`, the feature graphic or the store phone screenshots, and by hand; it publishes and uploads `wwwroot` with
   the Static Web App's deployment token (`FRONTDOOR_SWA_TOKEN`). The API part ships with *Deploy API*.

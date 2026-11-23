@@ -11,20 +11,21 @@ namespace SideGigPh.FrontDoor.Components.Landing;
 /// </summary>
 public partial class TwoSides
 {
-    private sealed record Step(string Icon, Say Title, Say Text);
+    /// <summary>A step with the app screen that shows it (<see cref="PhoneShot"/>).</summary>
+    private sealed record Step(string Shot, Say Alt, Say Title, Say Text);
 
     private static readonly Step[] HouseholdSteps =
     [
-        new("images/icons/search.svg", Copy.Sides.H1Title, Copy.Sides.H1Text),
-        new("images/icons/chat.svg", Copy.Sides.H2Title, Copy.Sides.H2Text),
-        new("images/icons/money.svg", Copy.Sides.H3Title, Copy.Sides.H3Text),
+        new("images/app/post.png", Copy.Sides.H1Shot, Copy.Sides.H1Title, Copy.Sides.H1Text),
+        new("images/app/offers.png", Copy.Sides.H2Shot, Copy.Sides.H2Title, Copy.Sides.H2Text),
+        new("images/app/chat.png", Copy.Sides.H3Shot, Copy.Sides.H3Title, Copy.Sides.H3Text),
     ];
 
     private static readonly Step[] WorkerSteps =
     [
-        new("images/icons/profile-card.svg", Copy.Sides.W1Title, Copy.Sides.W1Text),
-        new("images/icons/megaphone.svg", Copy.Sides.W2Title, Copy.Sides.W2Text),
-        new("images/icons/wallet.svg", Copy.Sides.W3Title, Copy.Sides.W3Text),
+        new("images/app/worker-price.png", Copy.Sides.W1Shot, Copy.Sides.W1Title, Copy.Sides.W1Text),
+        new("images/app/request-offer.png", Copy.Sides.W2Shot, Copy.Sides.W2Title, Copy.Sides.W2Text),
+        new("images/app/chat.png", Copy.Sides.W3Shot, Copy.Sides.W3Title, Copy.Sides.W3Text),
     ];
 
     [Inject] private SignupState Signup { get; set; } = default!;
