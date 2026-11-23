@@ -16,6 +16,7 @@ The storage account is also the Function App's own storage (its deployment packa
 | `cloudshell-setup.sh` | Paste into **Azure Cloud Shell** (https://shell.azure.com, Bash). Creates the resource group, the storage account and its `photos` container and the Function App, and puts the storage connection string into the Function App's settings. Safe to run again. It doesn't create the database (see Azure SQL below). |
 | `cloudshell-github-deploy.sh` | Paste the same way, once: lets the GitHub workflow deploy `SideGigPh.Api` as a managed identity (no publish profile). See Deploy from GitHub below. |
 | `cloudshell-verify.sh` | A read-only check, pasted the same way, after publishing `SideGigPh.Api`: storage, public photo URLs, settings present, and that the API answers. Prints PASS / FAIL with what to do. |
+| `cloudshell-early-access-email.sh` | Paste the same way, twice: sets up the landing page's sign-up email (Azure Communication Services, domain `tarbaho.com`), prints the DNS records for Cloudflare, and on the second paste puts `EmailConnection`, `EarlyAccessFrom`, `EarlyAccessTo` into the Function App and allows the landing page's addresses (CORS). See The landing page below. |
 
 ## The address: api.tarbaho.com
 
@@ -155,18 +156,15 @@ Early Access form calls the API, which emails each sign-up. Once:
    Run *Deploy website* in Actions (or push a change to the site on `main`).
 2. **Domain:** Static Web App → **Custom domains**: add `tarbaho.com` (Cloudflare: the TXT record it asks for, then
    an apex `CNAME`/flattened record to the Static Web App's address, **DNS only**) and `www.tarbaho.com` (`CNAME www`).
-3. **Email (Azure Communication Services):**
-   - Create an **Email Communication Services** resource → Provision domains → **Add custom domain** `tarbaho.com`;
-     add the TXT (verification), SPF (TXT) and the two DKIM `CNAME` records it shows at Cloudflare (DNS only), then
-     Verify each. If `tarbaho.com` already has an SPF record, merge `include:spf.protection.outlook.com` into it:
-     one SPF record per domain.
-   - Create a **Communication Services** resource (data location: Asia Pacific) → Email → Domains → **Connect
-     domain** → the verified `tarbaho.com`. The sender `DoNotReply@tarbaho.com` exists by default.
-   - Communication Services → Settings → **Keys** → copy the primary connection string.
-4. **Function App settings** (`SideGigPhApi` → Environment variables):
-   - `EmailConnection` = that connection string
-   - `EarlyAccessFrom` = `DoNotReply@tarbaho.com`
-   - `EarlyAccessTo` = the mailbox that gets the sign-ups (only here: the repo is public)
-5. **CORS** (Function App → API → CORS): add `https://tarbaho.com`, `https://www.tarbaho.com` and the Static Web App's
-   `https://….azurestaticapps.net` address. Never `*`.
+3. **Email:** paste [`cloudshell-early-access-email.sh`](cloudshell-early-access-email.sh) into Cloud Shell. The first
+   paste creates the Email Communication Service (data location Asia Pacific) and the domain `tarbaho.com`, then
+   prints the TXT (verification), SPF (TXT) and two DKIM `CNAME` records (and a suggested DMARC): add each at
+   Cloudflare as **DNS only**. If `tarbaho.com` already has an SPF record, merge `include:spf.protection.outlook.com`
+   into it: one SPF record per domain.
+4. **Paste it again** 15+ minutes later. Once the four records are verified it creates the Communication Services
+   resource, connects the domain (sender `DoNotReply@tarbaho.com`), asks for the mailbox that gets the sign-ups and
+   sets the Function App's `EmailConnection`, `EarlyAccessFrom` and `EarlyAccessTo` (the address lives only in that
+   setting: the repo is public), and adds the CORS origins `https://tarbaho.com`, `https://www.tarbaho.com` and the
+   Static Web App's own address. Never `*`.
+5. A different Static Web App address: change `ORIGINS` at the top of the script and paste again.
 6. Run *Deploy API* so `POST early-access` is live, then send yourself a test sign-up.
