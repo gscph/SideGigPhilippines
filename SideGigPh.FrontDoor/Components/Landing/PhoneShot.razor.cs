@@ -15,5 +15,10 @@ public partial class PhoneShot
     /// <summary>The frame's width and placement (the fd-phone… classes).</summary>
     [Parameter] public string? Class { get; set; }
 
+    /// <summary>Load it only when it scrolls near (below the fold); false for the hero, which is the first thing seen.</summary>
+    [Parameter] public bool Lazy { get; set; } = true;
+
+    private string Loading => Lazy ? "lazy" : "eager";
+
     private string FrameClass => $"fd-phone-frame {Class}".Trim();
 }

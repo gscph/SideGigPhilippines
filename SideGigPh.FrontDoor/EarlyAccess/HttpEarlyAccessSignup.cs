@@ -4,7 +4,7 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.FrontDoor.EarlyAccess;
 
-/// <summary>Sends the sign-up once to the API's <c>POST early-access</c> (no automatic retry: each one is an email).</summary>
+/// <summary>Sends the sign-up once to the API's <c>POST early-access</c> (no automatic retry: a person can press it again, and the same address is one sign-up).</summary>
 public sealed class HttpEarlyAccessSignup(HttpClient http) : IEarlyAccessSignup
 {
     /// <summary>A cold API (Flex Consumption) can take a while to wake; after this the form says "didn't send".</summary>

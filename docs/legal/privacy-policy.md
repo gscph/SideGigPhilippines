@@ -138,8 +138,8 @@ On our web page **tarbaho.com** you can ask for early access to the App. You giv
 - **which phone you use** (Android or iPhone), and if you choose, whether you would use Tarbaho as a household or a
   Skilled Worker, and the page's language.
 
-We use them **only to invite you to the App and to tell you when it opens near you**. They are **sent by email to our
-team's list in our database** (Microsoft Azure, Southeast Asia), one entry per email address; they are not linked to
+We use them **only to invite you to the App and to tell you when it opens near you**. They are **kept in our team's list
+in our database** (Microsoft Azure, Southeast Asia), one entry per email address; they are not linked to
 an App account. Your IP address is used **only in our server's memory** to limit how many sign-ups
 come from one place in an hour, and is never stored. Each email we send you says how to be taken off the list.
 

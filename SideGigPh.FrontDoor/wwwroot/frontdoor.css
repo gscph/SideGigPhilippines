@@ -372,12 +372,6 @@ h1:focus {
     position: relative;
 }
 
-/* How it works: each step's app screen, upright, with a softer shadow on the white card. */
-.fd-step-phone {
-    width: 170px;
-    box-shadow: 0 12px 28px color-mix(in srgb, black 16%, transparent);
-}
-
 .fd-step-number {
     position: absolute;
     top: -10px;
@@ -427,6 +421,12 @@ h1:focus {
 .fd-phone {
     position: absolute;
     width: 46%;
+}
+
+/* How it works: each step's app screen, upright, with a softer shadow on the white card. */
+.fd-step-phone {
+    width: 170px;
+    box-shadow: 0 12px 28px color-mix(in srgb, black 16%, transparent);
 }
 
 .fd-phone-back {
