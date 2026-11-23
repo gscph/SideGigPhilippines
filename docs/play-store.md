@@ -56,7 +56,8 @@ AndroidX, Firebase, Play services) wasn't run through R8; under 25% may hurt vis
 (`AndroidLinkTool` `r8`, `AndroidR8ObfuscationMode` `private-members` in `SideGigPh.Maui.csproj`, the most .NET for
 Android allows). Each build keeps `mapping.txt` (artifact `…-r8-mapping`); when you upload
 the bundle, add it in the Play Console (App bundle explorer → the version → Downloads →
-ReTrace mapping file) so crash stacks show real names. A missing keep rule only shows as a crash at run time: after
+ReTrace mapping file) so crash stacks show real names. Our own keep rules (Java code .NET reads only by name,
+such as MAUI's photo picker) are in `Platforms/Android/proguard.cfg`. A missing keep rule only shows as a crash at run time: after
 adding an Android library, install a `beta` APK on a phone and try sign-in, notifications, photos and chat.
 
 ## 3. Before production (the launch checklist)
