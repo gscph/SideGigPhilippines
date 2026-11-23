@@ -14,7 +14,7 @@ public class HonorificsTests
     [InlineData("aircon", Honorifics.Kuya)]
     [InlineData("car_mechanic", Honorifics.Kuya)]
     [InlineData("errand_runner", Honorifics.Ate)]
-    [InlineData("it", Honorifics.Kuya)]
+    [InlineData("driver", Honorifics.Kuya)]
     [InlineData("a_new_trade", Honorifics.Kuya)]
     [InlineData(null, Honorifics.Kuya)]
     public void For_FitsTheTrade(string? categoryId, string expected) =>

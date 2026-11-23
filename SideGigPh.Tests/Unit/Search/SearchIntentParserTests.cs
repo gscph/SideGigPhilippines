@@ -28,17 +28,22 @@ public class SearchIntentParserTests
     [InlineData("exterminator", "pest_control")]
     [InlineData("AIRCON!!", "aircon")]
     [InlineData("airc", "aircon")] // typed only the start of the word
-    [InlineData("IT", "it")] // "it" is also an English filler word: the trade's own name still finds it
-    [InlineData("it", "it")]
-    [InlineData("computer technician", "it")] // "technician" is in other trades' names: it can't outvote "computer"
-    [InlineData("sira laptop", "it")]
-    [InlineData("wifi", "it")]
+    [InlineData("driver", "driver")]
+    [InlineData("drayber", "driver")]
+    [InlineData("tsuper", "driver")]
+    [InlineData("family driver", "driver")]
+    [InlineData("hatid sa airport", "driver")] // "hatid" is an Errands word too: "airport" decides
+    [InlineData("driver pa-tagaytay", "driver")]
+    [InlineData("angkas", "driver")]
+    [InlineData("airport", "driver")]
+    [InlineData("naia", "driver")]
+    [InlineData("air", "aircon")]           // "airport" starts the same way: Driver must not tie with Aircon
+    [InlineData("term", "pest_control")]    // the start of "termite"
+    [InlineData("motor", "car_mechanic")]   // the Driver's motorcycle job has "motor" too: the mechanic stays first
+    [InlineData("sira motor", "car_mechanic")]
+    [InlineData("rider ng motor", "driver")] // "rider" is an Errands word and "motor" a Car Mechanic one: together they're the Driver's job
     [InlineData("aircon technician", "aircon")]
     [InlineData("pest control technician", "pest_control")]
-    [InlineData("IT support", "it")] // "IT" in capitals names the trade inside a longer search
-    [InlineData("IT tech", "it")]
-    [InlineData("I.T.", "it")]
-    [InlineData("sira IT ko", "it")]
     [InlineData("car repair", "car_mechanic")] // "car" is also the start of "carpentry": the exact word wins
     [InlineData("kotse repair", "car_mechanic")]
     [InlineData("tune up", "car_mechanic")] // "up" is a filler word
@@ -55,6 +60,8 @@ public class SearchIntentParserTests
     [InlineData("may bitak ang pader", "construction-masonry")]
     [InlineData("sira kisame", "construction-carpentry")]
     [InlineData("pakabit tiles", "construction-tiles")]
+    [InlineData("hatid sundo airport", "driver-airport")]
+    [InlineData("rider ng motor", "driver-motorcycle")]
     public void Parse_ClearJob_PicksThatJob(string typed, string expectedJob) =>
         SearchIntentParser.Parse(typed).ServiceId.Should().Be(expectedJob);
 
@@ -83,8 +90,7 @@ public class SearchIntentParserTests
     [InlineData("")]
     [InlineData("po")]          // only a filler word
     [InlineData("xyzzy qwerty")] // nothing we know
-    [InlineData("fix it")]       // lower-case "it" in a sentence is the filler, not the IT trade
-    [InlineData("FIX IT PLEASE")] // all capitals: "IT" is just shouting
+    [InlineData("fix it")]       // "it" is a filler word
     public void Parse_NothingUseful_MatchesNothing(string? typed) =>
         SearchIntentParser.Parse(typed).Matched.Should().BeFalse();
 

@@ -26,7 +26,7 @@ const header = page(4096, 2304, `
     <div style="font-size:340px;font-weight:700;letter-spacing:-8px;line-height:1">Tarbaho</div>
   </div>
   <div style="margin-top:90px;font-size:128px;font-weight:600;line-height:1.15">Skilled Kuya and Ate near you</div>
-  <div style="margin-top:44px;font-size:84px;font-weight:400;color:${tint};opacity:.9">Aircon · Construction · Errands · IT · Mekaniko · Solar</div>
+  <div style="margin-top:44px;font-size:84px;font-weight:400;color:${tint};opacity:.9">Aircon · Construction · Errands · Driver · Mekaniko · Pest Control</div>
   <div style="margin-top:110px;padding:30px 70px;border:5px solid rgba(255,255,255,.55);border-radius:999px;font-size:72px;font-weight:500">Angono · Antipolo · Taytay, Rizal</div>
 </div>`);
 

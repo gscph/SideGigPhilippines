@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services.Search;
@@ -13,7 +12,7 @@ namespace SideGigPh.Maui.Services.Search;
 /// when no trade clearly wins ("linis", "repair") the intent has no category: the Seeker is asked
 /// which kind of pro, with the closest trades offered first.
 /// </summary>
-public static partial class SearchIntentParser
+public static class SearchIntentParser
 {
     /// <summary>Lowest job score that counts as a real match (a typed prefix scores 0.8).</summary>
     private const double MinServiceScore = 0.7;
@@ -38,7 +37,7 @@ public static partial class SearchIntentParser
     [
         "repair", "fix", "broken", "sira", "sirang", "ayos", "ayusin", "install", "installation", "pakabit", "kabit",
         "palit", "replace", "replacement", "check", "checkup", "maintenance", "service", "gawa", "pagawa", "bago",
-        // Often typed with a trade ("aircon technician"), so alone it picks none: "computer technician" is IT.
+        // Often typed with a trade ("aircon technician"), so alone it picks none: "pest control technician" is Pest Control.
         "technician", "tech",
     ];
 
@@ -52,8 +51,8 @@ public static partial class SearchIntentParser
             "mason", "masonry", "tile", "tiles", "semento", "cement", "palitada", "hollow", "blocks", "bakod", "fence", "pader", "bitak", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["pest_control"] = ["pest", "peste", "insekto", "exterminator", "fumigation", "fumigate", "pesticide", "insecticide", "termite", "anay", "cockroach", "roach", "ipis", "rat", "mouse", "mice", "daga", "bedbug", "surot", "mosquito", "lamok", "misting", "fogging", "dengue", "ant", "langgam", "kulisap"],
-        // "it" is never a typed word (it's a filler): Parse adds it when the text names the trade (ItIsTheTrade).
-        ["it"] = ["it", "computer", "laptop", "pc", "desktop", "printer", "wifi", "internet", "router", "website", "programmer", "developer", "virus", "reformat"],
+        // Not "airport" (starts like "aircon"), "terminal" (like "termite") or "motor" (Car Mechanic's): the airport and motorcycle jobs' labels still find them.
+        ["driver"] = ["driver", "drayber", "draybir", "tsuper", "chauffeur", "designated", "sundo", "naia", "flight", "byahe", "biyahe", "tagaytay", "baguio", "batangas", "probinsya", "lakad", "coding", "pamilya", "family", "motorcycle", "motorsiklo", "angkas", "habal"],
         ["car_mechanic"] = ["mechanic", "mekaniko", "car", "repair", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
     };
 
@@ -63,11 +62,6 @@ public static partial class SearchIntentParser
     public static SearchIntent Parse(string? text)
     {
         var words = SearchText.Words(text);
-        if (ItIsTheTrade(text))
-        {
-            words = ["it", .. words];
-        }
-
         if (words.Count == 0)
         {
             return SearchIntent.None;
@@ -95,29 +89,6 @@ public static partial class SearchIntentParser
         var others = ranked.Skip(1).Take(MaxOtherCategories).Select(match => match.category.Id).ToList();
         return new SearchIntent(best.Id, BestService(best, words), others);
     }
-
-    /// <summary>
-    /// "IT" is also the English filler "it": it names the trade when typed alone ("it", "I.T.") or in capitals in a
-    /// text that isn't all capitals ("IT support", "sira IT ko"), never in "fix it" or "FIX IT PLEASE".
-    /// </summary>
-    private static bool ItIsTheTrade(string? text)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-        {
-            return false;
-        }
-
-        var alone = text.Trim().TrimEnd('.', '!', '?');
-        if (alone.Equals("it", StringComparison.OrdinalIgnoreCase) || alone.Equals("i.t", StringComparison.OrdinalIgnoreCase))
-        {
-            return true;
-        }
-
-        return ItInCapitals().IsMatch(text) && text.Any(char.IsLower);
-    }
-
-    [GeneratedRegex(@"(?<![\p{L}\d])I\.?T\.?(?![\p{L}\d])")]
-    private static partial Regex ItInCapitals();
 
     private static double TradeScore(IReadOnlyList<string> words, CategoryIndex category) =>
         words.Sum(word => (GenericWords.Contains(word) ? GenericWordWeight : 1) * Math.Max(

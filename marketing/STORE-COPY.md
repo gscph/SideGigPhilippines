@@ -32,9 +32,9 @@ Skilled workers near you in Angono, Antipolo & Taytay. See prices, chat, pay aft
 The longer About text ("Page description").
 
 ```
-Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: aircon, construction, errands, IT, car mechanic and solar. See their prices, chat in the app, pay after the work. Free, walang komisyon.
+Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: aircon, construction, errands, drivers, car mechanic and pest control. See their prices, chat in the app, pay after the work. Free, walang komisyon.
 ```
-(219 characters)
+(231 characters)
 
 ### Category and buttons
 - Category: **App Page** (or Home Services)
@@ -66,9 +66,9 @@ WHAT YOU CAN FIND
 • Aircon Technician: cleaning, repair, leaks, freon, install, transfer, PMS
 • Construction: carpentry, electrical, plumbing, masonry, tiles, welding, roofing and gutters
 • Errands: house cleaning, grocery, bills, PasaBuy, documents, parcels, car wash, gardening
-• IT: software, hardware, cybersecurity
+• Driver (On-Call): family driver for the day, out-of-town trips, airport transfer (NAIA), motorcycle rider
 • Car Mechanic (Mekaniko)
-• Solar Panel Technician
+• Pest Control: termites (anay), cockroaches, rats, mosquitoes, bed bugs, ants
 Don't see what you need? Pick "Others" and type it.
 
 FOR HOUSEHOLDS

@@ -70,7 +70,7 @@ public partial class BilingualCopyTests
 
     /// <summary>
     /// A title or sentence (four words or more) left in English on the Taglish side was forgotten, not chosen: short
-    /// labels ("Contact", "IT", "Aircon Technician") may stay the same in both.
+    /// labels ("Contact", "Pest Control", "Aircon Technician") may stay the same in both.
     /// </summary>
     [Theory]
     [MemberData(nameof(AllTexts))]

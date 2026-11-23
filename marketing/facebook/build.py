@@ -168,7 +168,7 @@ def slide(carousel, i):
 </body></html>"""
 
 
-COVER_ICONS = ["aircon", "plumbing", "electrical", "construction", "house-clean", "mechanic", "solar", "it"]
+COVER_ICONS = ["aircon", "plumbing", "electrical", "construction", "house-clean", "driver", "mechanic", "pest-control"]
 
 
 def cover():
@@ -249,7 +249,7 @@ CHANGELOG = [
     "18:20 4 new posts (tulo ng gripo, ikaw ang pipili, tapos na ang project, ID badge); shorter printer line; bayarin no longer repeats the bilihin answer",
     "18:40 4 new posts (kwarto ni bunso, amoy kulob na aircon, mason, libreng profile); tighter overprice and extra lines",
     "19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others",
-    "19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)",
+    "19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)",    "23 Nov: IT retired, Driver (On-Call) added: the four IT posts are now Driver posts (airport, Tagaytay, check-up, drivers); CCTV is the electrician's; the cover shows driver and pest control",
 ]
 
 

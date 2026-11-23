@@ -33,7 +33,7 @@ public static class Copy
     // or recruiter (Labor Code Art. 13(b); docs/legal/README.md L1).
     public static readonly LocalizedText RoleTitle = new("Find a skilled worker or offer your skills", "Maghanap ng skilled worker o mag hanap ng tarbaho.");
     public static readonly LocalizedText RoleSeeker = new("I need something done", "May ipapagawa ako");
-    public static readonly LocalizedText RoleSeekerHint = new("Aircon, construction, errands, IT, repairs", "Aircon, construction, errands, IT, repair");
+    public static readonly LocalizedText RoleSeekerHint = new("Aircon, construction, errands, drivers, repairs", "Aircon, construction, errands, driver, repair");
     public static readonly LocalizedText RoleProfessional = new("I am a Skilled Worker", "Mag hanap ng Tarbaho");
     public static readonly LocalizedText RoleProfessionalHint = new("Get customers near you", "Magkaroon ng Tarbaho");
 

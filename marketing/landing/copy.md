@@ -132,8 +132,8 @@ Rules kept: workers are Kuya / Ate / Manong / Manang; no job / hire / employment
   - EN: Kuya and Ate for every kind of work
   - TL: May Kuya at Ate sa bawat klase ng gawa
 - Labels (match the app's trade names)
-  - EN: Aircon · Construction · Errands · IT · Car Mechanic · Pest Control
-  - TL: Aircon · Construction · Errands · IT · Mekaniko · Pest Control
+  - EN: Aircon · Construction · Errands · Driver (On-Call) · Car Mechanic · Pest Control
+  - TL: Aircon · Construction · Errands · Driver (On-Call) · Mekaniko · Pest Control
 - Construction sub-line
   - EN: Foreman, carpentry, electrical, plumbing, masonry, tiles, welding, roofing
   - TL: Foreman, karpintero, electrical, tubero, mason, tiles, welding, bubong at alulod

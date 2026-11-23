@@ -217,17 +217,17 @@ POSTS = [
         ),
     ),
     dict(
-        id="h10-it", side="household", stage="problem", season="all", icon="it",
-        problem="Mabagal ang WiFi?",
-        sub="May online class ang anak mo. May meeting ka bukas.",
-        answer="Sa Tarbaho, may IT na malapit sa'yo: WiFi, laptop, printer, CCTV. Presyo muna bago chat.",
+        id="h10-airport", side="household", stage="problem", season="all", icon="airplane",
+        problem="Flight mo, 5 AM bukas?",
+        sub="Ayaw mong iwan ang kotse sa NAIA nang isang linggo.",
+        answer="Sa Tarbaho, may driver na maghahatid sa'yo sa airport, tapos iuuwi ang kotse mo. Presyo muna bago chat.",
         cta="Download Tarbaho. Libre.",
         caption=(
-            "Mabagal ang WiFi? 💻\n\n"
-            "May online class ang anak mo. May meeting ka bukas.\n\n"
-            "Sa Tarbaho, may mga IT sa Angono, Antipolo at Taytay para sa WiFi setup, laptop at PC repair, printer at CCTV. "
+            "Flight mo, 5 AM bukas? ✈️\n\n"
+            "Ayaw mong iwan ang kotse sa NAIA nang isang linggo. Ayaw mo ring mag-Grab nang ganyan kaaga.\n\n"
+            "Sa Tarbaho, may mga driver sa Angono, Antipolo at Taytay para sa hatid-sundo sa airport, gamit ang kotse mo. "
             "Kita mo ang presyo at reviews nila.\n\n"
-            "Download Tarbaho. 👉 {link}\n\n#Tarbaho #IT #CCTV #Angono #Antipolo #Taytay"
+            "Download Tarbaho. 👉 {link}\n\n#Tarbaho #Driver #NAIA #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -296,7 +296,7 @@ POSTS = [
         caption=(
             "Pasukan na next week. 🎒\n\n"
             "Sira pa ang ilaw, electric fan at WiFi.\n\n"
-            "Ipaayos na bago ang first day. Sa Tarbaho, i-post mo lang: mga electrician at IT sa Angono, "
+            "Ipaayos na bago ang first day. Sa Tarbaho, i-post mo lang: mga electrician sa Angono, "
             "Antipolo at Taytay ang mag-o-offer ng presyo. Ikaw ang pipili.\n\n"
             "Download Tarbaho. 👉 {link}\n\n#Tarbaho #Pasukan #Angono #Antipolo #Taytay"
         ),
@@ -360,12 +360,12 @@ POSTS = [
         id="h25-cctv", side="household", stage="unaware", season="all", icon="gate",
         problem="Sino 'yung nasa gate kagabi?",
         sub="Kung may CCTV ka, alam mo sana.",
-        answer="Sa Tarbaho, may IT sa bayan mo na nagkakabit ng CCTV. Kita mo ang presyo at reviews.",
+        answer="Sa Tarbaho, may electrician sa bayan mo na nagkakabit ng CCTV. Kita mo ang presyo at reviews.",
         cta="Download Tarbaho. Libre.",
         caption=(
             "Sino 'yung nasa gate kagabi? 👀\n\n"
             "Kung may CCTV ka, alam mo sana.\n\n"
-            "Sa Tarbaho, may IT sa Angono, Antipolo at Taytay na nagkakabit ng CCTV at nag-aayos ng WiFi. "
+            "Sa Tarbaho, may electrician sa Angono, Antipolo at Taytay na nagkakabit ng CCTV. "
             "Kita mo ang presyo at reviews bago ka mag-message.\n\n"
             "Download Tarbaho. 👉 {link}\n\n#Tarbaho #CCTV #Angono #Antipolo #Taytay"
         ),
@@ -441,17 +441,17 @@ POSTS = [
         ),
     ),
     dict(
-        id="h31-printer", side="household", stage="problem", season="all", icon="it",
-        problem="Ayaw mag-print. Deadline bukas.",
-        sub="Project ng anak. Printer, blinking lang.",
-        answer="Sa Tarbaho, may IT na malapit sa'yo: printer, laptop, WiFi. Kita mo agad ang presyo.",
+        id="h31-tagaytay", side="household", stage="problem", season="all", icon="road-trip",
+        problem="Tagaytay sa Sabado?",
+        sub="Ikaw na naman ang magda-drive nang apat na oras.",
+        answer="Sa Tarbaho, may driver para sa out of town. Kotse mo, siya ang magmamaneho. Kita mo agad ang presyo.",
         cta="Download Tarbaho. Libre.",
         caption=(
-            "Ayaw mag-print. Deadline bukas. 🖨️\n\n"
-            "Project ng anak. Printer, blinking lang.\n\n"
-            "Sa Tarbaho, may IT sa Angono, Antipolo at Taytay para sa printer, laptop at WiFi. "
-            "Kita mo agad ang presyo at reviews. Bayad pagkatapos.\n\n"
-            "Download Tarbaho. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
+            "Tagaytay sa Sabado? 🚗\n\n"
+            "Ikaw na naman ang magda-drive nang apat na oras, tapos ikaw rin pauwi.\n\n"
+            "Sa Tarbaho, may mga driver sa Angono, Antipolo at Taytay para sa out of town: Tagaytay, Batangas, Baguio. "
+            "Kotse mo, siya ang magmamaneho. Kita mo agad ang presyo at reviews. Bayad pagkatapos.\n\n"
+            "Download Tarbaho. 👉 {link}\n\n#Tarbaho #Driver #Tagaytay #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -581,17 +581,17 @@ POSTS = [
         ),
     ),
     dict(
-        id="h41-wfh", side="household", stage="problem", season="all", icon="chip",
-        problem="Nag-lag na naman sa meeting?",
-        sub="WFH ka. Ang WiFi, hindi.",
-        answer="Sa Tarbaho, may IT na malapit sa'yo para sa WiFi at router. Kita mo agad ang presyo.",
+        id="h41-checkup", side="household", stage="problem", season="all", icon="family-car",
+        problem="May check-up si Nanay bukas?",
+        sub="Wala kang leave. Hindi na niya kaya ang commute.",
+        answer="Sa Tarbaho, may family driver per araw na maghahatid sa kanya gamit ang kotse ninyo. Kita mo agad ang presyo.",
         cta="Download Tarbaho. Libre.",
         caption=(
-            "Nag-lag na naman sa meeting? 💻\n\n"
-            "WFH ka. Ang WiFi, hindi. Mahina sa kwarto, patay sa sala.\n\n"
-            "Sa Tarbaho, may IT sa Angono, Antipolo at Taytay para sa WiFi, router at extender. "
+            "May check-up si Nanay bukas? 🏥\n\n"
+            "Wala kang leave. Hindi na niya kaya ang jeep at tricycle.\n\n"
+            "Sa Tarbaho, may mga family driver sa Angono, Antipolo at Taytay, per araw lang, gamit ang kotse ninyo. "
             "Kita mo agad ang presyo at reviews. Bayad pagkatapos.\n\n"
-            "Download Tarbaho. 👉 {link}\n\n#Tarbaho #WFH #Angono #Antipolo #Taytay"
+            "Download Tarbaho. 👉 {link}\n\n#Tarbaho #Driver #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1393,7 +1393,7 @@ POSTS = [
         ),
     ),
     dict(
-        id="w39-disyembre", side="worker", stage="problem", season="Nov-Dec", icon="building",
+        id="w39-disyembre", side="worker", stage="problem", season="Nov-Dec", icon="construction",
         problem="Disyembre. Tigil ang site.",
         sub="Pero tuloy ang Noche Buena.",
         answer="Sa Tarbaho, may mga bahay na nagpapaayos bago mag-Pasko. Mag-offer ng presyo mo.",
@@ -1407,17 +1407,17 @@ POSTS = [
         ),
     ),
     dict(
-        id="w40-it", side="worker", stage="solution", season="all", icon="it",
-        problem="IT ka? Ang daming mahina ang WiFi.",
-        sub="WFH, online class. Kailangan ka.",
-        answer="Nasa Tarbaho ang mga request sa bayan mo: WiFi, laptop, printer, CCTV. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        id="w40-driver", side="worker", stage="solution", season="all", icon="driver",
+        problem="Driver ka? Bakante ngayong linggo?",
+        sub="May mga pamilyang kailangan ng driver, isang araw lang.",
+        answer="Nasa Tarbaho ang mga request sa bayan mo: airport, out of town, family driver. Mag-offer ng presyo mo.",
+        cta="I-download ang Tarbaho. Libre.",
         caption=(
-            "IT ka? Ang daming mahina ang WiFi. 💻\n\n"
-            "WFH, online class, CCTV. Kailangan ka ng mga bahay sa bayan mo.\n\n"
-            "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay: WiFi, laptop, printer, "
-            "CCTV. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #IT #Angono #Antipolo #Taytay"
+            "Driver ka? Bakante ngayong linggo? 🚘\n\n"
+            "May mga pamilya sa bayan mo na may kotse pero walang driver: hatid sa NAIA, out of town, check-up.\n\n"
+            "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo, "
+            "ikaw ang bahala sa schedule mo.\n\n"
+            "Libre mag-lista. 👉 {link}\n\n#Tarbaho #Driver #Angono #Antipolo #Taytay"
         ),
     ),
     dict(

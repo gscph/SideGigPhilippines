@@ -91,6 +91,38 @@ public class OnboardingStepsTests
     }
 
     [Fact]
+    public void CorrectedPath_AStepShownForAnotherUrl_GetsItsOwnUrl_SoNextNeverStaysPut()
+    {
+        // A worker stopped on the jobs, then their trade was retired: the jobs URL shows the trade question. Without
+        // its own URL, Next after a new trade would lead to the jobs URL already open and nothing would move.
+        var draft = new ProfessionalDraft();
+        var shown = draft.StepToShow((int)ProStep.Services);
+
+        shown.Should().Be(ProStep.Skills);
+        OnboardingSteps.CorrectedPath((int)ProStep.Services, shown).Should().Be(OnboardingSteps.PathOf(ProStep.Skills));
+        draft.PickTrade("aircon");
+        draft.NextPath(shown).Should().NotBe(OnboardingSteps.PathOf(ProStep.Skills));
+    }
+
+    [Fact]
+    public void CorrectedPath_TheUrlsOwnStep_StaysPut()
+    {
+        OnboardingSteps.CorrectedPath((int)ProStep.Towns, ProStep.Towns).Should().BeNull();
+        OnboardingSteps.CorrectedPath((int)SeekerStep.City, SeekerStep.City).Should().BeNull();
+        OnboardingSteps.CorrectedPath(null, ProStep.Skills).Should().Be(OnboardingSteps.PathOf(ProStep.Skills));
+    }
+
+    [Fact]
+    public void SeekerCorrectedPath_AJobUrlWithNoTrade_OpensTheTradeQuestionAtItsOwnUrl()
+    {
+        var answers = new SeekerAnswers();
+        var shown = answers.StepToShow((int)SeekerStep.Service);
+
+        shown.Should().Be(SeekerStep.Category);
+        OnboardingSteps.CorrectedPath((int)SeekerStep.Service, shown).Should().Be(OnboardingSteps.PathOf(SeekerStep.Category));
+    }
+
+    [Fact]
     public void ProStepToShow_NoSelfie_NeverOpensTheNumberOrPreview()
     {
         var draft = FullyAnsweredDraft();
@@ -168,8 +200,8 @@ public class OnboardingStepsTests
     [Fact]
     public void ToggleAllJobs_TicksEveryListedJobButOthers_ThenRemovesAll()
     {
-        var draft = new ProfessionalDraft { CategoryId = "it", ServiceIds = ["it-software"] };
-        var listed = ReferenceData.ServicesOf("it").Select(job => job.Id).Where(id => !ReferenceData.IsOtherJob(id)).ToList();
+        var draft = new ProfessionalDraft { CategoryId = "driver", ServiceIds = ["driver-family"] };
+        var listed = ReferenceData.ServicesOf("driver").Select(job => job.Id).Where(id => !ReferenceData.IsOtherJob(id)).ToList();
 
         draft.ToggleAllJobs();
         draft.ServiceIds.Should().BeEquivalentTo(listed, "\"Others\" asks them to type the work, so it isn't ticked for them");
@@ -183,11 +215,11 @@ public class OnboardingStepsTests
     [Fact]
     public void ToggleAllJobs_KeepsATickedOthers_AndRemoveAllForgetsItsText()
     {
-        var draft = new ProfessionalDraft { CategoryId = "it", ServiceIds = ["it-other"], OtherJobText = "Drone repair" };
+        var draft = new ProfessionalDraft { CategoryId = "driver", ServiceIds = ["driver-other"], OtherJobText = "Wedding car" };
 
         draft.ToggleAllJobs();
-        draft.ServiceIds.Should().Contain("it-other");
-        draft.OtherJobText.Should().Be("Drone repair");
+        draft.ServiceIds.Should().Contain("driver-other");
+        draft.OtherJobText.Should().Be("Wedding car");
 
         draft.ToggleAllJobs();
         draft.ServiceIds.Should().BeEmpty();

@@ -16,7 +16,7 @@ public static class TradeList
         new("images/icons/aircon.svg", new("Aircon", "Aircon")),
         new("images/icons/construction.svg", new("Construction", "Construction")),
         new("images/icons/errand.svg", new("Errands", "Errands")),
-        new("images/icons/it.svg", new("IT", "IT")),
+        new("images/icons/driver.svg", new("Driver (On-Call)", "Driver (On-Call)")),
         new("images/icons/mechanic.svg", new("Car Mechanic", "Mekaniko")),
         new("images/icons/pest-control.svg", new("Pest Control", "Pest Control")),
     ];
@@ -56,9 +56,9 @@ public static class TradeList
         ("images/icons/mechanic.svg", new("Car mechanic", "Mekaniko"),
             new("Car mechanic (mekaniko): suspension, engine (makina) and car electronics.",
                 "Mekaniko ng kotse: suspension, makina at electronics.")),
-        ("images/icons/it.svg", new("IT", "IT"),
-            new("Computers and hardware, software, cybersecurity, AI and business systems.",
-                "Computer at hardware, software, cybersecurity, AI at business systems.")),
+        ("images/icons/driver.svg", new("Driver (On-Call)", "Driver (On-Call)"),
+            new("Family driver for the day, out-of-town trips (Tagaytay, Baguio, Batangas), airport transfer to and from NAIA, and motorcycle rider (hatid-sundo). In your own car.",
+                "Family driver per araw, out of town (Tagaytay, Baguio, Batangas), hatid-sundo sa airport (NAIA), at rider ng motor. Gamit ang sarili mong sasakyan.")),
     ];
 
     /// <summary>The towns, launch town first (the app's <c>default-town</c>).</summary>

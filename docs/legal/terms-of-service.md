@@ -32,7 +32,7 @@ use the App.
 
 - **Customer**: a user who uses the App to find a Skilled Worker for a job.
 - **Skilled Worker**: a user who publishes a listing offering their own services (for example aircon cleaning,
-  plumbing, electrical work, carpentry, welding, masonry, car repair, errands, pest control).
+  plumbing, electrical work, carpentry, welding, masonry, car repair, errands, pest control, driving).
 - **Listing**: a Skilled Worker's public profile in the App.
 - **Service Agreement**: any agreement between a Customer and a Skilled Worker about a job, whether made in the
   App's chat, by phone, by SMS or in person.
@@ -95,7 +95,8 @@ to use;
 
 c) **you hold every license, permit, certificate and registration the law requires for your work**, for example
 those required under the Philippine Electrical Code and Republic Act No. 7920 for electrical work, DENR
-requirements for handling refrigerants, and those required by your city or municipality, and you will not offer
+requirements for handling refrigerants, a valid LTO driver's license with the right codes for the vehicle you drive,
+and those required by your city or municipality, and you will not offer
 work you are not legally allowed or qualified to do;
 
 d) you are responsible for your own **taxes** (including BIR registration and receipts where required), **SSS,
@@ -117,7 +118,8 @@ You confirm these promises in the App before your listing is published.
 a) Your job request, budget and town must be true.
 
 b) **You are responsible for choosing a Skilled Worker.** Before letting anyone into your home or paying, take the
-precautions a careful person would: check their identity and, where the work requires it, their license or permit;
+precautions a careful person would: check their identity and, where the work requires it, their license or permit (a driver's license before you hand
+over your car keys);
 agree on the price and scope in writing (the App's chat counts); don't pay the full amount in advance; and don't
 leave valuables or children unattended.
 
