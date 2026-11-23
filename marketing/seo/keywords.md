@@ -10,6 +10,44 @@ tank / poso negro). They are here as ideas only: put a word on the page only whe
 Copy rules still hold: service words, never "job", "hire", "hiring", "employment", "salary" or "minimum wage"; never
 "0% commission" or "walang komisyon"; never vouch for a worker.
 
+## What Google suggests in the Philippines (checked 23 Nov 2026)
+
+Google's own autocomplete for the Philippines (gl=ph): what people really type. Autocomplete only shows searches
+many people make, so a town showing up means people there search for it.
+
+**Local searches that already exist, so aim for these first:**
+- aircon cleaning service **taytay rizal**, aircon cleaning service **angono** rizal, aircon cleaning service **antipolo**,
+  best aircon cleaning service antipolo
+- **tubero antipolo**, tubero near antipolo rizal, tubero services in antipolo
+- pest control **angono rizal**, pest control **taytay rizal**, pest control rizal (also Cainta, Binangonan, Tanay,
+  San Mateo: the next towns)
+
+**"Near me" and "price" searches people make:**
+- linis aircon near me, linis aircon price, linis aircon near me price list, linis aircon split type
+- aircon cleaning near me, aircon cleaning price list philippines, aircon repair near me
+- tubero near me, plumber near me, electrician near me, mekaniko near me, car mechanic home service near me
+- roof repair near me, roof repair philippines price, tiles installer near me
+- pest control near me, pest control price philippines, anay treatment, termite treatment
+- house cleaning services near me, computer repair near me
+
+**Words that are too vague on their own:** "tubero" (a band), "carpenter" (the Carpenters), "mason" (mason jar),
+"construction" (construction paper), "anay" (a name), "raket" (raket.ph). They work only next to a town, "near me"
+or "service": write "tubero sa Antipolo", never "tubero" alone.
+
+**Workers** search "sideline" and "raket" mostly for online jobs, so those words bring the wrong visitors: keep worker
+copy on "dagdag kliyente" and the trade ("aircon technician Angono").
+
+## How to check a word yourself
+
+- **Google Trends** (trends.google.com): compares up to 5 words, 0–100 (relative, not a count), by region. Set the
+  place to Philippines, then the region "Calabarzon" (Rizal's region). For example:
+  `https://trends.google.com/trends/explore?geo=PH&date=today%2012-m&q=aircon%20cleaning,tubero,electrician,pest%20control,karpintero`
+- **Google Ads Keyword Planner** (ads.google.com → Tools → Keyword Planner): real monthly searches (as ranges)
+  for the Philippines or one province. Free with a Google Ads account; no ad has to run.
+- **Google Search Console**, once the site is indexed: Performance shows the exact searches that showed
+  tarbaho.com, how often, and the clicks. The best list of all after a few weeks.
+- Autocomplete: type the start of a search on google.com.ph and read the suggestions.
+
 ## 1. Households: the service + the town (the main target)
 
 People search for a service and add where they are, or "near me". Each line pairs with **Angono**, **Antipolo**,

@@ -11,7 +11,7 @@ public static class Copy
     {
         // What Google shows as the result's title; the words people search (marketing/seo/keywords.md). The description
         // is index.html's own, so the page has exactly one.
-        public static readonly Say Title = new("Tarbaho: aircon, tubero, electrician in Angono, Rizal", "Tarbaho: aircon, tubero, electrician sa Angono, Rizal");
+        public static readonly Say Title = new("Aircon cleaning, tubero, electrician in Angono | Tarbaho", "Linis aircon, tubero, electrician sa Angono | Tarbaho");
     }
 
     public static class Header
@@ -162,6 +162,8 @@ public static class Copy
     public static class Trades
     {
         public static readonly Say Heading = new("Kuya and Ate for every kind of work", "May Kuya at Ate sa bawat klase ng gawa");
+        public static readonly Say ServicesHeading = new("Services in Angono, Antipolo and Taytay, Rizal", "Mga serbisyo sa Angono, Antipolo at Taytay, Rizal");
+        public static readonly Say ServicesSub = new("Find a Kuya or Ate near you, see their price, and chat in the app.", "Humanap ng Kuya o Ate na malapit sa'yo, kita ang presyo, chat sa app.");
         public static readonly Say TownsHeading = new("Starting in Rizal", "Sa Rizal muna");
         public static readonly Say AllTrades = new("All trades", "Lahat ng serbisyo");
         public static readonly Say Construction = new("Construction", "Construction");

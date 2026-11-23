@@ -652,8 +652,11 @@ TestFlight beta.
   screen), never another color, font or logo.
   Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.
 - **Search (SEO):** the words people in Rizal search are in [`marketing/seo/keywords.md`](../marketing/seo/keywords.md)
-  and go into the page's own text: the title (`Copy.Meta.Title`, also `index.html`'s), the one meta description
-  (`index.html` only, so the page has exactly one), the plain-HTML hero, and the FAQ "What can I find on Tarbaho?".
+  and go into the page's own text: the title (`Copy.Meta.Title`, written into the published `index.html` by the prerender; under 60 characters so Google shows it whole), the one meta description
+  (`index.html` only, so the page has exactly one), the plain-HTML hero, the FAQ "What can I find on Tarbaho?", and `ServiceList` (in `TradesAndTowns`: one card per trade naming every
+  service, English with the Tagalog word in brackets, from `TradeList.Services`, under "Services in Angono, Antipolo and
+  Taytay, Rizal"). Google's own Philippine autocomplete is in `keywords.md`: aim for service + town ("aircon cleaning
+  service Angono", "tubero Antipolo"), not a bare word.
   `index.html` has the canonical `https://www.tarbaho.com/` (the apex and the Static Web App's own address are copies)
   and JSON-LD (Organization with the three towns as `areaServed`, WebSite; logo `images/logo.png` = the store's 512px
   `developer-page-icon.png`). `wwwroot/robots.txt` and `sitemap.xml` (one URL; `staticwebapp.config.json` keeps `.xml`
