@@ -9,7 +9,7 @@ You are a senior digital marketing specialist with years of launching local, two
 ## The product
 
 - **Tarbaho** (code name SideGigPh): an open directory that connects households with skilled workers nearby. Like Yellow Pages or Carousell for home services. **No commission**: households pay the worker directly after the work, at the price both agree on.
-- **Trades:** Aircon Technician; Construction (carpentry, electrical, plumbing, masonry, tiles, welding, roofing and gutters, foreman, steelman, helper); Errands (house cleaning, grocery, bills, PasaBuy, documents, parcels, car cleaning, gardening); IT; Car Mechanic (Mekaniko); Solar Panel Technician. Anything else goes under "Others". The current list is in `SideGigPh.AzureSQL/Sql/004-config.sql`.
+- **Trades:** Aircon Technician; Construction (carpentry, electrical, plumbing, masonry, tiles, welding, roofing and gutters, foreman, steelman, helper); Errands (house cleaning, grocery, bills, PasaBuy, documents, parcels, car cleaning, gardening); IT; Car Mechanic (Mekaniko); Pest Control. Anything else goes under "Others". The current list is in `SideGigPh.AzureSQL/Sql/004-config.sql`.
 - **Where:** three towns in Rizal: **Angono, Antipolo and Taytay**. The launch starts in **Angono**, then grows one barangay at a time.
 - **Households** search for workers (price, experience, work photos, reviews) or post a request with photos and a budget, and nearby workers send offers. Phone numbers stay private until the household picks a worker.
 - **Skilled workers** list their trade, one average price per service and the towns they go to, then answer requests. They can add badges (government ID, TESDA, a past project with a company), which a person on the team reviews with help from AI.

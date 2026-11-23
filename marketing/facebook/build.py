@@ -94,7 +94,7 @@ def page(post, size):
 <div class="bottom">
   <div class="arrow">{e(ARROW[post["side"]])} &rarr;</div>
   <div class="answer">{e(post["answer"])}</div>
-  <div class="row"><span class="cta">{e(post["cta"])}</span><span class="towns">Angono · Antipolo · Taytay</span></div>
+  <div class="row"><span class="cta">{e(post["cta"])}</span><span class="towns">{e(post.get("towns", "Angono · Antipolo · Taytay"))}</span></div>
 </div>
 </body></html>"""
 
@@ -150,12 +150,12 @@ def slide(carousel, i):
     if sl.get("steps"):
         steps = '<div class="steps">' + "".join(
             f'<div class="step"><span class="num">{n}</span><span>{e(t)}</span></div>'
-            for n, t in enumerate(sl["steps"], 1)) + "</div>"
+            for n, t in enumerate(sl["steps"], sl.get("start", 1))) + "</div>"
     lead = f'<div class="lead">{e(sl["lead"])}</div>' if sl.get("lead") else ""
     count = f'<span class="count">{i + 1}/{total}</span>' if total > 1 else ""
     if sl["kind"] == "cta":
         art = f'<div class="biglogo">{LOGO.format(c="#ffffff")}</div>'
-        extra = '<div class="towns">Angono · Antipolo · Taytay</div>'
+        extra = f'<div class="towns">{e(sl.get("towns", "Angono · Antipolo · Taytay"))}</div>'
     elif total == 1:  # a single image ends on the download line instead of "Swipe"
         extra = (f'<div class="single"><span class="dl">{e(sl["cta"])}</span>'
                  '<span class="towns">Angono · Antipolo · Taytay</span></div>')
@@ -250,6 +250,7 @@ CHANGELOG = [
     "18:40 4 new posts (kwarto ni bunso, amoy kulob na aircon, mason, libreng profile); tighter overprice and extra lines",
     "19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others",
     "19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)",
+    "first post: two early-access worker posts (tagal ng tawag ni Foreman, patapos na ang project) and a profile-setup carousel; the app is \"malapit na sa Android\", so they point to the early-access form, not the store (first-post/ has the form and plan)",
 ]
 
 

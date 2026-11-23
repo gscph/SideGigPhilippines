@@ -1586,4 +1586,64 @@ POSTS = [
             "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
         ),
     ),
+    # ---- First post: early access (the app is not on Google Play yet; the CTA is the form) ----
+    dict(
+        id="w53-foreman", side="worker", stage="problem", season="all", icon="foreman",
+        problem="Tagal ng tawag ni Foreman?",
+        sub="Tapos na ang project, wala pang kasunod.",
+        answer="Sa Tarbaho, sariling kliyente sa bayan mo. Sariling presyo, 0% commission.",
+        cta="Mag-sign up: early access",
+        towns="Malapit na sa Android · Angono · Antipolo · Taytay",
+        caption=(
+            "Tagal ng tawag ni Foreman? 📞\n\n"
+            "Tapos na ang project, wala pang kasunod.\n"
+            "Naghihintay ka lang. O may ahente pang kumukuha ng parte mo.\n\n"
+            "Kaya namin ginawa ang Tarbaho.\n"
+            "Isang libreng app kung saan ang mga nagpapagawa sa bahay\n"
+            "ang direktang hahanap sa'yo, Kuya, Ate.\n\n"
+            "✅ 0% commission. Sa'yo ang buong bayad.\n"
+            "✅ Sariling presyo. Ikaw ang maglalagay ng range mo.\n"
+            "✅ Kliyente na malapit lang: Angono muna, tapos Taytay at Antipolo.\n"
+            "✅ Private ang number mo. Chat muna sa app, ibibigay lang pag pinili ka.\n\n"
+            "Para sa Aircon Technician at Construction:\n"
+            "Foreman, Karpintero, Electrical, Tubero, Mason, Tiles, Welding, Bubong, Steelman, Helper.\n\n"
+            "📲 Malapit na sa Android.\n"
+            "Gusto mo ng early access? Sagutan ang form (mga 3 minuto lang):\n"
+            "👉 [GOOGLE FORM LINK]\n\n"
+            "Ang mga nauna sa form, sila ang unang makakapag-setup ng profile\n"
+            "at unang makakatanggap ng requests pag bukas na ang app.\n\n"
+            "Kailangan lang namin ang Gmail na gamit mo sa Play Store\n"
+            "para mapadala namin ang early access sa'yo.\n\n"
+            "Naka-iPhone? Pwede rin via TestFlight. Sagutan lang din ang form.\n\n"
+            "I-share sa kasamahan mo sa site! 🔨\n\n"
+            "#Tarbaho #Angono #Taytay #Antipolo #Rizal #AirconTechnician #Construction #Karpintero #Electrician "
+            "#Tubero #Raket"
+        ),
+    ),
+    dict(
+        id="w54-project", side="worker", stage="problem", season="all", icon="construction",
+        problem="Patapos na naman ang project?",
+        sub="Tapos ang buhos, tapos ang tiles. Uwi, antay ulit.",
+        answer="Ihanda na ang susunod na raket sa Tarbaho. Mga nagpapagawa sa malapit, diretso sa'yo.",
+        cta="Mag-sign up: early access",
+        towns="Malapit na sa Android · Angono · Antipolo · Taytay",
+        caption=(
+            "Patapos na naman ang project? 🏗️\n\n"
+            "Alam mo na 'yan: tapos ang buhos, tapos ang tiles,\n"
+            "tapos uwi ka na naman at maghihintay.\n\n"
+            "Sa Tarbaho, ikaw mismo ang may sariling kliyente.\n"
+            "Libreng app para sa mga Kuya at Ate ng construction at aircon\n"
+            "sa Angono, Taytay at Antipolo.\n\n"
+            "✅ 0% commission. Buo ang bayad sa'yo.\n"
+            "✅ Ikaw ang bahala sa presyo.\n"
+            "✅ Mga nagpapagawa na malapit lang sa'yo.\n"
+            "✅ Private ang number mo hanggang piliin ka.\n\n"
+            "📲 Malapit na sa Android. Mag-early access na ngayon:\n"
+            "👉 [GOOGLE FORM LINK]\n\n"
+            "Ang mga nauna sa form, unang makakapag-setup ng profile\n"
+            "at unang makakatanggap ng requests pag bukas na ang app.\n"
+            "(Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.)\n\n"
+            "#Tarbaho #Angono #Taytay #Antipolo #Rizal #Construction #AirconTechnician #Raket"
+        ),
+    ),
 ]
