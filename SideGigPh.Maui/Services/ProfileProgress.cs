@@ -11,7 +11,7 @@ public enum ProfileMark
     /// <summary>Green: enough to publish.</summary>
     Done,
 
-    /// <summary>Blue: as full as it gets (all 6 work photos, all 3 badges).</summary>
+    /// <summary>Blue: as full as it gets (all 6 work photos, all 4 badges).</summary>
     Full,
 
     /// <summary>Amber: not needed to publish, but worth doing (work photos and badges: both rank higher in search).</summary>

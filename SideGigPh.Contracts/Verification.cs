@@ -15,7 +15,10 @@ public static class VerificationKinds
     /// </summary>
     public const string Developer = "developer";
 
-    public static readonly IReadOnlyList<string> All = [Id, Tesda, Developer];
+    /// <summary>An NBI or police clearance, checked by a person (no AI reads it). Badge: "NBI / Police Clearance".</summary>
+    public const string Clearance = "clearance";
+
+    public static readonly IReadOnlyList<string> All = [Id, Tesda, Developer, Clearance];
 }
 
 /// <summary>

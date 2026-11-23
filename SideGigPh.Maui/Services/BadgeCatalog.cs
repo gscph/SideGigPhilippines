@@ -15,8 +15,8 @@ public static class BadgeCatalog
     public const int MaxCompanyName = 60;
     public const int MaxProjectName = 100;
 
-    /// <summary>How many kinds of badge there are (ID, TESDA, past project).</summary>
-    public const int Kinds = 3;
+    /// <summary>How many kinds of badge there are (ID, NBI / police clearance, TESDA, past project).</summary>
+    public const int Kinds = 4;
 
     /// <summary>The developers offered, in the order shown.</summary>
     public static readonly IReadOnlyList<(string Id, string Name)> Developers =

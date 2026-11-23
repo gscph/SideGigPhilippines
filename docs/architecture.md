@@ -468,8 +468,10 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
 
 ## Badges (worker verification)
 
-Three badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the
-checker), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
+Four badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the
+checker), **NBI / Police Clearance** (kind `clearance`, an NBI or police clearance, checked by a person only;
+`031-schema-clearance-badge.sql` widened the `Kind` check; no expiry is tracked yet, the checker rejects an old
+one), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
 developer or any other company (a well-known developer picked from a list, or "Another company" typed by the
 worker; each company is its own badge, with an optional building name).
 
@@ -493,7 +495,7 @@ worker; each company is its own badge, with an optional building name).
   (`ProRoutes.BadgeProof(kind)`): what to photograph, the company for a project, the consent box (unticked: the
   phone's photo permission is not consent), then the gallery picker and the upload behind the splash.
   `Services/ProBadges` holds the rules and is tested: no consent → nothing sent; a project needs a developer or a
-  typed company; ID and TESDA can't be sent again while waiting or approved; failures come back as a result, never
+  typed company; ID, clearance and TESDA can't be sent again while waiting or approved; failures come back as a result, never
   an exception. Port `IVerificationRepository`, adapter `ApiVerificationRepository`.
 - **App, the customer:** `ListingDto.Badges` → `ProfessionalListing.Badges`; `BadgeChips` on the search result card
   and the worker's own preview, and one `TrustRow` per badge under "What we checked" on the public profile.
@@ -647,7 +649,7 @@ TestFlight beta.
   cropped to the phone by `fd-phone-shot`); sections alternate white and tint; titles are uppercase purple with the last
   word on a tint highlight (`SectionTitle`, `Copy.Titles` as Lead + Mark); pill buttons (`fd-pill`) and pill tabs
   (`fd-pills`: household / worker, all trades / Construction); rounded cards with a soft purple shadow (`fd-card`);
-  `NumbersSection` counts only what is real (trades, Construction services, towns from `TradeList`, the 3 badges); a
+  `NumbersSection` counts only what is real (trades, Construction services, towns from `TradeList`, the 4 badges); a
   `MudScrollToTop` button. The page may be rounder and bolder than the app (pills, shadows, several filled buttons per
   screen), never another color, font or logo.
   Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.

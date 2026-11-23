@@ -42,18 +42,19 @@ Each part is a 0–1 feature multiplied by a weight. The weights add up to 100 a
 `RatePesos` first, cheapest first, then the usual order (matched "Others" words, score, name). Best match is the
 score above. Both keep the "your town" then "nearby" groups.
 
-### Badges: up to +10 on top
+### Badges: up to +13 on top
 
 | Badge (approved by a person at Tarbaho) | Bonus |
 |---|---|
 | **ID Verified** (a government ID checked against the profile photo) | 4 |
+| **NBI / Police Clearance** (an NBI or police clearance) | 3 |
 | **TESDA Certified** (a National Certificate or training certificate) | 3 |
 | **Past project** with a developer or any other company (several count once) | 3 |
 
 `RankScore.Trust` (`SearchRanker.TrustFeature`). It is a **bonus on top of the 100, not a share of it**: a worker
 without badges scores exactly as before, and nobody's order changes until someone earns a badge. Between two
-otherwise equal workers the one with a badge comes first; a worker with all three gains 10 points, about what the
-whole experience part is worth, so badges help but can't carry a worker who ignores chats or has poor reviews. It
+otherwise equal workers the one with a badge comes first; a worker with all four gains 13 points, a little more than
+the whole experience part is worth, so badges help but can't carry a worker who ignores chats or has poor reviews. It
 is the one signal a brand-new worker can earn on day one. Seekers see the same badges as chips on the result card
 (`BadgeChips`) and under "What we checked" on the profile, so the order can be read off the screen. Approving a
 badge clears the 30 s search cache.

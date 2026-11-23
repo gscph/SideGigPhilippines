@@ -9,6 +9,7 @@ public static class BadgeText
     public static string Badge(this AppText text, Badge badge) => badge.Kind switch
     {
         BadgeKind.Id => text.Get(Copy.BadgeId),
+        BadgeKind.Clearance => text.Get(Copy.BadgeClearance),
         BadgeKind.Tesda => text.Get(Copy.BadgeTesda),
         _ => BadgeCatalog.CompanyOf(badge) is { } company ? text.Format(Copy.BadgeProject, company) : text.Get(Copy.BadgeProjectTitle),
     };
@@ -17,12 +18,13 @@ public static class BadgeText
     public static string BadgeNote(this AppText text, Badge badge) => badge.Kind switch
     {
         BadgeKind.Id => text.Get(Copy.BadgeIdNote),
+        BadgeKind.Clearance => text.Get(Copy.BadgeClearanceNote),
         BadgeKind.Tesda => text.Get(Copy.BadgeTesdaNote),
         _ => string.IsNullOrWhiteSpace(badge.ProjectName) ? text.Get(Copy.BadgeProjectNote) : text.Format(Copy.BadgeProjectAt, badge.ProjectName.Trim()),
     };
 
     /// <summary>
-    /// The badges to show as chips, most telling first (ID, TESDA, then projects), at most <paramref name="max"/>,
+    /// The badges to show as chips, most telling first (ID, clearance, TESDA, then projects), at most <paramref name="max"/>,
     /// and how many were left out.
     /// </summary>
     public static (IReadOnlyList<Badge> Shown, int More) BadgesToShow(this ProfessionalListing listing, int max)

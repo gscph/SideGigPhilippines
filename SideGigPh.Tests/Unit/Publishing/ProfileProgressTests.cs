@@ -11,7 +11,7 @@ namespace SideGigPh.Tests.Unit.Publishing;
 public class ProfileProgressTests
 {
     private static readonly BadgeState[] NoBadges = [BadgeState.None, BadgeState.None, BadgeState.None];
-    private static readonly BadgeState[] AllBadges = [BadgeState.Approved, BadgeState.Approved, BadgeState.Approved];
+    private static readonly BadgeState[] AllBadges = [BadgeState.Approved, BadgeState.Approved, BadgeState.Approved, BadgeState.Approved];
 
     private static ProfileProgress Progress(
         bool published = false,
@@ -86,7 +86,7 @@ public class ProfileProgressTests
     [Fact]
     public void EveryMissingBadgeSent_IsWaitingNotNagged()
     {
-        var progress = Progress(badges: [BadgeState.Approved, BadgeState.Pending, BadgeState.Pending]);
+        var progress = Progress(badges: [BadgeState.Approved, BadgeState.Pending, BadgeState.Pending, BadgeState.Pending]);
 
         progress.Badges.Should().Be(ProfileMark.Waiting);
         progress.ShowBadgeNudge.Should().BeFalse("everything they could send is with the checker");
