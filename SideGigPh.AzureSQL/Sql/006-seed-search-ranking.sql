@@ -9,8 +9,8 @@
      S4 Errands          responsiveness: reply rate + reply speed
      S5 Tile setting     activity: last opened the app
      S6 Car Mechanic     tenure: how long on the app
-     S7 Solar inverter   price fit: cheaper first, over the budget lower (never hidden)
-     S8 Solar            experience
+     S7 Pest: cockroaches price fit: cheaper first, over the budget lower (never hidden)
+     S8 Pest: rats       experience
      S9 Aircon           everything together, with paging (4 per page) and the nearby group
    The ordinary worker (unless a scenario changes it): Taytay, the job's AVERAGE price (from the job's price guide
    in dbo.Services), 1–3 years, no reviews, no chats, joined 90 days ago, last active yesterday.
@@ -138,18 +138,18 @@ INSERT INTO @Pros VALUES
 (23, 's6-year',      N'S6 Joined 1 Year Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',      3000,   365,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (24, 's6-quarter',   N'S6 Joined 3 Months Ago',            'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',      3000,    90,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 (25, 's6-new',       N'S6 Joined 3 Days Ago',              'car_mechanic',   'mechanic-engine',                      'taytay',          '1-3',      3000,     3,  0,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
--- S7 Solar inverter: price fit (guide ₱1,000 low, ₱2,000 average, ₱3,500 high; Tipid budget ₱1,000–₱2,000)
-(26, 's7-1000',      N'S7 ₱1,000',                         'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(27, 's7-1500',      N'S7 ₱1,500',                         'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      1500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(28, 's7-2000',      N'S7 ₱2,000 (budget top)',            'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(29, 's7-2500',      N'S7 ₱2,500 (25% over)',              'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(30, 's7-3000',      N'S7 ₱3,000 (50% over)',              'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      3000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(31, 's7-4000',      N'S7 ₱4,000 (double)',                'solar_cleaning', 'solar-inverter',                       'taytay',          '1-3',      4000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
--- S8 Solar: experience
-(32, 's8-10plus',    N'S8 10+ Years',                      'solar_cleaning', 'solar-cleaning',                       'taytay',          '10-plus',  2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(33, 's8-3to10',     N'S8 3 to 10 Years',                  'solar_cleaning', 'solar-cleaning',                       'taytay',          '3-10',     2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(34, 's8-1to3',      N'S8 1 to 3 Years',                   'solar_cleaning', 'solar-cleaning',                       'taytay',          '1-3',      2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
-(35, 's8-under1',    N'S8 Under 1 Year',                   'solar_cleaning', 'solar-cleaning',                       'taytay',          'under-1',  2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+-- S7 Pest Control, cockroaches: price fit (guide ₱1,200 low, ₱2,000 average, ₱3,500 high; Tipid budget ₱1,200–₱2,000)
+(26, 's7-1000',      N'S7 ₱1,000',                         'pest_control',   'pest-cockroaches',                     'taytay',          '1-3',      1000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(27, 's7-1500',      N'S7 ₱1,500',                         'pest_control',   'pest-cockroaches',                     'taytay',          '1-3',      1500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(28, 's7-2000',      N'S7 ₱2,000 (budget top)',            'pest_control',   'pest-cockroaches',                     'taytay',          '1-3',      2000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(29, 's7-2500',      N'S7 ₱2,500 (25% over)',              'pest_control',   'pest-cockroaches',                     'taytay',          '1-3',      2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(30, 's7-3000',      N'S7 ₱3,000 (50% over)',              'pest_control',   'pest-cockroaches',                     'taytay',          '1-3',      3000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(31, 's7-4000',      N'S7 ₱4,000 (double)',                'pest_control',   'pest-cockroaches',                     'taytay',          '1-3',      4000,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+-- S8 Pest Control, rats: experience
+(32, 's8-10plus',    N'S8 10+ Years',                      'pest_control',   'pest-rats',                            'taytay',          '10-plus',  2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(33, 's8-3to10',     N'S8 3 to 10 Years',                  'pest_control',   'pest-rats',                            'taytay',          '3-10',     2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(34, 's8-1to3',      N'S8 1 to 3 Years',                   'pest_control',   'pest-rats',                            'taytay',          '1-3',      2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
+(35, 's8-under1',    N'S8 Under 1 Year',                   'pest_control',   'pest-rats',                            'taytay',          'under-1',  2500,    90,  1,   0, 0, 0, 0, 0,  0,   0,  0,  0,  0),
 -- S9 Aircon: real-looking mix (Aircon cleaning guide: ₱755 lowest, ₱1,000 average, ₱1,500 above average)
 (36, 's9-mangjun',   N'S9 Mang Jun Aircon',                'aircon',         'aircon-cleaning,aircon-repair',        'taytay',          '10-plus',  1000,   400,  0,  22, 3, 0, 0, 0,  8,  15,  0,  0,  0),
 (37, 's9-kuyaben',   N'S9 Kuya Ben Cool',                  'aircon',         'aircon-cleaning,aircon-leak',          'taytay,antipolo', '3-10',      755,   200,  2,   8, 3, 1, 0, 0,  6, 120,  2,  0,  0),

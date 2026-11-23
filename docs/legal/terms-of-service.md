@@ -32,7 +32,7 @@ use the App.
 
 - **Customer**: a user who uses the App to find a Skilled Worker for a job.
 - **Skilled Worker**: a user who publishes a listing offering their own services (for example aircon cleaning,
-  plumbing, electrical work, carpentry, welding, masonry, car repair, errands, solar panel work).
+  plumbing, electrical work, carpentry, welding, masonry, car repair, errands, pest control).
 - **Listing**: a Skilled Worker's public profile in the App.
 - **Service Agreement**: any agreement between a Customer and a Skilled Worker about a job, whether made in the
   App's chat, by phone, by SMS or in person.

@@ -50,7 +50,7 @@ public class PerformanceTests
     [Fact]
     public void Understanding1000Searches_TakesUnderASecond()
     {
-        string[] typed = ["tubero barado", "aircon leak", "pa-weld gate", "masahe", "kuryente brownout", "repair", "solar panel linis"];
+        string[] typed = ["tubero barado", "aircon leak", "pa-weld gate", "masahe", "kuryente brownout", "repair", "may anay sa kisame"];
         SearchIntentParser.Parse("warm up");
 
         var clock = Stopwatch.StartNew();

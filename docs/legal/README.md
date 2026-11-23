@@ -95,7 +95,7 @@ When Google Analytics is added, add "App interactions / App activity: Analytics,
 | L4 | Third-party data (references) | **Removed:** references are no longer collected (Privacy Policy §3.4). Old rows stay until a later guarded script drops the `ProfessionalReferences` table (needs the owner's OK); Delete account purges them meanwhile |
 | L5 | Internet Transactions Act (RA 11967) | Report/block and a reachable inbox cover the usual duties; counsel to confirm DTI registration |
 | L6 | Errands that handle money | Terms put it on the users; consider a safety line on the Errands trade |
-| L7 | Licensed trades (electrical, solar, refrigerants) | Terms §5(c) puts it on the worker |
+| L7 | Licensed trades (electrical, refrigerants, pesticides) | Terms §5(c) puts it on the worker |
 | L8 | NPC registration | DPO named; register with the NPC when the user count makes it mandatory |
 
 No clause shields us from our own **fraud, bad faith or gross negligence** (Civil Code Arts. 1171–1172) or from

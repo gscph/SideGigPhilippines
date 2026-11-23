@@ -34,8 +34,8 @@ aircon cleaning, ₱1,000–₱2,000 for a roof leak).
 | S4 | `linis ng bahay` | Errands → House cleaning |
 | S5 | `pakabit tiles` | Construction → Tile setting |
 | S6 | `makina kotse` | Car Mechanic → Engine |
-| S7 | `inverter` | Solar Panel Technician → Inverter or battery check |
-| S8 | `linis solar panel` | Solar → Panel cleaning |
+| S7 | `ipis` | Pest Control → Cockroaches |
+| S8 | `daga` | Pest Control → Rats and mice |
 | S9 | `linis aircon` / `pakabit aircon` | Aircon → Cleaning / Installation |
 
 Every sample worker's name starts with its scenario ("S4 …"), so you can always tell which test a card belongs
@@ -79,20 +79,20 @@ Expect: **S5 Active Today** → **1 Week Ago** → **1 Month Ago** → **3 Month
 ### S6 Tenure (Car Mechanic)
 Expect: **S6 Joined 1 Year Ago** → **3 Months Ago** → **3 Days Ago**. All three were active today. Tenure is a small part (6 of 100 points), so it only decides ties like this one.
 
-### S7 Price (Solar inverter check)
-An inverter or battery check costs ₱1,000 (lowest), ₱2,000 (average) or ₱3,500 (above average). Six workers ask
+### S7 Price (Pest Control, cockroaches)
+Cockroach treatment costs ₱1,200 (lowest), ₱2,000 (average) or ₱3,500 (above average). Six workers ask
 ₱1,000, ₱1,500, ₱2,000 (the top of the first budget), ₱2,500 (25% over), ₱3,000 (50% over) and ₱4,000 (double).
 
 | Budget chip | Expect |
 |---|---|
-| ₱1,000–₱2,000 (first choice) | **S7 ₱1,000** → **₱1,500** → **₱2,000** (green "Pasok sa budget" pills) → **₱2,500** → **₱3,000** → **₱4,000** (gray "Above your budget" pills) |
+| ₱1,200–₱2,000 (first choice) | **S7 ₱1,000** → **₱1,500** → **₱2,000** (green "Pasok sa budget" pills) → **₱2,500** → **₱3,000** → **₱4,000** (gray "Above your budget" pills) |
 | Typed ₱1,000–₱1,500 (the "custom" tile) | Same order: ₱3,000 and ₱4,000 are double or more over and score 0 for price, but they still show |
 | Not sure | Same order, no pills: each price is measured against the guide's ₱3,500 |
 | Sort → Lowest price | Same order (cheapest first) whatever the budget |
 
 Proves: cheaper first, over the budget lower, **nobody hidden for price**.
 
-### S8 Experience (Solar)
+### S8 Experience (Pest Control, rats)
 Expect: **S8 10+ Years** (purple award icon) → **3 to 10** → **1 to 3** → **Under 1 Year**.
 
 ### S9 Everything together, with paging (Aircon)
