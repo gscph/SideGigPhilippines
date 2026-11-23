@@ -32,14 +32,14 @@ CAROUSELS = [
                      steps=["Gumawa ng libreng profile: serbisyo, presyo, at mga bayan mo",
                             "Ang mga household na malapit ang magme-message sa'yo",
                             "Sa Requests, mag-alok ng sarili mong presyo",
-                            "Sa'yo ang buong bayad. Walang komisyon."],
-                     cta="I-download ang Tarbaho. Walang komisyon.")],
+                            "Pag pinili ka, chat muna sa app, tapos gawa na"],
+                     cta="I-download ang Tarbaho.")],
         caption=(
             "Gusto mo ng dagdag na customer? Ganito gumagana ang Tarbaho: 👇\n\n"
             "1️⃣ Gumawa ng libreng profile: ang serbisyo mo, ang presyo mo, at ang mga bayan na pinupuntahan mo.\n"
             "2️⃣ Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.\n"
             "3️⃣ Sa Requests, makikita mo ang mga bahay na may kailangang ipagawa. Mag-alok ng sarili mong presyo.\n"
-            "4️⃣ Sa'yo ang buong bayad. Walang komisyon.\n\n"
+            "4️⃣ Pag pinili ka, chat muna sa app, tapos gawa na. Bayad pagkatapos, sa presyong napagkasunduan.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n"
             "#Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay"
         ),
@@ -85,69 +85,68 @@ CAROUSELS = [
                         "Ang mga household na malapit ang magme-message sa'yo",
                         "Tingnan ang Requests at mag-alok ng sarili mong presyo"]),
             dict(kind="cta", title="I-download ang Tarbaho.",
-                 body="Walang komisyon. Sa'yo ang buong bayad."),
+                 body="Ikaw ang bahala sa presyo mo."),
         ],
         caption=(
             "Marunong ka. Pero walang tumatawag? 🧰\n\n"
             "Swipe para makita kung paano ka mahahanap ng mga customer sa bayan mo. 👉\n\n"
             "Sa Tarbaho, gumawa ng libreng profile. Ang mga household sa Angono, Antipolo at Taytay ang magme-message "
             "sa'yo, at makikita mo ang mga Request nila para makapag-alok ka ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n"
+            "I-download ang Tarbaho. 👉 {link}\n\n"
             "#Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay"
         ),
     ),
-    # First post: how a worker sets up the profile. The app is "malapit na sa Android", so it ends on the
-    # early-access form, never the store.
+    # First post: how a worker sets up the profile. The app is not out yet, so it ends on the early-access form,
+    # never the store. Voice: a kasama sa site joking around, short and plain.
     dict(
         id="setup-worker", side="worker",
         slides=[
             dict(kind="problem", icon="worker",
-                 title="Ganito kadali mag-setup ng profile.",
-                 body="Pag labas ng app sa Android. Pero mag-early access ka na ngayon."),
+                 title="Ilang minuto lang ang setup.",
+                 body="Mas mabilis pa sa tawag ni Foreman."),
             dict(kind="how", lead="Hakbang 1 hanggang 3",
-                 title="Mag-sign in, piliin ang trade mo.",
-                 steps=["Piliin ang wika: English o Taglish",
-                        "Mag-sign in sa mobile number mo (may SMS code)",
-                        "Piliin ang Skilled worker, tapos trade at mga serbisyo mo"]),
+                 title="Sign in, tapos trade mo.",
+                 steps=["English o Taglish",
+                        "Mobile number mo, tapos SMS code",
+                        "Skilled worker, tapos trade at serbisyo mo"]),
             dict(kind="how", lead="Hakbang 4 hanggang 6", start=4,
-                 title="Presyo, bayan, karanasan.",
-                 steps=["Sariling presyo: mula–hanggang, o depende sa trabaho",
-                        "I-tick ang mga bayan: Angono, Taytay, Antipolo",
-                        "Ilang taon ka na sa trabaho"]),
+                 title="Presyo, bayan, taon.",
+                 steps=["Presyo mo: mula ₱… hanggang ₱…",
+                        "Mga bayan na pinupuntahan mo",
+                        "Ilang taon ka na sa linya mo"]),
             dict(kind="how", lead="Hakbang 7 hanggang 9", start=7,
                  title="Selfie, number, Game!",
-                 steps=["Selfie mo, malinaw ang mukha (kailangan)",
-                        "I-confirm ang number sa SMS (kailangan bago mag-live)",
-                        "Silipin ang card, mangako, tapos Game!"]),
+                 steps=["Selfie: kahit hindi artistahin, basta malinaw",
+                        "I-confirm ang number sa SMS",
+                        "Silipin ang card, mangako, Game!"]),
             dict(kind="problem", icon="medal",
                  title="Gusto mong mas makita?",
-                 body="Hanggang 6 na work photos. Badges: Government ID, TESDA, past project sa company. "
+                 body="Picture ng gawa mo (hanggang 6) at badges: ID, TESDA, past project. "
                       "Hindi required, pero mas mataas ka sa search."),
             dict(kind="problem", icon="chat",
-                 title="Live ka na: requests, offer, chat.",
-                 body="Mag-offer ng presyo mo. Chat muna sa app. Number mo, pag pinili ka lang."),
+                 title="Live ka na.",
+                 body="Kita mo ang requests sa malapit. Mag-offer ng presyo mo. Number mo, pag pinili ka lang."),
             dict(kind="cta", title="Mag-sign up: early access.",
-                 body="Malapit na sa Android. Link sa caption."),
+                 body="Hindi pa bukas ang app. Link sa caption.",
+                 towns="Only available in Angono, Antipolo and Taytay for now"),
         ],
         caption=(
-            "Ganito kadali mag-setup ng profile sa Tarbaho. 👇\n"
-            "(I-swipe ang mga picture)\n\n"
-            "Pag labas ng app sa Android, ilang minuto lang:\n"
-            "1️⃣ Piliin ang wika: English o Taglish\n"
-            "2️⃣ Mag-sign in sa mobile number mo (may SMS code)\n"
-            "3️⃣ Piliin ang \"Skilled worker\", tapos trade at mga serbisyo mo (hal. Karpintero, Tiles, Linis ng aircon)\n"
-            "4️⃣ Sariling presyo mo, mula–hanggang, o \"depende sa trabaho\"\n"
-            "5️⃣ I-tick ang mga bayan: Angono, Taytay, Antipolo\n"
-            "6️⃣ Ilang taon ka na sa trabaho\n"
-            "7️⃣ Selfie mo, malinaw ang mukha\n"
-            "8️⃣ I-confirm ang number sa SMS\n"
-            "9️⃣ Silipin ang card mo, mangako, tapos \"Game!\" Live ka na.\n\n"
-            "Gusto mong mauna? 📲 Malapit na sa Android.\n"
-            "Mag-early access na ngayon, sagutan ang form:\n"
+            "Ilang minuto lang ang setup sa Tarbaho. Mas mabilis pa sa tawag ni Foreman. "
+            "(I-swipe)\n\n"
+            "1. English o Taglish\n"
+            "2. Mobile number mo, tapos SMS code\n"
+            "3. \"Skilled worker\", tapos trade at serbisyo mo\n"
+            "4. Presyo mo: mula ₱… hanggang ₱…, o \"depende sa trabaho\"\n"
+            "5. Mga bayan na pinupuntahan mo\n"
+            "6. Ilang taon ka na sa linya mo\n"
+            "7. Selfie (kahit hindi artistahin, basta malinaw)\n"
+            "8. I-confirm ang number sa SMS\n"
+            "9. Silipin ang card mo, mangako, tapos \"Game!\"\n\n"
+            "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
+            "Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Kailangan lang namin ang Gmail na gamit mo sa Play Store.\n"
-            "Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.\n\n"
-            "#Tarbaho #Angono #Taytay #Antipolo #Construction #AirconTechnician"
+            "Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.\n\n"
+            "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),
     ),
 ]

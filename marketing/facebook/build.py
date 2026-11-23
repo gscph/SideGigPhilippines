@@ -193,7 +193,7 @@ body {{ font-family: 'DM Sans', sans-serif; background: #5B2A86; color: #ffffff;
 </style></head><body><div class="box">
 <div class="brand">{LOGO.format(c="#ffffff")}Tarbaho</div>
 <div class="lines">May sira sa bahay? Mga skilled worker na malapit sa'yo.<br>
-<span class="g">Skilled worker ka? Walang komisyon, sa'yo ang buong bayad.</span></div>
+<span class="g">Skilled worker ka? Sariling customer, sa presyong gusto mo.</span></div>
 <div class="icons">{icons}</div>
 <div class="towns">Angono · Antipolo · Taytay</div>
 </div></body></html>"""
@@ -251,6 +251,7 @@ CHANGELOG = [
     "19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others",
     "19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)",
     "first post: two early-access worker posts (tagal ng tawag ni Foreman, patapos na ang project) and a profile-setup carousel; the app is \"malapit na sa Android\", so they point to the early-access form, not the store (first-post/ has the form and plan)",
+    "first post rewrite (owner: \"cringe and corny\"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; \"Only available in Angono, Antipolo and Taytay for now\" under the button; no commission or \"buong bayad\" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9 is now \"Magkano po? Tapos seen na lang\" (w9-seen)",
 ]
 
 

@@ -2,19 +2,20 @@
 
 A 7-slide carousel, `../out/carousel-setup-worker-1.png` … `-7.png` (1080×1080, built by `../build.py` from
 `../carousels.py`, id `setup-worker`), plus the caption and a text guide workers can read.
-Framing: **this is how easy it will be when the app comes out on Android. Fill the early-access form now.** Nothing says "download now".
+Framing: **this is how easy it will be once the app is out. Fill the early-access form now.** Nothing says "download".
+Voice: a kasama sa site joking around; short and plain.
 
 Post it 2–4 days after the first post (or as the first comment on it). Upload the slides in order 1 → 7 as one multi-photo post.
 
-| Slide | What it shows |
+| Slide | What it says |
 |---|---|
-| 1 | "Ganito kadali mag-setup ng profile." Pag labas ng app sa Android; early access ngayon |
-| 2 | Hakbang 1–3: wika (English / Taglish), sign in with mobile number + SMS code, Skilled worker then trade and services |
-| 3 | Hakbang 4–6: sariling presyo (mula–hanggang, o depende sa trabaho), mga bayan, taon ng karanasan |
-| 4 | Hakbang 7–9: selfie (kailangan), i-confirm ang number sa SMS (kailangan bago mag-live), silipin ang card, mangako, "Game!" |
-| 5 | Para mas makita: hanggang 6 work photos, badges (Government ID, TESDA, past project sa company) |
-| 6 | Live ka na: requests, offer, chat; number mo pag pinili ka lang |
-| 7 | "Mag-sign up: early access." Malapit na sa Android |
+| 1 | "Ilang minuto lang ang setup." Mas mabilis pa sa tawag ni Foreman |
+| 2 | Hakbang 1–3: English o Taglish, mobile number + SMS code, Skilled worker then trade and services |
+| 3 | Hakbang 4–6: presyo mo (mula ₱… hanggang ₱…), mga bayan, ilang taon ka na sa linya mo |
+| 4 | Hakbang 7–9: selfie ("kahit hindi artistahin, basta malinaw"), confirm the number by SMS, check the card, promise, "Game!" |
+| 5 | "Gusto mong mas makita?" Up to 6 work photos and badges (ID, TESDA, past project); not required, but higher in search |
+| 6 | "Live ka na." Requests nearby, your offer, your number only when they pick you |
+| 7 | "Mag-sign up: early access." Hindi pa bukas ang app; "Only available in Angono, Antipolo and Taytay for now" |
 
 ---
 
@@ -23,31 +24,29 @@ Post it 2–4 days after the first post (or as the first comment on it). Upload 
 The same caption is in `../carousels.py` and `../POSTS.md`.
 
 ```
-Ganito kadali mag-setup ng profile sa Tarbaho. 👇
-(I-swipe ang mga picture)
+Ilang minuto lang ang setup sa Tarbaho. Mas mabilis pa sa tawag ni Foreman. (I-swipe)
 
-Pag labas ng app sa Android, ilang minuto lang:
-1️⃣ Piliin ang wika: English o Taglish
-2️⃣ Mag-sign in sa mobile number mo (may SMS code)
-3️⃣ Piliin ang "Skilled worker", tapos trade at mga serbisyo mo (hal. Karpintero, Tiles, Linis ng aircon)
-4️⃣ Sariling presyo mo, mula–hanggang, o "depende sa trabaho"
-5️⃣ I-tick ang mga bayan: Angono, Taytay, Antipolo
-6️⃣ Ilang taon ka na sa trabaho
-7️⃣ Selfie mo, malinaw ang mukha
-8️⃣ I-confirm ang number sa SMS
-9️⃣ Silipin ang card mo, mangako, tapos "Game!" Live ka na.
+1. English o Taglish
+2. Mobile number mo, tapos SMS code
+3. "Skilled worker", tapos trade at serbisyo mo
+4. Presyo mo: mula ₱… hanggang ₱…, o "depende sa trabaho"
+5. Mga bayan na pinupuntahan mo
+6. Ilang taon ka na sa linya mo
+7. Selfie (kahit hindi artistahin, basta malinaw)
+8. I-confirm ang number sa SMS
+9. Silipin ang card mo, mangako, tapos "Game!"
 
-Gusto mong mauna? 📲 Malapit na sa Android.
-Mag-early access na ngayon, sagutan ang form:
+Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
+
+Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:
 👉 [GOOGLE FORM LINK]
 
-Kailangan lang namin ang Gmail na gamit mo sa Play Store.
-Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.
+Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.
 
-#Tarbaho #Angono #Taytay #Antipolo #Construction #AirconTechnician
+#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```
 
-English gloss: "This is how easy it is to set up a Tarbaho profile (swipe). When the app comes out on Android, just a few minutes: 1 pick English or Taglish; 2 sign in with your number (SMS code); 3 pick Skilled worker, then your trade and services; 4 your own price range or "depends on the job"; 5 tick your towns; 6 years of experience; 7 a clear selfie; 8 confirm your number by SMS; 9 check your card, agree to the promises, tap Game! and you're live. Want to be first? Coming soon on Android. Get early access now with the form. We only need the Gmail you use on the Play Store. On iPhone? TestFlight works too; just fill the form."
+English gloss: "Setting up on Tarbaho takes a few minutes. Faster than Foreman's call. (Swipe) 1 English or Taglish; 2 your mobile number, then the SMS code; 3 Skilled worker, then your trade and services; 4 your price, from ₱… to ₱…, or "depends on the work"; 5 the towns you go to; 6 years in your line of work; 7 a selfie (you don't need to look like a movie star, just clear); 8 confirm your number by SMS; 9 check your card, make the promises, then "Game!". Here on Tarbaho, you can find your own customers at the price you want. The app isn't open yet. Want to be first? Fill in the form. Enter the Gmail you use on the Play Store. On iPhone? TestFlight works too."
 
 ---
 
@@ -69,14 +68,14 @@ Wala sa listahan? Piliin ang **"Others"** at i-type ang ginagawa mo.
 
 **Hakbang 4. Sariling presyo**
 Ilagay ang range mo: **mula ₱… hanggang ₱…**. O piliin ang **"depende sa trabaho"**.
-0% commission: sa'yo ang buong bayad. Ang household ang magbabayad sa'yo pagkatapos ng serbisyo, sa presyong pinagkasunduan ninyo.
+Ang household ang magbabayad sa'yo pagkatapos ng serbisyo, sa presyong napagkasunduan ninyo.
 
 **Hakbang 5. Saan ka pumupunta, at ilang taon ka na**
 I-tick lahat ng bayan na kaya mo: **Angono, Taytay, Antipolo**.
 Piliin ang taon ng karanasan mo.
 
 **Hakbang 6. Selfie at number**
-Mag-selfie: malinaw na mukha mo, walang sunglasses. **Kailangan ito.** Ito ang proof mo sa mga kliyente.
+Mag-selfie: kahit hindi artistahin, basta malinaw ang mukha, walang sunglasses. **Kailangan ito.** Ito ang proof mo sa mga kliyente.
 I-confirm ang **mobile number** mo sa SMS. **Kailangan ito bago ka mag-live.**
 
 **Hakbang 7. Silipin, mangako, Game!**
@@ -100,7 +99,7 @@ Mas mataas ka sa search kapag may photos at badges.
 1. Pick English or Taglish; type your mobile number and enter the SMS code (Google sign-in also works).
 2. Pick "Skilled worker", not "Household" (households are the ones who need work done).
 3. Pick your trade (e.g. Construction or Aircon Technician), then tick the services you do. Not listed? Pick "Others" and type it.
-4. Enter your price range, from ₱… to ₱…, or "depends on the job". 0% commission: the household pays you after the work at the agreed price.
+4. Enter your price range, from ₱… to ₱…, or "depends on the work". The household pays you after the work, at the price you agreed.
 5. Tick every town you go to (Angono, Taytay, Antipolo) and pick your years of experience.
 6. Take a clear selfie (required, it's your proof) and confirm your number by SMS (required before going live).
 7. Check your card, tick the promises (honest work and prices, Terms and community rules, fair offers), tap "Game!" ("Ready" in English). You're live.

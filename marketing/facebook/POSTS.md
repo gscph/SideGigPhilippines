@@ -1003,7 +1003,7 @@ Maraming nanay at nagtatrabaho ang walang oras pumila sa bayad-center o mag-groc
 
 Sa Tarbaho, tumanggap ng pakisuyo sa Angono, Antipolo at Taytay: bayad ng bills, grocery, PasaBuy, padala. Ikaw ang nagtatakda ng presyo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Pakisuyo #PasaBuy #Angono #Antipolo #Taytay
 ```
@@ -1019,7 +1019,7 @@ Magaling ang gawa mo. Pero hindi ito nakikita.
 
 Sa Tarbaho, ipakita ang gawa mo: picture ng mga natapos mo, reviews ng mga household, at ilang taon ka na. Mas maraming bahay sa Angono, Antipolo at Taytay ang makakakita sa'yo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #SkilledWorker #Angono #Antipolo #Taytay
 ```
@@ -1035,7 +1035,7 @@ Sabado't Linggo, nakatambay ka lang? 📅
 
 Sa Tarbaho, ikaw ang pipili kung kailan ka libre. Kita mo ang mga request ng household sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay
 ```
@@ -1051,7 +1051,7 @@ Pero ikaw ang unang dumarating sa site at huling umuuwi.
 
 Sa Tarbaho, may sarili kang profile at sariling presyo. Buhat, hakot, linis ng site, para sa mga household sa Angono, Antipolo at Taytay.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Construction #Angono #Antipolo #Taytay
 ```
@@ -1067,7 +1067,7 @@ May skills ka. Wala pang suki dito.
 
 Sa Tarbaho, gumawa ng libreng profile: serbisyo mo, presyo mo, at mga bayan mo. Makikita ka ng mga household sa Angono, Antipolo at Taytay.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #OFW #Angono #Antipolo #Taytay
 ```
@@ -1083,7 +1083,7 @@ Malapit lang sila. Hindi ka lang nila nakita, kaya iba ang natawagan.
 
 Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay, kasama ang presyo mo at reviews.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1103,7 +1103,7 @@ Isang linggo na. Wala pa rin. Tuloy ang gastos sa bahay.
 
 Habang naghihintay, may mga bahay sa Angono, Antipolo at Taytay na nagpo-post ng kailangan nila: karpintero, mason, tiles, welding, tubero, electrician. Kita mo sa Requests, ikaw ang mag-o-offer ng presyo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Construction #Angono #Antipolo #Taytay
 ```
@@ -1119,7 +1119,7 @@ Ang laki ng napupunta sa biyahe. Kulang na ang naiuuwi.
 
 Sa Tarbaho, ikaw ang nagsasabi kung hanggang saan ka lang pupunta. Ang makikita mo, mga household na malapit sa'yo sa Angono, Antipolo at Taytay.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Sideline #Angono #Antipolo #Taytay
 ```
@@ -1135,7 +1135,7 @@ Bigas, gas, kuryente, tumaas lahat. Ang arawan mo, hindi.
 
 Sa Tarbaho, dagdag na customer sa bayan mo. Ikaw ang nagtatakda ng presyo mo. Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1151,7 +1151,7 @@ Magaling ka. Pero ang customer mo, puro kakilala lang. Pag walang tumawag, walan
 
 Sa Tarbaho, gumawa ng libreng profile: serbisyo mo, presyo mo, at mga bayan na pinupuntahan mo. Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Sideline #Angono #Antipolo #Taytay
 ```
@@ -1167,7 +1167,7 @@ Tigil ang site. Pero tuloy ang bayarin sa bahay.
 
 Habang tag-ulan, ang daming bahay sa Angono, Antipolo at Taytay ang may tulo sa bubong, barado na alulod at basang kisame. Nasa Tarbaho ang mga request nila. Mag-offer ng presyo mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Construction #Angono #Antipolo #Taytay
 ```
@@ -1183,7 +1183,7 @@ Hulog sa motor, tuition, kuryente. Sabay-sabay pa.
 
 Sa Tarbaho, dagdag na customer sa bayan mo. Ang mga household sa Angono, Antipolo at Taytay ang magme-message, at ikaw ang nagtatakda ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1199,7 +1199,7 @@ Pero tuloy ang Noche Buena, ang regalo, ang bayarin.
 
 Sa Tarbaho, may mga household sa Angono, Antipolo at Taytay na nagpapaayos bago mag-Pasko: pintura, ilaw, gripo, kisame. Mag-offer ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Pasko #Angono #Antipolo #Taytay
 ```
@@ -1215,7 +1215,7 @@ Saan ang susunod? Kailan ang susunod na tawag?
 
 Habang naghihintay, may mga household sa Angono, Antipolo at Taytay na may ipapagawa. Nasa Tarbaho ang mga request nila. Mag-offer ng presyo mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Construction #Angono #Antipolo #Taytay
 ```
@@ -1231,7 +1231,7 @@ Para sa ₱500 na gawa. Kalahati, napunta lang sa gas.
 
 Sa Tarbaho, ikaw ang pipili kung gaano kalayo ka lang pupunta. Mga customer sa Angono, Antipolo at Taytay na malapit sa'yo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1247,77 +1247,51 @@ Pasukan na. Bawat raket, malaking tulong.
 
 Sa Tarbaho, dagdag na customer sa Angono, Antipolo at Taytay. Ang mga household ang magme-message, at ikaw ang nagtatakda ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Pasukan #Angono #Antipolo #Taytay
 ```
 
-#### Tagal ng tawag ni Foreman?
+#### Antagal ng tawag ni Foreman?
 
 When: any time · Images: `out/w53-foreman-feed.png`, `out/w53-foreman-story.png`
 
 ```
-Tagal ng tawag ni Foreman? 📞
+Antagal ng tawag ni Foreman?
 
-Tapos na ang project, wala pang kasunod.
-Naghihintay ka lang. O may ahente pang kumukuha ng parte mo.
+Full bars naman ang signal mo. Nagpa-load ka pa nga. Siya lang talaga ang tahimik.
 
-Kaya namin ginawa ang Tarbaho.
-Isang libreng app kung saan ang mga nagpapagawa sa bahay
-ang direktang hahanap sa'yo, Kuya, Ate.
+Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 
-✅ 0% commission. Sa'yo ang buong bayad.
-✅ Sariling presyo. Ikaw ang maglalagay ng range mo.
-✅ Kliyente na malapit lang: Angono muna, tapos Taytay at Antipolo.
-✅ Private ang number mo. Chat muna sa app, ibibigay lang pag pinili ka.
-
-Para sa Aircon Technician at Construction:
-Foreman, Karpintero, Electrical, Tubero, Mason, Tiles, Welding, Bubong, Steelman, Helper.
-
-📲 Malapit na sa Android.
-Gusto mo ng early access? Sagutan ang form (mga 3 minuto lang):
+Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:
 👉 [GOOGLE FORM LINK]
 
-Ang mga nauna sa form, sila ang unang makakapag-setup ng profile
-at unang makakatanggap ng requests pag bukas na ang app.
+Ilagay ang Gmail na gamit mo sa Play Store, doon namin ipapadala ang early access. Naka-iPhone? Pwede rin via TestFlight.
 
-Kailangan lang namin ang Gmail na gamit mo sa Play Store
-para mapadala namin ang early access sa'yo.
+Angono, Antipolo at Taytay muna.
 
-Naka-iPhone? Pwede rin via TestFlight. Sagutan lang din ang form.
-
-I-share sa kasamahan mo sa site! 🔨
-
-#Tarbaho #Angono #Taytay #Antipolo #Rizal #AirconTechnician #Construction #Karpintero #Electrician #Tubero #Raket
+#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```
 
-#### Patapos na naman ang project?
+#### Patapos na naman ang project, ano nang kasunod?
 
 When: any time · Images: `out/w54-project-feed.png`, `out/w54-project-story.png`
 
 ```
-Patapos na naman ang project? 🏗️
+Patapos na naman ang project, ano nang kasunod?
 
-Alam mo na 'yan: tapos ang buhos, tapos ang tiles,
-tapos uwi ka na naman at maghihintay.
+Tapos ang buhos, tapos ang tiles. Tanong mo kay Foreman, "abangan" daw. Parang teleserye.
 
-Sa Tarbaho, ikaw mismo ang may sariling kliyente.
-Libreng app para sa mga Kuya at Ate ng construction at aircon
-sa Angono, Taytay at Antipolo.
+Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 
-✅ 0% commission. Buo ang bayad sa'yo.
-✅ Ikaw ang bahala sa presyo.
-✅ Mga nagpapagawa na malapit lang sa'yo.
-✅ Private ang number mo hanggang piliin ka.
-
-📲 Malapit na sa Android. Mag-early access na ngayon:
+Hindi pa bukas ang app, pero pwede ka nang mauna. Sagutan ang form:
 👉 [GOOGLE FORM LINK]
 
-Ang mga nauna sa form, unang makakapag-setup ng profile
-at unang makakatanggap ng requests pag bukas na ang app.
-(Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.)
+Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.
 
-#Tarbaho #Angono #Taytay #Antipolo #Rizal #Construction #AirconTechnician #Raket
+Angono, Antipolo at Taytay muna.
+
+#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```
 
 ### 3. Solution aware
@@ -1335,7 +1309,7 @@ General cleaning, pull-out, chemical wash, walang lamig. Sunod-sunod ang naghaha
 
 Sa Tarbaho, kita mo ang mga request ng household sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo. Pag pinili ka, sila ang magme-message.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #AirconTech #Angono #Antipolo #Taytay
 ```
@@ -1351,7 +1325,7 @@ Maraming bahay ang nagpapaayos bago mag-Pasko: pintura, ilaw, gripo, linis.
 
 Sa Tarbaho, kita mo ang mga request nila sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo. Pag pinili ka, sila ang magme-message.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Pasko #Angono #Antipolo #Taytay
 ```
@@ -1367,7 +1341,7 @@ Ang susunod mong customer, baka nasa kabilang kanto lang. Hindi ka lang nila kil
 
 Sa Tarbaho, may Requests ka: mga household na malapit sa'yo na may kailangang ipagawa, kasama ang budget nila. Mag-offer ng presyo mo.
 
-Walang komisyon. Libre i-download. 👉 [Google Play link]
+Libre i-download. 👉 [Google Play link]
 
 #Tarbaho #Sideline #Angono #Antipolo #Taytay
 ```
@@ -1383,7 +1357,7 @@ Maraming bahay ang nangangailangan niyan. Hindi ka lang nila kilala.
 
 Sa Tarbaho, ilagay ang picture ng mga natapos mo, ang presyo mo, at ang mga bayan na pinupuntahan mo. Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Welding #Angono #Antipolo #Taytay
 ```
@@ -1399,7 +1373,7 @@ Matagal bago kumalat ang pangalan mo. Isang bahay, isang kwento.
 
 Sa Tarbaho, nakikita ng mga household sa Angono, Antipolo at Taytay ang reviews at picture ng gawa mo. Bawat natapos mo, nadadagdag sa profile mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Suki #Angono #Antipolo #Taytay
 ```
@@ -1415,7 +1389,7 @@ Summer na. Maraming bahay ang nagtatanong na tungkol sa solar.
 
 Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay. Ilagay ang presyo mo at mag-offer sa mga request nila.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Solar #Angono #Antipolo #Taytay
 ```
@@ -1431,7 +1405,7 @@ Basag na tiles, may tagas. Gusto nang ipaayos, walang mahanap.
 
 Sa Tarbaho, kita mo ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. Mag-offer ng presyo mo, pakyaw man o per square meter.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Construction #Angono #Antipolo #Taytay
 ```
@@ -1447,7 +1421,7 @@ Christmas lights, saksakan, breaker na nagti-trip. Sunod-sunod 'yan ngayong Disy
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Electrician #Angono #Antipolo #Taytay
 ```
@@ -1463,7 +1437,7 @@ May mga kotse sa bayan mo na ayaw mag-start. Hindi ka lang nila kilala.
 
 Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay. Ilagay ang presyo mo at ang mga serbisyo mo: tune-up, change oil, battery, preno.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Mekaniko #Angono #Antipolo #Taytay
 ```
@@ -1479,7 +1453,7 @@ May mga pamilyang naghahanap ng tulong tuwing Sabado.
 
 Sa Tarbaho, gumawa ng libreng profile at ilagay ang presyo mo. Ikaw ang pipili ng oras at ng mga bayan: Angono, Antipolo o Taytay.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1495,7 +1469,7 @@ Barado, basang kisame, sirang saksakan. Kailangan ka ng mga bahay.
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. Mag-offer ng presyo mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Baha #Angono #Antipolo #Taytay
 ```
@@ -1511,7 +1485,7 @@ Extension, second floor, kusina. May mga bahay na nagpapagawa.
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. Mag-offer ng presyo mo, arawan man o pakyaw.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Construction #Angono #Antipolo #Taytay
 ```
@@ -1527,7 +1501,7 @@ CR, lababo, kanal. Barado lahat. Sunod-sunod ang nagpapaayos.
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. Mag-offer ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Tubero #Angono #Antipolo #Taytay
 ```
@@ -1543,7 +1517,7 @@ Pinto na ayaw sumara, cabinet na bumigay, kisame na lumulubog. Maraming sira sa 
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. Mag-offer ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Karpintero #Angono #Antipolo #Taytay
 ```
@@ -1559,7 +1533,7 @@ Tag-ulan. Tubo nang tubo ang damo sa bakuran ng mga bahay.
 
 Nasa Tarbaho ang mga household sa Angono, Antipolo at Taytay na nagpapalinis ng bakuran. Mag-offer ng presyo mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1575,7 +1549,7 @@ WFH, online class, CCTV. Kailangan ka ng mga bahay sa bayan mo.
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay: WiFi, laptop, printer, CCTV. Mag-offer ng presyo mo.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #IT #Angono #Antipolo #Taytay
 ```
@@ -1591,7 +1565,7 @@ Grocery, PasaBuy, bayad ng bills. May mga bahay na kailangan ng tulong.
 
 Sa Tarbaho, tumanggap ng pakisuyo sa Angono, Antipolo o Taytay. Ikaw ang nagtatakda ng presyo mo at ng oras mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Pakisuyo #Raket #Angono #Antipolo #Taytay
 ```
@@ -1607,7 +1581,7 @@ Maraming may kotse ang walang oras pumila sa carwash. Ikaw na ang pupunta sa bah
 
 Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay. Ilagay ang presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #CarWash #Raket #Angono #Antipolo #Taytay
 ```
@@ -1623,7 +1597,7 @@ Bakod, pader, bitak, sahig. Maraming bahay sa bayan mo ang may ipapagawa.
 
 Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. Mag-offer ng presyo mo, arawan man o pakyaw.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Mason #Angono #Antipolo #Taytay
 ```
@@ -1637,11 +1611,11 @@ Sa'yo ba ang suki mo? 📱
 
 O sa ahente na kumukuha ng parte?
 
-Sa Tarbaho, ikaw mismo ang kausap ng household. Chat sa app, ikaw ang nagtatakda ng presyo, at sa'yo ang buong bayad. Angono, Antipolo at Taytay.
+Sa Tarbaho, ikaw mismo ang kausap ng household. Chat sa app, at ikaw ang nagtatakda ng presyo. Angono, Antipolo at Taytay.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
-#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay
+#Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
 
 #### Linis season na.
@@ -1655,7 +1629,7 @@ General cleaning bago mag-Pasko: kisame, bintana, kurtina, CR.
 
 Nasa Tarbaho ang mga household sa Angono, Antipolo at Taytay na nagpapalinis. Mag-offer ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Pasko #Angono #Antipolo #Taytay
 ```
@@ -1664,20 +1638,20 @@ Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
 
 _They know Tarbaho but aren't sold. Give the difference._
 
-#### May kaltas ba ang bawat bayad sa'yo?
+#### "Magkano po?" Tapos seen na lang.
 
-When: any time · Images: `out/w9-komisyon-feed.png`, `out/w9-komisyon-story.png`
+When: any time · Images: `out/w9-seen-feed.png`, `out/w9-seen-story.png`
 
 ```
-May kaltas ba ang bawat bayad sa'yo? 💸
+"Magkano po?" Tapos seen na lang. 🙃
 
-Ikaw ang nagpagod. Bakit may hati ang iba?
+Nagtanong, nawala. Parang ex.
 
-Sa Tarbaho, walang komisyon. Ang bayad ng customer, diretso sa'yo. Buo. Ikaw pa ang nagtatakda ng presyo mo.
+Sa Tarbaho, ang household ang nagpo-post ng kailangan nila, kasama ang budget. Kita mo na bago ka pa mag-offer ng presyo mo.
 
 I-download ang Tarbaho. 👉 [Google Play link]
 
-#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay
+#Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
 
 #### Tawag nang tawag, hindi naman tuloy?
@@ -1689,7 +1663,7 @@ Tawag nang tawag, hindi naman tuloy? 📵
 
 Sayang ang load. Sayang ang biyahe.
 
-Sa Tarbaho, kita mo muna ang request: ano ang sira, may picture, at magkano ang budget. Chat sa app bago ka pumunta. Walang komisyon, sa'yo ang buong bayad.
+Sa Tarbaho, kita mo muna ang request: ano ang sira, may picture, at magkano ang budget. Chat sa app bago ka pumunta.
 
 I-download ang Tarbaho. 👉 [Google Play link]
 
@@ -1707,7 +1681,7 @@ Pinaghirapan mo 'yan. Dapat nakikita ng customer.
 
 Sa Tarbaho, magpadala ng picture ng TESDA certificate, ID o past project mo. Kapag na-check, may badge ka sa profile na kita ng mga household sa Angono, Antipolo at Taytay.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #TESDA #Angono #Antipolo #Taytay
 ```
@@ -1723,9 +1697,9 @@ Walang ahente na nagtatakda. Walang patong sa customer.
 
 Sa Tarbaho, ilagay ang average price mo kada serbisyo. Gabay lang 'yan, kayo ng customer ang magkakasundo sa final. Sa Requests, ikaw rin ang mag-o-offer ng presyo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
-#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay
+#Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
 
 #### Bakit Tarbaho, hindi FB group?
@@ -1735,7 +1709,6 @@ When: any time · Images: `out/w28-why-feed.png`, `out/w28-why-story.png`
 ```
 Bakit Tarbaho, hindi FB group? 🤷
 
-✅ Walang komisyon, sa'yo ang buong bayad
 ✅ Malapit lang: Angono, Antipolo, Taytay
 ✅ Kita mo ang request, picture at budget bago pumunta
 ✅ Ikaw ang nagtatakda ng presyo mo
@@ -1755,7 +1728,7 @@ Bawat natapos mo, may review. ⭐
 
 Nadadagdag sa profile mo, kasama ang picture ng gawa mo at ilang taon ka na.
 
-Sa Tarbaho, kita ng mga household sa Angono, Antipolo at Taytay ang reviews mo bago sila mag-message. Walang komisyon, sa'yo ang buong bayad.
+Sa Tarbaho, kita ng mga household sa Angono, Antipolo at Taytay ang reviews mo bago sila mag-message.
 
 I-download ang Tarbaho. 👉 [Google Play link]
 
@@ -1771,7 +1744,7 @@ Customer ang lalapit. 🔔
 
 'Di mo na kailangang mag-post araw-araw sa FB group.
 
-Sa Tarbaho, may profile ka na kita ng mga household sa Angono, Antipolo at Taytay. Kapag may nag-message, may notification ka. Walang komisyon.
+Sa Tarbaho, may profile ka na kita ng mga household sa Angono, Antipolo at Taytay. Kapag may nag-message, may notification ka.
 
 I-download ang Tarbaho. 👉 [Google Play link]
 
@@ -1789,7 +1762,7 @@ Hindi na kailangang ikwento. Kita na nila.
 
 Sa Tarbaho, maglagay ng hanggang 6 na picture ng mga natapos mo. Kita ng mga household sa Angono, Antipolo at Taytay bago sila mag-message.
 
-Walang komisyon. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Angono #Antipolo #Taytay
 ```
@@ -1805,7 +1778,7 @@ Kita ito ng mga household sa profile mo.
 
 Sa Tarbaho, magpadala ng picture ng government ID mo. Kapag na-check, may badge ka sa profile. Pwede ring TESDA at past project.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Angono #Antipolo #Taytay
 ```
@@ -1814,12 +1787,12 @@ Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
 
 _Ready. Just the offer and "download now"._
 
-#### Libre. Walang komisyon. Malapit lang.
+#### Libre mag-setup. Malapit lang.
 
 When: any time · Images: `out/w11-now-feed.png`, `out/w11-now-story.png`
 
 ```
-Libre. Walang komisyon. Malapit lang. 👇
+Libre mag-setup. Malapit lang. 👇
 
 Gumawa ng profile ngayon, para makita ka ng mga household sa bayan mo.
 
@@ -1841,7 +1814,7 @@ Serbisyo mo, presyo mo, mga bayan na pinupuntahan mo. Selfie at number. Tapos na
 
 Makikita ka na ng mga household sa Angono, Antipolo at Taytay, at makikita mo ang mga request nila.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
@@ -1855,7 +1828,7 @@ Tag-ulan na. Mag-profile na. 🌧️
 
 Dami nang nagpapaayos ng bubong, alulod at kisame.
 
-Sa Tarbaho, libre ang profile at walang komisyon. Ang mga household sa Angono, Antipolo at Taytay ang magme-message, at makikita mo ang mga request nila.
+Sa Tarbaho, libre mag-setup ng profile ngayon. Ang mga household sa Angono, Antipolo at Taytay ang magme-message, at makikita mo ang mga request nila.
 
 I-download ang Tarbaho ngayon. 👉 [Google Play link]
 
@@ -1871,7 +1844,7 @@ Summer na. Mag-profile na. ☀️
 
 Init na. Dami nang nagpapalinis ng aircon, nagpapakabit, nagpapa-check ng freon.
 
-Sa Tarbaho, libre ang profile at walang komisyon. Ang mga household sa Angono, Antipolo at Taytay ang magme-message, at makikita mo ang mga request nila.
+Sa Tarbaho, libre mag-setup ng profile ngayon. Ang mga household sa Angono, Antipolo at Taytay ang magme-message, at makikita mo ang mga request nila.
 
 I-download ang Tarbaho ngayon. 👉 [Google Play link]
 
@@ -1887,27 +1860,27 @@ Isang profile. Tatlong bayan. 📍
 
 Angono, Antipolo, Taytay. Ikaw ang pipili kung saan ka lang pupunta.
 
-Libre ang Tarbaho at walang komisyon. Ang mga household ang magme-message, at makikita mo ang mga request nila.
+Libre mag-setup ng profile ngayon. Ang mga household ang magme-message, at makikita mo ang mga request nila.
 
 I-download ang Tarbaho ngayon. 👉 [Google Play link]
 
 #Tarbaho #Angono #Antipolo #Taytay
 ```
 
-#### Libre ang profile.
+#### Libre mag-profile ngayon.
 
 When: any time · Images: `out/w48-libre-feed.png`, `out/w48-libre-story.png`
 
 ```
-Libre ang profile. 🆓
+Libre mag-profile ngayon. 🆓
 
-Walang komisyon. Walang monthly. Sa'yo ang buong bayad.
+Libre mag-sign up at mag-setup ngayon. Ilang minuto lang.
 
 Gumawa ng profile sa Tarbaho ngayon, para makita ka ng mga household sa Angono, Antipolo at Taytay.
 
 I-download ang Tarbaho ngayon. 👉 [Google Play link]
 
-#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay
+#Tarbaho #Raket #Angono #Antipolo #Taytay
 ```
 
 ## Page cover photo
@@ -1920,17 +1893,17 @@ One post a day, around 7 to 9 PM. Pin both "how it works" images first. Lead wit
 
 **Now to December**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Disyembre. Tigil ang site. → Tapos na ang project. → Isang oras na biyahe. → Tagal ng tawag ni Foreman? → Patapos na naman ang project? → Pandagdag pang-Noche Buena? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Electrician ka? Kabit-ilaw na. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Linis season na. → May kaltas ba ang bawat bayad sa'yo? → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre. Walang komisyon. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre ang profile.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Disyembre. Tigil ang site. → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pandagdag pang-Noche Buena? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Electrician ka? Kabit-ilaw na. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Linis season na. → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Barado na naman yung CR? → Darating na ang bisita sa Pasko. → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → Patay-sindi na naman ang Christmas lights? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → General cleaning bago mag-Pasko? → Sabado lang ang free mo? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Pasko na. Ipaayos na. → Ikaw ang pipili.
 
 **January to February**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Tagal ng tawag ni Foreman? → Patapos na naman ang project? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → May kaltas ba ang bawat bayad sa'yo? → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre. Walang komisyon. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre ang profile.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Barado na naman yung CR? → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → Sabado lang ang free mo? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Ikaw ang pipili.
 
 **March to May (init, aircon)**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Tagal ng tawag ni Foreman? → Patapos na naman ang project? → Aircon tech ka? Peak season na. → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Solar tech ka? Summer na. → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → May kaltas ba ang bawat bayad sa'yo? → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre. Walang komisyon. Malapit lang. → Gawa ng profile ngayon. Libre. → Summer na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre ang profile.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Aircon tech ka? Peak season na. → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Solar tech ka? Summer na. → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Summer na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Kailan mo huling pinalinis ang aircon? → Ang laki na naman ng Meralco? → Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Sobrang init. Sira pa ang aircon. → Barado na naman yung CR? → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Maingay na ang aircon? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Amoy kulob ang aircon? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → Sabado lang ang free mo? → Pakabit ng ceiling fan? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Magkano ba talaga ang linis ng aircon? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Ikaw ang pipili.
 
 **May to June (enrollment, lipat-bahay)**
@@ -1940,7 +1913,7 @@ One post a day, around 7 to 9 PM. Pin both "how it works" images first. Lead wit
 
 **June to October (ulan, baha, bagyo)**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Tag-ulan. Walang buhos, walang arawan. → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Tagal ng tawag ni Foreman? → Patapos na naman ang project? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Pagkatapos ng baha, ang daming aayusin. → Foreman ka? Kaya mo ang renovation. → Tubero ka? Tag-ulan na. → Karpintero ka? → Marunong ka mag-garden? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → May kaltas ba ang bawat bayad sa'yo? → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre. Walang komisyon. Malapit lang. → Gawa ng profile ngayon. Libre. → Tag-ulan na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre ang profile.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Tag-ulan. Walang buhos, walang arawan. → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Pagkatapos ng baha, ang daming aayusin. → Foreman ka? Kaya mo ang renovation. → Tubero ka? Tag-ulan na. → Karpintero ka? → Marunong ka mag-garden? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Tag-ulan na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → May bagyo raw ngayong linggo. → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Nabasa ang saksakan? → Barado na naman yung CR? → Bumaha na naman? → May timba na naman sa sala? → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → May mantsa na naman sa kisame? → Ang taas na ng damo sa bakuran? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Nalubog ang kotse sa baha? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Natanggal ang yero sa bagyo? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Puno na ang poso negro? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → Sabado lang ang free mo? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Ikaw ang pipili.
 
 ## How it works
@@ -1974,7 +1947,7 @@ Gusto mo ng dagdag na customer? Ganito gumagana ang Tarbaho: 👇
 1️⃣ Gumawa ng libreng profile: ang serbisyo mo, ang presyo mo, at ang mga bayan na pinupuntahan mo.
 2️⃣ Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.
 3️⃣ Sa Requests, makikita mo ang mga bahay na may kailangang ipagawa. Mag-alok ng sarili mong presyo.
-4️⃣ Sa'yo ang buong bayad. Walang komisyon.
+4️⃣ Pag pinili ka, chat muna sa app, tapos gawa na. Bayad pagkatapos, sa presyong napagkasunduan.
 
 I-download ang Tarbaho. 👉 [Google Play link]
 
@@ -2012,38 +1985,36 @@ Swipe para makita kung paano ka mahahanap ng mga customer sa bayan mo. 👉
 
 Sa Tarbaho, gumawa ng libreng profile. Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo, at makikita mo ang mga Request nila para makapag-alok ka ng presyo mo.
 
-Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
+I-download ang Tarbaho. 👉 [Google Play link]
 
 #Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay
 ```
 
-### Ganito kadali mag-setup ng profile.
+### Ilang minuto lang ang setup.
 
 Slides: `out/carousel-setup-worker-1.png`, `out/carousel-setup-worker-2.png`, `out/carousel-setup-worker-3.png`, `out/carousel-setup-worker-4.png`, `out/carousel-setup-worker-5.png`, `out/carousel-setup-worker-6.png`, `out/carousel-setup-worker-7.png`
 
 ```
-Ganito kadali mag-setup ng profile sa Tarbaho. 👇
-(I-swipe ang mga picture)
+Ilang minuto lang ang setup sa Tarbaho. Mas mabilis pa sa tawag ni Foreman. (I-swipe)
 
-Pag labas ng app sa Android, ilang minuto lang:
-1️⃣ Piliin ang wika: English o Taglish
-2️⃣ Mag-sign in sa mobile number mo (may SMS code)
-3️⃣ Piliin ang "Skilled worker", tapos trade at mga serbisyo mo (hal. Karpintero, Tiles, Linis ng aircon)
-4️⃣ Sariling presyo mo, mula–hanggang, o "depende sa trabaho"
-5️⃣ I-tick ang mga bayan: Angono, Taytay, Antipolo
-6️⃣ Ilang taon ka na sa trabaho
-7️⃣ Selfie mo, malinaw ang mukha
-8️⃣ I-confirm ang number sa SMS
-9️⃣ Silipin ang card mo, mangako, tapos "Game!" Live ka na.
+1. English o Taglish
+2. Mobile number mo, tapos SMS code
+3. "Skilled worker", tapos trade at serbisyo mo
+4. Presyo mo: mula ₱… hanggang ₱…, o "depende sa trabaho"
+5. Mga bayan na pinupuntahan mo
+6. Ilang taon ka na sa linya mo
+7. Selfie (kahit hindi artistahin, basta malinaw)
+8. I-confirm ang number sa SMS
+9. Silipin ang card mo, mangako, tapos "Game!"
 
-Gusto mong mauna? 📲 Malapit na sa Android.
-Mag-early access na ngayon, sagutan ang form:
+Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
+
+Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:
 👉 [GOOGLE FORM LINK]
 
-Kailangan lang namin ang Gmail na gamit mo sa Play Store.
-Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.
+Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.
 
-#Tarbaho #Angono #Taytay #Antipolo #Construction #AirconTechnician
+#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```
 
 ## Changelog
@@ -2081,3 +2052,4 @@ Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.
 - 19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others
 - 19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)
 - first post: two early-access worker posts (tagal ng tawag ni Foreman, patapos na ang project) and a profile-setup carousel; the app is "malapit na sa Android", so they point to the early-access form, not the store (first-post/ has the form and plan)
+- first post rewrite (owner: "cringe and corny"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; "Only available in Angono, Antipolo and Taytay for now" under the button; no commission or "buong bayad" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9 is now "Magkano po? Tapos seen na lang" (w9-seen)

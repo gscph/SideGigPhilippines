@@ -866,13 +866,13 @@ POSTS = [
         problem="Wala nang project. Nag-aantay ng tawag ni Maestro.",
         sub="Isang linggo na. Wala pa rin. Tuloy ang gastos sa bahay.",
         answer="Habang naghihintay, may mga bahay sa bayan mo na kailangan ng karpintero, mason at tubero.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Wala nang project. Nag-aantay ng tawag ni Maestro. 📵\n\n"
             "Isang linggo na. Wala pa rin. Tuloy ang gastos sa bahay.\n\n"
             "Habang naghihintay, may mga bahay sa Angono, Antipolo at Taytay na nagpo-post ng kailangan nila: "
             "karpintero, mason, tiles, welding, tubero, electrician. Kita mo sa Requests, ikaw ang mag-o-offer ng presyo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -880,55 +880,55 @@ POSTS = [
         problem="Mahal ng gas. Malayo pa ang customer.",
         sub="Ang laki ng napupunta sa biyahe. Kulang na ang uuwi.",
         answer="Sa Tarbaho, ikaw ang pipili kung gaano kalayo ka pupunta. Malapit lang ang customer.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Mahal ng gas. Malayo pa ang customer. ⛽\n\n"
             "Ang laki ng napupunta sa biyahe. Kulang na ang naiuuwi.\n\n"
             "Sa Tarbaho, ikaw ang nagsasabi kung hanggang saan ka lang pupunta. Ang makikita mo, mga household na "
             "malapit sa'yo sa Angono, Antipolo at Taytay.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Sideline #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Sideline #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w8-bilihin", side="worker", stage="problem", season="all", icon="cart",
         problem="Tumaas ang bilihin. Ang kita, hindi.",
         sub="Bigas, gas, kuryente, tumaas lahat. Ang arawan mo, hindi.",
-        answer="Sa Tarbaho, dagdag na customer sa bayan mo. Ikaw ang nagtatakda ng presyo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, dagdag na customer sa bayan mo. Ikaw ang nagtatakda ng presyo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Tumaas ang bilihin. Ang kita, hindi. 😮‍💨\n\n"
             "Bigas, gas, kuryente, tumaas lahat. Ang arawan mo, hindi.\n\n"
             "Sa Tarbaho, dagdag na customer sa bayan mo. Ikaw ang nagtatakda ng presyo mo. "
             "Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w1-extra", side="worker", stage="problem", season="all", icon="wallet",
         problem="Kailangan mo ng extra?",
         sub="Magaling ka. Masipag ka. Kulang pa rin.",
-        answer="Sa Tarbaho, ang mga household sa bayan mo ang hahanap sa'yo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, ang mga household sa bayan mo ang hahanap sa'yo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Kailangan mo ng extra? 💪\n\n"
             "Magaling ka. Pero ang customer mo, puro kakilala lang. Pag walang tumawag, walang kita.\n\n"
             "Sa Tarbaho, gumawa ng libreng profile: serbisyo mo, presyo mo, at mga bayan na pinupuntahan mo. "
             "Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Raket #Sideline #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Sideline #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w12-aircon-season", side="worker", stage="solution", season="Mar-May", icon="aircon",
         problem="Aircon tech ka? Peak season na.",
         sub="General cleaning, pull-out, freon, walang lamig. Sunod-sunod ang naghahanap.",
-        answer="Sa Tarbaho, kita mo ang mga request sa bayan mo. Mag-offer ng presyo mo, walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, kita mo ang mga request sa bayan mo. Mag-offer ng presyo mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Aircon tech ka? Peak season na. ❄️\n\n"
             "General cleaning, pull-out, chemical wash, walang lamig. Sunod-sunod ang naghahanap ngayong summer.\n\n"
             "Sa Tarbaho, kita mo ang mga request ng household sa Angono, Antipolo at Taytay. "
             "Mag-offer ng presyo mo. Pag pinili ka, sila ang magme-message.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #AirconTech #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #AirconTech #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -936,13 +936,13 @@ POSTS = [
         problem="Pandagdag pang-Noche Buena?",
         sub="Maraming bahay ang nagpapaayos bago mag-Pasko.",
         answer="Nasa Tarbaho na ang mga request nila: pintura, ilaw, gripo, linis. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Pandagdag pang-Noche Buena? 🎄\n\n"
             "Maraming bahay ang nagpapaayos bago mag-Pasko: pintura, ilaw, gripo, linis.\n\n"
             "Sa Tarbaho, kita mo ang mga request nila sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo. "
             "Pag pinili ka, sila ang magme-message.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -950,13 +950,13 @@ POSTS = [
         problem="Pagod ka na mag-antay ng tawag?",
         sub="Ang susunod mong customer, baka nasa kabilang kanto lang.",
         answer="Sa Tarbaho, kita mo ang mga request malapit sa'yo. Ikaw ang mag-o-offer ng presyo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Pagod ka na mag-antay ng tawag? 📱\n\n"
             "Ang susunod mong customer, baka nasa kabilang kanto lang. Hindi ka lang nila kilala.\n\n"
             "Sa Tarbaho, may Requests ka: mga household na malapit sa'yo na may kailangang ipagawa, kasama ang budget nila. "
             "Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. Libre i-download. 👉 {link}\n\n#Tarbaho #Sideline #Angono #Antipolo #Taytay"
+            "Libre i-download. 👉 {link}\n\n#Tarbaho #Sideline #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -964,13 +964,13 @@ POSTS = [
         problem="Welder ka? Gate, grills, railings?",
         sub="May mga bahay na naghahanap. Hindi ka lang nila makita.",
         answer="Sa Tarbaho, ilagay ang gawa mo at presyo mo. Ang mga household na malapit ang magme-message.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Welder ka? Gate, grills, railings, trusses? 🔥\n\n"
             "Maraming bahay ang nangangailangan niyan. Hindi ka lang nila kilala.\n\n"
             "Sa Tarbaho, ilagay ang picture ng mga natapos mo, ang presyo mo, at ang mga bayan na pinupuntahan mo. "
             "Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Welding #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Welding #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -978,51 +978,51 @@ POSTS = [
         problem="May motor ka at may bakanteng oras?",
         sub="Sa pagitan ng mga lakad mo, pwede ka nang kumita.",
         answer="Sa Tarbaho, tumanggap ng pakisuyo sa bayan mo: bills, grocery, PasaBuy, padala.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "May motor ka at may bakanteng oras? 🛵\n\n"
             "Maraming nanay at nagtatrabaho ang walang oras pumila sa bayad-center o mag-grocery.\n\n"
             "Sa Tarbaho, tumanggap ng pakisuyo sa Angono, Antipolo at Taytay: bayad ng bills, grocery, PasaBuy, padala. "
             "Ikaw ang nagtatakda ng presyo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pakisuyo #PasaBuy #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Pakisuyo #PasaBuy #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w4-unknown", side="worker", stage="unaware", season="all", icon="medal",
         problem="Sampung taon ka na. Kapitbahay lang ang nakakakilala.",
         sub="Magaling ang gawa mo. Pero hindi ito nakikita.",
-        answer="Sa Tarbaho, ipakita ang gawa mo: picture, reviews, at ilang taon ka na. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, ipakita ang gawa mo: picture, reviews, at ilang taon ka na.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Sampung taon ka na. Kapitbahay lang ang nakakakilala. 🏅\n\n"
             "Magaling ang gawa mo. Pero hindi ito nakikita.\n\n"
             "Sa Tarbaho, ipakita ang gawa mo: picture ng mga natapos mo, reviews ng mga household, at ilang taon ka na. "
             "Mas maraming bahay sa Angono, Antipolo at Taytay ang makakakita sa'yo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #SkilledWorker #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #SkilledWorker #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
-        id="w9-komisyon", side="worker", stage="product", season="all", icon="money",
-        problem="May kaltas ba ang bawat bayad sa'yo?",
-        sub="Ikaw ang nagpagod. Bakit may hati ang iba?",
-        answer="Sa Tarbaho, walang komisyon. Ang bayad ng customer, diretso sa'yo. Buo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        id="w9-seen", side="worker", stage="product", season="all", icon="money",
+        problem="\"Magkano po?\" Tapos seen na lang.",
+        sub="Nagtanong, nawala. Parang ex.",
+        answer="Sa Tarbaho, kita mo na ang budget ng household bago ka pa mag-offer.",
+        cta="I-download ang Tarbaho.",
         caption=(
-            "May kaltas ba ang bawat bayad sa'yo? 💸\n\n"
-            "Ikaw ang nagpagod. Bakit may hati ang iba?\n\n"
-            "Sa Tarbaho, walang komisyon. Ang bayad ng customer, diretso sa'yo. Buo. "
-            "Ikaw pa ang nagtatakda ng presyo mo.\n\n"
-            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay"
+            "\"Magkano po?\" Tapos seen na lang. 🙃\n\n"
+            "Nagtanong, nawala. Parang ex.\n\n"
+            "Sa Tarbaho, ang household ang nagpo-post ng kailangan nila, kasama ang budget. "
+            "Kita mo na bago ka pa mag-offer ng presyo mo.\n\n"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w11-now", side="worker", stage="most", season="all", icon="done",
-        problem="Libre. Walang komisyon. Malapit lang.",
+        problem="Libre mag-setup. Malapit lang.",
         sub="Gumawa ng profile ngayon para makita ka ng mga bahay sa bayan mo.",
         answer="Aircon, construction, tubero, electrician, linis, pakisuyo. Angono, Antipolo at Taytay.",
         cta="I-download ang Tarbaho ngayon",
         caption=(
-            "Libre. Walang komisyon. Malapit lang. 👇\n\n"
+            "Libre mag-setup. Malapit lang. 👇\n\n"
             "Gumawa ng profile ngayon, para makita ka ng mga household sa bayan mo.\n\n"
             "Aircon, construction, tubero, electrician, linis, pakisuyo at iba pa, sa Angono, Antipolo at Taytay.\n\n"
             "I-download ang Tarbaho ngayon. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
@@ -1033,13 +1033,13 @@ POSTS = [
         problem="Tag-ulan. Walang buhos, walang arawan.",
         sub="Tigil ang site. Pero tuloy ang bayarin.",
         answer="Nasa Tarbaho ang mga bahay na may tulo at barado. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Tag-ulan. Walang buhos, walang arawan. 🌧️\n\n"
             "Tigil ang site. Pero tuloy ang bayarin sa bahay.\n\n"
             "Habang tag-ulan, ang daming bahay sa Angono, Antipolo at Taytay ang may tulo sa bubong, barado "
             "na alulod at basang kisame. Nasa Tarbaho ang mga request nila. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1047,12 +1047,12 @@ POSTS = [
         problem="Tawag nang tawag, hindi naman tuloy?",
         sub="Sayang ang load. Sayang ang biyahe.",
         answer="Sa Tarbaho, kita mo muna ang request, picture at budget. Chat sa app bago ka pumunta.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Tawag nang tawag, hindi naman tuloy? 📵\n\n"
             "Sayang ang load. Sayang ang biyahe.\n\n"
             "Sa Tarbaho, kita mo muna ang request: ano ang sira, may picture, at magkano ang budget. "
-            "Chat sa app bago ka pumunta. Walang komisyon, sa'yo ang buong bayad.\n\n"
+            "Chat sa app bago ka pumunta.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
@@ -1060,41 +1060,41 @@ POSTS = [
         id="w15-suki", side="worker", stage="solution", season="all", icon="people",
         problem="Ang suki mo, galing lang sa sabi-sabi?",
         sub="Matagal bago kumalat ang pangalan mo. Isang bahay, isang kwento.",
-        answer="Sa Tarbaho, kita ng mga bahay sa bayan mo ang reviews at gawa mo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, kita ng mga bahay sa bayan mo ang reviews at gawa mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Ang suki mo, galing lang sa sabi-sabi? 🗣️\n\n"
             "Matagal bago kumalat ang pangalan mo. Isang bahay, isang kwento.\n\n"
             "Sa Tarbaho, nakikita ng mga household sa Angono, Antipolo at Taytay ang reviews at picture ng "
             "gawa mo. Bawat natapos mo, nadadagdag sa profile mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Suki #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Suki #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w16-profile", side="worker", stage="most", season="all", icon="profile-card",
         problem="Gawa ng profile ngayon. Libre.",
         sub="Serbisyo, presyo, bayan. Selfie at number. Tapos na.",
-        answer="Makikita ka na ng mga bahay sa Angono, Antipolo at Taytay. Walang komisyon, sa'yo ang buong bayad.",
+        answer="Makikita ka na ng mga bahay sa Angono, Antipolo at Taytay.",
         cta="I-download ang Tarbaho ngayon",
         caption=(
             "Gawa ng profile ngayon. Libre. 📲\n\n"
             "Serbisyo mo, presyo mo, mga bayan na pinupuntahan mo. Selfie at number. Tapos na.\n\n"
             "Makikita ka na ng mga household sa Angono, Antipolo at Taytay, at makikita mo ang mga request nila.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w17-tesda", side="worker", stage="product", season="all", icon="document",
         problem="May TESDA ka? Ipakita mo.",
         sub="Pinaghirapan mo 'yan. Dapat nakikita ng customer.",
-        answer="Sa Tarbaho, may badge ang TESDA, ID at past project mo sa profile. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, may badge ang TESDA, ID at past project mo sa profile.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "May TESDA ka? Ipakita mo. 📜\n\n"
             "Pinaghirapan mo 'yan. Dapat nakikita ng customer.\n\n"
             "Sa Tarbaho, magpadala ng picture ng TESDA certificate, ID o past project mo. Kapag na-check, "
             "may badge ka sa profile na kita ng mga household sa Angono, Antipolo at Taytay.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #TESDA #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #TESDA #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1102,13 +1102,13 @@ POSTS = [
         problem="Solar tech ka? Summer na.",
         sub="Dami nang nagtatanong sa solar.",
         answer="Sa Tarbaho, makikita ka ng mga bahay sa bayan mo. Ilagay ang presyo mo at mag-offer sa mga request.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Solar tech ka? Summer na. ☀️\n\n"
             "Summer na. Maraming bahay ang nagtatanong na tungkol sa solar.\n\n"
             "Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay. Ilagay ang presyo mo "
             "at mag-offer sa mga request nila.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Solar #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Solar #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1116,13 +1116,13 @@ POSTS = [
         problem="Sabado't Linggo, nakatambay ka lang?",
         sub="'Yung dalawang araw na 'yon, pwedeng dagdag na kita.",
         answer="Sa Tarbaho, ikaw ang pipili kung kailan ka libre. Mag-offer sa mga request sa bayan mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Sabado't Linggo, nakatambay ka lang? 📅\n\n"
             "'Yung dalawang araw na 'yon, pwedeng dagdag na kita.\n\n"
             "Sa Tarbaho, ikaw ang pipili kung kailan ka libre. Kita mo ang mga request ng household sa Angono, "
             "Antipolo at Taytay. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1130,26 +1130,26 @@ POSTS = [
         problem="Tile setter ka? Ang daming lumang CR.",
         sub="Basag na tiles, may tagas. Gusto nang ipaayos, walang mahanap.",
         answer="Sa Tarbaho, kita mo ang mga request sa bayan mo, may picture at budget. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Tile setter ka? Ang daming lumang CR. 🧱\n\n"
             "Basag na tiles, may tagas. Gusto nang ipaayos, walang mahanap.\n\n"
             "Sa Tarbaho, kita mo ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. "
             "Mag-offer ng presyo mo, pakyaw man o per square meter.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w21-kabit-ilaw", side="worker", stage="solution", season="Nov-Dec", icon="electrical",
         problem="Electrician ka? Kabit-ilaw na.",
         sub="Christmas lights, saksakan, breaker. Sunod-sunod 'yan ngayong Disyembre.",
-        answer="Nasa Tarbaho ang mga request sa bayan mo. Mag-offer ng presyo mo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Nasa Tarbaho ang mga request sa bayan mo. Mag-offer ng presyo mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Electrician ka? Kabit-ilaw na. 🎄\n\n"
             "Christmas lights, saksakan, breaker na nagti-trip. Sunod-sunod 'yan ngayong Disyembre.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Electrician #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Electrician #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1157,27 +1157,27 @@ POSTS = [
         problem="\"Helper lang\" daw?",
         sub="Pero ikaw ang unang dumarating sa site at huling umuuwi.",
         answer="Sa Tarbaho, may sarili kang profile at presyo. Buhat, hakot, linis ng site, sa bayan mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "\"Helper lang\" daw? 💪\n\n"
             "Pero ikaw ang unang dumarating sa site at huling umuuwi.\n\n"
             "Sa Tarbaho, may sarili kang profile at sariling presyo. Buhat, hakot, linis ng site, para sa mga "
             "household sa Angono, Antipolo at Taytay.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w23-mekaniko", side="worker", stage="solution", season="all", icon="mechanic",
         problem="Marunong ka sa makina?",
         sub="May mga kotse sa bayan mo na ayaw mag-start. Hindi ka lang nila kilala.",
-        answer="Sa Tarbaho, makikita ka ng mga household na malapit. Ilagay ang presyo mo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, makikita ka ng mga household na malapit. Ilagay ang presyo mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Marunong ka sa makina? 🔧\n\n"
             "May mga kotse sa bayan mo na ayaw mag-start. Hindi ka lang nila kilala.\n\n"
             "Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay. Ilagay ang presyo mo "
             "at ang mga serbisyo mo: tune-up, change oil, battery, preno.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Mekaniko #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Mekaniko #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1185,13 +1185,13 @@ POSTS = [
         problem="Ikaw ang magsasabi ng presyo mo.",
         sub="Walang ahente na nagtatakda. Walang patong sa customer.",
         answer="Sa Tarbaho, ilagay ang average price mo. Gabay lang 'yan, kayo ng customer ang magkakasundo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Ikaw ang magsasabi ng presyo mo. ✍️\n\n"
             "Walang ahente na nagtatakda. Walang patong sa customer.\n\n"
             "Sa Tarbaho, ilagay ang average price mo kada serbisyo. Gabay lang 'yan, kayo ng customer ang "
             "magkakasundo sa final. Sa Requests, ikaw rin ang mag-o-offer ng presyo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1199,13 +1199,13 @@ POSTS = [
         problem="Ate, sanay ka maglinis ng bahay?",
         sub="May mga pamilyang naghahanap ng tulong tuwing Sabado.",
         answer="Sa Tarbaho, gumawa ng profile at ilagay ang presyo mo. Ikaw ang pipili ng oras.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Ate, sanay ka maglinis ng bahay? 🧹\n\n"
             "May mga pamilyang naghahanap ng tulong tuwing Sabado.\n\n"
             "Sa Tarbaho, gumawa ng libreng profile at ilagay ang presyo mo. Ikaw ang pipili ng oras at "
             "ng mga bayan: Angono, Antipolo o Taytay.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1213,13 +1213,13 @@ POSTS = [
         problem="Pagkatapos ng baha, ang daming aayusin.",
         sub="Barado, basang kisame, sirang saksakan. Kailangan ka ng mga bahay.",
         answer="Nasa Tarbaho ang mga bahay na binaha, may picture at budget. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Pagkatapos ng baha, ang daming aayusin. 🌊\n\n"
             "Barado, basang kisame, sirang saksakan. Kailangan ka ng mga bahay.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. "
             "Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Baha #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Baha #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1227,24 +1227,23 @@ POSTS = [
         problem="Foreman ka? Kaya mo ang renovation.",
         sub="Extension, second floor, kusina. May mga bahay na nagpapagawa.",
         answer="Nasa Tarbaho ang mga request, may picture at budget. Arawan o pakyaw, ikaw ang bahala.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Foreman ka? Kaya mo ang renovation. 🏗️\n\n"
             "Extension, second floor, kusina. May mga bahay na nagpapagawa.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. "
             "Mag-offer ng presyo mo, arawan man o pakyaw.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w28-why", side="worker", stage="product", season="all", icon="search",
         problem="Bakit Tarbaho, hindi FB group?",
-        sub="Walang komisyon. Malapit lang. Kita mo ang budget bago pumunta.",
+        sub="Malapit lang. Kita mo ang budget bago pumunta.",
         answer="Mga household lang sa Angono, Antipolo at Taytay. Chat sa app muna, number mamaya na.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Bakit Tarbaho, hindi FB group? 🤷\n\n"
-            "✅ Walang komisyon, sa'yo ang buong bayad\n"
             "✅ Malapit lang: Angono, Antipolo, Taytay\n"
             "✅ Kita mo ang request, picture at budget bago pumunta\n"
             "✅ Ikaw ang nagtatakda ng presyo mo\n"
@@ -1256,26 +1255,26 @@ POSTS = [
         id="w29-uwi", side="worker", stage="unaware", season="all", icon="briefcase",
         problem="Umuwi ka galing abroad?",
         sub="May skills ka. Wala pang suki dito.",
-        answer="Sa Tarbaho, gumawa ng profile. Makikita ka ng mga bahay sa bayan mo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, gumawa ng profile. Makikita ka ng mga bahay sa bayan mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Umuwi ka galing abroad? ✈️\n\n"
             "May skills ka. Wala pang suki dito.\n\n"
             "Sa Tarbaho, gumawa ng libreng profile: serbisyo mo, presyo mo, at mga bayan mo. Makikita ka ng mga "
             "household sa Angono, Antipolo at Taytay.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #OFW #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #OFW #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w30-tag-ulan-now", side="worker", stage="most", season="Jun-Oct", icon="roofing",
         problem="Tag-ulan na. Mag-profile na.",
         sub="Dami nang nagpapaayos ng bubong.",
-        answer="Libre ang Tarbaho. Walang komisyon. Angono, Antipolo at Taytay.",
+        answer="Libre mag-setup ng profile ngayon. Angono, Antipolo at Taytay.",
         cta="I-download ang Tarbaho ngayon",
         caption=(
             "Tag-ulan na. Mag-profile na. 🌧️\n\n"
             "Dami nang nagpapaayos ng bubong, alulod at kisame.\n\n"
-            "Sa Tarbaho, libre ang profile at walang komisyon. Ang mga household sa Angono, Antipolo at Taytay "
+            "Sa Tarbaho, libre mag-setup ng profile ngayon. Ang mga household sa Angono, Antipolo at Taytay "
             "ang magme-message, at makikita mo ang mga request nila.\n\n"
             "I-download ang Tarbaho ngayon. 👉 {link}\n\n#Tarbaho #TagUlan #Angono #Antipolo #Taytay"
         ),
@@ -1285,27 +1284,27 @@ POSTS = [
         problem="Tubero ka? Tag-ulan na.",
         sub="CR, lababo, kanal. Barado lahat.",
         answer="Nasa Tarbaho ang mga request sa bayan mo, may picture at budget. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Tubero ka? Tag-ulan na. 🚿\n\n"
             "CR, lababo, kanal. Barado lahat. Sunod-sunod ang nagpapaayos.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. "
             "Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Tubero #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Tubero #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w32-bayarin", side="worker", stage="problem", season="all", icon="wallet",
         problem="Ang daming bayarin?",
         sub="Hulog, tuition, kuryente. Sabay-sabay.",
-        answer="Sa Tarbaho, dagdag na raket sa bayan mo. Walang komisyon, sa'yo ang buong bayad.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, dagdag na raket sa bayan mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Ang daming bayarin? 🧾\n\n"
             "Hulog sa motor, tuition, kuryente. Sabay-sabay pa.\n\n"
             "Sa Tarbaho, dagdag na customer sa bayan mo. Ang mga household sa Angono, Antipolo at Taytay ang "
             "magme-message, at ikaw ang nagtatakda ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1313,26 +1312,26 @@ POSTS = [
         problem="Karpintero ka?",
         sub="Pinto, cabinet, kisame. Maraming sira.",
         answer="Nasa Tarbaho ang mga bahay na may sirang pinto at cabinet. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Karpintero ka? 🪚\n\n"
             "Pinto na ayaw sumara, cabinet na bumigay, kisame na lumulubog. Maraming sira sa bayan mo.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. "
             "Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Karpintero #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Karpintero #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w34-reviews", side="worker", stage="product", season="all", icon="level-3",
         problem="Bawat natapos mo, may review.",
         sub="Nadadagdag sa profile mo.",
-        answer="Sa Tarbaho, nasa profile mo ang bawat review. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, nasa profile mo ang bawat review.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Bawat natapos mo, may review. ⭐\n\n"
             "Nadadagdag sa profile mo, kasama ang picture ng gawa mo at ilang taon ka na.\n\n"
             "Sa Tarbaho, kita ng mga household sa Angono, Antipolo at Taytay ang reviews mo bago sila "
-            "mag-message. Walang komisyon, sa'yo ang buong bayad.\n\n"
+            "mag-message.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
         ),
     ),
@@ -1340,12 +1339,12 @@ POSTS = [
         id="w35-summer-now", side="worker", stage="most", season="Mar-May", icon="thermometer",
         problem="Summer na. Mag-profile na.",
         sub="Init na. Dami nang nagpapalinis.",
-        answer="Libre ang profile, walang komisyon. Gawa na bago ang peak.",
+        answer="Libre mag-setup ngayon. Gawa na bago ang peak.",
         cta="I-download ang Tarbaho ngayon",
         caption=(
             "Summer na. Mag-profile na. ☀️\n\n"
             "Init na. Dami nang nagpapalinis ng aircon, nagpapakabit, nagpapa-check ng freon.\n\n"
-            "Sa Tarbaho, libre ang profile at walang komisyon. Ang mga household sa Angono, Antipolo at Taytay "
+            "Sa Tarbaho, libre mag-setup ng profile ngayon. Ang mga household sa Angono, Antipolo at Taytay "
             "ang magme-message, at makikita mo ang mga request nila.\n\n"
             "I-download ang Tarbaho ngayon. 👉 {link}\n\n#Tarbaho #Aircon #Angono #Antipolo #Taytay"
         ),
@@ -1354,14 +1353,14 @@ POSTS = [
         id="w36-nakalampas", side="worker", stage="unaware", season="all", icon="pin",
         problem="Ilang customer na ang lumampas?",
         sub="Malapit lang sila. Hindi ka lang nila nakita.",
-        answer="Sa Tarbaho, makikita ka ng mga bahay sa bayan mo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, makikita ka ng mga bahay sa bayan mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Ilang customer na ang lumampas? 📍\n\n"
             "Malapit lang sila. Hindi ka lang nila nakita, kaya iba ang natawagan.\n\n"
             "Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay, kasama ang presyo mo at "
             "reviews.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1369,26 +1368,26 @@ POSTS = [
         problem="Marunong ka mag-garden?",
         sub="Tag-ulan. Tubo nang tubo ang damo.",
         answer="Nasa Tarbaho ang mga bahay na nagpapalinis ng bakuran. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Marunong ka mag-garden? 🌿\n\n"
             "Tag-ulan. Tubo nang tubo ang damo sa bakuran ng mga bahay.\n\n"
             "Nasa Tarbaho ang mga household sa Angono, Antipolo at Taytay na nagpapalinis ng bakuran. "
             "Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w38-notif", side="worker", stage="product", season="all", icon="chat-alert",
         problem="Customer ang lalapit.",
         sub="'Di mo na kailangang mag-post.",
-        answer="Sa Tarbaho, may notification kapag may nag-message. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, may notification kapag may nag-message.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Customer ang lalapit. 🔔\n\n"
             "'Di mo na kailangang mag-post araw-araw sa FB group.\n\n"
             "Sa Tarbaho, may profile ka na kita ng mga household sa Angono, Antipolo at Taytay. Kapag may "
-            "nag-message, may notification ka. Walang komisyon.\n\n"
+            "nag-message, may notification ka.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
         ),
     ),
@@ -1397,13 +1396,13 @@ POSTS = [
         problem="Disyembre. Tigil ang site.",
         sub="Pero tuloy ang Noche Buena.",
         answer="Sa Tarbaho, may mga bahay na nagpapaayos bago mag-Pasko. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Disyembre. Tigil ang site. 🏗️\n\n"
             "Pero tuloy ang Noche Buena, ang regalo, ang bayarin.\n\n"
             "Sa Tarbaho, may mga household sa Angono, Antipolo at Taytay na nagpapaayos bago mag-Pasko: "
             "pintura, ilaw, gripo, kisame. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1411,13 +1410,13 @@ POSTS = [
         problem="IT ka? Ang daming mahina ang WiFi.",
         sub="WFH, online class. Kailangan ka.",
         answer="Nasa Tarbaho ang mga request sa bayan mo: WiFi, laptop, printer, CCTV. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "IT ka? Ang daming mahina ang WiFi. 💻\n\n"
             "WFH, online class, CCTV. Kailangan ka ng mga bahay sa bayan mo.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay: WiFi, laptop, printer, "
             "CCTV. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #IT #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #IT #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1425,25 +1424,25 @@ POSTS = [
         problem="Bakante tuwing umaga?",
         sub="Grocery, PasaBuy, bayad ng bills.",
         answer="Sa Tarbaho, tumanggap ng pakisuyo sa bayan mo. Ikaw ang nagtatakda ng presyo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Bakante tuwing umaga? 🛍️\n\n"
             "Grocery, PasaBuy, bayad ng bills. May mga bahay na kailangan ng tulong.\n\n"
             "Sa Tarbaho, tumanggap ng pakisuyo sa Angono, Antipolo o Taytay. Ikaw ang nagtatakda ng presyo mo "
             "at ng oras mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pakisuyo #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Pakisuyo #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w42-tatlong-bayan", side="worker", stage="most", season="all", icon="people",
         problem="Isang profile. Tatlong bayan.",
         sub="Angono, Antipolo, Taytay.",
-        answer="Libre ang Tarbaho. Walang komisyon. Ikaw ang pipili kung saan ka pupunta.",
+        answer="Ikaw ang pipili kung saan ka lang pupunta. Sila ang magme-message.",
         cta="I-download ang Tarbaho ngayon",
         caption=(
             "Isang profile. Tatlong bayan. 📍\n\n"
             "Angono, Antipolo, Taytay. Ikaw ang pipili kung saan ka lang pupunta.\n\n"
-            "Libre ang Tarbaho at walang komisyon. Ang mga household ang magme-message, at makikita mo ang "
+            "Libre mag-setup ng profile ngayon. Ang mga household ang magme-message, at makikita mo ang "
             "mga request nila.\n\n"
             "I-download ang Tarbaho ngayon. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
         ),
@@ -1452,13 +1451,13 @@ POSTS = [
         id="w43-carwash", side="worker", stage="solution", season="all", icon="car-wash",
         problem="May car wash kit ka?",
         sub="Linis ng kotse sa bahay nila.",
-        answer="Sa Tarbaho, makikita ka ng mga bahay sa bayan mo. Ilagay ang presyo mo. Walang komisyon.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, makikita ka ng mga bahay sa bayan mo. Ilagay ang presyo mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "May car wash kit ka? 🚗\n\n"
             "Maraming may kotse ang walang oras pumila sa carwash. Ikaw na ang pupunta sa bahay nila.\n\n"
             "Sa Tarbaho, makikita ka ng mga household sa Angono, Antipolo at Taytay. Ilagay ang presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #CarWash #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #CarWash #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1466,13 +1465,13 @@ POSTS = [
         problem="Picture ng gawa mo, nasa profile.",
         sub="Hindi na kailangang ikwento.",
         answer="Sa Tarbaho, hanggang 6 na picture ng gawa mo. Kita ng mga bahay bago mag-message.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Picture ng gawa mo, nasa profile. 📸\n\n"
             "Hindi na kailangang ikwento. Kita na nila.\n\n"
             "Sa Tarbaho, maglagay ng hanggang 6 na picture ng mga natapos mo. Kita ng mga household sa Angono, "
             "Antipolo at Taytay bago sila mag-message.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1480,13 +1479,13 @@ POSTS = [
         problem="Tapos na ang project.",
         sub="Saan ang susunod?",
         answer="Sa Tarbaho, kita mo ang mga request sa bayan mo habang naghihintay ng susunod na site.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Tapos na ang project. 🏗️\n\n"
             "Saan ang susunod? Kailan ang susunod na tawag?\n\n"
             "Habang naghihintay, may mga household sa Angono, Antipolo at Taytay na may ipapagawa. "
             "Nasa Tarbaho ang mga request nila. Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Construction #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1494,13 +1493,13 @@ POSTS = [
         problem="May ID badge ka?",
         sub="Kita sa profile mo.",
         answer="Sa Tarbaho, magpadala ng picture ng ID. Kapag na-check, may badge ka sa profile.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "May ID badge ka? 🪪\n\n"
             "Kita ito ng mga household sa profile mo.\n\n"
             "Sa Tarbaho, magpadala ng picture ng government ID mo. Kapag na-check, may badge ka sa profile. "
             "Pwede ring TESDA at past project.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1508,26 +1507,26 @@ POSTS = [
         problem="Mason ka?",
         sub="Bakod, pader, bitak.",
         answer="Nasa Tarbaho ang mga bahay na may ipapagawang pader. Arawan o pakyaw, ikaw ang bahala.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Mason ka? 🧱\n\n"
             "Bakod, pader, bitak, sahig. Maraming bahay sa bayan mo ang may ipapagawa.\n\n"
             "Nasa Tarbaho ang mga request ng household sa Angono, Antipolo at Taytay, may picture at budget. "
             "Mag-offer ng presyo mo, arawan man o pakyaw.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Mason #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Mason #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w48-libre", side="worker", stage="most", season="all", icon="level-4",
-        problem="Libre ang profile.",
-        sub="Walang komisyon. Walang monthly.",
+        problem="Libre mag-profile ngayon.",
+        sub="Ilang minuto lang ang setup.",
         answer="Gumawa ng profile sa Tarbaho ngayon. Angono, Antipolo at Taytay.",
         cta="I-download ang Tarbaho ngayon",
         caption=(
-            "Libre ang profile. 🆓\n\n"
-            "Walang komisyon. Walang monthly. Sa'yo ang buong bayad.\n\n"
+            "Libre mag-profile ngayon. 🆓\n\n"
+            "Libre mag-sign up at mag-setup ngayon. Ilang minuto lang.\n\n"
             "Gumawa ng profile sa Tarbaho ngayon, para makita ka ng mga household sa Angono, Antipolo at Taytay.\n\n"
-            "I-download ang Tarbaho ngayon. 👉 {link}\n\n#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho ngayon. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1535,41 +1534,41 @@ POSTS = [
         problem="Isang oras na biyahe.",
         sub="Para sa ₱500 na gawa.",
         answer="Sa Tarbaho, ikaw ang pipili kung gaano kalayo. Malapit lang ang customer.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Isang oras na biyahe. 🛵\n\n"
             "Para sa ₱500 na gawa. Kalahati, napunta lang sa gas.\n\n"
             "Sa Tarbaho, ikaw ang pipili kung gaano kalayo ka lang pupunta. Mga customer sa Angono, Antipolo "
             "at Taytay na malapit sa'yo.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w50-tuition", side="worker", stage="problem", season="May-Jun", icon="document",
         problem="Para sa tuition ni anak.",
         sub="Bawat raket, malaking tulong.",
-        answer="Sa Tarbaho, dagdag na customer sa bayan mo. Walang komisyon, sa'yo ang buong bayad.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, dagdag na customer sa bayan mo.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Para sa tuition ni anak. 🎒\n\n"
             "Pasukan na. Bawat raket, malaking tulong.\n\n"
             "Sa Tarbaho, dagdag na customer sa Angono, Antipolo at Taytay. Ang mga household ang magme-message, "
             "at ikaw ang nagtatakda ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pasukan #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Pasukan #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
         id="w51-suki-mo", side="worker", stage="solution", season="all", icon="phone",
         problem="Sa'yo ba ang suki mo?",
         sub="O sa ahente?",
-        answer="Sa Tarbaho, ikaw ang kausap ng customer. Walang komisyon, sa'yo ang buong bayad.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        answer="Sa Tarbaho, ikaw ang kausap ng customer.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Sa'yo ba ang suki mo? 📱\n\n"
             "O sa ahente na kumukuha ng parte?\n\n"
-            "Sa Tarbaho, ikaw mismo ang kausap ng household. Chat sa app, ikaw ang nagtatakda ng presyo, "
-            "at sa'yo ang buong bayad. Angono, Antipolo at Taytay.\n\n"
-            "Walang komisyon. 👉 {link}\n\n#Tarbaho #WalangKomisyon #Angono #Antipolo #Taytay"
+            "Sa Tarbaho, ikaw mismo ang kausap ng household. Chat sa app, at ikaw ang nagtatakda ng presyo. "
+            "Angono, Antipolo at Taytay.\n\n"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
     dict(
@@ -1577,73 +1576,52 @@ POSTS = [
         problem="Linis season na.",
         sub="General cleaning bago mag-Pasko.",
         answer="Nasa Tarbaho ang mga bahay na nagpapalinis. Mag-offer ng presyo mo.",
-        cta="I-download ang Tarbaho. Walang komisyon.",
+        cta="I-download ang Tarbaho.",
         caption=(
             "Linis season na. 🎄\n\n"
             "General cleaning bago mag-Pasko: kisame, bintana, kurtina, CR.\n\n"
             "Nasa Tarbaho ang mga household sa Angono, Antipolo at Taytay na nagpapalinis. "
             "Mag-offer ng presyo mo.\n\n"
-            "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
+            "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Pasko #Angono #Antipolo #Taytay"
         ),
     ),
     # ---- First post: early access (the app is not on Google Play yet; the CTA is the form) ----
+    # Voice: a kasama sa site joking around. The hooks and the answer line are the owner's, word for word.
     dict(
         id="w53-foreman", side="worker", stage="problem", season="all", icon="foreman",
-        problem="Tagal ng tawag ni Foreman?",
-        sub="Tapos na ang project, wala pang kasunod.",
-        answer="Sa Tarbaho, sariling kliyente sa bayan mo. Sariling presyo, 0% commission.",
+        problem="Antagal ng tawag ni Foreman?",
+        sub="Full bars ang signal. Siya lang ang tahimik.",
+        answer="Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.",
         cta="Mag-sign up: early access",
-        towns="Malapit na sa Android · Angono · Antipolo · Taytay",
+        towns="Only available in Angono, Antipolo and Taytay for now",
         caption=(
-            "Tagal ng tawag ni Foreman? 📞\n\n"
-            "Tapos na ang project, wala pang kasunod.\n"
-            "Naghihintay ka lang. O may ahente pang kumukuha ng parte mo.\n\n"
-            "Kaya namin ginawa ang Tarbaho.\n"
-            "Isang libreng app kung saan ang mga nagpapagawa sa bahay\n"
-            "ang direktang hahanap sa'yo, Kuya, Ate.\n\n"
-            "✅ 0% commission. Sa'yo ang buong bayad.\n"
-            "✅ Sariling presyo. Ikaw ang maglalagay ng range mo.\n"
-            "✅ Kliyente na malapit lang: Angono muna, tapos Taytay at Antipolo.\n"
-            "✅ Private ang number mo. Chat muna sa app, ibibigay lang pag pinili ka.\n\n"
-            "Para sa Aircon Technician at Construction:\n"
-            "Foreman, Karpintero, Electrical, Tubero, Mason, Tiles, Welding, Bubong, Steelman, Helper.\n\n"
-            "📲 Malapit na sa Android.\n"
-            "Gusto mo ng early access? Sagutan ang form (mga 3 minuto lang):\n"
+            "Antagal ng tawag ni Foreman?\n\n"
+            "Full bars naman ang signal mo. Nagpa-load ka pa nga. Siya lang talaga ang tahimik.\n\n"
+            "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
+            "Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Ang mga nauna sa form, sila ang unang makakapag-setup ng profile\n"
-            "at unang makakatanggap ng requests pag bukas na ang app.\n\n"
-            "Kailangan lang namin ang Gmail na gamit mo sa Play Store\n"
-            "para mapadala namin ang early access sa'yo.\n\n"
-            "Naka-iPhone? Pwede rin via TestFlight. Sagutan lang din ang form.\n\n"
-            "I-share sa kasamahan mo sa site! 🔨\n\n"
-            "#Tarbaho #Angono #Taytay #Antipolo #Rizal #AirconTechnician #Construction #Karpintero #Electrician "
-            "#Tubero #Raket"
+            "Ilagay ang Gmail na gamit mo sa Play Store, doon namin ipapadala ang early access. "
+            "Naka-iPhone? Pwede rin via TestFlight.\n\n"
+            "Angono, Antipolo at Taytay muna.\n\n"
+            "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),
     ),
     dict(
         id="w54-project", side="worker", stage="problem", season="all", icon="construction",
-        problem="Patapos na naman ang project?",
-        sub="Tapos ang buhos, tapos ang tiles. Uwi, antay ulit.",
-        answer="Ihanda na ang susunod na raket sa Tarbaho. Mga nagpapagawa sa malapit, diretso sa'yo.",
+        problem="Patapos na naman ang project, ano nang kasunod?",
+        sub="Next na site? \"Abangan,\" sabi ni Foreman.",
+        answer="Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.",
         cta="Mag-sign up: early access",
-        towns="Malapit na sa Android · Angono · Antipolo · Taytay",
+        towns="Only available in Angono, Antipolo and Taytay for now",
         caption=(
-            "Patapos na naman ang project? 🏗️\n\n"
-            "Alam mo na 'yan: tapos ang buhos, tapos ang tiles,\n"
-            "tapos uwi ka na naman at maghihintay.\n\n"
-            "Sa Tarbaho, ikaw mismo ang may sariling kliyente.\n"
-            "Libreng app para sa mga Kuya at Ate ng construction at aircon\n"
-            "sa Angono, Taytay at Antipolo.\n\n"
-            "✅ 0% commission. Buo ang bayad sa'yo.\n"
-            "✅ Ikaw ang bahala sa presyo.\n"
-            "✅ Mga nagpapagawa na malapit lang sa'yo.\n"
-            "✅ Private ang number mo hanggang piliin ka.\n\n"
-            "📲 Malapit na sa Android. Mag-early access na ngayon:\n"
+            "Patapos na naman ang project, ano nang kasunod?\n\n"
+            "Tapos ang buhos, tapos ang tiles. Tanong mo kay Foreman, \"abangan\" daw. Parang teleserye.\n\n"
+            "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
+            "Hindi pa bukas ang app, pero pwede ka nang mauna. Sagutan ang form:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Ang mga nauna sa form, unang makakapag-setup ng profile\n"
-            "at unang makakatanggap ng requests pag bukas na ang app.\n"
-            "(Naka-iPhone? Pwede rin via TestFlight, sagutan lang ang form.)\n\n"
-            "#Tarbaho #Angono #Taytay #Antipolo #Rizal #Construction #AirconTechnician #Raket"
+            "Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.\n\n"
+            "Angono, Antipolo at Taytay muna.\n\n"
+            "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),
     ),
 ]

@@ -35,60 +35,59 @@ Do not post in groups for hiring / job openings with "hiring" wording; if you po
 
 ## Canned comment replies (Taglish)
 
-Keep replies short, friendly, Kuya/Ate. Reply in the comments **and** send the same as a private message when the question is personal.
+Keep replies short and plain, like a kasama answering. A light joke is fine; no hard sell, no promises. Reply in the comments **and** send the same as a private message when the question is personal.
 
 **"Magkano?" / "May bayad ba?"**
 ```
-Libre po, Kuya/Ate! Walang bayad mag-sign up at walang commission.
-Sa inyo ang buong bayad ng kliyente. Early access dito: [GOOGLE FORM LINK]
+Libre mag-sign up at mag-setup ng profile ngayon.
+Presyo mo, ikaw ang maglalagay. Early access dito: [GOOGLE FORM LINK]
 ```
 
 **"Saan 'to?" / "Taga-[other town] ako, pwede?"**
 ```
-Sa Rizal po muna: Angono una, tapos Taytay at Antipolo.
-Kung malapit kayo at pumupunta kayo dito, sagutan pa rin po ang form
-at ilagay ang bayan ninyo, para alam namin saan susunod: [GOOGLE FORM LINK]
+Angono, Antipolo at Taytay muna, Angono ang una.
+Kung pumupunta ka rito, sagutan pa rin ang form at ilagay ang bayan mo,
+para alam namin kung saan susunod: [GOOGLE FORM LINK]
 ```
 
 **"iPhone?"**
 ```
-Pwede rin po! Sa iPhone, ang early access ay via TestFlight (libreng app ng Apple).
-Sa form, piliin ang "iPhone" at ilagay ang Apple ID email ninyo: [GOOGLE FORM LINK]
+Pwede! Sa iPhone, via TestFlight (libreng app ng Apple).
+Sa form, piliin ang "iPhone" at ilagay ang Apple ID email mo: [GOOGLE FORM LINK]
 ```
 
 **"Legit ba 'to?" / "Scam?"**
 ```
-Tama po na mag-ingat! Ang Tarbaho ay directory app: ang mga nagpapagawa
-ang direktang kumokontak sa inyo. Hindi kami humihingi ng bayad, GCash,
-o password kahit kailan. Ang form ay para lang sa early access.
-Malapit na po ang app sa Google Play.
+Tama lang mag-ingat. Ang Tarbaho ay directory app: ang mga nagpapagawa
+ang kumokontak sa'yo. Hindi kami hihingi ng bayad, GCash o password.
+Ang form ay para lang sa early access. Hindi pa bukas ang app.
 ```
 
 **"Paano mag-download?" / "Asan ang app?"**
 ```
-Malapit na po sa Android! Hindi pa siya bukas sa lahat.
-Sagutan ang form para sa early access: kailangan lang namin ang Gmail
-na gamit ninyo sa Play Store, para mapadala namin ang invite: [GOOGLE FORM LINK]
+Hindi pa bukas ang app sa lahat. Sagutan muna ang form para sa early access.
+Ilagay ang Gmail na gamit mo sa Play Store, doon namin ipapadala ang invite:
+[GOOGLE FORM LINK]
 ```
 
-**"May trabaho agad?" / "Sure na may kliyente?"**
+**"May customer agad?" / "Sure na may kliyente?"**
 ```
-Hindi po namin maipapangako, Kuya/Ate. Ang sigurado: ang mga nauna sa form,
-sila ang unang makakapag-setup ng profile at unang makakatanggap ng requests
-pag bukas na ang app sa Angono. Kayo ang bahala sa presyo, 0% commission.
+Hindi namin 'yan maipapangako, at ayaw naming mambola.
+Ang sure: ang mga nauna sa form, sila ang unang makakapag-setup ng profile
+pag bukas na ang app sa Angono. Presyo mo, ikaw ang bahala.
 ```
 
 **"Paano kung wala ang trade ko?" (e.g. painter)**
 ```
-Pwede pa rin po! Sa form, piliin ang "Other" at i-type ang ginagawa ninyo.
-Sa app, may "Others" din kung saan pwede ninyong i-type ang serbisyo ninyo.
+Pwede pa rin. Sa form, piliin ang "Other" at i-type ang ginagawa mo.
+Sa app, may "Others" din para i-type ang serbisyo mo.
 ```
 
 ## Follow-up posts (next 2 weeks)
 
-1. **Day 3–4: "Ganito kadali mag-setup" carousel** (`../out/carousel-setup-worker-1..7.png`, caption in `profile-setup.md`). Shows the real steps so the form feels worth it; ends with the form link.
-2. **Day 7–8: "Ikaw ang bahala sa presyo" / 0% commission explainer.** One image: a request card with the household's budget and the worker's own offer, "Walang ahente, walang commission. Sa'yo ang buong bayad." Caption explains: households post what they need with budget and photos, you send your price, you chat, they pay you after the work. Form link at the end.
-3. **Day 11–14: Trust badges + private number.** "Mas makikita ka pag may badge": Government ID, TESDA, past project with a company; plus "Private ang number mo hanggang piliin ka." Good for the TESDA groups. Ask: "May TESDA ka? I-comment ang trade mo 👇" to get comments (more reach), then reply with the form link.
+1. **Day 3–4: the setup carousel** (`../out/carousel-setup-worker-1..7.png`, caption in `profile-setup.md`). "Ilang minuto lang ang setup. Mas mabilis pa sa tawag ni Foreman." Shows the real steps so the form feels worth it; ends with the form link.
+2. **Day 7–8: "Presyo mo, ikaw ang bahala."** One image: a request card with the household's budget and the worker's own offer. Caption explains: households post what they need with budget and photos, you send your price, you chat, they pay you after the work at the price you agreed. Form link at the end. No "walang commission" or "buong bayad" line: the price model may change, and we never promise it stays.
+3. **Day 11–14: Badges + private number.** "Mas makikita ka pag may badge": Government ID, TESDA, past project with a company; plus "Private ang number mo hanggang piliin ka." Good for the TESDA groups. Ask: "May TESDA ka? I-comment ang trade mo" to get comments (more reach), then reply with the form link.
 
 Optional in between: a short "Angono muna!" post naming the barangays once the launch area is announced, and a "Shoutout sa mga nag-sign up" post **without names or counts** unless the numbers are real and the people agreed.
 
@@ -96,4 +95,4 @@ Optional in between: a short "Angono muna!" post naming the barangays once the l
 
 - Form responses per day, and which group/version they came from (question 12, "Saan mo nalaman").
 - Comments that ask the same thing twice: add a line to the caption or a new canned reply.
-- Never answer with "hiring", "job", "salary", "guaranteed"; never promise income.
+- Never answer with "hiring", "job", "salary", "guaranteed"; never promise income, and never "walang commission", "buong bayad" or "libre forever".

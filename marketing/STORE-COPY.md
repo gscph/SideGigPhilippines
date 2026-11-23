@@ -6,7 +6,7 @@ Rules this copy follows (from `docs/play-store.md` and the Terms):
 - Service words only: never *job, hire, employment, employer, recruit* or *minimum wage*.
 - Never vouch for a worker. We say what we check ("ID check", "badges"), not that someone is safe or trusted.
 - Name the three towns: **Angono, Antipolo, Taytay**.
-- No commission. Households pay the worker after the work, at the price both agree on.
+- No promise about the price model (no "no commission", "walang komisyon", "keep everything you earn", "free forever"): it may change. Say how it works today: households pay the worker after the work, at the price both agree on.
 
 ---
 
@@ -17,24 +17,24 @@ Rules this copy follows (from `docs/play-store.md` and the Terms):
 The short line under the Page name.
 
 ```
-Find a Manong, Kuya o Ate near you in Angono, Antipolo & Taytay. Kita ang presyo. Walang komisyon.
+Find a Manong, Kuya o Ate near you in Angono, Antipolo & Taytay. Kita ang presyo bago mag-chat.
 ```
-(98 characters)
+(95 characters)
 
 English version, if you'd rather:
 ```
-Skilled workers near you in Angono, Antipolo & Taytay. See prices, chat, pay after. No commission.
+Skilled workers near you in Angono, Antipolo & Taytay. See prices, chat, pay after the work.
 ```
-(98 characters)
+(92 characters)
 
 ### About / description (limit 255)
 
 The longer About text ("Page description").
 
 ```
-Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: aircon, construction, errands, IT, car mechanic and solar. See their prices, chat in the app, pay after the work. Free, walang komisyon.
+Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: aircon, construction, errands, IT, car mechanic and solar. See their prices, chat in the app, pay after the work. Free to sign up.
 ```
-(219 characters)
+(213 characters)
 
 ### Category and buttons
 - Category: **App Page** (or Home Services)
@@ -53,14 +53,14 @@ Tarbaho: Local Skilled Workers
 
 ### Short description (limit 80)
 ```
-Aircon, construction, errands & more in Rizal. See prices first. No commission.
+Aircon, construction, errands & more in Rizal. See prices first, pay after.
 ```
-(79 characters)
+(75 characters)
 
 ### Full description (limit 4,000)
 
 ```
-Need your aircon cleaned, a leak fixed or someone to pay your bills? Tarbaho shows you the skilled workers near you in Angono, Antipolo and Taytay, with their prices up front. Chat in the app, agree on a price, and pay the worker after the service. No commission, ever.
+Need your aircon cleaned, a leak fixed or someone to pay your bills? Tarbaho shows you the skilled workers near you in Angono, Antipolo and Taytay, with their prices up front. Chat in the app, agree on a price, and pay the worker after the service.
 
 WHAT YOU CAN FIND
 • Aircon Technician: cleaning, repair, leaks, freon, install, transfer, PMS
@@ -80,7 +80,7 @@ FOR HOUSEHOLDS
 FOR SKILLED WORKERS
 • Make your profile in a few minutes: your trade, your price, the towns you go to.
 • See requests from households near you and send your offer.
-• Keep everything you earn. Tarbaho takes no commission.
+• Chat in the app first. Your number stays private until a household picks you.
 • Add badges: a government ID, a TESDA certificate or a past project with a company. Badges help you show up higher in search.
 
 WHAT WE CHECK
@@ -90,7 +90,7 @@ English or Taglish: pick your language on the first screen.
 
 Tarbaho is a directory. We are not the employer of the workers listed and we don't take part in your agreement with them. Now open in Angono, Antipolo and Taytay, Rizal, with more towns soon.
 ```
-(about 1,950 characters)
+(about 1,937 characters)
 
 ### Tags / category
 - Category: **House & Home** (or Lifestyle)
@@ -114,9 +114,9 @@ Home services in Rizal
 
 ### Promotional text (limit 170, can change any time without a review)
 ```
-Now open in Angono, Antipolo and Taytay. Find aircon, construction, errands and more near you. See prices up front, pay after the work. No commission.
+Now open in Angono, Antipolo and Taytay. Find aircon, construction, errands and more near you. See prices up front, pay after the work.
 ```
-(150 characters)
+(135 characters)
 
 ### Description (limit 4,000)
 

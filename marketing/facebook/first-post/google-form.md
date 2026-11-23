@@ -25,12 +25,11 @@ Sections (branching is set on question 3, "Go to section based on answer"):
 ## Description
 
 ```
-Malapit na ang Tarbaho sa Android! Libreng app kung saan ang mga nagpapagawa
-sa Angono, Taytay at Antipolo ang direktang hahanap sa'yo.
-0% commission. Sariling presyo. Private ang number mo.
+Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
+Hindi pa bukas ang app. Angono, Antipolo at Taytay muna.
 
 Sagutan ito para sa early access. Ang mga nauna, sila ang unang makakapag-setup
-ng profile at unang makakatanggap ng requests pag bukas na ang app.
+ng profile pag bukas na ang app. Libre mag-sign up at mag-setup ng profile ngayon.
 Mga 3 minuto lang.
 
 Privacy: Kinukuha namin ang pangalan, mobile number, email ng Play Store o Apple ID,
@@ -172,7 +171,7 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 ## Confirmation message (after Submit)
 
 ```
-Salamat, Kuya / Ate! Nasa listahan ka na ng early access. 🎉
+Salamat! Nasa listahan ka na ng early access.
 Ite-text o ime-message ka namin pag handa na ang invite mo.
 Android: makakatanggap ka ng link para i-install mula sa Play Store.
 iPhone: makakatanggap ka ng TestFlight invite sa Apple ID email mo.
