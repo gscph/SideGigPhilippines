@@ -68,6 +68,7 @@ else
 fi
 
 step "Domain $DOMAIN"
+JUST_ADDED=no
 if az communication email domain show --domain-name "$DOMAIN" --email-service-name "$EMAIL_SERVICE" \
      -g "$EMAIL_GROUP" --only-show-errors -o none 2>/dev/null; then
   echo "Already added."
@@ -75,6 +76,7 @@ else
   az communication email domain create --domain-name "$DOMAIN" --email-service-name "$EMAIL_SERVICE" \
     -g "$EMAIL_GROUP" --location global --domain-management CustomerManaged --only-show-errors -o none \
     || fail "couldn't add the domain."
+  JUST_ADDED=yes
   echo "Added (you manage its DNS, at Cloudflare)."
 fi
 
@@ -87,14 +89,14 @@ DOMAIN_ID=$(domain_field id)
 
 step "DNS records for Cloudflare (DNS → Records → Add record; Proxy status: DNS only)"
 echo "Name '@' means $DOMAIN itself. Copy each value exactly."
-for kind in domain spf dkim dkim2 dmarc; do
+for kind in Domain SPF DKIM DKIM2 DMARC; do   # Azure's own (capitalised) key names
   records="(verificationRecords || properties.verificationRecords).$kind"
   record=$(domain_field "$records && join('|', $records.[type, name, value])")
   [ -n "$record" ] || continue
   IFS='|' read -r rtype rname rvalue <<<"$record"
   [ "$rname" = "$DOMAIN" ] && rname="@"
   rname="${rname%.$DOMAIN}"
-  printf '\n  %-7s %s\n  Name:   %s\n  Value:  %s\n' "$rtype" "$(echo "$kind" | tr a-z A-Z)" "$rname" "$rvalue"
+  printf '\n  %-7s %s\n  Name:   %s\n  Value:  %s\n' "$rtype" "$kind" "$rname" "$rvalue"
 done
 echo
 echo "SPF: a domain has ONE SPF record. If Cloudflare already shows a TXT starting with v=spf1 at @, don't add a"
@@ -102,23 +104,30 @@ echo "second one: put 'include:spf.protection.outlook.com' into the one you have
 echo "DMARC is optional but helps the mail reach the inbox; it is not checked here."
 
 step "Verification"
+domain_status() { domain_field "(verificationStates || properties.verificationStates).$1.status"; }
 ALL_VERIFIED=yes
 for kind in Domain SPF DKIM DKIM2; do
-  key=$(echo "$kind" | tr A-Z a-z)
-  status=$(domain_field "(verificationStates || properties.verificationStates).$key.status")
+  status=$(domain_status "$kind")
+  case "$status" in Verified|VerificationRequested|VerificationInProgress) ask=no ;; *) ask=yes ;; esac
+  # The run that just added the domain only prints the records: Cloudflare can't have them yet.
+  if [ "$ask" = yes ] && [ "$JUST_ADDED" = no ]; then
+    # Ask Azure to look up the record now (it waits for the answer), then read the result.
+    az communication email domain initiate-verification --domain-name "$DOMAIN" \
+      --email-service-name "$EMAIL_SERVICE" -g "$EMAIL_GROUP" --verification-type "$kind" \
+      --only-show-errors -o none 2>/dev/null
+    status=$(domain_status "$kind")
+  fi
   case "$status" in
     Verified)
       echo "$kind: verified" ;;
     VerificationRequested|VerificationInProgress)
-      ALL_VERIFIED=no; echo "$kind: Azure is checking ($status)" ;;
+      ALL_VERIFIED=no; echo "$kind: Azure is still checking" ;;
     *)
       ALL_VERIFIED=no
-      if az communication email domain initiate-verification --domain-name "$DOMAIN" \
-           --email-service-name "$EMAIL_SERVICE" -g "$EMAIL_GROUP" --verification-type "$kind" \
-           --only-show-errors -o none 2>/dev/null; then
-        echo "$kind: check started (was ${status:-not started})"
+      if [ "$JUST_ADDED" = yes ]; then
+        echo "$kind: not checked yet (add its record first)"
       else
-        echo "$kind: not found yet (was ${status:-not started}): add its record above at Cloudflare"
+        echo "$kind: not found (${status:-not started}): check its record above at Cloudflare"
       fi ;;
   esac
 done
