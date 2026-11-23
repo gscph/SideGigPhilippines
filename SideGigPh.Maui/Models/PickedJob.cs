@@ -12,6 +12,7 @@ namespace SideGigPh.Maui.Models;
 /// <param name="MyReviewLocked">This person's review of the other can't be changed any more: both reviews of the job show.</param>
 /// <param name="MeetPoint">The exact place the household sent the picked worker (<c>Services/MeetLocation</c>), until the job is called off or done.</param>
 /// <param name="MeetSharedAt">When the household sent it.</param>
+/// <param name="ServiceName">The job's name as the post had it (an operator's later rename doesn't change it); null: use the config's.</param>
 public sealed record PickedJob(
     long PostId,
     string ServiceId,
@@ -26,7 +27,8 @@ public sealed record PickedJob(
     int? TheirRating = null,
     bool MyReviewLocked = false,
     GeoPoint? MeetPoint = null,
-    DateTimeOffset? MeetSharedAt = null)
+    DateTimeOffset? MeetSharedAt = null,
+    LocalizedText? ServiceName = null)
 {
     /// <summary>Both sides marked it done.</summary>
     public bool IsCompleted => DoneByHousehold && DoneByWorker;

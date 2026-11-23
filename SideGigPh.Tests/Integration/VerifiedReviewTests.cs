@@ -76,7 +76,9 @@ public class VerifiedReviewTests(ApiTestHost api)
         var workBoard = worker.Get<JobBoard>();
 
         var job = (await homeBoard.PickedJobsAsync(worker.Uid)).Should().ContainSingle().Subject;
-        job.Should().Be(new PickedJob(post.Id, "construction-plumbing", 900, job.PickedAt, IAmTheHousehold: true, DoneByHousehold: false, DoneByWorker: false));
+        job.Should().Be(new PickedJob(post.Id, "construction-plumbing", 900, job.PickedAt, IAmTheHousehold: true, DoneByHousehold: false, DoneByWorker: false,
+            ServiceName: post.ServiceName));
+        job.ServiceName.Should().NotBeNull("the picked job carries its post's own copy of the job's name");
         (await workBoard.PickedJobsAsync(household.Uid)).Single().IAmTheHousehold.Should().BeFalse();
         (await ReviewAsync(household, worker.Uid, 5)).Should().Be(HttpStatusCode.Forbidden, "no completed job yet, and the chat is new");
 

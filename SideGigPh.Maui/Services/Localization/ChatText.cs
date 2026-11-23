@@ -8,8 +8,9 @@ namespace SideGigPh.Maui.Services.Localization;
 /// </summary>
 public static class ChatText
 {
+    /// <summary>The job (its name when the chat started, else today's) and the town.</summary>
     public static string WhatAndWhere(this AppText text, Chat chat) => Join(
-        Label(text, ReferenceData.FindService(chat.ServiceId)),
+        chat.ServiceName is { } saved ? text.Get(saved) : Label(text, ReferenceData.FindService(chat.ServiceId)),
         Label(text, ReferenceData.Find(ReferenceData.Cities, chat.CityId)));
 
     public static string WhenAndBudget(this AppText text, Chat chat) => Join(

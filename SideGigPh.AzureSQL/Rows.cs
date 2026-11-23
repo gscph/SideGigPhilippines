@@ -114,6 +114,11 @@ public sealed class ChatRow
     public string? CityId { get; set; }
     public string? UrgencyId { get; set; }
     public string? BudgetId { get; set; }
+
+    /// <summary>The job's names when the chat started or a pick moved it (<c>029-schema-catalog-names.sql</c>): an operator's rename never rewrites them.</summary>
+    public string? ServiceLabelEnglish { get; set; }
+    public string? ServiceLabelTaglish { get; set; }
+
     public required string LastMessageId { get; set; }
     public required string LastMessageSenderId { get; set; }
     public required string LastMessageKind { get; set; }
@@ -154,6 +159,12 @@ public sealed class CategoryRow
     public string? HintTaglish { get; set; }
     public int SortOrder { get; set; }
     public bool IsActive { get; set; }
+
+    /// <summary>When an operator last changed it in the operator site (<c>029-schema-catalog-names.sql</c>); set = <c>004-config.sql</c> leaves it alone.</summary>
+    public DateTimeOffset? EditedAt { get; set; }
+
+    /// <summary>The operator's uid behind <see cref="EditedAt"/>.</summary>
+    public string? EditedBy { get; set; }
 }
 
 /// <summary>A job within a trade (<c>Services</c>).</summary>
@@ -171,6 +182,12 @@ public sealed class ServiceRow
     public int? PriceMin { get; set; }
     public int? PriceAverage { get; set; }
     public int? PriceHigh { get; set; }
+
+    /// <summary>When an operator last changed it in the operator site (<c>029-schema-catalog-names.sql</c>); set = <c>004-config.sql</c> leaves it alone.</summary>
+    public DateTimeOffset? EditedAt { get; set; }
+
+    /// <summary>The operator's uid behind <see cref="EditedAt"/>.</summary>
+    public string? EditedBy { get; set; }
 }
 
 /// <summary>What someone typed after picking "Others" (<c>OtherJobNotes</c>), for analytics.</summary>
@@ -289,6 +306,15 @@ public sealed class JobPostRow
 
     /// <summary>The household's own title, the post's header (<c>027-schema-post-title.sql</c>); null only on older posts.</summary>
     public string? Title { get; set; }
+
+    /// <summary>
+    /// The trade's and job's names when the post was made or its job last changed (<c>029-schema-catalog-names.sql</c>),
+    /// like an order line keeping a product's title: an operator's rename never rewrites a post. Null for "Others".
+    /// </summary>
+    public string? TradeLabelEnglish { get; set; }
+    public string? TradeLabelTaglish { get; set; }
+    public string? ServiceLabelEnglish { get; set; }
+    public string? ServiceLabelTaglish { get; set; }
 
     /// <summary>The top of the budget ("up to").</summary>
     public int BudgetPesos { get; set; }

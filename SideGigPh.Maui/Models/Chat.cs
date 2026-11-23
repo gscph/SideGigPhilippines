@@ -35,6 +35,7 @@ public sealed record ChatMessage(
 /// by the Seeker's first message. It carries the job from the Seeker's answers (ids in
 /// <c>ReferenceData</c>), both names and the last message, so an Inbox needs no other reads.
 /// Unread = the other person sent the last message after this side last opened the chat.
+/// <c>ServiceName</c> is the job's name when the chat started (an operator's later rename doesn't change it); null: use the config's.
 /// </summary>
 public sealed record Chat(
     string Id,
@@ -49,7 +50,8 @@ public sealed record Chat(
     ChatMessage LastMessage,
     DateTimeOffset? SeekerReadAt,
     DateTimeOffset? ProfessionalReadAt,
-    DateTimeOffset CreatedAt)
+    DateTimeOffset CreatedAt,
+    LocalizedText? ServiceName = null)
 {
     public static string IdFor(string professionalId, string seekerId) => $"{professionalId}_{seekerId}";
 

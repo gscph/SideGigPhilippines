@@ -18,6 +18,8 @@ namespace SideGigPh.Maui.Models;
 /// <param name="PhotoIds">The stored ids of <paramref name="PhotoUrls"/>, same order (Edit post keeps them); null when unknown.</param>
 /// <param name="NeededOn">The day the household needs it done (Philippine date), or null for any day.</param>
 /// <param name="Title">The household's own short title, the post's header; null only on posts made before titles.</param>
+/// <param name="TradeName">The trade's name when the post was made (an operator's later rename doesn't change it); null: use the config's.</param>
+/// <param name="ServiceName">The job's name when the post was made; null: use the config's.</param>
 public sealed record JobPost(
     long Id,
     string CategoryId,
@@ -39,7 +41,9 @@ public sealed record JobPost(
     string? BarangayId = null,
     IReadOnlyList<string>? PhotoIds = null,
     DateOnly? NeededOn = null,
-    string? Title = null);
+    string? Title = null,
+    LocalizedText? TradeName = null,
+    LocalizedText? ServiceName = null);
 
 /// <summary>
 /// One page of a worker's feed, most relevant first; <paramref name="HasMore"/>: another page follows.

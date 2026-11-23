@@ -32,5 +32,6 @@ public static class SchemaScripts
         "026-schema-cancel-pick",
         "027-schema-post-title",
         "028-schema-meet-location",
+        "029-schema-catalog-names",
     ];
 }

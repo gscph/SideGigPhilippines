@@ -29,8 +29,7 @@ public partial class OffersPage : ComponentBase
     private long? _confirming;
     private LocalizedText? _notice;
 
-    private string ServiceLabel =>
-        _post is not null && ReferenceData.FindService(_post.ServiceId) is { } service ? T.Get(service.Label) : string.Empty;
+    private string ServiceLabel => _post is not null ? T.ServiceLabel(_post) : string.Empty;
 
     protected override async Task OnParametersSetAsync()
     {

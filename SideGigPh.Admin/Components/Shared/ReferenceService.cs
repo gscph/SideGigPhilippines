@@ -20,6 +20,9 @@ public sealed class ReferenceService(AdminApi api)
     public async Task<IReadOnlyDictionary<string, string>> ExperienceAsync() =>
         (await ConfigAsync())?.Experience.ToDictionary(e => e.Id, e => e.English) ?? [];
 
+    /// <summary>Reads the config again next time (after the operator changed the trades or jobs).</summary>
+    public void Forget() => _config = null;
+
     private Task<ConfigDto?> ConfigAsync() => _config ??= LoadAsync();
 
     private async Task<ConfigDto?> LoadAsync()

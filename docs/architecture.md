@@ -546,7 +546,38 @@ households and skilled workers, the badge review (the same as the phone's `Badge
 - **"Others" typed** (`Components/OtherJob/`, `OtherJobService`, page `/other-jobs`, side menu "Insights", linked from
   the dashboard's "Others" tile): every note people typed after picking "Others", newest first, with the trade it was
   under ("Own trade" for the interviews' Others tile), the side and who; filter by side, the Others trade or a trade,
-  search the text. It shows which trades and jobs to add next to `004-config.sql`.
+  search the text. It shows which trades and jobs to add next (on the Catalog page, below, or in `004-config.sql`).
+- **Trades and jobs** (`Components/Catalog/`, `CatalogService`, page `/catalog`, side menu "App content"; API
+  `CatalogFunctions` → `CatalogStore`, contracts in `SideGigPh.Contracts/AdminCatalog.cs`): the operator adds,
+  renames, retires and restores trades (`Categories`) and jobs (`Services`, with their price guide). Routes:
+  `GET ops/catalog` (every trade, retired ones too, with worker and open-post counts), `POST ops/catalog/trades`,
+  `PUT|DELETE ops/catalog/trades/{id}`, `POST ops/catalog/trades/{id}/restore`, and the same under
+  `ops/catalog/services`; every change answers with the whole catalog. Rules: **ids are made by the server once**
+  from the English name (`CatalogStore.Slug` / `NewId`: lower-case, accents dropped, `-2` when taken, never one that
+  reads as "Others"; a job's id starts with its trade's) and never change; **nothing is ever deleted** (`DELETE`
+  retires, `IsActive = 0`, like `004-config.sql`); a new trade gets its `{id}-other` "Others / Iba pa" job, a new job
+  goes just before its trade's "Others", and **"Others" can be renamed but never retired** (`409 others-stays`).
+  **Every offered job needs a price guide** (the phone refuses a whole config with a job that has none,
+  `ReferenceData.CanUse`, and would then never see any operator change): a job is saved only with one
+  (`CatalogRules.IsPrice`), a new "Others" gets `CatalogRules.OthersPrice` (755/1200/2000, like 004's), restoring a
+  trade brings its "Others" back (priced) and keeps its unpriced jobs retired, and restoring an unpriced job is
+  refused (`409 needs-price`). A refused field travels as `invalid-<field>`, so the site names it with error details off.
+  A new trade's id also avoids ids whose `-other` job already exists (`solar-other` is `solar_cleaning`'s).
+  Retire asks once more and says how many workers and open posts are in it. Each change stamps
+  `Categories/Services.EditedAt` / `EditedBy` (`029-schema-catalog-names.sql`), and **`004-config.sql` leaves stamped
+  rows alone** (no overwrite, no retire), so a later config run never undoes the operator. The saving API instance
+  drops its cached config (`ConfigStore.Forget`), so `GET config` shows it at once there; other instances within
+  `ConfigFor` (12 h) and phones within `RemoteConfigRules.FreshFor` (12 h). A trade or job added here shows the plus
+  picture until it gets its own SVG and a line in `AppImages`.
+- **Renames never touch posts or transactions** (like an ERP order line that keeps the product's title and price):
+  a post keeps the trade's and job's names it was made with (`JobPosts.TradeLabelEnglish/Taglish`,
+  `ServiceLabelEnglish/Taglish`, copied by `JobPostStore` when it is made or its job changes; `CatalogNames`), a chat
+  the job's name it started with (`Chats.ServiceLabelEnglish/Taglish`; a pick copies the post's, onto an existing chat
+  or the one the pick opens), and a picked job
+  reads its post's. They travel as `CatalogNameDto` (`JobPostDto.TradeName` / `ServiceName`, `ChatDto.ServiceName`,
+  `PickedJobDto.ServiceName`) and the app shows them before today's config name (`RequestText.ServiceLabel` /
+  `TradeLabel`, `ChatText.WhatAndWhere`); prices were already copied (`JobOffers.PricePesos`). Null for "Others" and
+  older rows without one (the app then uses the config's name). Searches, listings and the interviews use today's names.
 - **Error reports:** the apps' reports, newest first, a row opens to the stack trace and the trail (`ErrorReportDetail`).
   The site's own crashes go to the same table: `MainLayout`'s error boundary shows `SiteErrorPanel`, which sends one
   `POST error-reports` (`ErrorReportService.ReportSiteErrorAsync`, version `operator`, platform `web`, channel `prod`);
@@ -559,7 +590,7 @@ households and skilled workers, the badge review (the same as the phone's `Badge
   run, the tests) every address is 404. The page and the API share one origin, so **production needs no CORS**.
   The Function App is the one web host: legal pages (`LegalFunctions`), the feedback board (`SuggestFunctions`) and
   this site; a public **landing page** is planned as its own project (not built).
-- **Calls:** `Services/AdminApi` (transport only: `GetAsync`, `GetImageAsync`, `PostAsync`; one `HttpClient`, the Firebase ID token as Bearer on each call, JSON through
+- **Calls:** `Services/AdminApi` (transport only: `GetAsync`, `GetImageAsync`, `PostAsync`, `SendAsync` (a change whose answer is JSON); one `HttpClient`, the Firebase ID token as Bearer on each call, JSON through
   `SideGigPh.Contracts`' `ApiJson`; failures throw `AdminApiException` with a message the page shows, a browser's
   CORS refusal reads as "can't reach the API"). Its base address is `Api:BaseUrl` in `wwwroot/appsettings.json`;
   empty means the page's own `../` (= `/api/`); `appsettings.Development.json` points a local run at the live API.

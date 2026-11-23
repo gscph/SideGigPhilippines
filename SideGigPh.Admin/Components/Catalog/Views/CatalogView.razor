@@ -1,0 +1,35 @@
+@if (_loading)
+{
+    <MudStack Spacing="3">
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+        <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="72px" />
+    </MudStack>
+}
+else if (Catalog.Current is null)
+{
+    <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync">Try again</MudButton>
+}
+else
+{
+    <MudStack Spacing="3">
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="() => _error = null">@_error</MudAlert>
+        }
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap">
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@ActiveCount offered · @RetiredCount retired · phones see changes within 12 hours</MudText>
+            <MudStack Row="true" Spacing="2">
+                <MudButton Variant="Variant.Text" Color="Color.Dark" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync" Disabled="_busy">Reload</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="AddTradeAsync" Disabled="_busy">Add a trade</MudButton>
+            </MudStack>
+        </MudStack>
+        <MudExpansionPanels MultiExpansion="true" Elevation="0" Outlined="true">
+            @foreach (var trade in Catalog.Current.Trades)
+            {
+                <TradePanel @key="trade.Id" Trade="trade" Busy="_busy" OnChange="RunAsync" />
+            }
+        </MudExpansionPanels>
+    </MudStack>
+}

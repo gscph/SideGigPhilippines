@@ -36,6 +36,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<JobPostStore>();
         services.AddScoped<PickedJobStore>();
         services.AddScoped<AdminStore>();
+        services.AddScoped<CatalogStore>();
         return services;
     }
 }

@@ -94,6 +94,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             CreatedAt = DateTimeOffset.UtcNow,
             Photos = [.. (request.PhotoIds ?? []).Distinct().Select((id, i) => new JobPostPhotoRow { PhotoId = id, Position = (short)i })],
         };
+        await CopyNamesAsync(row, cancellationToken);
         db.JobPosts.Add(row);
         await db.SaveChangesAsync(cancellationToken);
         return new JobPostOutcome(ToDto(row, uid), null, IsNew: true);
@@ -135,8 +136,15 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         var served = (await config.GetAsync(cancellationToken)).Config;
         var point = GeoRules.Point(request.Latitude, request.Longitude)
             ?? (request.CityId != row.CityId ? GeoRules.CentreOf([request.CityId]) : null);
+        var jobChanged = request.CategoryId != row.CategoryId || request.ServiceId != row.ServiceId;
         row.CategoryId = request.CategoryId;
         row.ServiceId = request.ServiceId;
+        if (jobChanged)
+        {
+            // A post keeps the names it was made with; only a new job brings today's names.
+            await CopyNamesAsync(row, cancellationToken);
+        }
+
         row.Description = request.Description.Trim();
         row.Title = request.Title!.Trim();
         row.BudgetPesos = request.BudgetPesos;
@@ -412,10 +420,15 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             // The two may already have a chat (an earlier job): it is now about this post's service and town, so its
             // Inbox rows and the review written from it name the right job.
             var proUid = await db.JobOffers.Where(o => o.Id == offerId).Select(o => o.ProUid).FirstAsync(ct);
-            var post = await db.JobPosts.Where(p => p.Id == postId).Select(p => new { p.ServiceId, p.CityId }).FirstAsync(ct);
+            var post = await db.JobPosts.Where(p => p.Id == postId)
+                .Select(p => new { p.ServiceId, p.CityId, p.ServiceLabelEnglish, p.ServiceLabelTaglish }).FirstAsync(ct);
             var chatId = ChatStore.IdFor(proUid, uid);
             await db.Chats.Where(c => c.Id == chatId)
-                .ExecuteUpdateAsync(set => set.SetProperty(c => c.ServiceId, post.ServiceId).SetProperty(c => c.CityId, post.CityId), ct);
+                .ExecuteUpdateAsync(set => set
+                    .SetProperty(c => c.ServiceId, post.ServiceId)
+                    .SetProperty(c => c.CityId, post.CityId)
+                    .SetProperty(c => c.ServiceLabelEnglish, post.ServiceLabelEnglish)
+                    .SetProperty(c => c.ServiceLabelTaglish, post.ServiceLabelTaglish), ct);
             return true;
         }, cancellationToken);
 
@@ -582,6 +595,20 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
             && db.Professionals.Any(p => p.Id == uid && p.CategoryId == j.CategoryId)
             && !db.Blocks.Any(b => (b.BlockerUid == uid && b.BlockedUid == j.SeekerUid) || (b.BlockerUid == j.SeekerUid && b.BlockedUid == uid)));
 
+    /// <summary>
+    /// Copies the trade's and job's names as they are now onto the post (<see cref="CatalogNames"/>): an operator's later
+    /// rename changes the app's lists, never what this household posted or a worker offered on.
+    /// </summary>
+    private async Task CopyNamesAsync(JobPostRow row, CancellationToken cancellationToken)
+    {
+        var trade = await db.TradeAsync(row.CategoryId, cancellationToken);
+        var service = await db.ServiceAsync(row.ServiceId, cancellationToken);
+        row.TradeLabelEnglish = trade?.English;
+        row.TradeLabelTaglish = trade?.Taglish;
+        row.ServiceLabelEnglish = service?.English;
+        row.ServiceLabelTaglish = service?.Taglish;
+    }
+
     private JobPostDto ToDto(JobPostRow row, string uid, bool offersService = false, int? distanceKm = null,
         int offerCount = 0, int? myOfferPesos = null, string? pickedProId = null, ReviewSummaryDto? householdReviews = null) => new(
         row.Id,
@@ -603,7 +630,9 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         householdReviews,
         row.BarangayId,
         row.NeededOn,
-        row.Title);
+        row.Title,
+        CatalogNames.Of(row.TradeLabelEnglish, row.TradeLabelTaglish),
+        CatalogNames.Of(row.ServiceLabelEnglish, row.ServiceLabelTaglish));
 
     /// <summary>One row of the offers query: which offer, and how far its worker is from the post.</summary>
     private sealed class OfferHit

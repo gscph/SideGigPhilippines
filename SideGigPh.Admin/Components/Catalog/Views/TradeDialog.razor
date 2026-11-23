@@ -1,0 +1,19 @@
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error">@_error</MudAlert>
+            }
+            <MudTextField @bind-Value="_english" Label="Name in English" Variant="Variant.Outlined" MaxLength="CatalogRules.MaxTradeName" Counter="CatalogRules.MaxTradeName" AutoFocus="true" />
+            <MudTextField @bind-Value="_taglish" Label="Name in Taglish" Variant="Variant.Outlined" MaxLength="CatalogRules.MaxTradeName" Counter="CatalogRules.MaxTradeName" />
+            <MudTextField @bind-Value="_hintEnglish" Label="Hint in English (optional)" Variant="Variant.Outlined" MaxLength="CatalogRules.MaxHint" />
+            <MudTextField @bind-Value="_hintTaglish" Label="Hint in Taglish (optional)" Variant="Variant.Outlined" MaxLength="CatalogRules.MaxHint" />
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@Note</MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Dark" OnClick="Cancel" Disabled="_busy">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@(_busy || !CanSave)">Save</MudButton>
+    </DialogActions>
+</MudDialog>

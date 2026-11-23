@@ -15,6 +15,8 @@ namespace SideGigPh.Contracts;
 /// <param name="BarangayId">The barangay in <paramref name="CityId"/> the household picked (config <c>Barangays</c>), or null.</param>
 /// <param name="NeededOn">The day the household needs it done (Philippine date), or null for any day.</param>
 /// <param name="Title">The household's own short title, the post's header; null only on posts made before titles.</param>
+/// <param name="TradeName">The trade's name when the post was made (an operator's later rename doesn't change it); null for "Others".</param>
+/// <param name="ServiceName">The job's name when the post was made or its job last changed; null for "Others".</param>
 public sealed record JobPostDto(
     long Id,
     string CategoryId,
@@ -35,7 +37,9 @@ public sealed record JobPostDto(
     ReviewSummaryDto? HouseholdReviews = null,
     string? BarangayId = null,
     DateOnly? NeededOn = null,
-    string? Title = null);
+    string? Title = null,
+    CatalogNameDto? TradeName = null,
+    CatalogNameDto? ServiceName = null);
 
 /// <summary>
 /// <c>POST job-posts</c>: a household's new post. <paramref name="Latitude"/> / <paramref name="Longitude"/> are the

@@ -33,7 +33,9 @@ public class ApiWiringTests(ApiTestHost api)
             "POST job-posts", "PUT job-posts/{id}", "GET job-posts/mine", "GET offers/mine", "GET job-posts/feed", "DELETE job-posts/{id}", "POST job-posts/{id}/report",
             "POST job-posts/{id}/offers", "DELETE job-posts/{id}/offers/mine", "GET job-posts/{id}/offers", "POST job-posts/{id}/offers/{offerId}/pick", "GET contacts/{otherUid}", "GET picked-jobs/{otherUid}", "POST picked-jobs/{postId}/done", "POST picked-jobs/{postId}/cancel", "PUT picked-jobs/{postId}/location", "PUT household-reviews",
             "GET ops/me", "GET ops/verifications", "GET ops/verifications/{id}/document", "POST ops/verifications/{id}/decision",
-            "GET ops/stats", "GET ops/users", "GET ops/seekers", "GET ops/workers", "GET ops/error-reports", "GET ops/other-jobs");
+            "GET ops/stats", "GET ops/users", "GET ops/seekers", "GET ops/workers", "GET ops/error-reports", "GET ops/other-jobs",
+            "GET ops/catalog", "POST ops/catalog/trades", "PUT ops/catalog/trades/{id}", "DELETE ops/catalog/trades/{id}", "POST ops/catalog/trades/{id}/restore",
+            "POST ops/catalog/services", "PUT ops/catalog/services/{id}", "DELETE ops/catalog/services/{id}", "POST ops/catalog/services/{id}/restore");
 
     // The Azure Functions host keeps every route starting with "admin" for its own admin API and never loads such a
     // function (live it answers 404), while this in-memory host serves it: so the test host can't catch it, this can.

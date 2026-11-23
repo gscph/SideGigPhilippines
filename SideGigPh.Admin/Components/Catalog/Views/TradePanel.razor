@@ -1,0 +1,76 @@
+<MudExpansionPanel>
+    <TitleContent>
+        <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap" Spacing="2">
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.subtitle1" Color="@(Trade.IsActive ? Color.Default : Color.Secondary)">@Trade.English · @Trade.Taglish</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@Trade.Id · @CatalogService.Count(Trade.Workers, "skilled worker") · @CatalogService.Count(Trade.OpenPosts, "open post") · @CatalogService.Count(ActiveJobs, "job")</MudText>
+            </MudStack>
+            @if (!Trade.IsActive)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Secondary" Variant="Variant.Outlined">Retired</MudChip>
+            }
+        </MudStack>
+    </TitleContent>
+    <ChildContent>
+        <MudStack Spacing="3">
+            @if (Trade.HintEnglish is not null || Trade.HintTaglish is not null)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Secondary">Hint: @Trade.HintEnglish · @Trade.HintTaglish</MudText>
+            }
+            <MudStack Row="true" Spacing="2" Wrap="Wrap.Wrap">
+                <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" StartIcon="@Icons.Material.Outlined.Edit" OnClick="RenameAsync" Disabled="Busy">Rename trade</MudButton>
+                @if (Trade.IsActive)
+                {
+                    <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" StartIcon="@Icons.Material.Outlined.Add" OnClick="AddJobAsync" Disabled="Busy">Add a job</MudButton>
+                    <MudButton Variant="Variant.Text" Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Outlined.Archive" OnClick="RetireAsync" Disabled="Busy">Retire trade</MudButton>
+                }
+                else
+                {
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Outlined.Unarchive" OnClick="RestoreAsync" Disabled="Busy">Restore trade</MudButton>
+                }
+            </MudStack>
+            <MudTable T="AdminServiceDto" Items="Trade.Services" Dense="true" Hover="true" Elevation="0" Outlined="true">
+                <HeaderContent>
+                    <MudTh>Job (English)</MudTh>
+                    <MudTh>Taglish</MudTh>
+                    <MudTh>Price guide (low · average · high)</MudTh>
+                    <MudTh>Used by</MudTh>
+                    <MudTh></MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Job">
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.body2" Color="@(context.IsActive ? Color.Default : Color.Secondary)">@context.English</MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">@context.Id@(context.IsActive ? "" : " · retired")</MudText>
+                        </MudStack>
+                    </MudTd>
+                    <MudTd DataLabel="Taglish">@context.Taglish</MudTd>
+                    <MudTd DataLabel="Price guide">@CatalogService.PriceText(context.Price)</MudTd>
+                    <MudTd DataLabel="Used by">@CatalogService.Count(context.Workers, "worker") · @CatalogService.Count(context.OpenPosts, "open post")</MudTd>
+                    <MudTd>
+                        <MudStack Row="true" Spacing="0" Justify="Justify.FlexEnd">
+                            <MudTooltip Text="Rename / price guide">
+                                <MudIconButton Icon="@Icons.Material.Outlined.Edit" Size="Size.Small" OnClick="() => EditJobAsync(context)" Disabled="Busy" aria-label="Rename job" />
+                            </MudTooltip>
+                            @if (!context.IsActive)
+                            {
+                                <MudTooltip Text="Restore">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Unarchive" Size="Size.Small" Color="Color.Primary" OnClick="() => RestoreJobAsync(context)" Disabled="Busy" aria-label="Restore job" />
+                                </MudTooltip>
+                            }
+                            else if (!context.IsOther)
+                            {
+                                <MudTooltip Text="Retire">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.Archive" Size="Size.Small" Color="Color.Error" OnClick="() => RetireJobAsync(context)" Disabled="Busy" aria-label="Retire job" />
+                                </MudTooltip>
+                            }
+                        </MudStack>
+                    </MudTd>
+                </RowTemplate>
+                <NoRecordsContent>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">No jobs yet.</MudText>
+                </NoRecordsContent>
+            </MudTable>
+        </MudStack>
+    </ChildContent>
+</MudExpansionPanel>

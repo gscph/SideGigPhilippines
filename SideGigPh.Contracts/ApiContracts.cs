@@ -86,6 +86,12 @@ public static class ApiErrors
     /// <summary>403 on an <c>ops/…</c> route: the caller isn't an operator.</summary>
     public const string NotAdmin = "not-admin";
 
+    /// <summary>409 on <c>DELETE ops/catalog/services/{id}</c>: a trade's "Others" job can be renamed, never retired.</summary>
+    public const string OthersStays = "others-stays";
+
+    /// <summary>409 on <c>POST ops/catalog/services/{id}/restore</c>: the job has no price guide; give it one first (the app refuses a job without).</summary>
+    public const string NeedsPrice = "needs-price";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }
@@ -244,7 +250,8 @@ public sealed record ChatDto(
     MessageDto LastMessage,
     DateTimeOffset? SeekerReadAt,
     DateTimeOffset? ProfessionalReadAt,
-    DateTimeOffset CreatedAt);
+    DateTimeOffset CreatedAt,
+    CatalogNameDto? ServiceName = null);
 
 /// <summary>
 /// <c>POST chats/{chatId}/messages</c>. The first message creates the chat from the names and job here (only the
@@ -321,6 +328,13 @@ public sealed record BarangayDto(string Id, string TownId, string English, strin
 /// <summary>One answer in a config list: <c>taytay</c> "Taytay", <c>3-10</c> "3–10 years"…</summary>
 /// <param name="Amount">Pesos for income goals (per month); 0 otherwise.</param>
 public sealed record OptionDto(string Id, string English, string Taglish, string? Icon, int Amount);
+
+/// <summary>
+/// A trade's or job's name as it was when a post or chat was made (<c>JobPostDto.ServiceName</c>, <c>ChatDto.ServiceName</c>,
+/// <c>PickedJobDto.ServiceName</c>), like an order line keeping a product's title: an operator renaming the trade or
+/// job later (<c>ops/catalog</c>) changes the config, never this. Null when the post or chat has none ("Others").
+/// </summary>
+public sealed record CatalogNameDto(string English, string Taglish);
 
 /// <summary>A trade: <c>aircon</c>, "Aircon Technician", ❄️, with its jobs.</summary>
 public sealed record CategoryDto(

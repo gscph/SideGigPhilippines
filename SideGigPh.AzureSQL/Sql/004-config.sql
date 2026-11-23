@@ -7,7 +7,9 @@
 
    How: run after 001-schema.sql, the same way (portal Query editor, the WHOLE file). Safe to run
    again: it updates labels, icons and order to what is written here, adds new rows, and RETIRES
-   (IsActive = 0) any row that is in the database but not in this file.
+   (IsActive = 0) any row that is in the database but not in this file. A trade or job an operator changed in the
+   operator site (Catalog page, Categories/Services.EditedAt set, 029-schema-catalog-names.sql) is left as the
+   operator saved it: copy their change here if you want this file to match.
    Caching: each API instance keeps the config 12 hours and each phone keeps its copy 12 hours, so
    a change here can take up to a day to reach everyone. Restart the Function App to skip the server half.
 
@@ -274,17 +276,17 @@ WHEN NOT MATCHED BY SOURCE THEN UPDATE SET IsActive = 0;
 
 MERGE dbo.Categories AS target
 USING @Categories AS source ON target.Id = source.Id
-WHEN MATCHED THEN UPDATE SET
+WHEN MATCHED AND target.EditedAt IS NULL THEN UPDATE SET
     LabelEnglish = source.LabelEnglish, LabelTaglish = source.LabelTaglish, Icon = source.Icon,
     HintEnglish = source.HintEnglish, HintTaglish = source.HintTaglish, SortOrder = source.SortOrder, IsActive = source.IsActive
 WHEN NOT MATCHED BY TARGET THEN
     INSERT (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, HintTaglish, SortOrder, IsActive)
     VALUES (source.Id, source.LabelEnglish, source.LabelTaglish, source.Icon, source.HintEnglish, source.HintTaglish, source.SortOrder, source.IsActive)
-WHEN NOT MATCHED BY SOURCE THEN UPDATE SET IsActive = 0;
+WHEN NOT MATCHED BY SOURCE AND target.EditedAt IS NULL THEN UPDATE SET IsActive = 0;
 
 MERGE dbo.Services AS target
 USING @Services AS source ON target.Id = source.Id
-WHEN MATCHED THEN UPDATE SET
+WHEN MATCHED AND target.EditedAt IS NULL THEN UPDATE SET
     CategoryId = source.CategoryId, LabelEnglish = source.LabelEnglish, LabelTaglish = source.LabelTaglish,
     Icon = source.Icon, SortOrder = source.SortOrder, IsActive = source.IsActive,
     PriceMin = source.PriceMin, PriceAverage = source.PriceAverage, PriceHigh = source.PriceHigh
@@ -292,7 +294,7 @@ WHEN NOT MATCHED BY TARGET THEN
     INSERT (Id, CategoryId, LabelEnglish, LabelTaglish, Icon, SortOrder, IsActive, PriceMin, PriceAverage, PriceHigh)
     VALUES (source.Id, source.CategoryId, source.LabelEnglish, source.LabelTaglish, source.Icon, source.SortOrder, source.IsActive,
             source.PriceMin, source.PriceAverage, source.PriceHigh)
-WHEN NOT MATCHED BY SOURCE THEN UPDATE SET IsActive = 0;
+WHEN NOT MATCHED BY SOURCE AND target.EditedAt IS NULL THEN UPDATE SET IsActive = 0;
 
 MERGE dbo.Barangays AS target
 USING @Barangays AS source ON target.Id = source.Id
