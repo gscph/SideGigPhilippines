@@ -4,6 +4,9 @@ What people in Rizal type into Google, grouped by who is searching. Use these wo
 (title, description, headings, FAQ answers, picture alt text). Google ignores a hidden "keywords" tag, so a word only
 counts when a visitor can read it on the page.
 
+Some searches here are for things no job in the app lists yet (CCTV, laptop repair, wifi setup, car aircon, septic
+tank / poso negro). They are here as ideas only: put a word on the page only when `004-config.sql` has a job for it.
+
 Copy rules still hold: service words, never "job", "hire", "hiring", "employment", "salary" or "minimum wage"; never
 "0% commission" or "walang komisyon"; never vouch for a worker.
 
