@@ -1087,7 +1087,7 @@ POSTS = [
         id="w17-tesda", side="worker", stage="product", season="all", icon="document",
         problem="May TESDA ka? Ipakita mo.",
         sub="Pinaghirapan mo 'yan. Dapat nakikita ng customer.",
-        answer="Sa Tarbaho, may badge ang TESDA, ID at past project mo sa profile. Walang komisyon.",
+        answer="Sa Tarbaho, may badge ang TESDA, ID, clearance at past project mo sa profile. Walang komisyon.",
         cta="I-download ang Tarbaho. Walang komisyon.",
         caption=(
             "May TESDA ka? Ipakita mo. 📜\n\n"

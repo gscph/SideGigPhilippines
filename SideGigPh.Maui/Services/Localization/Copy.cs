@@ -676,8 +676,8 @@ public static class Copy
         "Any valid government ID: National ID, driver's license, UMID, passport, voter's ID. The whole card, clear and not blurry.",
         "Kahit anong valid government ID: National ID, driver's license, UMID, passport, voter's ID. Buong card, malinaw at hindi malabo.");
     public static readonly LocalizedText BadgeClearanceWhat = new(
-        "Your NBI clearance or police clearance from the last 12 months. The whole paper, with your name, photo and the clearance number.",
-        "Ang NBI clearance o police clearance mo na kinuha sa loob ng 12 buwan. Buong papel, kita ang pangalan mo, photo at clearance number.");
+        "Your NBI clearance (less than 1 year old) or police clearance (less than 6 months old). The whole paper, with your name, photo and the clearance number.",
+        "Ang NBI clearance mo (wala pang 1 taon) o police clearance (wala pang 6 na buwan). Buong papel, kita ang pangalan mo, photo at clearance number.");
     public static readonly LocalizedText BadgeTesdaWhat = new(
         "Your TESDA National Certificate (NC I to NC IV) or a training certificate. The whole page, with your name and the certificate number.",
         "Ang TESDA National Certificate mo (NC I hanggang NC IV) o training certificate. Buong page, kita ang pangalan mo at ang certificate number.");
@@ -694,6 +694,9 @@ public static class Copy
     public static readonly LocalizedText BadgeConsentDocument = new(
         "I agree that a person at Tarbaho checks this photo. It is kept private and deleted after checking.",
         "Pumapayag akong i-check ng tao sa Tarbaho ang photo na 'to. Private ito at buburahin after i-check.");
+    public static readonly LocalizedText BadgeConsentClearance = new(
+        "I agree that a person at Tarbaho checks this clearance, including any record on it, only to decide the badge. It is kept private and deleted after checking. Customers see only the badge.",
+        "Pumapayag akong i-check ng tao sa Tarbaho ang clearance na 'to, pati ang record kung meron, para lang sa badge. Private ito at buburahin after i-check. Badge lang ang makikita ng customer.");
     public static readonly LocalizedText BadgeChoosePhoto = new("Choose photo and send", "Pumili ng photo at i-send");
     public static readonly LocalizedText BadgeAlreadySent = new("You already sent this one.", "Na-send mo na 'to.");
     public static readonly LocalizedText BadgeNoCompany = new("Pick a company or type its name.", "Pumili ng kumpanya o i-type ang pangalan nito.");

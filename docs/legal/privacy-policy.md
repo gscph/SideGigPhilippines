@@ -123,8 +123,9 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
   A person compares the ID with your profile photo and approves or declines. We do **not** take a selfie for
   matching and do **not** use face recognition.
 - **NBI or police clearance:** checked by a person at Tarbaho only. No AI reads it. A clearance can show
-  information about offences, which the law treats as sensitive: we use it only to decide the badge, and the
-  badge says only that a clearance was checked, never what was on it.
+  information about offences, which the law treats as sensitive: we use it only to decide the badge. We approve a
+  genuine clearance in your name that is recent (NBI under 1 year, police under 6 months) and shows no record. If
+  we decline one, only you see the reason, and we never show or keep what was on it.
 - **TESDA certificate, proof of a past project:** checked by a person at Tarbaho only. No AI reads them.
 - The photo is kept in **private storage** (not at a web address), can be opened only by our authorised checkers,
   and **every time one is opened it is logged**.

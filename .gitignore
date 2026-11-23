@@ -85,3 +85,6 @@ local.settings.json
 *.keystore
 *.jks
 !SideGigPh.Maui/Platforms/Android/Signing/dev.keystore
+
+# Visual Studio folders anywhere (e.g. one opened on Sql/)
+.vs/

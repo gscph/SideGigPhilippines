@@ -73,8 +73,8 @@ identity documents, criminal records, NBI or barangay clearance, licenses, TESDA
 tax registration or the truth of any listing, photo or review, unless we expressly say so for a specific feature.
 The one such feature is **badges** ("ID Verified", "NBI / Police Clearance", "TESDA Certified", a past project): a
 badge means only that a person at Tarbaho looked at a photo of that document when the worker sent it and accepted
-it. It does not mean we vouch for the worker, and it is not updated if the document later expires or a record
-changes.
+it (for a clearance: genuine, recent and showing no record on that day). It does not mean we vouch for the
+worker, and it is not updated if the document later expires or a record changes.
 
 ## 4. Eligibility and your account
 

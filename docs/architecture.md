@@ -470,8 +470,11 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
 
 Four badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the
 checker), **NBI / Police Clearance** (kind `clearance`, an NBI or police clearance, checked by a person only;
-`031-schema-clearance-badge.sql` widened the `Kind` check; no expiry is tracked yet, the checker rejects an old
-one), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
+`031-schema-clearance-badge.sql` widened the `Kind` check; **the checker approves only a genuine clearance in the
+worker's name, NBI under 1 year or police under 6 months old, showing no record** ("No record on file"), and
+rejects anything else with a neutral reason ("We can't approve this clearance"), never naming a record; no expiry
+is tracked after approval; its own consent line `BadgeConsentClearance` says a record on it is seen only for the
+badge), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
 developer or any other company (a well-known developer picked from a list, or "Another company" typed by the
 worker; each company is its own badge, with an optional building name).
 

@@ -41,7 +41,7 @@
 
         <MudPaper Outlined="true" Class="app-rounded pa-3">
             <MudCheckBox T="bool" @bind-Value="_consent" Disabled="_busy" Color="Color.Primary"
-                         Label="@T.Get(BadgeKind == BadgeKind.Id ? Copy.BadgeConsentId : Copy.BadgeConsentDocument)" />
+                         Label="@T.Get(Consent)" />
         </MudPaper>
 
         @if (_problem is not null)

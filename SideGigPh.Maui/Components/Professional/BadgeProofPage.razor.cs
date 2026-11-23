@@ -52,6 +52,14 @@ public partial class BadgeProofPage : ComponentBase
         _ => Copy.BadgeIdWhat,
     };
 
+    /// <summary>The consent the worker ticks: an ID is read by AI, a clearance can show a record, anything else is a plain document.</summary>
+    private LocalizedText Consent => BadgeKind switch
+    {
+        BadgeKind.Id => Copy.BadgeConsentId,
+        BadgeKind.Clearance => Copy.BadgeConsentClearance,
+        _ => Copy.BadgeConsentDocument,
+    };
+
     protected override async Task OnInitializedAsync() => await Badges.LoadAsync();
 
     protected override void OnParametersSet()
