@@ -1,0 +1,13 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@FrontDoorTheme.Theme" IsDarkMode="false" />
+<MudPopoverProvider />
+
+<SiteHeader />
+<MudStack Spacing="0" Class="fd-page">
+    @Body
+</MudStack>
+<SiteFooter />
+<MudScrollToTop TopOffset="600" Class="fd-to-top">
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.KeyboardDoubleArrowUp" Size="Size.Medium" aria-label="@Language.Get(Copy.Header.Home)" />
+</MudScrollToTop>

@@ -41,6 +41,12 @@ public enum Limited
     /// <summary>A vote on the public web board (<c>POST suggest/{id}/vote</c>), counted per visitor's IP address.</summary>
     WebFeedbackVote,
 
+    /// <summary>An Early Access sign-up from the landing page (<c>POST early-access</c>), counted per visitor's IP address.</summary>
+    EarlyAccess,
+
+    /// <summary>All Early Access sign-ups, whoever sends them (one key), so a flood stays small.</summary>
+    EarlyAccessTotal,
+
     /// <summary>A listing published, changed or taken down (each one clears the shared search cache).</summary>
     Listing,
 
@@ -83,6 +89,8 @@ public sealed class CallerLimits : IDisposable
         [Limited.WebFeedback] = (5, TimeSpan.FromHours(1)),
         [Limited.WebFeedbackTotal] = (60, TimeSpan.FromHours(1)),
         [Limited.WebFeedbackVote] = (60, TimeSpan.FromHours(1)),
+        [Limited.EarlyAccess] = (20, TimeSpan.FromHours(1)),  // many Philippine phones share one carrier address
+        [Limited.EarlyAccessTotal] = (300, TimeSpan.FromHours(1)),
         [Limited.Listing] = (20, TimeSpan.FromHours(1)),
         [Limited.Profile] = (60, TimeSpan.FromHours(1)),
         [Limited.Verification] = (12, TimeSpan.FromHours(1)),

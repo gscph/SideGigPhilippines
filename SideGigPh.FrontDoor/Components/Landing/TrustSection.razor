@@ -1,0 +1,17 @@
+@inherits LandingComponent
+
+<MudStack Class="fd-band-tint">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="fd-section">
+        <MudStack Spacing="6">
+            <SectionTitle Lead="@T(Copy.Titles.Trust.Lead)" Mark="@T(Copy.Titles.Trust.Mark)" Sub="@T(Copy.Trust.Reviews)" />
+            <MudGrid Spacing="5">
+                @foreach (var point in Points)
+                {
+                    <MudItem xs="12" md="4">
+                        <FeatureRow Icon="@point.Icon" Title="@T(point.Title)" Text="@T(point.Text)" />
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudStack>
+    </MudContainer>
+</MudStack>

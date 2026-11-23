@@ -67,6 +67,10 @@ SideGigPh.Maui/Platforms/iOS/GoogleService-Info.plist
 !SideGigPh.Admin/wwwroot/appsettings.json
 !SideGigPh.Admin/wwwroot/appsettings.Development.json
 !SideGigPh.Admin/Properties/launchSettings.json
+# The landing page's settings (the API address, no secrets) and its Static Web App routes and headers.
+!SideGigPh.FrontDoor/wwwroot/appsettings.json
+!SideGigPh.FrontDoor/wwwroot/appsettings.Development.json
+!SideGigPh.FrontDoor/wwwroot/staticwebapp.config.json
 *.v2
 /.vs/ProjectEvaluation
 /.vs/SideGigPh/CopilotIndices/18.11.1093.4562

@@ -82,7 +82,7 @@ public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits
             }
         }
 
-        if (!limits.TryTake(Limited.WebFeedback, ClientAddress(request)) || !limits.TryTake(Limited.WebFeedbackTotal, "all"))
+        if (!limits.TryTake(Limited.WebFeedback, ClientAddress.Of(request)) || !limits.TryTake(Limited.WebFeedbackTotal, "all"))
         {
             return ApiResults.TooMany();
         }
@@ -105,7 +105,7 @@ public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits
             return new NotFoundResult();
         }
 
-        if (!limits.TryTake(Limited.WebFeedbackVote, ClientAddress(request)))
+        if (!limits.TryTake(Limited.WebFeedbackVote, ClientAddress.Of(request)))
         {
             return ApiResults.TooMany();
         }
@@ -140,21 +140,6 @@ public sealed class SuggestFunctions(FeedbackStore feedback, CallerLimits limits
         var path = request.Path.Value ?? "/api/suggest";
         var at = path.IndexOf("/suggest", StringComparison.Ordinal);
         return at < 0 ? "/api/suggest" : path[..(at + "/suggest".Length)];
-    }
-
-    /// <summary>
-    /// The visitor's address for the limits: the last <c>X-Forwarded-For</c> entry (the one Azure's front end added;
-    /// earlier ones are whatever the client sent), else the connection's.
-    /// </summary>
-    private static string ClientAddress(HttpRequest request)
-    {
-        var forwarded = request.Headers["X-Forwarded-For"].ToString();
-        if (forwarded.Length > 0)
-        {
-            return forwarded.Split(',')[^1].Trim();
-        }
-
-        return request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
     }
 
     private static async Task<IFormCollection?> ReadFormAsync(HttpRequest request, CancellationToken cancellationToken)

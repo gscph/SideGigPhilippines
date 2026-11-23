@@ -1,0 +1,9 @@
+<MudStack Spacing="2" AlignItems="AlignItems.Center" Class="fd-section-title">
+    <MudText Typo="Typo.h3" HtmlTag="h2" Align="Align.Center" Color="@TitleColor" Class="fd-title">
+        @Lead <MudText Typo="Typo.inherit" HtmlTag="span" Class="@MarkClass">@Mark</MudText>
+    </MudText>
+    @if (Sub is { Length: > 0 })
+    {
+        <MudText Typo="Typo.body1" Align="Align.Center" Class="@SubClass">@Sub</MudText>
+    }
+</MudStack>

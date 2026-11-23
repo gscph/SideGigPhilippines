@@ -4,6 +4,7 @@
 #   build-check.sh            the Android app (SideGigPh.Maui, net10.0-android) and the API (SideGigPh.Api)
 #   build-check.sh --app      only the Android app
 #   build-check.sh --api      only the API
+#   build-check.sh --site     only the landing page (SideGigPh.FrontDoor, Blazor WebAssembly)
 #
 # The copy lives in $BUILD_COPY (default: $TEMP/sidegigph-build). Source is refreshed on every run (bin/obj are
 # kept there, so a second run is incremental). On Windows the app builds through a short drive alias (subst),
@@ -12,24 +13,27 @@ set -uo pipefail
 
 repo="$(cd "$(dirname "$0")/../../../.." && pwd)"
 copy="${BUILD_COPY:-${TEMP:-/tmp}/sidegigph-build}"
-want_app=1; want_api=1
+want_app=1; want_api=1; want_site=0
 case "${1:-}" in
   --app) want_api=0 ;;
   --api) want_app=0 ;;
+  --site) want_app=0; want_api=0; want_site=1 ;;
   "") ;;
-  *) echo "usage: build-check.sh [--app|--api]"; exit 2 ;;
+  *) echo "usage: build-check.sh [--app|--api|--site]"; exit 2 ;;
 esac
 
 mkdir -p "$copy"
 echo "Refreshing the source in $copy ..."
-for project in MobileAppTheme MobileAppTheme.Firebase SideGigPh.Contracts SideGigPh.Maui SideGigPh.AzureSQL SideGigPh.Api; do
+for project in MobileAppTheme MobileAppTheme.Firebase SideGigPh.Contracts SideGigPh.Maui SideGigPh.AzureSQL SideGigPh.Api SideGigPh.FrontDoor; do
   # Replace the sources but keep bin/obj for an incremental build.
   find "$copy/$project" -mindepth 1 -maxdepth 1 ! -name bin ! -name obj -exec rm -rf {} + 2>/dev/null
   mkdir -p "$copy/$project"
-  (cd "$repo" && tar --exclude=bin --exclude=obj -cf - "$project") | tar -xf - -C "$copy"
+  (cd "$repo" && tar --exclude=bin --exclude=obj --exclude=.vs -cf - "$project") | tar -xf - -C "$copy"
 done
 # The API embeds the public legal pages (LegalFunctions).
 rm -rf "$copy/docs/legal" && mkdir -p "$copy/docs" && cp -r "$repo/docs/legal" "$copy/docs/"
+# The landing page links the store feature graphic (its Facebook preview) and two phone screenshots (its hero).
+mkdir -p "$copy/docs/store-assets/phone" && cp "$repo/docs/store-assets/feature-graphic.png" "$copy/docs/store-assets/" && cp "$repo"/docs/store-assets/phone/*.png "$copy/docs/store-assets/phone/"
 # The Firebase settings files are git-ignored, so a worktree has none: take them from the main checkout. Without
 # google-services.json the app still builds (the csproj's Condition skips it) but Firebase never starts, and sign-in
 # fails on every QA install ("Default FirebaseApp is not initialized").
@@ -49,6 +53,14 @@ if [ "$want_api" = 1 ]; then
   output="$(cd "$copy/SideGigPh.Api" && dotnet build -nologo -v q 2>&1)"
   build=$?
   echo "$output" | grep -E " error |Build succeeded|Time Elapsed" | sort -u
+  [ $build -eq 0 ] || status=1
+fi
+
+if [ "$want_site" = 1 ]; then
+  echo "== SideGigPh.FrontDoor"
+  output="$(cd "$copy/SideGigPh.FrontDoor" && dotnet build -nologo -v q 2>&1)"
+  build=$?
+  echo "$output" | grep -E " error | warning (CS|RZ|MUD)|Build succeeded|Time Elapsed" | sort -u
   [ $build -eq 0 ] || status=1
 fi
 

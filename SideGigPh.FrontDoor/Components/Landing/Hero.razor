@@ -1,0 +1,27 @@
+@inherits LandingComponent
+
+<MudStack Class="fd-band-primary fd-hero-band">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="fd-hero">
+        <MudGrid Spacing="6" Class="align-center">
+            <MudItem xs="12" md="6" Class="order-md-1">
+                <MudStack Spacing="4">
+                    <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@FrontDoorTheme.Logo" ViewBox="0 0 24 24" Color="Color.Inherit" Class="fd-hero-logo" />
+                        <MudText Typo="Typo.h4" HtmlTag="span" Class="fd-wordmark">Tarbaho</MudText>
+                    </MudStack>
+                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Small" Class="fd-eyebrow fd-eyebrow-dark">@T(Copy.Hero.Eyebrow)</MudChip>
+                    <MudText Typo="Typo.h2" HtmlTag="h1">@T(Copy.Hero.Headline)</MudText>
+                    <MudText Typo="Typo.body1" Class="fd-on-primary-muted fd-hero-sub">@T(Copy.Hero.Sub)</MudText>
+                    <MudStack Row Spacing="3" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                        <MudButton Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-light" OnClick="ToFormAsync">@T(Copy.Hero.Cta)</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-ghost" OnClick="ToWorkersAsync">@T(Copy.Hero.WorkerLink)</MudButton>
+                    </MudStack>
+                    <StoreBadges OnDark="true" />
+                </MudStack>
+            </MudItem>
+            <MudItem xs="12" md="6" Class="order-md-0">
+                <HeroPhones />
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</MudStack>

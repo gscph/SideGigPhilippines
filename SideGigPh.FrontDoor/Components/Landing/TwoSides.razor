@@ -1,0 +1,39 @@
+@inherits LandingComponent
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="fd-section" id="@Sections.HowItWorks">
+    <MudStack Spacing="6">
+        <SectionTitle Lead="@T(Copy.Titles.HowItWorks.Lead)" Mark="@T(Copy.Titles.HowItWorks.Mark)" />
+        <MudStack AlignItems="AlignItems.Center" Spacing="3">
+            <MudToggleGroup T="string" Value="@Side" ValueChanged="PickSide" SelectionMode="SelectionMode.SingleSelection"
+                            Color="Color.Primary" Outlined="false" Delimiters="false" Class="fd-pills">
+                <MudToggleItem Value="@EarlyAccessRules.Household" Text="@T(Copy.Sides.Household)" />
+                <MudToggleItem Value="@EarlyAccessRules.Worker" Text="@T(Copy.Sides.Worker)" />
+            </MudToggleGroup>
+            @if (IsWorker)
+            {
+                <MudText Typo="Typo.subtitle1" Color="Color.Success" Align="Align.Center">@T(Copy.Sides.WorkerIntro)</MudText>
+            }
+        </MudStack>
+        <MudGrid Spacing="4">
+            @for (var i = 0; i < Steps.Length; i++)
+            {
+                var step = Steps[i];
+                var number = i + 1;
+                <MudItem xs="12" md="4">
+                    <MudPaper Elevation="0" Class="fd-card pa-6">
+                        <MudStack Spacing="3" AlignItems="AlignItems.Center">
+                            <MudStack Row Spacing="0" Class="fd-step-art">
+                                <IconCircle Src="@step.Icon" Size="88" />
+                                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="fd-step-number">
+                                    <MudText Typo="Typo.subtitle1">@number</MudText>
+                                </MudStack>
+                            </MudStack>
+                            <MudText Typo="Typo.h6" HtmlTag="h3" Align="Align.Center">@T(step.Title)</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T(step.Text)</MudText>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+    </MudStack>
+</MudContainer>

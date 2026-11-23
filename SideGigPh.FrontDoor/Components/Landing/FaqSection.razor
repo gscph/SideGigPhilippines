@@ -1,0 +1,15 @@
+@inherits LandingComponent
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="fd-section" id="@Sections.Faq">
+    <MudStack Spacing="6">
+        <SectionTitle Lead="@T(Copy.Titles.Faq.Lead)" Mark="@T(Copy.Titles.Faq.Mark)" />
+        <MudExpansionPanels MultiExpansion="false" Elevation="0" Class="fd-faq">
+            @foreach (var (question, answer) in Copy.Faq.Items)
+            {
+                <MudExpansionPanel Text="@T(question)" Class="fd-faq-item">
+                    <MudText Typo="Typo.body1" Color="Color.Secondary">@T(answer)</MudText>
+                </MudExpansionPanel>
+            }
+        </MudExpansionPanels>
+    </MudStack>
+</MudContainer>
