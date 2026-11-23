@@ -1610,7 +1610,7 @@ POSTS = [
     dict(
         id="w54-project", side="worker", stage="problem", season="all", icon="construction",
         problem="Patapos na naman ang project, ano nang kasunod?",
-        sub="Hindi mo na kailangang hintayin ang tawag.",
+        sub="Wag mo na hintayin ung tawag.",
         answer="Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.",
         cta="Mag-sign up: early access",
         towns="Only available in Angono, Antipolo and Taytay for now",
