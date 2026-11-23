@@ -588,8 +588,8 @@ households and skilled workers, the badge review (the same as the phone's `Badge
   rewritten to the route; files come only from that folder (`Resolve`, nothing outside it); the Brotli copy
   (`.br`) goes to browsers that accept it; `no-cache` + ETag; `X-Frame-Options: DENY`. Without the folder (a local
   run, the tests) every address is 404. The page and the API share one origin, so **production needs no CORS**.
-  The Function App is the one web host: legal pages (`LegalFunctions`), the feedback board (`SuggestFunctions`) and
-  this site; a public **landing page** is planned as its own project (not built).
+  The Function App hosts the API's own pages: legal pages (`LegalFunctions`), the feedback board (`SuggestFunctions`)
+  and this site. The public landing page is its own project on a Static Web App (Landing page, below).
 - **Calls:** `Services/AdminApi` (transport only: `GetAsync`, `GetImageAsync`, `PostAsync`, `SendAsync` (a change whose answer is JSON); one `HttpClient`, the Firebase ID token as Bearer on each call, JSON through
   `SideGigPh.Contracts`' `ApiJson`; failures throw `AdminApiException` with a message the page shows, a browser's
   CORS refusal reads as "can't reach the API"). Its base address is `Api:BaseUrl` in `wwwroot/appsettings.json`;
@@ -611,6 +611,47 @@ households and skilled workers, the badge review (the same as the phone's `Badge
   host (`api.tarbaho.com`, the API's custom domain; `localhost` is there by default). For a
   local run against the live API, paste `azure/cloudshell-operator-cors.sh` (adds `https://localhost:7265` and
   `http://localhost:5027` to the Function App's CORS; never `*`).
+
+## Landing page (`SideGigPh.FrontDoor`)
+
+Tarbaho's public page, **tarbaho.com**: who it is for, how it works for each side, the trades and towns, what is
+checked, questions, and in the middle an **Early Access** form. Android says "Soon"; iPhone links the public
+TestFlight beta.
+
+- **Project:** standalone **Blazor WebAssembly** (`Microsoft.NET.Sdk.BlazorWebAssembly`), MudBlazor only, the same
+  version as the app; references only `SideGigPh.Contracts`. No server of its own: an **Azure Static Web App** (Free)
+  serves `wwwroot` (`staticwebapp.config.json`: the fallback to `index.html`, security headers, no cache for
+  `index.html` and `appsettings.json`). `index.html` carries the Open Graph tags (Facebook / Messenger previews read them
+  before any script) and a plain-HTML hero that shows while the page loads, the only raw HTML.
+- **Brand, linked not copied:** the csproj links the app's DM Sans font, every `SideGigPh.Maui/wwwroot/images/icons/*.svg`
+  (`LinkBase`) and `docs/store-assets/feature-graphic.png` as `images/og.png`, so a new icon or font reaches both.
+  `Theme/FrontDoorTheme` builds the `MudTheme` with `AppTheme`'s colors and the same Folded T path (`Logo`): change
+  them together. Helper classes are `fd-…` in `wwwroot/frontdoor.css`, colors only through `--mud-palette-*`.
+- **Layout:** `Pages/Home` composes one component per section in `Components/Landing/` (`SiteHeader`, `Hero`,
+  `TwoSides`, `Promises`, `EarlyAccessSection` + `EarlyAccessForm`, `TradesAndTowns`, `TrustSection`, `FaqSection`,
+  `RepeatCta`, `SiteFooter`), each `.razor` + `.razor.cs`, all inheriting `LandingComponent` (the language and `T(say)`).
+  Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.
+- **Language:** every string is a `Say(English, Taglish)` in `Localization/Copy.cs`; `PageLanguage` picks it from
+  `?lang=tl|en`, then the visitor's last pick (localStorage `tarbaho.lang`), then the browser. Copy follows the
+  marketing rules: service words, Kuya / Ate, never vouching, never "0% commission" / "walang komisyon".
+- **Early Access:** phone type (required: an Android tester is invited by the Gmail on their Play Store, an iPhone gets
+  the TestFlight link right away), household or Skilled Worker (optional), email (`EarlyAccessRules`: one shape check,
+  a "Did you mean gmail.com?" fix for common typos), a hidden `website` field for bots. `HttpEarlyAccessSignup` posts
+  `EarlyAccessRequest` to the API (`ApiUrl` in `appsettings.json`); the page remembers it joined (localStorage
+  `tarbaho.early-access`) and then offers Share.
+- **Server:** `POST early-access` (`EarlyAccessFunctions`, public): 400 `invalid-email` / `invalid-phone`, a filled bot
+  field answers 204 and sends nothing, `CallerLimits` `EarlyAccess` (5 an hour per IP, `ClientAddress`) and
+  `EarlyAccessTotal` (300 an hour in all) answer 429. **Nothing is stored:** `IEarlyAccessMailer` emails each sign-up
+  to the owner (`AcsEarlyAccessMailer`: Azure Communication Services Email, sender `EarlyAccessFrom` on tarbaho.com,
+  recipient `EarlyAccessTo`, reply-to the person, connection `EmailConnection`). Without those settings
+  `NoEarlyAccessMailer` answers 503 `not-sent` and the page says it didn't send. The recipient is only a setting (the
+  repo is public), and no sign-up address is ever logged. Privacy policy §3.6.
+- **CORS:** the page and the API are on different origins, so the Function App's CORS lists `https://tarbaho.com`,
+  `https://www.tarbaho.com` and the Static Web App's own address.
+- **Deploy:** `.github/workflows/deploy-website.yml`, by itself on a push to `main` that changes the site, the contracts,
+  the app's icons, font or `AppTheme.cs`, or the feature graphic, and by hand; it publishes and uploads `wwwroot` with
+  the Static Web App's deployment token (`FRONTDOOR_SWA_TOKEN`). The API part ships with *Deploy API*.
+- **Check it:** `build-check.sh --site`.
 
 ## Cold starts and double taps
 

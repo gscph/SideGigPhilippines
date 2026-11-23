@@ -1,0 +1,20 @@
+@inherits LandingComponent
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="fd-section fd-repeat">
+    <MudStack Row="@true" Spacing="4" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Wrap="Wrap.Wrap">
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.h5" HtmlTag="h2">@T(Signup.HasJoined ? Copy.Repeat.ThanksHeadline : Copy.Repeat.Headline)</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">@T(Signup.HasJoined ? Copy.Repeat.ThanksSub : Copy.Repeat.Sub)</MudText>
+        </MudStack>
+        @if (Signup.HasJoined)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Filled.Share" Class="fd-cta" OnClick="ShareAsync">
+                @T(_copied ? Copy.Join.Copied : Copy.Repeat.Share)
+            </MudButton>
+        }
+        else
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Class="fd-cta" OnClick="ToFormAsync">@T(Copy.Repeat.Button)</MudButton>
+        }
+    </MudStack>
+</MudContainer>

@@ -1,0 +1,24 @@
+@inherits LandingComponent
+
+<MudStack Class="fd-band-tint">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="fd-section">
+        <MudStack Spacing="5">
+            <MudText Typo="Typo.h4" HtmlTag="h2">@T(Copy.Trust.Heading)</MudText>
+            <MudGrid Spacing="4">
+                @foreach (var point in Points)
+                {
+                    <MudItem xs="12" md="4">
+                        <MudStack Row Spacing="3" AlignItems="AlignItems.Start">
+                            <IconCircle Src="@point.Icon" Size="48" />
+                            <MudStack Spacing="1">
+                                <MudText Typo="Typo.h6" HtmlTag="h3">@T(point.Title)</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@T(point.Text)</MudText>
+                            </MudStack>
+                        </MudStack>
+                    </MudItem>
+                }
+            </MudGrid>
+            <MudText Typo="Typo.body1">@T(Copy.Trust.Reviews)</MudText>
+        </MudStack>
+    </MudContainer>
+</MudStack>

@@ -221,6 +221,18 @@ public class WireContractTests
         PushData.OffersChannel.Should().Be("offers");
     }
 
+    // The landing page (a Static Web App, deployed on its own) sends these; the API must keep reading them.
+    [Fact]
+    public void EarlyAccess_FieldNamesAndWords_NeverChange()
+    {
+        FieldNames(new EarlyAccessRequest("a@b.co", EarlyAccessRules.Android, EarlyAccessRules.Worker, "tl", ""), ApiJson.Default.EarlyAccessRequest)
+            .Should().Equal("email", "phone", "role", "language", "website");
+        EarlyAccessRules.Android.Should().Be("android");
+        EarlyAccessRules.IPhone.Should().Be("iphone");
+        EarlyAccessRules.Household.Should().Be("household");
+        EarlyAccessRules.Worker.Should().Be("worker");
+    }
+
     [Fact]
     public void ErrorAnswer_FieldNamesNeverChange() =>
         FieldNames(new ApiError(ApiErrors.PhoneTaken, "d"), ApiJson.Default.ApiError).Should().Equal("error", "detail");
@@ -243,6 +255,7 @@ public class WireContractTests
         ApiErrors.ConsentRequired.Should().Be("consent-required");
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
+        ApiErrors.NotSent.Should().Be("not-sent");
         ApiErrors.OthersStays.Should().Be("others-stays");
         ApiErrors.NeedsPrice.Should().Be("needs-price");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer");

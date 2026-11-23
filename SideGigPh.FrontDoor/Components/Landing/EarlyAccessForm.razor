@@ -1,0 +1,125 @@
+@inherits LandingComponent
+
+@if (Signup.HasJoined)
+{
+    <MudStack Spacing="3" AlignItems="AlignItems.Center" Class="fd-form-done" aria-live="polite">
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Class="fd-done-circle">
+            <MudIcon Icon="@Icons.Material.Filled.Check" Color="Color.Success" Size="Size.Large" />
+        </MudStack>
+        <MudText Typo="Typo.h5" HtmlTag="h3" Align="Align.Center">@T(Copy.Join.SuccessTitle)</MudText>
+        <MudText Typo="Typo.body1" Align="Align.Center" Color="Color.Secondary">
+            @T(!_justJoined ? Copy.Join.AlreadyText : IsIphone ? Copy.Join.SuccessIphone : Copy.Join.SuccessAndroid)
+        </MudText>
+        @if (_justJoined && IsIphone)
+        {
+            <MudButton Href="@Sections.TestFlightUrl" Target="_blank" rel="noopener" Variant="Variant.Filled" Color="Color.Primary"
+                       StartIcon="@Icons.Custom.Brands.Apple" FullWidth="true" Class="fd-cta">@T(Copy.Join.TestFlightButton)</MudButton>
+        }
+        <MudText Typo="Typo.body2" Align="Align.Center">@T(Copy.Join.ShareNudge)</MudText>
+        <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Filled.Share" FullWidth="true" Class="fd-cta" OnClick="ShareAsync">
+            @T(_copied ? Copy.Join.Copied : Copy.Join.Share)
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Dark" Size="Size.Small" Class="fd-link-button" OnClick="AnotherEmailAsync">@T(Copy.Join.AnotherEmail)</MudButton>
+    </MudStack>
+}
+else
+{
+    <EditForm EditContext="_context" OnSubmit="SubmitAsync" Context="form">
+        <MudStack Spacing="4">
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.subtitle1">@T(Copy.Join.PhoneLabel)</MudText>
+                <MudToggleGroup T="string" Value="@_phone" ValueChanged="PickPhone" SelectionMode="SelectionMode.SingleSelection"
+                                Color="Color.Primary" Outlined="true" Disabled="_busy" Class="fd-choice">
+                    <MudToggleItem Value="@EarlyAccessRules.Android">
+                        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="@Icons.Material.Filled.Android" Size="Size.Small" />
+                            <MudText Typo="Typo.body1">@T(Copy.Join.PhoneAndroid)</MudText>
+                        </MudStack>
+                    </MudToggleItem>
+                    <MudToggleItem Value="@EarlyAccessRules.IPhone">
+                        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                            <MudIcon Icon="@Icons.Custom.Brands.Apple" Size="Size.Small" />
+                            <MudText Typo="Typo.body1">@T(Copy.Join.PhoneIphone)</MudText>
+                        </MudStack>
+                    </MudToggleItem>
+                </MudToggleGroup>
+                @if (_phoneMissing)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Error" role="alert">@T(Copy.Join.PhoneMissing)</MudText>
+                }
+                @if (IsIphone)
+                {
+                    <MudPaper Outlined="true" Class="pa-3 mt-1">
+                        <MudStack Spacing="2">
+                            <MudText Typo="Typo.body2">@T(Copy.Join.TestFlightNote)</MudText>
+                            <MudButton Href="@Sections.TestFlightUrl" Target="_blank" rel="noopener" Variant="Variant.Outlined" Color="Color.Dark"
+                                       StartIcon="@Icons.Custom.Brands.Apple" Class="fd-cta align-self-start">@T(Copy.Join.TestFlightButton)</MudButton>
+                        </MudStack>
+                    </MudPaper>
+                }
+            </MudStack>
+
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.subtitle1">@T(Copy.Join.RoleLabel)</MudText>
+                <MudToggleGroup T="string" Value="@Role" ValueChanged="PickRole" SelectionMode="SelectionMode.ToggleSelection"
+                                Color="Color.Primary" Outlined="true" Disabled="_busy" Class="fd-choice">
+                    <MudToggleItem Value="@EarlyAccessRules.Household">
+                        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                            <MudImage Src="images/icons/home.svg" Alt="" Width="24" Height="24" />
+                            <MudText Typo="Typo.body1">@T(Copy.Join.RoleHousehold)</MudText>
+                        </MudStack>
+                    </MudToggleItem>
+                    <MudToggleItem Value="@EarlyAccessRules.Worker">
+                        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                            <MudImage Src="images/icons/worker.svg" Alt="" Width="24" Height="24" />
+                            <MudText Typo="Typo.body1">@T(Copy.Join.RoleWorker)</MudText>
+                        </MudStack>
+                    </MudToggleItem>
+                </MudToggleGroup>
+                @if (Role == EarlyAccessRules.Worker)
+                {
+                    <MudText Typo="Typo.body2" Color="Color.Success">@T(Copy.Join.WorkerPerk)</MudText>
+                }
+            </MudStack>
+
+            <MudStack Spacing="1">
+                <MudTextField T="string" Value="@_email" ValueChanged="EmailChanged" Immediate="true"
+                              Label="@EmailLabel" HelperText="@EmailHelp" Variant="Variant.Filled" InputType="InputType.Email"
+                              Error="@(_emailError is not null)" ErrorText="@_emailError" ReadOnly="_busy" Class="fd-field"
+                              UserAttributes="EmailAttributes" />
+                @if (Suggestion is { } meant)
+                {
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small" Class="fd-link-button align-self-start" OnClick="@(() => UseSuggestion(meant))">
+                        @Language.Format(Copy.Join.DidYouMean, meant)
+                    </MudButton>
+                }
+            </MudStack>
+
+            @* The bot trap: off screen and skipped by keyboard and screen readers, so only a bot fills it in. *@
+            <MudTextField T="string" @bind-Value="_trap" Label="Website" Class="fd-trap" UserAttributes="TrapAttributes" />
+
+            @if (_problem is { } problem)
+            {
+                <MudAlert Severity="Severity.Normal" Variant="Variant.Outlined" Dense="true" role="alert">@T(problem)</MudAlert>
+            }
+
+            <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
+                       Disabled="@(_busy || !RendererInfo.IsInteractive)" Class="fd-cta">
+                @if (_busy)
+                {
+                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Color="Color.Inherit" Class="mr-2" />
+                    @T(Copy.Join.Sending)
+                }
+                else
+                {
+                    @T(Copy.Join.Button)
+                }
+            </MudButton>
+
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                @T(Copy.Join.Privacy)
+                <MudLink Href="@Sections.PrivacyUrl" Target="_blank" rel="noopener" Typo="Typo.caption" Color="Color.Dark">@T(Copy.Join.PrivacyLink)</MudLink>
+            </MudText>
+        </MudStack>
+    </EditForm>
+}

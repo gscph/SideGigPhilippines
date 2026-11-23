@@ -57,7 +57,7 @@ for project in "${projects[@]}"; do
   if [ -d "$copy/$project" ]; then
     find "$copy/$project" -mindepth 1 -maxdepth 1 ! -name bin ! -name obj -exec rm -rf {} +
   fi
-  tar -C "$repo" --exclude=bin --exclude=obj --exclude='*.user' --exclude=local.settings.json -cf - "$project" | tar -C "$copy" -xf -
+  tar -C "$repo" --exclude=bin --exclude=obj --exclude=.vs --exclude='*.user' --exclude=local.settings.json -cf - "$project" | tar -C "$copy" -xf -
 done
 cp "$repo"/Directory.*.props "$repo"/Directory.*.targets "$repo"/global.json "$copy"/ 2>/dev/null || true
 # The API embeds the public legal pages (LegalFunctions).

@@ -1,0 +1,23 @@
+@inherits LandingComponent
+
+<MudStack Class="fd-band-tint">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="fd-section">
+        <MudStack Spacing="5">
+            <MudText Typo="Typo.h4" HtmlTag="h2">@T(Copy.Promises.Heading)</MudText>
+            <MudGrid Spacing="3">
+                @foreach (var promise in Items)
+                {
+                    <MudItem xs="12" sm="6" md="3">
+                        <MudPaper Outlined="true" Class="fd-tile pa-5">
+                            <MudStack Spacing="2">
+                                <IconCircle Src="@promise.Icon" Size="48" />
+                                <MudText Typo="Typo.h6" HtmlTag="h3" Color="@(promise.Money ? Color.Success : Color.Default)">@T(promise.Title)</MudText>
+                                <MudText Typo="Typo.body2" Color="Color.Secondary">@T(promise.Text)</MudText>
+                            </MudStack>
+                        </MudPaper>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudStack>
+    </MudContainer>
+</MudStack>

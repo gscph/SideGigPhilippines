@@ -1,0 +1,10 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@FrontDoorTheme.Theme" IsDarkMode="false" />
+<MudPopoverProvider />
+
+<SiteHeader />
+<MudStack Spacing="0" Class="fd-page">
+    @Body
+</MudStack>
+<SiteFooter />

@@ -1,0 +1,7 @@
+@inherits LandingComponent
+
+<MudToggleGroup T="string" Value="@Language.Current" ValueChanged="PickAsync" SelectionMode="SelectionMode.SingleSelection"
+                Color="Color.Dark" Size="Size.Small" Outlined="true" Class="fd-language" aria-label="@T(Copy.Header.LanguageLabel)">
+    <MudToggleItem Value="@PageLanguage.English" Text="@T(Copy.Header.English)" />
+    <MudToggleItem Value="@PageLanguage.Taglish" Text="@T(Copy.Header.Taglish)" />
+</MudToggleGroup>

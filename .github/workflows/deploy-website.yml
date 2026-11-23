@@ -1,0 +1,52 @@
+name: Deploy website (tarbaho.com)
+
+# Builds the landing page (SideGigPh.FrontDoor, Blazor WebAssembly) and uploads it to its Azure Static Web App.
+# Runs by itself only when a push to main changes the site or the brand it borrows from the app (logo, font, icons,
+# the Facebook preview picture); anything else merged to main deploys nothing. Actions → Run workflow deploys by hand.
+# The sign-up form posts to the API (POST early-access), which this workflow does not deploy: that is deploy-api.yml.
+#
+# Secret: FRONTDOOR_SWA_TOKEN, the Static Web App's deployment token (Azure portal → the Static Web App → Overview →
+# Manage deployment token). Nothing else: the site has no server and no settings of its own beyond appsettings.json.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'SideGigPh.FrontDoor/**'
+      - 'SideGigPh.Contracts/**'
+      - 'SideGigPh.Maui/wwwroot/images/icons/**'
+      - 'SideGigPh.Maui/wwwroot/fonts/**'
+      - 'SideGigPh.Maui/Components/Layout/AppTheme.cs'
+      - 'docs/store-assets/feature-graphic.png'
+      - '.github/workflows/deploy-website.yml'
+
+concurrency:
+  group: deploy-website
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Publish the site
+        run: dotnet publish SideGigPh.FrontDoor/SideGigPh.FrontDoor.csproj -c Release -o site -p:BuildNumber=${{ github.run_number }}
+
+      - name: Upload to the Static Web App
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.FRONTDOOR_SWA_TOKEN }}
+          action: upload
+          app_location: site/wwwroot
+          skip_app_build: true
+          skip_api_build: true

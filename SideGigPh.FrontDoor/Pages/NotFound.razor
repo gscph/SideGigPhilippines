@@ -1,0 +1,11 @@
+﻿@page "/not-found"
+@inherits LandingComponent
+
+<PageTitle>Tarbaho</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="fd-section">
+    <MudStack Spacing="4" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h4" HtmlTag="h1" Align="Align.Center">@T(Copy.NotFound.Title)</MudText>
+        <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary">@T(Copy.NotFound.Home)</MudButton>
+    </MudStack>
+</MudContainer>

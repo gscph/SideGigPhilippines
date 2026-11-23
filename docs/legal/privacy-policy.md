@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 22, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 23, 2026
 
 ---
 
@@ -129,6 +129,20 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
   only the result: which badge you hold, the company and building you named, and when it was decided.
 - Customers never see the photo, your ID number or anything read from it. They see only the badge.
 
+### 3.6 The Early Access list on tarbaho.com
+
+On our web page **tarbaho.com** you can ask for early access to the App. You give us:
+
+- your **email address** (for Android, the Gmail on your Play Store, because that is how Google lets us invite you to
+  the test);
+- **which phone you use** (Android or iPhone), and if you choose, whether you would use Tarbaho as a household or a
+  Skilled Worker, and the page's language.
+
+We use them **only to invite you to the App and to tell you when it opens near you**. They are **sent by email to our
+team's mailbox** (sent through Azure Communication Services, received in Gmail); they are not stored in our database
+and not linked to an App account. Your IP address is used **only in our server's memory** to limit how many sign-ups
+come from one place in an hour, and is never stored. Each email we send you says how to be taken off the list.
+
 ## 4. Why we use your data (lawful basis)
 
 Under Sections 12 and 13 of the DPA, we process your data because:
@@ -173,6 +187,7 @@ terms:
 |---|---|---|---|
 | **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
 | **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
+| **Microsoft Azure Communication Services** and **Google Gmail** | Send an Early Access sign-up from tarbaho.com to our mailbox, and keep it there | Email address, phone type, household or Skilled Worker, language | Azure: Southeast Asia; Gmail: Google's locations |
 | **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message; for a post, its budget and first line; for an offer, the Skilled Worker's name and price) | Their own locations |
 
 Some of these providers store data **outside the Philippines**. We remain responsible for your data under the DPA
@@ -200,6 +215,7 @@ to establish, exercise or defend legal claims.
 | Offers on posts | The worker or the customer deletes their account (a customer's post takes its offers with it). An offer taken back stops showing at once |
 | Feature suggestions and votes | Suggestions are kept, but **unlinked from you** when you delete your account; your votes are deleted. You can remove your own suggestion while nobody else has voted for it |
 | Error reports | 90 days |
+| Early Access sign-ups (tarbaho.com) | Until you ask us to take you off the list, or the App is open to everyone in your town, whichever comes first |
 | Reports about a user | Until resolved. If the reporter deletes their account, their name is removed from the report |
 | Blocks | Until either person deletes their account |
 | Push tokens | Until you delete your account, sign out, or the token stops working |

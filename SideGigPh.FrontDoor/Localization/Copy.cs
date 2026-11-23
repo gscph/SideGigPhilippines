@@ -1,0 +1,201 @@
+namespace SideGigPh.FrontDoor.Localization;
+
+/// <summary>
+/// Every word on the landing page, English and Taglish (from marketing/landing/copy.md). The app's copy rules hold:
+/// workers are Kuya / Ate / Manong / Manang; service words, never job / hire / employment / salary; we never vouch for a
+/// worker ("what we checked"); no stats, testimonials or launch dates.
+/// </summary>
+public static class Copy
+{
+    public static class Meta
+    {
+        public static readonly Say Title = new("Tarbaho: find a Kuya or Ate nearby", "Tarbaho: may Kuya o Ate na malapit sa'yo");
+        public static readonly Say Description = new(
+            "Tarbaho is a free local directory in Rizal. Post what you need done, get offers from Kuya and Ate nearby, and pay them directly. Angono first.",
+            "Libreng local directory sa Rizal. I-post ang ipapagawa, tumanggap ng alok mula sa Kuya at Ate na malapit, at diretso ang bayad. Angono muna.");
+    }
+
+    public static class Header
+    {
+        public static readonly Say HowItWorks = new("How it works", "Paano gumagana");
+        public static readonly Say Trades = new("Trades", "Mga serbisyo");
+        public static readonly Say Faq = new("FAQ", "Mga tanong");
+        public static readonly Say EarlyAccess = new("Early access", "Early access");
+        public static readonly Say LanguageLabel = new("Choose language", "Pumili ng wika");
+        public static readonly Say English = new("EN", "EN");
+        public static readonly Say Taglish = new("Taglish", "Taglish");
+        public static readonly Say Home = new("Tarbaho, back to top", "Tarbaho, balik sa taas");
+    }
+
+    public static class Hero
+    {
+        public static readonly Say Eyebrow = new("Early access · Angono", "Early access · Angono");
+        public static readonly Say Headline = new("Need work done at home? Kuya's nearby.", "May ipapagawa sa bahay? May Kuya malapit.");
+        public static readonly Say Sub = new(
+            "Post what you need done and your budget. Kuya and Ate nearby send offers. You pay them directly.",
+            "I-post ang ipapagawa at budget mo. Mag-aalok ang mga Kuya at Ate na malapit. Diretso ang bayad sa kanila.");
+        public static readonly Say Cta = new("Get early access", "Mag-early access");
+        public static readonly Say WorkerLink = new("Skilled worker? Get more customers", "Skilled worker ka? Dagdag kliyente");
+        public static readonly Say More = new("More", "Iba pa");
+    }
+
+    public static class Stores
+    {
+        public static readonly Say Soon = new("Soon", "Malapit na");
+        public static readonly Say IosBeta = new("Beta on TestFlight", "Beta sa TestFlight");
+        public static readonly Say AndroidLabel = new("Android app, coming soon", "Android app, malapit na");
+        public static readonly Say IosLabel = new("iPhone beta on TestFlight", "iPhone beta sa TestFlight");
+    }
+
+    public static class Sides
+    {
+        public static readonly Say Heading = new("How it works", "Paano gumagana");
+        public static readonly Say Household = new("I need work done", "May ipapagawa ako");
+        public static readonly Say Worker = new("I'm a Kuya / Ate", "Kuya / Ate ako");
+        public static readonly Say WorkerIntro = new("More customers near you. Keep 100% of what they pay.", "Dagdag kliyente na malapit sa'yo. Sa'yo ang buong bayad.");
+
+        public static readonly Say H1Title = new("Post what you need done", "I-post ang ipapagawa");
+        public static readonly Say H1Text = new("Pick the service, your town and your own budget. Add photos if you like.", "Piliin ang serbisyo, bayan at sariling budget mo. Lagyan ng picture kung gusto mo.");
+        public static readonly Say H2Title = new("Get offers nearby", "Tumanggap ng alok");
+        public static readonly Say H2Text = new("Kuya and Ate near you send their price. See their reviews and what we checked.", "Magpapadala ng presyo ang mga Kuya at Ate na malapit. Tingnan ang reviews at ang na-check namin.");
+        public static readonly Say H3Title = new("Pick, chat, pay after", "Piliin, mag-chat, bayad pagkatapos");
+        public static readonly Say H3Text = new("Chat in the app. Pay the worker directly after the work, at the price you both agreed.", "Mag-chat sa app. Bayaran si Kuya o Ate pagkatapos ng trabaho, sa presyong napagkasunduan.");
+
+        public static readonly Say W1Title = new("List yourself for free", "Mag-lista nang libre");
+        public static readonly Say W1Text = new("Your trade, the towns you go to, and your own price.", "Ang trade mo, mga bayan na pinupuntahan mo, at sariling presyo mo.");
+        public static readonly Say W2Title = new("See Requests nearby", "Tingnan ang Requests sa malapit");
+        public static readonly Say W2Text = new("Households post what they need done. Send your offer or take their budget.", "Nagpo-post ang mga nagpapagawa. Mag-alok ng presyo o kunin ang budget nila.");
+        public static readonly Say W3Title = new("Get the work, get paid directly", "Makuha ang gawa, diretso ang bayad");
+        public static readonly Say W3Text = new("The household pays you after the work. Your number stays private until they pick you.", "Ikaw ang babayaran pagkatapos ng gawa. Private ang number mo hanggang piliin ka.");
+    }
+
+    public static class Promises
+    {
+        public static readonly Say Heading = new("Why Tarbaho", "Bakit Tarbaho");
+        public static readonly Say ZeroTitle = new("Pay the worker directly", "Diretso ang bayad");
+        public static readonly Say ZeroText = new("Cash or GCash, straight to Kuya or Ate. The money never passes through the app.", "Cash o GCash, diretso kay Kuya o Ate. Hindi dumadaan sa app ang bayad.");
+        public static readonly Say PriceTitle = new("Your own price", "Sariling presyo");
+        public static readonly Say PriceText = new("Households set a budget, workers set their own price. You agree on the final price.", "May budget ang nagpapagawa, may sariling presyo si Kuya o Ate. Kayo ang magkakasundo.");
+        public static readonly Say PrivateTitle = new("Numbers stay private", "Private ang number");
+        public static readonly Say PrivateText = new("Chat in the app first. Numbers show only after the household picks a worker.", "Chat muna sa app. Lalabas lang ang number pag may napili na.");
+        public static readonly Say NearbyTitle = new("Nearby, pay after", "Malapit lang, bayad pagkatapos");
+        public static readonly Say NearbyText = new("Kuya and Ate from your town. You pay after the work is done.", "Kuya at Ate na taga-bayan mo. Bayad pagkatapos ng gawa.");
+    }
+
+    public static class Join
+    {
+        public static readonly Say Eyebrow = new("Early access", "Early access");
+        public static readonly Say Headline = new("Be first in Angono", "Mauna ka sa Angono");
+        public static readonly Say Sub = new("Leave your email. We'll tell you the moment Tarbaho opens near you.", "Iwan ang email mo. Sasabihan ka namin pag bukas na ang Tarbaho sa inyo.");
+        public static readonly Say Bullet1 = new("First to get the app", "Una kang makakagamit");
+        public static readonly Say Bullet2 = new("Free to join", "Libre sumali");
+        public static readonly Say Bullet3 = new("Leave the list anytime", "Pwedeng umalis kahit kailan");
+        public static readonly Say WorkerPerk = new("Workers on the list set up their profile first and see Requests first.", "Ang workers na nasa listahan, unang makakapag-setup at unang makakakita ng Requests.");
+
+        public static readonly Say RoleLabel = new("I am a… (optional)", "Ako ay… (optional)");
+        public static readonly Say RoleHousehold = new("Household", "Nagpapagawa");
+        public static readonly Say RoleWorker = new("Kuya / Ate (worker)", "Kuya / Ate (worker)");
+        public static readonly Say PhoneLabel = new("Which phone do you use?", "Anong phone mo?");
+        public static readonly Say PhoneAndroid = new("Android", "Android");
+        public static readonly Say PhoneIphone = new("iPhone", "iPhone");
+        public static readonly Say PhoneMissing = new("Pick your phone, so we send the right invite.", "Piliin ang phone mo, para tama ang invite na ipapadala namin.");
+        public static readonly Say EmailLabel = new("Email", "Email");
+        public static readonly Say EmailLabelAndroid = new("Gmail on your Play Store", "Gmail sa Play Store mo");
+        public static readonly Say EmailHelpAndroid = new("Open Play Store, tap your picture (top right): use that email.", "Buksan ang Play Store, i-tap ang picture mo (taas, kanan): iyon ang email.");
+        public static readonly Say EmailHelpIphone = new("We'll email you when Tarbaho opens. The iPhone beta is ready now on TestFlight.", "I-email ka namin pag bukas na ang Tarbaho. Ready na ngayon ang iPhone beta sa TestFlight.");
+        public static readonly Say TestFlightNote = new("On iPhone you can try it now: install Apple's free TestFlight app, then open our beta.", "Sa iPhone, pwede mo nang subukan: i-install ang libreng TestFlight app ng Apple, tapos buksan ang beta namin.");
+        public static readonly Say TestFlightButton = new("Open the iPhone beta", "Buksan ang iPhone beta");
+        public static readonly Say Button = new("Get early access", "Mag-early access");
+        public static readonly Say Sending = new("Sending…", "Sine-send…");
+        public static readonly Say Loading = new("Loading…", "Naglo-load…");
+        public static readonly Say Privacy = new("Only to tell you about Tarbaho. No spam. Leave anytime.", "Para lang sa balita ng Tarbaho. Walang spam. Pwede kang umalis kahit kailan.");
+        public static readonly Say PrivacyLink = new("Privacy Policy", "Privacy Policy");
+
+        public static readonly Say Empty = new("Please type your email.", "Pakilagay ang email mo.");
+        public static readonly Say Invalid = new("That email looks wrong. Check it again.", "Mukhang mali ang email. Pakicheck ulit.");
+        public static readonly Say DidYouMean = new("Did you mean {0}?", "{0} ba?");
+
+        public static readonly Say SuccessTitle = new("Salamat! You're on the list.", "Salamat! Nasa listahan ka na.");
+        public static readonly Say SuccessAndroid = new("We'll email your Play Store invite when Tarbaho is ready in Angono.", "I-email namin ang Play Store invite mo pag ready na ang Tarbaho sa Angono.");
+        public static readonly Say SuccessIphone = new("The iPhone beta is ready now. We'll also email you when Tarbaho opens in Angono.", "Ready na ang iPhone beta. I-email ka rin namin pag bukas na ang Tarbaho sa Angono.");
+        public static readonly Say ShareNudge = new("Know a Kuya, Ate or neighbor who'd use it? Send them the link.", "May kakilalang Kuya, Ate o kapitbahay na gagamit nito? I-send ang link.");
+        public static readonly Say AlreadyText = new("You're already on the list. We'll email you soon.", "Nasa listahan ka na. I-email ka namin agad.");
+        public static readonly Say Share = new("Share with a friend", "I-share sa kaibigan");
+        public static readonly Say Copied = new("Link copied", "Na-copy ang link");
+        public static readonly Say AnotherEmail = new("Use another email", "Ibang email");
+        public static readonly Say ShareText = new("Tarbaho: find a Kuya or Ate nearby. Get early access:", "Tarbaho: may Kuya o Ate na malapit. Mag-early access:");
+
+        public static readonly Say Error = new("That didn't send. Please try again.", "Hindi na-send. Pakisubukan ulit.");
+        public static readonly Say TooMany = new("Too many tries. Wait a few minutes and try again.", "Sobrang dami ng try. Maghintay ng ilang minuto at subukan ulit.");
+        public static readonly Say Offline = new("No internet. Your email is kept here; tap again when you're back.", "Walang internet. Nandito pa ang email mo; i-tap ulit pag may connection na.");
+    }
+
+    public static class Trades
+    {
+        public static readonly Say Heading = new("Kuya and Ate for every kind of work", "May Kuya at Ate sa bawat klase ng gawa");
+        public static readonly Say TownsHeading = new("Starting in Rizal", "Sa Rizal muna");
+        public static readonly Say TownsSub = new("We start in one town, then grow barangay by barangay.", "Isang bayan muna, tapos isa-isang barangay.");
+        public static readonly Say First = new("Starting here", "Dito muna");
+        public static readonly Say Next = new("Next", "Susunod");
+        public static readonly Say TownsFootnote = new("Not in these towns yet? Join the list anyway and we'll let you know.", "Wala ka sa mga bayang ito? Sumali pa rin, sasabihan ka namin.");
+    }
+
+    public static class Trust
+    {
+        public static readonly Say Heading = new("Safe to use, said plainly", "Ligtas gamitin, diretsahan");
+        public static readonly Say BadgesTitle = new("What we checked", "Ang na-check namin");
+        public static readonly Say BadgesText = new("Workers can add a government ID, TESDA or past-project badge. A person checks each one, with AI help on IDs.", "Pwedeng maglagay si Kuya o Ate ng government ID, TESDA o past-project badge. Tao ang nagche-check, may tulong ng AI sa ID.");
+        public static readonly Say PrivateTitle = new("Chat first, number later", "Chat muna, number mamaya");
+        public static readonly Say PrivateText = new("Talk in the app. Numbers show only once the household picks a worker.", "Mag-usap sa app. Lalabas lang ang number pag may napili na.");
+        public static readonly Say ReportTitle = new("Report and block", "Report at block");
+        public static readonly Say ReportText = new("On every profile and chat. We answer reports within 5 business days.", "Nasa bawat profile at chat. Sinasagot namin ang report sa loob ng 5 business days.");
+        public static readonly Say Reviews = new("Reviews come after the work, from both sides.", "Ang reviews, pagkatapos ng gawa, galing sa magkabilang side.");
+    }
+
+    public static class Faq
+    {
+        public static readonly Say Heading = new("Questions", "Mga tanong");
+        public static readonly (Say Q, Say A)[] Items =
+        [
+            (new("Is Tarbaho free?", "Libre ba ang Tarbaho?"),
+             new("Yes. Free to post and free to list.", "Oo. Libre mag-post at libre mag-lista.")),
+            (new("How do I pay?", "Paano magbayad?"),
+             new("You pay the worker directly after the work, at the price you both agreed. The money never passes through the app.", "Diretso mong babayaran si Kuya o Ate pagkatapos ng gawa, sa presyong napagkasunduan. Hindi dumadaan sa app ang bayad.")),
+            (new("Where does it work?", "Saan ito pwede?"),
+             new("Angono first, then Antipolo and Taytay in Rizal.", "Angono muna, tapos Antipolo at Taytay sa Rizal.")),
+            (new("When can I use it?", "Kailan ko magagamit?"),
+             new("iPhone: the beta is open now on TestFlight. Android: soon; join the early access list and we'll email your invite.", "iPhone: bukas na ang beta sa TestFlight. Android: malapit na; sumali sa early access at i-email namin ang invite mo.")),
+            (new("How are workers checked?", "Paano chine-check ang workers?"),
+             new("Workers can send a government ID, TESDA certificate or past project. A person looks at each one; AI helps read IDs. Each profile shows what we checked, and reviews come after the work.",
+                 "Pwedeng magpadala ang workers ng government ID, TESDA certificate o past project. Tao ang tumitingin sa bawat isa; tumutulong ang AI sa pagbasa ng ID. Makikita sa profile ang na-check namin, at may reviews pagkatapos ng gawa.")),
+            (new("What do you do with my email?", "Ano'ng gagawin n'yo sa email ko?"),
+             new("Only to send your early access invite (Play Store testing or TestFlight) and tell you when Tarbaho opens. No spam, never sold. Message our Facebook Page and we delete it.",
+                 "Para lang ipadala ang early access invite mo (Play Store testing o TestFlight) at sabihan ka pag bukas na ang Tarbaho. Walang spam, hindi ibinebenta. Mag-message sa Facebook Page namin at buburahin namin.")),
+        ];
+    }
+
+    public static class Repeat
+    {
+        public static readonly Say Headline = new("Ready when Angono is", "Handa na pag bukas sa Angono");
+        public static readonly Say Sub = new("Households and workers: get on the list now.", "Nagpapagawa man o worker: sumali na sa listahan.");
+        public static readonly Say Button = new("Get early access", "Mag-early access");
+        public static readonly Say ThanksHeadline = new("You're on the list. Salamat!", "Nasa listahan ka na. Salamat!");
+        public static readonly Say ThanksSub = new("Know a Kuya, Ate or neighbor in Angono? Send them the link.", "May kakilalang Kuya, Ate o kapitbahay sa Angono? I-send ang link.");
+        public static readonly Say Share = new("Share", "I-share");
+    }
+
+    public static class NotFound
+    {
+        public static readonly Say Title = new("This page isn't here.", "Wala ang page na ito.");
+        public static readonly Say Home = new("Go to Tarbaho", "Punta sa Tarbaho");
+    }
+
+    public static class Footer
+    {
+        public static readonly Say Tagline = new("Offer your skills, or find a Kuya or Ate nearby.", "Umextra para sa Pamilya, o maghanap ng Kuya o Ate malapit sa'yo.");
+        public static readonly Say Line = new("A free local directory in Rizal.", "Libreng local directory sa Rizal.");
+        public static readonly Say Privacy = new("Privacy", "Privacy");
+        public static readonly Say Terms = new("Terms", "Terms");
+        public static readonly Say Copyright = new("© 2026 Tarbaho", "© 2026 Tarbaho");
+    }
+}

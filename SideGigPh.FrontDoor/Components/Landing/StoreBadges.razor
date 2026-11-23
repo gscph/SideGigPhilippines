@@ -1,0 +1,23 @@
+@inherits LandingComponent
+
+<MudStack Row Spacing="2" Justify="@(Center ? Justify.Center : Justify.FlexStart)" Wrap="Wrap.Wrap">
+    <MudPaper Outlined="true" Class="@SoonClass" aria-label="@T(Copy.Stores.AndroidLabel)" aria-disabled="true">
+        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Material.Filled.Android" Size="Size.Medium" />
+            <MudStack Spacing="0">
+                <MudText Typo="Typo.subtitle1" Class="fd-badge-line">Android</MudText>
+                <MudText Typo="Typo.caption" Class="fd-badge-line">@T(Copy.Stores.Soon)</MudText>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
+    <MudButton Href="@Sections.TestFlightUrl" Target="_blank" rel="noopener" Variant="Variant.Outlined" Color="@LiveColor"
+               Class="@LiveClass" aria-label="@T(Copy.Stores.IosLabel)">
+        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+            <MudIcon Icon="@Icons.Custom.Brands.Apple" Size="Size.Medium" />
+            <MudStack Spacing="0" AlignItems="AlignItems.Start">
+                <MudText Typo="Typo.subtitle1" Class="fd-badge-line">iPhone</MudText>
+                <MudText Typo="Typo.caption" Class="fd-badge-line">@T(Copy.Stores.IosBeta)</MudText>
+            </MudStack>
+        </MudStack>
+    </MudButton>
+</MudStack>

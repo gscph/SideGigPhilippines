@@ -1,0 +1,59 @@
+@inherits LandingComponent
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="fd-section" id="@Sections.Trades">
+    <MudStack Spacing="5">
+        <MudText Typo="Typo.h4" HtmlTag="h2">@T(Copy.Trades.Heading)</MudText>
+        <MudGrid Spacing="3">
+            @foreach (var trade in TradeList.Trades)
+            {
+                <MudItem xs="4" md="2">
+                    <MudPaper Outlined="true" Class="fd-tile fd-trade-tile pa-3">
+                        <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                            <IconCircle Src="@trade.Icon" Size="56" />
+                            <MudText Typo="Typo.body2" Align="Align.Center" Class="fd-tile-label">@T(trade.Label)</MudText>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            }
+        </MudGrid>
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.subtitle1">Construction</MudText>
+            <MudStack Row Spacing="2" Wrap="Wrap.Wrap">
+                @foreach (var job in TradeList.ConstructionJobs)
+                {
+                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Medium" Class="fd-job-chip">
+                        <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
+                            <MudImage Src="@job.Icon" Alt="" Width="20" Height="20" />
+                            <MudText Typo="Typo.body2">@T(job.Label)</MudText>
+                        </MudStack>
+                    </MudChip>
+                }
+            </MudStack>
+        </MudStack>
+
+        <MudDivider Class="my-2" />
+
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.h5" HtmlTag="h2">@T(Copy.Trades.TownsHeading)</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary">@T(Copy.Trades.TownsSub)</MudText>
+        </MudStack>
+        <MudStack Spacing="3">
+            @foreach (var town in TradeList.Towns)
+            {
+                <MudStack Row Spacing="3" AlignItems="AlignItems.Center">
+                    <IconCircle Src="images/icons/pin.svg" Size="40" />
+                    <MudText Typo="Typo.h6" HtmlTag="h3">@town.Name</MudText>
+                    @if (town.First)
+                    {
+                        <MudChip T="string" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">@T(Copy.Trades.First)</MudChip>
+                    }
+                    else
+                    {
+                        <MudChip T="string" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small">@T(Copy.Trades.Next)</MudChip>
+                    }
+                </MudStack>
+            }
+        </MudStack>
+        <MudText Typo="Typo.body2" Color="Color.Secondary">@T(Copy.Trades.TownsFootnote)</MudText>
+    </MudStack>
+</MudContainer>

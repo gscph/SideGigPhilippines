@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+
+  <!-- Tarbaho's public landing page (tarbaho.com): a standalone Blazor WebAssembly site hosted on an Azure Static Web App
+       (deploy-website.yml). Its one call is the Early Access sign-up to SideGigPh.Api (POST early-access). -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.15" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.15" PrivateAssets="all" />
+    <!-- Same MudBlazor as the app (MobileAppTheme.csproj). -->
+    <PackageReference Include="MudBlazor" Version="9.12.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The sign-up request and its rules, shared with the API. -->
+    <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
+  </ItemGroup>
+
+  <!-- The app's own font and pictures, linked (not copied) so the page and the app always look the same. -->
+  <ItemGroup>
+    <Content Include="..\SideGigPh.Maui\wwwroot\fonts\dm-sans.woff2" Link="wwwroot\fonts\dm-sans.woff2" />
+    <Content Include="..\SideGigPh.Maui\wwwroot\fonts\DM-Sans-OFL.txt" Link="wwwroot\fonts\DM-Sans-OFL.txt" />
+    <Content Include="..\SideGigPh.Maui\wwwroot\images\icons\*.svg" LinkBase="wwwroot\images\icons" />
+    <!-- The Facebook / Messenger link preview: the store listing's feature graphic. -->
+    <Content Include="..\docs\store-assets\feature-graphic.png" Link="wwwroot\images\og.png" />
+  </ItemGroup>
+
+</Project>
