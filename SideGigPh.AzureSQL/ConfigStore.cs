@@ -9,7 +9,7 @@ namespace SideGigPh.AzureSQL;
 /// <summary>
 /// The app's config (<c>GET config</c>): the trades and jobs (<c>Categories</c>, <c>Services</c>), the barangays we
 /// serve per town (<c>Barangays</c>) and the other answer lists (<c>ConfigOptions</c>), all filled by <c>004-config.sql</c>. It changes rarely and may be stale, so each API
-/// instance keeps it for <see cref="ConfigFor"/> (restart the Function App to show an edit sooner).
+/// instance keeps it for <see cref="ConfigFor"/> (restart the Function App to show an edit to <c>004-config.sql</c> sooner; an operator's edit clears it at once on the instance that saved it).
 /// </summary>
 public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
 {
@@ -39,6 +39,9 @@ public sealed class ConfigStore(SideGigPhDb db, IMemoryCache cache)
             var hash = SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(config, ApiJson.Default.ConfigDto));
             return new ConfigSnapshot(config, $"\"{Convert.ToHexStringLower(hash)[..32]}\"");
         }))!;
+
+    /// <summary>Drops this instance's cached config, so the next <c>GET config</c> reads the operator's change (<see cref="CatalogStore"/>).</summary>
+    public void Forget() => cache.Remove(CacheKey);
 
     private async Task<ConfigDto> ReadAsync(CancellationToken cancellationToken)
     {

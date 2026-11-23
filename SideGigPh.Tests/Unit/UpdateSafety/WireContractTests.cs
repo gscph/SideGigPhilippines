@@ -52,7 +52,7 @@ public class WireContractTests
     public void ChatDto_FieldNamesNeverChange() =>
         FieldNames(Chat(), ApiJson.Default.ChatDto).Should().Equal(
             "id", "professionalId", "seekerId", "professionalName", "seekerName", "serviceId", "cityId", "urgencyId",
-            "budgetId", "lastMessage", "seekerReadAt", "professionalReadAt", "createdAt");
+            "budgetId", "lastMessage", "seekerReadAt", "professionalReadAt", "createdAt", "serviceName");
 
     [Fact]
     public void SendMessageRequest_FieldNamesNeverChange() =>
@@ -129,7 +129,7 @@ public class WireContractTests
         FieldNames(post, ApiJson.Default.JobPostDto).Should().Equal(
             "id", "categoryId", "serviceId", "description", "budgetPesos", "cityId", "status", "photos", "mine", "offersService", "distanceKm", "createdAt",
             "offerCount", "myOfferPesos", "pickedProId", "budgetMinPesos", "householdReviews", "barangayId",
-            "neededOn", "title");
+            "neededOn", "title", "tradeName", "serviceName");
         FieldNames(new JobPostFeedDto([post], true, true), ApiJson.Default.JobPostFeedDto).Should().Equal("posts", "hasMore", "hasListing");
         FieldNames(new NewJobPostRequest("plumbing", "plumbing-clog", "Barado ang lababo", 800, "taytay", [], 14.5, 121.1, BarangayId: "taytay-muzon"),
                 ApiJson.Default.NewJobPostRequest)
@@ -172,6 +172,14 @@ public class WireContractTests
         FieldNames(new PickedJobDto(1, "plumbing-clog", 900, At, true, false, false, MeetLatitude: 14.5, MeetLongitude: 121.1, MeetSharedAt: At),
                 ApiJson.Default.PickedJobDto)
             .Should().Contain(["meetLatitude", "meetLongitude", "meetSharedAt"]);
+    }
+
+    // A post's, chat's and picked job's own copy of a trade's or job's name (an operator's rename never changes it).
+    [Fact]
+    public void Saved_catalog_names_field_names_never_change()
+    {
+        FieldNames(new CatalogNameDto("Aircon cleaning", "Linis ng aircon"), ApiJson.Default.CatalogNameDto).Should().Equal("english", "taglish");
+        FieldNames(new PickedJobDto(1, "plumbing-clog", 900, At, true, false, false), ApiJson.Default.PickedJobDto).Should().Contain("serviceName");
     }
 
     // The feedback board: an installed app reads these fields and shows a status by these words.
@@ -235,6 +243,7 @@ public class WireContractTests
         ApiErrors.ConsentRequired.Should().Be("consent-required");
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
+        ApiErrors.OthersStays.Should().Be("others-stays");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer");
         DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 

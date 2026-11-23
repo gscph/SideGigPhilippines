@@ -43,6 +43,28 @@ public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
         await EnsureOkAsync(response, cancellationToken);
     }
 
+    /// <summary>A change with a JSON body (<c>POST</c>, <c>PUT</c>) whose answer is JSON, e.g. the catalog after the change.</summary>
+    public async Task<TResult> SendAsync<TBody, TResult>(HttpMethod method, string path, TBody body, JsonTypeInfo<TBody> bodyType,
+        JsonTypeInfo<TResult> resultType, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAsync(method, path, JsonContent.Create(body, bodyType), cancellationToken);
+        return await ReadAsync(response, resultType, cancellationToken);
+    }
+
+    /// <summary>A change with no body (<c>DELETE</c>, a <c>POST</c> like <c>…/restore</c>) whose answer is JSON.</summary>
+    public async Task<TResult> SendAsync<TResult>(HttpMethod method, string path, JsonTypeInfo<TResult> resultType, CancellationToken cancellationToken = default)
+    {
+        using var response = await SendAsync(method, path, null, cancellationToken);
+        return await ReadAsync(response, resultType, cancellationToken);
+    }
+
+    private static async Task<T> ReadAsync<T>(HttpResponseMessage response, JsonTypeInfo<T> type, CancellationToken cancellationToken)
+    {
+        await EnsureOkAsync(response, cancellationToken);
+        return await response.Content.ReadFromJsonAsync(type, cancellationToken)
+               ?? throw new AdminApiException("The API answered with nothing. Try again.");
+    }
+
     private async Task<HttpResponseMessage> SendAsync(HttpMethod method, string path, HttpContent? content, CancellationToken cancellationToken)
     {
         var token = await signIn.IdTokenAsync() ?? throw new AdminApiException("You're signed out. Sign in again.");
@@ -67,14 +89,17 @@ public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
             return;
         }
 
-        var code = response.Content.Headers.ContentType?.MediaType == "application/json"
-            ? (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError, cancellationToken))?.Error
+        var error = response.Content.Headers.ContentType?.MediaType == "application/json"
+            ? await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError, cancellationToken)
             : null;
+        var code = error?.Error;
         var status = (int)response.StatusCode;
         throw new AdminApiException(response.StatusCode switch
         {
             HttpStatusCode.Unauthorized => "The API didn't accept the sign-in. Sign out and in again.",
             HttpStatusCode.Forbidden when code == ApiErrors.NotAdmin => "This account isn't an operator.",
+            HttpStatusCode.Conflict when code == ApiErrors.OthersStays => "A trade's \"Others\" job can be renamed, but never retired.",
+            HttpStatusCode.BadRequest when error?.Detail is { Length: > 0 } field => $"The API didn't accept \"{field}\". Check it and try again.",
             HttpStatusCode.NotFound => "Not there any more (already decided or removed?). Reload.",
             HttpStatusCode.TooManyRequests => "Too many tries. Wait a minute.",
             _ when code is null => $"The API answered {status}. Try again.",

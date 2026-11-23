@@ -9,11 +9,26 @@ namespace SideGigPh.Maui.Services.Localization;
 /// </summary>
 public static class RequestText
 {
-    /// <summary>The service ("Linis ng aircon"), else the trade for a service we no longer list, else its id.</summary>
+    /// <summary>
+    /// The service ("Linis ng aircon") as the post was made with it (an operator's later rename doesn't change a post),
+    /// else today's name, else the trade for a service we no longer list, else its id.
+    /// </summary>
     public static string ServiceLabel(this AppText text, JobPost post) =>
-        ReferenceData.FindService(post.ServiceId) is { } service ? text.Get(service.Label)
+        post.ServiceName is { } saved ? text.Get(saved)
+        : ReferenceData.FindService(post.ServiceId) is { } service ? text.Get(service.Label)
+        : text.TradeLabel(post) ?? post.ServiceId;
+
+    /// <summary>The trade ("Aircon Technician") as the post was made with it, else today's name, or null for a trade we no longer offer.</summary>
+    public static string? TradeLabel(this AppText text, JobPost post) =>
+        post.TradeName is { } saved ? text.Get(saved)
         : ReferenceData.FindTrade(post.CategoryId) is { } trade ? text.Get(trade.Label)
-        : post.ServiceId;
+        : null;
+
+    /// <summary>A picked job's service as its post had it, else today's name, else the "Others" trade's, else its id.</summary>
+    public static string ServiceLabel(this AppText text, PickedJob job) =>
+        job.ServiceName is { } saved ? text.Get(saved)
+        : (ReferenceData.FindService(job.ServiceId) ?? ReferenceData.FindTrade(job.ServiceId)) is { } service ? text.Get(service.Label)
+        : job.ServiceId;
 
     /// <summary>The post's header: the household's own title, else (a post made before titles) the service.</summary>
     public static string PostTitle(this AppText text, JobPost post) =>

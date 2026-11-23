@@ -74,7 +74,7 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                           orderby o.UpdatedAt descending, o.Id descending
                           select new
                           {
-                              o.PostId, p.ServiceId, o.PricePesos, o.UpdatedAt, o.HouseholdDoneAt, o.WorkerDoneAt, Household = p.SeekerUid == uid,
+                              o.PostId, p.ServiceId, p.ServiceLabelEnglish, p.ServiceLabelTaglish, o.PricePesos, o.UpdatedAt, o.HouseholdDoneAt, o.WorkerDoneAt, Household = p.SeekerUid == uid,
                               o.MeetLatitude, o.MeetLongitude, o.MeetSharedAt,
                           })
             .Take(MaxBetween)
@@ -117,7 +117,8 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
                 // neither side has blocked the other.
                 MeetLatitude: completedAt is null && !blocked ? r.MeetLatitude : null,
                 MeetLongitude: completedAt is null && !blocked ? r.MeetLongitude : null,
-                MeetSharedAt: completedAt is null && !blocked && r.MeetLatitude is not null ? r.MeetSharedAt : null);
+                MeetSharedAt: completedAt is null && !blocked && r.MeetLatitude is not null ? r.MeetSharedAt : null,
+                ServiceName: CatalogNames.Of(r.ServiceLabelEnglish, r.ServiceLabelTaglish));
         })];
     }
 

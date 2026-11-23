@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using SideGigPh.Admin.Components;
 using SideGigPh.Admin.Components.Badge;
+using SideGigPh.Admin.Components.Catalog;
 using SideGigPh.Admin.Components.Dashboard;
 using SideGigPh.Admin.Components.ErrorReport;
 using SideGigPh.Admin.Components.OtherJob;
@@ -41,5 +42,6 @@ builder.Services.AddSingleton<WorkerService>();
 builder.Services.AddSingleton<BadgeService>();
 builder.Services.AddSingleton<ErrorReportService>();
 builder.Services.AddSingleton<OtherJobService>();
+builder.Services.AddSingleton<CatalogService>();
 
 await builder.Build().RunAsync();

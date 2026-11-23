@@ -194,6 +194,8 @@ public sealed class ChatStore(SideGigPhDb db)
                     return new SendResult(SendOutcome.TooManyChats);
                 }
 
+                // The chat keeps the job's name it started with: an operator's later rename never rewrites it.
+                var serviceName = await db.ServiceAsync(Code(request.ServiceId), ct);
                 chat = new ChatRow
                 {
                     Id = chatId,
@@ -205,6 +207,8 @@ public sealed class ChatStore(SideGigPhDb db)
                     CityId = Code(request.CityId),
                     UrgencyId = Code(request.UrgencyId),
                     BudgetId = Code(request.BudgetId),
+                    ServiceLabelEnglish = serviceName?.English,
+                    ServiceLabelTaglish = serviceName?.Taglish,
                     LastMessageId = request.MessageId,
                     LastMessageSenderId = uid,
                     LastMessageKind = request.Kind,
@@ -274,5 +278,6 @@ public sealed class ChatStore(SideGigPhDb db)
         new MessageDto(c.LastMessageId, c.Id, c.LastMessageSenderId, c.LastMessageKind, c.LastMessageText, c.LastMessageAt),
         c.SeekerReadAt,
         c.ProfessionalReadAt,
-        c.CreatedAt);
+        c.CreatedAt,
+        CatalogNames.Of(c.ServiceLabelEnglish, c.ServiceLabelTaglish));
 }

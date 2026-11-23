@@ -72,13 +72,19 @@ internal static partial class ApiMapping
         dto.BarangayId,
         [.. dto.Photos.Select(photo => photo.Id)],
         dto.NeededOn,
-        dto.Title);
+        dto.Title,
+        dto.TradeName.ToModel(),
+        dto.ServiceName.ToModel());
+
+    /// <summary>A post's or chat's own copy of a trade's or job's name, or null when it has none.</summary>
+    public static LocalizedText? ToModel(this CatalogNameDto? dto) => dto is null ? null : new LocalizedText(dto.English, dto.Taglish);
 
     public static PickedJob ToModel(this PickedJobDto dto) =>
         new(dto.PostId, dto.ServiceId, dto.PricePesos, dto.PickedAt, dto.IAmTheHousehold, dto.DoneByHousehold, dto.DoneByWorker, dto.MyRating,
             dto.CompletedAt, dto.TheyReviewed, dto.TheirRating, dto.MyReviewLocked,
             dto.MeetLatitude is { } lat && dto.MeetLongitude is { } lon ? new GeoPoint(lat, lon) : null,
-            dto.MeetSharedAt);
+            dto.MeetSharedAt,
+            dto.ServiceName.ToModel());
 
     public static JobOffer ToModel(this JobOfferDto dto) => new(
         dto.Id,
@@ -328,7 +334,8 @@ internal static partial class ApiMapping
         dto.LastMessage.ToModel(),
         dto.SeekerReadAt,
         dto.ProfessionalReadAt,
-        dto.CreatedAt);
+        dto.CreatedAt,
+        dto.ServiceName.ToModel());
 
     public static SendMessageRequest ToSendRequest(this Chat chat, ChatMessage message) => new(
         message.Id,

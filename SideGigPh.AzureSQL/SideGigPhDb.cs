@@ -148,6 +148,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             chat.Property(c => c.CityId).HasMaxLength(40);
             chat.Property(c => c.UrgencyId).HasMaxLength(40);
             chat.Property(c => c.BudgetId).HasMaxLength(40);
+            chat.Property(c => c.ServiceLabelEnglish).HasMaxLength(100).IsUnicode();
+            chat.Property(c => c.ServiceLabelTaglish).HasMaxLength(100).IsUnicode();
             chat.Property(c => c.LastMessageId).HasMaxLength(64);
             chat.Property(c => c.LastMessageSenderId).HasMaxLength(128);
             chat.Property(c => c.LastMessageKind).HasMaxLength(4);
@@ -190,6 +192,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             category.Property(c => c.Icon).HasMaxLength(16).IsUnicode();
             category.Property(c => c.HintEnglish).HasMaxLength(120).IsUnicode();
             category.Property(c => c.HintTaglish).HasMaxLength(120).IsUnicode();
+            category.Property(c => c.EditedBy).HasMaxLength(128);
         });
 
         model.Entity<ServiceRow>(service =>
@@ -201,6 +204,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             service.Property(s => s.LabelEnglish).HasMaxLength(100).IsUnicode();
             service.Property(s => s.LabelTaglish).HasMaxLength(100).IsUnicode();
             service.Property(s => s.Icon).HasMaxLength(16).IsUnicode();
+            service.Property(s => s.EditedBy).HasMaxLength(128);
             service.HasOne<CategoryRow>().WithMany().HasForeignKey(s => s.CategoryId).HasConstraintName("FK_Services_Categories");
             service.HasIndex(s => new { s.CategoryId, s.SortOrder }).HasDatabaseName("IX_Services_Category");
         });
@@ -356,6 +360,10 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             post.Property(p => p.ServiceId).HasMaxLength(40);
             post.Property(p => p.Description).HasMaxLength(600).IsUnicode();
             post.Property(p => p.Title).HasMaxLength(80).IsUnicode();
+            post.Property(p => p.TradeLabelEnglish).HasMaxLength(60).IsUnicode();
+            post.Property(p => p.TradeLabelTaglish).HasMaxLength(60).IsUnicode();
+            post.Property(p => p.ServiceLabelEnglish).HasMaxLength(100).IsUnicode();
+            post.Property(p => p.ServiceLabelTaglish).HasMaxLength(100).IsUnicode();
             post.Property(p => p.CityId).HasMaxLength(40);
             post.Property(p => p.BarangayId).HasMaxLength(40);
             post.Property(p => p.NeededOn).HasColumnType("date");

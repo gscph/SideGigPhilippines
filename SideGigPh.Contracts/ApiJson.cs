@@ -78,4 +78,12 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(List<AdminOtherJobDto>))]
 [JsonSerializable(typeof(List<AdminDayDto>))]
 [JsonSerializable(typeof(List<AdminCountDto>))]
+[JsonSerializable(typeof(CatalogNameDto))]
+[JsonSerializable(typeof(AdminCatalogDto))]
+[JsonSerializable(typeof(AdminTradeDto))]
+[JsonSerializable(typeof(List<AdminTradeDto>))]
+[JsonSerializable(typeof(AdminServiceDto))]
+[JsonSerializable(typeof(List<AdminServiceDto>))]
+[JsonSerializable(typeof(SaveTradeRequest))]
+[JsonSerializable(typeof(SaveServiceRequest))]
 public sealed partial class ApiJson : JsonSerializerContext;

@@ -16,6 +16,7 @@ namespace SideGigPh.Contracts;
 /// <param name="MeetLatitude">The exact point the household sent the picked worker (<c>PUT picked-jobs/{postId}/location</c>),
 /// only to those two and only until the job is called off or completed; null when none was sent.</param>
 /// <param name="MeetSharedAt">When the household sent it.</param>
+/// <param name="ServiceName">The job's name as the post had it (an operator's later rename doesn't change it); null for "Others".</param>
 public sealed record PickedJobDto(
     long PostId,
     string ServiceId,
@@ -31,7 +32,8 @@ public sealed record PickedJobDto(
     bool MyReviewLocked = false,
     double? MeetLatitude = null,
     double? MeetLongitude = null,
-    DateTimeOffset? MeetSharedAt = null);
+    DateTimeOffset? MeetSharedAt = null,
+    CatalogNameDto? ServiceName = null);
 
 /// <summary>
 /// <c>PUT picked-jobs/{postId}/location</c>: the household sends the worker it picked the exact place to come to (the

@@ -54,7 +54,7 @@ public partial class PickedJobCard : ComponentBase
         ? T.Format(Copy.PickedTitleHousehold, OtherName)
         : T.Format(Copy.PickedTitleWorker, OtherName);
 
-    private string ServiceLabel => (ReferenceData.FindService(Job.ServiceId) ?? ReferenceData.FindTrade(Job.ServiceId)) is { } service ? T.Get(service.Label) : Job.ServiceId;
+    private string ServiceLabel => T.ServiceLabel(Job);
 
     private string Status =>
         Job.IsCompleted ? T.Get(Copy.PickedCompleted)

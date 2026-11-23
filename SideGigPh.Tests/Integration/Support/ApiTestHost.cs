@@ -166,6 +166,9 @@ public sealed class ApiTestHost : IAsyncLifetime
         return (int)(await command.ExecuteScalarAsync())! > 0;
     }
 
+    /// <summary>Runs <c>004-config.sql</c> again on the test database, as a manual "Also run 004-config.sql" deploy does.</summary>
+    public void RunConfigScript() => _database!.RunScript("004-config.sql");
+
     /// <summary>How many reference rows the database holds for <paramref name="uid"/>.</summary>
     public async Task<int> ReferenceRowsAsync(string uid)
     {

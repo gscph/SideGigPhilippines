@@ -1,0 +1,27 @@
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error">@_error</MudAlert>
+            }
+            <MudTextField @bind-Value="_english" Label="Job in English" Variant="Variant.Outlined" MaxLength="CatalogRules.MaxServiceName" Counter="CatalogRules.MaxServiceName" AutoFocus="true" />
+            <MudTextField @bind-Value="_taglish" Label="Job in Taglish" Variant="Variant.Outlined" MaxLength="CatalogRules.MaxServiceName" Counter="CatalogRules.MaxServiceName" />
+            <MudText Typo="Typo.subtitle2">Price guide in pesos, labor only (optional: all three or none)</MudText>
+            <MudStack Row="true" Spacing="2">
+                <MudNumericField T="int?" @bind-Value="_min" Label="Low" Variant="Variant.Outlined" Min="1" Max="CatalogRules.MaxPrice" HideSpinButtons="true" />
+                <MudNumericField T="int?" @bind-Value="_average" Label="Average" Variant="Variant.Outlined" Min="1" Max="CatalogRules.MaxPrice" HideSpinButtons="true" />
+                <MudNumericField T="int?" @bind-Value="_high" Label="High" Variant="Variant.Outlined" Min="1" Max="CatalogRules.MaxPrice" HideSpinButtons="true" />
+            </MudStack>
+            @if (!PriceOk)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Error">Fill all three (low ≤ average ≤ high) or leave all three empty.</MudText>
+            }
+            <MudText Typo="Typo.caption" Color="Color.Secondary">@Note</MudText>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Dark" OnClick="Cancel" Disabled="_busy">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="@(_busy || !CanSave)">Save</MudButton>
+    </DialogActions>
+</MudDialog>
