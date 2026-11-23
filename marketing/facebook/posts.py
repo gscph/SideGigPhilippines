@@ -1003,15 +1003,15 @@ POSTS = [
     ),
     dict(
         id="w9-seen", side="worker", stage="product", season="all", icon="money",
-        problem="\"Magkano po?\" Tapos seen na lang.",
-        sub="Nagtanong, nawala. Parang ex.",
+        problem="Nagtanong ng presyo, tapos nawala.",
+        sub="Sayang oras mo kaka-reply.",
         answer="Sa Tarbaho, kita mo na ang budget ng household bago ka pa mag-offer.",
         cta="I-download ang Tarbaho.",
         caption=(
-            "\"Magkano po?\" Tapos seen na lang. 🙃\n\n"
-            "Nagtanong, nawala. Parang ex.\n\n"
-            "Sa Tarbaho, ang household ang nagpo-post ng kailangan nila, kasama ang budget. "
-            "Kita mo na bago ka pa mag-offer ng presyo mo.\n\n"
+            "Nagtanong ng presyo, tapos nawala.\n\n"
+            "Sayang oras mo kaka-reply.\n\n"
+            "Sa Tarbaho, nagpo-post ung household ng kailangan nila, kasama ung budget. "
+            "Kita mo na bago ka pa mag-offer.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n#Tarbaho #Raket #Angono #Antipolo #Taytay"
         ),
     ),
@@ -1586,22 +1586,23 @@ POSTS = [
         ),
     ),
     # ---- First post: early access (the app is not on Google Play yet; the CTA is the form) ----
-    # Voice: a kasama sa site joking around. The hooks and the answer line are the owner's, word for word.
+    # Voice: plain, the way a worker texts a kasama on Facebook. The hooks and the answer line are the owner's,
+    # word for word; no jokes of our own.
     dict(
         id="w53-foreman", side="worker", stage="problem", season="all", icon="foreman",
         problem="Antagal ng tawag ni Foreman?",
-        sub="Full bars ang signal. Siya lang ang tahimik.",
+        sub="Tapos na ang project, wala pang kasunod.",
         answer="Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.",
         cta="Mag-sign up: early access",
         towns="Only available in Angono, Antipolo and Taytay for now",
         caption=(
             "Antagal ng tawag ni Foreman?\n\n"
-            "Full bars naman ang signal mo. Nagpa-load ka pa nga. Siya lang talaga ang tahimik.\n\n"
+            "Tapos na ung project, wala pang kasunod.\n\n"
             "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
-            "Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:\n"
+            "Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Ilagay ang Gmail na gamit mo sa Play Store, doon namin ipapadala ang early access. "
-            "Naka-iPhone? Pwede rin via TestFlight.\n\n"
+            "Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. "
+            "Naka-iPhone? Pwede rin sa TestFlight.\n\n"
             "Angono, Antipolo at Taytay muna.\n\n"
             "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),
@@ -1609,17 +1610,17 @@ POSTS = [
     dict(
         id="w54-project", side="worker", stage="problem", season="all", icon="construction",
         problem="Patapos na naman ang project, ano nang kasunod?",
-        sub="Next na site? \"Abangan,\" sabi ni Foreman.",
+        sub="Hindi mo na kailangang hintayin ang tawag.",
         answer="Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.",
         cta="Mag-sign up: early access",
         towns="Only available in Angono, Antipolo and Taytay for now",
         caption=(
             "Patapos na naman ang project, ano nang kasunod?\n\n"
-            "Tapos ang buhos, tapos ang tiles. Tanong mo kay Foreman, \"abangan\" daw. Parang teleserye.\n\n"
+            "Wag mo na hintayin ung tawag.\n\n"
             "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
-            "Hindi pa bukas ang app, pero pwede ka nang mauna. Sagutan ang form:\n"
+            "Di pa bukas ung app pero pwede ka na mauna. Fill up mo lang to:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.\n\n"
+            "Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.\n\n"
             "Angono, Antipolo at Taytay muna.\n\n"
             "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),

@@ -26,17 +26,17 @@ Sections (branching is set on question 3, "Go to section based on answer"):
 
 ```
 Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
-Hindi pa bukas ang app. Angono, Antipolo at Taytay muna.
+Di pa bukas ung app. Angono, Antipolo at Taytay muna.
 
-Sagutan ito para sa early access. Ang mga nauna, sila ang unang makakapag-setup
-ng profile pag bukas na ang app. Libre mag-sign up at mag-setup ng profile ngayon.
-Mga 3 minuto lang.
+Fill up mo lang to para sa early access. Ung mga mauuna, sila unang makakapag-setup
+ng profile pag bukas na ung app. Libre mag-sign up at mag-setup ng profile ngayon.
+Mga 3 mins lang.
 
-Privacy: Kinukuha namin ang pangalan, mobile number, email ng Play Store o Apple ID,
-trade, bayan at iba pang sagot mo dito. Gagamitin lang ito para i-contact ka
-tungkol sa paglabas ng Tarbaho at para ipadala ang early-access invite mo
-(Google Play testing o TestFlight). Hindi namin ito ibebenta o ibibigay sa iba.
-Pwede mong ipabura anumang oras: mag-message sa Tarbaho Facebook Page.
+Privacy: Kukunin namin ung pangalan, number, email ng Play Store o Apple ID,
+trade, bayan at iba pang sagot mo dito. Gagamitin lang namin to para i-contact ka
+pag labas ng Tarbaho at para isend ung early access invite mo
+(Google Play testing o TestFlight). Di namin to ibebenta o ibibigay sa iba.
+Pwede mo ipabura anytime, message mo lang ung Tarbaho Facebook Page.
 (Data Privacy Act of 2012, RA 10173)
 ```
 
@@ -47,13 +47,13 @@ Pwede mong ipabura anumang oras: mag-message sa Tarbaho Facebook Page.
 **1. Pangalan mo** (Name)
 - Type: Short answer
 - Required: yes
-- Helper: `Halimbawa: Juan Dela Cruz`
+- Helper: `Hal. Juan Dela Cruz`
 
 **2. Mobile number** (Mobile number)
 - Type: Short answer
 - Required: yes
-- Validation: Regular expression → Matches → `^(09|\+639)\d{9}$` → error text: `Pakilagay ang 11-digit number, hal. 09171234567`
-- Helper: `Dito ka namin ite-text pag bukas na ang app.`
+- Validation: Regular expression → Matches → `^(09|\+639)\d{9}$` → error text: `11-digit number dapat, hal. 09171234567`
+- Helper: `Dito ka namin itetext pag bukas na ung app.`
 
 **3. Anong phone mo?** (Which phone do you use?)
 - Type: Multiple choice
@@ -66,16 +66,16 @@ Pwede mong ipabura anumang oras: mag-message sa Tarbaho Facebook Page.
 
 ## Section 2: Android
 
-Section description: `Para maka-install ka bago pa lumabas ang app sa lahat, kailangan namin ang Gmail na gamit mo sa Play Store.`
+Section description: `Para ma-install mo ung app bago pa sa lahat, kailangan namin ung Gmail na gamit mo sa Play Store.`
 
 **4a. Gmail na gamit mo sa Play Store** (Google Play email)
 - Type: Short answer
 - Required: yes
-- Validation: Text → Email address → error text: `Pakilagay ang buong email, hal. juan@gmail.com`
+- Validation: Text → Email address → error text: `Buong email dapat, hal. juan@gmail.com`
 - Helper:
   ```
-  Paano makita: Buksan ang Play Store → i-tap ang picture mo sa taas, kanan →
-  ang email na nakalagay doon ang ilagay mo dito.
+  Pano makita: buksan mo Play Store → tap mo ung picture mo sa taas, kanan →
+  ung email na nandun, un ung ilagay mo dito.
   ```
 - After section 2: **Continue to Section 4**
 
@@ -83,7 +83,7 @@ Section description: `Para maka-install ka bago pa lumabas ang app sa lahat, kai
 
 ## Section 3: iPhone
 
-Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app ng Apple).`
+Section description: `Sa iPhone, sa TestFlight ung early access (libreng app ng Apple).`
 
 **4b. Apple ID email mo** (Apple ID email)
 - Type: Short answer
@@ -91,8 +91,8 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 - Validation: Text → Email address
 - Helper:
   ```
-  Paano makita: Settings → i-tap ang pangalan mo sa pinakataas → ang email doon.
-  Magpapadala kami ng TestFlight invite. I-install ang libreng "TestFlight" app sa App Store.
+  Pano makita: Settings → tap mo ung pangalan mo sa pinakataas → ung email dun.
+  Magsesend kami ng TestFlight invite. Install mo ung libreng "TestFlight" app sa App Store.
   ```
 - After section 3: **Continue to Section 4**
 
@@ -129,9 +129,9 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 **7. Barangay mo** (Your barangay)
 - Type: Short answer
 - Required: no
-- Helper: `Halimbawa: San Isidro, Angono`
+- Helper: `Hal. San Isidro, Angono`
 
-**8. Ilang taon ka na sa trabahong ito?** (Years of experience)
+**8. Ilang taon ka na sa trabaho mo?** (Years of experience)
 - Type: Multiple choice
 - Required: yes
 - Options (same as the app): `Wala pang 1 taon`, `1–3 taon`, `3–10 taon`, `Mahigit 10 taon`
@@ -139,7 +139,7 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 **9. Karaniwang presyo mo** (Your usual price range)
 - Type: Short answer
 - Required: no
-- Helper: `Halimbawa: ₱800–₱1,500 kada araw, o "depende sa trabaho". Ikaw ang bahala.`
+- Helper: `Hal. ₱800–₱1,500 kada araw, o "depende sa trabaho". Ikaw bahala.`
 
 **10. May TESDA certificate ka ba?** (TESDA certificate?)
 - Type: Multiple choice
@@ -149,7 +149,7 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 **11. Facebook name mo** (Facebook name)
 - Type: Short answer
 - Required: no
-- Helper: `Para madali ka naming ma-message.`
+- Helper: `Para madali ka namin ma-message.`
 
 **12. Saan mo nalaman ang Tarbaho?** (How did you hear about us?)
 - Type: Multiple choice
@@ -161,9 +161,9 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 - Required: yes
 - Option:
   ```
-  Pumapayag ako na gamitin ng Tarbaho ang mga sagot ko para i-contact ako
-  tungkol sa paglabas ng app at ipadala ang early-access invite ko
-  (Google Play testing o TestFlight). Alam kong pwede kong ipabura ito anumang oras.
+  Okay lang sakin na gamitin ng Tarbaho ung mga sagot ko para i-contact ako
+  pag labas ng app at para isend ung early access invite ko
+  (Google Play testing o TestFlight). Alam ko pwede ko to ipabura anytime.
   ```
 
 ---
@@ -171,11 +171,11 @@ Section description: `Sa iPhone, ang early access ay sa TestFlight (libreng app 
 ## Confirmation message (after Submit)
 
 ```
-Salamat! Nasa listahan ka na ng early access.
-Ite-text o ime-message ka namin pag handa na ang invite mo.
-Android: makakatanggap ka ng link para i-install mula sa Play Store.
-iPhone: makakatanggap ka ng TestFlight invite sa Apple ID email mo.
-I-share ang form sa kasamahan mo sa site!
+Salamat! Kasama ka na sa early access list.
+Itetext o imemessage ka namin pag ready na ung invite mo.
+Android: may link kang matatanggap para ma-install sa Play Store.
+iPhone: may TestFlight invite na darating sa Apple ID email mo.
+Share mo rin sa mga kasama mo sa site.
 ```
 
 ## How we use the answers (for the owner)

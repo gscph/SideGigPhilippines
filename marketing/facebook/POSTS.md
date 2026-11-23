@@ -1259,14 +1259,14 @@ When: any time · Images: `out/w53-foreman-feed.png`, `out/w53-foreman-story.png
 ```
 Antagal ng tawag ni Foreman?
 
-Full bars naman ang signal mo. Nagpa-load ka pa nga. Siya lang talaga ang tahimik.
+Tapos na ung project, wala pang kasunod.
 
 Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 
-Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:
+Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Ilagay ang Gmail na gamit mo sa Play Store, doon namin ipapadala ang early access. Naka-iPhone? Pwede rin via TestFlight.
+Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung early access. Naka-iPhone? Pwede rin sa TestFlight.
 
 Angono, Antipolo at Taytay muna.
 
@@ -1280,14 +1280,14 @@ When: any time · Images: `out/w54-project-feed.png`, `out/w54-project-story.png
 ```
 Patapos na naman ang project, ano nang kasunod?
 
-Tapos ang buhos, tapos ang tiles. Tanong mo kay Foreman, "abangan" daw. Parang teleserye.
+Wag mo na hintayin ung tawag.
 
 Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 
-Hindi pa bukas ang app, pero pwede ka nang mauna. Sagutan ang form:
+Di pa bukas ung app pero pwede ka na mauna. Fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.
+Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.
 
 Angono, Antipolo at Taytay muna.
 
@@ -1638,16 +1638,16 @@ I-download ang Tarbaho. 👉 [Google Play link]
 
 _They know Tarbaho but aren't sold. Give the difference._
 
-#### "Magkano po?" Tapos seen na lang.
+#### Nagtanong ng presyo, tapos nawala.
 
 When: any time · Images: `out/w9-seen-feed.png`, `out/w9-seen-story.png`
 
 ```
-"Magkano po?" Tapos seen na lang. 🙃
+Nagtanong ng presyo, tapos nawala.
 
-Nagtanong, nawala. Parang ex.
+Sayang oras mo kaka-reply.
 
-Sa Tarbaho, ang household ang nagpo-post ng kailangan nila, kasama ang budget. Kita mo na bago ka pa mag-offer ng presyo mo.
+Sa Tarbaho, nagpo-post ung household ng kailangan nila, kasama ung budget. Kita mo na bago ka pa mag-offer.
 
 I-download ang Tarbaho. 👉 [Google Play link]
 
@@ -1893,17 +1893,17 @@ One post a day, around 7 to 9 PM. Pin both "how it works" images first. Lead wit
 
 **Now to December**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Disyembre. Tigil ang site. → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pandagdag pang-Noche Buena? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Electrician ka? Kabit-ilaw na. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Linis season na. → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Disyembre. Tigil ang site. → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pandagdag pang-Noche Buena? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Electrician ka? Kabit-ilaw na. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Linis season na. → Nagtanong ng presyo, tapos nawala. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Barado na naman yung CR? → Darating na ang bisita sa Pasko. → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → Patay-sindi na naman ang Christmas lights? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → General cleaning bago mag-Pasko? → Sabado lang ang free mo? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Pasko na. Ipaayos na. → Ikaw ang pipili.
 
 **January to February**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Nagtanong ng presyo, tapos nawala. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Barado na naman yung CR? → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → Sabado lang ang free mo? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Ikaw ang pipili.
 
 **March to May (init, aircon)**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Aircon tech ka? Peak season na. → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Solar tech ka? Summer na. → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Summer na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Aircon tech ka? Peak season na. → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Solar tech ka? Summer na. → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Foreman ka? Kaya mo ang renovation. → Karpintero ka? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Nagtanong ng presyo, tapos nawala. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Summer na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Kailan mo huling pinalinis ang aircon? → Ang laki na naman ng Meralco? → Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Sobrang init. Sira pa ang aircon. → Barado na naman yung CR? → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Maingay na ang aircon? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Amoy kulob ang aircon? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → Sabado lang ang free mo? → Pakabit ng ceiling fan? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Magkano ba talaga ang linis ng aircon? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Ikaw ang pipili.
 
 **May to June (enrollment, lipat-bahay)**
@@ -1913,7 +1913,7 @@ One post a day, around 7 to 9 PM. Pin both "how it works" images first. Lead wit
 
 **June to October (ulan, baha, bagyo)**
 
-- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Tag-ulan. Walang buhos, walang arawan. → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Pagkatapos ng baha, ang daming aayusin. → Foreman ka? Kaya mo ang renovation. → Tubero ka? Tag-ulan na. → Karpintero ka? → Marunong ka mag-garden? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → "Magkano po?" Tapos seen na lang. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Tag-ulan na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
+- Skilled workers: May motor ka at may bakanteng oras? → Sampung taon ka na. Kapitbahay lang ang nakakakilala. → Sabado't Linggo, nakatambay ka lang? → "Helper lang" daw? → Umuwi ka galing abroad? → Ilang customer na ang lumampas? → Wala nang project. Nag-aantay ng tawag ni Maestro. → Mahal ng gas. Malayo pa ang customer. → Tumaas ang bilihin. Ang kita, hindi. → Kailangan mo ng extra? → Tag-ulan. Walang buhos, walang arawan. → Ang daming bayarin? → Tapos na ang project. → Isang oras na biyahe. → Antagal ng tawag ni Foreman? → Patapos na naman ang project, ano nang kasunod? → Pagod ka na mag-antay ng tawag? → Welder ka? Gate, grills, railings? → Ang suki mo, galing lang sa sabi-sabi? → Tile setter ka? Ang daming lumang CR. → Marunong ka sa makina? → Ate, sanay ka maglinis ng bahay? → Pagkatapos ng baha, ang daming aayusin. → Foreman ka? Kaya mo ang renovation. → Tubero ka? Tag-ulan na. → Karpintero ka? → Marunong ka mag-garden? → IT ka? Ang daming mahina ang WiFi. → Bakante tuwing umaga? → May car wash kit ka? → Mason ka? → Sa'yo ba ang suki mo? → Nagtanong ng presyo, tapos nawala. → Tawag nang tawag, hindi naman tuloy? → May TESDA ka? Ipakita mo. → Ikaw ang magsasabi ng presyo mo. → Bakit Tarbaho, hindi FB group? → Bawat natapos mo, may review. → Customer ang lalapit. → Picture ng gawa mo, nasa profile. → May ID badge ka? → Libre mag-setup. Malapit lang. → Gawa ng profile ngayon. Libre. → Tag-ulan na. Mag-profile na. → Isang profile. Tatlong bayan. → Libre mag-profile ngayon.
 - Households: Ubos ang Sabado mo sa pila? → Ilang taon mo nang tinitiis ang CR? → May bagyo raw ngayong linggo. → Bakit ang taas ng bill sa tubig? → Sino 'yung nasa gate kagabi? → Mainit ang saksakan? → May bitak na ang pader? → Madulas ang CR ni Lola? → Nakalimutan ang due date? → Nabasa ang saksakan? → Barado na naman yung CR? → Bumaha na naman? → May timba na naman sa sala? → Nag-trip na naman ang breaker? → Pagod sa trabaho. Makalat pa sa bahay. → Ayaw mag-start ng sasakyan? → Mabagal ang WiFi? → Ang dumi na naman ng kotse? → May mantsa na naman sa kisame? → Ang taas na ng damo sa bakuran? → Ayaw mag-print. Deadline bukas. → Amoy kanal na naman ang lababo? → Kumakalampag na ang gate? → Nalubog ang kotse sa baha? → Walang oras mamalengke? → Nag-lag na naman sa meeting? → Natanggal ang yero sa bagyo? → Mahina ang tubig sa shower? → Tulo nang tulo ang gripo? → Puno na ang poso negro? → Mahal na ang bilihin. → "May kilala ba kayong tubero?" → Si Mama, mag-isa sa bahay. Sira ang gripo. → Sabado lang ang free mo? → ₱800 daw. Naging ₱2,000. → Bakit Tarbaho, hindi FB group? → Takot i-post ang number? → Isang post. Ilang offer. → ₱1,500 lang ang budget? → Kita mo muna ang reviews. → Walang patong ng ahente. → Malapit lang sila. → Lowest offer na malapit sa'yo. → Bayad pagkatapos ng trabaho. → Ikaw ang pipili.
 
 ## How it works
@@ -1990,29 +1990,29 @@ I-download ang Tarbaho. 👉 [Google Play link]
 #Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay
 ```
 
-### Ilang minuto lang ang setup.
+### Ganito mag-setup ng profile.
 
 Slides: `out/carousel-setup-worker-1.png`, `out/carousel-setup-worker-2.png`, `out/carousel-setup-worker-3.png`, `out/carousel-setup-worker-4.png`, `out/carousel-setup-worker-5.png`, `out/carousel-setup-worker-6.png`, `out/carousel-setup-worker-7.png`
 
 ```
-Ilang minuto lang ang setup sa Tarbaho. Mas mabilis pa sa tawag ni Foreman. (I-swipe)
+Ganito mag-setup ng profile sa Tarbaho pag bukas na ung app. Swipe mo lang
 
 1. English o Taglish
-2. Mobile number mo, tapos SMS code
-3. "Skilled worker", tapos trade at serbisyo mo
-4. Presyo mo: mula ₱… hanggang ₱…, o "depende sa trabaho"
+2. Number mo, tapos ung SMS code
+3. Pili ka ng "Skilled worker", tapos trade at services mo
+4. Presyo mo, from ₱… to ₱… o "depende sa trabaho"
 5. Mga bayan na pinupuntahan mo
-6. Ilang taon ka na sa linya mo
-7. Selfie (kahit hindi artistahin, basta malinaw)
-8. I-confirm ang number sa SMS
-9. Silipin ang card mo, mangako, tapos "Game!"
+6. Ilang taon ka na sa trabaho
+7. Selfie mo, dapat kita mukha
+8. Confirm mo ung number sa SMS
+9. Check mo ung card mo, tick ung promises, tapos "Game!"
 
 Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.
 
-Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:
+Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:
 👉 [GOOGLE FORM LINK]
 
-Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.
+Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.
 
 #Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon
 ```
@@ -2052,4 +2052,5 @@ Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFligh
 - 19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others
 - 19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)
 - first post: two early-access worker posts (tagal ng tawag ni Foreman, patapos na ang project) and a profile-setup carousel; the app is "malapit na sa Android", so they point to the early-access form, not the store (first-post/ has the form and plan)
-- first post rewrite (owner: "cringe and corny"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; "Only available in Angono, Antipolo and Taytay for now" under the button; no commission or "buong bayad" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9 is now "Magkano po? Tapos seen na lang" (w9-seen)
+- first post rewrite (owner: "cringe and corny"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; "Only available in Angono, Antipolo and Taytay for now" under the button; no commission or "buong bayad" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9-komisyon is now w9-seen
+- first post, plain: no jokes of our own (the owner's hooks carry the humor); captions, carousel steps (Step 1 to 9) and replies in casual Facebook Taglish (ung, pag, wag, di pa); w53/w54 subtitles are the owner's; w9 says it plainly (Nagtanong ng presyo, tapos nawala)

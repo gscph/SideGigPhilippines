@@ -251,7 +251,8 @@ CHANGELOG = [
     "19:00 4 new posts (ceiling fan, walang patong, isang oras na biyahe, tuition ni anak); tighter bagyo answer; after-baha answer no longer copies the others",
     "19:20 4 new posts (poso negro, malapit lang sila, sa'yo ba ang suki mo, linis season); no two posts share an answer line any more (7 rewritten)",
     "first post: two early-access worker posts (tagal ng tawag ni Foreman, patapos na ang project) and a profile-setup carousel; the app is \"malapit na sa Android\", so they point to the early-access form, not the store (first-post/ has the form and plan)",
-    "first post rewrite (owner: \"cringe and corny\"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; \"Only available in Angono, Antipolo and Taytay for now\" under the button; no commission or \"buong bayad\" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9 is now \"Magkano po? Tapos seen na lang\" (w9-seen)",
+    "first post rewrite (owner: \"cringe and corny\"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; \"Only available in Angono, Antipolo and Taytay for now\" under the button; no commission or \"buong bayad\" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9-komisyon is now w9-seen",
+    "first post, plain: no jokes of our own (the owner's hooks carry the humor); captions, carousel steps (Step 1 to 9) and replies in casual Facebook Taglish (ung, pag, wag, di pa); w53/w54 subtitles are the owner's; w9 says it plainly (Nagtanong ng presyo, tapos nawala)",
 ]
 
 

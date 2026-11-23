@@ -97,55 +97,55 @@ CAROUSELS = [
         ),
     ),
     # First post: how a worker sets up the profile. The app is not out yet, so it ends on the early-access form,
-    # never the store. Voice: a kasama sa site joking around, short and plain.
+    # never the store. Voice: plain Facebook Taglish, just the steps, no jokes.
     dict(
         id="setup-worker", side="worker",
         slides=[
             dict(kind="problem", icon="worker",
-                 title="Ilang minuto lang ang setup.",
-                 body="Mas mabilis pa sa tawag ni Foreman."),
-            dict(kind="how", lead="Hakbang 1 hanggang 3",
+                 title="Ganito mag-setup ng profile.",
+                 body="Pag bukas na ung app. Ilang minuto lang."),
+            dict(kind="how", lead="Step 1 to 3",
                  title="Sign in, tapos trade mo.",
                  steps=["English o Taglish",
-                        "Mobile number mo, tapos SMS code",
-                        "Skilled worker, tapos trade at serbisyo mo"]),
-            dict(kind="how", lead="Hakbang 4 hanggang 6", start=4,
+                        "Number mo, tapos ung SMS code",
+                        "Skilled worker, tapos trade at services mo"]),
+            dict(kind="how", lead="Step 4 to 6", start=4,
                  title="Presyo, bayan, taon.",
-                 steps=["Presyo mo: mula ₱… hanggang ₱…",
+                 steps=["Presyo mo, from ₱… to ₱…",
                         "Mga bayan na pinupuntahan mo",
-                        "Ilang taon ka na sa linya mo"]),
-            dict(kind="how", lead="Hakbang 7 hanggang 9", start=7,
+                        "Ilang taon ka na sa trabaho"]),
+            dict(kind="how", lead="Step 7 to 9", start=7,
                  title="Selfie, number, Game!",
-                 steps=["Selfie: kahit hindi artistahin, basta malinaw",
-                        "I-confirm ang number sa SMS",
-                        "Silipin ang card, mangako, Game!"]),
+                 steps=["Selfie mo, dapat kita mukha",
+                        "Confirm mo ung number sa SMS",
+                        "Check mo ung card, tick ung promises, Game!"]),
             dict(kind="problem", icon="medal",
-                 title="Gusto mong mas makita?",
-                 body="Picture ng gawa mo (hanggang 6) at badges: ID, TESDA, past project. "
-                      "Hindi required, pero mas mataas ka sa search."),
+                 title="Gusto mo mas makita?",
+                 body="Lagay ka pics ng gawa mo (hanggang 6) at badges: ID, TESDA, past project. "
+                      "Di required pero mas mataas ka sa search."),
             dict(kind="problem", icon="chat",
                  title="Live ka na.",
-                 body="Kita mo ang requests sa malapit. Mag-offer ng presyo mo. Number mo, pag pinili ka lang."),
+                 body="Kita mo ung requests sa malapit. Offer ka ng presyo mo. "
+                      "Number mo, pag pinili ka lang."),
             dict(kind="cta", title="Mag-sign up: early access.",
-                 body="Hindi pa bukas ang app. Link sa caption.",
+                 body="Di pa bukas ung app. Link nasa caption.",
                  towns="Only available in Angono, Antipolo and Taytay for now"),
         ],
         caption=(
-            "Ilang minuto lang ang setup sa Tarbaho. Mas mabilis pa sa tawag ni Foreman. "
-            "(I-swipe)\n\n"
+            "Ganito mag-setup ng profile sa Tarbaho pag bukas na ung app. Swipe mo lang\n\n"
             "1. English o Taglish\n"
-            "2. Mobile number mo, tapos SMS code\n"
-            "3. \"Skilled worker\", tapos trade at serbisyo mo\n"
-            "4. Presyo mo: mula ₱… hanggang ₱…, o \"depende sa trabaho\"\n"
+            "2. Number mo, tapos ung SMS code\n"
+            "3. Pili ka ng \"Skilled worker\", tapos trade at services mo\n"
+            "4. Presyo mo, from ₱… to ₱… o \"depende sa trabaho\"\n"
             "5. Mga bayan na pinupuntahan mo\n"
-            "6. Ilang taon ka na sa linya mo\n"
-            "7. Selfie (kahit hindi artistahin, basta malinaw)\n"
-            "8. I-confirm ang number sa SMS\n"
-            "9. Silipin ang card mo, mangako, tapos \"Game!\"\n\n"
+            "6. Ilang taon ka na sa trabaho\n"
+            "7. Selfie mo, dapat kita mukha\n"
+            "8. Confirm mo ung number sa SMS\n"
+            "9. Check mo ung card mo, tick ung promises, tapos \"Game!\"\n\n"
             "Dito sa Tarbaho, makakahanap ka ng sarili mong customer sa presyong gusto mo.\n\n"
-            "Hindi pa bukas ang app. Gusto mong mauna? Sagutan ang form:\n"
+            "Di pa bukas ung app. Pag gusto mo mauna, fill up mo lang to:\n"
             "👉 [GOOGLE FORM LINK]\n\n"
-            "Gmail na gamit mo sa Play Store ang ilagay. Naka-iPhone? Pwede rin via TestFlight.\n\n"
+            "Gmail na gamit mo sa Play Store ung ilagay mo. Naka-iPhone? Pwede rin sa TestFlight.\n\n"
             "#Tarbaho #Angono #Antipolo #Taytay #Construction #Aircon"
         ),
     ),

@@ -5,7 +5,7 @@
 - Page has the profile picture and cover photo (`../../../branding/tarbaho-facebook-purple.png`, `../out/page-cover.png`).
 - Google Form is live, tested once on an Android phone, and its short link is in every caption (`[GOOGLE FORM LINK]`).
 - Page "Send message" button is on; someone checks Messenger and comments at least twice a day the first week.
-- Test that the Page's Messenger auto-reply (Meta Business Suite → Inbox → Automations) says: `Salamat! Ito ang early-access form: [GOOGLE FORM LINK]. Sasagot kami agad.`
+- Test that the Page's Messenger auto-reply (Meta Business Suite → Inbox → Automations) says: `Salamat! Eto ung early access form: [GOOGLE FORM LINK]. Sagot kami agad.`
 
 ## When to post
 
@@ -17,7 +17,7 @@
 ## Pinning
 
 - Pin the main post to the top of the Page right away and keep it pinned until the app is public.
-- In the post's first comment, add the form link again plus `Paano mag-setup? Abangan ang next post 👇` (comments with links are easier to tap than links buried in a long caption).
+- In the post's first comment, add the form link again plus `Pano mag-setup? Nasa next post` (comments with links are easier to tap than links buried in a long caption).
 - When the setup carousel goes up, link to it in a reply under the pinned post.
 - Stories: post `../out/w53-foreman-story.png` the same evening, with a link sticker to the form.
 
@@ -26,7 +26,7 @@
 Read each group's rules first; many allow promos only on certain days or in a weekly thread. Never spam the same text in many groups in one hour (Facebook flags it): 3–4 groups a day, different version per group type.
 
 1. **Town community groups for Angono, Taytay and Antipolo** (buy-and-sell, "news and updates", barangay groups). Use **Version C (short)** + `../out/w53-foreman-feed.png`. Angono first.
-2. **Construction worker groups in Rizal / East Metro** (carpenters, masons, welders, steelmen, construction helpers looking for raket). Use **Version B** ("Patapos na naman ang project?") + `../out/w54-project-feed.png`.
+2. **Construction worker groups in Rizal / East Metro** (carpenters, masons, welders, steelmen, construction helpers looking for raket). Use **Version B** ("Patapos na naman ang project, ano nang kasunod?") + `../out/w54-project-feed.png`.
 3. **Aircon technician groups** (aircon cleaning / repair techs in Rizal and Metro Manila east). Use Version A, and in the first comment mention "Linis ng aircon, repair, installation".
 4. **TESDA / skills-training alumni groups in Rizal**, if their rules allow: Version A + a line about the TESDA badge.
 5. **Hardware stores and construction supply stores in Angono** (ask them to share the post, or print the feed image as a small poster near the counter).
@@ -35,59 +35,58 @@ Do not post in groups for hiring / job openings with "hiring" wording; if you po
 
 ## Canned comment replies (Taglish)
 
-Keep replies short and plain, like a kasama answering. A light joke is fine; no hard sell, no promises. Reply in the comments **and** send the same as a private message when the question is personal.
+Reply the way people text on Facebook: short, casual, literal ("ung", "pag", "di pa", "dito"). No jokes, no hard sell, no promises. Reply in the comments **and** send the same as a private message when the question is personal.
 
 **"Magkano?" / "May bayad ba?"**
 ```
 Libre mag-sign up at mag-setup ng profile ngayon.
-Presyo mo, ikaw ang maglalagay. Early access dito: [GOOGLE FORM LINK]
+Ikaw maglalagay ng presyo mo. Early access dito: [GOOGLE FORM LINK]
 ```
 
 **"Saan 'to?" / "Taga-[other town] ako, pwede?"**
 ```
-Angono, Antipolo at Taytay muna, Angono ang una.
-Kung pumupunta ka rito, sagutan pa rin ang form at ilagay ang bayan mo,
-para alam namin kung saan susunod: [GOOGLE FORM LINK]
+Angono, Antipolo at Taytay muna, Angono una.
+Pag pumupunta ka dito, fill up mo pa rin ung form tapos lagay mo bayan mo,
+para alam namin san susunod: [GOOGLE FORM LINK]
 ```
 
 **"iPhone?"**
 ```
-Pwede! Sa iPhone, via TestFlight (libreng app ng Apple).
-Sa form, piliin ang "iPhone" at ilagay ang Apple ID email mo: [GOOGLE FORM LINK]
+Pwede, sa TestFlight (libreng app ng Apple).
+Sa form pili ka ng "iPhone" tapos lagay mo Apple ID email mo: [GOOGLE FORM LINK]
 ```
 
 **"Legit ba 'to?" / "Scam?"**
 ```
-Tama lang mag-ingat. Ang Tarbaho ay directory app: ang mga nagpapagawa
-ang kumokontak sa'yo. Hindi kami hihingi ng bayad, GCash o password.
-Ang form ay para lang sa early access. Hindi pa bukas ang app.
+Tama lang mag-ingat. Directory app ung Tarbaho, ung mga nagpapagawa ung kokontak sayo.
+Di kami hihingi ng bayad, GCash o password. Pang early access lang ung form.
+Di pa bukas ung app.
 ```
 
 **"Paano mag-download?" / "Asan ang app?"**
 ```
-Hindi pa bukas ang app sa lahat. Sagutan muna ang form para sa early access.
-Ilagay ang Gmail na gamit mo sa Play Store, doon namin ipapadala ang invite:
+Di pa bukas ung app sa lahat. Fill up mo muna ung form para sa early access.
+Lagay mo ung Gmail na gamit mo sa Play Store, dun namin isesend ung invite:
 [GOOGLE FORM LINK]
 ```
 
 **"May customer agad?" / "Sure na may kliyente?"**
 ```
-Hindi namin 'yan maipapangako, at ayaw naming mambola.
-Ang sure: ang mga nauna sa form, sila ang unang makakapag-setup ng profile
-pag bukas na ang app sa Angono. Presyo mo, ikaw ang bahala.
+Di namin yan maipapangako. Ang sure, ung mga nauna sa form sila unang
+makakapag-setup ng profile pag bukas na ung app sa Angono. Presyo mo, ikaw bahala.
 ```
 
 **"Paano kung wala ang trade ko?" (e.g. painter)**
 ```
-Pwede pa rin. Sa form, piliin ang "Other" at i-type ang ginagawa mo.
-Sa app, may "Others" din para i-type ang serbisyo mo.
+Pwede pa rin. Sa form pili ka ng "Other" tapos type mo ung ginagawa mo.
+Sa app may "Others" din.
 ```
 
 ## Follow-up posts (next 2 weeks)
 
-1. **Day 3–4: the setup carousel** (`../out/carousel-setup-worker-1..7.png`, caption in `profile-setup.md`). "Ilang minuto lang ang setup. Mas mabilis pa sa tawag ni Foreman." Shows the real steps so the form feels worth it; ends with the form link.
-2. **Day 7–8: "Presyo mo, ikaw ang bahala."** One image: a request card with the household's budget and the worker's own offer. Caption explains: households post what they need with budget and photos, you send your price, you chat, they pay you after the work at the price you agreed. Form link at the end. No "walang commission" or "buong bayad" line: the price model may change, and we never promise it stays.
-3. **Day 11–14: Badges + private number.** "Mas makikita ka pag may badge": Government ID, TESDA, past project with a company; plus "Private ang number mo hanggang piliin ka." Good for the TESDA groups. Ask: "May TESDA ka? I-comment ang trade mo" to get comments (more reach), then reply with the form link.
+1. **Day 3–4: the setup carousel** (`../out/carousel-setup-worker-1..7.png`, caption in `profile-setup.md`). Just the steps (Step 1 to 9), so the form feels worth it; ends with the form link.
+2. **Day 7–8: "Presyo mo, ikaw bahala."** One image: a request card with the household's budget and the worker's own offer. Caption, in the same casual typing: households post what they need with budget and photos, you send your price, you chat, they pay you after the work at the price you agreed. Form link at the end. No "walang commission" or "buong bayad" line: the price model may change, and we never promise it stays.
+3. **Day 11–14: Badges + private number.** "Mas makikita ka pag may badge": Government ID, TESDA, past project with a company; plus "Private number mo hanggang piliin ka." Good for the TESDA groups. Ask: "May TESDA ka? Comment mo trade mo" to get comments (more reach), then reply with the form link.
 
 Optional in between: a short "Angono muna!" post naming the barangays once the launch area is announced, and a "Shoutout sa mga nag-sign up" post **without names or counts** unless the numbers are real and the people agreed.
 
