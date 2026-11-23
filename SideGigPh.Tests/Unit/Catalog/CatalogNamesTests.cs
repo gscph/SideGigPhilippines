@@ -43,7 +43,8 @@ public class CatalogNamesTests
         CatalogRules.IsTradeName(new string('a', CatalogRules.MaxTradeName + 1)).Should().BeFalse();
         CatalogRules.IsServiceName(new string('a', CatalogRules.MaxServiceName)).Should().BeTrue();
 
-        CatalogRules.IsPrice(null).Should().BeTrue("a guide is optional");
+        CatalogRules.IsPrice(null).Should().BeFalse("the app refuses a job without a guide");
+        CatalogRules.IsPrice(CatalogRules.OthersPrice).Should().BeTrue();
         CatalogRules.IsPrice(new PriceGuideDto(500, 800, 1200)).Should().BeTrue();
         CatalogRules.IsPrice(new PriceGuideDto(900, 800, 1200)).Should().BeFalse("low above average");
         CatalogRules.IsPrice(new PriceGuideDto(0, 800, 1200)).Should().BeFalse();

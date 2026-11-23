@@ -14,6 +14,8 @@ namespace SideGigPh.Admin.Services;
 /// </summary>
 public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
 {
+    private static readonly string InvalidPrefix = ApiErrors.Invalid("");
+
     public async Task<T> GetAsync<T>(string path, JsonTypeInfo<T> type, CancellationToken cancellationToken = default)
     {
         using var response = await SendAsync(HttpMethod.Get, path, null, cancellationToken);
@@ -99,7 +101,9 @@ public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
             HttpStatusCode.Unauthorized => "The API didn't accept the sign-in. Sign out and in again.",
             HttpStatusCode.Forbidden when code == ApiErrors.NotAdmin => "This account isn't an operator.",
             HttpStatusCode.Conflict when code == ApiErrors.OthersStays => "A trade's \"Others\" job can be renamed, but never retired.",
-            HttpStatusCode.BadRequest when error?.Detail is { Length: > 0 } field => $"The API didn't accept \"{field}\". Check it and try again.",
+            HttpStatusCode.Conflict when code == ApiErrors.NeedsPrice => "This job has no price guide. Open it (pencil), fill the price guide, then restore it.",
+            HttpStatusCode.BadRequest when code?.StartsWith(InvalidPrefix, StringComparison.Ordinal) == true =>
+                $"The API didn't accept \"{code[InvalidPrefix.Length..]}\". Check it and try again.",
             HttpStatusCode.NotFound => "Not there any more (already decided or removed?). Reload.",
             HttpStatusCode.TooManyRequests => "Too many tries. Wait a minute.",
             _ when code is null => $"The API answered {status}. Try again.",

@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http.Json;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
+using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Api;
 using SideGigPh.Tests.Integration.Support;
 
 namespace SideGigPh.Tests.Integration;
@@ -37,7 +39,14 @@ public class CatalogTests(ApiTestHost api)
 
     private Task<AdminCatalogDto> RenameJobAsync(string id, string tradeId, string english) =>
         SendAsync(HttpMethod.Put, $"ops/catalog/services/{id}",
-            JsonContent.Create(new SaveServiceRequest(tradeId, english, $"{english} TL"), ApiJson.Default.SaveServiceRequest));
+            JsonContent.Create(new SaveServiceRequest(tradeId, english, $"{english} TL", new PriceGuideDto(600, 900, 1300)), ApiJson.Default.SaveServiceRequest));
+
+    /// <summary>The config as a phone reads it, and whether the phone would use it (<see cref="ReferenceData.CanUse"/>).</summary>
+    private async Task ThePhonesUseTheConfigAsync()
+    {
+        var config = (await ConfigAsync()).ToModel();
+        ReferenceData.CanUse(config).Should().BeTrue("a phone throws away a config it can't use, and would never see the operator's changes");
+    }
 
     private Task<ConfigDto> ConfigAsync() => api.Client().GetFromJsonAsync("config", ApiJson.Default.ConfigDto)!;
 
@@ -70,6 +79,8 @@ public class CatalogTests(ApiTestHost api)
             var offered = config.Catalog.Should().ContainSingle(c => c.Id == trade.Id).Subject;
             offered.English.Should().Be($"Trade {tag}");
             offered.Services.Select(s => s.Id).Should().Equal(job.Id, trade.Id + "-other");
+            offered.Services[1].Price.Should().Be(CatalogRules.OthersPrice, "every offered job needs a price guide");
+            await ThePhonesUseTheConfigAsync();
         }
         finally
         {
@@ -175,6 +186,64 @@ public class CatalogTests(ApiTestHost api)
         {
             await SendAsync(HttpMethod.Put, "ops/catalog/trades/solar_cleaning",
                 JsonContent.Create(new SaveTradeRequest(before.English, before.Taglish, before.HintEnglish, before.HintTaglish), ApiJson.Default.SaveTradeRequest));
+            await RetireAsync(trade.Id);
+        }
+    }
+
+    // Some older trades' "Others" ids don't match the trade's id (solar-other belongs to solar_cleaning).
+    [IntegrationFact]
+    public async Task ATradeNamedLikeAnOlderOthersJob_GetsAnIdOfItsOwn()
+    {
+        var trade = (await AddTradeAsync("Solar")).Trades.Single(t => t.English == "Solar");
+        try
+        {
+            trade.Id.Should().NotBe("solar");
+            trade.Services.Should().ContainSingle(s => s.IsOther).Which.Id.Should().Be(trade.Id + "-other");
+            await ThePhonesUseTheConfigAsync();
+        }
+        finally
+        {
+            await RetireAsync(trade.Id);
+        }
+    }
+
+    // home_massage was retired by 004-config.sql; its "Others" job has no price guide.
+    [IntegrationFact]
+    public async Task RestoringAnOldTrade_KeepsTheConfigUsableOnPhones()
+    {
+        try
+        {
+            var restored = (await SendAsync(HttpMethod.Post, "ops/catalog/trades/home_massage/restore")).Trades.Single(t => t.Id == "home_massage");
+            restored.Services.Should().Contain(s => s.IsOther && s.IsActive && s.Price != null);
+            restored.Services.Where(s => s.IsActive).Should().OnlyContain(s => s.Price != null);
+            await ThePhonesUseTheConfigAsync();
+
+            var unpriced = restored.Services.FirstOrDefault(s => !s.IsActive && s.Price == null);
+            if (unpriced is not null)
+            {
+                using var refused = await Operator.PostAsync($"ops/catalog/services/{unpriced.Id}/restore", null);
+                refused.StatusCode.Should().Be(HttpStatusCode.Conflict);
+                (await refused.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.NeedsPrice);
+            }
+        }
+        finally
+        {
+            await RetireAsync("home_massage");
+        }
+    }
+
+    [IntegrationFact]
+    public async Task AJobWithoutAPriceGuide_IsRefused()
+    {
+        var (trade, _) = await TradeWithJobAsync(Tag());
+        try
+        {
+            using var response = await Operator.PostAsJsonAsync("ops/catalog/services", new SaveServiceRequest(trade.Id, "No price", "Walang presyo"), ApiJson.Default.SaveServiceRequest);
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.Invalid("price"));
+        }
+        finally
+        {
             await RetireAsync(trade.Id);
         }
     }

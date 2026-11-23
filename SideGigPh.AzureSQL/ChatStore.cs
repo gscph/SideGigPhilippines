@@ -194,8 +194,17 @@ public sealed class ChatStore(SideGigPhDb db)
                     return new SendResult(SendOutcome.TooManyChats);
                 }
 
-                // The chat keeps the job's name it started with: an operator's later rename never rewrites it.
-                var serviceName = await db.ServiceAsync(Code(request.ServiceId), ct);
+                // The chat keeps the job's name it started with: an operator's later rename never rewrites it. A chat
+                // the household opens by picking a worker's offer takes the post's own copy (the name it was posted with).
+                var serviceId = Code(request.ServiceId);
+                var serviceName = await (from o in db.JobOffers.AsNoTracking()
+                                         join p in db.JobPosts.AsNoTracking() on o.PostId equals p.Id
+                                         where o.Status == JobOfferStatuses.Picked && o.ProUid == request.ProfessionalId
+                                               && p.SeekerUid == request.SeekerId && p.ServiceId == serviceId
+                                               && p.ServiceLabelEnglish != null && p.ServiceLabelTaglish != null
+                                         orderby o.UpdatedAt descending
+                                         select new CatalogNameDto(p.ServiceLabelEnglish!, p.ServiceLabelTaglish!)).FirstOrDefaultAsync(ct)
+                                  ?? await db.ServiceAsync(serviceId, ct);
                 chat = new ChatRow
                 {
                     Id = chatId,

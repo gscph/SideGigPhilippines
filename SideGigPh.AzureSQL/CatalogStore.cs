@@ -18,6 +18,9 @@ public enum CatalogOutcome
 
     /// <summary>A trade's "Others" job can be renamed, never retired: picking it is how a job we don't list still finishes.</summary>
     OthersStays,
+
+    /// <summary>A retired job with no price guide can't be offered again until it gets one (the app refuses a config without).</summary>
+    NeedsPrice,
 }
 
 /// <param name="Field">For <see cref="CatalogOutcome.Invalid"/>: the request's field that isn't valid (its JSON name).</param>
@@ -88,7 +91,11 @@ public sealed class CatalogStore(SideGigPhDb db, ConfigStore config)
             return new CatalogResult(CatalogOutcome.Invalid, field);
         }
 
+        // A trade's id is taken when a trade has it, or when its "Others" job's id ({id}-other) is already a job's
+        // (some older trades' "Others" ids don't match the trade's: solar-other is solar_cleaning's).
         var taken = (await db.Categories.Select(c => c.Id).ToListAsync(cancellationToken)).ToHashSet();
+        taken.UnionWith((await db.Services.Where(s => s.Id.EndsWith(OtherSuffix)).Select(s => s.Id).ToListAsync(cancellationToken))
+            .Select(id => id[..^OtherSuffix.Length]));
         taken.Add(OtherWork.TradeId);
         var id = NewId(Slug(request.English, MaxTradeId), MaxTradeId, taken);
         var now = DateTimeOffset.UtcNow;
@@ -113,6 +120,9 @@ public sealed class CatalogStore(SideGigPhDb db, ConfigStore config)
             LabelTaglish = OthersTaglish,
             SortOrder = 99,
             IsActive = true,
+            PriceMin = CatalogRules.OthersPrice.Min,
+            PriceAverage = CatalogRules.OthersPrice.Average,
+            PriceHigh = CatalogRules.OthersPrice.High,
             EditedAt = now,
             EditedBy = admin,
         });
@@ -140,7 +150,11 @@ public sealed class CatalogStore(SideGigPhDb db, ConfigStore config)
         return await SaveAsync(cancellationToken);
     }
 
-    /// <summary>Retires (<paramref name="active"/> false) or restores a trade. Its jobs keep their own state.</summary>
+    /// <summary>
+    /// Retires (<paramref name="active"/> false) or restores a trade. Its jobs keep their own state, except that a
+    /// restored trade always gets its "Others" job back (with the default guide when it has none) and a job of it with
+    /// no guide stays retired: the app refuses a trade with no jobs, or a job with no price guide.
+    /// </summary>
     public async Task<CatalogResult> SetTradeActiveAsync(string admin, string id, bool active, CancellationToken cancellationToken)
     {
         if (await db.Categories.FirstOrDefaultAsync(c => c.Id == id, cancellationToken) is not { } row)
@@ -150,6 +164,28 @@ public sealed class CatalogStore(SideGigPhDb db, ConfigStore config)
 
         row.IsActive = active;
         Stamp(row, admin);
+        if (active)
+        {
+            var jobs = await db.Services.Where(s => s.CategoryId == id).ToListAsync(cancellationToken);
+            foreach (var others in jobs.Where(s => OtherWork.IsOther(s.Id)))
+            {
+                others.IsActive = true;
+                if (!HasPrice(others))
+                {
+                    (others.PriceMin, others.PriceAverage, others.PriceHigh) =
+                        (CatalogRules.OthersPrice.Min, CatalogRules.OthersPrice.Average, CatalogRules.OthersPrice.High);
+                }
+
+                Stamp(others, admin);
+            }
+
+            foreach (var unpriced in jobs.Where(s => s.IsActive && !OtherWork.IsOther(s.Id) && !HasPrice(s)))
+            {
+                unpriced.IsActive = false;
+                Stamp(unpriced, admin);
+            }
+        }
+
         return await SaveAsync(cancellationToken);
     }
 
@@ -230,6 +266,11 @@ public sealed class CatalogStore(SideGigPhDb db, ConfigStore config)
             return new CatalogResult(CatalogOutcome.OthersStays);
         }
 
+        if (active && !HasPrice(row))
+        {
+            return new CatalogResult(CatalogOutcome.NeedsPrice);
+        }
+
         row.IsActive = active;
         Stamp(row, admin);
         return await SaveAsync(cancellationToken);
@@ -283,6 +324,8 @@ public sealed class CatalogStore(SideGigPhDb db, ConfigStore config)
         : !CatalogRules.IsServiceName(request.Taglish) ? "taglish"
         : !CatalogRules.IsPrice(request.Price) ? "price"
         : null;
+
+    private static bool HasPrice(ServiceRow s) => s is { PriceMin: not null, PriceAverage: not null, PriceHigh: not null };
 
     private static string? Hint(string? hint) => string.IsNullOrWhiteSpace(hint) ? null : hint.Trim();
 

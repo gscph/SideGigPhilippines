@@ -111,6 +111,8 @@ public sealed class CatalogFunctions(FirebaseTokenValidator auth, AdminList admi
         CatalogOutcome.Saved => new OkObjectResult(await store.ReadAsync(cancellationToken)),
         CatalogOutcome.NotFound => new NotFoundResult(),
         CatalogOutcome.OthersStays => ApiResults.Conflict(ApiErrors.OthersStays),
-        _ => ApiResults.BadRequest(detail: result.Field),
+        CatalogOutcome.NeedsPrice => ApiResults.Conflict(ApiErrors.NeedsPrice),
+        // The field travels in the code ("invalid-english"), so the site can name it even with error details off.
+        _ => ApiResults.BadRequest(ApiErrors.Invalid(result.Field ?? "body")),
     };
 }

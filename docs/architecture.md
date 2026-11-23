@@ -557,6 +557,12 @@ households and skilled workers, the badge review (the same as the phone's `Badge
   reads as "Others"; a job's id starts with its trade's) and never change; **nothing is ever deleted** (`DELETE`
   retires, `IsActive = 0`, like `004-config.sql`); a new trade gets its `{id}-other` "Others / Iba pa" job, a new job
   goes just before its trade's "Others", and **"Others" can be renamed but never retired** (`409 others-stays`).
+  **Every offered job needs a price guide** (the phone refuses a whole config with a job that has none,
+  `ReferenceData.CanUse`, and would then never see any operator change): a job is saved only with one
+  (`CatalogRules.IsPrice`), a new "Others" gets `CatalogRules.OthersPrice` (755/1200/2000, like 004's), restoring a
+  trade brings its "Others" back (priced) and keeps its unpriced jobs retired, and restoring an unpriced job is
+  refused (`409 needs-price`). A refused field travels as `invalid-<field>`, so the site names it with error details off.
+  A new trade's id also avoids ids whose `-other` job already exists (`solar-other` is `solar_cleaning`'s).
   Retire asks once more and says how many workers and open posts are in it. Each change stamps
   `Categories/Services.EditedAt` / `EditedBy` (`029-schema-catalog-names.sql`), and **`004-config.sql` leaves stamped
   rows alone** (no overwrite, no retire), so a later config run never undoes the operator. The saving API instance
@@ -566,7 +572,8 @@ households and skilled workers, the badge review (the same as the phone's `Badge
 - **Renames never touch posts or transactions** (like an ERP order line that keeps the product's title and price):
   a post keeps the trade's and job's names it was made with (`JobPosts.TradeLabelEnglish/Taglish`,
   `ServiceLabelEnglish/Taglish`, copied by `JobPostStore` when it is made or its job changes; `CatalogNames`), a chat
-  the job's name it started with (`Chats.ServiceLabelEnglish/Taglish`; a pick copies the post's), and a picked job
+  the job's name it started with (`Chats.ServiceLabelEnglish/Taglish`; a pick copies the post's, onto an existing chat
+  or the one the pick opens), and a picked job
   reads its post's. They travel as `CatalogNameDto` (`JobPostDto.TradeName` / `ServiceName`, `ChatDto.ServiceName`,
   `PickedJobDto.ServiceName`) and the app shows them before today's config name (`RequestText.ServiceLabel` /
   `TradeLabel`, `ChatText.WhatAndWhere`); prices were already copied (`JobOffers.PricePesos`). Null for "Others" and

@@ -56,7 +56,7 @@ public sealed record SaveTradeRequest(string English, string Taglish, string? Hi
 /// <summary>
 /// <c>POST ops/catalog/services</c> (a new job in <paramref name="CategoryId"/>, placed just before its "Others") and
 /// <c>PUT ops/catalog/services/{id}</c> (rename; <paramref name="CategoryId"/> is ignored: a job never moves trade).
-/// <paramref name="Price"/> is optional (<see cref="CatalogRules.IsPrice"/>).
+/// <paramref name="Price"/> is required (<see cref="CatalogRules.IsPrice"/>): the app refuses a config with a job that has none.
 /// </summary>
 public sealed record SaveServiceRequest(string CategoryId, string English, string Taglish, PriceGuideDto? Price = null);
 
@@ -81,9 +81,15 @@ public static class CatalogRules
 
     public static bool IsHint(string? hint) => hint is null || hint.Trim().Length <= MaxHint;
 
-    /// <summary>No guide, or low ≤ average ≤ high, all above 0 and at most <see cref="MaxPrice"/>.</summary>
+    /// <summary>
+    /// The guide a new trade's "Others" job starts with, the same as <c>004-config.sql</c>'s "Others" rows (at the
+    /// minimum wage). Every offered job needs one: the app refuses a config with a job that has none (<c>ReferenceData.CanUse</c>).
+    /// </summary>
+    public static readonly PriceGuideDto OthersPrice = new(755, 1200, 2000);
+
+    /// <summary>Low ≤ average ≤ high, all above 0 and at most <see cref="MaxPrice"/>. Required on every job.</summary>
     public static bool IsPrice(PriceGuideDto? price) =>
-        price is null || (price.Min > 0 && price.Min <= price.Average && price.Average <= price.High && price.High <= MaxPrice);
+        price is not null && price.Min > 0 && price.Min <= price.Average && price.Average <= price.High && price.High <= MaxPrice;
 
     private static bool IsName(string? name, int max) => name?.Trim() is { Length: > 0 } trimmed && trimmed.Length <= max;
 }

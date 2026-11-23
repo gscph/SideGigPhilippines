@@ -30,10 +30,10 @@ public partial class ServiceDialog
     private string? _error;
     private bool _busy;
 
-    /// <summary>All three prices or none, in order (<see cref="CatalogRules.IsPrice"/>).</summary>
+    /// <summary>All three prices, in order (<see cref="CatalogRules.IsPrice"/>; the app refuses a job without a guide).</summary>
     private PriceGuideDto? Price => _min is { } min && _average is { } average && _high is { } high ? new PriceGuideDto(min, average, high) : null;
 
-    private bool PriceOk => (_min, _average, _high) is (null, null, null) || (Price is { } price && CatalogRules.IsPrice(price));
+    private bool PriceOk => CatalogRules.IsPrice(Price);
 
     private bool CanSave => CatalogRules.IsServiceName(_english) && CatalogRules.IsServiceName(_taglish) && PriceOk;
 

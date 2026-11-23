@@ -244,6 +244,7 @@ public class WireContractTests
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
         ApiErrors.OthersStays.Should().Be("others-stays");
+        ApiErrors.NeedsPrice.Should().Be("needs-price");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer");
         DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 

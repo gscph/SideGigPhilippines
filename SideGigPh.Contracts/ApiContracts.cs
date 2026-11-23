@@ -89,6 +89,9 @@ public static class ApiErrors
     /// <summary>409 on <c>DELETE ops/catalog/services/{id}</c>: a trade's "Others" job can be renamed, never retired.</summary>
     public const string OthersStays = "others-stays";
 
+    /// <summary>409 on <c>POST ops/catalog/services/{id}/restore</c>: the job has no price guide; give it one first (the app refuses a job without).</summary>
+    public const string NeedsPrice = "needs-price";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }
