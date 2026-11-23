@@ -1,26 +1,26 @@
 # Carousels: 4 square slides each, uploaded in order as one post. build.py renders out/carousel-<id>-<n>.png.
 # kind: "problem" (white, big question), "cost" (ink, what it costs them), "how" (white, numbered steps),
-# "cta" (purple, the download line). Same copy rules as posts.py: households in English, workers in Tagalog.
+# "cta" (purple, the download line). Same voice and rules as posts.py: casual Facebook Taglish for both sides.
 
 CAROUSELS = [
     # "How it works": one image per side (a single slide: no count, ends on the download line).
     dict(
         id="how-household", side="household", single=True,
         slides=[dict(kind="how",
-                     lead="Hirap humanap ng gagawa sa bahay?",
+                     lead="Hirap maghanap ng gagawa sa bahay?",
                      title="Ganito lang sa Tarbaho:",
-                     steps=["I-post ang kailangan mo, may picture at budget",
-                            "Mga skilled worker na malapit ang mag-o-offer ng presyo",
-                            "Ikumpara ang offers at reviews, saka pumili",
-                            "Bayad nang diretso pagkatapos ng trabaho"],
+                     steps=["Post mo kailangan mo, may picture at budget",
+                            "Mga malapit sayo mag-ooffer ng presyo",
+                            "Compare mo offers at reviews, tapos pili ka",
+                            "Bayad mo diretso sa kanya pag tapos na"],
                      cta="Download Tarbaho. Libre.")],
         caption=(
-            "Hirap humanap ng gagawa sa bahay? Ganito lang sa Tarbaho: 👇\n\n"
-            "1️⃣ I-post ang kailangan mo: picture, kung saan ka, at budget mo.\n"
-            "2️⃣ Mga skilled worker sa Angono, Antipolo at Taytay ang mag-o-offer ng presyo.\n"
-            "3️⃣ Ikumpara ang offers at reviews, saka pumili.\n"
-            "4️⃣ Bayad nang diretso pagkatapos ng trabaho, sa presyong pinagkasunduan.\n\n"
-            "Walang patong. Libre i-download. 👉 {link}\n\n"
+            "Hirap maghanap ng gagawa sa bahay? Ganito lang sa Tarbaho:\n\n"
+            "1. Post mo kailangan mo: picture, kung san ka, tsaka budget mo.\n"
+            "2. Mga malapit sayo dito sa Angono, Antipolo at Taytay ung mag-ooffer ng presyo.\n"
+            "3. Compare mo offers at reviews, tapos pili ka.\n"
+            "4. Bayad mo diretso sa kanya pag tapos na ung gawa, sa presyong napag-usapan nyo.\n\n"
+            "Walang patong ng ahente. Libre i-download. 👉 {link}\n\n"
             "#Tarbaho #Angono #Antipolo #Taytay #Rizal"
         ),
     ),
@@ -28,18 +28,18 @@ CAROUSELS = [
         id="how-worker", side="worker", single=True,
         slides=[dict(kind="how",
                      lead="Gusto mo ng dagdag na customer?",
-                     title="Ganito gumagana ang Tarbaho:",
-                     steps=["Gumawa ng libreng profile: serbisyo, presyo, at mga bayan mo",
-                            "Ang mga household na malapit ang magme-message sa'yo",
-                            "Sa Requests, mag-alok ng sarili mong presyo",
+                     title="Ganito sa Tarbaho:",
+                     steps=["Gawa ka ng profile: serbisyo, presyo, bayan mo",
+                            "Sila na magme-message sayo",
+                            "Sa Requests, offer ka ng sarili mong presyo",
                             "Pag pinili ka, chat muna sa app, tapos gawa na"],
                      cta="I-download ang Tarbaho.")],
         caption=(
-            "Gusto mo ng dagdag na customer? Ganito gumagana ang Tarbaho: 👇\n\n"
-            "1️⃣ Gumawa ng libreng profile: ang serbisyo mo, ang presyo mo, at ang mga bayan na pinupuntahan mo.\n"
-            "2️⃣ Ang mga household sa Angono, Antipolo at Taytay ang magme-message sa'yo.\n"
-            "3️⃣ Sa Requests, makikita mo ang mga bahay na may kailangang ipagawa. Mag-alok ng sarili mong presyo.\n"
-            "4️⃣ Pag pinili ka, chat muna sa app, tapos gawa na. Bayad pagkatapos, sa presyong napagkasunduan.\n\n"
+            "Gusto mo ng dagdag na customer? Ganito sa Tarbaho:\n\n"
+            "1. Gawa ka ng profile, libre ngayon: serbisyo mo, presyo mo, tsaka mga bayan na pinupuntahan mo.\n"
+            "2. Mga taga-Angono, Antipolo at Taytay ung magme-message sayo.\n"
+            "3. Sa Requests, kita mo mga bahay na may ipapagawa. Offer ka ng sarili mong presyo.\n"
+            "4. Pag pinili ka, chat muna sa app, tapos gawa na. Bayad pag tapos, sa presyong napag-usapan nyo.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n"
             "#Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay"
         ),
@@ -49,23 +49,23 @@ CAROUSELS = [
         slides=[
             dict(kind="problem", icon="home-repair",
                  title="May sira na naman sa bahay?",
-                 body="Aircon, gripo, breaker, kisame. Laging sa pinaka-busy mong araw."),
+                 body="Aircon, gripo, breaker, kisame. Lagi pa sa pinaka-busy mong araw."),
             dict(kind="cost", icon="receipt",
-                 title="Tatlong araw kang nag-antay ng reply.",
-                 body="Tapos ang ₱800, naging ₱2,000 pagkatapos ng trabaho."),
+                 title="Tatlong araw bago nag-reply.",
+                 body="Tapos ung ₱800, naging ₱2,000 pag tapos na."),
             dict(kind="how",
                  title="Sa Tarbaho, ganito lang:",
-                 steps=["I-post ang sira at ang budget mo",
-                        "Mga malapit sa'yo ang mag-o-offer ng presyo",
-                        "Pumili, at bayad pagkatapos ng trabaho"]),
+                 steps=["Post mo ung sira tsaka budget mo",
+                        "Mga malapit sayo mag-ooffer ng presyo",
+                        "Pili ka, bayad pag tapos na ung gawa"]),
             dict(kind="cta", title="Download Tarbaho.",
-                 body="Libre. Walang patong. Ikaw ang pipili."),
+                 body="Walang patong ng ahente. Ikaw pipili."),
         ],
         caption=(
-            "May sira na naman sa bahay? 🏠\n\n"
-            "Swipe para makita kung paano mas madali sa Tarbaho. 👉\n\n"
-            "I-post ang kailangan at ang budget mo. Mga skilled worker sa Angono, Antipolo at Taytay ang mag-o-offer. "
-            "Pumili, at bayad pagkatapos ng trabaho.\n\n"
+            "May sira na naman sa bahay?\n\n"
+            "Swipe mo lang para makita paano sa Tarbaho.\n\n"
+            "Post mo kailangan mo tsaka budget mo. Mga malapit sayo dito sa Angono, Antipolo at Taytay ung "
+            "mag-ooffer. Pili ka, bayad pag tapos na ung gawa.\n\n"
             "Download Tarbaho. Libre. 👉 {link}\n\n"
             "#Tarbaho #Angono #Antipolo #Taytay #Rizal"
         ),
@@ -74,24 +74,24 @@ CAROUSELS = [
         id="worker", side="worker",
         slides=[
             dict(kind="problem", icon="toolbox",
-                 title="Marunong ka. Pero walang tumatawag?",
-                 body="Aircon, tubo, kuryente, construction, paglilinis. Kaya mo lahat 'yan."),
+                 title="Marunong ka, pero walang tumatawag?",
+                 body="Aircon, tubo, kuryente, construction, linis. Kaya mo lahat yan."),
             dict(kind="cost", icon="wallet",
-                 title="Bawat araw na walang customer, walang kita.",
-                 body="At kung may customer man, may patong pa ang ahente."),
+                 title="Pag walang customer, walang kita.",
+                 body="Tapos pag meron, may patong pa ung ahente."),
             dict(kind="how",
                  title="Sa Tarbaho, ganito lang:",
-                 steps=["Gumawa ng libreng profile: serbisyo, presyo, at mga bayan mo",
-                        "Ang mga household na malapit ang magme-message sa'yo",
-                        "Tingnan ang Requests at mag-alok ng sarili mong presyo"]),
+                 steps=["Gawa ka ng profile: serbisyo, presyo, bayan mo",
+                        "Sila na magme-message sayo",
+                        "Tingnan mo Requests, offer ka ng presyo mo"]),
             dict(kind="cta", title="I-download ang Tarbaho.",
-                 body="Ikaw ang bahala sa presyo mo."),
+                 body="Ikaw bahala sa presyo mo."),
         ],
         caption=(
-            "Marunong ka. Pero walang tumatawag? 🧰\n\n"
-            "Swipe para makita kung paano ka mahahanap ng mga customer sa bayan mo. 👉\n\n"
-            "Sa Tarbaho, gumawa ng libreng profile. Ang mga household sa Angono, Antipolo at Taytay ang magme-message "
-            "sa'yo, at makikita mo ang mga Request nila para makapag-alok ka ng presyo mo.\n\n"
+            "Marunong ka, pero walang tumatawag?\n\n"
+            "Swipe mo lang para makita paano ka mahahanap ng customer dito sa inyo.\n\n"
+            "Sa Tarbaho gawa ka ng profile, libre ngayon. Mga taga-Angono, Antipolo at Taytay ung magme-message "
+            "sayo, tapos kita mo rin mga request nila para maka-offer ka ng presyo mo.\n\n"
             "I-download ang Tarbaho. 👉 {link}\n\n"
             "#Tarbaho #Sideline #Raket #Angono #Antipolo #Taytay"
         ),

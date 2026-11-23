@@ -14,27 +14,27 @@ Rules this copy follows (from `docs/play-store.md` and the Terms):
 
 ### Intro / bio (limit 101)
 
-The short line under the Page name.
+The short line under the Page name, in the owner's casual Facebook voice (same as the posts).
 
 ```
-Find a Manong, Kuya o Ate near you in Angono, Antipolo & Taytay. Kita ang presyo bago mag-chat.
+May ipapagawa sa bahay? Kita mo presyo ng mga malapit sayo. Angono, Antipolo at Taytay.
 ```
-(95 characters)
+(87 characters)
 
-English version, if you'd rather:
+If you'd rather talk to skilled workers first (supply before demand):
 ```
-Skilled workers near you in Angono, Antipolo & Taytay. See prices, chat, pay after the work.
+Skilled worker ka? Sariling customer, sa presyong gusto mo. Angono, Antipolo at Taytay.
 ```
-(92 characters)
+(87 characters)
 
 ### About / description (limit 255)
 
 The longer About text ("Page description").
 
 ```
-Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: aircon, construction, errands, IT, car mechanic and solar. See their prices, chat in the app, pay after the work. Free to sign up.
+Tarbaho, para sa may ipapagawa sa bahay dito sa Angono, Antipolo at Taytay: aircon, construction, pakisuyo, IT, mekaniko, pest control. Kita mo presyo, chat sa app, bayad pag tapos na ung gawa. Skilled worker ka? Gawa ka ng profile, libre ngayon.
 ```
-(213 characters)
+(246 characters)
 
 ### Category and buttons
 - Category: **App Page** (or Home Services)
@@ -68,7 +68,7 @@ WHAT YOU CAN FIND
 • Errands: house cleaning, grocery, bills, PasaBuy, documents, parcels, car wash, gardening
 • IT: software, hardware, cybersecurity
 • Car Mechanic (Mekaniko)
-• Solar Panel Technician
+• Pest Control: termites, cockroaches, rats, mosquitoes
 Don't see what you need? Pick "Others" and type it.
 
 FOR HOUSEHOLDS
@@ -90,7 +90,7 @@ English or Taglish: pick your language on the first screen.
 
 Tarbaho is a directory. We are not the employer of the workers listed and we don't take part in your agreement with them. Now open in Angono, Antipolo and Taytay, Rizal, with more towns soon.
 ```
-(about 1,937 characters)
+(about 1,968 characters)
 
 ### Tags / category
 - Category: **House & Home** (or Lifestyle)
@@ -124,9 +124,9 @@ Same text as the Google Play full description above (Apple allows the same lengt
 
 ### Keywords (limit 100, commas, no spaces)
 ```
-aircon,plumber,electrician,carpenter,errands,pasabuy,mekaniko,solar,tiles,angono,antipolo,taytay
+aircon,plumber,electrician,carpenter,errands,pasabuy,mekaniko,pest,tiles,angono,antipolo,taytay
 ```
-(96 characters) The app name and subtitle words are indexed already, so they are not repeated here.
+(95 characters) The app name and subtitle words are indexed already, so they are not repeated here.
 
 ### Category
 - Primary: **Lifestyle**

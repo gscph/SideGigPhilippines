@@ -61,7 +61,7 @@ SIZES = {
                   bpad=96, bgap=40, af=50, cf=40),
 }
 
-ARROW = {"household": "Ang solusyon", "worker": "Ang sagot"}
+ARROW = {"household": "Ang sagot", "worker": "Ang sagot"}
 TAG = {"household": ("Para sa bahay", "#222222"), "worker": ("Para sa skilled workers", "#118C4F")}
 
 
@@ -69,9 +69,15 @@ def icon_svg(name):
     return (ICONS / f"{name}.svg").read_text(encoding="utf-8")
 
 
-def headline_size(text, base):
+def text(t):
+    """Escaped copy where a hyphenated word (mag-post, gamu-gamo, i-check) never breaks at its hyphen."""
+    return " ".join(f'<span style="white-space:nowrap">{html.escape(w)}</span>' if "-" in w else html.escape(w)
+                    for w in t.split(" "))
+
+
+def headline_size(line, base):
     """Long problems get a smaller headline, so they stay clear of the picture and the purple panel."""
-    n = len(text)
+    n = len(line)
     scale = 1.0 if n <= 18 else 0.86 if n <= 26 else 0.74 if n <= 34 else 0.64
     return round(base * scale)
 
@@ -87,13 +93,13 @@ def page(post, size):
   <div class="brand">{LOGO.format(c="#5B2A86")}Tarbaho<span class="tag">{e(tag)}</span></div>
   <div class="art">{icon_svg(post["icon"])}</div>
   <div class="copy">
-    <div class="problem">{e(post["problem"])}</div>
-    <div class="sub">{e(post["sub"])}</div>
+    <div class="problem">{text(post["problem"])}</div>
+    <div class="sub">{text(post["sub"])}</div>
   </div>
 </div>
 <div class="bottom">
   <div class="arrow">{e(ARROW[post["side"]])} &rarr;</div>
-  <div class="answer">{e(post["answer"])}</div>
+  <div class="answer">{text(post["answer"])}</div>
   <div class="row"><span class="cta">{e(post["cta"])}</span><span class="towns">{e(post.get("towns", "Angono · Antipolo · Taytay"))}</span></div>
 </div>
 </body></html>"""
@@ -145,13 +151,13 @@ def slide(carousel, i):
     tf = 110 if sl["kind"] == "cta" else headline_size(sl["title"], 92)
     css = SLIDE_CSS % dict(font=FONT, bg=bg, fg=fg, brand=brand, tf=tf)
     art = f'<div class="art">{icon_svg(sl["icon"])}</div>' if sl.get("icon") else ""
-    body = f'<div class="body">{e(sl["body"])}</div>' if sl.get("body") else ""
+    body = f'<div class="body">{text(sl["body"])}</div>' if sl.get("body") else ""
     steps = ""
     if sl.get("steps"):
         steps = '<div class="steps">' + "".join(
-            f'<div class="step"><span class="num">{n}</span><span>{e(t)}</span></div>'
+            f'<div class="step"><span class="num">{n}</span><span>{text(t)}</span></div>'
             for n, t in enumerate(sl["steps"], sl.get("start", 1))) + "</div>"
-    lead = f'<div class="lead">{e(sl["lead"])}</div>' if sl.get("lead") else ""
+    lead = f'<div class="lead">{text(sl["lead"])}</div>' if sl.get("lead") else ""
     count = f'<span class="count">{i + 1}/{total}</span>' if total > 1 else ""
     if sl["kind"] == "cta":
         art = f'<div class="biglogo">{LOGO.format(c="#ffffff")}</div>'
@@ -164,11 +170,11 @@ def slide(carousel, i):
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>{css}</style></head><body>
 <div class="head">{LOGO.format(c=brand)}Tarbaho{count}</div>
 {art}
-<div class="main">{lead}<div class="title">{e(sl["title"])}</div>{body}{steps}{extra}</div>
+<div class="main">{lead}<div class="title">{text(sl["title"])}</div>{body}{steps}{extra}</div>
 </body></html>"""
 
 
-COVER_ICONS = ["aircon", "plumbing", "electrical", "construction", "house-clean", "mechanic", "solar", "it"]
+COVER_ICONS = ["aircon", "plumbing", "electrical", "construction", "house-clean", "mechanic", "pest-control", "it"]
 
 
 def cover():
@@ -192,7 +198,7 @@ body {{ font-family: 'DM Sans', sans-serif; background: #5B2A86; color: #ffffff;
 .towns {{ font-size: 26px; opacity: 0.85; }}
 </style></head><body><div class="box">
 <div class="brand">{LOGO.format(c="#ffffff")}Tarbaho</div>
-<div class="lines">May sira sa bahay? Mga skilled worker na malapit sa'yo.<br>
+<div class="lines">May sira sa bahay? May skilled worker na malapit sayo.<br>
 <span class="g">Skilled worker ka? Sariling customer, sa presyong gusto mo.</span></div>
 <div class="icons">{icons}</div>
 <div class="towns">Angono · Antipolo · Taytay</div>
@@ -253,6 +259,7 @@ CHANGELOG = [
     "first post: two early-access worker posts (tagal ng tawag ni Foreman, patapos na ang project) and a profile-setup carousel; the app is \"malapit na sa Android\", so they point to the early-access form, not the store (first-post/ has the form and plan)",
     "first post rewrite (owner: \"cringe and corny\"): plainer, funnier copy on the two early-access posts and the setup carousel with the owner's hooks and answer line; \"Only available in Angono, Antipolo and Taytay for now\" under the button; no commission or \"buong bayad\" claim anywhere in the kit (posts, carousels, cover), since the price model may change; w9-komisyon is now w9-seen",
     "first post, plain: no jokes of our own (the owner's hooks carry the humor); captions, carousel steps (Step 1 to 9) and replies in casual Facebook Taglish (ung, pag, wag, di pa); w53/w54 subtitles are the owner's; w9 says it plainly (Nagtanong ng presyo, tapos nawala)",
+    "whole kit in the owner's voice: every post, carousel and the cover typed like people type on Facebook (ung, sayo, pag, wag, di, dito sa inyo), no emoji on the hooks, no ✅ lists, no \"Kuya/Ate\" everywhere, no jokes of our own; \"Ang solusyon\" label is now \"Ang sagot\" on both sides; Solar Panel Technician is gone (Pest Control replaced it): h8-solar is now h8-anay (gamu-gamo pag umuulan), w18-solar is now w18-pest, and the cover shows the pest-control icon; w53/w54 unchanged",
 ]
 
 
@@ -282,7 +289,7 @@ def markdown(posts):
     lines = ["# Tarbaho Facebook posts", "",
              "Problem first, then Tarbaho as the answer. Each post: the feed image (1080x1080), the story image "
              "(1080x1920) and the caption to paste. Replace `[Google Play link]` with the store link before posting.", ""]
-    for side, title in (("household", "For households (Taglish)"), ("worker", "For skilled workers (Tagalog)")):
+    for side, title in (("household", "For households"), ("worker", "For skilled workers")):
         lines += [f"## {title}", ""]
         for key, name, why in STAGES:
             group = [p for p in posts if p["side"] == side and p["stage"] == key]
