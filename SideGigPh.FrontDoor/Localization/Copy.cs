@@ -11,7 +11,7 @@ public static class Copy
     {
         // What Google shows as the result's title; the words people search (marketing/seo/keywords.md). The description
         // is index.html's own, so the page has exactly one.
-        public static readonly Say Title = new("Aircon cleaning, tubero, electrician in Angono, Rizal | Tarbaho", "Linis aircon, tubero, electrician sa Angono, Rizal | Tarbaho");
+        public static readonly Say Title = new("Aircon cleaning, tubero, electrician in Angono | Tarbaho", "Linis aircon, tubero, electrician sa Angono | Tarbaho");
     }
 
     public static class Header

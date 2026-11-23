@@ -49,7 +49,7 @@ public static class TradeList
                 "Tubero, electrician, karpintero, mason, tiles, welder, ayos bubong at alulod, steelman, foreman at helper.")),
         ("images/icons/pest-control.svg", new("Pest control", "Pest control"),
             new("Termite treatment (anay), cockroaches (ipis), rats (daga), mosquito misting (lamok), bed bugs (surot), ants (langgam) and whole-house treatment.",
-                "Pa-spray sa anay, ipis, daga, pa-misting sa lamok, surot, langgam, at spray sa buong bahay.")),
+                "Pa-spray sa anay at ipis, daga, pa-misting sa lamok, surot, langgam, at spray sa buong bahay.")),
         ("images/icons/errand.svg", new("Errands", "Errands"),
             new("House cleaning (linis bahay), grocery runs, bills payment, PasaBuy, document delivery, parcel pickup, car cleaning and gardening.",
                 "Linis bahay, pa-grocery, bills payment, PasaBuy, pahatid papeles, pa-pickup parcel, linis kotse at paghahalaman.")),
