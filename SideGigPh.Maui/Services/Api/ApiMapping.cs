@@ -233,6 +233,7 @@ internal static partial class ApiMapping
     {
         var kind = badge.Kind switch
         {
+            BadgeKind.Clearance => VerificationKinds.Clearance,
             BadgeKind.Tesda => VerificationKinds.Tesda,
             BadgeKind.Project => VerificationKinds.Developer,
             _ => VerificationKinds.Id,
@@ -255,6 +256,7 @@ internal static partial class ApiMapping
     private static BadgeKind? KindOf(string kind) => kind switch
     {
         VerificationKinds.Id => BadgeKind.Id,
+        VerificationKinds.Clearance => BadgeKind.Clearance,
         VerificationKinds.Tesda => BadgeKind.Tesda,
         VerificationKinds.Developer => BadgeKind.Project,
         _ => null,

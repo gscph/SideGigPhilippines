@@ -5,7 +5,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// The amber reminder to add the badges (ID, TESDA, a past project): optional, but each one ranks the worker higher
+/// The amber reminder to add the badges (ID, NBI / police clearance, TESDA, a past project): optional, but each one ranks the worker higher
 /// in search (<c>SearchRanker.TrustFeature</c>) and customers trust a checked worker more. Shown while a badge can
 /// still be asked for (<see cref="ProfileProgress.ShowBadgeNudge"/>); opens the badges page.
 /// </summary>

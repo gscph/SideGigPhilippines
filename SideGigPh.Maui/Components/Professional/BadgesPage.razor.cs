@@ -7,7 +7,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// The pro's badges, under Me: a government ID, a TESDA certificate or training, and past projects with a developer
+/// The pro's badges, under Me: a government ID, an NBI or police clearance, a TESDA certificate or training, and past projects with a developer
 /// or any other company. Each line says how it stands and opens <see cref="BadgeProofPage"/> when a proof can be sent.
 /// </summary>
 public partial class BadgesPage : ComponentBase, IDisposable
@@ -20,6 +20,7 @@ public partial class BadgesPage : ComponentBase, IDisposable
     private IReadOnlyList<Row> Rows =>
     [
         One(BadgeKind.Id, Copy.BadgeIdTitle, Copy.BadgeIdHint),
+        One(BadgeKind.Clearance, Copy.BadgeClearanceTitle, Copy.BadgeClearanceHint),
         One(BadgeKind.Tesda, Copy.BadgeTesdaTitle, Copy.BadgeTesdaHint),
         .. Badges.Of(BadgeKind.Project).Select(Sent),
         new Row(
@@ -40,7 +41,7 @@ public partial class BadgesPage : ComponentBase, IDisposable
 
     private void OnChanged() => InvokeAsync(StateHasChanged);
 
-    /// <summary>The one line of a badge held once (ID, TESDA): what to send, or how the request stands.</summary>
+    /// <summary>The one line of a badge held once (ID, clearance, TESDA): what to send, or how the request stands.</summary>
     private Row One(BadgeKind kind, LocalizedText title, LocalizedText hint) =>
         Badges.Of(kind).FirstOrDefault() is { } request
             ? Sent(request) with { Title = request.State == BadgeState.Approved ? T.Badge(request.Badge) : T.Get(title) }

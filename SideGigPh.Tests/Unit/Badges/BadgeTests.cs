@@ -9,7 +9,7 @@ using static SideGigPh.Tests.TestSupport.TestData;
 namespace SideGigPh.Tests.Unit.Badges;
 
 /// <summary>
-/// The three badges (ID, TESDA certificate or training, a past project with a developer or any other company): what a
+/// The four badges (ID, NBI or police clearance, TESDA certificate or training, a past project with a developer or any other company): what a
 /// worker may send and when, that nothing leaves the phone without the consent tick, and that a badge moves a worker
 /// up in search without changing anyone else's score.
 /// </summary>
@@ -116,6 +116,7 @@ public class BadgeTests
     {
         ApiMapping.ToSubmitPath(new Badge(BadgeKind.Id)).Should().Be("verifications/id?consent=true");
         ApiMapping.ToSubmitPath(new Badge(BadgeKind.Tesda)).Should().Be("verifications/tesda?consent=true");
+        ApiMapping.ToSubmitPath(new Badge(BadgeKind.Clearance)).Should().Be("verifications/clearance?consent=true");
         ApiMapping.ToSubmitPath(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders & Sons", "Phase 2"))
             .Should().Be("verifications/developer?consent=true&badgeId=other&companyName=JM%20Builders%20%26%20Sons&projectName=Phase%202");
     }
@@ -144,14 +145,14 @@ public class BadgeTests
     }
 
     [Fact]
-    public void Ranking_BadgesAddUpTo10Points_OnTopOfTheSameScore()
+    public void Ranking_BadgesAddUpTo13Points_OnTopOfTheSameScore()
     {
         var plain = Dto("Plain");
         var verified = Dto("Verified") with
         {
             Badges =
             [
-                new BadgeDto(VerificationKinds.Id), new BadgeDto(VerificationKinds.Tesda),
+                new BadgeDto(VerificationKinds.Id), new BadgeDto(VerificationKinds.Tesda), new BadgeDto(VerificationKinds.Clearance),
                 new BadgeDto(VerificationKinds.Developer, DeveloperBadges.Dmci), new BadgeDto(VerificationKinds.Developer, DeveloperBadges.Other, null, "JM Builders"),
             ],
         };
@@ -161,7 +162,8 @@ public class BadgeTests
         var with = SearchRanker.Score(Candidate(verified), request, Scales, RankNow);
 
         without.Trust.Should().Be(0);
-        with.Trust.Should().Be(SearchRanker.IdBadgeWeight + SearchRanker.TesdaBadgeWeight + SearchRanker.ProjectBadgeWeight).And.Be(10, "two project badges count once");
+        with.Trust.Should().Be(SearchRanker.IdBadgeWeight + SearchRanker.TesdaBadgeWeight + SearchRanker.ProjectBadgeWeight + SearchRanker.ClearanceBadgeWeight)
+            .And.Be(13, "two project badges count once");
         (with.Total - with.Trust).Should().Be(without.Total, "a badge is a bonus: nobody else's score changes");
     }
 

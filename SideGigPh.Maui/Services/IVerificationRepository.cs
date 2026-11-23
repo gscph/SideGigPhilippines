@@ -3,7 +3,7 @@ using SideGigPh.Maui.Models;
 namespace SideGigPh.Maui.Services;
 
 /// <summary>
-/// The proofs a worker sends for badges (a government ID, a TESDA certificate, a past project). The photo is
+/// The proofs a worker sends for badges (a government ID, an NBI or police clearance, a TESDA certificate, a past project). The photo is
 /// sensitive: it goes to private storage, only a checker at Tarbaho sees it, and it is deleted once checked.
 /// </summary>
 public interface IVerificationRepository

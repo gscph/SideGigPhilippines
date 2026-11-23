@@ -428,7 +428,7 @@ public sealed class BlockRow
 
 /// <summary>
 /// A proof a worker sent for a badge (<c>WorkerVerifications</c>, <c>014-schema-verification.sql</c>): a government ID,
-/// a TESDA certificate or proof of a past project with a developer or another company. A person decides; the file and what was read
+/// an NBI or police clearance, a TESDA certificate or proof of a past project with a developer or another company. A person decides; the file and what was read
 /// from it are deleted then, and only the result stays.
 /// </summary>
 public sealed class WorkerVerificationRow

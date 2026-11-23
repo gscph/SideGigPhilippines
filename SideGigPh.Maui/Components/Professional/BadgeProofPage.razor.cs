@@ -18,7 +18,7 @@ public partial class BadgeProofPage : ComponentBase
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
 
-    /// <summary>The badge's kind from the URL: <c>id</c>, <c>tesda</c> or <c>project</c>.</summary>
+    /// <summary>The badge's kind from the URL: <c>id</c>, <c>clearance</c>, <c>tesda</c> or <c>project</c>.</summary>
     [Parameter] public string Kind { get; set; } = string.Empty;
 
     private string? _developerId;
@@ -38,6 +38,7 @@ public partial class BadgeProofPage : ComponentBase
 
     private LocalizedText Title => BadgeKind switch
     {
+        BadgeKind.Clearance => Copy.BadgeClearanceTitle,
         BadgeKind.Tesda => Copy.BadgeTesdaTitle,
         BadgeKind.Project => Copy.BadgeProjectTitle,
         _ => Copy.BadgeIdTitle,
@@ -45,9 +46,18 @@ public partial class BadgeProofPage : ComponentBase
 
     private LocalizedText What => BadgeKind switch
     {
+        BadgeKind.Clearance => Copy.BadgeClearanceWhat,
         BadgeKind.Tesda => Copy.BadgeTesdaWhat,
         BadgeKind.Project => Copy.BadgeProjectWhat,
         _ => Copy.BadgeIdWhat,
+    };
+
+    /// <summary>The consent the worker ticks: an ID is read by AI, a clearance can show a record, anything else is a plain document.</summary>
+    private LocalizedText Consent => BadgeKind switch
+    {
+        BadgeKind.Id => Copy.BadgeConsentId,
+        BadgeKind.Clearance => Copy.BadgeConsentClearance,
+        _ => Copy.BadgeConsentDocument,
     };
 
     protected override async Task OnInitializedAsync() => await Badges.LoadAsync();

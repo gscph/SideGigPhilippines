@@ -639,10 +639,12 @@ public static class Copy
     // --- Badges (on cards and profiles; the pro's own under Me) ---------------
     public static readonly LocalizedText BadgeId = new("ID Verified", "ID Verified");
     public static readonly LocalizedText BadgeTesda = new("TESDA Certified", "TESDA Certified");
+    public static readonly LocalizedText BadgeClearance = new("NBI / Police Clearance", "NBI / Police Clearance");
     public static readonly LocalizedText BadgeProject = new("{0} project", "Project ng {0}");
     public static readonly LocalizedText BadgeMore = new("+{0} more", "+{0} pa");
     public static readonly LocalizedText BadgeIdNote = new("We checked a government ID against their photo.", "Na-check namin ang government ID at ang photo niya.");
     public static readonly LocalizedText BadgeTesdaNote = new("We checked a TESDA certificate.", "Na-check namin ang TESDA certificate niya.");
+    public static readonly LocalizedText BadgeClearanceNote = new("We checked an NBI or police clearance.", "Na-check namin ang NBI o police clearance niya.");
     public static readonly LocalizedText BadgeProjectNote = new("We checked proof that they worked there.", "Na-check namin ang patunay na nagtrabaho siya doon.");
     public static readonly LocalizedText BadgeProjectAt = new("{0}. We checked proof that they worked there.", "{0}. Na-check namin ang patunay na nagtrabaho siya doon.");
     public static readonly LocalizedText BadgesTitle = new("Badges", "Mga badge");
@@ -653,12 +655,14 @@ public static class Copy
     public static readonly LocalizedText WorkPhotosNudgeTitle = new("Be seen more: add work photos", "Mas makikita ka: maglagay ng photos ng gawa mo");
     public static readonly LocalizedText WorkPhotosNudgeText = new("Customers pick workers with photos first, and you show higher in search.", "Inuuna ng customer ang may photos, at mas mataas ka sa search.");
     public static readonly LocalizedText BadgeNudgeTitle = new("Get more customers with badges", "Dumami ang customer gamit ang badges");
-    public static readonly LocalizedText BadgeNudgeText = new("Workers with an ID, TESDA or past-project badge show higher in search, and customers trust them more.", "Mas mataas ka sa search kapag may ID, TESDA o past project badge ka, at mas nagtitiwala ang customer.");
+    public static readonly LocalizedText BadgeNudgeText = new("Workers with an ID, clearance, TESDA or past-project badge show higher in search, and customers trust them more.", "Mas mataas ka sa search kapag may ID, clearance, TESDA o past project badge ka, at mas nagtitiwala ang customer.");
     public static readonly LocalizedText BadgeNudgeButton = new("Add a badge", "Maglagay ng badge");
     public static readonly LocalizedText BadgeIdTitle = new("Government ID", "Government ID");
+    public static readonly LocalizedText BadgeClearanceTitle = new("NBI or police clearance", "NBI o police clearance");
     public static readonly LocalizedText BadgeTesdaTitle = new("TESDA certificate or training", "TESDA certificate o training");
     public static readonly LocalizedText BadgeProjectTitle = new("Past project with a company", "Dating project sa isang kumpanya");
     public static readonly LocalizedText BadgeIdHint = new("Send a photo of 1 valid ID.", "Mag-send ng photo ng 1 valid ID.");
+    public static readonly LocalizedText BadgeClearanceHint = new("Send a photo of your NBI or police clearance.", "Mag-send ng photo ng NBI o police clearance mo.");
     public static readonly LocalizedText BadgeTesdaHint = new("Send a photo of your NC or training certificate.", "Mag-send ng photo ng NC o training certificate mo.");
     public static readonly LocalizedText BadgeProjectHint = new("Ayala Land, DMCI, or any company you worked for.", "Ayala Land, DMCI, o kahit anong kumpanyang pinagtrabahuhan mo.");
     public static readonly LocalizedText BadgeStatePending = new("Being checked", "Chine-check pa");
@@ -671,6 +675,9 @@ public static class Copy
     public static readonly LocalizedText BadgeIdWhat = new(
         "Any valid government ID: National ID, driver's license, UMID, passport, voter's ID. The whole card, clear and not blurry.",
         "Kahit anong valid government ID: National ID, driver's license, UMID, passport, voter's ID. Buong card, malinaw at hindi malabo.");
+    public static readonly LocalizedText BadgeClearanceWhat = new(
+        "Your NBI clearance (less than 1 year old) or police clearance (less than 6 months old). The whole paper, with your name, photo and the clearance number.",
+        "Ang NBI clearance mo (wala pang 1 taon) o police clearance (wala pang 6 na buwan). Buong papel, kita ang pangalan mo, photo at clearance number.");
     public static readonly LocalizedText BadgeTesdaWhat = new(
         "Your TESDA National Certificate (NC I to NC IV) or a training certificate. The whole page, with your name and the certificate number.",
         "Ang TESDA National Certificate mo (NC I hanggang NC IV) o training certificate. Buong page, kita ang pangalan mo at ang certificate number.");
@@ -687,6 +694,9 @@ public static class Copy
     public static readonly LocalizedText BadgeConsentDocument = new(
         "I agree that a person at Tarbaho checks this photo. It is kept private and deleted after checking.",
         "Pumapayag akong i-check ng tao sa Tarbaho ang photo na 'to. Private ito at buburahin after i-check.");
+    public static readonly LocalizedText BadgeConsentClearance = new(
+        "I agree that a person at Tarbaho checks this clearance, including any record on it, only to decide the badge. It is kept private and deleted after checking. Customers see only the badge.",
+        "Pumapayag akong i-check ng tao sa Tarbaho ang clearance na 'to, pati ang record kung meron, para lang sa badge. Private ito at buburahin after i-check. Badge lang ang makikita ng customer.");
     public static readonly LocalizedText BadgeChoosePhoto = new("Choose photo and send", "Pumili ng photo at i-send");
     public static readonly LocalizedText BadgeAlreadySent = new("You already sent this one.", "Na-send mo na 'to.");
     public static readonly LocalizedText BadgeNoCompany = new("Pick a company or type its name.", "Pumili ng kumpanya o i-type ang pangalan nito.");

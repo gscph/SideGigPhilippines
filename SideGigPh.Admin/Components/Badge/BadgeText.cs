@@ -9,6 +9,7 @@ public static class BadgeText
     {
         VerificationKinds.Id => "Government ID",
         VerificationKinds.Tesda => "TESDA certificate",
+        VerificationKinds.Clearance => "NBI or police clearance",
         VerificationKinds.Developer => $"Past project with {Company(request)}",
         _ => request.Kind,
     };

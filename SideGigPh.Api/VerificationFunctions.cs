@@ -24,7 +24,7 @@ public sealed class AdminList(string? setting)
 }
 
 /// <summary>
-/// Worker verification: a worker sends a photo of an ID, a TESDA certificate or proof of a past project with a
+/// Worker verification: a worker sends a photo of an ID, an NBI or police clearance, a TESDA certificate or proof of a past project with a
 /// developer or another company, with their consent; an operator looks at it and decides; an approved one is a badge on the listing.
 /// The photos are sensitive personal information: kept in a private container (<see cref="IPrivateFiles"/>), shown
 /// only to operators (each look is logged) and deleted as soon as the operator decides.

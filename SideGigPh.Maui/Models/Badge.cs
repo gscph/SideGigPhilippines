@@ -6,6 +6,9 @@ public enum BadgeKind
     /// <summary>A government ID.</summary>
     Id,
 
+    /// <summary>An NBI or police clearance.</summary>
+    Clearance,
+
     /// <summary>A TESDA National Certificate or training certificate.</summary>
     Tesda,
 

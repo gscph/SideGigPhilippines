@@ -1087,12 +1087,12 @@ POSTS = [
         id="w17-tesda", side="worker", stage="product", season="all", icon="document",
         problem="May TESDA ka? Ipakita mo.",
         sub="Pinaghirapan mo 'yan. Dapat nakikita ng customer.",
-        answer="Sa Tarbaho, may badge ang TESDA, ID at past project mo sa profile. Walang komisyon.",
+        answer="Sa Tarbaho, may badge ang TESDA, ID, clearance at past project mo sa profile. Walang komisyon.",
         cta="I-download ang Tarbaho. Walang komisyon.",
         caption=(
             "May TESDA ka? Ipakita mo. 📜\n\n"
             "Pinaghirapan mo 'yan. Dapat nakikita ng customer.\n\n"
-            "Sa Tarbaho, magpadala ng picture ng TESDA certificate, ID o past project mo. Kapag na-check, "
+            "Sa Tarbaho, magpadala ng picture ng TESDA certificate, ID, NBI o police clearance, o past project mo. Kapag na-check, "
             "may badge ka sa profile na kita ng mga household sa Angono, Antipolo at Taytay.\n\n"
             "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #TESDA #Angono #Antipolo #Taytay"
         ),
@@ -1499,7 +1499,7 @@ POSTS = [
             "May ID badge ka? 🪪\n\n"
             "Kita ito ng mga household sa profile mo.\n\n"
             "Sa Tarbaho, magpadala ng picture ng government ID mo. Kapag na-check, may badge ka sa profile. "
-            "Pwede ring TESDA at past project.\n\n"
+            "Pwede ring NBI o police clearance, TESDA at past project.\n\n"
             "Walang komisyon. Sa'yo ang buong bayad. 👉 {link}\n\n#Tarbaho #Angono #Antipolo #Taytay"
         ),
     ),

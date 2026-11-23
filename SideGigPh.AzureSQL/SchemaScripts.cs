@@ -34,5 +34,6 @@ public static class SchemaScripts
         "028-schema-meet-location",
         "029-schema-catalog-names",
         "030-schema-early-access",
+        "031-schema-clearance-badge",
     ];
 }

@@ -102,12 +102,12 @@ public sealed record RankedResult(IReadOnlyList<SearchHitDto> InTown, IReadOnlyL
 /// <item>Score (0–100, within a group): reviews 30, responsiveness 20, activity and tenure 20, price fit 20 (cheaper is higher; over the Seeker's budget is lower, never hidden),
 /// experience 10. Every part is a 0–1 feature times a weight below. A new worker with no reviews or chats gets
 /// neutral priors, so they land mid-list instead of last and can earn their first customers.</item>
-/// <item>Badges (up to +10 on top): ID Verified 4, TESDA Certified 3, a past project with a developer or company 3.
+/// <item>Badges (up to +13 on top): ID Verified 4, NBI / police clearance 3, TESDA Certified 3, a past project with a developer or company 3.
 /// A bonus, not a share of the 100, so a worker without badges scores exactly as before and one with them moves up:
 /// proof a person checked is the one signal a new worker can earn on day one.</item>
 /// <item>Work photos (up to +3 on top): 3 for <see cref="FullPhotoBonusAt"/> or more, half for one. Optional (a
 /// listing publishes without them), so also a bonus: a worker without photos scores exactly as before. Worth as much
-/// as a TESDA or project badge, less than an ID, because nobody checks them; capped at 2 so a worker can't climb by
+/// as a clearance, TESDA or project badge, less than an ID, because nobody checks them; capped at 2 so a worker can't climb by
 /// adding more photos, only by showing some.</item>
 /// <item>Sort: <see cref="SearchSort.LowestPrice"/> orders each group cheapest first, the score breaking ties.</item>
 /// </list>
@@ -128,6 +128,7 @@ public static class SearchRanker
     public const double IdBadgeWeight = 4;
     public const double TesdaBadgeWeight = 3;
     public const double ProjectBadgeWeight = 3;
+    public const double ClearanceBadgeWeight = 3;
 
     // Work photos: bonus points on top of the 100. Full at FullPhotoBonusAt photos, half for a single one.
     public const double WorkPhotosWeight = 3;
@@ -213,7 +214,8 @@ public static class SearchRanker
         var kinds = (pro.Badges ?? []).Select(b => b.Kind).ToHashSet();
         return (kinds.Contains(VerificationKinds.Id) ? IdBadgeWeight : 0)
             + (kinds.Contains(VerificationKinds.Tesda) ? TesdaBadgeWeight : 0)
-            + (kinds.Contains(VerificationKinds.Developer) ? ProjectBadgeWeight : 0);
+            + (kinds.Contains(VerificationKinds.Developer) ? ProjectBadgeWeight : 0)
+            + (kinds.Contains(VerificationKinds.Clearance) ? ClearanceBadgeWeight : 0);
     }
 
     /// <summary>The bonus for work photos: none 0, one half of <see cref="WorkPhotosWeight"/>, <see cref="FullPhotoBonusAt"/> or more all of it.</summary>

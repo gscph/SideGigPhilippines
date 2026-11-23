@@ -132,6 +132,27 @@ public class VerificationTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task ClearanceBadge_IsStored_NeverReadByAi_AndShowsOnceApproved()
+    {
+        var uid = $"clear-{Guid.NewGuid():N}";
+        var client = api.Client(api.Tokens.For(uid));
+        var reads = api.IdReader.Reads;
+
+        using var sent = await client.PostAsync("verifications/clearance?consent=true", Photo());
+        sent.StatusCode.Should().Be(HttpStatusCode.OK);
+        var request = (await sent.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
+        request.Kind.Should().Be(VerificationKinds.Clearance);
+        request.BadgeId.Should().BeEmpty();
+        api.IdReader.Reads.Should().Be(reads, "only a government ID is read by AI");
+
+        using var approved = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision",
+            new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
+        approved.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        (await client.GetFromJsonAsync("verifications/mine", ApiJson.Default.ListVerificationDto))!
+            .Single().Status.Should().Be(VerificationStatuses.Approved);
+    }
+
+    [IntegrationFact]
     public async Task DeveloperBadge_NeedsAKnownDeveloper_AndIsNeverReadByAi()
     {
         var uid = $"dev-{Guid.NewGuid():N}";

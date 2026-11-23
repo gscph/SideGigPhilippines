@@ -257,7 +257,7 @@ public class WireContractTests
         ApiErrors.NotAdmin.Should().Be("not-admin");
         ApiErrors.OthersStays.Should().Be("others-stays");
         ApiErrors.NeedsPrice.Should().Be("needs-price");
-        VerificationKinds.All.Should().Equal("id", "tesda", "developer");
+        VerificationKinds.All.Should().Equal("id", "tesda", "developer", "clearance");
         DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 
         Wire.English.Should().Be("english");
