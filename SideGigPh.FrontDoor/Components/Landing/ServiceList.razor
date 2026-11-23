@@ -1,0 +1,25 @@
+@inherits LandingComponent
+
+@* Every trade and what it covers, in the words people search (TradeList.Services): what Google reads to match "aircon cleaning Angono" or "tubero Antipolo". *@
+<MudStack Spacing="4">
+    <MudStack Spacing="2" AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h5" HtmlTag="h2" Align="Align.Center">@T(Copy.Trades.ServicesHeading)</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@T(Copy.Trades.ServicesSub)</MudText>
+    </MudStack>
+    <MudGrid Spacing="3">
+        @foreach (var service in TradeList.Services)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Elevation="0" Class="fd-card pa-5">
+                    <MudStack Spacing="2">
+                        <MudStack Row Spacing="3" AlignItems="AlignItems.Center">
+                            <IconCircle Src="@service.Icon" Size="44" />
+                            <MudText Typo="Typo.h6" HtmlTag="h3">@T(service.Name)</MudText>
+                        </MudStack>
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">@T(service.Covers)</MudText>
+                    </MudStack>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudStack>
