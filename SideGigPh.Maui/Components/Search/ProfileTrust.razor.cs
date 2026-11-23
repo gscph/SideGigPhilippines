@@ -6,7 +6,7 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Search;
 
 /// <summary>
-/// "What we checked": the badges a person at Tarbaho approved (ID, TESDA, past projects), the listing's number
+/// "What we checked": the badges a person at Tarbaho approved (ID, clearance, TESDA, past projects), the listing's number
 /// verified by SMS (every listing's is, anti-fraud rule 1).
 /// </summary>
 public partial class ProfileTrust : ComponentBase

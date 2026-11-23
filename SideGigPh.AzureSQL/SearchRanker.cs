@@ -107,7 +107,7 @@ public sealed record RankedResult(IReadOnlyList<SearchHitDto> InTown, IReadOnlyL
 /// proof a person checked is the one signal a new worker can earn on day one.</item>
 /// <item>Work photos (up to +3 on top): 3 for <see cref="FullPhotoBonusAt"/> or more, half for one. Optional (a
 /// listing publishes without them), so also a bonus: a worker without photos scores exactly as before. Worth as much
-/// as a TESDA or project badge, less than an ID, because nobody checks them; capped at 2 so a worker can't climb by
+/// as a clearance, TESDA or project badge, less than an ID, because nobody checks them; capped at 2 so a worker can't climb by
 /// adding more photos, only by showing some.</item>
 /// <item>Sort: <see cref="SearchSort.LowestPrice"/> orders each group cheapest first, the score breaking ties.</item>
 /// </list>

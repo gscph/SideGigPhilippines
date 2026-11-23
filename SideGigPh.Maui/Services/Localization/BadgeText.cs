@@ -5,7 +5,7 @@ namespace SideGigPh.Maui.Services.Localization;
 /// <summary>A badge's words in the user's language, shared by the cards, the public profile and the pro's own badges page.</summary>
 public static class BadgeText
 {
-    /// <summary>The short label on a chip: "ID Verified", "TESDA Certified", "Ayala Land project".</summary>
+    /// <summary>The short label on a chip: "ID Verified", "NBI / Police Clearance", "TESDA Certified", "Ayala Land project".</summary>
     public static string Badge(this AppText text, Badge badge) => badge.Kind switch
     {
         BadgeKind.Id => text.Get(Copy.BadgeId),

@@ -1637,7 +1637,7 @@ May TESDA ka? Ipakita mo. 📜
 
 Pinaghirapan mo 'yan. Dapat nakikita ng customer.
 
-Sa Tarbaho, magpadala ng picture ng TESDA certificate, ID o past project mo. Kapag na-check, may badge ka sa profile na kita ng mga household sa Angono, Antipolo at Taytay.
+Sa Tarbaho, magpadala ng picture ng TESDA certificate, ID, NBI o police clearance, o past project mo. Kapag na-check, may badge ka sa profile na kita ng mga household sa Angono, Antipolo at Taytay.
 
 Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
 
@@ -1735,7 +1735,7 @@ May ID badge ka? 🪪
 
 Kita ito ng mga household sa profile mo.
 
-Sa Tarbaho, magpadala ng picture ng government ID mo. Kapag na-check, may badge ka sa profile. Pwede ring TESDA at past project.
+Sa Tarbaho, magpadala ng picture ng government ID mo. Kapag na-check, may badge ka sa profile. Pwede ring NBI o police clearance, TESDA at past project.
 
 Walang komisyon. Sa'yo ang buong bayad. 👉 [Google Play link]
 

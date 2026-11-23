@@ -177,8 +177,8 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | **Your offer on a post** (your price and note) | **Only the customer who posted it**, next to your public listing and a rounded distance from their post (whole kilometres) |
 | **Posts of what you need done** (the work, your description, budget, town and photos) | **Skilled Workers of that trade who are signed in and travel to your area**, with your **town and a rounded distance** (whole kilometres). Never your name, number, address or exact location |
 | **Your exact place**, if you tap **Send my location** after picking an offer | **Only the Skilled Worker you picked**, until the job is done or cancelled; then it is deleted |
-| **Badges** on a listing ("ID Verified", "TESDA Certified", the company and building of a past project) | **Every signed-in user**, as part of the listing |
-| **Badge proofs** (the photo of your ID, certificate or proof of work, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
+| **Badges** on a listing ("ID Verified", "NBI / Police Clearance", "TESDA Certified", the company and building of a past project) | **Every signed-in user**, as part of the listing |
+| **Badge proofs** (the photo of your ID, clearance, certificate or proof of work, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
 | Income goal, "Others" text, error reports, email, and references given before November 18, 2026 (§3.4) | **Only us** |
 
 ### Service providers (processors)

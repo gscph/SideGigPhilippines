@@ -70,7 +70,7 @@ badge clears the 30 s search cache.
 `RankScore.Photos` (`SearchRanker.PhotosFeature`, `WorkPhotosWeight` 3). Publishing doesn't need work photos (too
 much friction before going live), but customers pick workers who show their work first, so a listing with photos
 moves up. Like badges it is a **bonus on top of the 100**: a worker without photos scores exactly as before. It is
-worth as much as a TESDA or project badge and less than an ID because nobody checks the photos, and it is capped at
+worth as much as a clearance, TESDA or project badge and less than an ID because nobody checks the photos, and it is capped at
 2 so a worker climbs by showing some work, not by piling photos up. Between two otherwise equal workers the one with
 photos comes first. The sample workers in `006-seed-search-ranking.sql` have no photos, so its orders don't change.
 
