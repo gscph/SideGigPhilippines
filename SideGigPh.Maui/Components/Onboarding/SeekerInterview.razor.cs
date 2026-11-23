@@ -102,6 +102,11 @@ public partial class SeekerInterview : ComponentBase
 
         // Never show a step whose earlier answers are missing (e.g. a stale resume path).
         _step = Answers.StepToShow(Step);
+        if (OnboardingSteps.CorrectedPath(Step, _step) is { } corrected)
+        {
+            Nav.NavigateTo(corrected, replace: true);
+        }
+
         _pickedOtherTrade = Answers.IsOtherTrade();
         _otherTradeText = _pickedOtherTrade ? Answers.OtherJobText : null;
         (_budgetMin, _budgetMax) = Pricing.CustomStart(Answers.BudgetId, Answers.ServiceId, Answers.CategoryId);

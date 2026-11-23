@@ -35,6 +35,12 @@ public class SearchIntentParserTests
     [InlineData("hatid sa airport", "driver")] // "hatid" is an Errands word too: "airport" decides
     [InlineData("driver pa-tagaytay", "driver")]
     [InlineData("angkas", "driver")]
+    [InlineData("airport", "driver")]
+    [InlineData("naia", "driver")]
+    [InlineData("air", "aircon")]           // "airport" starts the same way: Driver must not tie with Aircon
+    [InlineData("term", "pest_control")]    // the start of "termite"
+    [InlineData("motor", "car_mechanic")]   // the Driver's motorcycle job has "motor" too: the mechanic stays first
+    [InlineData("sira motor", "car_mechanic")]
     [InlineData("rider ng motor", "driver")] // "rider" is an Errands word and "motor" a Car Mechanic one: together they're the Driver's job
     [InlineData("aircon technician", "aircon")]
     [InlineData("pest control technician", "pest_control")]

@@ -77,8 +77,8 @@ const screens = [
     body: `<div class="status"></div>${back(20)}
       <div style="margin-top:22px" class="ill"><img src="${icon('toolbox')}"></div>
       <div class="q">What do you need done?</div><div class="why">Pick one. You can change it later.</div>
-      <div class="tiles">${[['aircon', 'Aircon Technician', 1], ['construction', 'Construction'], ['errand', 'Errands'], ['it', 'IT'],
-        ['mechanic', 'Car Mechanic'], ['solar', 'Solar Panel Technician'], ['more', 'Others']]
+      <div class="tiles">${[['aircon', 'Aircon Technician', 1], ['construction', 'Construction'], ['errand', 'Errands'], ['driver', 'Driver (On-Call)'],
+        ['mechanic', 'Car Mechanic'], ['pest-control', 'Pest Control'], ['more', 'Others']]
         .map(([i, t, on]) => `<div class="tile${on ? ' on' : ''}"><img src="${icon(i)}">${t}</div>`).join('')}</div>
       <div class="foot"><div class="btn">Next</div></div>`,
   },

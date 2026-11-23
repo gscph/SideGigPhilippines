@@ -51,7 +51,8 @@ public static class SearchIntentParser
             "mason", "masonry", "tile", "tiles", "semento", "cement", "palitada", "hollow", "blocks", "bakod", "fence", "pader", "bitak", "renovation", "renovate"],
         ["errand_runner"] = ["errand", "errands", "utos", "pasabuy", "rider", "deliver", "delivery", "padala", "hatid", "bili", "bilihin", "palengke", "grocery", "cleaning", "cleaner", "house", "bahay", "kasambahay", "carwash", "wash", "hugas", "garden", "gardener", "hardin", "halaman", "damo", "grass"],
         ["pest_control"] = ["pest", "peste", "insekto", "exterminator", "fumigation", "fumigate", "pesticide", "insecticide", "termite", "anay", "cockroach", "roach", "ipis", "rat", "mouse", "mice", "daga", "bedbug", "surot", "mosquito", "lamok", "misting", "fogging", "dengue", "ant", "langgam", "kulisap"],
-        ["driver"] = ["driver", "drayber", "draybir", "tsuper", "chauffeur", "designated", "sundo", "airport", "naia", "terminal", "flight", "byahe", "biyahe", "tagaytay", "baguio", "batangas", "probinsya", "lakad", "coding", "pamilya", "family", "motorcycle", "motorsiklo", "angkas", "habal"],
+        // Not "airport" (starts like "aircon"), "terminal" (like "termite") or "motor" (Car Mechanic's): the airport and motorcycle jobs' labels still find them.
+        ["driver"] = ["driver", "drayber", "draybir", "tsuper", "chauffeur", "designated", "sundo", "naia", "flight", "byahe", "biyahe", "tagaytay", "baguio", "batangas", "probinsya", "lakad", "coding", "pamilya", "family", "motorcycle", "motorsiklo", "angkas", "habal"],
         ["car_mechanic"] = ["mechanic", "mekaniko", "car", "repair", "kotse", "sasakyan", "auto", "oto", "makina", "motor", "preno", "brake", "shock", "tune", "tuneup", "kambyo"],
     };
 

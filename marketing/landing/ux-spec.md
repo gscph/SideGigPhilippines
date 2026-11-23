@@ -117,7 +117,7 @@ Anchor `#early-access`. Full-width purple band (`Color.Primary` background, whit
 ## 5. Trades and towns
 
 Anchor `#trades`. Purpose: "do you have my kind of work, and is it near me".
-- Trades: grid of tiles, icon + label (same look as the app's ChoiceTiles). 360px: 3 columns; ≥960px: 6 columns. Order as in the app: Aircon, Construction, Errands, IT, Car Mechanic, Pest Control. Under Construction, a wrap of small outlined chips (`MudChipSet` read-only): Foreman, Carpentry, Electrical, Plumbing, Masonry, Tiles, Welding, Roofing, Steelman, Helper.
+- Trades: grid of tiles, icon + label (same look as the app's ChoiceTiles). 360px: 3 columns; ≥960px: 6 columns. Order as in the app: Aircon, Construction, Errands, Driver (On-Call), Car Mechanic, Pest Control. Under Construction, a wrap of small outlined chips (`MudChipSet` read-only): Foreman, Carpentry, Electrical, Plumbing, Masonry, Tiles, Welding, Roofing, Steelman, Helper.
 - Icons: `aircon.svg`, `construction.svg`, `errand.svg`, `it.svg`, `mechanic.svg`, `pest-control.svg`; chips may carry `foreman.svg`, `carpentry.svg`, `electrical.svg`, `plumbing.svg`, `masonry.svg`, `tiles.svg`, `weld.svg`, `roofing.svg`, `rebar.svg`, `worker.svg` at 20px.
 - Towns: 3 rows with `pin.svg`: Angono "first" (purple outlined chip "Starting here"), Antipolo and Taytay "next". No map image (weight, and it implies coverage we don't have).
 - Slots: heading ≤6 words; trade labels as in the app; towns line ≤14 words.

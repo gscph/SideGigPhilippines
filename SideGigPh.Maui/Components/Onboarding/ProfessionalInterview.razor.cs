@@ -97,6 +97,11 @@ public partial class ProfessionalInterview : ComponentBase
         }
 
         _step = Draft.StepToShow(Step, _asksNumber);
+        if (OnboardingSteps.CorrectedPath(Step, _step) is { } corrected)
+        {
+            Nav.NavigateTo(corrected, replace: true);
+        }
+
         _codeSent = false;
         if (_step == ProStep.Towns)
         {

@@ -46,7 +46,7 @@ INSERT INTO @Categories (Id, LabelEnglish, LabelTaglish, Icon, HintEnglish, Hint
 ('aircon',         N'Aircon Technician',      N'Aircon Technician',       N'❄️', N'Cleaning, repair, installation',        N'Linis, repair, pakabit',                        1, 1),
 ('construction',   N'Construction',           N'Construction',            N'🏗️', N'Carpenter, electrician, plumber, mason, welder', N'Karpintero, electrician, tubero, mason, welder', 2, 1),
 ('errand_runner',  N'Errands',                N'Errands',                 N'🛵', N'House cleaning, grocery, bills, gardening', N'Linis ng bahay, pa-grocery, bills, halaman', 3, 1),
-('driver',         N'Driver (On-Call)',       N'Driver (On-Call)',        N'🚘', N'Family, out of town, airport, motorcycle', N'Family driver, out of town, airport, motor',  4, 1),
+('driver',         N'Driver (On-Call)',       N'Driver (On-Call)',        N'🚘', N'Family, out of town, NAIA, motorcycle',    N'Family driver, out of town, NAIA, motorsiklo', 4, 1),
 ('car_mechanic',   N'Car Mechanic',           N'Mekaniko',                N'🚗', N'Suspension, engine, electronics',       N'Suspension, makina, electronics',               5, 1),
 ('pest_control',   N'Pest Control',           N'Pest Control',            N'🪳', N'Termites, cockroaches, rats, mosquitoes',  N'Anay, ipis, daga, lamok, surot',             6, 1),
 -- Retired: moved under Construction as its jobs (019, 020 and 022-schema-construction-trades.sql moved the data).

@@ -168,7 +168,7 @@ public static class ReferenceData
         new("aircon", new("Aircon Technician", "Aircon Technician"), AppImages.For("aircon"), new("Cleaning, repair, installation", "Linis, repair, pakabit")),
         new("construction", new("Construction", "Construction"), AppImages.For("construction"), new("Carpenter, electrician, plumber, mason, welder", "Karpintero, electrician, tubero, mason, welder")),
         new("errand_runner", new("Errands", "Errands"), AppImages.For("errand_runner"), new("House cleaning, grocery, bills, gardening", "Linis ng bahay, pa-grocery, bills, halaman")),
-        new("driver", new("Driver (On-Call)", "Driver (On-Call)"), AppImages.For("driver"), new("Family, out of town, airport, motorcycle", "Family driver, out of town, airport, motor")),
+        new("driver", new("Driver (On-Call)", "Driver (On-Call)"), AppImages.For("driver"), new("Family, out of town, NAIA, motorcycle", "Family driver, out of town, NAIA, motorsiklo")),
         new("car_mechanic", new("Car Mechanic", "Mekaniko"), AppImages.For("car_mechanic"), new("Suspension, engine, electronics", "Suspension, makina, electronics")),
         new("pest_control", new("Pest Control", "Pest Control"), AppImages.For("pest_control"), new("Termites, cockroaches, rats, mosquitoes", "Anay, ipis, daga, lamok, surot")),
     ],

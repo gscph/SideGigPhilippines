@@ -58,7 +58,7 @@ Other options (all ≤ 140):
 > • Get seen more. Add work photos and badges (ID, TESDA, past project) to show up higher.
 > • No CV and no office visit. Your phone number, a selfie, and you're live.
 >
-> **Services:** Aircon Technician • Construction (foreman, carpentry, electrical, plumbing, masonry, tiles, welding, roofing & gutter, steelman, helper) • Errands (house cleaning, grocery, bills, PasaBuy, documents, parcels, car cleaning, gardening) • IT • Car Mechanic (Mekaniko) • Solar Panel Technician
+> **Services:** Aircon Technician • Construction (foreman, carpentry, electrical, plumbing, masonry, tiles, welding, roofing & gutter, steelman, helper) • Errands (house cleaning, grocery, bills, PasaBuy, documents, parcels, car cleaning, gardening) • Driver (On-Call) (family driver, out of town, airport transfer, motorcycle rider) • Car Mechanic (Mekaniko) • Pest Control (termites, cockroaches, rats, mosquitoes, bed bugs, ants)
 >
 > **English or Taglish.** You choose on the first screen.
 >

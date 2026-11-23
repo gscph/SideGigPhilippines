@@ -59,6 +59,16 @@ public static class OnboardingSteps
 
     public static string PathOf(SeekerStep step) => $"/start/seeker/{(int)step}";
 
+    /// <summary>
+    /// The shown step's own address when the URL asked for another (a stale resume path, an answer cleared because its
+    /// trade was retired), else null. The interview replaces its URL with it, so each question keeps one URL and Next
+    /// never leads to the URL already open (which changes nothing and leaves the person stuck on the question).
+    /// </summary>
+    public static string? CorrectedPath(int? requested, ProStep shown) => requested == (int)shown ? null : PathOf(shown);
+
+    /// <inheritdoc cref="CorrectedPath(int?, ProStep)"/>
+    public static string? CorrectedPath(int? requested, SeekerStep shown) => requested == (int)shown ? null : PathOf(shown);
+
     /// <summary>Opens the first unanswered Skilled Worker question: a step past it is never shown, so the last step lands there.</summary>
     public static string ProFirstUnansweredPath => PathOf(ProStep.Preview);
 
