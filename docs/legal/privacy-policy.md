@@ -187,7 +187,7 @@ terms:
 |---|---|---|---|
 | **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
 | **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data | Southeast Asia region (Singapore) |
-| **Microsoft Azure Communication Services** and **Google Gmail** | Send an Early Access sign-up from tarbaho.com to our mailbox, and keep it there | Email address, phone type, household or Skilled Worker, language | Azure: Southeast Asia; Gmail: Google's locations |
+| **Microsoft Azure Communication Services** and **Google Gmail** | Send an Early Access sign-up from tarbaho.com to our mailbox, and keep it there | Email address, phone type, household or Skilled Worker, language | Azure: Asia Pacific; Gmail: Google's locations |
 | **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message; for a post, its budget and first line; for an offer, the Skilled Worker's name and price) | Their own locations |
 
 Some of these providers store data **outside the Philippines**. We remain responsible for your data under the DPA

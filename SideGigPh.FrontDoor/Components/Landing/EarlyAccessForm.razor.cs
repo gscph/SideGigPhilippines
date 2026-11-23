@@ -20,7 +20,6 @@ public partial class EarlyAccessForm
 
     private static readonly Dictionary<string, object?> EmailAttributes = new()
     {
-        ["inputmode"] = "email",
         ["autocomplete"] = "email",
         ["autocapitalize"] = "off",
         ["spellcheck"] = "false",
@@ -123,15 +122,16 @@ public partial class EarlyAccessForm
             return;
         }
 
-        if (!await Script.IsOnlineAsync())
-        {
-            _problem = Copy.Join.Offline;
-            return;
-        }
-
+        // Busy before the first await: a quick double tap (or Enter and a tap) must send one sign-up, one email.
         _busy = true;
         try
         {
+            if (!await Script.IsOnlineAsync())
+            {
+                _problem = Copy.Join.Offline;
+                return;
+            }
+
             var email = EarlyAccessRules.Normalize(_email);
             var result = await Signups.JoinAsync(new EarlyAccessRequest(email, _phone!, Role, Language.Current, _trap));
             switch (result)

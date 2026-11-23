@@ -37,8 +37,8 @@ public sealed class AcsEarlyAccessMailer(EmailClient client, string from, string
         }
         catch (RequestFailedException e)
         {
-            // Never log the address itself.
-            logger.LogError(e, "Early access email not sent ({Status} {Code})", e.Status, e.ErrorCode);
+            // Never log the address: not even the exception, whose message can repeat the sender, recipient or reply-to.
+            logger.LogError("Early access email not sent ({Status} {Code})", e.Status, e.ErrorCode);
             return false;
         }
     }

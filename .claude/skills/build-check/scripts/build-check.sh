@@ -32,8 +32,8 @@ for project in MobileAppTheme MobileAppTheme.Firebase SideGigPh.Contracts SideGi
 done
 # The API embeds the public legal pages (LegalFunctions).
 rm -rf "$copy/docs/legal" && mkdir -p "$copy/docs" && cp -r "$repo/docs/legal" "$copy/docs/"
-# The landing page links the store feature graphic as its Facebook preview image.
-mkdir -p "$copy/docs/store-assets" && cp "$repo/docs/store-assets/feature-graphic.png" "$copy/docs/store-assets/"
+# The landing page links the store feature graphic (its Facebook preview) and two phone screenshots (its hero).
+mkdir -p "$copy/docs/store-assets/phone" && cp "$repo/docs/store-assets/feature-graphic.png" "$copy/docs/store-assets/" && cp "$repo"/docs/store-assets/phone/*.png "$copy/docs/store-assets/phone/"
 # The Firebase settings files are git-ignored, so a worktree has none: take them from the main checkout. Without
 # google-services.json the app still builds (the csproj's Condition skips it) but Firebase never starts, and sign-in
 # fails on every QA install ("Default FirebaseApp is not initialized").

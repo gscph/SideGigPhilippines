@@ -84,7 +84,7 @@ else
 
             <MudStack Spacing="1">
                 <MudTextField T="string" Value="@_email" ValueChanged="EmailChanged" Immediate="true"
-                              Label="@EmailLabel" HelperText="@EmailHelp" Variant="Variant.Filled" InputType="InputType.Email"
+                              Label="@EmailLabel" HelperText="@EmailHelp" Variant="Variant.Filled" InputType="InputType.Email" InputMode="InputMode.email"
                               Error="@(_emailError is not null)" ErrorText="@_emailError" ReadOnly="_busy" Class="fd-field"
                               UserAttributes="EmailAttributes" />
                 @if (Suggestion is { } meant)

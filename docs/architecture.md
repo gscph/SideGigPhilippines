@@ -627,9 +627,20 @@ TestFlight beta.
   (`LinkBase`) and `docs/store-assets/feature-graphic.png` as `images/og.png`, so a new icon or font reaches both.
   `Theme/FrontDoorTheme` builds the `MudTheme` with `AppTheme`'s colors and the same Folded T path (`Logo`): change
   them together. Helper classes are `fd-…` in `wwwroot/frontdoor.css`, colors only through `--mud-palette-*`.
-- **Layout:** `Pages/Home` composes one component per section in `Components/Landing/` (`SiteHeader`, `Hero`,
-  `TwoSides`, `Promises`, `EarlyAccessSection` + `EarlyAccessForm`, `TradesAndTowns`, `TrustSection`, `FaqSection`,
-  `RepeatCta`, `SiteFooter`), each `.razor` + `.razor.cs`, all inheriting `LandingComponent` (the language and `T(say)`).
+- **Layout:** `Pages/Home` composes one component per section in `Components/Landing/` (`SiteHeader`, `Hero` +
+  `HeroPhones`, `TwoSides`, `Promises`, `EarlyAccessSection` + `EarlyAccessForm`, `TradesAndTowns`, `NumbersSection`,
+  `TrustSection`, `FaqSection`, `RepeatCta`, `SiteFooter`; shared parts `SectionTitle`, `FeatureRow`, `IconCircle`,
+  `BrandMark`, `StoreBadges`), each `.razor` + `.razor.cs`, all inheriting `LandingComponent` (the language and `T(say)`).
+- **Look:** the Tivo landing template the owner picked (Bootstrap, not used: rebuilt in MudBlazor), in Tarbaho's brand.
+  A purple header (white logo, links, language toggle, white pill "Early access") runs into the purple hero band (a soft
+  ring and dot grid, `fd-hero-band`), text on one side and two tilted app screens on the other (`HeroPhones`: the store
+  screenshots `docs/store-assets/phone/2-search-results.png` and `5-request-offer.png`, linked as `images/app/` and
+  cropped to the phone by `fd-phone-shot`); sections alternate white and tint; titles are uppercase purple with the last
+  word on a tint highlight (`SectionTitle`, `Copy.Titles` as Lead + Mark); pill buttons (`fd-pill`) and pill tabs
+  (`fd-pills`: household / worker, all trades / Construction); rounded cards with a soft purple shadow (`fd-card`);
+  `NumbersSection` counts only what is real (trades, Construction jobs, towns from `TradeList`, the 3 badges); a
+  `MudScrollToTop` button. The page may be rounder and bolder than the app (pills, shadows, several filled buttons per
+  screen), never another color, font or logo.
   Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.
 - **Language:** every string is a `Say(English, Taglish)` in `Localization/Copy.cs`; `PageLanguage` picks it from
   `?lang=tl|en`, then the visitor's last pick (localStorage `tarbaho.lang`), then the browser. Copy follows the
@@ -640,7 +651,7 @@ TestFlight beta.
   `EarlyAccessRequest` to the API (`ApiUrl` in `appsettings.json`); the page remembers it joined (localStorage
   `tarbaho.early-access`) and then offers Share.
 - **Server:** `POST early-access` (`EarlyAccessFunctions`, public): 400 `invalid-email` / `invalid-phone`, a filled bot
-  field answers 204 and sends nothing, `CallerLimits` `EarlyAccess` (5 an hour per IP, `ClientAddress`) and
+  field answers 204 and sends nothing, `CallerLimits` `EarlyAccess` (20 an hour per IP, since phones share carrier addresses, `ClientAddress`) and
   `EarlyAccessTotal` (300 an hour in all) answer 429. **Nothing is stored:** `IEarlyAccessMailer` emails each sign-up
   to the owner (`AcsEarlyAccessMailer`: Azure Communication Services Email, sender `EarlyAccessFrom` on tarbaho.com,
   recipient `EarlyAccessTo`, reply-to the person, connection `EmailConnection`). Without those settings
@@ -649,7 +660,7 @@ TestFlight beta.
 - **CORS:** the page and the API are on different origins, so the Function App's CORS lists `https://tarbaho.com`,
   `https://www.tarbaho.com` and the Static Web App's own address.
 - **Deploy:** `.github/workflows/deploy-website.yml`, by itself on a push to `main` that changes the site, the contracts,
-  the app's icons, font or `AppTheme.cs`, or the feature graphic, and by hand; it publishes and uploads `wwwroot` with
+  the app's icons, font or `AppTheme.cs`, the feature graphic or the store phone screenshots, and by hand; it publishes and uploads `wwwroot` with
   the Static Web App's deployment token (`FRONTDOOR_SWA_TOKEN`). The API part ships with *Deploy API*.
 - **Check it:** `build-check.sh --site`.
 

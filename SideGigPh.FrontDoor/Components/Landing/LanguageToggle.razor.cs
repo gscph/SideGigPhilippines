@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 
 namespace SideGigPh.FrontDoor.Components.Landing;
 
@@ -6,6 +7,13 @@ namespace SideGigPh.FrontDoor.Components.Landing;
 public partial class LanguageToggle
 {
     [Inject] private PageScript Script { get; set; } = default!;
+
+    /// <summary>White outlines, for the purple header.</summary>
+    [Parameter] public bool OnDark { get; set; }
+
+    private Color ToggleColor => OnDark ? Color.Inherit : Color.Dark;
+
+    private string ToggleClass => OnDark ? "fd-language fd-language-dark" : "fd-language";
 
     private async Task PickAsync(string language)
     {

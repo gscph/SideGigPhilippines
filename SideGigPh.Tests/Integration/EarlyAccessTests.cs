@@ -70,19 +70,22 @@ public class EarlyAccessTests(ApiTestHost api)
         api.EarlyAccessMails.Sent.Should().NotContain(s => s.Email == email);
     }
 
+    /// <summary>Sign-ups an hour from one address (<c>CallerLimits</c>: phones behind one carrier address share it).</summary>
+    private const int PerVisitor = 20;
+
     [IntegrationFact]
     public async Task OneVisitor_IsLimited()
     {
         var visitor = Visitor();
         var answers = new List<HttpStatusCode>();
-        for (var i = 0; i < 6; i++)
+        for (var i = 0; i <= PerVisitor; i++)
         {
             using var response = await visitor.PostAsJsonAsync("early-access", new EarlyAccessRequest(Email(), "android", null, null));
             answers.Add(response.StatusCode);
         }
 
-        answers.Take(5).Should().AllBeEquivalentTo(HttpStatusCode.NoContent);
-        answers[5].Should().Be(HttpStatusCode.TooManyRequests);
+        answers.Take(PerVisitor).Should().AllBeEquivalentTo(HttpStatusCode.NoContent);
+        answers[PerVisitor].Should().Be(HttpStatusCode.TooManyRequests);
     }
 
     /// <summary>A browser with its own address (the per-address limit).</summary>

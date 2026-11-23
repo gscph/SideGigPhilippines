@@ -2,7 +2,7 @@ name: Deploy website (tarbaho.com)
 
 # Builds the landing page (SideGigPh.FrontDoor, Blazor WebAssembly) and uploads it to its Azure Static Web App.
 # Runs by itself only when a push to main changes the site or the brand it borrows from the app (logo, font, icons,
-# the Facebook preview picture); anything else merged to main deploys nothing. Actions → Run workflow deploys by hand.
+# the Facebook preview picture, the hero's phone screenshots); anything else merged to main deploys nothing. Actions → Run workflow deploys by hand.
 # The sign-up form posts to the API (POST early-access), which this workflow does not deploy: that is deploy-api.yml.
 #
 # Secret: FRONTDOOR_SWA_TOKEN, the Static Web App's deployment token (Azure portal → the Static Web App → Overview →
@@ -19,6 +19,7 @@ on:
       - 'SideGigPh.Maui/wwwroot/fonts/**'
       - 'SideGigPh.Maui/Components/Layout/AppTheme.cs'
       - 'docs/store-assets/feature-graphic.png'
+      - 'docs/store-assets/phone/**'
       - '.github/workflows/deploy-website.yml'
 
 concurrency:

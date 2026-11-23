@@ -3,7 +3,10 @@ using SideGigPh.FrontDoor.EarlyAccess;
 
 namespace SideGigPh.FrontDoor.Components.Landing;
 
-/// <summary>The slim last call: back up to the form, or, once this browser signed up, a thank-you and Share.</summary>
+/// <summary>
+/// The last call, centered under the logo: back up to the form (or, once this browser signed up, a thank-you and Share),
+/// and the iPhone beta for anyone who would rather start now.
+/// </summary>
 public partial class RepeatCta
 {
     [Inject] private PageScript Script { get; set; } = default!;

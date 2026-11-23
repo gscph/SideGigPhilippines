@@ -89,7 +89,7 @@ public sealed class CallerLimits : IDisposable
         [Limited.WebFeedback] = (5, TimeSpan.FromHours(1)),
         [Limited.WebFeedbackTotal] = (60, TimeSpan.FromHours(1)),
         [Limited.WebFeedbackVote] = (60, TimeSpan.FromHours(1)),
-        [Limited.EarlyAccess] = (5, TimeSpan.FromHours(1)),
+        [Limited.EarlyAccess] = (20, TimeSpan.FromHours(1)),  // many Philippine phones share one carrier address
         [Limited.EarlyAccessTotal] = (300, TimeSpan.FromHours(1)),
         [Limited.Listing] = (20, TimeSpan.FromHours(1)),
         [Limited.Profile] = (60, TimeSpan.FromHours(1)),

@@ -36,7 +36,31 @@ public static class Copy
             "I-post ang ipapagawa at budget mo. Mag-aalok ang mga Kuya at Ate na malapit. Diretso ang bayad sa kanila.");
         public static readonly Say Cta = new("Get early access", "Mag-early access");
         public static readonly Say WorkerLink = new("Skilled worker? Get more customers", "Skilled worker ka? Dagdag kliyente");
-        public static readonly Say More = new("More", "Iba pa");
+        public static readonly Say ShotSearch = new("The app: Aircon Technicians in Angono, each with a price", "Ang app: mga Aircon Technician sa Angono, may presyo bawat isa");
+        public static readonly Say ShotOffer = new("The app: a worker sending a price for a request", "Ang app: si Kuya nagpapadala ng presyo sa isang request");
+    }
+
+    /// <summary>Section titles: the plain part, then the last word(s) shown on a tint highlight.</summary>
+    public static class Titles
+    {
+        public static readonly (Say Lead, Say Mark) HowItWorks = (new("How it", "Paano"), new("works", "gumagana"));
+        public static readonly (Say Lead, Say Mark) Why = (new("Why", "Bakit"), new("Tarbaho", "Tarbaho"));
+        public static readonly (Say Lead, Say Mark) Trades = (new("Every kind of", "Bawat klase ng"), new("work", "gawa"));
+        public static readonly (Say Lead, Say Mark) Trust = (new("Know who's", "Kilalanin ang"), new("coming", "darating"));
+        public static readonly (Say Lead, Say Mark) Faq = (new("Your", "Mga"), new("questions", "tanong"));
+    }
+
+    /// <summary>Real counts only (never users, sign-ups or ratings before there are any).</summary>
+    public static class Numbers
+    {
+        public static readonly Say TradesTitle = new("Trades", "Klase ng serbisyo");
+        public static readonly Say TradesText = new("Aircon, construction, errands, IT, car mechanic and pest control.", "Aircon, construction, errands, IT, mekaniko at pest control.");
+        public static readonly Say ConstructionTitle = new("Construction jobs", "Gawa sa construction");
+        public static readonly Say ConstructionText = new("Foreman to helper: carpentry, electrical, plumbing, roofing and more.", "Foreman hanggang helper: karpintero, electrical, tubero, bubong at iba pa.");
+        public static readonly Say TownsTitle = new("Towns in Rizal", "Bayan sa Rizal");
+        public static readonly Say TownsText = new("Angono first, then Antipolo and Taytay.", "Angono muna, tapos Antipolo at Taytay.");
+        public static readonly Say BadgesTitle = new("Badges we check", "Badge na chine-check");
+        public static readonly Say BadgesText = new("Government ID, TESDA, and a past project.", "Government ID, TESDA, at past project.");
     }
 
     public static class Stores
@@ -49,10 +73,9 @@ public static class Copy
 
     public static class Sides
     {
-        public static readonly Say Heading = new("How it works", "Paano gumagana");
         public static readonly Say Household = new("I need work done", "May ipapagawa ako");
         public static readonly Say Worker = new("I'm a Kuya / Ate", "Kuya / Ate ako");
-        public static readonly Say WorkerIntro = new("More customers near you. Keep 100% of what they pay.", "Dagdag kliyente na malapit sa'yo. Sa'yo ang buong bayad.");
+        public static readonly Say WorkerIntro = new("More customers near you, at your own price.", "Dagdag kliyente na malapit sa'yo, sa sarili mong presyo.");
 
         public static readonly Say H1Title = new("Post what you need done", "I-post ang ipapagawa");
         public static readonly Say H1Text = new("Pick the service, your town and your own budget. Add photos if you like.", "Piliin ang serbisyo, bayan at sariling budget mo. Lagyan ng picture kung gusto mo.");
@@ -71,7 +94,6 @@ public static class Copy
 
     public static class Promises
     {
-        public static readonly Say Heading = new("Why Tarbaho", "Bakit Tarbaho");
         public static readonly Say ZeroTitle = new("Pay the worker directly", "Diretso ang bayad");
         public static readonly Say ZeroText = new("Cash or GCash, straight to Kuya or Ate. The money never passes through the app.", "Cash o GCash, diretso kay Kuya o Ate. Hindi dumadaan sa app ang bayad.");
         public static readonly Say PriceTitle = new("Your own price", "Sariling presyo");
@@ -107,7 +129,6 @@ public static class Copy
         public static readonly Say TestFlightButton = new("Open the iPhone beta", "Buksan ang iPhone beta");
         public static readonly Say Button = new("Get early access", "Mag-early access");
         public static readonly Say Sending = new("Sending…", "Sine-send…");
-        public static readonly Say Loading = new("Loading…", "Naglo-load…");
         public static readonly Say Privacy = new("Only to tell you about Tarbaho. No spam. Leave anytime.", "Para lang sa balita ng Tarbaho. Walang spam. Pwede kang umalis kahit kailan.");
         public static readonly Say PrivacyLink = new("Privacy Policy", "Privacy Policy");
 
@@ -134,6 +155,8 @@ public static class Copy
     {
         public static readonly Say Heading = new("Kuya and Ate for every kind of work", "May Kuya at Ate sa bawat klase ng gawa");
         public static readonly Say TownsHeading = new("Starting in Rizal", "Sa Rizal muna");
+        public static readonly Say AllTrades = new("All trades", "Lahat ng serbisyo");
+        public static readonly Say Construction = new("Construction", "Construction");
         public static readonly Say TownsSub = new("We start in one town, then grow barangay by barangay.", "Isang bayan muna, tapos isa-isang barangay.");
         public static readonly Say First = new("Starting here", "Dito muna");
         public static readonly Say Next = new("Next", "Susunod");
@@ -142,7 +165,6 @@ public static class Copy
 
     public static class Trust
     {
-        public static readonly Say Heading = new("Safe to use, said plainly", "Ligtas gamitin, diretsahan");
         public static readonly Say BadgesTitle = new("What we checked", "Ang na-check namin");
         public static readonly Say BadgesText = new("Workers can add a government ID, TESDA or past-project badge. A person checks each one, with AI help on IDs.", "Pwedeng maglagay si Kuya o Ate ng government ID, TESDA o past-project badge. Tao ang nagche-check, may tulong ng AI sa ID.");
         public static readonly Say PrivateTitle = new("Chat first, number later", "Chat muna, number mamaya");
@@ -154,7 +176,6 @@ public static class Copy
 
     public static class Faq
     {
-        public static readonly Say Heading = new("Questions", "Mga tanong");
         public static readonly (Say Q, Say A)[] Items =
         [
             (new("Is Tarbaho free?", "Libre ba ang Tarbaho?"),
@@ -182,6 +203,7 @@ public static class Copy
         public static readonly Say ThanksHeadline = new("You're on the list. Salamat!", "Nasa listahan ka na. Salamat!");
         public static readonly Say ThanksSub = new("Know a Kuya, Ate or neighbor in Angono? Send them the link.", "May kakilalang Kuya, Ate o kapitbahay sa Angono? I-send ang link.");
         public static readonly Say Share = new("Share", "I-share");
+        public static readonly Say Iphone = new("iPhone beta", "iPhone beta");
     }
 
     public static class NotFound

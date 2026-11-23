@@ -1,59 +1,53 @@
 @inherits LandingComponent
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="fd-section" id="@Sections.Trades">
-    <MudStack Spacing="5">
-        <MudText Typo="Typo.h4" HtmlTag="h2">@T(Copy.Trades.Heading)</MudText>
-        <MudGrid Spacing="3">
-            @foreach (var trade in TradeList.Trades)
+    <MudStack Spacing="6">
+        <SectionTitle Lead="@T(Copy.Titles.Trades.Lead)" Mark="@T(Copy.Titles.Trades.Mark)" Sub="@T(Copy.Trades.Heading)" />
+        <MudStack AlignItems="AlignItems.Center">
+            <MudToggleGroup T="bool" @bind-Value="_construction" SelectionMode="SelectionMode.SingleSelection" Color="Color.Primary" Outlined="false" Delimiters="false" Class="fd-pills">
+                <MudToggleItem Value="false" Text="@T(Copy.Trades.AllTrades)" />
+                <MudToggleItem Value="true" Text="@T(Copy.Trades.Construction)" />
+            </MudToggleGroup>
+        </MudStack>
+        <MudGrid Spacing="3" Justify="Justify.Center">
+            @foreach (var trade in Tiles)
             {
-                <MudItem xs="4" md="2">
-                    <MudPaper Outlined="true" Class="fd-tile fd-trade-tile pa-3">
-                        <MudStack AlignItems="AlignItems.Center" Spacing="2">
-                            <IconCircle Src="@trade.Icon" Size="56" />
-                            <MudText Typo="Typo.body2" Align="Align.Center" Class="fd-tile-label">@T(trade.Label)</MudText>
+                <MudItem xs="6" sm="4" md="2">
+                    <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="3" Class="fd-trade-tile">
+                        <MudImage Src="@trade.Icon" Alt="" Width="56" Height="56" />
+                        <MudText Typo="Typo.subtitle1" Align="Align.Center">@T(trade.Label)</MudText>
+                    </MudStack>
+                </MudItem>
+            }
+        </MudGrid>
+
+        <MudStack Spacing="2" AlignItems="AlignItems.Center" Class="mt-6">
+            <MudText Typo="Typo.h5" HtmlTag="h2" Align="Align.Center">@T(Copy.Trades.TownsHeading)</MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Align="Align.Center">@T(Copy.Trades.TownsSub)</MudText>
+        </MudStack>
+        <MudGrid Spacing="3">
+            @foreach (var town in TradeList.Towns)
+            {
+                <MudItem xs="12" sm="4">
+                    <MudPaper Elevation="0" Class="@(town.First ? "fd-card fd-card-first pa-5" : "fd-card pa-5")">
+                        <MudStack Row Spacing="3" AlignItems="AlignItems.Center">
+                            <IconCircle Src="images/icons/pin.svg" Size="48" />
+                            <MudStack Spacing="1">
+                                <MudText Typo="Typo.h6" HtmlTag="h3">@town.Name</MudText>
+                                @if (town.First)
+                                {
+                                    <MudChip T="string" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" Class="ma-0">@T(Copy.Trades.First)</MudChip>
+                                }
+                                else
+                                {
+                                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="ma-0">@T(Copy.Trades.Next)</MudChip>
+                                }
+                            </MudStack>
                         </MudStack>
                     </MudPaper>
                 </MudItem>
             }
         </MudGrid>
-        <MudStack Spacing="2">
-            <MudText Typo="Typo.subtitle1">Construction</MudText>
-            <MudStack Row Spacing="2" Wrap="Wrap.Wrap">
-                @foreach (var job in TradeList.ConstructionJobs)
-                {
-                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Medium" Class="fd-job-chip">
-                        <MudStack Row Spacing="1" AlignItems="AlignItems.Center">
-                            <MudImage Src="@job.Icon" Alt="" Width="20" Height="20" />
-                            <MudText Typo="Typo.body2">@T(job.Label)</MudText>
-                        </MudStack>
-                    </MudChip>
-                }
-            </MudStack>
-        </MudStack>
-
-        <MudDivider Class="my-2" />
-
-        <MudStack Spacing="2">
-            <MudText Typo="Typo.h5" HtmlTag="h2">@T(Copy.Trades.TownsHeading)</MudText>
-            <MudText Typo="Typo.body1" Color="Color.Secondary">@T(Copy.Trades.TownsSub)</MudText>
-        </MudStack>
-        <MudStack Spacing="3">
-            @foreach (var town in TradeList.Towns)
-            {
-                <MudStack Row Spacing="3" AlignItems="AlignItems.Center">
-                    <IconCircle Src="images/icons/pin.svg" Size="40" />
-                    <MudText Typo="Typo.h6" HtmlTag="h3">@town.Name</MudText>
-                    @if (town.First)
-                    {
-                        <MudChip T="string" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small">@T(Copy.Trades.First)</MudChip>
-                    }
-                    else
-                    {
-                        <MudChip T="string" Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small">@T(Copy.Trades.Next)</MudChip>
-                    }
-                </MudStack>
-            }
-        </MudStack>
-        <MudText Typo="Typo.body2" Color="Color.Secondary">@T(Copy.Trades.TownsFootnote)</MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center">@T(Copy.Trades.TownsFootnote)</MudText>
     </MudStack>
 </MudContainer>

@@ -1,33 +1,27 @@
 @inherits LandingComponent
 
-<MudContainer MaxWidth="MaxWidth.Large" Class="fd-section fd-hero">
-    <MudGrid Spacing="6" Class="align-center">
-        <MudItem xs="12" md="6">
-            <MudStack Spacing="4">
-                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" Class="fd-eyebrow">@T(Copy.Hero.Eyebrow)</MudChip>
-                <MudText Typo="Typo.h3" HtmlTag="h1">@T(Copy.Hero.Headline)</MudText>
-                <MudText Typo="Typo.body1" Color="Color.Secondary">@T(Copy.Hero.Sub)</MudText>
-                <MudStack Row Spacing="3" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Class="fd-cta" OnClick="ToFormAsync">@T(Copy.Hero.Cta)</MudButton>
-                    <MudButton Variant="Variant.Text" Color="Color.Dark" Class="fd-link-button" OnClick="ToWorkersAsync">@T(Copy.Hero.WorkerLink)</MudButton>
+<MudStack Class="fd-band-primary fd-hero-band">
+    <MudContainer MaxWidth="MaxWidth.Large" Class="fd-hero">
+        <MudGrid Spacing="6" Class="align-center">
+            <MudItem xs="12" md="6" Class="order-md-1">
+                <MudStack Spacing="4">
+                    <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                        <MudIcon Icon="@FrontDoorTheme.Logo" ViewBox="0 0 24 24" Color="Color.Inherit" Class="fd-hero-logo" />
+                        <MudText Typo="Typo.h4" HtmlTag="span" Class="fd-wordmark">Tarbaho</MudText>
+                    </MudStack>
+                    <MudChip T="string" Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Small" Class="fd-eyebrow fd-eyebrow-dark">@T(Copy.Hero.Eyebrow)</MudChip>
+                    <MudText Typo="Typo.h2" HtmlTag="h1">@T(Copy.Hero.Headline)</MudText>
+                    <MudText Typo="Typo.body1" Class="fd-on-primary-muted fd-hero-sub">@T(Copy.Hero.Sub)</MudText>
+                    <MudStack Row Spacing="3" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                        <MudButton Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-light" OnClick="ToFormAsync">@T(Copy.Hero.Cta)</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-ghost" OnClick="ToWorkersAsync">@T(Copy.Hero.WorkerLink)</MudButton>
+                    </MudStack>
+                    <StoreBadges OnDark="true" />
                 </MudStack>
-                <StoreBadges />
-            </MudStack>
-        </MudItem>
-        <MudItem xs="12" md="6">
-            <MudPaper Elevation="0" Class="fd-hero-panel">
-                <MudGrid Spacing="2">
-                    @foreach (var trade in TradeList.Trades)
-                    {
-                        <MudItem xs="4">
-                            <MudStack AlignItems="AlignItems.Center" Spacing="1" Class="fd-trade-tile">
-                                <IconCircle Src="@trade.Icon" Size="56" OnDark="true" />
-                                <MudText Typo="Typo.body2" Align="Align.Center" Class="fd-tile-label">@T(trade.Label)</MudText>
-                            </MudStack>
-                        </MudItem>
-                    }
-                </MudGrid>
-            </MudPaper>
-        </MudItem>
-    </MudGrid>
-</MudContainer>
+            </MudItem>
+            <MudItem xs="12" md="6" Class="order-md-0">
+                <HeroPhones />
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
+</MudStack>

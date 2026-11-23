@@ -2,7 +2,7 @@ using SideGigPh.FrontDoor.Localization;
 
 namespace SideGigPh.FrontDoor.Components.Landing;
 
-/// <summary>Why Tarbaho, said once and plainly: pay the worker directly (in money green), own price, private numbers, nearby and pay after.</summary>
+/// <summary>Why Tarbaho, said once and plainly, as a feature list: pay the worker directly (in money green), own price, private numbers, nearby and pay after.</summary>
 public partial class Promises
 {
     private sealed record Promise(string Icon, Say Title, Say Text, bool Money = false);

@@ -4,7 +4,7 @@ using Microsoft.JSInterop;
 namespace SideGigPh.FrontDoor.Components.Landing;
 
 /// <summary>
-/// The sticky white top bar: logo (back to the top), section links on wide screens, the language toggle and a small
+/// The sticky purple top bar (it runs into the hero band): logo (back to the top), section links on wide screens, the language toggle and a small
 /// "Early access" button, hidden while the form itself is on screen so it never points at itself.
 /// </summary>
 public partial class SiteHeader : IAsyncDisposable

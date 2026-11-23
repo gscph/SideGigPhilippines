@@ -20,19 +20,34 @@ public sealed class HttpEarlyAccessSignup(HttpClient http) : IEarlyAccessSignup
             return response.StatusCode switch
             {
                 _ when response.IsSuccessStatusCode => SignupResult.Sent,
-                HttpStatusCode.BadRequest => SignupResult.InvalidEmail,
+                HttpStatusCode.BadRequest => await IsBadEmailAsync(response, limit.Token) ? SignupResult.InvalidEmail : SignupResult.Failed,
                 HttpStatusCode.TooManyRequests => SignupResult.TooManyTries,
                 _ => SignupResult.Failed,
             };
         }
         catch (HttpRequestException)
         {
-            // No answer at all: the browser couldn't reach the API (offline, or the connection dropped).
-            return SignupResult.Offline;
+            // No answer the page may read. The form checked the browser was online just before, so this is a dropped
+            // connection or the API refusing this site (CORS): "didn't send, try again", never "No internet".
+            return SignupResult.Failed;
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
             return SignupResult.Failed;
+        }
+    }
+
+    /// <summary>Only <c>invalid-email</c> blames the email; any other 400 (a bad phone, a bad body) is "didn't send".</summary>
+    private static async Task<bool> IsBadEmailAsync(HttpResponseMessage response, CancellationToken ct)
+    {
+        try
+        {
+            var error = await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError, ct);
+            return error?.Error == ApiErrors.Invalid("email");
+        }
+        catch (System.Text.Json.JsonException)
+        {
+            return false;
         }
     }
 }

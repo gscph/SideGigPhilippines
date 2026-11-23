@@ -4,7 +4,10 @@ using SideGigPh.FrontDoor.EarlyAccess;
 
 namespace SideGigPh.FrontDoor.Components.Landing;
 
-/// <summary>What Tarbaho is in five seconds, one button to the form, a link for workers, "soon" store tiles and the trades.</summary>
+/// <summary>
+/// The purple band at the top: logo, what Tarbaho is in five seconds, one button to the form, a link for workers, the
+/// store tiles, and the app itself (<see cref="HeroPhones"/>). Text first on a phone, beside the screens on a wide one.
+/// </summary>
 public partial class Hero
 {
     [Inject] private PageScript Script { get; set; } = default!;

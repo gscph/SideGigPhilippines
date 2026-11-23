@@ -71,15 +71,22 @@ h1:focus {
     font-weight: 600;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header: purple, running into the hero band ---------- */
 .fd-header {
     position: sticky;
     top: 0;
     z-index: var(--mud-zindex-appbar);
     height: var(--fd-header-height);
     padding: 0 16px;
-    background: var(--mud-palette-surface);
-    border-bottom: 1px solid var(--mud-palette-lines-default);
+    background: var(--mud-palette-primary);
+    color: var(--mud-palette-primary-text);
+    border-bottom: 1px solid color-mix(in srgb, var(--mud-palette-primary-text) 14%, transparent);
+}
+
+@media (min-width: 960px) {
+    .fd-header {
+        padding: 0 32px;
+    }
 }
 
 .fd-plain-button {
@@ -97,9 +104,27 @@ h1:focus {
     letter-spacing: -0.02em !important;
 }
 
+.fd-nav-link {
+    font-weight: 600 !important;
+    opacity: 0.92;
+}
+
 .fd-language .mud-toggle-item {
     padding: 2px 10px !important;
     min-height: 32px;
+}
+
+.fd-language-dark {
+    border-color: color-mix(in srgb, var(--mud-palette-primary-text) 55%, transparent) !important;
+}
+
+.fd-language-dark .mud-toggle-item {
+    color: var(--mud-palette-primary-text) !important;
+}
+
+.fd-language-dark .mud-toggle-item.mud-toggle-item-selected {
+    background: var(--mud-palette-surface) !important;
+    color: var(--mud-palette-primary) !important;
 }
 
 @media (max-width: 399.98px) {
@@ -109,20 +134,20 @@ h1:focus {
     }
 }
 
-/* ---------- Sections ---------- */
+/* ---------- Bands and sections ---------- */
 .fd-page {
     min-height: 60vh;
 }
 
 .fd-section {
-    padding-top: 40px !important;
-    padding-bottom: 40px !important;
+    padding-top: 56px !important;
+    padding-bottom: 56px !important;
 }
 
 @media (min-width: 960px) {
     .fd-section {
-        padding-top: 64px !important;
-        padding-bottom: 64px !important;
+        padding-top: 88px !important;
+        padding-bottom: 88px !important;
         padding-left: 24px !important;
         padding-right: 24px !important;
     }
@@ -141,9 +166,133 @@ h1:focus {
     opacity: 0.88;
 }
 
+/* The purple bands' decoration: a soft ring and a faint dot grid, behind the content. */
+.fd-hero-band {
+    position: relative;
+    overflow: hidden;
+}
+
+.fd-hero-band::before,
+.fd-hero-band::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+}
+
+.fd-hero-band::before {
+    width: 520px;
+    height: 520px;
+    top: -220px;
+    right: -160px;
+    border-radius: 50%;
+    border: 64px solid color-mix(in srgb, var(--mud-palette-primary-text) 6%, transparent);
+}
+
+.fd-hero-band::after {
+    width: 320px;
+    height: 160px;
+    bottom: 24px;
+    left: 24px;
+    background-image: radial-gradient(color-mix(in srgb, var(--mud-palette-primary-text) 22%, transparent) 2px, transparent 2.5px);
+    background-size: 24px 24px;
+}
+
+.fd-dots-right::after {
+    left: auto;
+    right: 24px;
+    bottom: auto;
+    top: 24px;
+}
+
+.fd-hero-band > .mud-container {
+    position: relative;
+    z-index: 1;
+}
+
+.fd-hero {
+    padding-top: 40px !important;
+    padding-bottom: 56px !important;
+}
+
+@media (min-width: 960px) {
+    .fd-hero {
+        padding-top: 72px !important;
+        padding-bottom: 96px !important;
+    }
+}
+
+.fd-hero-logo {
+    width: 44px !important;
+    height: 44px !important;
+}
+
+.fd-hero-sub {
+    font-size: 1.125rem !important;
+    max-width: 34em;
+}
+
 .fd-eyebrow {
     align-self: flex-start;
     margin: 0 !important;
+}
+
+.fd-eyebrow-dark {
+    color: var(--mud-palette-primary-text) !important;
+    border-color: color-mix(in srgb, var(--mud-palette-primary-text) 60%, transparent) !important;
+}
+
+/* ---------- Section titles: uppercase purple, the last word on a tint highlight with a dot ---------- */
+.fd-title {
+    text-transform: uppercase;
+    letter-spacing: 0.01em !important;
+}
+
+.fd-title-mark {
+    padding: 0 0.25em;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--mud-palette-primary) 12%, white);
+}
+
+.fd-title-mark::after {
+    content: "";
+    display: inline-block;
+    width: 0.16em;
+    height: 0.16em;
+    margin-left: 0.18em;
+    vertical-align: middle;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.fd-title-mark-dark {
+    background: color-mix(in srgb, var(--mud-palette-primary-text) 16%, transparent);
+}
+
+.fd-title-sub {
+    max-width: 40em;
+}
+
+/* ---------- Buttons: pills ---------- */
+.fd-pill {
+    min-height: 48px;
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+    border-radius: 999px !important;
+}
+
+.fd-header-cta {
+    min-height: 36px;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+}
+
+.fd-pill-light {
+    background: var(--mud-palette-surface) !important;
+    color: var(--mud-palette-primary) !important;
+}
+
+.fd-pill-ghost {
+    border-color: color-mix(in srgb, var(--mud-palette-primary-text) 60%, transparent) !important;
 }
 
 .fd-cta {
@@ -156,6 +305,60 @@ h1:focus {
     text-underline-offset: 3px;
 }
 
+/* Pill tabs (how it works, trades): the picked one filled purple, the other a soft tint. */
+.fd-pills {
+    width: min(100%, 520px);
+    column-gap: 12px;
+    border: none !important;
+    background: transparent;
+    overflow: visible;
+}
+
+.fd-pills .mud-toggle-item {
+    min-height: 48px;
+    padding: 8px 24px !important;
+    margin: 0 !important;
+    border-radius: 999px !important;
+    text-transform: none !important;
+    font-weight: 600;
+    border: 0 !important;
+    background: var(--fd-tint);
+    color: var(--mud-palette-text-primary);
+}
+
+@media (max-width: 599.98px) {
+    .fd-pills .mud-toggle-item {
+        padding: 8px 12px !important;
+        font-size: 0.9375rem;
+    }
+
+    .fd-number-card {
+        padding: 16px !important;
+    }
+}
+
+.fd-pills .mud-toggle-item.mud-toggle-item-selected {
+    background: var(--mud-palette-primary);
+    color: var(--mud-palette-primary-text);
+}
+
+.fd-pills .mud-toggle-item-delimiter {
+    border: none !important;
+}
+
+/* ---------- Cards and tiles: round, white, a soft shadow ---------- */
+.fd-card {
+    height: 100%;
+    border-radius: 20px !important;
+    background: var(--mud-palette-surface);
+    border: 1px solid var(--mud-palette-lines-default);
+    box-shadow: 0 8px 28px color-mix(in srgb, var(--mud-palette-primary) 8%, transparent);
+}
+
+.fd-card-first {
+    border-color: var(--mud-palette-primary);
+}
+
 .fd-icon-circle {
     border-radius: 50%;
     background: var(--fd-tint);
@@ -165,56 +368,81 @@ h1:focus {
     background: var(--mud-palette-surface);
 }
 
-/* Cards and tiles: 12px, a hairline, flat. */
-.fd-tile {
-    border-radius: 12px !important;
-    border-color: var(--fd-box-border) !important;
-    height: 100%;
+.fd-step-art {
+    position: relative;
 }
 
-.fd-tile-label {
-    font-weight: 600 !important;
-}
-
-.fd-hero-panel {
-    border-radius: 24px !important;
-    padding: 24px;
-    background: var(--fd-tint) !important;
-}
-
-.fd-trade-tile {
-    min-height: 100%;
-}
-
-.fd-job-chip {
-    margin: 0 !important;
-}
-
-/* "How it works" step numbers: a purple circle, as on the cover photo. */
 .fd-step-number {
+    position: absolute;
+    top: -4px;
+    right: -8px;
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    flex-shrink: 0;
     background: var(--mud-palette-primary);
     color: var(--mud-palette-primary-text);
+    border: 3px solid var(--mud-palette-surface);
 }
 
-.fd-sides,
-.fd-choice {
+.fd-trade-tile {
+    height: 100%;
+    min-height: 156px;
+    padding: 16px 8px;
+    border-radius: 20px;
+    background: var(--fd-tint);
+    border: 1px solid color-mix(in srgb, var(--mud-palette-primary) 8%, white);
+}
+
+.fd-number {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: var(--fd-tint);
+}
+
+/* ---------- The hero's app screens: tilted cards, only the phone of each store screenshot ---------- */
+.fd-phones {
+    position: relative;
     width: 100%;
+    max-width: 520px;
+    aspect-ratio: 1 / 1.05;
+    margin: 0 auto;
 }
 
-.fd-sides .mud-toggle-item,
-.fd-choice .mud-toggle-item {
-    flex: 1 1 0;
-    min-height: 48px;
-    text-transform: none !important;
+.fd-phone {
+    position: absolute;
+    width: 46%;
+    aspect-ratio: 740 / 1500;
+    overflow: hidden;
+    border-radius: 11% / 5.4%;
+    box-shadow: 0 24px 48px color-mix(in srgb, black 32%, transparent);
+}
+
+.fd-phone-back {
+    left: 6%;
+    top: 2%;
+    transform: rotate(-9deg);
+}
+
+.fd-phone-front {
+    right: 6%;
+    top: 10%;
+    transform: rotate(7deg);
+}
+
+/* The store screenshot is 1080 x 1920 with the phone at (170, 370), 740 x 1500: scale and shift so only it shows.
+   Percentage margins are of the frame's width. */
+.fd-phone-shot {
+    display: block;
+    width: 145.95% !important;
+    max-width: none !important;
+    margin-left: -22.97%;
+    margin-top: -50%;
 }
 
 /* ---------- Store tiles ---------- */
 .fd-store-badge {
-    border-radius: 8px !important;
+    border-radius: 12px !important;
     padding: 6px 14px !important;
     min-height: 48px;
     text-transform: none !important;
@@ -237,7 +465,7 @@ h1:focus {
 
 /* ---------- Early Access card ---------- */
 .fd-form-card {
-    border-radius: 16px !important;
+    border-radius: 20px !important;
     padding: 20px;
     max-width: 520px;
     margin: 0 auto;
@@ -248,6 +476,16 @@ h1:focus {
     .fd-form-card {
         padding: 32px;
     }
+}
+
+.fd-choice {
+    width: 100%;
+}
+
+.fd-choice .mud-toggle-item {
+    flex: 1 1 0;
+    min-height: 48px;
+    text-transform: none !important;
 }
 
 .fd-field .mud-input-control-input-container {
@@ -270,18 +508,31 @@ h1:focus {
     overflow: hidden !important;
 }
 
-/* ---------- FAQ, repeat, footer ---------- */
+/* ---------- FAQ, footer, back to top ---------- */
 .fd-faq {
-    border-radius: 12px !important;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.fd-repeat {
-    border-top: 1px solid var(--mud-palette-lines-default);
+.fd-faq-item {
+    border-radius: 16px !important;
+    border: 1px solid var(--mud-palette-lines-default);
+    background: var(--mud-palette-surface);
+}
+
+.fd-faq-item .mud-expand-panel-text {
+    font-weight: 600;
 }
 
 .fd-footer {
     border-top: 1px solid var(--mud-palette-lines-default);
     background: var(--mud-palette-surface);
+}
+
+.fd-to-top {
+    right: 20px !important;
+    bottom: 20px !important;
 }
 
 /* ---------- Blazor's own error strip ---------- */
