@@ -19,6 +19,7 @@ on:
       - 'SideGigPh.Maui/wwwroot/fonts/**'
       - 'SideGigPh.Maui/Components/Layout/AppTheme.cs'
       - 'docs/store-assets/feature-graphic.png'
+      - 'docs/store-assets/developer-page-icon.png'
       - 'docs/store-assets/phone/**'
       - '.github/workflows/deploy-website.yml'
 

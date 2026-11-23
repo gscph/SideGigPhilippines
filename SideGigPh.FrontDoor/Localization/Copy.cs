@@ -9,10 +9,9 @@ public static class Copy
 {
     public static class Meta
     {
-        public static readonly Say Title = new("Tarbaho: find a Kuya or Ate nearby", "Tarbaho: may Kuya o Ate na malapit sa'yo");
-        public static readonly Say Description = new(
-            "Tarbaho is a free local directory in Rizal. Post what you need done, get offers from Kuya and Ate nearby, and pay them directly. Angono first.",
-            "Libreng local directory sa Rizal. I-post ang ipapagawa, tumanggap ng alok mula sa Kuya at Ate na malapit, at diretso ang bayad. Angono muna.");
+        // What Google shows as the result's title; the words people search (marketing/seo/keywords.md). The description
+        // is index.html's own, so the page has exactly one.
+        public static readonly Say Title = new("Tarbaho: aircon, tubero, electrician in Angono, Rizal", "Tarbaho: aircon, tubero, electrician sa Angono, Rizal");
     }
 
     public static class Header
@@ -189,6 +188,9 @@ public static class Copy
         [
             (new("Is Tarbaho free?", "Libre ba ang Tarbaho?"),
              new("Yes. Free to post and free to list.", "Oo. Libre mag-post at libre mag-lista.")),
+            (new("What can I find on Tarbaho?", "Ano'ng makikita sa Tarbaho?"),
+             new("Aircon cleaning, repair, freon and installation; construction: plumbers (tubero), electricians, carpenters (karpintero), masons, tiles, welding and roof repair; pest control for termites (anay), cockroaches, rats and mosquitoes; errands like house cleaning, grocery and PasaBuy; car mechanics (mekaniko); and IT: computers, software and networks.",
+                 "Linis aircon, repair, pa-freon at pakabit; construction: tubero, electrician, karpintero, mason, tiles, welding at ayos bubong; pest control sa anay, ipis, daga at lamok; errands gaya ng linis bahay, pa-grocery at PasaBuy; mekaniko ng kotse; at IT: computer, software at network.")),
             (new("How do I pay?", "Paano magbayad?"),
              new("You pay the worker directly after the work, at the price you both agreed. The money never passes through the app.", "Diretso mong babayaran si Kuya o Ate pagkatapos ng gawa, sa presyong napagkasunduan. Hindi dumadaan sa app ang bayad.")),
             (new("Where does it work?", "Saan ito pwede?"),
