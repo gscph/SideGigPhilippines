@@ -13,8 +13,8 @@
                     <MudText Typo="Typo.h2" HtmlTag="h1">@T(Copy.Hero.Headline)</MudText>
                     <MudText Typo="Typo.body1" Class="fd-on-primary-muted fd-hero-sub">@T(Copy.Hero.Sub)</MudText>
                     <MudStack Row Spacing="3" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
-                        <MudButton Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-light" OnClick="ToFormAsync">@T(Copy.Hero.Cta)</MudButton>
-                        <MudButton Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-ghost" OnClick="ToWorkersAsync">@T(Copy.Hero.WorkerLink)</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-light" OnClick="ToFormAsync" data-scroll-to="@Sections.EarlyAccess">@T(Copy.Hero.Cta)</MudButton>
+                        <MudButton Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Large" Class="fd-pill fd-pill-ghost" OnClick="ToWorkersAsync" data-scroll-to="@Sections.HowItWorks" data-role="@EarlyAccessRules.Worker">@T(Copy.Hero.WorkerLink)</MudButton>
                     </MudStack>
                     <StoreBadges OnDark="true" />
                 </MudStack>

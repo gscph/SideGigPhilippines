@@ -623,6 +623,15 @@ TestFlight beta.
   serves `wwwroot` (`staticwebapp.config.json`: the fallback to `index.html`, security headers, no cache for
   `index.html` and `appsettings.json`). `index.html` carries the Open Graph tags (Facebook / Messenger previews read them
   before any script) and a plain-HTML hero that shows while the page loads, the only raw HTML.
+- **Instant first view (prerendered):** `dotnet publish` runs the page once (`BlazorWasmPreRendering.Build`,
+  `BlazorWasmPrerenderingMode` `WebAssemblyPrerendered`) and writes the finished HTML into `index.html`, so a visitor
+  (and Google) sees the whole page at once instead of "Loading…" while about 2.5 MB of .NET downloads (~9 s on mobile
+  data); Blazor then takes the same page over. So services are registered in `Program.cs`'s static local
+  `ConfigureServices(IServiceCollection, IConfiguration)` (the prerender calls it too), root components are added only
+  when the HTML names none, and browser calls stay in `OnAfterRenderAsync` (none run while prerendering). Until Blazor
+  has started, `index.html`'s small click handler scrolls for any button with `data-scroll-to` (a `Sections` id, or
+  `Sections.Top`); `frontdoor.js` sets `window.fdReady` and it stands down. The prerender is English: a Taglish visitor
+  sees it switch when Blazor starts, and the toggle and form work only from then.
 - **Brand, linked not copied:** the csproj links the app's DM Sans font, every `SideGigPh.Maui/wwwroot/images/icons/*.svg`
   (`LinkBase`) and `docs/store-assets/feature-graphic.png` as `images/og.png`, so a new icon or font reaches both.
   `Theme/FrontDoorTheme` builds the `MudTheme` with `AppTheme`'s colors and the same Folded T path (`Logo`): change
@@ -650,6 +659,9 @@ TestFlight beta.
   `developer-page-icon.png`). `wwwroot/robots.txt` and `sitemap.xml` (one URL; `staticwebapp.config.json` keeps `.xml`
   out of the fallback so it isn't answered with `index.html`). Taglish is the same URL (`?lang=tl` is not a separate
   page for Google). Google Search Console is the owner's (DNS TXT at Cloudflare).
+- **Link previews (Facebook, Messenger, Instagram, TikTok, X, Viber):** the `og:` tags (image with size, type and alt;
+  `en_PH` + `fil_PH`) and X's own `twitter:` tags in `index.html`, read before any script runs. Each app's profile link
+  and Meta's domain verification are the owner's: checklist in [`marketing/seo/social.md`](../marketing/seo/social.md).
 - **Language:** every string is a `Say(English, Taglish)` in `Localization/Copy.cs`; `PageLanguage` picks it from
   `?lang=tl|en`, then the visitor's last pick (localStorage `tarbaho.lang`), then the browser. Copy follows the
   marketing rules: service words, Kuya / Ate, never vouching, never "0% commission" / "walang komisyon".

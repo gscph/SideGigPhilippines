@@ -30,6 +30,12 @@ public partial class MainLayout
         await Script.SetHtmlLangAsync(Language.Current);
 
         Signup.SetJoined(await Script.ReadAsync(PageScript.JoinedKey));
+
+        // The hero's worker link tapped while the page was still prerendered: apply its side now.
+        if (await Script.EarlyRoleAsync() is { } role)
+        {
+            Signup.SuggestRole(role);
+        }
     }
 
     /// <summary>The <c>lang</c> in the page's address (<c>tarbaho.com/?lang=tl</c>), or null.</summary>

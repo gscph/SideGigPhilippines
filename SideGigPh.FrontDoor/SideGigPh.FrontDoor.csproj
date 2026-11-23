@@ -7,6 +7,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <BlazorDisableThrowNavigationException>true</BlazorDisableThrowNavigationException>
+    <!-- Publish writes the finished page into index.html (BlazorWasmPreRendering.Build), so a visitor and Google see it at
+         once instead of "Loading…" while the .NET runtime downloads; Blazor then takes over the same page in place. -->
+    <BlazorWasmPrerenderingMode>WebAssemblyPrerendered</BlazorWasmPrerenderingMode>
+    <BlazorWasmPrerenderingEnvironment>Production</BlazorWasmPrerenderingEnvironment>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +18,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="10.0.15" PrivateAssets="all" />
     <!-- Same MudBlazor as the app (MobileAppTheme.csproj). -->
     <PackageReference Include="MudBlazor" Version="9.12.0" />
+    <PackageReference Include="BlazorWasmPreRendering.Build" Version="7.2.0" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>

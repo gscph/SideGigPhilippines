@@ -5,20 +5,30 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <base href="/" />
-    <title>Tarbaho: aircon, tubero, electrician in Angono, Rizal</title>
     <meta name="description" content="Find aircon cleaning, tubero, electrician, karpintero, mekaniko and pest control (anay) near you in Angono, Antipolo and Taytay, Rizal. See their prices first. Free." />
     <link rel="canonical" href="https://www.tarbaho.com/" />
     <meta name="theme-color" content="#5B2A86" />
 
-    <!-- Facebook and Messenger link previews read these before any script runs. -->
+    <!-- Link previews (Facebook, Messenger, Instagram, Threads, TikTok, X, Viber) read these before any script runs.
+         Check them after a change: developers.facebook.com/tools/debug (Scrape Again). -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Tarbaho" />
     <meta property="og:url" content="https://www.tarbaho.com/" />
     <meta property="og:title" content="Tarbaho: aircon, tubero, electrician near you in Rizal" />
     <meta property="og:description" content="Aircon, Construction, Pasabay, Auto, Pest Control and IT in Angono, Antipolo and Taytay. See their prices, chat in the app." />
     <meta property="og:image" content="https://www.tarbaho.com/images/og.png" />
+    <meta property="og:image:secure_url" content="https://www.tarbaho.com/images/og.png" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1024" />
+    <meta property="og:image:height" content="500" />
+    <meta property="og:image:alt" content="Tarbaho: find aircon, construction, errands, mechanic, pest control and IT services near you in Rizal" />
     <meta property="og:locale" content="en_PH" />
+    <meta property="og:locale:alternate" content="fil_PH" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tarbaho: aircon, tubero, electrician near you in Rizal" />
+    <meta name="twitter:description" content="Aircon, Construction, Pasabay, Auto, Pest Control and IT in Angono, Antipolo and Taytay. See their prices, chat in the app." />
+    <meta name="twitter:image" content="https://www.tarbaho.com/images/og.png" />
+    <meta name="twitter:image:alt" content="Tarbaho: find aircon, construction, errands, mechanic, pest control and IT services near you in Rizal" />
 
 
     <!-- What Google reads about who we are and where we serve (keywords: marketing/seo/keywords.md). -->
@@ -58,8 +68,8 @@
 </head>
 
 <body>
-    <!-- What shows while the page loads (and all that a phone with scripts off sees): the brand and what Tarbaho is.
-         The only raw HTML of the site; Blazor replaces it. Colors match FrontDoorTheme. -->
+    <!-- Only a local `dotnet run` shows this: `dotnet publish` replaces it with the finished, prerendered page
+         (BlazorWasmPreRendering.Build). The only raw HTML of the site. Colors match FrontDoorTheme. -->
     <div id="app">
         <div class="fd-boot">
             <svg class="fd-boot-logo" viewBox="0 0 24 24" aria-hidden="true">
@@ -76,6 +86,22 @@
         <a class="dismiss">✕</a>
     </div>
 
+    <!-- The published page is prerendered (visible at once), but Blazor takes a few seconds to start on mobile data.
+         Until then this scrolls for the buttons that carry data-scroll-to (Sections.cs); frontdoor.js sets fdReady
+         when Blazor takes over. A data-role (the worker link) is kept for Blazor to apply (MainLayout). -->
+    <script>
+        document.addEventListener("click", function (e) {
+            if (window.fdReady || !e.target.closest) return;
+            var button = e.target.closest("[data-scroll-to]");
+            if (!button) return;
+            var role = button.getAttribute("data-role");
+            if (role) window.fdEarlyRole = role;
+            var id = button.getAttribute("data-scroll-to");
+            if (id === "top") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
+            var target = document.getElementById(id);
+            if (target) target.scrollIntoView({ behavior: "smooth", block: id === "early-access" ? "center" : "start" });
+        });
+    </script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
 </body>
