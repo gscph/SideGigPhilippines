@@ -29,6 +29,11 @@ export function isOnline() {
 // Blazor runs the scroll buttons from here on, so index.html's early click handler stands down.
 window.fdReady = true;
 
+// The side a visitor picked with a tap before Blazor had started (index.html's early handler), or null.
+export function earlyRole() {
+    return window.fdEarlyRole || null;
+}
+
 export function scrollToSection(id, focusSelector) {
     const target = document.getElementById(id);
     if (!target) return;

@@ -13,8 +13,8 @@ The page part is done. Everything below is set up in each app by whoever owns th
 
 - [ ] **Facebook Page:** open the Page as admin, go to *Edit details* (or *About → Contact info*), and set *Website*
       to `https://www.tarbaho.com`.
-- [ ] **Page button:** add the action button *Sign up*, linked to `https://www.tarbaho.com` (the page's "Get early access" button takes them
-      to the form; a `#early-access` link doesn't scroll there, since the page draws itself after loading).
+- [ ] **Page button:** add the action button *Sign up*, linked to `https://www.tarbaho.com` . The page's "Get early access" button takes them
+      to the form.
 - [ ] **Verify the domain** so the Page owns tarbaho.com's link previews, can edit them in posts and can run ads
       later. In Meta Business Suite, go to *Settings → Brand safety and suitability → Domains → Add* `tarbaho.com`,
       and choose **DNS TXT record**. Add that record in Cloudflare DNS, then press *Verify*. Use the DNS record, not

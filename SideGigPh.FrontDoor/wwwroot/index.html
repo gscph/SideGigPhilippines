@@ -88,12 +88,14 @@
 
     <!-- The published page is prerendered (visible at once), but Blazor takes a few seconds to start on mobile data.
          Until then this scrolls for the buttons that carry data-scroll-to (Sections.cs); frontdoor.js sets fdReady
-         when Blazor takes over. -->
+         when Blazor takes over. A data-role (the worker link) is kept for Blazor to apply (MainLayout). -->
     <script>
         document.addEventListener("click", function (e) {
             if (window.fdReady || !e.target.closest) return;
             var button = e.target.closest("[data-scroll-to]");
             if (!button) return;
+            var role = button.getAttribute("data-role");
+            if (role) window.fdEarlyRole = role;
             var id = button.getAttribute("data-scroll-to");
             if (id === "top") { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
             var target = document.getElementById(id);

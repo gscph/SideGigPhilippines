@@ -24,6 +24,9 @@ public sealed class PageScript(IJSRuntime js) : IAsyncDisposable
 
     public Task SetHtmlLangAsync(string language) => RunAsync("setHtmlLang", language);
 
+    /// <summary>The side ("worker") a visitor picked with a tap before Blazor had started, or null.</summary>
+    public Task<string?> EarlyRoleAsync() => ReadValueAsync<string?>("earlyRole", null);
+
     public Task<bool> IsOnlineAsync() => ReadValueAsync("isOnline", true);
 
     public Task ScrollToAsync(string sectionId, string? focusSelector = null) => RunAsync("scrollToSection", sectionId, focusSelector);
