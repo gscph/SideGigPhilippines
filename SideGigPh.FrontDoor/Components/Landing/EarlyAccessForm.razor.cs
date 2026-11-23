@@ -147,9 +147,6 @@ public partial class EarlyAccessForm
                 case SignupResult.TooManyTries:
                     _problem = Copy.Join.TooMany;
                     break;
-                case SignupResult.Offline:
-                    _problem = Copy.Join.Offline;
-                    break;
                 default:
                     _problem = Copy.Join.Error;
                     break;

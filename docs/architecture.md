@@ -638,7 +638,7 @@ TestFlight beta.
   cropped to the phone by `fd-phone-shot`); sections alternate white and tint; titles are uppercase purple with the last
   word on a tint highlight (`SectionTitle`, `Copy.Titles` as Lead + Mark); pill buttons (`fd-pill`) and pill tabs
   (`fd-pills`: household / worker, all trades / Construction); rounded cards with a soft purple shadow (`fd-card`);
-  `NumbersSection` counts only what is real (trades, Construction jobs, towns from `TradeList`, the 3 badges); a
+  `NumbersSection` counts only what is real (trades, Construction services, towns from `TradeList`, the 3 badges); a
   `MudScrollToTop` button. The page may be rounder and bolder than the app (pills, shadows, several filled buttons per
   screen), never another color, font or logo.
   Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.

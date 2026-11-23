@@ -1,7 +1,8 @@
 @inherits LandingComponent
 
 <MudContainer MaxWidth="MaxWidth.Large" Class="fd-section">
-    <MudGrid Spacing="4">
+    <SectionTitle Lead="@T(Copy.Titles.Numbers.Lead)" Mark="@T(Copy.Titles.Numbers.Mark)" />
+    <MudGrid Spacing="4" Class="mt-6">
         @foreach (var item in Items)
         {
             <MudItem xs="6" md="3">

@@ -47,6 +47,7 @@ public static class Copy
         public static readonly (Say Lead, Say Mark) Why = (new("Why", "Bakit"), new("Tarbaho", "Tarbaho"));
         public static readonly (Say Lead, Say Mark) Trades = (new("Every kind of", "Bawat klase ng"), new("work", "gawa"));
         public static readonly (Say Lead, Say Mark) Trust = (new("Know who's", "Kilalanin ang"), new("coming", "darating"));
+        public static readonly (Say Lead, Say Mark) Numbers = (new("Tarbaho in", "Tarbaho sa"), new("numbers", "numero"));
         public static readonly (Say Lead, Say Mark) Faq = (new("Your", "Mga"), new("questions", "tanong"));
     }
 
@@ -55,7 +56,7 @@ public static class Copy
     {
         public static readonly Say TradesTitle = new("Trades", "Klase ng serbisyo");
         public static readonly Say TradesText = new("Aircon, construction, errands, IT, car mechanic and pest control.", "Aircon, construction, errands, IT, mekaniko at pest control.");
-        public static readonly Say ConstructionTitle = new("Construction jobs", "Gawa sa construction");
+        public static readonly Say ConstructionTitle = new("Construction services", "Serbisyo sa construction");
         public static readonly Say ConstructionText = new("Foreman to helper: carpentry, electrical, plumbing, roofing and more.", "Foreman hanggang helper: karpintero, electrical, tubero, bubong at iba pa.");
         public static readonly Say TownsTitle = new("Towns in Rizal", "Bayan sa Rizal");
         public static readonly Say TownsText = new("Angono first, then Antipolo and Taytay.", "Angono muna, tapos Antipolo at Taytay.");
