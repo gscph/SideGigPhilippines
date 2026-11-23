@@ -87,6 +87,10 @@
         <AndroidLinkTool>r8</AndroidLinkTool>
         <AndroidR8ObfuscationMode>private-members</AndroidR8ObfuscationMode>
     </PropertyGroup>
+    <!-- Keep rules for Java code .NET reads only by name (R8 would remove it): Platforms/Android/proguard.cfg. -->
+    <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+        <ProguardConfiguration Include="Platforms\Android\proguard.cfg" />
+    </ItemGroup>
 
     <!-- Android signing: one fingerprint everywhere, so Firebase (Google sign-in, phone attestation)
          recognises the APK on every PC and in CI. See docs/android-signing.md.
