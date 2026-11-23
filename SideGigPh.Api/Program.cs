@@ -65,20 +65,6 @@ else
     builder.Services.AddSingleton<IIdDocumentReader, NoIdDocumentReader>();
 }
 
-// Early Access sign-ups from the landing page are emailed to the team from the tarbaho.com domain (Azure Communication
-// Services Email, azure/README.md → Early Access email). Without the settings (a PC) a sign-up answers "not sent".
 builder.Services.AddSingleton(TimeProvider.System);
-if (builder.Configuration[AcsEarlyAccessMailer.ConnectionSetting] is { Length: > 0 } emailConnection
-    && builder.Configuration[AcsEarlyAccessMailer.FromSetting] is { Length: > 0 } earlyAccessFrom
-    && builder.Configuration[AcsEarlyAccessMailer.ToSetting] is { Length: > 0 } earlyAccessTo)
-{
-    builder.Services.AddSingleton<IEarlyAccessMailer>(services => new AcsEarlyAccessMailer(
-        new Azure.Communication.Email.EmailClient(emailConnection), earlyAccessFrom, earlyAccessTo,
-        services.GetRequiredService<ILogger<AcsEarlyAccessMailer>>()));
-}
-else
-{
-    builder.Services.AddSingleton<IEarlyAccessMailer, NoEarlyAccessMailer>();
-}
 
 builder.Build().Run();

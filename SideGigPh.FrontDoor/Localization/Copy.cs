@@ -29,11 +29,12 @@ public static class Copy
 
     public static class Hero
     {
-        public static readonly Say Eyebrow = new("Early access · Angono", "Early access · Angono");
-        public static readonly Say Headline = new("Need work done at home? Kuya's nearby.", "May ipapagawa sa bahay? May Kuya malapit.");
+        // The Facebook page's words, so the page and the posts say the same thing.
+        public static readonly Say Eyebrow = new("Powered by AI · Early access", "Powered by AI · Early access");
+        public static readonly Say Headline = new("Finding skilled workers has never been easier.", "Mas madali na ngayong humanap ng skilled worker.");
         public static readonly Say Sub = new(
-            "Post what you need done and your budget. Kuya and Ate nearby send offers. You pay them directly.",
-            "I-post ang ipapagawa at budget mo. Mag-aalok ang mga Kuya at Ate na malapit. Diretso ang bayad sa kanila.");
+            "Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: Aircon, Construction, Pasabay, Auto, Pest Control and IT. See their prices, chat in the app.",
+            "Kinokonekta ng Tarbaho ang mga bahay sa Angono, Antipolo at Taytay sa mga skilled worker na malapit: Aircon, Construction, Pasabay, Auto, Pest Control at IT. Kita agad ang presyo, chat sa app.");
         public static readonly Say Cta = new("Get early access", "Mag-early access");
         public static readonly Say WorkerLink = new("Skilled worker? Get more customers", "Skilled worker ka? Dagdag kliyente");
         public static readonly Say ShotSearch = new("The app: Aircon Technicians in Angono, each with a price", "Ang app: mga Aircon Technician sa Angono, may presyo bawat isa");
@@ -91,6 +92,13 @@ public static class Copy
         public static readonly Say W2Text = new("Households post what they need done. Send your offer or take their budget.", "Nagpo-post ang mga nagpapagawa. Mag-alok ng presyo o kunin ang budget nila.");
         public static readonly Say W3Title = new("Get the work, get paid directly", "Makuha ang gawa, diretso ang bayad");
         public static readonly Say W3Text = new("The household pays you after the work. Your number stays private until they pick you.", "Ikaw ang babayaran pagkatapos ng gawa. Private ang number mo hanggang piliin ka.");
+
+        public static readonly Say H1Shot = new("The app: posting what you need done, with where, when and your budget", "Ang app: pag-post ng kailangan mo, kung saan, kailan at budget mo");
+        public static readonly Say H2Shot = new("The app: three offers for aircon cleaning, each with a price", "Ang app: tatlong offer para sa linis ng aircon, may presyo bawat isa");
+        public static readonly Say H3Shot = new("The app: a chat between a household and a Kuya", "Ang app: chat ng household at ni Kuya");
+        public static readonly Say W1Shot = new("The app: a Kuya typing his usual price per service", "Ang app: si Kuya nilalagay ang usual na presyo niya");
+        public static readonly Say W2Shot = new("The app: a request nearby, and the Kuya sending his price", "Ang app: isang request malapit, at si Kuya nagpapadala ng presyo");
+        public static readonly Say W3Shot = new("The app: chatting with the household that picked you", "Ang app: chat sa household na pumili sa iyo");
     }
 
     public static class Promises

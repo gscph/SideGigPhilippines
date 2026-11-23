@@ -16,34 +16,36 @@ public sealed class PageScript(IJSRuntime js) : IAsyncDisposable
 
     private Task<IJSObjectReference> Module => _module ??= js.InvokeAsync<IJSObjectReference>("import", "./frontdoor.js").AsTask();
 
-    public Task<string?> ReadAsync(string key) => CallAsync<string?>("read", null, key);
+    public Task<string?> ReadAsync(string key) => ReadValueAsync<string?>("read", null, key);
 
-    public Task WriteAsync(string key, string? value) => CallAsync("write", key, value);
+    public Task WriteAsync(string key, string? value) => RunAsync("write", key, value);
 
-    public Task<string?> BrowserLanguageAsync() => CallAsync<string?>("browserLanguage", null);
+    public Task<string?> BrowserLanguageAsync() => ReadValueAsync<string?>("browserLanguage", null);
 
-    public Task SetHtmlLangAsync(string language) => CallAsync("setHtmlLang", language);
+    public Task SetHtmlLangAsync(string language) => RunAsync("setHtmlLang", language);
 
-    public Task<bool> IsOnlineAsync() => CallAsync("isOnline", true);
+    public Task<bool> IsOnlineAsync() => ReadValueAsync("isOnline", true);
 
-    public Task ScrollToAsync(string sectionId, string? focusSelector = null) => CallAsync("scrollToSection", sectionId, focusSelector);
+    public Task ScrollToAsync(string sectionId, string? focusSelector = null) => RunAsync("scrollToSection", sectionId, focusSelector);
 
-    public Task ScrollToTopAsync() => CallAsync("scrollToTop");
+    public Task ScrollToTopAsync() => RunAsync("scrollToTop");
 
-    public Task WatchAsync<T>(string sectionId, DotNetObjectReference<T> listener) where T : class => CallAsync("watchSection", sectionId, listener);
+    public Task WatchAsync<T>(string sectionId, DotNetObjectReference<T> listener) where T : class => RunAsync("watchSection", sectionId, listener);
 
-    public Task UnwatchAsync(string sectionId) => CallAsync("unwatchSection", sectionId);
+    public Task UnwatchAsync(string sectionId) => RunAsync("unwatchSection", sectionId);
 
     /// <summary>"shared", "copied" or "none".</summary>
-    public Task<string> ShareAsync(string title, string text, string url) => CallAsync("share", "none", title, text, url);
+    public Task<string> ShareAsync(string title, string text, string url) => ReadValueAsync("share", "none", title, text, url);
 
-    private async Task CallAsync(string name, params object?[] args)
+    // Two names, never one overloaded: with one name, a call like ("scrollToSection", id, selector) bound to the
+    // generic one and took the id as its fallback, so the browser got the wrong arguments.
+    private async Task RunAsync(string name, params object?[] args)
     {
         try { await (await Module).InvokeVoidAsync(name, args); }
         catch (Exception e) when (e is JSException or JSDisconnectedException or InvalidOperationException or TaskCanceledException) { }
     }
 
-    private async Task<T> CallAsync<T>(string name, T fallback, params object?[] args)
+    private async Task<T> ReadValueAsync<T>(string name, T fallback, params object?[] args)
     {
         try { return await (await Module).InvokeAsync<T>(name, args); }
         catch (Exception e) when (e is JSException or JSDisconnectedException or InvalidOperationException or TaskCanceledException) { return fallback; }

@@ -201,6 +201,17 @@ public sealed class OtherJobNoteRow
     public DateTimeOffset CreatedAt { get; set; }
 }
 
+/// <summary>A landing page Early Access sign-up (<c>EarlyAccessSignups</c>), one per email address.</summary>
+public sealed class EarlyAccessSignupRow
+{
+    public required string Email { get; set; }
+    public required string Phone { get; set; }
+    public string? Role { get; set; }
+    public string? Language { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
+}
+
 /// <summary>A problem the app had on a phone (<c>ErrorReports</c>): diagnostics with no personal data, kept 90 days.</summary>
 public sealed class ErrorReportRow
 {

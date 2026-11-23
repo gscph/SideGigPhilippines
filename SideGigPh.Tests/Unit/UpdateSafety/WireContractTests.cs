@@ -255,7 +255,6 @@ public class WireContractTests
         ApiErrors.ConsentRequired.Should().Be("consent-required");
         ApiErrors.AlreadySent.Should().Be("already-sent");
         ApiErrors.NotAdmin.Should().Be("not-admin");
-        ApiErrors.NotSent.Should().Be("not-sent");
         ApiErrors.OthersStays.Should().Be("others-stays");
         ApiErrors.NeedsPrice.Should().Be("needs-price");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer");

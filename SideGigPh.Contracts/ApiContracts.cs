@@ -44,9 +44,6 @@ public static class ApiErrors
     /// <summary>409 on upload or publish: anti-fraud rule 2, another account has that photo.</summary>
     public const string PhotoInUse = "photo-in-use";
 
-    /// <summary>503 on <c>POST early-access</c>: the mail service didn't take the sign-up; the landing page asks to try again.</summary>
-    public const string NotSent = "not-sent";
-
     /// <summary>400 on any write: the request body is missing or isn't the expected JSON.</summary>
     public const string BadBody = "bad-body";
 

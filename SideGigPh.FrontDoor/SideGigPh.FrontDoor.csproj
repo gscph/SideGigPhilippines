@@ -26,9 +26,13 @@
     <Content Include="..\SideGigPh.Maui\wwwroot\fonts\dm-sans.woff2" Link="wwwroot\fonts\dm-sans.woff2" />
     <Content Include="..\SideGigPh.Maui\wwwroot\fonts\DM-Sans-OFL.txt" Link="wwwroot\fonts\DM-Sans-OFL.txt" />
     <Content Include="..\SideGigPh.Maui\wwwroot\images\icons\*.svg" LinkBase="wwwroot\images\icons" />
-    <!-- The hero's two app screens: the store listing's phone screenshots (the page crops them to the phone). -->
+    <!-- The app screens (hero and How it works): the store listing's phone screenshots (the page crops them to the phone). -->
     <Content Include="..\docs\store-assets\phone\2-search-results.png" Link="wwwroot\images\app\search-results.png" />
+    <Content Include="..\docs\store-assets\phone\3-post.png" Link="wwwroot\images\app\post.png" />
+    <Content Include="..\docs\store-assets\phone\4-worker-price.png" Link="wwwroot\images\app\worker-price.png" />
     <Content Include="..\docs\store-assets\phone\5-request-offer.png" Link="wwwroot\images\app\request-offer.png" />
+    <Content Include="..\docs\store-assets\phone\7-chat.png" Link="wwwroot\images\app\chat.png" />
+    <Content Include="..\docs\store-assets\phone\8-offers.png" Link="wwwroot\images\app\offers.png" />
     <!-- The Facebook / Messenger link preview: the store listing's feature graphic. -->
     <Content Include="..\docs\store-assets\feature-graphic.png" Link="wwwroot\images\og.png" />
   </ItemGroup>

@@ -1,6 +1,6 @@
 # Tarbaho landing page: copy (English / Taglish)
 
-> **Superseded by the built page (23 Nov 2026).** The live wording is `SideGigPh.FrontDoor/Localization/Copy.cs` and the layout `SideGigPh.FrontDoor/Components/Landing/`; change those, not this brief. Since this brief: Pest Control replaced Solar, a worker's price is one number, no line may say "0% commission" / "walang komisyon" (it could later look like bait-and-switch), the form asks Android or iPhone first (iPhone gets the public TestFlight link at once), legal links are on `api.tarbaho.com`, and sign-ups are emailed to the owner, not stored.
+> **Superseded by the built page (23 Nov 2026).** The live wording is `SideGigPh.FrontDoor/Localization/Copy.cs` and the layout `SideGigPh.FrontDoor/Components/Landing/`; change those, not this brief. Since this brief: Pest Control replaced Solar, a worker's price is one number, no line may say "0% commission" / "walang komisyon" (it could later look like bait-and-switch), the form asks Android or iPhone first (iPhone gets the public TestFlight link at once), legal links are on `api.tarbaho.com`, and sign-ups are kept in Azure SQL (`dbo.EarlyAccessSignups`).
 
 Rules kept: workers are Kuya / Ate / Manong / Manang; no job / hire / employment / salary / "minimum wage"; we never vouch for a worker ("what we checked"); no stats, users, testimonials or launch dates; the app is not in stores yet ("soon").
 

@@ -23,6 +23,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<CategoryRow> Categories => Set<CategoryRow>();
     public DbSet<ServiceRow> Services => Set<ServiceRow>();
     public DbSet<OtherJobNoteRow> OtherJobNotes => Set<OtherJobNoteRow>();
+    public DbSet<EarlyAccessSignupRow> EarlyAccessSignups => Set<EarlyAccessSignupRow>();
     public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
     public DbSet<BarangayRow> Barangays => Set<BarangayRow>();
     public DbSet<ErrorReportRow> ErrorReports => Set<ErrorReportRow>();
@@ -220,6 +221,17 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             note.Property(n => n.Text).HasMaxLength(100).IsUnicode();
             note.HasIndex(n => new { n.CategoryId, n.CreatedAt }).HasDatabaseName("IX_OtherJobNotes_Category");
             note.HasIndex(n => n.Uid).HasDatabaseName("IX_OtherJobNotes_Uid");
+        });
+
+        model.Entity<EarlyAccessSignupRow>(signup =>
+        {
+            signup.ToTable("EarlyAccessSignups");
+            signup.HasKey(s => s.Email).HasName("PK_EarlyAccessSignups");
+            signup.Property(s => s.Email).HasMaxLength(254).IsUnicode();
+            signup.Property(s => s.Phone).HasMaxLength(10);
+            signup.Property(s => s.Role).HasMaxLength(12);
+            signup.Property(s => s.Language).HasMaxLength(2);
+            signup.HasIndex(s => s.CreatedAt).HasDatabaseName("IX_EarlyAccessSignups_Created");
         });
 
         model.Entity<ConfigOptionRow>(option =>
@@ -423,4 +435,5 @@ internal static class Constraints
     public const string WorkPhotoKey = "PK_ProfessionalWorkPhotos";
     public const string PushDeviceKey = "PK_PushDevices";
     public const string VerificationPending = "UX_WorkerVerifications_Pending";
+    public const string EarlyAccessKey = "PK_EarlyAccessSignups";
 }

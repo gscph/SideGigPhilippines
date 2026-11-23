@@ -374,8 +374,9 @@ h1:focus {
 
 .fd-step-number {
     position: absolute;
-    top: -4px;
-    right: -8px;
+    top: -10px;
+    right: -14px;
+    z-index: 1;
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -409,13 +410,23 @@ h1:focus {
     margin: 0 auto;
 }
 
-.fd-phone {
-    position: absolute;
-    width: 46%;
+/* A phone screen frame (PhoneShot); its width and place come from the classes below. */
+.fd-phone-frame {
     aspect-ratio: 740 / 1500;
     overflow: hidden;
     border-radius: 11% / 5.4%;
     box-shadow: 0 24px 48px color-mix(in srgb, black 32%, transparent);
+}
+
+.fd-phone {
+    position: absolute;
+    width: 46%;
+}
+
+/* How it works: each step's app screen, upright, with a softer shadow on the white card. */
+.fd-step-phone {
+    width: 170px;
+    box-shadow: 0 12px 28px color-mix(in srgb, black 16%, transparent);
 }
 
 .fd-phone-back {
