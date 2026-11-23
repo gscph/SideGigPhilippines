@@ -650,6 +650,9 @@ TestFlight beta.
   `developer-page-icon.png`). `wwwroot/robots.txt` and `sitemap.xml` (one URL; `staticwebapp.config.json` keeps `.xml`
   out of the fallback so it isn't answered with `index.html`). Taglish is the same URL (`?lang=tl` is not a separate
   page for Google). Google Search Console is the owner's (DNS TXT at Cloudflare).
+- **Link previews (Facebook, Messenger, Instagram, TikTok, X, Viber):** the `og:` tags (image with size, type and alt;
+  `en_PH` + `fil_PH`) and X's own `twitter:` tags in `index.html`, read before any script runs. Each app's profile link
+  and Meta's domain verification are the owner's: checklist in [`marketing/seo/social.md`](../marketing/seo/social.md).
 - **Language:** every string is a `Say(English, Taglish)` in `Localization/Copy.cs`; `PageLanguage` picks it from
   `?lang=tl|en`, then the visitor's last pick (localStorage `tarbaho.lang`), then the browser. Copy follows the
   marketing rules: service words, Kuya / Ate, never vouching, never "0% commission" / "walang komisyon".
