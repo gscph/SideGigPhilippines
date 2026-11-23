@@ -35,6 +35,8 @@
     <Content Include="..\docs\store-assets\phone\8-offers.png" Link="wwwroot\images\app\offers.png" />
     <!-- The Facebook / Messenger link preview: the store listing's feature graphic. -->
     <Content Include="..\docs\store-assets\feature-graphic.png" Link="wwwroot\images\og.png" />
+    <!-- The logo Google shows beside search results (index.html's JSON-LD): the store's 512px icon. -->
+    <Content Include="..\docs\store-assets\developer-page-icon.png" Link="wwwroot\images\logo.png" />
   </ItemGroup>
 
 </Project>

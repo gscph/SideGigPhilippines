@@ -642,6 +642,14 @@ TestFlight beta.
   `MudScrollToTop` button. The page may be rounder and bolder than the app (pills, shadows, several filled buttons per
   screen), never another color, font or logo.
   Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.
+- **Search (SEO):** the words people in Rizal search are in [`marketing/seo/keywords.md`](../marketing/seo/keywords.md)
+  and go into the page's own text: the title (`Copy.Meta.Title`, also `index.html`'s), the one meta description
+  (`index.html` only, so the page has exactly one), the plain-HTML hero, and the FAQ "What can I find on Tarbaho?".
+  `index.html` has the canonical `https://www.tarbaho.com/` (the apex and the Static Web App's own address are copies)
+  and JSON-LD (Organization with the three towns as `areaServed`, WebSite; logo `images/logo.png` = the store's 512px
+  `developer-page-icon.png`). `wwwroot/robots.txt` and `sitemap.xml` (one URL; `staticwebapp.config.json` keeps `.xml`
+  out of the fallback so it isn't answered with `index.html`). Taglish is the same URL (`?lang=tl` is not a separate
+  page for Google). Google Search Console is the owner's (DNS TXT at Cloudflare).
 - **Language:** every string is a `Say(English, Taglish)` in `Localization/Copy.cs`; `PageLanguage` picks it from
   `?lang=tl|en`, then the visitor's last pick (localStorage `tarbaho.lang`), then the browser. Copy follows the
   marketing rules: service words, Kuya / Ate, never vouching, never "0% commission" / "walang komisyon".
