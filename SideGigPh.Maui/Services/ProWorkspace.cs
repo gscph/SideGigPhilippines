@@ -196,14 +196,8 @@ public sealed class ProWorkspace(
     }
 
     /// <summary>
-    /// Opens the front camera for a new selfie, which replaces the pro's photo. A worker's own photo is always a selfie,
-    /// never one picked from the gallery.
-    /// </summary>
-    public async Task<PhotoAddResult> ChangeProfilePhotoAsync() => await SetProfilePhotoAsync(await picker.TakeSelfieAsync());
-
-    /// <summary>
     /// Saves a selfie the page already took (<see cref="IPhotoPicker.TakeSelfieAsync"/>, made small on the phone) as the
-    /// pro's own; it replaces the old one. It goes up as a selfie (<see cref="IPhotoStore.SaveSelfieAsync"/>: the server
+    /// pro's own; it replaces the old one. A worker's own photo is always a selfie, never one picked from the gallery. It goes up as a selfie (<see cref="IPhotoStore.SaveSelfieAsync"/>: the server
     /// checks it instead of re-encoding it). Split from taking it so the loading screen covers only the upload, not the
     /// camera and its permission prompt.
     /// </summary>

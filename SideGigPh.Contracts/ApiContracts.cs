@@ -101,6 +101,9 @@ public static class ApiErrors
     /// <summary>400 on <c>POST photos/selfie</c>: starts like a JPEG but is cut short or doesn't decode.</summary>
     public const string SelfieBroken = "selfie-broken";
 
+    /// <summary>400 on publish: a new profile photo isn't a selfie this account sent to <c>POST photos/selfie</c>.</summary>
+    public const string SelfieRequired = "selfie-required";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }

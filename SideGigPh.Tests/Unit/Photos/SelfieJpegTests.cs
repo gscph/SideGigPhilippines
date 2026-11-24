@@ -1,5 +1,7 @@
 using ImageMagick;
 using SideGigPh.Api;
+using SideGigPh.Contracts;
+using SideGigPh.Contracts.Photos;
 
 namespace SideGigPh.Tests.Unit.Photos;
 
@@ -78,6 +80,49 @@ public class SelfieJpegTests
         Passes(hidden).Jpeg.Should().Equal(Passes(sent).Jpeg);
     }
 
+    private static byte[] Segment(byte marker, byte[] payload) =>
+        [0xFF, marker, (byte)((payload.Length + 2) >> 8), (byte)(payload.Length + 2), .. payload];
+
+    // A segment slipped in right after the start-of-image marker.
+    private static byte[] WithSegmentFirst(byte[] jpeg, byte[] segment) => [.. jpeg[..2], .. segment, .. jpeg[2..]];
+
+    private static bool Contains(byte[] haystack, byte[] needle) => haystack.AsSpan().IndexOf(needle) >= 0;
+
+    [Theory]
+    [InlineData((byte)0xF0)] // a reserved JPEG extension marker
+    [InlineData((byte)0xE5)] // an APPn nobody reads
+    [InlineData((byte)0xFE)] // a comment
+    public void DataHiddenInAnyOtherSegment_IsLeftOut(byte marker)
+    {
+        var secret = "GPS 14.5995,120.9842"u8.ToArray();
+
+        var stored = Passes(WithSegmentFirst(Jpeg(200, 150), Segment(marker, secret))).Jpeg!;
+
+        Contains(stored, secret).Should().BeFalse();
+    }
+
+    [Fact]
+    public void JfifThumbnail_IsCutOff()
+    {
+        var thumbnail = Enumerable.Repeat((byte)0x7A, 3 * 2 * 2).ToArray(); // a 2x2 RGB picture
+        byte[] app0 = [.. "JFIF\0"u8, 1, 1, 0, 0, 1, 0, 1, 2, 2, .. thumbnail];
+        var sent = WithSegmentFirst(Jpeg(200, 150, image => image.RemoveProfile("app0")), Segment(0xE0, app0));
+
+        var stored = Passes(sent).Jpeg!;
+
+        Contains(stored, thumbnail).Should().BeFalse();
+        Contains(stored, [0xFF, 0xE0, 0x00, 0x10, .. "JFIF\0"u8]).Should().BeTrue("the bare 14-byte JFIF header stays");
+    }
+
+    [Fact]
+    public void ASegmentBetweenTheLastScanAndTheEnd_IsFine()
+    {
+        var sent = Jpeg(200, 150);
+        byte[] withComment = [.. sent[..^2], .. Segment(0xFE, "late note"u8.ToArray()), 0xFF, 0xD9];
+
+        Passes(withComment).Jpeg.Should().Equal(Passes(sent).Jpeg);
+    }
+
     [Theory]
     [InlineData(1281u, 900u)]
     [InlineData(900u, 1281u)]
@@ -87,7 +132,7 @@ public class SelfieJpegTests
 
     [Fact]
     public void OverTheByteLimit_IsTooBig() =>
-        SelfieJpeg.Check([0xFF, 0xD8, 0xFF, .. new byte[SelfieJpeg.MaxBytes]]).Verdict.Should().Be(SelfieVerdict.TooBig);
+        SelfieJpeg.Check([0xFF, 0xD8, 0xFF, .. new byte[SelfieJpegRules.MaxBytes]]).Verdict.Should().Be(SelfieVerdict.TooBig);
 
     [Fact]
     public void NotAJpeg_IsRefused()

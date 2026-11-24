@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Contracts;
+using SideGigPh.Contracts.Photos;
 
 namespace SideGigPh.Maui.Services.Api;
 
@@ -19,7 +20,21 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
 
     public Task<string> SaveAsync(byte[] bytes) => UploadAsync("photos", bytes);
 
-    public Task<string> SaveSelfieAsync(byte[] bytes) => UploadAsync("photos/selfie", bytes);
+    /// <summary>
+    /// Checks the selfie with the server's own rules first (<see cref="SelfieJpegRules"/>): one the server would refuse
+    /// is never sent, and the person is asked to take it again (<see cref="PhotoStoreFailure.Rejected"/>).
+    /// </summary>
+    public Task<string> SaveSelfieAsync(byte[] bytes)
+    {
+        var verdict = SelfieJpegRules.Check(bytes).Verdict;
+        if (verdict != SelfieVerdict.Ok)
+        {
+            logger.LogError("Selfie not sent: {Verdict} ({Bytes} bytes).", verdict, bytes.Length);
+            throw new PhotoStoreException($"The selfie doesn't meet the upload rules ({verdict}).", PhotoStoreFailure.Rejected);
+        }
+
+        return UploadAsync("photos/selfie", bytes);
+    }
 
     private async Task<string> UploadAsync(string path, byte[] bytes)
     {

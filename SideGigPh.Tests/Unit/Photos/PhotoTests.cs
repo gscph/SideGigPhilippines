@@ -25,7 +25,7 @@ public class PhotoTests
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
         app.Picker.Picks(50);
 
-        var result = await app.Pro.ChangeProfilePhotoAsync();
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         result.Should().Be(new PhotoAddResult(1));
         app.Picker.Selfies.Should().Be(1, "a worker's own photo is always a selfie");
@@ -44,7 +44,7 @@ public class PhotoTests
         var app = await FakeApp.ProAsync(draft);
         app.Picker.Picks(50);
 
-        await app.Pro.ChangeProfilePhotoAsync();
+        await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         app.Profiles.Published.Should().ContainSingle()
             .Which.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
@@ -85,7 +85,7 @@ public class PhotoTests
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
         app.Picker.Next = new PhotoPick(status, []);
 
-        var result = await app.Pro.ChangeProfilePhotoAsync();
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         result.Problem.Should().Be(expected);
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(1));
@@ -101,7 +101,7 @@ public class PhotoTests
         app.Picker.Picks(50);
         app.Photos.Refuse = new PhotoStoreException("no", failure);
 
-        var result = await app.Pro.ChangeProfilePhotoAsync();
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         result.Problem.Should().Be(expected);
         result.Failed.Should().BeTrue();

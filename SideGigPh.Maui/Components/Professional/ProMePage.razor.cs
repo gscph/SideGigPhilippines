@@ -56,6 +56,12 @@ public partial class ProMePage : ComponentBase
         {
             // The camera shows over the page; the splash covers only the upload.
             var selfie = await Picker.TakeSelfieAsync();
+            if (selfie.Status != PhotoPickStatus.Picked)
+            {
+                _photoResult = PhotoAddResult.From(selfie.Status); // nothing to upload: no splash
+                return;
+            }
+
             _photoResult = await Busy.RunAsync(async () =>
             {
                 var result = await Workspace.SetProfilePhotoAsync(selfie);

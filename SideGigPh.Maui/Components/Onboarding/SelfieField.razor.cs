@@ -10,7 +10,8 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// The worker's own photo (<see cref="ProfessionalDraft.HasProof"/>) in the interview's selfie question: one thing to do,
 /// so "Take a selfie" asks for the camera and opens the front camera (on Android <c>Platforms/Android/AndroidPhotoPicker</c>)
 /// only when tapped, never as the question opens, so the reason is on screen before the permission prompt.
-/// A worker's own photo is always a selfie: there is no gallery choice here or anywhere else. The splash covers only the upload, never the camera or its permission prompt. Raises
+/// A worker's own photo is always a selfie: there is no gallery choice here or anywhere else. Before the camera opens,
+/// <see cref="SelfieGuide"/> shows how to take it (a face in an oval, three tips). The splash covers only the upload, never the camera or its permission prompt. Raises
 /// <see cref="OnSaved"/> once a photo is saved, so the question moves on by itself. An upload that failed for want of
 /// internet or server trouble (<see cref="PhotoAddResult.CanRetry"/>) keeps the picked photo and offers "Try again" to send
 /// the same one, so nobody has to take the selfie again.
