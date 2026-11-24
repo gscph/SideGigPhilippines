@@ -34,8 +34,6 @@ public static class Copy
         public static readonly Say Sub = new(
             "Tarbaho connects homes in Angono, Antipolo and Taytay with skilled workers nearby: Aircon, Construction, Pasabay, Driver, Auto and Pest Control. See their prices, chat in the app.",
             "Kinokonekta ng Tarbaho ang mga bahay sa Angono, Antipolo at Taytay sa mga skilled worker na malapit: Aircon, Construction, Pasabay, Driver, Auto at Pest Control. Kita agad ang presyo, chat sa app.");
-        public static readonly Say Cta = new("Get early access", "Mag-early access");
-        public static readonly Say WorkerLink = new("Skilled worker? Get more customers", "Skilled worker ka? Dagdag kliyente");
         public static readonly Say ShotSearch = new("The app: Aircon Technicians in Angono, each with a price", "Ang app: mga Aircon Technician sa Angono, may presyo bawat isa");
         public static readonly Say ShotOffer = new("The app: a worker sending a price for a request", "Ang app: si Kuya nagpapadala ng presyo sa isang request");
     }
@@ -114,12 +112,6 @@ public static class Copy
 
     public static class Join
     {
-        public static readonly Say Eyebrow = new("Early access", "Early access");
-        public static readonly Say Headline = new("Be first in Angono", "Mauna ka sa Angono");
-        public static readonly Say Sub = new("Leave your email. We'll tell you the moment Tarbaho opens near you.", "Iwan ang email mo. Sasabihan ka namin pag bukas na ang Tarbaho sa inyo.");
-        public static readonly Say Bullet1 = new("First to get the app", "Una kang makakagamit");
-        public static readonly Say Bullet2 = new("Free to join", "Libre sumali");
-        public static readonly Say Bullet3 = new("Leave the list anytime", "Pwedeng umalis kahit kailan");
         public static readonly Say WorkerPerk = new("Workers on the list set up their profile first and see Requests first.", "Ang workers na nasa listahan, unang makakapag-setup at unang makakakita ng Requests.");
 
         public static readonly Say RoleLabel = new("I am a… (optional)", "Ako ay… (optional)");

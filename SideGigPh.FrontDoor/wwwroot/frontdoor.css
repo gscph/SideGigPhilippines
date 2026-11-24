@@ -197,27 +197,42 @@ h1:focus {
     background-size: 24px 24px;
 }
 
-.fd-dots-right::after {
-    left: auto;
-    right: 24px;
-    bottom: auto;
-    top: 24px;
-}
-
 .fd-hero-band > .mud-container {
     position: relative;
     z-index: 1;
 }
 
 .fd-hero {
-    padding-top: 40px !important;
-    padding-bottom: 56px !important;
+    padding-top: 24px !important;
+    padding-bottom: 48px !important;
+}
+
+/* Tighter on a wide screen so the logo, headline and the Early Access form all fit above the fold. */
+@media (min-width: 960px) {
+    .fd-hero {
+        padding-top: 32px !important;
+        padding-bottom: 56px !important;
+    }
+}
+
+.fd-hero-title {
+    line-height: 1.1 !important;
+}
+
+.fd-hero-eyebrow {
+    align-self: center;
+    margin-left: 4px !important;
+}
+
+/* The form card sits under the text, left-aligned with it (fd-form-card centres it elsewhere). */
+.fd-hero-form {
+    margin: 8px 0 0 !important;
+    scroll-margin-top: 88px;
 }
 
 @media (min-width: 960px) {
-    .fd-hero {
-        padding-top: 72px !important;
-        padding-bottom: 96px !important;
+    .fd-hero-form {
+        padding: 24px !important;
     }
 }
 
