@@ -18,7 +18,6 @@ public static class ServiceCollectionExtensions
     /// Auth defaults: <see cref="NoIdentityProvider"/> (no sign-in until the app adds a provider such
     /// as <c>AddFirebaseAuth</c>), <see cref="HomeAuthLanding"/> and <see cref="E164PhoneNumberFormat"/>;
     /// push: <see cref="NoPushNotifications"/> (until the app adds a provider such as <c>AddFirebasePush</c>);
-    /// analytics and A/B tests: <see cref="NoAnalytics"/> and <see cref="NoExperiments"/> (until <c>AddFirebaseAnalytics</c> / <c>AddFirebaseExperiments</c>).
     /// Busy splash lines: <see cref="BusySplashLines"/> (until the app registers its own <see cref="ISplashLines"/>).
     /// The app still registers <see cref="IAppAccount"/> (needed by <c>MePage</c>) and its own ports.
     /// </summary>
@@ -43,8 +42,6 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IDeviceLocation, DeviceLocation>();
         services.TryAddSingleton<IMapLauncher, DeviceMapLauncher>();
         services.TryAddSingleton<IPushNotifications, NoPushNotifications>();
-        services.TryAddSingleton<IAnalytics, NoAnalytics>();
-        services.TryAddSingleton<IExperiments, NoExperiments>();
 
         services.TryAddSingleton<IIdentityProvider, NoIdentityProvider>();
         services.TryAddSingleton<IAuthLanding, HomeAuthLanding>();

@@ -151,32 +151,6 @@ for Android).
 - **A PC build over a CI build:** Android refuses to install a lower `versionCode` over a higher one, so a tester's
   phone with a CI build needs that build uninstalled before a Visual Studio build goes on it.
 
-## Analytics and A/B tests
-
-- **Ports (skeleton, `MobileAppTheme/Services/`):** `IAnalytics` (`Screen`, `Event`, `SetProperty`, `SetEnabled`,
-  `IsOn`) and `IExperiments` (`RefreshAsync`, `Variant(key, fallback)`, `IsEnabled(key, fallback)`, `IsOn`). The
-  defaults `NoAnalytics` / `NoExperiments` record nothing and answer every fallback, so the app behaves exactly as
-  written.
-- **Firebase adapters (`MobileAppTheme.Firebase/`), each a build-time feature flag, off by default:**
-  `FirebaseUsageAnalytics` (Google Analytics for Firebase, `Plugin.Firebase.Analytics`) and
-  `FirebaseRemoteExperiments` (Remote Config, the values Firebase A/B Testing hands out,
-  `Plugin.Firebase.RemoteConfig`). The flags are MSBuild properties in `Directory.Build.props`
-  (`FirebaseAnalytics`, `FirebaseExperiments`): `true` references the package and defines `FIREBASE_ANALYTICS` /
-  `FIREBASE_EXPERIMENTS`; otherwise the adapter isn't compiled and the package isn't referenced. `MauiProgram` always
-  calls `builder.AddFirebaseAnalytics()` and `builder.AddFirebaseExperiments(...)`; with the flag off they do nothing.
-  Turn one on in `Directory.Build.props`, for one build with `-p:FirebaseAnalytics=true`, or in CI with the repo
-  variables `FIREBASE_ANALYTICS` / `FIREBASE_EXPERIMENTS` = `true`. Firebase A/B Testing needs both on. Console
-  steps: [`firebase/README.md`](../firebase/README.md).
-- **App (`Services/Analytics/AppAnalytics`, singleton):** `Start(state)` at launch (`LaunchRouter`) sets the traits
-  in `AppProperties` (`role`, `language`, `build_label`, `build_channel`) and refreshes the variants in the
-  background; `Screen(route)` is called by `Components/Shared/ScreenTrail` on every navigation with ids taken out
-  (`ScreenName`: uids, chat ids and photo hashes become `[id]`, and so does any segment over 24 characters);
-  `Track(AppEvents.X)` counts `listing_published`, `feedback_posted`, `feedback_voted`; `Variant` / `IsEnabled` read
-  an experiment. **Never send a name, number, message, search words or anything typed.** A new event is a constant in
-  `AppEvents` plus one `Track` call.
-- **Before turning analytics on for testers:** add it to the privacy policy (`docs/legal/privacy-policy.md`) and the
-  stores' data forms; the Me page has no analytics switch yet (`IAnalytics.SetEnabled` is there for one).
-
 ## Blocked words
 
 Text other people read is checked for vulgarity, sexual words, slurs and insults in English, Tagalog/Taglish and

@@ -1,6 +1,5 @@
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Services;
 
@@ -11,7 +10,7 @@ namespace SideGigPh.Maui.Services;
 /// at once and is put back if it didn't reach the server. The list keeps its order while it is on screen (a row
 /// doesn't jump away under the finger); the next <see cref="LoadAsync"/> sorts it again.
 /// </summary>
-public sealed class FeedbackBoard(IFeedbackRepository feedback, IOnboardingStore store, AppAnalytics analytics)
+public sealed class FeedbackBoard(IFeedbackRepository feedback, IOnboardingStore store)
 {
     /// <summary>The longest title and details the board takes (the server's limits).</summary>
     public const int MaxTitle = FeedbackRules.MaxTitle;
@@ -71,7 +70,6 @@ public sealed class FeedbackBoard(IFeedbackRepository feedback, IOnboardingStore
         var post = await feedback.AddAsync(title.Trim(), string.IsNullOrWhiteSpace(details) ? null : details.Trim(), role);
         _posts.RemoveAll(p => p.Id == post.Id);
         _posts.Insert(0, post);
-        analytics.Track(AppEvents.FeedbackPosted);
         Changed?.Invoke();
         return post;
     }
@@ -100,11 +98,6 @@ public sealed class FeedbackBoard(IFeedbackRepository feedback, IOnboardingStore
             Put(post with { VotedByMe = on, Votes = Math.Max(0, post.Votes + (on ? 1 : -1)) });
             var votes = await feedback.VoteAsync(post.Id, on);
             Put(post with { VotedByMe = on, Votes = votes });
-            if (on)
-            {
-                analytics.Track(AppEvents.FeedbackVoted);
-            }
-
             return true;
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)

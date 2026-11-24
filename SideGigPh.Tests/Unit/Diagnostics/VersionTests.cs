@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using SideGigPh.Api;
 using SideGigPh.Contracts;
-using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Diagnostics;
 using SideGigPh.Tests.TestSupport;
@@ -12,10 +10,9 @@ using SideGigPh.Tests.TestSupport;
 namespace SideGigPh.Tests.Unit.Diagnostics;
 
 /// <summary>
-/// The version a build carries (so an error report or an API error names the exact app and API builds that met), and
-/// usage analytics (screens with ids taken out; nothing recorded unless a build turns a provider on).
+/// The version a build carries (so an error report or an API error names the exact app and API builds that met).
 /// </summary>
-public class VersionAndAnalyticsTests
+public class VersionTests
 {
     private static readonly BuildInfo Build = new("0.1.0-rc.12", "48466c9", AppChannels.Beta);
 
@@ -92,77 +89,6 @@ public class VersionAndAnalyticsTests
     [InlineData(500, true)]
     public void RefusalsAndFailures_AreLogged_EverydayAnswersAreNot(int status, bool logged) =>
         ErrorDetailsMiddleware.IsRefusal(status).Should().Be(logged);
-
-    [Theory]
-    [InlineData("/start/pro/3", "/start/pro/3")]
-    [InlineData("/seeker/search", "/seeker/search")]
-    [InlineData("/pro/aB3dE5fG7hJ9kL1mN3pQ5rS7tU9v", "/pro/[id]")]
-    [InlineData("/inbox/aB3dE5fG7hJ9kL1mN3pQ5rS7tU9v?first=1", "/inbox/[id]")]
-    [InlineData("/professional/inbox/aB3dE5fG7hJ9kL1mN3pQ5rS7tU9v_zY8xW6vU4tS2rQ0pO8nM6lK4jI2h", "/professional/inbox/[id]_[id]")]
-    [InlineData("/report/seeker/listing/some-very-long-id-of-a-kind-we-do-not-know-yet", "/report/seeker/listing/[id]")]
-    public void AScreenName_NeverCarriesAnId(string route, string screen) =>
-        AppAnalytics.ScreenName(route).Should().Be(screen);
-
-    [Fact]
-    public void AtLaunch_AnalyticsLearnsTheRoleLanguageAndBuild_AndExperimentsRefresh()
-    {
-        var analytics = new FakeAnalytics();
-        var experiments = new FakeExperiments();
-        var app = new AppAnalytics(analytics, experiments, Build);
-
-        app.Start(new OnboardingState { Role = UserRole.Professional, Language = AppLanguage.Taglish });
-        app.Screen("/professional");
-        app.Track(AppEvents.ListingPublished);
-
-        analytics.Properties.Should().BeEquivalentTo(new Dictionary<string, string?>
-        {
-            [AppProperties.Role] = "professional",
-            [AppProperties.Language] = "taglish",
-            [AppProperties.BuildLabel] = "0.1.0-rc.12",
-            [AppProperties.BuildChannel] = "beta",
-        });
-        analytics.Screens.Should().Equal(["/professional"]);
-        analytics.Events.Should().Equal([AppEvents.ListingPublished]);
-        experiments.Refreshes.Should().Be(1);
-    }
-
-    [Fact]
-    public void BeforeARoleIsPicked_TheRoleIsUnset()
-    {
-        var analytics = new FakeAnalytics();
-
-        new AppAnalytics(analytics, new NoExperiments(), Build).Start(new OnboardingState());
-
-        analytics.Properties[AppProperties.Role].Should().BeNull();
-        analytics.Properties[AppProperties.Language].Should().BeNull();
-    }
-
-    // The defaults every build has until a Firebase flag is turned on: nothing recorded, every answer the app's own.
-    [Fact]
-    public void WithNoProvider_NothingIsRecorded_AndEveryVariantIsTheFallback()
-    {
-        var app = new AppAnalytics(new NoAnalytics(), new NoExperiments(), Build);
-
-        app.Start(new OnboardingState());
-        app.Screen("/me");
-        app.Track(AppEvents.FeedbackVoted);
-
-        app.IsOn.Should().BeFalse();
-        app.Variant("publish_button", "Publish").Should().Be("Publish");
-        app.IsEnabled("new_search", fallback: true).Should().BeTrue();
-        app.IsEnabled("new_search", fallback: false).Should().BeFalse();
-    }
-
-    [Fact]
-    public void WithAProvider_TheServersVariantWins()
-    {
-        var experiments = new FakeExperiments { Values = { ["publish_button"] = "Go live", ["new_search"] = "true" } };
-        var app = new AppAnalytics(new FakeAnalytics(), experiments, Build);
-
-        app.Variant("publish_button", "Publish").Should().Be("Go live");
-        app.IsEnabled("new_search", fallback: false).Should().BeTrue();
-        app.Variant("unknown_key", "as written").Should().Be("as written");
-    }
 
     /// <summary>Answers 500 with the API's version header, and keeps the app version the request carried.</summary>
     private sealed class RecordingServer : HttpMessageHandler

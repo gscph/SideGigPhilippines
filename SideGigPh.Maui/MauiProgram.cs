@@ -2,7 +2,6 @@
 using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme; // MAUI has an AppTheme enum too
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Diagnostics;
 using SideGigPh.Maui.Services.Local;
@@ -58,13 +57,7 @@ namespace SideGigPh.Maui
                 new PushChannel(PushData.RepliesChannel, Copy.PushChannelReplies.English, Alert: false),
                 new PushChannel(PushData.RequestsChannel, Copy.PushChannelRequests.English, Alert: true),
                 new PushChannel(PushData.OffersChannel, Copy.PushChannelOffers.English, Alert: true));
-            // Optional, each behind a build flag that is off by default (Directory.Build.props): usage analytics (Google
-            // Analytics for Firebase) and A/B tests (Firebase Remote Config + A/B Testing). With a flag off the call
-            // does nothing and the skeleton's do-nothing adapter stays, so the app builds with nothing set up in Firebase.
-            builder.AddFirebaseAnalytics();
-            builder.AddFirebaseExperiments(BuildInfo.Current.Channel == AppChannels.Dev ? TimeSpan.Zero : null);
             builder.Services.AddSingleton(BuildInfo.Current);
-            builder.Services.AddSingleton<AppAnalytics>();
             builder.Services.AddSingleton<FeedbackBoard>();
             builder.Services.AddSingleton<JobBoard>();
             builder.Services.AddSingleton<PickedContact>();

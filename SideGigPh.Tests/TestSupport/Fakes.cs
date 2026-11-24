@@ -491,48 +491,6 @@ public sealed class FakeFeedback : IFeedbackRepository
     }
 }
 
-/// <summary>An analytics provider that keeps what it was told, so a test can check exactly what would be sent.</summary>
-public sealed class FakeAnalytics : IAnalytics
-{
-    public List<string> Screens { get; } = [];
-
-    public List<string> Events { get; } = [];
-
-    public Dictionary<string, string?> Properties { get; } = [];
-
-    public bool Enabled { get; private set; } = true;
-
-    public bool IsOn => true;
-
-    public void Screen(string name) => Screens.Add(name);
-
-    public void Event(string name, IReadOnlyDictionary<string, string>? details = null) => Events.Add(name);
-
-    public void SetProperty(string name, string? value) => Properties[name] = value;
-
-    public void SetEnabled(bool enabled) => Enabled = enabled;
-}
-
-/// <summary>An A/B test provider answering from <see cref="Values"/> (what the console would hand this install).</summary>
-public sealed class FakeExperiments : IExperiments
-{
-    public Dictionary<string, string> Values { get; } = [];
-
-    public int Refreshes { get; private set; }
-
-    public bool IsOn => true;
-
-    public Task RefreshAsync()
-    {
-        Refreshes++;
-        return Task.CompletedTask;
-    }
-
-    public string Variant(string key, string fallback) => Values.GetValueOrDefault(key, fallback);
-
-    public bool IsEnabled(string key, bool fallback) => Values.TryGetValue(key, out var value) && bool.TryParse(value, out var enabled) ? enabled : fallback;
-}
-
 /// <summary>The phone's dialer: <see cref="Opens"/> says whether it opened.</summary>
 public sealed class FakeContactLauncher : IContactLauncher
 {

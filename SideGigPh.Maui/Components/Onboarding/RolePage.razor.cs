@@ -3,7 +3,6 @@ using MobileAppTheme.Auth;
 using SideGigPh.Maui.Components.Shared;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Onboarding;
@@ -17,7 +16,6 @@ public partial class RolePage : ComponentBase
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private LocalAccount Account { get; set; } = default!;
-    [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
@@ -52,7 +50,6 @@ public partial class RolePage : ComponentBase
         // The server's copy is a backup (it logs its own failure and the interview's last step saves it again), so
         // the tap never waits on it: a cold server or weak 4G used to leave this screen frozen for up to a minute.
         _ = Account.SaveProfileAsync();
-        Analytics.SetAudience(role, state.Language);
         Nav.NavigateTo(path);
     }
 

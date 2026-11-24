@@ -106,7 +106,6 @@ Anchor `#early-access`. Full-width purple band (`Color.Primary` background, whit
 | Offline (`navigator.onLine` false or fetch never answered) | alert: "No internet. We'll keep your email here, tap again when you're back." | listen for `online` and re-enable; never "something broke" |
 
 - Success is remembered in `localStorage` (try/catch): on a return visit the card opens in the success state with a small "Use another email" text button.
-- Analytics (if any): only "form_view", "role_picked", "submit_ok", "submit_error". Never the email.
 
 ### Focus, keyboard, accessibility
 - Visible labels (no placeholder-only). Field `aria-describedby` = helper + error ids. Errors use `role="alert"`; the first invalid field gets focus on submit.

@@ -81,9 +81,8 @@ transferred encrypted, users can request deletion):
 | Contacts, financial info, browsing history, health | **No** | — | — | — | — |
 
 \* Firebase and Azure are **service providers** processing on our behalf, which both stores count as "not shared".
-When Google Analytics is added, add "App interactions / App activity: Analytics, not linked" and update the policy
-§3.3 first; turn **off** advertising ID collection (`google_analytics_adid_collection_enabled = false`, and remove the
-`AD_ID` permission the Firebase SDK merges into the Android manifest) so the Play form can say no advertising ID.
+If an analytics or advertising SDK is ever added, update the policy §3.3 and this table first, and keep the
+`AD_ID` permission out of the Android manifest so the Play form can still say no advertising ID.
 
 ## Legal-risk review (Philippine law)
 

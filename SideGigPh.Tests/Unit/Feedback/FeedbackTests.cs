@@ -5,8 +5,6 @@ using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Analytics;
-using SideGigPh.Maui.Services.Diagnostics;
 using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.Feedback;
@@ -58,7 +56,7 @@ public class FeedbackTests
     [Fact]
     public async Task AVote_ShowsAtOnce_AndTakesTheServersCount()
     {
-        var (board, server, _) = Board();
+        var (board, server) = Board();
         server.Posts.Add(Post(1, votes: 4));
         await board.LoadAsync();
         var changes = 0;
@@ -73,7 +71,7 @@ public class FeedbackTests
     [Fact]
     public async Task AVoteThatDoesNotGoThrough_IsPutBack()
     {
-        var (board, server, _) = Board();
+        var (board, server) = Board();
         server.Posts.Add(Post(1, votes: 4));
         await board.LoadAsync();
         server.Fail = true;
@@ -87,7 +85,7 @@ public class FeedbackTests
     [Fact]
     public async Task TappingAVotedSuggestion_TakesTheVoteBack()
     {
-        var (board, server, _) = Board();
+        var (board, server) = Board();
         server.Posts.Add(Post(1, votes: 4) with { VotedByMe = true });
         await board.LoadAsync();
 
@@ -98,9 +96,9 @@ public class FeedbackTests
     }
 
     [Fact]
-    public async Task ANewSuggestion_GoesOnTop_WithTheRole_AndIsCounted()
+    public async Task ANewSuggestion_GoesOnTop_WithTheRole()
     {
-        var (board, server, analytics) = Board(UserRole.Professional);
+        var (board, server) = Board(UserRole.Professional);
         server.Posts.Add(Post(1, votes: 9));
         await board.LoadAsync();
 
@@ -108,13 +106,12 @@ public class FeedbackTests
 
         board.Posts[0].Should().Be(post);
         server.Added.Should().ContainSingle().Which.Should().Be(("Show my earnings", (string?)null, (UserRole?)UserRole.Professional));
-        analytics.Events.Should().Equal([AppEvents.FeedbackPosted]);
     }
 
     [Fact]
     public async Task ScrollingToTheEnd_AddsTheNextPage_WithoutRepeats()
     {
-        var (board, server, _) = Board();
+        var (board, server) = Board();
         server.Posts.AddRange(Enumerable.Range(1, Paging.Feedback + 3).Select(i => Post(i, votes: 100 - i)));
         await board.LoadAsync();
         board.Posts.Should().HaveCount(Paging.Feedback);
@@ -129,7 +126,7 @@ public class FeedbackTests
     [Fact]
     public async Task RemovingOrReporting_TakesItOffTheList_UnlessItFailed()
     {
-        var (board, server, _) = Board();
+        var (board, server) = Board();
         server.Posts.AddRange([Post(1, votes: 1) with { Mine = true }, Post(2, votes: 3), Post(3, votes: 2)]);
         await board.LoadAsync();
 
@@ -165,14 +162,10 @@ public class FeedbackTests
     private static FeedbackPost Post(long id, int votes) =>
         new(id, $"Idea {id}", null, votes, FeedbackStatus.Open, VotedByMe: false, Mine: false, DateTimeOffset.UnixEpoch);
 
-    private static (FeedbackBoard Board, FakeFeedback Server, FakeAnalytics Analytics) Board(UserRole role = UserRole.Seeker)
+    private static (FeedbackBoard Board, FakeFeedback Server) Board(UserRole role = UserRole.Seeker)
     {
         var server = new FakeFeedback();
-        var analytics = new FakeAnalytics();
-        var board = new FeedbackBoard(
-            server,
-            new FakeOnboardingStore(new OnboardingState { Role = role }),
-            new AppAnalytics(analytics, new NoExperiments(), new BuildInfo("0.1.0-rc.1", "abc1234", AppChannels.Dev)));
-        return (board, server, analytics);
+        var board = new FeedbackBoard(server, new FakeOnboardingStore(new OnboardingState { Role = role }));
+        return (board, server);
     }
 }

@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 23, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 24, 2026
 
 ---
 
@@ -83,7 +83,6 @@ Interview answers you have not finished are kept **only on your phone**.
 | **Push notification token** and phone platform (Android / iOS) | To notify you of new messages, new posts near a Skilled Worker, and new offers on a Customer's post |
 | **Last active time** (at most once an hour, Skilled Workers) | Search ranking ("replies fast", "active recently") |
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
-| **Usage analytics** (see §3.3) | **Not active yet** |
 | **Ideas page on the web** (`…/api/suggest`, the feedback link for testers): a cookie holding a random ID, and your IP address | The cookie lets the page count **one vote per browser**; it holds no name or account and is kept 1 year. The IP address is used **only in our server's memory** to limit how many ideas and votes come from one place in an hour, and is never stored. What you type there is shown to everyone, without a name |
 
 We read your phone's location **only when you tap Use my location, Send my location or Show how far I am** (see the
@@ -93,17 +92,10 @@ still works with your town. The small map in the chat comes from **OpenStreetMap
 shown (around the customer's place) and the phone's internet address, like any web map; it gets no name or account. We do **not** collect your
 contacts, your call log, your SMS, or your advertising ID.
 
-### 3.3 Analytics (Google Analytics for Firebase) — not yet active
+### 3.3 No usage analytics or advertising tracking
 
-We plan to use **Google Analytics for Firebase** to understand how the App is used (for example, which screens are
-opened, where people stop during sign-up, app version and device type, and approximate country derived from your IP
-address, which Google does not store). When we turn it on:
-
-- we will **update this Policy** and the store privacy labels before the version that includes it is released;
-- we will **not** collect the advertising ID, will **not** use analytics for advertising or ad personalisation, and
-  will **not** send your name, number, email, messages or photos to Google Analytics;
-- analytics data is linked only to a random app-instance ID and kept by Google for **14 months**;
-- you will be able to turn it off with a switch on the **Me** page.
+The App has no usage analytics, A/B testing or advertising tools: we do not track which screens you open or what you
+tap, and we do not collect your advertising ID. The error reports above are the only technical data the App sends.
 
 ### 3.4 Data about other people (references): no longer collected
 
@@ -156,8 +148,8 @@ Under Sections 12 and 13 of the DPA, we process your data because:
 2. **Our legitimate interests**, balanced against your rights: preventing fraud and fake accounts (one number per
    account), keeping the App safe, ranking search results, fixing errors, improving the
    list of jobs and trades.
-3. **Your consent**: optional data (Customer profile photo, income goal), push notifications, error reports and
-   (when active) analytics. You can withdraw consent at any time in the App or by emailing us; this does not affect
+3. **Your consent**: optional data (Customer profile photo, income goal), push notifications and error reports.
+   You can withdraw consent at any time in the App or by emailing us; this does not affect
    what was done before.
 4. **Legal obligations**: answering lawful orders of courts, the NPC, the DTI and law enforcement.
 
@@ -189,7 +181,7 @@ terms:
 
 | Provider | What they do | Data | Where |
 |---|---|---|---|
-| **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications; analytics when active | Mobile number, email, name, push token, device info | United States and other Google locations |
+| **Google Firebase** (Google LLC) | Sign-in (SMS codes, Google sign-in), push notifications | Mobile number, email, name, push token, device info | United States and other Google locations |
 | **Microsoft Azure** (Microsoft Corp.) | Our database, photo storage and server; reading the name, number and expiry from a government ID photo you send for a badge (Azure AI Document Intelligence) | Everything in §3 except Firebase sign-in data, including the Early Access list (§3.6) | Southeast Asia region (Singapore) |
 | **Apple** and **Google** | Deliver push notifications to your phone | Push token, notification text (sender's name and first line of the message; for a post, its budget and first line; for an offer, the Skilled Worker's name and price) | Their own locations |
 
@@ -248,7 +240,7 @@ Under the DPA you have the right to:
 2. **Access** — ask what data we hold about you and get a copy.
 3. **Correct** (rectification) — most of your data can be edited in the App.
 4. **Erase or block** — delete your account in the App (**Me → Delete account**), or ask us.
-5. **Object** — to processing based on legitimate interest or consent, including error reports and analytics.
+5. **Object** — to processing based on legitimate interest or consent, including error reports.
 6. **Data portability** — get your data in a commonly used electronic format.
 7. **Damages** — be indemnified for damages caused by inaccurate, incomplete, outdated, false, unlawfully obtained
    or unauthorised use of your data.

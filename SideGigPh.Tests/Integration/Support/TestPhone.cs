@@ -43,10 +43,7 @@ public sealed class TestPhone
         services.AddSingleton<AppText>();
         services.AddSideGigPhApi(new ApiOptions(new Uri(api.Server.BaseAddress, "api/").ToString(), $"{InMemoryBlobContainer.ContainerUri}/", Connection));
         services.AddSingleton<ProfessionalSearch>();
-        services.AddSingleton<IAnalytics, NoAnalytics>();
-        services.AddSingleton<IExperiments, NoExperiments>();
         services.AddSingleton(SideGigPh.Maui.Services.Diagnostics.BuildInfo.Current);
-        services.AddSingleton<SideGigPh.Maui.Services.Analytics.AppAnalytics>();
         services.AddSingleton<FeedbackBoard>();
         services.AddSingleton<JobBoard>();
         services.AddSingleton<PickedContact>();

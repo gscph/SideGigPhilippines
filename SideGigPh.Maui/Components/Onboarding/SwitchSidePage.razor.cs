@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -13,8 +12,6 @@ namespace SideGigPh.Maui.Components.Onboarding;
 public partial class SwitchSidePage : ComponentBase
 {
     [Inject] private LocalAccount Account { get; set; } = default!;
-    [Inject] private IOnboardingStore Store { get; set; } = default!;
-    [Inject] private AppAnalytics Analytics { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
 
     [Parameter] public string? Side { get; set; }
@@ -28,7 +25,6 @@ public partial class SwitchSidePage : ComponentBase
         }
 
         var path = await Account.SwitchSideAsync(role);
-        Analytics.SetAudience(role, (await Store.LoadAsync()).Language);
         Nav.NavigateTo(path, replace: true);
     }
 }
