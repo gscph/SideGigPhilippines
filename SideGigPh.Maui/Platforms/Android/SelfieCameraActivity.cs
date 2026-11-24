@@ -9,18 +9,23 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using SideGigPh.Maui.Services;
 using Color = Android.Graphics.Color;
 using Size = Android.Util.Size;
+using FaceDetector = Android.Media.FaceDetector;
 using View = Android.Views.View;
 using Paint = Android.Graphics.Paint;
 using RectF = Android.Graphics.RectF;
+using PointF = Android.Graphics.PointF;
 
 namespace SideGigPh.Maui.Platforms.Android;
 
 /// <summary>
 /// Tarbaho's own selfie camera (<see cref="AndroidPhotoPicker.TakeSelfieAsync"/>): the live front camera only, with no
-/// way to switch to the back lens, a dashed oval where the face goes and a short hint over it, one shutter button and
-/// Cancel. The phone's camera app could not do this (the person could flip it to the back lens and photograph anything,
+/// way to switch to the back lens, an oval where the face goes and a short hint over it, one shutter button and
+/// Cancel. Android's own face detector (<see cref="FaceDetector"/>, on the phone, nothing sent) looks at the picture
+/// about five times a second: the oval and the hint turn green and the shutter works only while one face fills the
+/// middle of the oval (<see cref="SelfieFraming"/>); otherwise they are red and the hint says what to do. The phone's camera app could not do this (the person could flip it to the back lens and photograph anything,
 /// and no app can draw over it). The app never leaves the screen while the person poses, so a one-time camera
 /// permission is not taken back mid-pose.
 /// <para>
@@ -35,8 +40,14 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
     /// <summary>The path the selfie JPEG is written to.</summary>
     public const string ExtraOutput = "selfie.output";
 
-    /// <summary>The hint over the camera, already in the person's language.</summary>
-    public const string ExtraHint = "selfie.hint";
+    /// <summary>The hint for each <see cref="SelfieFrame"/>, in that order, already in the person's language.</summary>
+    public const string ExtraHints = "selfie.hints";
+
+    /// <summary>The oval's color while the face is right (the theme's success green, "#RRGGBB").</summary>
+    public const string ExtraGoodColor = "selfie.good";
+
+    /// <summary>The oval's color while it isn't (the theme's error red, "#RRGGBB").</summary>
+    public const string ExtraBadColor = "selfie.bad";
 
     /// <summary>The Cancel button's text.</summary>
     public const string ExtraCancel = "selfie.cancel";
@@ -48,6 +59,10 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
     private const int JpegQuality = 82;
     private const int MaxPreviewSide = 1920;
 
+    // The face check works on a small copy of the picture (fast, and plenty for one face near the camera).
+    private const int DetectWidth = 240;
+    private const int CheckEveryMs = 200;
+
     private TextureView _preview = null!;
     private View _shutter = null!;
     private Size? _previewSize;
@@ -56,6 +71,16 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
     private CameraCaptureSession? _session;
     private Handler _handler = null!;
     private bool _taking;
+    private FaceOvalView _oval = null!;
+    private TextView _hint = null!;
+    private string[] _hints = [];
+    private Color _good;
+    private Color _bad;
+    private SelfieFrame _frame = SelfieFrame.NoFace;
+    private bool _checking;
+    private bool _resumed;
+    private FaceDetector? _detector;
+    private Java.Lang.Runnable? _check;
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -70,20 +95,37 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
         }
 
         (_cameraId, _previewSize) = front;
+        _hints = Intent?.GetStringArrayExtra(ExtraHints) ?? [];
+        _good = Color.ParseColor(Intent?.GetStringExtra(ExtraGoodColor) ?? "#00A000");
+        _bad = Color.ParseColor(Intent?.GetStringExtra(ExtraBadColor) ?? "#D00000");
         SetContentView(BuildScreen());
+        _check = new Java.Lang.Runnable(CheckFace);
+        ShowFrame(SelfieFrame.NoFace);
     }
 
     protected override void OnResume()
     {
         base.OnResume();
+        _resumed = true;
         if (_preview is not null && _preview.IsAvailable)
         {
             OpenCamera();
+        }
+
+        if (_check is not null)
+        {
+            _handler.PostDelayed(_check, CheckEveryMs);
         }
     }
 
     protected override void OnPause()
     {
+        _resumed = false;
+        if (_check is not null)
+        {
+            _handler.RemoveCallbacks(_check);
+        }
+
         CloseCamera();
         base.OnPause();
     }
@@ -128,13 +170,15 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
 
         _preview = new TextureView(this) { SurfaceTextureListener = this };
         root.AddView(_preview, new FrameLayout.LayoutParams(screenWidth, previewHeight, GravityFlags.Center));
-        root.AddView(new FaceOvalView(this), new FrameLayout.LayoutParams(screenWidth, previewHeight, GravityFlags.Center));
+        _oval = new FaceOvalView(this);
+        root.AddView(_oval, new FrameLayout.LayoutParams(screenWidth, previewHeight, GravityFlags.Center));
 
-        var hint = new TextView(this) { Text = Intent?.GetStringExtra(ExtraHint) ?? string.Empty, Gravity = GravityFlags.Center };
-        hint.SetTextColor(Color.White);
-        hint.SetTextSize(ComplexUnitType.Sp, 20);
-        hint.SetShadowLayer(6, 0, 0, Color.Black);
-        root.AddView(hint, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent, GravityFlags.Top)
+        _hint = new TextView(this) { Gravity = GravityFlags.Center };
+        _hint.SetTextColor(Color.White);
+        _hint.SetTextSize(ComplexUnitType.Sp, 20);
+        _hint.SetTypeface(null, TypefaceStyle.Bold);
+        _hint.SetPadding(Dp(16), Dp(10), Dp(16), Dp(10));
+        root.AddView(_hint, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MatchParent, ViewGroup.LayoutParams.WrapContent, GravityFlags.Top)
         {
             TopMargin = Dp(48),
         });
@@ -229,10 +273,94 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
         session.SetRepeatingRequest(request.Build(), null, _handler);
     }
 
-    // Keeps the frame on screen: what the person saw is what is sent.
+    // Looks for a face in a small copy of the picture, off the main thread, then shows the result and checks again.
+    private void CheckFace()
+    {
+        if (!_resumed || _taking)
+        {
+            return;
+        }
+
+        if (_checking || _session is null || !_preview.IsAvailable || _preview.Width <= 0)
+        {
+            _handler.PostDelayed(_check!, CheckEveryMs);
+            return;
+        }
+
+        var viewWidth = _preview.Width;
+        var viewHeight = _preview.Height;
+        var detectHeight = (int)Math.Round(DetectWidth * (viewHeight / (double)viewWidth));
+        if (_preview.GetBitmap(DetectWidth, detectHeight) is not { } shown)
+        {
+            _handler.PostDelayed(_check!, CheckEveryMs);
+            return;
+        }
+
+        _checking = true;
+        Task.Run(() =>
+        {
+            FaceBox? face = null;
+            try
+            {
+                face = FindFace(shown, viewWidth / (double)DetectWidth);
+            }
+            catch (Exception ex)
+            {
+                global::Android.Util.Log.Warn("SideGigPh", $"Selfie face check failed: {ex.Message}");
+            }
+
+            RunOnUiThread(() =>
+            {
+                _checking = false;
+                if (!_resumed || _taking)
+                {
+                    return;
+                }
+
+                ShowFrame(SelfieFraming.Check(viewWidth, viewHeight, face));
+                _handler.PostDelayed(_check!, CheckEveryMs);
+            });
+        });
+    }
+
+    // One face in the picture, in screen pixels: Android's detector gives the point between the eyes and their
+    // distance; a face is about 2.2 eye-distances wide and its middle about a third of one below the eyes.
+    private FaceBox? FindFace(Bitmap shown, double scale)
+    {
+        using (shown)
+        using (var small = shown.Copy(Bitmap.Config.Rgb565!, false)!)
+        {
+            _detector ??= new FaceDetector(small.Width, small.Height, 1);
+            var faces = new FaceDetector.Face[1];
+            if (_detector.FindFaces(small, faces) < 1 || faces[0] is not { } face || face.Confidence() < FaceDetector.Face.ConfidenceThreshold)
+            {
+                return null;
+            }
+
+            var middle = new PointF();
+            face.GetMidPoint(middle);
+            var eyes = face.EyesDistance();
+            return new FaceBox(middle.X * scale, (middle.Y + eyes * 0.3) * scale, eyes * 2.2 * scale);
+        }
+    }
+
+    // Green and the shutter on while the face is right; red, the shutter dimmed and off, and what to do otherwise.
+    private void ShowFrame(SelfieFrame frame)
+    {
+        _frame = frame;
+        var good = frame == SelfieFrame.Good;
+        var color = good ? _good : _bad;
+        _hint.Text = (int)frame < _hints.Length ? _hints[(int)frame] : string.Empty;
+        _hint.SetBackgroundColor(color);
+        _oval.Show(color, good);
+        _shutter.Enabled = good;
+        _shutter.Alpha = good ? 1f : 0.4f;
+    }
+
+    // Keeps the frame on screen: what the person saw is what is sent. Only while the face is in the oval.
     private void TakePhoto()
     {
-        if (_taking || _session is null || _preview.Bitmap is not { } frame)
+        if (_taking || _frame != SelfieFrame.Good || _session is null || _preview.Bitmap is not { } frame)
         {
             return;
         }
@@ -350,26 +478,35 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
 
     // The dashed white oval where the face goes, the same shape as the app's guide picture (SelfieGuide) and the
     // iPhone's camera overlay. Draws only; taps go through.
+    // Red and dashed while the face isn't right, green and solid once it is.
     private sealed class FaceOvalView : View
     {
         private readonly Paint _paint;
+        private readonly DashPathEffect _dashes;
 
         public FaceOvalView(Context context) : base(context)
         {
             var density = context.Resources!.DisplayMetrics!.Density;
-            _paint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = 3 * density };
+            _paint = new Paint(PaintFlags.AntiAlias) { Color = Color.White, StrokeWidth = 5 * density };
             _paint.SetStyle(Paint.Style.Stroke);
-            _paint.SetPathEffect(new DashPathEffect([12 * density, 9 * density], 0));
+            _dashes = new DashPathEffect([12 * density, 9 * density], 0);
+            _paint.SetPathEffect(_dashes);
+        }
+
+        public void Show(Color color, bool solid)
+        {
+            _paint.Color = color;
+            _paint.SetPathEffect(solid ? null : _dashes);
+            Invalidate();
         }
 
         protected override void OnDraw(Canvas canvas)
         {
             base.OnDraw(canvas);
-            var width = Width * 0.62f;
-            var height = width * 1.3f;
-            var left = (Width - width) / 2;
-            var top = Height * 0.46f - height / 2;
-            canvas.DrawOval(new RectF(left, top, left + width, top + height), _paint);
+            var oval = SelfieFraming.OvalIn(Width, Height);
+            var left = (float)(oval.CentreX - oval.Width / 2);
+            var top = (float)(oval.CentreY - oval.Height / 2);
+            canvas.DrawOval(new RectF(left, top, left + (float)oval.Width, top + (float)oval.Height), _paint);
         }
     }
 }

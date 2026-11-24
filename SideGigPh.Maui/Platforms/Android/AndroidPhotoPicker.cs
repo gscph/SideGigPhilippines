@@ -3,6 +3,7 @@ using Android.Content;
 using Microsoft.Extensions.Logging;
 using MobileAppTheme.Localization;
 using MobileAppTheme.Services.Local;
+using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme;
 using SideGigPh.Maui.Services.Localization;
 using Application = Android.App.Application;
 using File = Java.IO.File;
@@ -12,7 +13,8 @@ namespace SideGigPh.Maui.Platforms.Android;
 /// <summary>
 /// The skeleton's <see cref="DevicePhotoPicker"/> with a selfie taken in Tarbaho's own camera screen,
 /// <see cref="SelfieCameraActivity"/>: the front lens only (no switching to the back lens), a dashed oval and a hint over
-/// the live camera. The phone's camera app could not force the front lens or show the oval. The photo comes back
+/// the live camera, green with the shutter on only while a face fills the oval (<see cref="Services.SelfieFraming"/>). The
+/// phone's camera app could not force the front lens or show the oval. The photo comes back
 /// upright, at most 1280 pixels, JPEG quality 82 with no metadata: the server checks it and stores it as sent
 /// (<c>POST photos/selfie</c>), never resized. Needs <c>MainActivity.OnActivityResult</c> to call
 /// <see cref="HandleActivityResult"/> and the CAMERA permission in the manifest, asked here when "Take a selfie" is
@@ -60,7 +62,9 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, AppText text, I
             var file = new File(Application.Context.CacheDir, $"selfie-{Guid.NewGuid():N}.jpg");
             var intent = new Intent(activity, typeof(SelfieCameraActivity));
             intent.PutExtra(SelfieCameraActivity.ExtraOutput, file.AbsolutePath);
-            intent.PutExtra(SelfieCameraActivity.ExtraHint, text.Get(Copy.SelfieCameraHint));
+            intent.PutExtra(SelfieCameraActivity.ExtraHints, Copy.SelfieCameraHints.Select(text.Get).ToArray());
+            intent.PutExtra(SelfieCameraActivity.ExtraGoodColor, AppTheme.Style.Success);
+            intent.PutExtra(SelfieCameraActivity.ExtraBadColor, AppTheme.Style.Error);
             intent.PutExtra(SelfieCameraActivity.ExtraShutter, text.Get(Copy.SelfieCameraShutter));
             intent.PutExtra(SelfieCameraActivity.ExtraCancel, text.Get(CommonCopy.Cancel));
 
