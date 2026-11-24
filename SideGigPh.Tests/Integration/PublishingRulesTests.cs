@@ -180,6 +180,36 @@ public class PublishingRulesTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task ProfilePhotoThatIsNotTheirSelfie_IsRefused_AndTheAppSendsThemToTakeOne()
+    {
+        // A modified app puts a gallery (work) photo where the selfie goes: refused, the listing stays unpublished.
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Gil");
+        var request = new PublishListingRequest("Gil", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, 800,
+            worker.Pro.Draft.WorkPhotoIds[0], [worker.Pro.Draft.WorkPhotoIds[1]]);
+
+        using var response = await api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        (await response.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.SelfieRequired);
+
+        worker.Pro.Draft.ProfilePhotoId = worker.Pro.Draft.WorkPhotoIds[0];
+        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.SelfieNeeded);
+    }
+
+    [IntegrationFact]
+    public async Task ASelfieThatBreaksTheRules_IsNeverSent()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Hal");
+        var blobs = api.Blobs.Blobs.Count;
+        using var png = new ImageMagick.MagickImage(ImageMagick.MagickColors.SeaGreen, 100, 100) { Format = ImageMagick.MagickFormat.Png };
+
+        var result = await worker.Pro.SetProfilePhotoAsync(new PhotoPick(PhotoPickStatus.Picked, [png.ToByteArray()]));
+
+        result.Problem.Should().Be(PhotoProblem.Rejected);
+        api.Blobs.Blobs.Count.Should().Be(blobs, "the phone checked it and sent nothing");
+    }
+
+    [IntegrationFact]
     public async Task WorkPhotoOfAnotherListing_IsPhotoInUse()
     {
         // The database's unique key: even if a photo id is copied by hand, one photo belongs to one listing.

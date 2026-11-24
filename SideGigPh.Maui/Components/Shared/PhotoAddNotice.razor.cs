@@ -16,11 +16,14 @@ public partial class PhotoAddNotice : ComponentBase
 
     [Parameter] public PhotoAddResult? Result { get; set; }
 
+    /// <summary>The photo was a selfie: one the server refused is taken again, not swapped for another photo.</summary>
+    [Parameter] public bool Selfie { get; set; }
+
     private LocalizedText Message => Result?.Problem switch
     {
         PhotoProblem.NoInternet => Copy.PhotosNoInternet,
         PhotoProblem.ServerError => Copy.PhotosServerError,
-        PhotoProblem.Rejected => Copy.PhotosRejected,
+        PhotoProblem.Rejected => Selfie ? Copy.SelfieRejected : Copy.PhotosRejected,
         _ => Copy.PhotosFailed,
     };
 }

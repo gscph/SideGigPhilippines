@@ -1,14 +1,14 @@
 <MudStack AlignItems="AlignItems.Center" Spacing="3">
-    <PersonAvatar Name="@(Workspace.Draft.DisplayName ?? string.Empty)" PhotoUrl="@Workspace.ProfilePhotoUrl" Size="Size.Large" />
+    @if (Workspace.Draft.HasProfilePhoto)
+    {
+        <PersonAvatar Name="@(Workspace.Draft.DisplayName ?? string.Empty)" PhotoUrl="@Workspace.ProfilePhotoUrl" Size="Size.Large" />
+    }
+    <SelfieGuide ShowPicture="@(!Workspace.Draft.HasProfilePhoto)" />
     <MudButton Variant="@(Workspace.Draft.HasProfilePhoto ? Variant.Outlined : Variant.Filled)" Color="Color.Primary" Size="Size.Large"
                FullWidth="true" StartIcon="@Icons.Material.Rounded.PhotoCamera" Disabled="_busy" OnClick="TakeSelfieAsync">
         @T.Get(Workspace.Draft.HasProfilePhoto ? Copy.SelfieRetake : Copy.SelfieTake)
     </MudButton>
-    <MudButton Variant="Variant.Text" Class="app-link-button" StartIcon="@Icons.Material.Rounded.PhotoLibrary"
-               Disabled="_busy" OnClick="ChoosePhotoAsync">
-        @T.Get(Copy.SelfieFromPhotos)
-    </MudButton>
-    <PhotoAddNotice Result="_photoResult" />
+    <PhotoAddNotice Result="_photoResult" Selfie="true" />
     @if (_unsent is not null)
     {
         <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Rounded.Refresh" Disabled="_busy" OnClick="RetryAsync">

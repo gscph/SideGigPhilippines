@@ -93,7 +93,7 @@
     border-radius: 12px !important;
 }
 
-/* Work photos two across, scrolling sideways past two (PhotoStrip: public profile, Photos page). */
+/* Photos two across, scrolling sideways past two (PhotoStrip: a job post's photos). */
 .photo-strip {
     display: grid;
     grid-auto-flow: column;
@@ -110,6 +110,13 @@
 
 .photo-strip > * {
     scroll-snap-align: start;
+}
+
+/* An empty square in the worker's 2 x 3 work-photo grid (WorkPhotoGrid): tap to add. */
+.photo-slot-add {
+    aspect-ratio: 1;
+    border-style: dashed !important;
+    border-radius: 12px !important;
 }
 
 /* Remove button over the corner of a work photo. */

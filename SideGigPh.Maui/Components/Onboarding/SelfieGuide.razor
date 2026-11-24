@@ -1,0 +1,11 @@
+<MudStack AlignItems="AlignItems.Center" Spacing="3" Class="mud-width-full">
+    @if (ShowPicture)
+    {
+        <MudImage Src="@AppImages.SelfieGuide" Alt="" Width="144" Height="144" />
+    }
+    <MudStack Spacing="2" role="list" aria-label="@T.Get(Copy.SelfieGuideLabel)">
+        <SelfieTip Icon="@Icons.Material.Rounded.Face" Text="@T.Get(Copy.SelfieGuideFace)" />
+        <SelfieTip Icon="@Icons.Material.Rounded.WbSunny" Text="@T.Get(Copy.SelfieGuideLight)" />
+        <SelfieTip Icon="@Icons.Material.Rounded.Block" Text="@T.Get(Copy.SelfieGuideClear)" />
+    </MudStack>
+</MudStack>

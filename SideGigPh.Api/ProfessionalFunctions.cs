@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Azure.Storage.Blobs;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
@@ -13,7 +14,8 @@ namespace SideGigPh.Api;
 /// their own (<c>professionals/me</c>, id = their uid).
 /// </summary>
 public sealed class ProfessionalFunctions(
-    FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, CallerLimits limits, ILogger<ProfessionalFunctions> logger)
+    FirebaseTokenValidator auth, ProfessionalStore professionals, SafetyStore safety, CallerLimits limits,
+    BlobContainerClient photos, ILogger<ProfessionalFunctions> logger)
 {
     /// <summary>
     /// <c>GET search/professionals?categoryId=aircon&amp;areaId=rizal&amp;serviceId=…&amp;cityId=…&amp;budgetId=…&amp;otherText=…&amp;sort=…&amp;skip=0&amp;take=4</c>:
@@ -157,6 +159,16 @@ public sealed class ProfessionalFunctions(
             return ApiResults.BadRequest(ApiErrors.Invalid(field),
                 $"{field} is missing or not valid (categoryId, areaId, at least one serviceIds and cityIds, a profilePhotoId, "
                 + $"and valid workPhotoIds (optional, 0-{ProfessionalStore.MaxWorkPhotos}) are required). Received: {sent}");
+        }
+
+        // A worker's own photo is a selfie: a new one must have come through POST photos/selfie from this account, so
+        // a modified app can't put a gallery or work photo there. The photo a live listing already has stays.
+        var current = (await professionals.GetAsync(caller.Uid, cancellationToken, withNumber: true))?.ProfilePhoto?.Id;
+        if (listing.ProfilePhotoId != current
+            && !await PhotoFunctions.IsSelfieOfAsync(photos, caller.Uid, listing.ProfilePhotoId!, cancellationToken))
+        {
+            logger.LogWarning("Publish by {Uid}: the profile photo isn't their selfie.", caller.Uid);
+            return ApiResults.BadRequest(ApiErrors.SelfieRequired, "profilePhotoId must be a selfie this account sent to POST photos/selfie.");
         }
 
         return await professionals.PublishAsync(caller.Uid, caller.PhoneNumber, listing, cancellationToken) switch

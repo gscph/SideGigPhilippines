@@ -9,14 +9,14 @@
             <MudButton Variant="Variant.Outlined" Color="@(Progress.Photo == ProfileMark.Missing ? Color.Error : Color.Dark)"
                        Size="Size.Small" Class="rounded-pill px-4"
                        StartIcon="@Icons.Material.Rounded.PhotoCamera" Disabled="_busy" OnClick="ChangePhotoAsync">
-                @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.ProfilePhotoAdd : Copy.ProfilePhotoChange)
+                @T.Get(Workspace.ProfilePhotoUrl is null ? Copy.SelfieTake : Copy.SelfieNew)
             </MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Dark" Size="Size.Small" Class="rounded-pill px-4"
                        StartIcon="@Icons.Material.Rounded.Badge" Href="@AuthRoutes.EditName(ProRoutes.Me)">
                 @T.Get(Copy.ProfileNameChange)
             </MudButton>
         </MudStack>
-        <PhotoAddNotice Result="_photoResult" />
+        <PhotoAddNotice Result="_photoResult" Selfie="true" />
     </MudStack>
     @if (!Workspace.IsPublished)
     {
