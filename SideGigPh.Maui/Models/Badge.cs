@@ -37,10 +37,16 @@ public enum BadgeState
 
     /// <summary>Not accepted; the worker can send a better photo.</summary>
     Rejected,
+
+    /// <summary>An approved clearance whose "valid until" has passed: it no longer shows; the worker can send a new one.</summary>
+    Expired,
 }
 
-/// <summary>One proof the worker sent and how it stands. <paramref name="RejectReason"/> is what the checker wrote, when rejected.</summary>
-public sealed record BadgeRequest(long Id, Badge Badge, BadgeState State, string? RejectReason, DateTimeOffset SentAt);
+/// <summary>
+/// One proof the worker sent and how it stands. <paramref name="RejectReason"/> is what the checker wrote, when
+/// rejected; <paramref name="ValidUntil"/> is an approved clearance's last day (the checker read it off the paper).
+/// </summary>
+public sealed record BadgeRequest(long Id, Badge Badge, BadgeState State, string? RejectReason, DateTimeOffset SentAt, DateOnly? ValidUntil = null);
 
 /// <summary>What sending a proof ended with.</summary>
 public enum BadgeSubmitResult

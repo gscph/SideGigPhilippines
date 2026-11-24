@@ -1,0 +1,29 @@
+<MudStack Spacing="1" Class="mt-4">
+    <MudText Typo="Typo.subtitle2">Check the clearance</MudText>
+    @foreach (var item in BadgeText.ClearanceChecklist)
+    {
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+            <MudIcon Icon="@Icons.Material.Outlined.CheckBoxOutlineBlank" Size="Size.Small" />
+            <MudText Typo="Typo.body2">@item</MudText>
+        </MudStack>
+    }
+
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start" Class="mt-2">
+        <MudIcon Icon="@Icons.Material.Outlined.QrCode2" Size="Size.Small" Color="@(Link is null ? Color.Error : Color.Default)" />
+        <MudStack Spacing="0">
+            <MudText Typo="Typo.body2" Color="@(Link is null ? Color.Error : Color.Default)">@BadgeText.ClearanceQr(Qr)</MudText>
+            @if (Link is { } link)
+            {
+                <MudLink Href="@link.AbsoluteUri" Target="_blank" Typo="Typo.body2">Open the QR link: @link.Host</MudLink>
+            }
+            else if (!string.IsNullOrWhiteSpace(Qr))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="admin-wrap">@Qr</MudText>
+            }
+        </MudStack>
+    </MudStack>
+
+    <MudDatePicker Date="Picked" DateChanged="PickAsync" MinDate="First" MaxDate="Last" Disabled="Disabled"
+                   Label="Valid until (printed on the paper)" DateFormat="d MMM yyyy" Variant="Variant.Filled"
+                   HelperText="Needed to approve. The badge goes away after this date. Expired? Reject it." Class="mt-2" />
+</MudStack>

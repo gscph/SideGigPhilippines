@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
@@ -6,7 +7,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Admin;
 
 /// <summary>
-/// One badge request for the operator: the worker's profile photo and name, the badge, what the AI read from an ID,
+/// One badge request for the operator: the worker's profile photo and name, the badge, what the AI read from an ID
+/// (a clearance: the <see cref="ClearanceCheck"/> list, its QR code and the "valid until" approving needs),
 /// the proof photo (loaded only on a tap, since every look is logged) and Approve / Reject (a rejection needs a reason
 /// the worker will see). Raises <see cref="OnDecided"/> once the server took the decision.
 /// </summary>
@@ -21,8 +23,11 @@ public partial class PendingBadgeCard : ComponentBase
 
     private string? _document;
     private string? _reason;
+    private DateOnly? _validUntil;
     private bool _busy;
     private LocalizedText? _error;
+
+    private bool CanApprove => BadgeReview.CanApprove(Request, _validUntil, JobPostRules.PhilippineToday(DateTimeOffset.UtcNow));
 
     private LocalizedText ScanNote => Request.Scan.Result switch
     {
@@ -62,7 +67,7 @@ public partial class PendingBadgeCard : ComponentBase
         _error = null;
         try
         {
-            if (await Review.DecideAsync(Request, approve, _reason))
+            if (await Review.DecideAsync(Request, approve, _reason, _validUntil))
             {
                 await OnDecided.InvokeAsync();
             }

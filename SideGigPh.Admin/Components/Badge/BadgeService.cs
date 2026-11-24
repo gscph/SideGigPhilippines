@@ -35,16 +35,30 @@ public sealed class BadgeService(AdminApi api)
 
     public static bool CanReject(string? reason) => CleanReason(reason) is not null;
 
+    /// <summary>True when approving needs the "valid until" printed on the paper: a clearance (the badge lapses after it).</summary>
+    public static bool NeedsValidUntil(AdminVerificationDto request) => request.Kind == VerificationKinds.Clearance;
+
+    /// <summary>Any badge but a clearance, or a clearance with a "valid until" from today (Philippine time) to a year ahead.</summary>
+    public static bool CanApprove(AdminVerificationDto request, DateOnly? validUntil) =>
+        !NeedsValidUntil(request)
+        || (validUntil is { } until && ClearanceRules.IsValidUntilAllowed(until, JobPostRules.PhilippineToday(DateTimeOffset.UtcNow)));
+
     /// <summary>Sends the decision and takes the request off the list. Throws <see cref="AdminApiException"/> when it didn't go through.</summary>
-    public async Task DecideAsync(AdminVerificationDto request, bool approve, string? reason)
+    public async Task DecideAsync(AdminVerificationDto request, bool approve, string? reason, DateOnly? validUntil = null)
     {
         if (!approve && !CanReject(reason))
         {
             throw new AdminApiException("Write a reason first: the worker reads it.");
         }
 
+        if (approve && !CanApprove(request, validUntil))
+        {
+            throw new AdminApiException("Type the clearance's \"valid until\" date first: today or later, at most a year ahead. An expired one is rejected.");
+        }
+
         await api.PostAsync($"ops/verifications/{request.Id}/decision",
-            new VerificationDecisionRequest(approve, approve ? null : CleanReason(reason)), ApiJson.Default.VerificationDecisionRequest);
+            new VerificationDecisionRequest(approve, approve ? null : CleanReason(reason), approve && NeedsValidUntil(request) ? validUntil : null),
+            ApiJson.Default.VerificationDecisionRequest);
         _pending.RemoveAll(item => item.Id == request.Id);
     }
 }

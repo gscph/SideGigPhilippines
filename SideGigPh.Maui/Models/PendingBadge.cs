@@ -6,18 +6,34 @@ public enum BadgeScanResult
     /// <summary>Not an ID, or the reader isn't set up.</summary>
     None,
 
-    /// <summary>At least one of name, number and expiry was read.</summary>
+    /// <summary>At least one of name, number and expiry was read, or a clearance's QR code.</summary>
     Read,
 
-    /// <summary>The reader found no ID fields.</summary>
+    /// <summary>The reader found no ID fields, or no QR code on a clearance.</summary>
     Unreadable,
 
     /// <summary>The reader couldn't be reached.</summary>
     Failed,
 }
 
-/// <summary>What the AI read from an ID: shown only to the operator, never sent to any other phone.</summary>
-public sealed record BadgeScan(BadgeScanResult Result, string? Type = null, string? Name = null, string? Number = null, DateOnly? Expiry = null);
+/// <summary>Who issued a clearance, as its QR code's web address says.</summary>
+public enum ClearanceIssuer
+{
+    Nbi,
+    Police,
+}
+
+/// <summary>
+/// A clearance's QR code as the server read it: its <paramref name="Text"/>, who it says issued the paper (null when
+/// the address isn't the NBI's or PNP's: a warning sign) and that address to open and compare with the paper.
+/// </summary>
+public sealed record ClearanceQr(string Text, ClearanceIssuer? Issuer, string? Link);
+
+/// <summary>
+/// What was read from a proof: an ID's fields by AI, or a clearance's QR code (<paramref name="Qr"/>) by the server.
+/// Shown only to the operator, never sent to any other phone.
+/// </summary>
+public sealed record BadgeScan(BadgeScanResult Result, string? Type = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, ClearanceQr? Qr = null);
 
 /// <summary>
 /// A worker's badge request waiting for the operator: who sent it, their profile photo (to compare with the ID by

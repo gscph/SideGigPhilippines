@@ -484,9 +484,21 @@ Four badges, each approved by a person at Tarbaho: **ID Verified** (a government
 checker), **NBI / Police Clearance** (kind `clearance`, an NBI or police clearance, checked by a person only;
 `031-schema-clearance-badge.sql` widened the `Kind` check; **the checker approves only a genuine clearance in the
 worker's name, NBI under 1 year or police under 6 months old, showing no record** ("No record on file"), and
-rejects anything else with a neutral reason ("We can't approve this clearance"), never naming a record; no expiry
-is tracked after approval; its own consent line `BadgeConsentClearance` says a record on it is seen only for the
-badge), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
+rejects anything else with a neutral reason ("We can't approve this clearance"), never naming a record; its own
+consent line `BadgeConsentClearance` says a record on it is seen only for the badge; **the server reads its QR code**
+(`SideGigPh.Api/ClearanceQrReader`, ZXing.Net on the stored JPEG, free and local, no AI) into `ScannedQr`, shown only to
+the operator: `ClearanceRules.OfficialLink` / `IssuerOf` say whether it is an NBI (`nbi.gov.ph`) or PNP
+(`pnpclearance.ph`, `pnp.gov.ph`) web address, linked to open and compare, else a red "may be fake" note; never a
+reason to refuse an upload (a crumpled paper may not read) and never an approval (a QR can be copied onto a fake);
+**approving needs the "valid until" printed on the paper**, typed by the operator (`VerificationDecisionRequest.ValidUntil`,
+today to a year and a week ahead, `ClearanceRules.IsValidUntilAllowed`, else `400 valid-until-needed`), kept after
+the decision (`WorkerVerifications.ValidUntil`, `034-schema-clearance-valid-until.sql`): **the badge lapses the day
+after** (`ClearanceRules.HasLapsed`, Philippine date; `ProfessionalStore` leaves it off the listing), the worker's
+Badges page shows it as `BadgeState.Expired` ("Expired", amber) and a new one can be sent; while approved the row
+says "Shows until 3 Mar 2027". Both operator screens show a clearance checklist (name and photo, "No record", NBI
+under 1 year / police under 6 months, open the QR link): `Components/Admin/ClearanceCheck` in the app,
+`Components/Badge/Views/ClearanceChecklist` on the operator site. No OCR of the dates (the council's call: small
+print misreads, and a person reads one date in seconds); a renewal reminder push is for after launch), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
 developer or any other company (a well-known developer picked from a list, or "Another company" typed by the
 worker; each company is its own badge, with an optional building name).
 

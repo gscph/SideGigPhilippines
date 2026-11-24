@@ -24,10 +24,10 @@ public sealed class ApiBadgeReviewRepository(ApiClient api) : IBadgeReviewReposi
         return response.IsSuccessStatusCode ? await response.Content.ReadAsByteArrayAsync() : null;
     }, null, "a badge proof photo");
 
-    public async Task DecideAsync(long id, bool approve, string? reason)
+    public async Task DecideAsync(long id, bool approve, string? reason, DateOnly? validUntil)
     {
         using var response = await api.SendJsonAsync(HttpMethod.Post, $"ops/verifications/{id}/decision",
-            new VerificationDecisionRequest(approve, reason), ApiJson.Default.VerificationDecisionRequest);
+            new VerificationDecisionRequest(approve, reason, validUntil), ApiJson.Default.VerificationDecisionRequest);
         await api.EnsureWrittenAsync(response, "decide a badge request");
     }
 }

@@ -28,6 +28,11 @@
             </MudStack>
         }
 
+        @if (Request.Badge.Kind == BadgeKind.Clearance)
+        {
+            <ClearanceCheck Qr="@Request.Scan.Qr" @bind-ValidUntil="_validUntil" Disabled="_busy" />
+        }
+
         @if (_document is not null)
         {
             <MudImage Src="@_document" Alt="@T.Get(Copy.AdminProofAlt)" Fluid="true" Class="app-rounded" />
@@ -52,7 +57,7 @@
                        Disabled="@(_busy || !BadgeReview.CanReject(_reason))" OnClick="() => DecideAsync(false)">
                 @T.Get(Copy.AdminReject)
             </MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="flex-1" Disabled="_busy" OnClick="() => DecideAsync(true)">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="flex-1" Disabled="@(_busy || !CanApprove)" OnClick="() => DecideAsync(true)">
                 @T.Get(Copy.AdminApprove)
             </MudButton>
         </MudStack>

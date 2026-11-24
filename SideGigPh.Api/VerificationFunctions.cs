@@ -39,7 +39,7 @@ public sealed class VerificationFunctions(
     /// <c>POST verifications/{kind}?consent=true[&amp;badgeId=ayala-land|other][&amp;companyName=…][&amp;projectName=…]</c>, the body is the photo
     /// (like <c>POST photos</c>). <c>kind</c> is one of <see cref="VerificationKinds"/>; <c>consent=true</c> says the
     /// worker ticked the consent box on the screen that explains the AI scan and how the photo is kept. An ID is read
-    /// by AI before it's saved; nothing read comes back to the phone.
+    /// by AI before it's saved, a clearance's QR code by the server; nothing read comes back to the phone.
     /// </summary>
     [Function("SubmitVerification")]
     public async Task<IActionResult> Submit(
@@ -93,7 +93,12 @@ public sealed class VerificationFunctions(
             return ApiResults.BadRequest("broken-image");
         }
 
-        var scan = kind == VerificationKinds.Id ? await reader.ReadAsync(bytes, cancellationToken) : IdScan.None;
+        var scan = kind switch
+        {
+            VerificationKinds.Id => await reader.ReadAsync(bytes, cancellationToken),
+            VerificationKinds.Clearance => ClearanceQrReader.Read(bytes), // its QR code, only a hint for the operator
+            _ => IdScan.None,
+        };
         var name = $"{uid}/{Guid.NewGuid():N}.jpg";
         await files.SaveAsync(name, bytes, cancellationToken);
         if (await verifications.SubmitAsync(uid, submission, name, scan, cancellationToken) is { } saved)
@@ -165,7 +170,7 @@ public sealed class VerificationFunctions(
 
     /// <summary>
     /// <c>POST ops/verifications/{id}/decision</c>: approve or reject. The photo is deleted either way; only the
-    /// result stays.
+    /// result stays (and, for a clearance, the "valid until" the operator typed: 400 <c>valid-until-needed</c> without one).
     /// </summary>
     [Function("AdminVerificationDecision")]
     public async Task<IActionResult> Decide(
@@ -188,6 +193,11 @@ public sealed class VerificationFunctions(
         if (await verifications.DecideAsync(verificationId, admin, decision, cancellationToken) is not { } decided)
         {
             return new NotFoundResult();
+        }
+
+        if (decided.ValidUntilNeeded)
+        {
+            return ApiResults.BadRequest(ApiErrors.ValidUntilNeeded);
         }
 
         if (decided.DocumentBlob is { } name)
