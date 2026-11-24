@@ -56,7 +56,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public const int MaxRejectReason = 200;
 
     /// <summary>The most of a clearance's QR code kept for the operator.</summary>
-    public const int MaxQr = 300;
+    public const int MaxQr = 1000;
 
     /// <summary>The most requests the operator's queue returns at once.</summary>
     public const int MaxQueue = 50;

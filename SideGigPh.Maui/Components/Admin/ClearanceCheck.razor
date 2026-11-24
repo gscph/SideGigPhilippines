@@ -14,7 +14,7 @@
             <MudText Typo="Typo.body2" Color="@(IsOfficial ? Color.Default : Color.Error)">@QrNote</MudText>
             @if (Qr?.Link is { } link)
             {
-                <MudLink Href="@link" Target="_blank" Typo="Typo.body2" Color="Color.Primary">@T.Get(Copy.AdminClearanceOpenQr)</MudLink>
+                <MudLink Href="@link" Typo="Typo.body2" Color="Color.Primary">@T.Get(Copy.AdminClearanceOpenQr)</MudLink>
             }
             else if (Qr is not null)
             {

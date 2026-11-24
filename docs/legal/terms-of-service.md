@@ -75,7 +75,8 @@ The one such feature is **badges** ("ID Verified", "NBI / Police Clearance", "TE
 badge means only that a person at Tarbaho looked at a photo of that document when the worker sent it and accepted
 it (for a clearance: genuine, recent and showing no record on that day; its badge shows only until the "valid until"
 date printed on it). It does not mean we vouch for the
-worker, and it is not updated if the document later expires or a record changes.
+worker, and it is not updated if a record changes later; apart from a clearance's badge ending on its "valid until"
+date, it is not updated if the document expires.
 
 ## 4. Eligibility and your account
 

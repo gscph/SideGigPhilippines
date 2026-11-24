@@ -492,7 +492,7 @@ the operator: `ClearanceRules.OfficialLink` / `IssuerOf` say whether it is an NB
 reason to refuse an upload (a crumpled paper may not read) and never an approval (a QR can be copied onto a fake);
 **approving needs the "valid until" printed on the paper**, typed by the operator (`VerificationDecisionRequest.ValidUntil`,
 today to a year and a week ahead, `ClearanceRules.IsValidUntilAllowed`, else `400 valid-until-needed`), kept after
-the decision (`WorkerVerifications.ValidUntil`, `033-schema-clearance-valid-until.sql`): **the badge lapses the day
+the decision (`WorkerVerifications.ValidUntil`, `034-schema-clearance-valid-until.sql`): **the badge lapses the day
 after** (`ClearanceRules.HasLapsed`, Philippine date; `ProfessionalStore` leaves it off the listing), the worker's
 Badges page shows it as `BadgeState.Expired` ("Expired", amber) and a new one can be sent; while approved the row
 says "Shows until 3 Mar 2027". Both operator screens show a clearance checklist (name and photo, "No record", NBI

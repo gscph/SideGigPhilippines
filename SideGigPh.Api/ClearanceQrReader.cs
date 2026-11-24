@@ -36,8 +36,9 @@ public static class ClearanceQrReader
                 ? new IdScan(ScanStatuses.Read, Qr: text.Trim())
                 : new IdScan(ScanStatuses.Unreadable);
         }
-        catch (Exception ex) when (ex is MagickException or ArgumentException or InvalidOperationException)
+        catch (Exception)
         {
+            // Only a hint for the operator: whatever goes wrong reading an odd image, the upload still goes through.
             return new IdScan(ScanStatuses.Unreadable);
         }
     }
