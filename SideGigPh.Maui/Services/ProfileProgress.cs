@@ -88,7 +88,7 @@ public sealed record ProfileProgress(
                 : ProfileMark.Recommended,
             Phone: hasVerifiedPhone ? ProfileMark.Full : ProfileMark.Missing,
             Badges: approved >= BadgeCatalog.Kinds ? ProfileMark.Full
-                : states.Count < BadgeCatalog.Kinds || states.Any(state => state is BadgeState.None or BadgeState.Rejected) ? ProfileMark.Recommended
+                : states.Count < BadgeCatalog.Kinds || states.Any(state => state is BadgeState.None or BadgeState.Rejected or BadgeState.Expired) ? ProfileMark.Recommended
                 : ProfileMark.Waiting,
             WorkPhotoCount: workPhotoCount,
             BadgeCount: approved);

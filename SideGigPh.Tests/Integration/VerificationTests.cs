@@ -132,24 +132,96 @@ public class VerificationTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task ClearanceBadge_IsStored_NeverReadByAi_AndShowsOnceApproved()
+    public async Task ClearanceBadge_ItsQrIsReadForTheOperator_NeverByAi_AndApprovingNeedsTheValidUntilDate()
     {
-        var uid = $"clear-{Guid.NewGuid():N}";
-        var client = api.Client(api.Tokens.For(uid));
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Lito");
+        await worker.Pro.PublishAsync();
+        var client = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
         var reads = api.IdReader.Reads;
+        const string qr = "https://clearance.nbi.gov.ph/verify/ABC123XYZ";
 
-        using var sent = await client.PostAsync("verifications/clearance?consent=true", Photo());
+        using var sent = await client.PostAsync("verifications/clearance?consent=true", new ByteArrayContent(TestImages.PaperWithQr(qr)));
         sent.StatusCode.Should().Be(HttpStatusCode.OK);
         var request = (await sent.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
         request.Kind.Should().Be(VerificationKinds.Clearance);
         request.BadgeId.Should().BeEmpty();
-        api.IdReader.Reads.Should().Be(reads, "only a government ID is read by AI");
+        api.IdReader.Reads.Should().Be(reads, "only a government ID is read by AI; a clearance's QR is read by the server");
 
+        // The operator sees the QR as read, pointing to the NBI.
+        var waiting = (await Operator.GetFromJsonAsync("ops/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!
+            .Single(v => v.Id == request.Id);
+        waiting.ScanStatus.Should().Be(ScanStatuses.Read);
+        waiting.ScannedQr.Should().Be(qr);
+        ClearanceRules.IssuerOf(waiting.ScannedQr).Should().Be(ClearanceIssuers.Nbi);
+
+        // Approving needs the "valid until" printed on the paper: none, one already past or one too far ahead is refused.
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
+        foreach (var refused in new VerificationDecisionRequest[] { new(true), new(true, ValidUntil: today.AddDays(-1)), new(true, ValidUntil: today.AddYears(2)) })
+        {
+            using var answer = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision", refused, ApiJson.Default.VerificationDecisionRequest);
+            answer.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+            (await answer.Content.ReadFromJsonAsync(ApiJson.Default.ApiError))!.Error.Should().Be(ApiErrors.ValidUntilNeeded);
+        }
+
+        var validUntil = today.AddMonths(11);
         using var approved = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision",
-            new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
+            new VerificationDecisionRequest(true, ValidUntil: validUntil), ApiJson.Default.VerificationDecisionRequest);
         approved.StatusCode.Should().Be(HttpStatusCode.NoContent);
-        (await client.GetFromJsonAsync("verifications/mine", ApiJson.Default.ListVerificationDto))!
-            .Single().Status.Should().Be(VerificationStatuses.Approved);
+
+        var mine = (await client.GetFromJsonAsync("verifications/mine", ApiJson.Default.ListVerificationDto))!.Single();
+        (mine.Status, mine.ValidUntil).Should().Be((VerificationStatuses.Approved, validUntil));
+        (await client.GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!
+            .Badges.Should().ContainSingle(b => b.Kind == VerificationKinds.Clearance);
+        using var scope = api.Server.Services.CreateScope();
+        var row = await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().WorkerVerifications.SingleAsync(v => v.Id == request.Id);
+        (row.DocumentBlob, row.ScannedQr, row.ValidUntil).Should().Be((null, null, validUntil), "only the result and its last day stay");
+    }
+
+    [IntegrationFact]
+    public async Task ClearanceWithoutAQr_StillReachesTheOperator()
+    {
+        var uid = $"clear-{Guid.NewGuid():N}";
+        using var sent = await api.Client(api.Tokens.For(uid)).PostAsync("verifications/clearance?consent=true", Photo());
+        sent.StatusCode.Should().Be(HttpStatusCode.OK, "a paper whose QR doesn't read is never refused: the operator decides");
+        var request = (await sent.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
+
+        var waiting = (await Operator.GetFromJsonAsync("ops/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!
+            .Single(v => v.Id == request.Id);
+        (waiting.ScanStatus, waiting.ScannedQr).Should().Be((ScanStatuses.Unreadable, (string?)null));
+    }
+
+    [IntegrationFact]
+    public async Task ALapsedClearance_LeavesTheListing_AndANewOneCanBeSent()
+    {
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Badong");
+        await worker.Pro.PublishAsync();
+        var client = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
+        using var sent = await client.PostAsync("verifications/clearance?consent=true", Photo());
+        var request = (await sent.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
+        using (var approved = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision",
+            new VerificationDecisionRequest(true, ValidUntil: today), ApiJson.Default.VerificationDecisionRequest))
+        {
+            approved.StatusCode.Should().Be(HttpStatusCode.NoContent);
+        }
+
+        using var again = await client.PostAsync("verifications/clearance?consent=true", Photo());
+        again.StatusCode.Should().Be(HttpStatusCode.Conflict, "it still shows today, its last day");
+
+        // The day after its "valid until" (set back here, as time passing would).
+        using (var scope = api.Server.Services.CreateScope())
+        {
+            await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().WorkerVerifications
+                .Where(v => v.Id == request.Id).ExecuteUpdateAsync(set => set.SetProperty(v => v.ValidUntil, today.AddDays(-1)));
+        }
+
+        (await client.GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!
+            .Badges.Should().NotContain(b => b.Kind == VerificationKinds.Clearance);
+        await worker.Badges.LoadAsync();
+        worker.Badges.StateOf(BadgeKind.Clearance).Should().Be(BadgeState.Expired);
+        worker.Badges.CanSend(BadgeKind.Clearance).Should().BeTrue();
+        using var renewed = await client.PostAsync("verifications/clearance?consent=true", Photo());
+        renewed.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [IntegrationFact]

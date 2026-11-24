@@ -254,6 +254,7 @@ public class WireContractTests
         ApiErrors.Invalid("workPhotoIds").Should().Be("invalid-workPhotoIds");
         ApiErrors.ConsentRequired.Should().Be("consent-required");
         ApiErrors.AlreadySent.Should().Be("already-sent");
+        ApiErrors.ValidUntilNeeded.Should().Be("valid-until-needed");
         ApiErrors.NotAdmin.Should().Be("not-admin");
         ApiErrors.OthersStays.Should().Be("others-stays");
         ApiErrors.NeedsPrice.Should().Be("needs-price");

@@ -1,0 +1,29 @@
+<MudStack Spacing="2">
+    <MudText Typo="Typo.overline" Color="Color.Secondary">@T.Get(Copy.AdminClearanceTitle)</MudText>
+    @foreach (var item in Checklist)
+    {
+        <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start">
+            <MudIcon Icon="@Icons.Material.Rounded.CheckBoxOutlineBlank" Size="Size.Small" Color="Color.Dark" aria-hidden="true" />
+            <MudText Typo="Typo.body2" Class="flex-1 app-min-w-0">@T.Get(item)</MudText>
+        </MudStack>
+    }
+
+    <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Start" Class="mt-1">
+        <MudIcon Icon="@Icons.Material.Rounded.QrCode2" Size="Size.Small" Color="@(IsOfficial ? Color.Dark : Color.Error)" aria-hidden="true" />
+        <MudStack Spacing="0" Class="flex-1 app-min-w-0">
+            <MudText Typo="Typo.body2" Color="@(IsOfficial ? Color.Default : Color.Error)">@QrNote</MudText>
+            @if (Qr?.Link is { } link)
+            {
+                <MudLink Href="@link" Target="_blank" Typo="Typo.body2" Color="Color.Primary">@T.Get(Copy.AdminClearanceOpenQr)</MudLink>
+            }
+            else if (Qr is not null)
+            {
+                <MudText Typo="Typo.caption" Color="Color.Secondary" Class="app-wrap-text">@Qr.Text</MudText>
+            }
+        </MudStack>
+    </MudStack>
+
+    <MudDatePicker Date="Picked" DateChanged="PickAsync" MinDate="First" MaxDate="Last" Disabled="Disabled"
+                   Label="@T.Get(Copy.AdminClearanceValidUntil)" HelperText="@T.Get(Copy.AdminClearanceValidUntilHelp)"
+                   Variant="Variant.Filled" Underline="false" Class="app-field" Color="Color.Primary" DateFormat="d MMM yyyy" />
+</MudStack>

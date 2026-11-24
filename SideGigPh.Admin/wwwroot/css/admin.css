@@ -29,6 +29,11 @@
     object-fit: contain;
 }
 
+/* A clearance's QR text that isn't a web address: a long run with no spaces wraps instead of widening the card. */
+.admin-wrap {
+    overflow-wrap: anywhere;
+}
+
 .admin-profile-photo {
     width: 96px;
     height: 96px;

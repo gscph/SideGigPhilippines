@@ -31,6 +31,11 @@
             </MudStack>
         }
 
+        @if (BadgeService.NeedsValidUntil(Request))
+        {
+            <ClearanceChecklist Qr="@Request.ScannedQr" @bind-ValidUntil="_validUntil" Disabled="_busy" />
+        }
+
         <MudStack Spacing="2" Class="mt-4">
             @if (_document is not null)
             {
@@ -60,7 +65,8 @@
     </MudCardContent>
     <MudCardActions Class="px-4 pb-4">
         <MudStack Row="true" Spacing="2">
-            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="_busy" OnClick="() => DecideAsync(true)">Approve</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Success" Disabled="@(_busy || !BadgeService.CanApprove(Request, _validUntil))"
+                       OnClick="() => DecideAsync(true)">Approve</MudButton>
             <MudButton Variant="Variant.Outlined" Color="Color.Error" Disabled="_busy || !BadgeService.CanReject(_reason)"
                        OnClick="() => DecideAsync(false)">Reject</MudButton>
         </MudStack>

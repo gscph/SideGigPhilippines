@@ -14,6 +14,11 @@
                 <MudChip T="string" Color="Color.Dark" Variant="Variant.Text" Size="Size.Small"
                          Icon="@Icons.Material.Rounded.Schedule" Class="ma-0 align-self-start">@T.Get(Copy.BadgeStatePending)</MudChip>
             }
+            else if (State == BadgeState.Expired)
+            {
+                <MudChip T="string" Color="Color.Info" Variant="Variant.Text" Size="Size.Small"
+                         Icon="@Icons.Material.Rounded.EventBusy" Class="ma-0 align-self-start">@T.Get(Copy.BadgeStateExpired)</MudChip>
+            }
             else if (State == BadgeState.Rejected)
             {
                 <MudChip T="string" Color="Color.Error" Variant="Variant.Text" Size="Size.Small"

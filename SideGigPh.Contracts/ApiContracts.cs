@@ -83,6 +83,9 @@ public static class ApiErrors
     /// <summary>409 on <c>POST picked-jobs/{postId}/cancel</c>: both sides already marked the job done, so it can't be called off.</summary>
     public const string JobCompleted = "job-completed";
 
+    /// <summary>400 on approving a clearance: no "valid until" date, or one already past or too far ahead (<see cref="ClearanceRules.IsValidUntilAllowed"/>).</summary>
+    public const string ValidUntilNeeded = "valid-until-needed";
+
     /// <summary>403 on an <c>ops/…</c> route: the caller isn't an operator.</summary>
     public const string NotAdmin = "not-admin";
 

@@ -474,6 +474,12 @@ public sealed class WorkerVerificationRow
     public string? ScannedName { get; set; }
     public string? ScannedNumber { get; set; }
     public DateOnly? ScannedExpiry { get; set; }
+
+    /// <summary>What the server read from a clearance's QR code (<c>033-schema-clearance-valid-until.sql</c>), for the operator only; cleared on the decision.</summary>
+    public string? ScannedQr { get; set; }
+
+    /// <summary>A clearance's "valid until", typed by the operator on approving it; the badge lapses after it. Kept after the decision.</summary>
+    public DateOnly? ValidUntil { get; set; }
     public DateTimeOffset ConsentAt { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? DecidedAt { get; set; }
