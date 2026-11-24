@@ -76,12 +76,13 @@ transferred encrypted, users can request deletion):
 | Messages (in-app chat) | Yes | No | App functionality | Yes | No |
 | Other user content (listing, reviews, reports, "Others" text) | Yes | No | App functionality, safety, analytics (Others) | Yes | — |
 | Crash logs / diagnostics | Yes | No | Analytics (app stability) | **No** | Yes (switch) |
+| App activity: in-app search history and app interactions (our own usage counts, `app_events`, policy §3.3) | Yes | No | Analytics | Yes (opaque account id; removed on Delete account) | No |
 | Device or other IDs (push token, random install id) | Yes | No | App functionality | Yes (push) / No (install id) | — |
 | Precise location (optional: "Use my location"; a customer's "Send my location" to the worker they picked, removed when the job is done or cancelled) | Yes | No (sent on the user's own tap to one other user) | App functionality | Yes | Yes |
 | Contacts, financial info, browsing history, health | **No** | — | — | — | — |
 
 \* Firebase and Azure are **service providers** processing on our behalf, which both stores count as "not shared".
-If an analytics or advertising SDK is ever added, update the policy §3.3 and this table first, and keep the
+Usage counts are our own (`app_events`, no SDK). If an analytics or advertising SDK is ever added, update the policy §3.3 and this table first, and keep the
 `AD_ID` permission out of the Android manifest so the Play form can still say no advertising ID.
 
 ## Legal-risk review (Philippine law)

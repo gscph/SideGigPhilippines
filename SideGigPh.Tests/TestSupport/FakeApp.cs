@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Search;
 
 namespace SideGigPh.Tests.TestSupport;
@@ -17,12 +18,18 @@ public sealed class FakeApp
         Store = new FakeOnboardingStore(state);
         Identity = new FakeIdentity(user);
         Text.Use(language);
+        Analytics = new TarbahoAnalytics(PendingEvents, TimeProvider.System, NullLogger<TarbahoAnalytics>.Instance);
         Pro = new ProWorkspace(Store, Photos, Picker, Chats, Reviews, Profiles, Identity, Safety);
-        Seeker = new SeekerWorkspace(Store, new ProfessionalSearch(Profiles), Profiles, Chats, Reviews, Identity, Picker, Photos, Safety, Text);
+        Seeker = new SeekerWorkspace(Store, new ProfessionalSearch(Profiles), Profiles, Chats, Reviews, Identity, Picker, Photos, Safety, Text, Analytics);
         Account = new LocalAccount(Store, Identity, Users, Photos, Profiles, Chats, Reviews, JobPosts, Pro, Seeker, Text, NullLogger<LocalAccount>.Instance);
     }
 
     public FakeOnboardingStore Store { get; }
+
+    public FakePendingEvents PendingEvents { get; } = new();
+
+    /// <summary>The app's usage counts, kept in <see cref="PendingEvents"/>.</summary>
+    public TarbahoAnalytics Analytics { get; }
 
     public FakeIdentity Identity { get; }
 

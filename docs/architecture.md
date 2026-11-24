@@ -151,6 +151,44 @@ for Android).
 - **A PC build over a CI build:** Android refuses to install a lower `versionCode` over a higher one, so a tester's
   phone with a CI build needs that build uninstalled before a Visual Studio build goes on it.
 
+## Usage analytics (our own)
+
+No analytics SDK and no A/B tests: two questions only, **do matches happen** and **do they repeat**, answered from
+one table.
+
+- **Table** `dbo.app_events` (`032-schema-app-events.sql`): `event_id` (unique, so a retry is kept once),
+  `event_name`, `source` (`server` / `app`), `user_id` (the opaque uid; NULL after Delete account), `user_type`
+  (`customer` / `worker`), `session_id`, `service_category` (trade id), `area` (town id), `search_term`,
+  `result_count`, `minutes_to_match`, `reason`, `request_id` (the job post's id: request → match → job), `app_version`,
+  `client_ts` (app events), `server_ts` (arrival). View `dbo.v_events` adds `event_ts_ph` (UTC+8) and `week_start_ph`
+  (Monday). EF maps it as `AppEventRow` (snake_case columns).
+- **Server events** (`SideGigPh.AzureSQL/AppEventStore`, scoped): `LogAsync(new AppEvent(name) {…})` is one
+  parameterised `INSERT` after the store's own save (never inside its transaction), catching and logging any failure
+  so the request still succeeds; it gives up after `GiveUpAfter` (3 s), so a slow database never holds the answer
+  back for long (the same limit on `HasAsync`). Where: `UserStore.SaveAsync` (`sign_up`, the first time a profile is saved with a
+  side), `JobPostStore.AddAsync` (`request_created`), `JobPostStore.PickAsync` → `LogMatchAsync` (`request_matched`;
+  `rehire` when the household already completed a job with that worker), `PickedJobStore.MarkDoneAsync` →
+  `LogCompletedAsync` (`job_completed` when the second side marks done; `worker_first_job`), `ProfessionalStore.PublishAsync`
+  (`worker_profile_complete`, first live listing only), `SafetyStore` (`report_user`, `block_user`, with the report's
+  reason). Each logs only on the real change, so a repeated write (`ApiClient.WriteTries`) never counts twice;
+  "first time" events also check `HasAsync`.
+- **App events** (`SideGigPh.Maui/Services/Analytics/`): `TarbahoAnalytics.Search(...)` from `SeekerWorkspace.SearchAsync`
+  once results loaded (a read that failed returns the shared `SearchResult.Empty` and isn't counted; the same search
+  again in one session isn't either). Events go to `pending-events.json` (`IPendingEventStore` /
+  `FilePendingEventStore`) on the thread pool; at most `MaxQueued` 500, `KeepFor` 7 days. `AnalyticsUploader`
+  (started by `App`, like `ErrorReporting`) sends the 50 oldest through `IAppEventRepository` / `ApiAppEventRepository`
+  (`POST events`, not logged by `ApiClient` when it fails: offline is normal) and removes exactly those once the server
+  answered `202`; a `400` drops the batch; anything else stops until the next try. Tries: 45 s after launch, every
+  15 min while on screen, and when the app goes to the background; only while signed in. A new session id after 30+
+  minutes away (`App` → `AppShown` / `AppHidden`). There is no WorkManager: uploads happen while the app runs.
+- **`POST events`** (`AppEventFunctions`): signed in, `CallerLimits` `AppEvents` (30 batches an hour), a JSON array of
+  1–50 `AppEventDto`; any name outside `AppEventNames.FromApp` refuses the whole batch (`400`); `user_id` from the token,
+  `user_type` `customer` (only households search); `client_ts` over 5 minutes ahead or 7 days old becomes NULL; text cut to its column, search words
+  scrubbed; a duplicate `event_id` is skipped; `202`. It also deletes events over 12 months, at most once a day per instance.
+- **Reports:** `analytics/weekly.sql` (7 questions; run one day after the week ends; `AppEventTests` runs it),
+  `analytics/retention.sql` (the 12-month delete by hand). Privacy policy §3.3 and the Play Data safety answers
+  describe it: change them together.
+
 ## Blocked words
 
 Text other people read is checked for vulgarity, sexual words, slurs and insults in English, Tagalog/Taglish and

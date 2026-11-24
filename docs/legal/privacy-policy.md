@@ -83,6 +83,7 @@ Interview answers you have not finished are kept **only on your phone**.
 | **Push notification token** and phone platform (Android / iOS) | To notify you of new messages, new posts near a Skilled Worker, and new offers on a Customer's post |
 | **Last active time** (at most once an hour, Skilled Workers) | Search ranking ("replies fast", "active recently") |
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
+| **Usage counts** (see §3.3): your searches (the trade, the town, the words you typed with numbers and emails taken out, how many workers were found), and our server's own record of posts, picks, finished jobs, published listings, reports and blocks, with your account ID | To know whether people find the help they need, which services are missing in which town, and whether customers and workers come back. Deleted after **12 months** |
 | **Ideas page on the web** (`…/api/suggest`, the feedback link for testers): a cookie holding a random ID, and your IP address | The cookie lets the page count **one vote per browser**; it holds no name or account and is kept 1 year. The IP address is used **only in our server's memory** to limit how many ideas and votes come from one place in an hour, and is never stored. What you type there is shown to everyone, without a name |
 
 We read your phone's location **only when you tap Use my location, Send my location or Show how far I am** (see the
@@ -92,11 +93,23 @@ still works with your town. The small map in the chat comes from **OpenStreetMap
 shown (around the customer's place) and the phone's internet address, like any web map; it gets no name or account. We do **not** collect your
 contacts, your call log, your SMS, or your advertising ID.
 
-### 3.3 No usage analytics or advertising tracking
+### 3.3 Our own usage counts (no analytics or advertising tools)
 
-The App has no usage analytics, A/B testing or advertising tools, and we do not collect your advertising ID. Which
-screens you opened leaves your phone only inside an error report (the last few screens before a problem), as listed in
-§3.2.
+The App has **no third-party analytics, A/B testing or advertising tools** (no Google Analytics), and we do not
+collect your advertising ID. We count a few things ourselves, in our own database, to answer two questions: do
+people find the service they need, and do they come back.
+
+- **Searches:** when your search results load, the App notes the trade, your town, the words you typed (numbers and
+  emails are taken out first) and how many workers were found. This is saved on your phone first and sent to our
+  server later in the background, never while you are searching.
+- **What happens on our server:** when you sign up, post what you need, pick a worker's offer, finish a job, publish
+  your listing, or report or block someone, our server notes it (with the trade, the town, and for a report its
+  reason).
+- Each count carries your **account ID** (a random code, not your name or number) so we can see whether people come
+  back; never your name, number, email, address, location or messages.
+- Counts are kept **12 months**. When you delete your account, your account ID is removed from them.
+- We use them only to improve Tarbaho (for example, which services are missing in which town). We never sell them or
+  use them for ads.
 
 ### 3.4 Data about other people (references): no longer collected
 
@@ -148,7 +161,7 @@ Under Sections 12 and 13 of the DPA, we process your data because:
    notifications, reviews.
 2. **Our legitimate interests**, balanced against your rights: preventing fraud and fake accounts (one number per
    account), keeping the App safe, ranking search results, fixing errors, improving the
-   list of jobs and trades.
+   list of jobs and trades, and counting how the App is used (§3.3).
 3. **Your consent**: optional data (Customer profile photo, income goal), push notifications and error reports.
    You can withdraw consent at any time in the App or by emailing us; this does not affect
    what was done before.
@@ -211,6 +224,7 @@ to establish, exercise or defend legal claims.
 | Offers on posts | The worker or the customer deletes their account (a customer's post takes its offers with it). An offer taken back stops showing at once |
 | Feature suggestions and votes | Suggestions are kept, but **unlinked from you** when you delete your account; your votes are deleted. You can remove your own suggestion while nobody else has voted for it |
 | Error reports | 90 days |
+| Usage counts (§3.3) | 12 months; **unlinked from you** when you delete your account |
 | Early Access sign-ups (tarbaho.com) | Until you ask us to take you off the list, or the App is open to everyone in your town, whichever comes first |
 | Reports about a user | Until resolved. If the reporter deletes their account, their name is removed from the report |
 | Blocks | Until either person deletes their account |
@@ -257,8 +271,8 @@ ask you to confirm the number with an SMS code. We answer within **5 business da
 - **Without the App:** follow the steps at **https://api.tarbaho.com/api/legal/data** or email jcadiao1102@gmail.com with your mobile number.
   We delete the account within **5 business days**.
 
-Deleted data leaves backups within 35 days. "Others" text, feature suggestions and error reports are kept without
-anything linking them to you.
+Deleted data leaves backups within 35 days. "Others" text, feature suggestions, usage counts and error reports are
+kept without anything linking them to you.
 
 ## 10. Permissions the App asks for
 

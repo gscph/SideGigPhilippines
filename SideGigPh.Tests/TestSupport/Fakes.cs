@@ -491,6 +491,23 @@ public sealed class FakeFeedback : IFeedbackRepository
     }
 }
 
+/// <summary>The usage events waiting on the phone, in memory: <see cref="Saved"/> is what was last written.</summary>
+public sealed class FakePendingEvents : IPendingEventStore
+{
+    public PendingEventsState? Saved { get; set; }
+
+    public int Saves { get; private set; }
+
+    public Task<PendingEventsState?> LoadAsync() => Task.FromResult(Saved);
+
+    public Task SaveAsync(PendingEventsState state)
+    {
+        Saves++;
+        Saved = new PendingEventsState { Events = [.. state.Events] };
+        return Task.CompletedTask;
+    }
+}
+
 /// <summary>The phone's dialer: <see cref="Opens"/> says whether it opened.</summary>
 public sealed class FakeContactLauncher : IContactLauncher
 {

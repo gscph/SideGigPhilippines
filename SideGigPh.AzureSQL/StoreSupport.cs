@@ -20,6 +20,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddDbContext<SideGigPhDb>(options => options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure()));
         services.AddSingleton(photoLinks);
         services.AddMemoryCache();
+        services.AddLogging(); // AppEventStore logs what it couldn't count (the host's own logging when it has one)
         services.AddSingleton<ListingCache>();
         services.AddScoped<UserStore>();
         services.AddScoped<ProfessionalStore>();
@@ -30,6 +31,7 @@ public static class AzureSqlServiceCollectionExtensions
         services.AddScoped<OtherJobNoteStore>();
         services.AddScoped<EarlyAccessStore>();
         services.AddScoped<ErrorReportStore>();
+        services.AddScoped<AppEventStore>();
         services.AddScoped<SafetyStore>();
         services.AddScoped<FeedbackStore>();
         services.AddScoped<WarmupStore>();

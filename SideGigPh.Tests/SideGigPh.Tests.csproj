@@ -60,6 +60,7 @@
   <!-- The integration tests build their database from the real scripts: 001-schema, every later NNN-schema-* change, then 004-config; the search-ranking seed for its scenario tests. -->
   <ItemGroup>
     <None Include="..\SideGigPh.AzureSQL\Sql\*.sql" Link="Sql\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\analytics\*.sql" Link="analytics\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Unit/Moderation/blocked-words-samples.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 

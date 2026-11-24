@@ -14,7 +14,7 @@ public enum ReportOutcome
 /// for the operator (answered within 5 business days); a block works at once: either direction hides the two people
 /// from each other (search, public profile, Inbox, new messages).
 /// </summary>
-public sealed class SafetyStore(SideGigPhDb db)
+public sealed class SafetyStore(SideGigPhDb db, AppEventStore events)
 {
     public const int MaxNote = 500;
 
@@ -50,17 +50,21 @@ public sealed class SafetyStore(SideGigPhDb db)
                 CreatedAt = now,
             });
             await db.SaveChangesAsync(cancellationToken);
+            await events.LogAsync(new AppEvent(AppEventNames.ReportUser) { UserId = uid, Reason = request.Reason });
         }
         if (request.AlsoBlock)
         {
-            await BlockAsync(uid, request.TargetUid, cancellationToken);
+            await BlockAsync(uid, request.TargetUid, cancellationToken, request.Reason);
         }
 
         return ReportOutcome.Saved;
     }
 
-    /// <summary>The caller blocks <paramref name="blockedUid"/>. False for an id that can't be someone else. Blocking twice changes nothing.</summary>
-    public async Task<bool> BlockAsync(string uid, string blockedUid, CancellationToken cancellationToken)
+    /// <summary>
+    /// The caller blocks <paramref name="blockedUid"/>. False for an id that can't be someone else. Blocking twice changes
+    /// nothing. <paramref name="reason"/> is the report's, when the block came with one.
+    /// </summary>
+    public async Task<bool> BlockAsync(string uid, string blockedUid, CancellationToken cancellationToken, string? reason = null)
     {
         if (blockedUid is not { Length: > 0 and <= ChatStore.MaxUid } || blockedUid == uid)
         {
@@ -73,6 +77,7 @@ public sealed class SafetyStore(SideGigPhDb db)
             try
             {
                 await db.SaveChangesAsync(cancellationToken);
+                await events.LogAsync(new AppEvent(AppEventNames.BlockUser) { UserId = uid, Reason = reason });
             }
             catch (DbUpdateException ex) when (SqlErrors.Violates(ex, "PK_Blocks"))
             {

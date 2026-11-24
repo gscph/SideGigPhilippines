@@ -88,12 +88,13 @@ Checked against build `0.1.0` (the beta APK of CI run 29 and the prod AAB of run
 | Location → **Precise location** | Yes | Optional (only on "Use my location", "Send my location" and "Show how far I am") | App functionality |
 | Personal info → **Name** | Yes | Required | App functionality, Account management |
 | Personal info → **Email address** | Yes | Optional (Google sign-in only) | Account management |
-| Personal info → **User IDs** | Yes | Required (the sign-in account id) | App functionality, Account management, Fraud prevention, security, and compliance |
+| Personal info → **User IDs** | Yes | Required (the sign-in account id; also on our own usage counts, §3.3 of the policy) | App functionality, Analytics, Account management, Fraud prevention, security, and compliance |
 | Personal info → **Phone number** | Yes | Optional (workers need one to publish; customers may skip) | Account management, Fraud prevention, security, and compliance, App functionality |
 | Personal info → **Other info** | Yes | Optional (badge proofs: ID number, name and expiry read from a government ID; income goal) | Fraud prevention, security, and compliance, App functionality |
 | Messages → **Other in-app messages** | Yes | Optional (chat) | App functionality, Fraud prevention, security, and compliance (staff read a chat only when it is reported) |
 | Photos and videos → **Photos** | Yes | Optional (profile and work photos, post photos, badge proofs) | App functionality, Fraud prevention, security, and compliance |
-| App activity → **App interactions** | Yes | Required (a worker's last-active time, for "active recently") | App functionality |
+| App activity → **App interactions** | Yes | Required (a worker's last-active time, for "active recently"; our own counts of sign-ups, posts, picks, finished jobs, published listings, reports and blocks) | App functionality, Analytics |
+| App activity → **In-app search history** | Yes | Required (each search's trade, town, typed words with numbers and emails taken out, and result count, uploaded later; kept 12 months) | Analytics |
 | App activity → **Other user-generated content** | Yes | Optional (reviews, posts, offers, feature suggestions, "Others" text, reports) | App functionality |
 | App info and performance → **Crash logs** | Yes | Optional (Me → Send error reports) | Analytics |
 | App info and performance → **Diagnostics** | Yes | Optional (same switch) | Analytics |

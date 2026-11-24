@@ -4,7 +4,7 @@ using SideGigPh.Contracts;
 namespace SideGigPh.AzureSQL;
 
 /// <summary>The signed-in person's profile (<c>Users</c>). Only that person reads or writes it.</summary>
-public sealed class UserStore(SideGigPhDb db, ListingCache listings)
+public sealed class UserStore(SideGigPhDb db, ListingCache listings, AppEventStore events)
 {
     public async Task<UserDto?> GetAsync(string uid, CancellationToken cancellationToken) =>
         await db.Users.AsNoTracking().Where(u => u.Uid == uid).Select(u => ToDto(u)).FirstOrDefaultAsync(cancellationToken);
@@ -14,6 +14,7 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
     {
         var now = DateTimeOffset.UtcNow;
         var row = await db.Users.FirstOrDefaultAsync(u => u.Uid == uid, cancellationToken);
+        var hadRole = row?.Role is not null;
         if (row is null)
         {
             row = new UserRow { Uid = uid, Language = Wire.English, CreatedAt = now };
@@ -43,6 +44,12 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
             // rest of the profile and leave the photo off.
             row.ProfilePhotoId = null;
             await db.SaveChangesAsync(cancellationToken);
+        }
+
+        // Signed up = the account's first side picked (a profile saved before the role pick isn't counted yet).
+        if (!hadRole && row.Role is not null && !await events.HasAsync(AppEventNames.SignUp, uid))
+        {
+            await events.LogAsync(new AppEvent(AppEventNames.SignUp) { UserId = uid, UserType = AppEventUserTypes.Of(row.Role) });
         }
 
         return ToDto(row);
@@ -99,6 +106,7 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings)
             await db.Reports.Where(r => r.ReporterUid == uid).ExecuteUpdateAsync(set => set.SetProperty(r => r.ReporterUid, (string?)null), ct);
             await db.PushDevices.Where(d => d.Uid == uid).ExecuteDeleteAsync(ct);
             await db.OtherJobNotes.Where(n => n.Uid == uid).ExecuteUpdateAsync(set => set.SetProperty(n => n.Uid, (string?)null), ct);
+            await AppEventStore.ForgetAsync(db, uid, ct);
             await FeedbackStore.ForgetAsync(db, uid, ct);
             photos.AddRange(await JobPostStore.ForgetAsync(db, uid, ct));
             await db.Users.Where(u => u.Uid == uid).ExecuteDeleteAsync(ct);
