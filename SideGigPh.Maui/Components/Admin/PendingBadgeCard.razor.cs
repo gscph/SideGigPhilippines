@@ -23,6 +23,7 @@ public partial class PendingBadgeCard : ComponentBase
 
     private string? _document;
     private string? _reason;
+    private RejectCode? _code;
     private DateOnly? _validUntil;
     private bool _busy;
     private LocalizedText? _error;
@@ -35,6 +36,35 @@ public partial class PendingBadgeCard : ComponentBase
         BadgeScanResult.Failed => Copy.AdminScanFailed,
         _ => Copy.AdminScanNone,
     };
+
+    private static readonly (RejectCode Code, LocalizedText Label)[] Codes =
+    [
+        (RejectCode.Blurry, Copy.AdminRejectBlurry),
+        (RejectCode.Glare, Copy.AdminRejectGlare),
+        (RejectCode.CutOff, Copy.AdminRejectCutOff),
+        (RejectCode.WrongDocument, Copy.AdminRejectWrong),
+        (RejectCode.Expired, Copy.AdminRejectExpired),
+        (RejectCode.Mismatch, Copy.AdminRejectMismatch),
+        (RejectCode.Other, Copy.AdminRejectOther),
+    ];
+
+    private static LocalizedText ProblemText(ProofProblem problem) => problem switch
+    {
+        ProofProblem.Blurry => Copy.AdminPhotoBlurry,
+        ProofProblem.Glare => Copy.AdminPhotoGlare,
+        ProofProblem.Dark => Copy.AdminPhotoDark,
+        _ => Copy.AdminPhotoSmall,
+    };
+
+    /// <summary>A reason picked: counted, and it starts the text the worker reads when nothing is typed yet.</summary>
+    private void PickCode(RejectCode code, LocalizedText label)
+    {
+        _code = _code == code ? null : code;
+        if (_code is not null && string.IsNullOrWhiteSpace(_reason))
+        {
+            _reason = T.Get(label);
+        }
+    }
 
     private async Task ShowDocumentAsync()
     {
@@ -67,7 +97,7 @@ public partial class PendingBadgeCard : ComponentBase
         _error = null;
         try
         {
-            if (await Review.DecideAsync(Request, approve, _reason, _validUntil))
+            if (await Review.DecideAsync(Request, approve, _reason, _code, _validUntil))
             {
                 await OnDecided.InvokeAsync();
             }

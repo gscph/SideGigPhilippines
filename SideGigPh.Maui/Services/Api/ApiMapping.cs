@@ -205,9 +205,10 @@ internal static partial class ApiMapping
                     ScanStatuses.Failed => BadgeScanResult.Failed,
                     _ => BadgeScanResult.None,
                 },
-                dto.ScannedType, dto.ScannedName, dto.ScannedNumber, dto.ScannedExpiry, ToClearanceQr(dto.ScannedQr)),
+                dto.ScannedType, dto.ScannedName, dto.ScannedNumber, dto.ScannedExpiry, dto.ScanConfidence, ToClearanceQr(dto.ScannedQr)),
             dto.HasDocument,
-            dto.CreatedAt)
+            dto.CreatedAt,
+            dto.PhotoProblems is null && dto.PhotoSharpness is null ? null : new PhotoCheck(ToProblems(dto.PhotoProblems), dto.PhotoSharpness))
         : null;
 
     private static ClearanceQr? ToClearanceQr(string? qr) => string.IsNullOrWhiteSpace(qr) ? null : new ClearanceQr(
@@ -234,14 +235,38 @@ internal static partial class ApiMapping
             },
             dto.RejectReason,
             dto.CreatedAt,
+            ToProblems(dto.PhotoProblems),
             dto.ValidUntil)
         : null;
+
+    /// <summary>The photo check's codes this app version knows (an unknown one is left out).</summary>
+    private static IReadOnlyList<ProofProblem> ToProblems(IReadOnlyList<string>? codes) =>
+        [.. (codes ?? []).Select(code => code switch
+        {
+            PhotoProblems.Blurry => ProofProblem.Blurry,
+            PhotoProblems.Glare => ProofProblem.Glare,
+            PhotoProblems.Dark => ProofProblem.Dark,
+            PhotoProblems.TooSmall => ProofProblem.TooSmall,
+            _ => (ProofProblem?)null,
+        }).OfType<ProofProblem>()];
+
+    /// <summary>The wire code for an operator's reason (<see cref="RejectCodes"/>).</summary>
+    public static string ToWire(this RejectCode code) => code switch
+    {
+        RejectCode.Blurry => RejectCodes.Blurry,
+        RejectCode.Glare => RejectCodes.Glare,
+        RejectCode.CutOff => RejectCodes.CutOff,
+        RejectCode.WrongDocument => RejectCodes.WrongDocument,
+        RejectCode.Expired => RejectCodes.Expired,
+        RejectCode.Mismatch => RejectCodes.Mismatch,
+        _ => RejectCodes.Other,
+    };
 
     /// <summary>
     /// <c>verifications/{kind}?consent=true…</c> for sending a proof. <c>consent=true</c> because the port is only
     /// called after the worker ticked the consent box (<see cref="ProBadges.SubmitAsync"/>).
     /// </summary>
-    public static string ToSubmitPath(Badge badge)
+    public static string ToSubmitPath(Badge badge, bool retake = false)
     {
         var kind = badge.Kind switch
         {
@@ -250,7 +275,7 @@ internal static partial class ApiMapping
             BadgeKind.Project => VerificationKinds.Developer,
             _ => VerificationKinds.Id,
         };
-        var path = $"verifications/{kind}?consent=true";
+        var path = $"verifications/{kind}?consent=true" + (retake ? "&retake=true" : string.Empty);
         if (badge.Kind != BadgeKind.Project)
         {
             return path;

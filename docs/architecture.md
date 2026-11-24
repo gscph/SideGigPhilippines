@@ -503,6 +503,23 @@ developer or any other company (a well-known developer picked from a list, or "A
 worker; each company is its own badge, with an optional building name).
 
 - **Server:** `VerificationFunctions` → `VerificationStore` (tables `WorkerVerifications`, `VerificationAudit`),
+- **Readable proof photos** (`033-schema-proof-quality.sql`; decided by the owner's five-advisor council, 24 Nov 2026):
+  an ID or a clearance is photographed now with the back camera, never picked from the gallery
+  (`IPhotoPicker.TakeDocumentPhotoAsync`, skeleton port: at most `DocumentMaxSide` 2000px, JPEG 85; Android
+  `AndroidPhotoPicker` starts the camera app without the front-lens hints and needs no CAMERA permission, iOS
+  `DevicePhotoPicker` uses MAUI's camera; `ProBadges.UsesCamera`), with `ProofPhotoGuide` ("How the photo should
+  look": whole card, good light, no flash, held still) above the consent box. The server stores proofs at 2000px
+  (`PhotoImage.ToStoredProofJpeg`) and measures every one (`PhotoQuality.Measure`, Magick.NET, no vendor: edge variance
+  on a 1000px grey copy, clipped-white share, dark share, size; cut-offs `BlurryBelow`, `GlareAbove`, `DarkAbove`,
+  `SmallerThan` are first guesses). **Only advice, never a refusal:** the problems come back as
+  `VerificationDto.PhotoProblems`, the page shows `PhotoRetakePrompt` ("Take it again?" / "Keep this photo"), and a retake
+  is `POST verifications/{kind}?…&retake=true`, which replaces the caller's own waiting request (`VerificationStore.RetakeAsync`;
+  nothing waiting = a new request). Document Intelligence's confidence (`ScanConfidence`) is kept as a hint only: the model may
+  not know every Philippine ID. Both operator screens show the photo check, the sharpness against the cut-off and the AI's
+  confidence, and Reject takes a counted reason (`RejectCodes`, chips that start the worker's reason). Set the cut-offs from
+  `WorkerVerifications` (`PhotoSharpness`, `PhotoProblems` against `RejectCode`) after about 50 real checks; a document
+  scanner (ML Kit / VisionKit) was deferred until those numbers show the plain camera isn't enough (its filters make a
+  photocopy look, a screenshot scans clean, no Huawei).
   the photo in the private `verification` container (`IPrivateFiles`), the ID read by `IIdDocumentReader`
   (`DocumentIntelligenceIdReader`; `NoIdDocumentReader` when the settings are missing). Operators (`AdminUids`)
   use `ops/verifications…`; on the decision the photo and what was read are deleted. Routes: `docs/data-model.md` §6.

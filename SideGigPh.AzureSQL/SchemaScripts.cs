@@ -36,6 +36,7 @@ public static class SchemaScripts
         "030-schema-early-access",
         "031-schema-clearance-badge",
         "032-schema-app-events",
+        "033-schema-proof-quality",
         "034-schema-clearance-valid-until",
     ];
 }

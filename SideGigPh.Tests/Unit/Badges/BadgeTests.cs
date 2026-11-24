@@ -19,7 +19,7 @@ public class BadgeTests
     {
         public List<BadgeRequest> Mine { get; } = [];
 
-        public List<(Badge Badge, byte[] Photo)> Sent { get; } = [];
+        public List<(Badge Badge, byte[] Photo, bool Retake)> Sent { get; } = [];
 
         public BadgeSubmitResult Answer { get; set; } = BadgeSubmitResult.Sent;
 
@@ -27,14 +27,14 @@ public class BadgeTests
 
         public Task<IReadOnlyList<BadgeRequest>> GetMineAsync() => Task.FromResult<IReadOnlyList<BadgeRequest>>([.. Mine]);
 
-        public Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo)
+        public Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo, bool retake)
         {
             if (Offline)
             {
                 throw new HttpRequestException("no internet");
             }
 
-            Sent.Add((badge, photo));
+            Sent.Add((badge, photo, retake));
             return Task.FromResult(Answer);
         }
     }
@@ -176,5 +176,38 @@ public class BadgeTests
         var result = SearchRanker.Rank(pros, new RankRequest("aircon-cleaning", "taytay", null), Scales, RankNow);
 
         result.InTown.Select(h => h.Listing.DisplayName).Should().Equal("Zeny", "Abel");
+    }
+    [Fact]
+    public void AnIdAndAClearance_AreTakenWithTheCamera_TheOthersMayComeFromTheGallery()
+    {
+        ProBadges.UsesCamera(BadgeKind.Id).Should().BeTrue();
+        ProBadges.UsesCamera(BadgeKind.Clearance).Should().BeTrue();
+        ProBadges.UsesCamera(BadgeKind.Tesda).Should().BeFalse();
+        ProBadges.UsesCamera(BadgeKind.Project).Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task WhatThePhotoCheckFound_IsAskedAbout_OnlyWhileThatProofWaits()
+    {
+        var (badges, server) = New();
+        server.Mine.Add(new BadgeRequest(1, new Badge(BadgeKind.Id), BadgeState.Pending, null, RankNow, [ProofProblem.Blurry]));
+        server.Mine.Add(new BadgeRequest(2, new Badge(BadgeKind.Tesda), BadgeState.Rejected, "Blurry", RankNow, [ProofProblem.Dark]));
+
+        (await badges.SubmitAsync(new Badge(BadgeKind.Id), true, OnePhoto)).Should().Be(BadgeSubmitResult.Sent);
+
+        badges.ProblemsOf(new Badge(BadgeKind.Id)).Should().Equal(ProofProblem.Blurry);
+        badges.ProblemsOf(new Badge(BadgeKind.Tesda)).Should().BeEmpty("a decided proof has nothing to retake");
+        badges.ProblemsOf(new Badge(BadgeKind.Clearance)).Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task ARetake_IsSentAsOne()
+    {
+        var (badges, server) = New();
+
+        await badges.SubmitAsync(new Badge(BadgeKind.Id), true, OnePhoto);
+        await badges.SubmitAsync(new Badge(BadgeKind.Id), true, OnePhoto, retake: true);
+
+        server.Sent.Select(s => s.Retake).Should().Equal(false, true);
     }
 }

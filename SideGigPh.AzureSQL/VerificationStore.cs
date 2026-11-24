@@ -5,12 +5,26 @@ namespace SideGigPh.AzureSQL;
 
 /// <summary>
 /// What was read from a proof photo: a status from <see cref="ScanStatuses"/> and whichever fields were found (an ID's
-/// name, number and expiry by AI; a clearance's QR code, <paramref name="Qr"/>, by the server itself).
+/// name, number and expiry by AI, with its <paramref name="Confidence"/>; a clearance's QR code, <paramref name="Qr"/>, by the server itself).
 /// </summary>
-public sealed record IdScan(string Status, string? DocumentType = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, string? Qr = null)
+public sealed record IdScan(
+    string Status, string? DocumentType = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, double? Confidence = null,
+    string? Qr = null)
 {
     public static readonly IdScan None = new(ScanStatuses.None);
     public static readonly IdScan Failed = new(ScanStatuses.Failed);
+}
+
+/// <summary>What the server's photo check found on a proof (<c>PhotoQuality</c>): <c>PhotoProblems</c> codes and the sharpness number.</summary>
+public sealed record ProofCheck(IReadOnlyList<string> Problems, double Sharpness)
+{
+    public static readonly ProofCheck None = new([], 0);
+
+    /// <summary>The codes as stored, comma-separated; null when nothing was found.</summary>
+    public string? Stored => Problems.Count == 0 ? null : string.Join(',', Problems);
+
+    public static IReadOnlyList<string>? Parse(string? stored) =>
+        string.IsNullOrEmpty(stored) ? null : stored.Split(',', StringSplitOptions.RemoveEmptyEntries);
 }
 
 /// <summary>What a worker sends for a badge, as the function read it from the request.</summary>
@@ -95,7 +109,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// at the same moment (a double tap): the caller deletes the file it just stored.
     /// </summary>
     public async Task<VerificationDto?> SubmitAsync(
-        string uid, VerificationSubmission submission, string documentBlob, IdScan scan, CancellationToken cancellationToken)
+        string uid, VerificationSubmission submission, string documentBlob, IdScan scan, ProofCheck check, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
         var row = new WorkerVerificationRow
@@ -111,6 +125,9 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             ScannedName = StoreText.Limit(scan.Name, 120),
             ScannedNumber = StoreText.Limit(scan.Number, 60),
             ScannedExpiry = scan.Expiry,
+            ScanConfidence = scan.Confidence,
+            PhotoProblems = check.Stored,
+            PhotoSharpness = check.Sharpness,
             ScannedQr = StoreText.Limit(scan.Qr, MaxQr),
             ConsentAt = now,
             CreatedAt = now,
@@ -137,6 +154,46 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         {
             return null;
         }
+    }
+
+    /// <summary>
+    /// A retake: the worker's own request for this badge, still waiting for the operator, gets the new photo and what
+    /// was read and checked on it (logged as "retaken"). Answers the request and the old file's name for the caller to
+    /// delete, or null when there is no waiting request to replace (approved already, or decided meanwhile).
+    /// Sent twice (a lost answer), the second one simply replaces the photo with the same photo.
+    /// </summary>
+    public async Task<(VerificationDto Request, string? OldBlob)?> RetakeAsync(
+        string uid, VerificationSubmission submission, string documentBlob, IdScan scan, ProofCheck check, CancellationToken cancellationToken)
+    {
+        var badgeId = submission.BadgeId ?? string.Empty;
+        var company = submission.Company;
+        return await db.InTransactionAsync<(VerificationDto, string?)?>(async ct =>
+        {
+            var row = await db.WorkerVerifications.FirstOrDefaultAsync(
+                v => v.Uid == uid && v.Kind == submission.Kind && v.BadgeId == badgeId && v.CompanyName == company
+                    && v.Status == VerificationStatuses.Pending, ct);
+            if (row is null)
+            {
+                return null;
+            }
+
+            var now = DateTimeOffset.UtcNow;
+            var old = row.DocumentBlob;
+            row.DocumentBlob = documentBlob;
+            row.ScanStatus = scan.Status;
+            row.ScannedType = StoreText.Limit(scan.DocumentType, 60);
+            row.ScannedName = StoreText.Limit(scan.Name, 120);
+            row.ScannedNumber = StoreText.Limit(scan.Number, 60);
+            row.ScannedExpiry = scan.Expiry;
+            row.ScanConfidence = scan.Confidence;
+            row.ScannedQr = StoreText.Limit(scan.Qr, MaxQr);
+            row.PhotoProblems = check.Stored;
+            row.PhotoSharpness = check.Sharpness;
+            row.ConsentAt = now;
+            db.VerificationAudit.Add(Audit(row.Id, uid, "retaken", now));
+            await db.SaveChangesAsync(ct);
+            return (ToDto(row), old == documentBlob ? null : old);
+        }, cancellationToken);
     }
 
     /// <summary>The caller's own requests, newest first.</summary>
@@ -176,7 +233,8 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             return new AdminVerificationDto(
                 v.Id, v.Uid, listing?.DisplayName ?? person?.DisplayName, photoId is null ? null : photoLinks.For(photoId),
                 v.Kind, v.BadgeId, v.ProjectName, v.ScanStatus, v.ScannedType, v.ScannedName, v.ScannedNumber, v.ScannedExpiry,
-                v.DocumentBlob is not null, v.CreatedAt, v.CompanyName.Length == 0 ? null : v.CompanyName, v.ScannedQr);
+                v.DocumentBlob is not null, v.CreatedAt, v.CompanyName.Length == 0 ? null : v.CompanyName,
+                ProofCheck.Parse(v.PhotoProblems), v.PhotoSharpness, v.ScanConfidence, v.ScannedQr);
         })];
     }
 
@@ -232,6 +290,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             row.ValidUntil = decision.Approve && isClearance ? decision.ValidUntil : null;
             row.Status = decision.Approve ? VerificationStatuses.Approved : VerificationStatuses.Rejected;
             row.RejectReason = decision.Approve ? null : StoreText.Limit(decision.Reason, MaxRejectReason);
+            row.RejectCode = !decision.Approve && RejectCodes.All.Contains(decision.RejectCode ?? string.Empty) ? decision.RejectCode : null;
             row.DecidedAt = now;
             row.DecidedBy = adminUid;
             row.DocumentBlob = null;
@@ -239,6 +298,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             row.ScannedName = null;
             row.ScannedNumber = null;
             row.ScannedExpiry = null;
+            row.ScanConfidence = null;
             row.ScannedQr = null;
             db.VerificationAudit.Add(Audit(id, adminUid, decision.Approve ? "approved" : "rejected", now));
             if (blob is not null)
@@ -273,5 +333,6 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         new() { VerificationId = verificationId, ActorUid = actorUid, Action = action, At = at };
 
     private static VerificationDto ToDto(WorkerVerificationRow v) =>
-        new(v.Id, v.Kind, v.BadgeId, v.ProjectName, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason, v.CompanyName.Length == 0 ? null : v.CompanyName, v.ValidUntil);
+        new(v.Id, v.Kind, v.BadgeId, v.ProjectName, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason, v.CompanyName.Length == 0 ? null : v.CompanyName,
+            v.Status == VerificationStatuses.Pending ? ProofCheck.Parse(v.PhotoProblems) : null, v.ValidUntil);
 }

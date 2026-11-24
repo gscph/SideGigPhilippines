@@ -83,7 +83,7 @@ public class ClearanceTests
     [Fact]
     public async Task AnExpiredClearance_CanBeSentAgain()
     {
-        var server = new MineOnly(new BadgeRequest(1, new Badge(BadgeKind.Clearance), BadgeState.Expired, null, DateTimeOffset.UtcNow, Today.AddDays(-1)));
+        var server = new MineOnly(new BadgeRequest(1, new Badge(BadgeKind.Clearance), BadgeState.Expired, null, DateTimeOffset.UtcNow, ValidUntil: Today.AddDays(-1)));
         var badges = new ProBadges(server, NullLogger<ProBadges>.Instance);
         await badges.LoadAsync();
 
@@ -99,6 +99,6 @@ public class ClearanceTests
     {
         public Task<IReadOnlyList<BadgeRequest>> GetMineAsync() => Task.FromResult<IReadOnlyList<BadgeRequest>>(mine);
 
-        public Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo) => Task.FromResult(BadgeSubmitResult.Sent);
+        public Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo, bool retake) => Task.FromResult(BadgeSubmitResult.Sent);
     }
 }

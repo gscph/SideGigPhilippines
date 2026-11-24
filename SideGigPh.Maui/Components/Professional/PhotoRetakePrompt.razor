@@ -1,0 +1,19 @@
+<MudPaper Outlined="true" Elevation="0" Class="app-rounded pa-4" role="alert">
+    <MudStack Spacing="3">
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2">@T.Get(Copy.BadgeRetakeTitle)</MudText>
+            @foreach (var problem in Problems)
+            {
+                <MudText Typo="Typo.body1">@T.Get(Say(problem))</MudText>
+            }
+            <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.BadgeRetakeWhy)</MudText>
+        </MudStack>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true" Disabled="Busy"
+                   StartIcon="@Icons.Material.Rounded.PhotoCamera" OnClick="OnRetake">
+            @T.Get(Copy.BadgeRetakeAgain)
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Class="app-button-ink" FullWidth="true" Disabled="Busy" OnClick="OnKeep">
+            @T.Get(Copy.BadgeRetakeKeep)
+        </MudButton>
+    </MudStack>
+</MudPaper>

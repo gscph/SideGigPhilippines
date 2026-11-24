@@ -24,6 +24,12 @@ public sealed class WatchedPhotoPicker(IPhotoPicker inner, FlowWatch watch, ILog
 
     public Task<PhotoPick> PickAsync(int maxCount) => WatchAsync(PickerFlow, () => inner.PickAsync(maxCount));
 
+    /// <summary>
+    /// The document camera is watched like the selfie's, but backing out of it isn't counted: a worker often opens it
+    /// to look, then fetches the ID or better light. Only an empty selfie camera twice in a row points at a problem.
+    /// </summary>
+    public Task<PhotoPick> TakeDocumentPhotoAsync() => WatchAsync(CameraFlow, inner.TakeDocumentPhotoAsync);
+
     public async Task<PhotoPick> TakeSelfieAsync()
     {
         var pick = await WatchAsync(CameraFlow, inner.TakeSelfieAsync);

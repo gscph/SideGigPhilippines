@@ -18,8 +18,8 @@ public interface IBadgeReviewRepository
     Task<byte[]?> DocumentAsync(long id);
 
     /// <summary>
-    /// Approves or rejects; the proof photo is deleted on the server either way. <paramref name="validUntil"/> is a
-    /// clearance's "valid until", needed to approve one.
+    /// Approves or rejects (with why, as a <see cref="RejectCode"/> when picked); the proof photo is deleted on the server
+    /// either way. <paramref name="validUntil"/> is a clearance's "valid until", needed to approve one.
     /// </summary>
-    Task DecideAsync(long id, bool approve, string? reason, DateOnly? validUntil);
+    Task DecideAsync(long id, bool approve, string? reason, RejectCode? code, DateOnly? validUntil);
 }

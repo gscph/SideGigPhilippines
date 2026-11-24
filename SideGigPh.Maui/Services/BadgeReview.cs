@@ -43,6 +43,19 @@ public sealed class BadgeReview(IBadgeReviewRepository repository, ILogger<Badge
         return string.IsNullOrEmpty(text) ? null : text.Length > MaxReason ? text[..MaxReason] : text;
     }
 
+    /// <summary>
+    /// "Sharpness 42" against the photo check's cut-off, rounded: the operator compares it with the photo, which is how
+    /// the cut-off gets set from data. Null when the photo wasn't checked.
+    /// </summary>
+    public static int? Sharpness(PendingBadge request) => request.Photo?.Sharpness is { } value ? (int)Math.Round(value) : null;
+
+    /// <summary>The photo check's blurry cut-off, shown next to the number (the server's own, from the contracts).</summary>
+    public const int BlurryBelow = SideGigPh.Contracts.PhotoProblems.BlurryBelow;
+
+    /// <summary>The AI's confidence as a whole percent, or null when nothing read the photo.</summary>
+    public static int? ConfidencePercent(PendingBadge request) =>
+        request.Scan.Confidence is { } sure ? (int)Math.Round(sure * 100) : null;
+
     /// <summary>A rejection needs a reason, so the worker knows what to send next time.</summary>
     public static bool CanReject(string? reason) => CleanReason(reason) is not null;
 
@@ -58,9 +71,10 @@ public sealed class BadgeReview(IBadgeReviewRepository repository, ILogger<Badge
 
     /// <summary>
     /// Sends the decision and takes the request off the list. False when it didn't go through (it stays), or when a
-    /// rejection has no reason or a clearance's approval no allowed "valid until".
+    /// rejection has no reason or a clearance's approval no allowed "valid until". A rejection's <paramref name="code"/>
+    /// (blurry, glare, cut off…) is counted to see what goes wrong most; the worker reads only the reason.
     /// </summary>
-    public async Task<bool> DecideAsync(PendingBadge request, bool approve, string? reason, DateOnly? validUntil = null)
+    public async Task<bool> DecideAsync(PendingBadge request, bool approve, string? reason, RejectCode? code = null, DateOnly? validUntil = null)
     {
         if (approve ? !CanApprove(request, validUntil, JobPostRules.PhilippineToday(DateTimeOffset.UtcNow)) : !CanReject(reason))
         {
@@ -70,7 +84,7 @@ public sealed class BadgeReview(IBadgeReviewRepository repository, ILogger<Badge
         try
         {
             await repository.DecideAsync(
-                request.Id, approve, approve ? null : CleanReason(reason), approve && NeedsValidUntil(request) ? validUntil : null);
+                request.Id, approve, approve ? null : CleanReason(reason), approve ? null : code, approve && NeedsValidUntil(request) ? validUntil : null);
             _pending.RemoveAll(item => item.Id == request.Id);
             return true;
         }

@@ -30,10 +30,15 @@ public enum ClearanceIssuer
 public sealed record ClearanceQr(string Text, ClearanceIssuer? Issuer, string? Link);
 
 /// <summary>
-/// What was read from a proof: an ID's fields by AI, or a clearance's QR code (<paramref name="Qr"/>) by the server.
-/// Shown only to the operator, never sent to any other phone.
+/// What was read from a proof: an ID's fields by AI (with its <paramref name="Confidence"/>), or a clearance's QR code
+/// (<paramref name="Qr"/>) by the server. Shown only to the operator, never sent to any other phone.
 /// </summary>
-public sealed record BadgeScan(BadgeScanResult Result, string? Type = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, ClearanceQr? Qr = null);
+public sealed record BadgeScan(
+    BadgeScanResult Result, string? Type = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, double? Confidence = null,
+    ClearanceQr? Qr = null);
+
+/// <summary>The server's photo check on a proof: what it found and its sharpness number (to compare with the photo by eye).</summary>
+public sealed record PhotoCheck(IReadOnlyList<ProofProblem> Problems, double? Sharpness);
 
 /// <summary>
 /// A worker's badge request waiting for the operator: who sent it, their profile photo (to compare with the ID by
@@ -47,4 +52,5 @@ public sealed record PendingBadge(
     Badge Badge,
     BadgeScan Scan,
     bool HasDocument,
-    DateTimeOffset SentAt);
+    DateTimeOffset SentAt,
+    PhotoCheck? Photo = null);

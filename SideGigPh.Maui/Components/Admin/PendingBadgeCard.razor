@@ -19,12 +19,37 @@
                     <ScanLine Label="@T.Get(Copy.AdminScanName)" Value="@Request.Scan.Name" />
                     <ScanLine Label="@T.Get(Copy.AdminScanNumber)" Value="@Request.Scan.Number" />
                     <ScanLine Label="@T.Get(Copy.AdminScanExpiry)" Value="@Request.Scan.Expiry?.ToString("yyyy-MM-dd")" />
+                    <ScanLine Label="@T.Get(Copy.AdminScanConfidence)" Value="@(BadgeReview.ConfidencePercent(Request) is { } sure ? $"{sure}%" : null)" />
                 }
                 else
                 {
                     <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(ScanNote)</MudText>
                 }
                 <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Get(Copy.AdminCompareHint)</MudText>
+            </MudStack>
+        }
+
+        @if (Request.Photo is { } photo)
+        {
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.overline" Color="Color.Secondary">@T.Get(Copy.AdminPhotoTitle)</MudText>
+                @if (photo.Problems.Count == 0)
+                {
+                    <MudText Typo="Typo.body2">@T.Get(Copy.AdminPhotoOk)</MudText>
+                }
+                else
+                {
+                    <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                        @foreach (var problem in photo.Problems)
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Error">@T.Get(ProblemText(problem))</MudChip>
+                        }
+                    </MudStack>
+                }
+                @if (BadgeReview.Sharpness(Request) is { } sharpness)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@T.Format(Copy.AdminPhotoSharpness, sharpness, BadgeReview.BlurryBelow)</MudText>
+                }
             </MudStack>
         }
 
@@ -48,6 +73,19 @@
         {
             <MudText Typo="Typo.body2" Color="Color.Secondary">@T.Get(Copy.AdminNoProof)</MudText>
         }
+
+        <MudStack Spacing="1">
+            <MudText Typo="Typo.overline" Color="Color.Secondary">@T.Get(Copy.AdminRejectWhy)</MudText>
+            <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                @foreach (var (code, label) in Codes)
+                {
+                    <MudChip T="string" Size="Size.Small" Disabled="_busy" Color="@(_code == code ? Color.Primary : Color.Dark)"
+                             Variant="@(_code == code ? Variant.Filled : Variant.Outlined)" OnClick="() => PickCode(code, label)">
+                        @T.Get(label)
+                    </MudChip>
+                }
+            </MudStack>
+        </MudStack>
 
         <MudTextField T="string" @bind-Value="_reason" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
                       Class="app-field" MaxLength="@BadgeReview.MaxReason" Label="@T.Get(Copy.AdminRejectReason)" />

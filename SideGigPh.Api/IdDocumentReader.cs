@@ -109,9 +109,14 @@ public sealed class DocumentIntelligenceIdReader(HttpClient http, string endpoin
             && DateOnly.TryParseExact(value.GetString(), "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed) ? parsed : (DateOnly?)null;
         var type = documents[0].TryGetProperty("docType", out var docType) ? docType.GetString() : null;
 
+        // How sure the reader is that this is an ID of that type (0-1). Only a hint for the operator: the model may not
+        // know every Philippine ID, so a low number can mean "a layout it hasn't seen" as much as a poor photo.
+        var confidence = documents[0].TryGetProperty("confidence", out var sure) && sure.ValueKind == JsonValueKind.Number
+            ? Math.Round(sure.GetDouble(), 3) : (double?)null;
+
         return name.Length == 0 && number is null && expiry is null
-            ? new IdScan(ScanStatuses.Unreadable, type)
-            : new IdScan(ScanStatuses.Read, type, name.Length == 0 ? null : name, number, expiry);
+            ? new IdScan(ScanStatuses.Unreadable, type, Confidence: confidence)
+            : new IdScan(ScanStatuses.Read, type, name.Length == 0 ? null : name, number, expiry, confidence);
     }
 
     private static string? Text(JsonElement fields, string name) =>

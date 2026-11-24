@@ -21,6 +21,11 @@ namespace SideGigPh.Maui.Platforms.Android;
 /// tapped (the reason is on screen then). The app stays on screen while the person poses, so a one-time ("Only this
 /// time") grant is not taken back mid-pose, which lost selfies with the camera app (22 Nov 2026).
 /// <para>
+/// <see cref="TakeDocumentPhotoAsync"/> (an ID or a clearance) is the skeleton's MAUI camera: the phone's camera app,
+/// kept bigger (<see cref="IPhotoPicker.DocumentMaxSide"/>) for small print, after the same camera permission. It is not
+/// picked up after a restart: the worker takes it again.
+/// </para>
+/// <para>
 /// A phone short of memory can still close the app while the camera is open. The photo's path is kept in
 /// <see cref="Preferences"/> before the camera opens, so the selfie question picks the photo up when the app starts
 /// again (<see cref="RecoverSelfieAsync"/>).
@@ -42,6 +47,8 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, AppText text, I
     public Task<PhotoPick> PickAsync(int maxCount) => device.PickAsync(maxCount);
 
     public void OpenAppSettings() => device.OpenAppSettings();
+
+    public Task<PhotoPick> TakeDocumentPhotoAsync() => device.TakeDocumentPhotoAsync();
 
     public async Task<PhotoPick> TakeSelfieAsync()
     {

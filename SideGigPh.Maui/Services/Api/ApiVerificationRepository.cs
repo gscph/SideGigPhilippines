@@ -15,9 +15,9 @@ public sealed class ApiVerificationRepository(ApiClient api) : IVerificationRepo
         (await api.GetAsync("verifications/mine", ApiJson.Default.ListVerificationDto) ?? []).Select(dto => dto.ToModel()).OfType<BadgeRequest>().ToList(),
         [], "the worker's badges");
 
-    public async Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo)
+    public async Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo, bool retake)
     {
-        using var response = await api.SendAsync(HttpMethod.Post, ApiMapping.ToSubmitPath(badge), photo, "image/jpeg");
+        using var response = await api.SendAsync(HttpMethod.Post, ApiMapping.ToSubmitPath(badge, retake), photo, "image/jpeg");
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
             // Sent once more after a lost answer: the "already sent" is the first one, which went through.

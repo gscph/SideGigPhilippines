@@ -475,6 +475,15 @@ public sealed class WorkerVerificationRow
     public string? ScannedNumber { get; set; }
     public DateOnly? ScannedExpiry { get; set; }
 
+    /// <summary>How sure the AI reader was that it read an ID (0-1); null when nothing read it.</summary>
+    public double? ScanConfidence { get; set; }
+
+    /// <summary>What the server's photo check found, comma-separated <c>PhotoProblems</c> codes; null when nothing.</summary>
+    public string? PhotoProblems { get; set; }
+
+    /// <summary>The photo check's sharpness number (<c>PhotoQuality</c>), kept to set cut-offs from real photos.</summary>
+    public double? PhotoSharpness { get; set; }
+
     /// <summary>What the server read from a clearance's QR code (<c>034-schema-clearance-valid-until.sql</c>), for the operator only; cleared on the decision.</summary>
     public string? ScannedQr { get; set; }
 
@@ -485,6 +494,9 @@ public sealed class WorkerVerificationRow
     public DateTimeOffset? DecidedAt { get; set; }
     public string? DecidedBy { get; set; }
     public string? RejectReason { get; set; }
+
+    /// <summary>Why the operator rejected, one of <c>RejectCodes</c>; null when approved or not said.</summary>
+    public string? RejectCode { get; set; }
 }
 
 /// <summary>One action on a verification request (<c>VerificationAudit</c>): the log of who looked at or decided what.</summary>

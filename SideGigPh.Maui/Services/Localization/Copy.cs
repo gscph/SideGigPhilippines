@@ -475,6 +475,22 @@ public static class Copy
     public static readonly LocalizedText AdminScanNone = new("Not read by the AI.", "Hindi binasa ng AI.");
     public static readonly LocalizedText AdminScanUnreadable = new("The AI couldn't read this ID.", "Di nabasa ng AI ang ID na 'to.");
     public static readonly LocalizedText AdminScanFailed = new("The AI reader didn't answer.", "Di sumagot ang AI reader.");
+    public static readonly LocalizedText AdminScanConfidence = new("AI sure it's an ID", "Sigurado ang AI na ID");
+    public static readonly LocalizedText AdminPhotoTitle = new("Photo check", "Photo check");
+    public static readonly LocalizedText AdminPhotoOk = new("Sharp, no glare or shadow found", "Malinaw, walang silaw o anino");
+    public static readonly LocalizedText AdminPhotoSharpness = new("Sharpness {0} (under {1} looks blurry)", "Sharpness {0} (mas mababa sa {1} ay malabo)");
+    public static readonly LocalizedText AdminPhotoBlurry = new("Blurry", "Malabo");
+    public static readonly LocalizedText AdminPhotoGlare = new("Glare", "May silaw");
+    public static readonly LocalizedText AdminPhotoDark = new("Dark or shadow", "Madilim o may anino");
+    public static readonly LocalizedText AdminPhotoSmall = new("Too small", "Masyadong maliit");
+    public static readonly LocalizedText AdminRejectWhy = new("Why reject?", "Bakit ire-reject?");
+    public static readonly LocalizedText AdminRejectBlurry = new("Blurry", "Malabo");
+    public static readonly LocalizedText AdminRejectGlare = new("Glare or shadow", "May silaw o anino");
+    public static readonly LocalizedText AdminRejectCutOff = new("Cut off", "Putol");
+    public static readonly LocalizedText AdminRejectWrong = new("Wrong document", "Maling dokumento");
+    public static readonly LocalizedText AdminRejectExpired = new("Expired or too old", "Expired o luma na");
+    public static readonly LocalizedText AdminRejectMismatch = new("Not the same person", "Hindi parehong tao");
+    public static readonly LocalizedText AdminRejectOther = new("Other", "Iba pa");
     public static readonly LocalizedText AdminCompareHint = new(
         "Check the name matches the listing and the face matches the profile photo.",
         "I-check kung match ang pangalan sa listing at ang mukha sa profile photo.");
@@ -732,8 +748,24 @@ public static class Copy
         "Pumapayag akong i-check ng tao sa Tarbaho ang clearance na 'to, pati ang record kung meron, para lang sa badge. Babasahin ng Tarbaho ang QR code nito para makatulong. Private ito at buburahin after i-check; ang \"valid until\" lang ang itatago, at hanggang doon lang ang badge. Badge lang ang makikita ng customer.");
     public static readonly LocalizedText BadgeChoosePhoto = new("Choose photo and send", "Pumili ng photo at i-send");
     public static readonly LocalizedText BadgeAlreadySent = new("You already sent this one.", "Na-send mo na 'to.");
+    public static readonly LocalizedText BadgeTakePhoto = new("Take a photo and send", "Kunan ng photo at i-send");
+    public static readonly LocalizedText BadgeGuideTitle = new("How the photo should look", "Ganito dapat ang photo");
+    public static readonly LocalizedText BadgeGuideAlt = new("A whole card, flat, in good light", "Buong card, nakalapag, maliwanag");
+    public static readonly LocalizedText BadgeGuideWhole = new("The whole card or paper, all 4 corners showing", "Buong card o papel, kita ang 4 na kanto");
+    public static readonly LocalizedText BadgeGuideLight = new("Near a window or a bright light, no flash", "Malapit sa bintana o maliwanag, walang flash");
+    public static readonly LocalizedText BadgeGuideSteady = new("Flat on a table, hold the phone still", "Nakalapag sa mesa, huwag galawin ang phone");
+    public static readonly LocalizedText BadgeRetakeTitle = new("Take it again?", "Ulitin ang photo?");
+    public static readonly LocalizedText BadgeRetakeBlurry = new("It looks blurry.", "Mukhang malabo.");
+    public static readonly LocalizedText BadgeRetakeGlare = new("A light shines on part of it.", "May silaw sa isang parte.");
+    public static readonly LocalizedText BadgeRetakeDark = new("It looks dark or has a shadow.", "Madilim o may anino.");
+    public static readonly LocalizedText BadgeRetakeSmall = new("It's too small to read.", "Masyadong maliit para mabasa.");
+    public static readonly LocalizedText BadgeRetakeWhy = new(
+        "We sent it, but a clearer photo gets checked faster.",
+        "Na-send na namin, pero mas mabilis ma-check ang mas malinaw na photo.");
+    public static readonly LocalizedText BadgeRetakeAgain = new("Take it again", "Ulitin");
+    public static readonly LocalizedText BadgeRetakeKeep = new("Keep this photo", "Okay na 'to");
     public static readonly LocalizedText BadgeNoCompany = new("Pick a company or type its name.", "Pumili ng kumpanya o i-type ang pangalan nito.");
-    public static readonly LocalizedText BadgePhotoDenied = new("Tarbaho can't open your photos. Allow it in Settings.", "Di mabuksan ng Tarbaho ang photos mo. I-allow sa Settings.");
+    public static readonly LocalizedText BadgePhotoDenied = new("Tarbaho can't open your camera or photos. Allow it in Settings.", "Di mabuksan ng Tarbaho ang camera o photos mo. I-allow sa Settings.");
     public static readonly LocalizedText BadgeFailed = new("Didn't send. Check your internet and try again.", "Di na-send. I-check ang internet mo tapos try ulit.");
     public static readonly LocalizedText BadgeNothingToSend = new("This badge is already sent. Nothing more to do.", "Na-send na ang badge na 'to. Wala ka nang kailangang gawin.");
 

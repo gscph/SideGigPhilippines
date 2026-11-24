@@ -372,6 +372,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             verification.Property(v => v.ScannedQr).HasMaxLength(1000).IsUnicode();
             verification.Property(v => v.DecidedBy).HasMaxLength(128);
             verification.Property(v => v.RejectReason).HasMaxLength(200).IsUnicode();
+            verification.Property(v => v.RejectCode).HasMaxLength(30);
+            verification.Property(v => v.PhotoProblems).HasMaxLength(100);
             verification.HasIndex(v => new { v.Uid, v.Kind, v.BadgeId, v.CompanyName }).IsUnique().HasFilter("[Status] = 'pending'")
                 .HasDatabaseName(Constraints.VerificationPending);
             verification.HasIndex(v => new { v.Uid, v.Status }).HasDatabaseName("IX_WorkerVerifications_Uid");
