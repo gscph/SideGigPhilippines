@@ -94,8 +94,9 @@ contacts, your call log, your SMS, or your advertising ID.
 
 ### 3.3 No usage analytics or advertising tracking
 
-The App has no usage analytics, A/B testing or advertising tools: we do not track which screens you open or what you
-tap, and we do not collect your advertising ID. The error reports above are the only technical data the App sends.
+The App has no usage analytics, A/B testing or advertising tools, and we do not collect your advertising ID. Which
+screens you opened leaves your phone only inside an error report (the last few screens before a problem), as listed in
+§3.2.
 
 ### 3.4 Data about other people (references): no longer collected
 

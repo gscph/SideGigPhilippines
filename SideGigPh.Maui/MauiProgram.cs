@@ -57,7 +57,6 @@ namespace SideGigPh.Maui
                 new PushChannel(PushData.RepliesChannel, Copy.PushChannelReplies.English, Alert: false),
                 new PushChannel(PushData.RequestsChannel, Copy.PushChannelRequests.English, Alert: true),
                 new PushChannel(PushData.OffersChannel, Copy.PushChannelOffers.English, Alert: true));
-            builder.Services.AddSingleton(BuildInfo.Current);
             builder.Services.AddSingleton<FeedbackBoard>();
             builder.Services.AddSingleton<JobBoard>();
             builder.Services.AddSingleton<PickedContact>();
