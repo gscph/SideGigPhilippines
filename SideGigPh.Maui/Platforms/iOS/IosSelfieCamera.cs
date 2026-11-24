@@ -32,7 +32,9 @@ internal sealed class IosSelfieCamera : UIViewController
     private readonly string _shutterText;
     private readonly TaskCompletionSource<UIImage?> _done = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly AVCaptureSession _session = new();
-    private readonly DispatchQueue _queue = new("com.tarbaho.selfie");
+    private readonly DispatchQueue _queue = new("com.tarbaho.selfie.frames");
+    private readonly DispatchQueue _sessionQueue = new("com.tarbaho.selfie.session");
+    private AVCaptureVideoDataOutput? _output;
     private readonly CAShapeLayer _oval = new();
     private readonly UILabel _hint = new();
     private readonly UIButton _shutter = new();
@@ -58,6 +60,11 @@ internal sealed class IosSelfieCamera : UIViewController
 
     /// <summary>The selfie, or null when the person cancelled.</summary>
     public Task<UIImage?> Result => _done.Task;
+
+    // Portrait only, like Android's screen: the frames, the oval and the face check are all laid out upright.
+    public override UIInterfaceOrientationMask GetSupportedInterfaceOrientations() => UIInterfaceOrientationMask.Portrait;
+
+    public override UIInterfaceOrientation PreferredInterfaceOrientationForPresentation() => UIInterfaceOrientation.Portrait;
 
     public override void ViewDidLoad()
     {
@@ -85,6 +92,11 @@ internal sealed class IosSelfieCamera : UIViewController
 
         _session.BeginConfiguration();
         _session.SessionPreset = AVCaptureSession.Preset1280x720;
+        if (!_session.CanAddInput(input))
+        {
+            throw new InvalidOperationException("The front camera can't be used now.");
+        }
+
         _session.AddInput(input);
         var output = new AVCaptureVideoDataOutput
         {
@@ -93,7 +105,13 @@ internal sealed class IosSelfieCamera : UIViewController
         };
         _reader = new FrameReader(this);
         output.SetSampleBufferDelegate(_reader, _queue);
+        if (!_session.CanAddOutput(output))
+        {
+            throw new InvalidOperationException("The camera's frames can't be read now.");
+        }
+
         _session.AddOutput(output);
+        _output = output;
         // Frames come upright and mirrored, like the preview, so the face check and the photo match what is on screen.
         if (output.ConnectionFromMediaType(AVMediaTypes.Video.GetConstant()!) is { } connection)
         {
@@ -189,7 +207,7 @@ internal sealed class IosSelfieCamera : UIViewController
             return;
         }
 
-        _queue.DispatchAsync(() =>
+        _sessionQueue.DispatchAsync(() =>
         {
             if (!_session.Running)
             {
@@ -201,7 +219,7 @@ internal sealed class IosSelfieCamera : UIViewController
     public override void ViewWillDisappear(bool animated)
     {
         base.ViewWillDisappear(animated);
-        _queue.DispatchAsync(() =>
+        _sessionQueue.DispatchAsync(() =>
         {
             if (_session.Running)
             {
@@ -319,6 +337,9 @@ internal sealed class IosSelfieCamera : UIViewController
         }
 
         _finished = true;
+        // The output holds its frame reader, which holds this screen: let go, so the screen and session are freed.
+        _output?.SetSampleBufferDelegate(null, null);
+        _reader = null;
         DismissViewController(true, () => _done.TrySetResult(photo));
     }
 

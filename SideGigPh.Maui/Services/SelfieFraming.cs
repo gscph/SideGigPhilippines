@@ -44,8 +44,11 @@ public static class SelfieFraming
     /// <summary>How far the face's centre may be from the oval's, as a share of the oval's half-size.</summary>
     public const double MaxOffCentre = 0.35;
 
-    /// <summary>The narrowest face that counts, as a share of the oval's width.</summary>
-    public const double MinFaceShare = 0.5;
+    /// <summary>
+    /// The narrowest face that counts, as a share of the oval's width: low enough that a selfie at arm's length (about
+    /// 60 cm with a phone's front camera) passes.
+    /// </summary>
+    public const double MinFaceShare = 0.35;
 
     /// <summary>The widest face that counts, as a share of the oval's width.</summary>
     public const double MaxFaceShare = 1.1;

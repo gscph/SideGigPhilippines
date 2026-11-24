@@ -30,7 +30,11 @@ public class SelfieFramingTests
 
     [Fact]
     public void ASmallFace_IsTooFar() =>
-        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.3)).Should().Be(SelfieFrame.TooFar);
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.25)).Should().Be(SelfieFrame.TooFar);
+
+    [Fact]
+    public void AnArmsLengthSelfie_IsGood() =>
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.4)).Should().Be(SelfieFrame.Good);
 
     [Fact]
     public void AFaceBiggerThanTheOval_IsTooClose() =>

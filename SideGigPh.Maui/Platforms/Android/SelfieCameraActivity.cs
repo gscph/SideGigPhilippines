@@ -80,6 +80,7 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
     private bool _checking;
     private bool _resumed;
     private FaceDetector? _detector;
+    private readonly object _detectorLock = new();
     private Java.Lang.Runnable? _check;
 
     protected override void OnCreate(Bundle? savedInstanceState)
@@ -114,6 +115,7 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
 
         if (_check is not null)
         {
+            _handler.RemoveCallbacks(_check);
             _handler.PostDelayed(_check, CheckEveryMs);
         }
     }
@@ -239,6 +241,12 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
 
     private void StartPreview(CameraDevice camera)
     {
+        if (!_resumed)
+        {
+            camera.Close(); // opened after the screen was left: OnResume opens it again
+            return;
+        }
+
         _camera = camera;
         var texture = _preview.SurfaceTexture;
         if (texture is null || _previewSize is null)
@@ -318,6 +326,8 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
                 }
 
                 ShowFrame(SelfieFraming.Check(viewWidth, viewHeight, face));
+                // A pause and resume during this check already queued the next one: never two loops.
+                _handler.RemoveCallbacks(_check!);
                 _handler.PostDelayed(_check!, CheckEveryMs);
             });
         });
@@ -330,9 +340,15 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
         using (shown)
         using (var small = shown.Copy(Bitmap.Config.Rgb565!, false)!)
         {
-            _detector ??= new FaceDetector(small.Width, small.Height, 1);
             var faces = new FaceDetector.Face[1];
-            if (_detector.FindFaces(small, faces) < 1 || faces[0] is not { } face || face.Confidence() < FaceDetector.Face.ConfidenceThreshold)
+            int found;
+            lock (_detectorLock) // the loop's check and the shutter's may overlap; the detector is not thread-safe
+            {
+                _detector ??= new FaceDetector(small.Width, small.Height, 1);
+                found = _detector.FindFaces(small, faces);
+            }
+
+            if (found < 1 || faces[0] is not { } face || face.Confidence() < FaceDetector.Face.ConfidenceThreshold)
             {
                 return null;
             }
@@ -357,7 +373,8 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
         _shutter.Alpha = good ? 1f : 0.4f;
     }
 
-    // Keeps the frame on screen: what the person saw is what is sent. Only while the face is in the oval.
+    // Keeps the frame on screen: what the person saw is what is sent. Only while the face is in the oval, checked again
+    // on that very frame (the last check may be a fraction of a second old).
     private void TakePhoto()
     {
         if (_taking || _frame != SelfieFrame.Good || _session is null || _preview.Bitmap is not { } frame)
@@ -368,10 +385,28 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
         _taking = true;
         _shutter.Enabled = false;
         var path = Intent?.GetStringExtra(ExtraOutput);
+        var viewWidth = _preview.Width;
+        var viewHeight = _preview.Height;
         Task.Run(() =>
         {
             try
             {
+                var detectHeight = (int)Math.Round(DetectWidth * (frame.Height / (double)frame.Width));
+                var small = Bitmap.CreateScaledBitmap(frame, DetectWidth, detectHeight, true)!;
+                var still = SelfieFraming.Check(viewWidth, viewHeight, FindFace(small, viewWidth / (double)DetectWidth));
+                if (still != SelfieFrame.Good)
+                {
+                    frame.Dispose();
+                    RunOnUiThread(() =>
+                    {
+                        _taking = false;
+                        ShowFrame(still);
+                        _handler.RemoveCallbacks(_check!);
+                        _handler.PostDelayed(_check!, CheckEveryMs);
+                    });
+                    return;
+                }
+
                 Save(frame, path ?? throw new InvalidOperationException("No path for the selfie."));
                 RunOnUiThread(() =>
                 {
@@ -399,7 +434,7 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
         }
     }
 
-    // Logged by the picker (the result is Canceled with nothing written, which it reports as a failed camera).
+    // Logged by the picker: the result is FirstUser with nothing written, which it reports as a failed camera.
     private void Fail(Exception ex)
     {
         global::Android.Util.Log.Error("SideGigPh", $"Selfie camera failed: {ex}");
@@ -434,10 +469,12 @@ public sealed class SelfieCameraActivity : Activity, TextureView.ISurfaceTexture
             }
         }
 
+        // Another app took the camera: no frozen picture can be kept; the camera opens again when the screen resumes.
         public override void OnDisconnected(CameraDevice camera)
         {
+            screen.CloseCamera();
             camera.Close();
-            screen._camera = null;
+            screen.ShowFrame(SelfieFrame.NoFace);
         }
 
         public override void OnError(CameraDevice camera, CameraError error)
