@@ -46,8 +46,8 @@ public sealed class BadgeReview(IBadgeReviewRepository repository, ILogger<Badge
     /// </summary>
     public static int? Sharpness(PendingBadge request) => request.Photo?.Sharpness is { } value ? (int)Math.Round(value) : null;
 
-    /// <summary>The photo check's blurry cut-off, shown next to the number (the server's <c>PhotoQuality.BlurryBelow</c>).</summary>
-    public const int BlurryBelow = 60;
+    /// <summary>The photo check's blurry cut-off, shown next to the number (the server's own, from the contracts).</summary>
+    public const int BlurryBelow = SideGigPh.Contracts.PhotoProblems.BlurryBelow;
 
     /// <summary>The AI's confidence as a whole percent, or null when nothing read the photo.</summary>
     public static int? ConfidencePercent(PendingBadge request) =>

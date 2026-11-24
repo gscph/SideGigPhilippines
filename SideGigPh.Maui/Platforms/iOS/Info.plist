@@ -49,7 +49,7 @@
         <string>remote-notification</string>
     </array>
     <key>NSCameraUsageDescription</key>
-    <string>Take a photo of you for your listing, so customers see who is coming.</string>
+    <string>Take a photo of you for your listing, so customers see who is coming, and a photo of your ID or clearance when you ask for a badge.</string>
     <key>LSApplicationQueriesSchemes</key>
     <array>
         <string>waze</string>

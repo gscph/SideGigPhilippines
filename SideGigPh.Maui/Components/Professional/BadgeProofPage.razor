@@ -17,7 +17,15 @@
         <PhotoRetakePrompt Problems="_problems" Busy="_busy" OnRetake="RetakeAsync" OnKeep="Keep" />
         @if (_problem is not null)
         {
-            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(_problem)</MudAlert>
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">
+                <MudStack Spacing="1" AlignItems="AlignItems.Start">
+                    <MudText Typo="Typo.body2">@T.Get(_problem)</MudText>
+                    @if (_result == BadgeSubmitResult.PhotoDenied)
+                    {
+                        <MudButton Variant="Variant.Text" Class="app-link-button" OnClick="Picker.OpenAppSettings">@T.Get(Copy.PhotosOpenSettings)</MudButton>
+                    }
+                </MudStack>
+            </MudAlert>
         }
     }
     else if (!Badges.CanSend(BadgeKind))

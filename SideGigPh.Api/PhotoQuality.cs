@@ -25,8 +25,8 @@ public static class PhotoQuality
     // First guesses, to be set from data (dbo.WorkerVerifications: PhotoSharpness and PhotoProblems against RejectCode):
     // only advice until then, so a wrong guess costs one "send anyway" tap, never a badge.
 
-    /// <summary>Below this edge variance the photo counts as blurry.</summary>
-    public const double BlurryBelow = 60;
+    /// <summary>Below this edge variance the photo counts as blurry (shared with the operator screens).</summary>
+    public const double BlurryBelow = PhotoProblems.BlurryBelow;
 
     /// <summary>A pixel this bright (0-255) is clipped: a phone exposes white paper well below it, a flash on laminate reaches it.</summary>
     public const byte GlareFrom = 254;

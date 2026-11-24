@@ -85,6 +85,12 @@ public static class PhotoProblems
     public const string TooSmall = "too-small";
 
     public static readonly IReadOnlyList<string> All = [Blurry, Glare, Dark, TooSmall];
+
+    /// <summary>
+    /// The sharpness below which a photo counts as <see cref="Blurry"/> (the server's check), shown to the operator next
+    /// to each photo's number. A first guess: set it from real photos against the operator's decisions.
+    /// </summary>
+    public const int BlurryBelow = 60;
 }
 
 /// <summary>Why the operator rejected a badge proof (<see cref="VerificationDecisionRequest.RejectCode"/>), counted to see what goes wrong most.</summary>

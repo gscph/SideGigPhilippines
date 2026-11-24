@@ -267,4 +267,22 @@ public class VerificationTests(ApiTestHost api)
         using var late = await client.PostAsync("verifications/id?consent=true&retake=true", Photo());
         late.StatusCode.Should().Be(HttpStatusCode.OK, "a rejected badge may be sent again, as a new request");
     }
+    [IntegrationFact]
+    public async Task FromTheApp_ARetakeWhoseAnswerIsLost_IsSentAgainSafely()
+    {
+        // The app's connection loses the first answer to every write, so the send and the retake each reach the
+        // server twice: still one request, one stored photo, and the waiting photo replaced.
+        var worker = new TestPhone(api, "Twice");
+        var photo = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
+
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Id), consent: true, photo)).Should().Be(BadgeSubmitResult.Sent);
+        worker.Badges.ProblemsOf(new Badge(BadgeKind.Id)).Should().Contain(ProofProblem.TooSmall, "the check's advice reaches the phone");
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Id), consent: true, photo, retake: true)).Should().Be(BadgeSubmitResult.Sent);
+
+        using var scope = api.Server.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<SideGigPhDb>();
+        var row = await db.WorkerVerifications.SingleAsync(v => v.Uid == worker.Uid);
+        api.PrivateFiles.Files.Keys.Where(name => name.StartsWith(worker.Uid + "/")).Should().ContainSingle().Which.Should().Be(row.DocumentBlob);
+        (await db.VerificationAudit.Where(a => a.VerificationId == row.Id).Select(a => a.Action).ToListAsync()).Should().Contain("retaken");
+    }
 }

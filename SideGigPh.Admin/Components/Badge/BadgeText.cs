@@ -39,8 +39,8 @@ public static class BadgeText
         _ => code,
     };
 
-    /// <summary>The photo check's blurry cut-off (the API's <c>PhotoQuality.BlurryBelow</c>).</summary>
-    public const int BlurryBelow = 60;
+    /// <summary>The photo check's blurry cut-off (the API's own, from the contracts).</summary>
+    public const int BlurryBelow = PhotoProblems.BlurryBelow;
 
     /// <summary>The operator's reasons to reject, counted (<see cref="RejectCodes"/>), with the words that start the worker's reason.</summary>
     public static readonly IReadOnlyList<(string Code, string Label)> RejectReasons =
