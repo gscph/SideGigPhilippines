@@ -35,10 +35,16 @@ namespace SideGigPh.Maui
             builder.Services.AddMobileAppTheme(AppTheme.Brand);
             // The camera and photo picker leave the app: watched, so one that never comes back is reported (FlowWatch).
 #if ANDROID
-            // The selfie opens on the front camera (the skeleton's MAUI camera call can't choose the lens).
+            // The selfie opens on the front camera (the skeleton's MAUI camera call can't choose the lens) and is made small
+            // on the phone: the server checks it and stores it as sent (POST photos/selfie).
             builder.Services.AddSingleton<SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker>();
             builder.Services.AddSingleton<IPhotoPicker>(services => new WatchedPhotoPicker(
                 services.GetRequiredService<SideGigPh.Maui.Platforms.Android.AndroidPhotoPicker>(),
+                services.GetRequiredService<FlowWatch>(), services.GetRequiredService<ILogger<WatchedPhotoPicker>>()));
+#elif IOS
+            builder.Services.AddSingleton<SideGigPh.Maui.Platforms.iOS.IosPhotoPicker>();
+            builder.Services.AddSingleton<IPhotoPicker>(services => new WatchedPhotoPicker(
+                services.GetRequiredService<SideGigPh.Maui.Platforms.iOS.IosPhotoPicker>(),
                 services.GetRequiredService<FlowWatch>(), services.GetRequiredService<ILogger<WatchedPhotoPicker>>()));
 #else
             builder.Services.AddSingleton<IPhotoPicker>(services => new WatchedPhotoPicker(

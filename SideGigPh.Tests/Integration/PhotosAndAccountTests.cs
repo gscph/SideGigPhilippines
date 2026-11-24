@@ -44,6 +44,36 @@ public class PhotosAndAccountTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task Selfie_IsStoredAsSent_WithoutItsExif()
+    {
+        using var image = new ImageMagick.MagickImage(ImageMagick.MagickColors.SeaGreen, 960, 1280) { Format = ImageMagick.MagickFormat.Jpeg };
+        var exif = new ImageMagick.ExifProfile();
+        exif.SetValue(ImageMagick.ExifTag.GPSLatitudeRef, "N");
+        image.SetProfile(exif);
+        var sent = image.ToByteArray();
+        var phone = new TestPhone(api, "Sid");
+
+        var id = await phone.Get<IPhotoStore>().SaveSelfieAsync(sent);
+
+        var stored = api.Blobs.Blobs[$"{id}.jpg"].Bytes;
+        stored.Should().Equal(SideGigPh.Api.SelfieJpeg.Check(sent).Jpeg, "checked and stripped, never re-encoded");
+        using var read = new ImageMagick.MagickImage(stored);
+        read.GetExifProfile().Should().BeNull();
+        read.Width.Should().Be(960);
+    }
+
+    [IntegrationFact]
+    public async Task SelfieThatIsNotAJpeg_IsRefusedWithItsCode()
+    {
+        using var png = new ImageMagick.MagickImage(ImageMagick.MagickColors.SeaGreen, 100, 100) { Format = ImageMagick.MagickFormat.Png };
+
+        using var response = await api.Client(api.Tokens.For("someone")).PostAsync("photos/selfie", new ByteArrayContent(png.ToByteArray()));
+
+        response.StatusCode.Should().Be(HttpStatusCode.UnsupportedMediaType);
+        (await response.Content.ReadFromJsonAsync<ApiError>())!.Error.Should().Be(ApiErrors.SelfieNotJpeg);
+    }
+
+    [IntegrationFact]
     public async Task NotAPhoto_IsRefused()
     {
         using var response = await api.Client(api.Tokens.For("someone")).PostAsync("photos", new ByteArrayContent("hello"u8.ToArray()));

@@ -14,6 +14,8 @@ namespace SideGigPh.Api;
 /// <summary>
 /// Work photos and profile photos, stored in Azure Blob Storage as photos/{id}.jpg. Every upload is a new blob with a
 /// random id (64 hex characters), so the same picture sent twice, or by two accounts, is simply two photos.
+/// <c>POST photos</c> (work photos, post photos, a household's photo) re-encodes every upload (<see cref="PhotoImage"/>);
+/// <c>POST photos/selfie</c> (a worker's profile photo, made small on the phone) is only checked (<see cref="SelfieJpeg"/>).
 /// Anyone can view a photo by its URL (the id is unguessable); only the account that uploaded it deletes it.
 /// </summary>
 public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseTokenValidator auth, CallerLimits limits)
@@ -71,6 +73,47 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             return new BadRequestObjectResult(new { error = "broken-image" });
         }
 
+        return await StoreAsync(bytes, uid, cancellationToken);
+    }
+
+    /// <summary>
+    /// A worker's selfie, their profile photo. The phone already made it small (<see cref="SelfieJpeg"/>), so it is
+    /// checked and stored as sent, with its metadata taken out, never resized or re-encoded. Refused with
+    /// <see cref="ApiErrors.SelfieNotJpeg"/> (415), <see cref="ApiErrors.SelfieTooBig"/> (413) or
+    /// <see cref="ApiErrors.SelfieBroken"/> (400), which the app shows as a photo it can't use.
+    /// </summary>
+    [Function("UploadSelfie")]
+    public async Task<IActionResult> UploadSelfie(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "photos/selfie")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var uid = await auth.GetUidAsync(request, cancellationToken);
+        if (uid is null)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.PhotoUpload, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        var bytes = await ReadAtMostAsync(request.Body, SelfieJpeg.MaxBytes + 1, cancellationToken);
+        var check = SelfieJpeg.Check(bytes);
+        return check.Verdict switch
+        {
+            SelfieVerdict.Ok => await StoreAsync(check.Jpeg!, uid, cancellationToken),
+            SelfieVerdict.NotJpeg => Refused(StatusCodes.Status415UnsupportedMediaType, ApiErrors.SelfieNotJpeg),
+            SelfieVerdict.TooBig => Refused(StatusCodes.Status413PayloadTooLarge, ApiErrors.SelfieTooBig),
+            _ => Refused(StatusCodes.Status400BadRequest, ApiErrors.SelfieBroken),
+        };
+    }
+
+    private static ObjectResult Refused(int status, string error) => new(new ApiError(error)) { StatusCode = status };
+
+    /// <summary>Stores the finished JPEG as a new blob with a random id, owned by <paramref name="uid"/>.</summary>
+    private async Task<IActionResult> StoreAsync(byte[] bytes, string uid, CancellationToken cancellationToken)
+    {
         await EnsureContainerAsync(cancellationToken);
 
         var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));

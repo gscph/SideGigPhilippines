@@ -166,6 +166,15 @@ public sealed class FakePhotoStore : IPhotoStore
     public Task<string> SaveAsync(byte[] bytes) =>
         Refuse is { } refusal ? throw refusal : Task.FromResult(TestData.PhotoId(bytes[0]));
 
+    /// <summary>How many photos went up as selfies (checked, not re-encoded, on the real server).</summary>
+    public int SelfiesSaved { get; private set; }
+
+    public Task<string> SaveSelfieAsync(byte[] bytes)
+    {
+        SelfiesSaved++;
+        return SaveAsync(bytes);
+    }
+
     public Task<string?> GetUrlAsync(string photoId) => Task.FromResult<string?>(Url(photoId));
 
     public Task DeleteAsync(string photoId)

@@ -7,7 +7,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// The pro's Me tab (also the avatar in the top bar): their photo (add or change), their profile level (red, green,
+/// The pro's Me tab (also the avatar in the top bar): their photo (always a new selfie on the front camera, never one
+/// from the gallery), their profile level (red, green,
 /// verified blue), Edit listing and Publish, the amber badge reminder, rows for work photos and badges
 /// each with its mark (<see cref="ProfileProgress"/>), their card exactly as customers see
 /// it, the switch to the customer side (<c>SwitchSideRow</c>),
@@ -20,6 +21,7 @@ public partial class ProMePage : ComponentBase
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
+    [Inject] private IPhotoPicker Picker { get; set; } = default!;
 
     private PhotoAddResult? _photoResult;
     private bool _busy;
@@ -52,9 +54,11 @@ public partial class ProMePage : ComponentBase
         _busy = true;
         try
         {
+            // The camera shows over the page; the splash covers only the upload.
+            var selfie = await Picker.TakeSelfieAsync();
             _photoResult = await Busy.RunAsync(async () =>
             {
-                var result = await Workspace.ChangeProfilePhotoAsync();
+                var result = await Workspace.SetProfilePhotoAsync(selfie);
                 if (result.Added > 0)
                 {
                     await Account.SaveProfileAsync(); // the account's one profile photo, kept with the profile
