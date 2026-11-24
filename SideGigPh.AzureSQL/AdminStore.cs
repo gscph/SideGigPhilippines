@@ -109,9 +109,11 @@ public sealed class AdminStore(SideGigPhDb db)
             OtherJobNotes: await db.OtherJobNotes.CountAsync(cancellationToken),
             FeedbackPosts: await db.FeedbackPosts.CountAsync(cancellationToken));
 
+        var phToday = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
         var trust = new AdminTrustStatsDto(
             PendingBadges: await db.WorkerVerifications.CountAsync(v => v.Status == VerificationStatuses.Pending, cancellationToken),
-            ApprovedBadges: await db.WorkerVerifications.CountAsync(v => v.Status == VerificationStatuses.Approved, cancellationToken),
+            ApprovedBadges: await db.WorkerVerifications.CountAsync(
+                v => v.Status == VerificationStatuses.Approved && (v.ValidUntil == null || v.ValidUntil >= phToday), cancellationToken),
             OpenReports: await db.Reports.CountAsync(r => r.Status == "open", cancellationToken),
             Blocks: await db.Blocks.CountAsync(cancellationToken),
             ErrorReports24Hours: await db.ErrorReports.CountAsync(r => r.ReceivedAt >= day, cancellationToken),
@@ -281,6 +283,8 @@ public sealed class AdminStore(SideGigPhDb db)
     /// </summary>
     public async Task<AdminWorkerPageDto> WorkersAsync(AdminListQuery query, CancellationToken cancellationToken)
     {
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow); // a lapsed clearance is no badge
+
         // Live listings (with the account's profile when it was saved), then worker-side accounts with no listing yet.
         var live =
             from p in db.Professionals.AsNoTracking()
@@ -330,7 +334,7 @@ public sealed class AdminStore(SideGigPhDb db)
             Live = w.Live,
             HasPhoto = w.HasPhoto,
             WorkPhotos = db.ProfessionalWorkPhotos.Count(x => x.ProfessionalId == w.Uid),
-            Badges = db.WorkerVerifications.Count(v => v.Uid == w.Uid && v.Status == VerificationStatuses.Approved),
+            Badges = db.WorkerVerifications.Count(v => v.Uid == w.Uid && v.Status == VerificationStatuses.Approved && (v.ValidUntil == null || v.ValidUntil >= today)),
             PendingBadges = db.WorkerVerifications.Count(v => v.Uid == w.Uid && v.Status == VerificationStatuses.Pending),
             Reviews = db.Reviews.Count(r => r.ProfessionalId == w.Uid),
             Rating = db.Reviews.Where(r => r.ProfessionalId == w.Uid).Average(r => (double?)r.Rating),

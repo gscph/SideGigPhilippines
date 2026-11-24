@@ -168,4 +168,30 @@ public static class TestImages
 
         return image.ToByteArray();
     }
+
+    /// <summary>
+    /// A photo of a paper (white, portrait, like a clearance shot from above) with a QR code holding
+    /// <paramref name="qrText"/> printed on its lower right, as a JPEG.
+    /// </summary>
+    public static byte[] PaperWithQr(string qrText)
+    {
+        const int qrSide = 240;
+        var matrix = new ZXing.QrCode.QRCodeWriter().encode(qrText, ZXing.BarcodeFormat.QR_CODE, qrSide, qrSide);
+        var gray = new byte[matrix.Width * matrix.Height];
+        for (var y = 0; y < matrix.Height; y++)
+        {
+            for (var x = 0; x < matrix.Width; x++)
+            {
+                gray[y * matrix.Width + x] = matrix[x, y] ? (byte)0 : (byte)255;
+            }
+        }
+
+        using var qr = new ImageMagick.MagickImage(gray, new ImageMagick.MagickReadSettings
+        {
+            Width = (uint)matrix.Width, Height = (uint)matrix.Height, Format = ImageMagick.MagickFormat.Gray, Depth = 8,
+        });
+        using var paper = new ImageMagick.MagickImage(ImageMagick.MagickColors.White, 900, 1200) { Format = ImageMagick.MagickFormat.Jpeg };
+        paper.Composite(qr, 900 - qrSide - 60, 1200 - qrSide - 60, ImageMagick.CompositeOperator.Over);
+        return paper.ToByteArray();
+    }
 }

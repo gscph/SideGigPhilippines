@@ -494,6 +494,32 @@ public static class Copy
     public static readonly LocalizedText AdminCompareHint = new(
         "Check the name matches the listing and the face matches the profile photo.",
         "I-check kung match ang pangalan sa listing at ang mukha sa profile photo.");
+    public static readonly LocalizedText AdminClearanceTitle = new("Check the clearance", "I-check ang clearance");
+    public static readonly LocalizedText AdminClearanceCheckPerson = new(
+        "The name matches the listing and the photo matches the profile photo.",
+        "Match ang pangalan sa listing at ang photo sa profile photo.");
+    public static readonly LocalizedText AdminClearanceCheckRecord = new(
+        "The remarks say \"No record\" (no criminal record).",
+        "Nakasulat sa remarks ang \"No record\" (walang criminal record).");
+    public static readonly LocalizedText AdminClearanceCheckAge = new(
+        "Recent: NBI issued less than 1 year ago, police clearance less than 6 months ago.",
+        "Bago pa: NBI na wala pang 1 taon, police clearance na wala pang 6 na buwan.");
+    public static readonly LocalizedText AdminClearanceCheckQr = new(
+        "Not edited: open the QR link and check the same name and number show.",
+        "Hindi edited: buksan ang QR link at i-check kung pareho ang pangalan at number.");
+    public static readonly LocalizedText AdminClearanceNoQr = new(
+        "No QR code was read. Check the paper closely, or ask for a clearer photo.",
+        "Walang nabasang QR code. Tingnang mabuti ang papel, o humingi ng mas malinaw na photo.");
+    public static readonly LocalizedText AdminClearanceQrNbi = new("The QR code points to the NBI's website.", "NBI website ang turo ng QR code.");
+    public static readonly LocalizedText AdminClearanceQrPolice = new("The QR code points to the PNP's clearance website.", "PNP clearance website ang turo ng QR code.");
+    public static readonly LocalizedText AdminClearanceQrNotOfficial = new(
+        "The QR code doesn't point to an NBI or PNP website. Be careful: it may be fake.",
+        "Hindi NBI o PNP website ang turo ng QR code. Mag-ingat: baka peke.");
+    public static readonly LocalizedText AdminClearanceOpenQr = new("Open the QR link", "Buksan ang QR link");
+    public static readonly LocalizedText AdminClearanceValidUntil = new("Valid until (printed on the paper)", "Valid until (nakasulat sa papel)");
+    public static readonly LocalizedText AdminClearanceValidUntilHelp = new(
+        "Needed to approve. The badge goes away after this date. Expired? Reject it.",
+        "Kailangan para ma-approve. Mawawala ang badge pagkalipas ng date na 'to. Expired na? I-reject.");
     public static readonly LocalizedText AdminShowProof = new("Show the proof photo", "Ipakita ang proof photo");
     public static readonly LocalizedText AdminProofAlt = new("The proof photo the worker sent", "Ang proof photo na pinadala ng worker");
     public static readonly LocalizedText AdminNoProof = new("The proof photo is gone.", "Wala na ang proof photo.");
@@ -686,14 +712,21 @@ public static class Copy
     public static readonly LocalizedText BadgeStateRejected = new("Not approved", "Di na-approve");
     public static readonly LocalizedText BadgePendingNote = new("We check within 2 days. You don't need to do anything.", "Iche-check namin sa loob ng 2 araw. Wala ka nang kailangang gawin.");
     public static readonly LocalizedText BadgeRejectedNote = new("Why: {0}. You can send a clearer photo.", "Dahilan: {0}. Pwede kang mag-send ng mas malinaw na photo.");
+    public static readonly LocalizedText BadgeStateExpired = new("Expired", "Expired na");
+    public static readonly LocalizedText BadgeExpiredNote = new(
+        "Your clearance was valid until {0}. Send a new one to show the badge again.",
+        "Valid ang clearance mo hanggang {0}. Mag-send ng bago para bumalik ang badge.");
+    public static readonly LocalizedText BadgeValidUntilNote = new(
+        "Shows until {0}, when your clearance expires.",
+        "Makikita hanggang {0}, kapag expired na ang clearance mo.");
     public static readonly LocalizedText BadgeRejectedNoReason = new("You can send a clearer photo.", "Pwede kang mag-send ng mas malinaw na photo.");
     public static readonly LocalizedText BadgeAddProject = new("Add another company", "Mag-add ng ibang kumpanya");
     public static readonly LocalizedText BadgeIdWhat = new(
         "Any valid government ID: National ID, driver's license, UMID, passport, voter's ID. The whole card, clear and not blurry.",
         "Kahit anong valid government ID: National ID, driver's license, UMID, passport, voter's ID. Buong card, malinaw at hindi malabo.");
     public static readonly LocalizedText BadgeClearanceWhat = new(
-        "Your NBI clearance (less than 1 year old) or police clearance (less than 6 months old). The whole paper, with your name, photo and the clearance number.",
-        "Ang NBI clearance mo (wala pang 1 taon) o police clearance (wala pang 6 na buwan). Buong papel, kita ang pangalan mo, photo at clearance number.");
+        "Your NBI clearance (less than 1 year old) or police clearance (less than 6 months old). The whole paper, flat, with your name, photo, the clearance number, the \"valid until\" date and the QR code clear.",
+        "Ang NBI clearance mo (wala pang 1 taon) o police clearance (wala pang 6 na buwan). Buong papel, nakalapag, kita ang pangalan mo, photo, clearance number, \"valid until\" at QR code.");
     public static readonly LocalizedText BadgeTesdaWhat = new(
         "Your TESDA National Certificate (NC I to NC IV) or a training certificate. The whole page, with your name and the certificate number.",
         "Ang TESDA National Certificate mo (NC I hanggang NC IV) o training certificate. Buong page, kita ang pangalan mo at ang certificate number.");
@@ -711,8 +744,8 @@ public static class Copy
         "I agree that a person at Tarbaho checks this photo. It is kept private and deleted after checking.",
         "Pumapayag akong i-check ng tao sa Tarbaho ang photo na 'to. Private ito at buburahin after i-check.");
     public static readonly LocalizedText BadgeConsentClearance = new(
-        "I agree that a person at Tarbaho checks this clearance, including any record on it, only to decide the badge. It is kept private and deleted after checking. Customers see only the badge.",
-        "Pumapayag akong i-check ng tao sa Tarbaho ang clearance na 'to, pati ang record kung meron, para lang sa badge. Private ito at buburahin after i-check. Badge lang ang makikita ng customer.");
+        "I agree that a person at Tarbaho checks this clearance, including any record on it, only to decide the badge. Tarbaho reads its QR code to help. It is kept private and deleted after checking; only its \"valid until\" date is kept, and the badge shows until then. Customers see only the badge.",
+        "Pumapayag akong i-check ng tao sa Tarbaho ang clearance na 'to, pati ang record kung meron, para lang sa badge. Babasahin ng Tarbaho ang QR code nito para makatulong. Private ito at buburahin after i-check; ang \"valid until\" lang ang itatago, at hanggang doon lang ang badge. Badge lang ang makikita ng customer.");
     public static readonly LocalizedText BadgeChoosePhoto = new("Choose photo and send", "Pumili ng photo at i-send");
     public static readonly LocalizedText BadgeAlreadySent = new("You already sent this one.", "Na-send mo na 'to.");
     public static readonly LocalizedText BadgeTakePhoto = new("Take a photo and send", "Kunan ng photo at i-send");
@@ -766,6 +799,16 @@ public static class Copy
     public static readonly LocalizedText SelfieGuideLight = new("Good light: face a window or a lamp", "Maliwanag: humarap sa bintana o ilaw");
     public static readonly LocalizedText SelfieGuideClear = new("No sunglasses, cap or mask", "Walang shades, cap o mask");
     public static readonly LocalizedText SelfieNew = new("New selfie", "Bagong selfie");
+    public static readonly LocalizedText SelfieCameraHint = new("Put your face in the oval", "Ilagay ang mukha mo sa oval");
+    public static readonly LocalizedText SelfieCameraCentre = new("Move your face to the middle", "Igitna ang mukha mo");
+    public static readonly LocalizedText SelfieCameraCloser = new("Come a little closer", "Lumapit nang kaunti");
+    public static readonly LocalizedText SelfieCameraBack = new("Hold the phone a little farther", "Ilayo nang kaunti ang phone");
+    public static readonly LocalizedText SelfieCameraGood = new("Good! Tap the button", "Ayos! I-tap ang button");
+
+    /// <summary>The selfie camera's hint for each <see cref="SelfieFrame"/>, in that order.</summary>
+    public static readonly IReadOnlyList<LocalizedText> SelfieCameraHints =
+        [SelfieCameraHint, SelfieCameraCentre, SelfieCameraCloser, SelfieCameraBack, SelfieCameraGood];
+    public static readonly LocalizedText SelfieCameraShutter = new("Take the selfie", "Kunan ang selfie");
     public static readonly LocalizedText SelfieRejected = new("This selfie can't be used. Please take it again.", "Di pwede ang selfie na ito. Mag-selfie ulit.");
     public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Tap the button and your front camera opens.", "Mas nagtitiwala ang customer kapag may mukha. I-tap ang button para bumukas ang front camera mo.");
     public static readonly LocalizedText ProNumberWhy = new(

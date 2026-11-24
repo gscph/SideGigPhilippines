@@ -48,9 +48,9 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
 
     /// <summary>
     /// True when a new proof can be sent for this kind: always for a past project (each company is its own badge),
-    /// else only when nothing is waiting or approved.
+    /// else only when nothing is waiting or approved (a clearance whose "valid until" passed can be sent again).
     /// </summary>
-    public bool CanSend(BadgeKind kind) => kind == BadgeKind.Project || StateOf(kind) is BadgeState.None or BadgeState.Rejected;
+    public bool CanSend(BadgeKind kind) => kind == BadgeKind.Project || StateOf(kind) is BadgeState.None or BadgeState.Rejected or BadgeState.Expired;
 
     /// <summary>
     /// True for the badges whose proof is photographed now with the camera, never picked from the gallery (an old
@@ -125,7 +125,8 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
     {
         BadgeState.Approved => 0,
         BadgeState.Pending => 1,
-        BadgeState.Rejected => 2,
-        _ => 3,
+        BadgeState.Expired => 2,
+        BadgeState.Rejected => 3,
+        _ => 4,
     };
 }

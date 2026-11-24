@@ -5,9 +5,10 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Onboarding;
 
 /// <summary>
-/// How to take the selfie, shown before the camera opens (on Android the phone's own camera app takes it, and Tarbaho
-/// can't draw over it): a face in a dashed oval and three short tips (face in the middle, good light, nothing covering
-/// the face). On iPhone the same oval is also drawn over the live camera (<c>Platforms/iOS/IosPhotoPicker</c>).
+/// How to take the selfie, shown before the camera opens: a face in a dashed oval and three short tips (face in the
+/// middle, good light, nothing covering the face). The same oval is on the live camera on both phones
+/// (<c>Platforms/Android/SelfieCameraActivity</c>, <c>Platforms/iOS/IosSelfieCamera</c>), where it turns green once the
+/// face is in it.
 /// </summary>
 public partial class SelfieGuide : ComponentBase
 {

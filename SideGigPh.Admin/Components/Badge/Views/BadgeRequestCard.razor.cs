@@ -6,7 +6,8 @@ using SideGigPh.Contracts;
 namespace SideGigPh.Admin.Components.Badge.Views;
 
 /// <summary>
-/// One waiting request: profile photo beside the badge asked for, what the AI read, the proof photo only on a click
+/// One waiting request: profile photo beside the badge asked for, what the AI read (a clearance: its checklist, QR code
+/// and the "valid until" approving needs, <see cref="ClearanceChecklist"/>), the proof photo only on a click
 /// (each look is logged by the API), and Approve / Reject with a reason. Approve asks once more.
 /// </summary>
 public partial class BadgeRequestCard
@@ -20,6 +21,7 @@ public partial class BadgeRequestCard
     private string? _document;
     private string? _reason;
     private string? _code;
+    private DateOnly? _validUntil;
     private string? _error;
     private bool _busy;
 
@@ -62,7 +64,9 @@ public partial class BadgeRequestCard
             var sure = await Dialogs.ShowMessageBoxAsync(
                 approve ? "Approve this badge?" : "Reject this badge?",
                 approve
-                    ? "The badge shows on the worker's listing. The proof photo is deleted."
+                    ? _validUntil is { } until && BadgeService.NeedsValidUntil(Request)
+                        ? $"The badge shows on the worker's listing until {until:d MMM yyyy}. The proof photo is deleted."
+                        : "The badge shows on the worker's listing. The proof photo is deleted."
                     : "The worker sees your reason. The proof photo is deleted.",
                 yesText: approve ? "Approve" : "Reject", cancelText: "Cancel");
             if (sure != true)
@@ -70,7 +74,7 @@ public partial class BadgeRequestCard
                 return;
             }
 
-            await Badges.DecideAsync(Request, approve, _reason, _code);
+            await Badges.DecideAsync(Request, approve, _reason, _code, _validUntil);
             await OnDecided.InvokeAsync();
         }
         catch (AdminApiException ex)

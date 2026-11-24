@@ -3,9 +3,13 @@ using SideGigPh.Contracts;
 
 namespace SideGigPh.AzureSQL;
 
-/// <summary>What the AI read from an ID photo: a status from <see cref="ScanStatuses"/> and whichever fields it found.</summary>
+/// <summary>
+/// What was read from a proof photo: a status from <see cref="ScanStatuses"/> and whichever fields were found (an ID's
+/// name, number and expiry by AI, with its <paramref name="Confidence"/>; a clearance's QR code, <paramref name="Qr"/>, by the server itself).
+/// </summary>
 public sealed record IdScan(
-    string Status, string? DocumentType = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, double? Confidence = null)
+    string Status, string? DocumentType = null, string? Name = null, string? Number = null, DateOnly? Expiry = null, double? Confidence = null,
+    string? Qr = null)
 {
     public static readonly IdScan None = new(ScanStatuses.None);
     public static readonly IdScan Failed = new(ScanStatuses.Failed);
@@ -46,8 +50,12 @@ public enum SubmitOutcome
     AlreadySent,
 }
 
-/// <summary>The operator's decision as saved: the worker it was about and the file to delete now, or null when there was nothing to decide.</summary>
-public sealed record Decided(string Uid, string? DocumentBlob);
+/// <summary>
+/// The operator's decision as saved: the worker it was about and the file to delete now, or null when there was
+/// nothing to decide. <paramref name="ValidUntilNeeded"/>: nothing was saved, a clearance needs its "valid until" date
+/// (<see cref="ClearanceRules.IsValidUntilAllowed"/>) to be approved.
+/// </summary>
+public sealed record Decided(string Uid, string? DocumentBlob, bool ValidUntilNeeded = false);
 
 /// <summary>
 /// Worker verification (<c>WorkerVerifications</c>, <c>VerificationAudit</c>): a worker sends a proof with their
@@ -60,6 +68,9 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 {
     public const int MaxProjectName = 100;
     public const int MaxRejectReason = 200;
+
+    /// <summary>The most of a clearance's QR code kept for the operator.</summary>
+    public const int MaxQr = 1000;
 
     /// <summary>The most requests the operator's queue returns at once.</summary>
     public const int MaxQueue = 50;
@@ -82,9 +93,13 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
         var badgeId = submission.BadgeId ?? string.Empty;
         var company = submission.Company;
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
+
+        // A clearance whose "valid until" has passed no longer counts: the worker sends a new one.
         return await db.WorkerVerifications.AnyAsync(
             v => v.Uid == uid && v.Kind == submission.Kind && v.BadgeId == badgeId && v.CompanyName == company
-                && v.Status != VerificationStatuses.Rejected, cancellationToken)
+                && v.Status != VerificationStatuses.Rejected
+                && (v.Status == VerificationStatuses.Pending || v.ValidUntil == null || v.ValidUntil >= today), cancellationToken)
             ? SubmitOutcome.AlreadySent
             : null;
     }
@@ -113,6 +128,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             ScanConfidence = scan.Confidence,
             PhotoProblems = check.Stored,
             PhotoSharpness = check.Sharpness,
+            ScannedQr = StoreText.Limit(scan.Qr, MaxQr),
             ConsentAt = now,
             CreatedAt = now,
         };
@@ -170,6 +186,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             row.ScannedNumber = StoreText.Limit(scan.Number, 60);
             row.ScannedExpiry = scan.Expiry;
             row.ScanConfidence = scan.Confidence;
+            row.ScannedQr = StoreText.Limit(scan.Qr, MaxQr);
             row.PhotoProblems = check.Stored;
             row.PhotoSharpness = check.Sharpness;
             row.ConsentAt = now;
@@ -217,7 +234,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 v.Id, v.Uid, listing?.DisplayName ?? person?.DisplayName, photoId is null ? null : photoLinks.For(photoId),
                 v.Kind, v.BadgeId, v.ProjectName, v.ScanStatus, v.ScannedType, v.ScannedName, v.ScannedNumber, v.ScannedExpiry,
                 v.DocumentBlob is not null, v.CreatedAt, v.CompanyName.Length == 0 ? null : v.CompanyName,
-                ProofCheck.Parse(v.PhotoProblems), v.PhotoSharpness, v.ScanConfidence);
+                ProofCheck.Parse(v.PhotoProblems), v.PhotoSharpness, v.ScanConfidence, v.ScannedQr);
         })];
     }
 
@@ -241,7 +258,8 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>
     /// The operator approves or rejects a waiting request. The file's name and everything read from it are cleared in
     /// the same transaction (logged as "deleted"); the caller deletes the file named in the answer. Null when the
-    /// request doesn't exist or was already decided.
+    /// request doesn't exist or was already decided. Approving a clearance keeps the "valid until" the operator typed
+    /// (<see cref="ClearanceRules"/>); without an allowed one nothing is saved (<see cref="Decided.ValidUntilNeeded"/>).
     /// </summary>
     public async Task<Decided?> DecideAsync(long id, string adminUid, VerificationDecisionRequest decision, CancellationToken cancellationToken)
     {
@@ -261,7 +279,15 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                     .FirstOrDefaultAsync(ct);
             }
 
+            var isClearance = row.Kind == VerificationKinds.Clearance;
+            if (decision.Approve && isClearance
+                && (decision.ValidUntil is not { } until || !ClearanceRules.IsValidUntilAllowed(until, JobPostRules.PhilippineToday(now))))
+            {
+                return new Decided(row.Uid, null, ValidUntilNeeded: true);
+            }
+
             var blob = row.DocumentBlob;
+            row.ValidUntil = decision.Approve && isClearance ? decision.ValidUntil : null;
             row.Status = decision.Approve ? VerificationStatuses.Approved : VerificationStatuses.Rejected;
             row.RejectReason = decision.Approve ? null : StoreText.Limit(decision.Reason, MaxRejectReason);
             row.RejectCode = !decision.Approve && RejectCodes.All.Contains(decision.RejectCode ?? string.Empty) ? decision.RejectCode : null;
@@ -273,6 +299,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             row.ScannedNumber = null;
             row.ScannedExpiry = null;
             row.ScanConfidence = null;
+            row.ScannedQr = null;
             db.VerificationAudit.Add(Audit(id, adminUid, decision.Approve ? "approved" : "rejected", now));
             if (blob is not null)
             {
@@ -283,7 +310,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             return new Decided(row.Uid, blob);
         }, cancellationToken);
 
-        if (decided is not null && decision.Approve)
+        if (decided is { ValidUntilNeeded: false } && decision.Approve)
         {
             listings.Clear(); // search results carry the badges
         }
@@ -307,5 +334,5 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
     private static VerificationDto ToDto(WorkerVerificationRow v) =>
         new(v.Id, v.Kind, v.BadgeId, v.ProjectName, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason, v.CompanyName.Length == 0 ? null : v.CompanyName,
-            v.Status == VerificationStatuses.Pending ? ProofCheck.Parse(v.PhotoProblems) : null);
+            v.Status == VerificationStatuses.Pending ? ProofCheck.Parse(v.PhotoProblems) : null, v.ValidUntil);
 }

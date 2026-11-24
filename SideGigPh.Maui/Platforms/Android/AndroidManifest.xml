@@ -14,7 +14,9 @@
     <!-- Pro photos (MediaPicker). Android 13+ uses the system photo picker, which needs no
          permission; Android 12 and lower need storage read access to pick from the gallery. -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
-    <!-- The Skilled Worker's selfie in the setup after the interview (asked there, with the reason on screen). -->
+    <!-- The Skilled Worker's selfie, taken in Tarbaho's own front-camera screen (SelfieCameraActivity): asked when
+         "Take a selfie" is tapped, with the reason on screen, never at launch. -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <!-- "Use my location" (a worker's base, a post's place): only while the app is open, never in the background. -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -22,6 +24,9 @@
     <uses-feature android:name="android.hardware.location.gps" android:required="false" />
     <uses-feature android:name="android.hardware.location.network" android:required="false" />
     <uses-feature android:name="android.hardware.camera.any" android:required="false" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <!-- Android 11+ package visibility: lets MAUI PhoneDialer / Sms find the dialer and SMS apps
          (Seeker results "Call" / "Text"). Without these both report "not supported". -->
     <queries>
@@ -36,9 +41,6 @@
         <intent>
             <action android:name="android.intent.action.SENDTO" />
             <data android:scheme="smsto" />
-        </intent>
-        <intent>
-            <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
         <intent>
             <action android:name="android.intent.action.VIEW" />

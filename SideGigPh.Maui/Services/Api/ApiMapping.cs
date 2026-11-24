@@ -205,11 +205,21 @@ internal static partial class ApiMapping
                     ScanStatuses.Failed => BadgeScanResult.Failed,
                     _ => BadgeScanResult.None,
                 },
-                dto.ScannedType, dto.ScannedName, dto.ScannedNumber, dto.ScannedExpiry, dto.ScanConfidence),
+                dto.ScannedType, dto.ScannedName, dto.ScannedNumber, dto.ScannedExpiry, dto.ScanConfidence, ToClearanceQr(dto.ScannedQr)),
             dto.HasDocument,
             dto.CreatedAt,
             dto.PhotoProblems is null && dto.PhotoSharpness is null ? null : new PhotoCheck(ToProblems(dto.PhotoProblems), dto.PhotoSharpness))
         : null;
+
+    private static ClearanceQr? ToClearanceQr(string? qr) => string.IsNullOrWhiteSpace(qr) ? null : new ClearanceQr(
+        qr.Trim(),
+        ClearanceRules.IssuerOf(qr) switch
+        {
+            ClearanceIssuers.Nbi => ClearanceIssuer.Nbi,
+            ClearanceIssuers.Police => ClearanceIssuer.Police,
+            _ => null,
+        },
+        ClearanceRules.OfficialLink(qr)?.AbsoluteUri);
 
     /// <summary>One of the worker's own requests, or null for a kind this app version doesn't know yet.</summary>
     public static BadgeRequest? ToModel(this VerificationDto dto) => KindOf(dto.Kind) is { } kind
@@ -218,13 +228,15 @@ internal static partial class ApiMapping
             new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName),
             dto.Status switch
             {
+                VerificationStatuses.Approved when ClearanceRules.HasLapsed(dto.ValidUntil, JobPostRules.PhilippineToday(DateTimeOffset.UtcNow)) => BadgeState.Expired,
                 VerificationStatuses.Approved => BadgeState.Approved,
                 VerificationStatuses.Rejected => BadgeState.Rejected,
                 _ => BadgeState.Pending,
             },
             dto.RejectReason,
             dto.CreatedAt,
-            ToProblems(dto.PhotoProblems))
+            ToProblems(dto.PhotoProblems),
+            dto.ValidUntil)
         : null;
 
     /// <summary>The photo check's codes this app version knows (an unknown one is left out).</summary>

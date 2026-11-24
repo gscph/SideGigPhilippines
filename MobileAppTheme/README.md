@@ -128,7 +128,7 @@ the `mobile-app-theme` skill.
 7. **Platform permissions** for the device adapters you use:
    - `IContactLauncher` on Android 11+: `<queries>` with `<intent><action android:name="android.intent.action.DIAL" /><data android:scheme="tel" /></intent>` and the `SENDTO` / `smsto` equivalent in `AndroidManifest.xml`.
    - `IDeviceLocation`: `ACCESS_FINE_LOCATION` + `ACCESS_COARSE_LOCATION` (with the location `uses-feature`s not required) and iOS `NSLocationWhenInUseUsageDescription`.
-   - `IPhotoPicker`: `READ_EXTERNAL_STORAGE` with `android:maxSdkVersion="32"` (Android 13+ needs none) and iOS `NSPhotoLibraryUsageDescription`; for `TakeSelfieAsync` the `android.media.action.IMAGE_CAPTURE` query (and `CAMERA` only if the app uses MAUI's camera call; an app that starts the camera app itself, like SideGigPh, should leave `CAMERA` out: an "Only this time" grant gets the app closed while the camera is open), and iOS `NSCameraUsageDescription`.
+   - `IPhotoPicker`: `READ_EXTERNAL_STORAGE` with `android:maxSdkVersion="32"` (Android 13+ needs none) and iOS `NSPhotoLibraryUsageDescription`; for the default `TakeSelfieAsync` (MAUI's camera call) `CAMERA` and the `android.media.action.IMAGE_CAPTURE` query (an app with its own in-app camera screen, like SideGigPh's `SelfieCameraActivity`, needs only `CAMERA`; an app that hands off to the phone's camera app must not declare `CAMERA` unless it asks for it first, and loses the photo if an "Only this time" grant ends while the camera app is open), and iOS `NSCameraUsageDescription`.
 
 8. **Sign-in (optional).** Without a provider the app runs and `/verify` says sign-in isn't available.
    For Firebase: reference `..\MobileAppTheme.Firebase\MobileAppTheme.Firebase.csproj`, call

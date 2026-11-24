@@ -47,18 +47,26 @@ public partial class BadgesPage : ComponentBase, IDisposable
             ? Sent(request) with { Title = request.State == BadgeState.Approved ? T.Badge(request.Badge) : T.Get(title) }
             : new Row(BadgeIcons.Of(kind), T.Get(title), T.Get(hint), BadgeState.None, ProRoutes.BadgeProof(kind));
 
-    /// <summary>A request already sent. Only a rejected one of a badge held once can be sent again from its own line.</summary>
+    /// <summary>
+    /// A request already sent. Only a rejected or expired one of a badge held once can be sent again from its own line;
+    /// an approved clearance says until when it shows.
+    /// </summary>
     private Row Sent(BadgeRequest request) => new(
         BadgeIcons.Of(request.Badge.Kind),
         T.Badge(request.Badge),
         request.State switch
         {
+            BadgeState.Approved when request.ValidUntil is { } until => T.Format(Copy.BadgeValidUntilNote, BadgeDate(until)),
             BadgeState.Approved => T.BadgeNote(request.Badge),
+            BadgeState.Expired => T.Format(Copy.BadgeExpiredNote, BadgeDate(request.ValidUntil)),
             BadgeState.Rejected => string.IsNullOrWhiteSpace(request.RejectReason)
                 ? T.Get(Copy.BadgeRejectedNoReason)
                 : T.Format(Copy.BadgeRejectedNote, request.RejectReason.Trim().TrimEnd('.')),
             _ => T.Get(Copy.BadgePendingNote),
         },
         request.State,
-        request.State == BadgeState.Rejected && request.Badge.Kind != BadgeKind.Project ? ProRoutes.BadgeProof(request.Badge.Kind) : null);
+        request.State is BadgeState.Rejected or BadgeState.Expired && request.Badge.Kind != BadgeKind.Project ? ProRoutes.BadgeProof(request.Badge.Kind) : null);
+
+    /// <summary>A clearance's last day as people write it ("3 Mar 2027"), the same in both languages.</summary>
+    private static string BadgeDate(DateOnly? day) => day?.ToString("d MMM yyyy", System.Globalization.CultureInfo.InvariantCulture) ?? string.Empty;
 }

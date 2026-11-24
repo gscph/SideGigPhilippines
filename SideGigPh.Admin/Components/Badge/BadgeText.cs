@@ -54,11 +54,30 @@ public static class BadgeText
         (RejectCodes.Other, "Other"),
     ];
 
-    public static string Scan(AdminVerificationDto request) => request.ScanStatus switch
+    public static string Scan(AdminVerificationDto request) => request.Kind == VerificationKinds.Clearance ? "" : request.ScanStatus switch
     {
         ScanStatuses.Read => "AI read the ID (only a help: check by eye)",
         ScanStatuses.Unreadable => "AI couldn't read any ID fields",
         ScanStatuses.Failed => "AI reader didn't answer",
         _ => "",
     };
+
+    /// <summary>What to check on an NBI or police clearance before approving it.</summary>
+    public static readonly IReadOnlyList<string> ClearanceChecklist =
+    [
+        "The name matches the listing and the photo matches the profile photo.",
+        "The remarks say \"No record\" (no criminal record).",
+        "Recent: NBI issued less than 1 year ago, police clearance less than 6 months ago.",
+        "Not edited: open the QR link and check the same name and number show.",
+    ];
+
+    /// <summary>What the server's read of the clearance's QR code says (only a hint: a QR can be copied onto a fake paper).</summary>
+    public static string ClearanceQr(string? qr) => string.IsNullOrWhiteSpace(qr)
+        ? "No QR code was read. Check the paper closely, or ask for a clearer photo."
+        : ClearanceRules.IssuerOf(qr) switch
+        {
+            ClearanceIssuers.Nbi => "The QR code points to the NBI's website.",
+            ClearanceIssuers.Police => "The QR code points to the PNP's clearance website.",
+            _ => "The QR code doesn't point to an NBI or PNP website. Be careful: it may be fake.",
+        };
 }

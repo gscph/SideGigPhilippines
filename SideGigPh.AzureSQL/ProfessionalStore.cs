@@ -310,10 +310,12 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 .GroupBy(r => r.ProfessionalId)
                 .Select(g => new { g.Key, Average = g.Average(r => (double)r.Rating), Count = g.Count() })
                 .ToDictionaryAsync(g => g.Key, g => new ReviewSummaryDto(g.Average, g.Count), cancellationToken);
+        var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
         var badges = ids.Count == 0
             ? []
             : (await db.WorkerVerifications.AsNoTracking()
-                .Where(v => ids.Contains(v.Uid) && v.Status == VerificationStatuses.Approved)
+                // A clearance shows until its "valid until" (ClearanceRules.HasLapsed); every other badge has none.
+                .Where(v => ids.Contains(v.Uid) && v.Status == VerificationStatuses.Approved && (v.ValidUntil == null || v.ValidUntil >= today))
                 .OrderBy(v => v.DecidedAt)
                 .Select(v => new { v.Uid, v.Kind, v.BadgeId, v.ProjectName, v.CompanyName })
                 .ToListAsync(cancellationToken))

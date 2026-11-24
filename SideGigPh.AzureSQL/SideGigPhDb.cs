@@ -369,6 +369,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             verification.Property(v => v.ScannedType).HasMaxLength(60);
             verification.Property(v => v.ScannedName).HasMaxLength(120).IsUnicode();
             verification.Property(v => v.ScannedNumber).HasMaxLength(60).IsUnicode();
+            verification.Property(v => v.ScannedQr).HasMaxLength(1000).IsUnicode();
             verification.Property(v => v.DecidedBy).HasMaxLength(128);
             verification.Property(v => v.RejectReason).HasMaxLength(200).IsUnicode();
             verification.Property(v => v.RejectCode).HasMaxLength(30);

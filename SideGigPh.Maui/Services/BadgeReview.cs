@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services;
@@ -7,6 +8,8 @@ namespace SideGigPh.Maui.Services;
 /// The operator's badge review: whether this account may see it, the requests waiting (oldest first), each proof
 /// photo on demand, and the decision. A person always decides, comparing the worker's profile photo with the ID by
 /// eye (no face matching); what the AI read is only a help. A rejection needs a short reason, which the worker sees.
+/// Approving a clearance needs its "valid until" date, read off the paper (<see cref="ClearanceRules"/>): the badge
+/// lapses after it.
 /// </summary>
 public sealed class BadgeReview(IBadgeReviewRepository repository, ILogger<BadgeReview> logger)
 {
@@ -56,20 +59,32 @@ public sealed class BadgeReview(IBadgeReviewRepository repository, ILogger<Badge
     /// <summary>A rejection needs a reason, so the worker knows what to send next time.</summary>
     public static bool CanReject(string? reason) => CleanReason(reason) is not null;
 
+    /// <summary>True when approving <paramref name="request"/> needs a "valid until" date: a clearance.</summary>
+    public static bool NeedsValidUntil(PendingBadge request) => request.Badge.Kind == BadgeKind.Clearance;
+
     /// <summary>
-    /// Sends the decision and takes the request off the list. False when it didn't go through (it stays). A rejection's
-    /// <paramref name="code"/> (blurry, glare, cut off…) is counted to see what goes wrong most; the worker reads only the reason.
+    /// True when <paramref name="request"/> may be approved with <paramref name="validUntil"/>: any badge but a
+    /// clearance, or a clearance with a date from today (Philippine time) to a year ahead.
     /// </summary>
-    public async Task<bool> DecideAsync(PendingBadge request, bool approve, string? reason, RejectCode? code = null)
+    public static bool CanApprove(PendingBadge request, DateOnly? validUntil, DateOnly today) =>
+        !NeedsValidUntil(request) || (validUntil is { } until && ClearanceRules.IsValidUntilAllowed(until, today));
+
+    /// <summary>
+    /// Sends the decision and takes the request off the list. False when it didn't go through (it stays), or when a
+    /// rejection has no reason or a clearance's approval no allowed "valid until". A rejection's <paramref name="code"/>
+    /// (blurry, glare, cut off…) is counted to see what goes wrong most; the worker reads only the reason.
+    /// </summary>
+    public async Task<bool> DecideAsync(PendingBadge request, bool approve, string? reason, RejectCode? code = null, DateOnly? validUntil = null)
     {
-        if (!approve && !CanReject(reason))
+        if (approve ? !CanApprove(request, validUntil, JobPostRules.PhilippineToday(DateTimeOffset.UtcNow)) : !CanReject(reason))
         {
             return false;
         }
 
         try
         {
-            await repository.DecideAsync(request.Id, approve, approve ? null : CleanReason(reason), approve ? null : code);
+            await repository.DecideAsync(
+                request.Id, approve, approve ? null : CleanReason(reason), approve ? null : code, approve && NeedsValidUntil(request) ? validUntil : null);
             _pending.RemoveAll(item => item.Id == request.Id);
             return true;
         }

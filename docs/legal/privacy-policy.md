@@ -20,7 +20,9 @@
   tawag o text app ng phone mo.
 - **Kung gusto mo ng badge** (ID, NBI o police clearance, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
   photo, tao sa Tarbaho lang ang titingin, at **buburahin pagkatapos i-check**. Ang ID ay binabasa ng AI (pangalan,
-  ID number, expiry) para tulungan ang nagche-check. Hindi ito ipinapakita sa customer.
+  ID number, expiry) para tulungan ang nagche-check. Sa clearance, binabasa ng server namin ang QR code nito (walang
+  AI), at ang "valid until" lang ang tinatago namin: mawawala ang badge pagkalipas ng date na 'yon. Hindi ito
+  ipinapakita sa customer.
 - **Hindi namin binebenta ang data mo.** Walang ads.
 - **Pwede mong burahin lahat:** Me → Delete account. O mag-email sa jcadiao1102@gmail.com.
 
@@ -128,10 +130,13 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
   expiry date** from the photo, only to help the person at Tarbaho who checks it. The AI does not decide anything.
   A person compares the ID with your profile photo and approves or declines. We do **not** take a selfie for
   matching and do **not** use face recognition.
-- **NBI or police clearance:** checked by a person at Tarbaho only. No AI reads it. A clearance can show
-  information about offences, which the law treats as sensitive: we use it only to decide the badge. We approve a
-  genuine clearance in your name that is recent (NBI under 1 year, police under 6 months) and shows no record. If
-  we decline one, only you see the reason, and we never show or keep what was on it.
+- **NBI or police clearance:** checked by a person at Tarbaho. No AI reads it. Our own server reads the **QR code**
+  printed on it (nothing is sent to another company), only to show the checker whether it points to the NBI's or
+  PNP's website, so they can open it and compare. A clearance can show information about offences, which the law
+  treats as sensitive: we use it only to decide the badge. We approve a genuine clearance in your name that is
+  recent (NBI under 1 year, police under 6 months) and shows no record. The checker types its **"valid until" date**,
+  and that date is the one thing we keep from it: the badge shows until then, and you can send a new clearance
+  after. If we decline one, only you see the reason, and we never show or keep what was on it.
 - **TESDA certificate, proof of a past project:** checked by a person at Tarbaho only. No AI reads them.
 - **Photo check:** an ID or a clearance is photographed with your camera at that moment (not picked from your
   gallery). When any proof arrives, our server measures only how sharp and how bright the photo is (no AI, nothing
@@ -141,7 +146,8 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
 - The photo is kept in **private storage** (not at a web address), can be opened only by our authorised checkers,
   and **every time one is opened it is logged**.
 - When the check is done (normally within 2 days), the **photo and everything read from it are deleted**. We keep
-  only the result: which badge you hold, the company and building you named, and when it was decided.
+  only the result: which badge you hold, the company and building you named, a clearance's "valid until" date, and
+  when it was decided.
 - Customers never see the photo, your ID number or anything read from it. They see only the badge.
 
 ### 3.6 The Early Access list on tarbaho.com
@@ -285,7 +291,7 @@ kept without anything linking them to you.
 
 | Permission | When | Why | If you say no |
 |---|---|---|---|
-| **Camera** (iPhone; on Android your camera app takes the photo, so no permission is asked) | Skilled Worker setup, when you take your selfie | Take your profile photo | Pick a photo from your gallery instead |
+| **Camera** | Skilled Worker setup and the Me page, when you take your selfie | Take your profile photo with the front camera. While the camera is open, the app checks on your phone that a face is inside the oval before the button works; nothing from that check is saved or sent | You can't take the selfie, so you can't publish a listing until you allow it |
 | **Photos / storage** (older Android only) | When you add photos | Choose work photos | You can't add photos from the gallery |
 | **Location** (approximate and precise) | Only when you tap **Use my location**, **Send my location** or **Show how far I am**, while the App is open; never in the background | Set a Skilled Worker's base point or the place of a post; send your exact place to the Skilled Worker you picked; show a Skilled Worker how far that place is | We use the middle of your town instead; the Skilled Worker asks for directions in the chat |
 | **Notifications** | After you publish a listing or send your first message, never at first launch | Tell you about new messages | You won't be alerted; messages still arrive in the Inbox |

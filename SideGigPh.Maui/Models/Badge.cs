@@ -37,14 +37,19 @@ public enum BadgeState
 
     /// <summary>Not accepted; the worker can send a better photo.</summary>
     Rejected,
+
+    /// <summary>An approved clearance whose "valid until" has passed: it no longer shows; the worker can send a new one.</summary>
+    Expired,
 }
 
 /// <summary>
 /// One proof the worker sent and how it stands. <paramref name="RejectReason"/> is what the checker wrote, when
-/// rejected; <paramref name="PhotoProblems"/> what the server's photo check found while it waits (only advice).
+/// rejected; <paramref name="PhotoProblems"/> what the server's photo check found while it waits (only advice);
+/// <paramref name="ValidUntil"/> is an approved clearance's last day (the checker read it off the paper).
 /// </summary>
 public sealed record BadgeRequest(
-    long Id, Badge Badge, BadgeState State, string? RejectReason, DateTimeOffset SentAt, IReadOnlyList<ProofProblem>? PhotoProblems = null);
+    long Id, Badge Badge, BadgeState State, string? RejectReason, DateTimeOffset SentAt, IReadOnlyList<ProofProblem>? PhotoProblems = null,
+    DateOnly? ValidUntil = null);
 
 /// <summary>What the server's photo check found on a proof: only advice, the worker may take it again or send it as it is.</summary>
 public enum ProofProblem
