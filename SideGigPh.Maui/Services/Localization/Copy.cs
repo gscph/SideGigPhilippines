@@ -734,6 +734,8 @@ public static class Copy
     public static readonly LocalizedText SelfieGuideLight = new("Good light: face a window or a lamp", "Maliwanag: humarap sa bintana o ilaw");
     public static readonly LocalizedText SelfieGuideClear = new("No sunglasses, cap or mask", "Walang shades, cap o mask");
     public static readonly LocalizedText SelfieNew = new("New selfie", "Bagong selfie");
+    public static readonly LocalizedText SelfieCameraHint = new("Put your face in the oval", "Ilagay ang mukha mo sa oval");
+    public static readonly LocalizedText SelfieCameraShutter = new("Take the selfie", "Kunan ang selfie");
     public static readonly LocalizedText SelfieRejected = new("This selfie can't be used. Please take it again.", "Di pwede ang selfie na ito. Mag-selfie ulit.");
     public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Tap the button and your front camera opens.", "Mas nagtitiwala ang customer kapag may mukha. I-tap ang button para bumukas ang front camera mo.");
     public static readonly LocalizedText ProNumberWhy = new(

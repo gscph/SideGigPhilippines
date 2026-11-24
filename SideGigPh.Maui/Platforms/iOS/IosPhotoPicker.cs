@@ -2,7 +2,9 @@ using CoreAnimation;
 using CoreGraphics;
 using Foundation;
 using Microsoft.Extensions.Logging;
+using MobileAppTheme.Localization;
 using MobileAppTheme.Services.Local;
+using SideGigPh.Maui.Services.Localization;
 using UIKit;
 
 namespace SideGigPh.Maui.Platforms.iOS;
@@ -11,12 +13,13 @@ namespace SideGigPh.Maui.Platforms.iOS;
 /// The skeleton's <see cref="DevicePhotoPicker"/> with a selfie that opens on the front camera. MAUI's camera call can't
 /// choose the lens, so this opens iOS's own camera screen (<see cref="UIImagePickerController"/>) on
 /// <see cref="UIImagePickerControllerCameraDevice.Front"/> after the camera permission (<c>NSCameraUsageDescription</c>).
-/// A dashed oval over the live camera shows where the face goes (<c>FaceGuide</c>). The photo is made small here, like on Android: drawn upright (the camera's orientation applied), in sRGB, at most
+/// iOS's own camera buttons are hidden, so the person can't switch to the back lens: our overlay (<c>FaceGuide</c>) has a
+/// dashed oval where the face goes, a hint, one shutter button and Cancel. The photo is made small here, like on Android: drawn upright (the camera's orientation applied), in sRGB, at most
 /// <see cref="MaxSide"/> pixels on the long side, JPEG quality 0.82, with no metadata (a redrawn image carries no EXIF
 /// or location). The server checks it and stores it as sent (<c>POST photos/selfie</c>). The gallery stays the
 /// skeleton's.
 /// </summary>
-public sealed class IosPhotoPicker(DevicePhotoPicker device, ILogger<IosPhotoPicker> logger) : IPhotoPicker
+public sealed class IosPhotoPicker(DevicePhotoPicker device, AppText text, ILogger<IosPhotoPicker> logger) : IPhotoPicker
 {
     private const double MaxSide = 1280;
     private const float JpegQuality = 0.82f;
@@ -55,7 +58,7 @@ public sealed class IosPhotoPicker(DevicePhotoPicker device, ILogger<IosPhotoPic
     }
 
     // Shows the camera over the app on the front lens; null when the person closed it without a photo.
-    private static Task<UIImage?> OpenFrontCameraAsync()
+    private Task<UIImage?> OpenFrontCameraAsync()
     {
         if (!UIImagePickerController.IsSourceTypeAvailable(UIImagePickerControllerSourceType.Camera))
         {
@@ -72,12 +75,19 @@ public sealed class IosPhotoPicker(DevicePhotoPicker device, ILogger<IosPhotoPic
             // Full screen, so it can't be swiped away without Cancel (which would leave the selfie button waiting).
             ModalPresentationStyle = UIModalPresentationStyle.FullScreen,
         };
-        if (UIImagePickerController.IsCameraDeviceAvailable(UIImagePickerControllerCameraDevice.Front))
+        if (!UIImagePickerController.IsCameraDeviceAvailable(UIImagePickerControllerCameraDevice.Front))
         {
-            camera.CameraDevice = UIImagePickerControllerCameraDevice.Front;
+            throw new InvalidOperationException("This phone has no front camera.");
         }
 
-        camera.CameraOverlayView = FaceGuide(parent.View?.Window?.Bounds ?? UIScreen.MainScreen.Bounds);
+        camera.CameraDevice = UIImagePickerControllerCameraDevice.Front;
+        // No iOS buttons: they include the switch to the back lens. Our overlay takes the photo or cancels.
+        camera.ShowsCameraControls = false;
+        var bounds = parent.View?.Window?.Bounds ?? UIScreen.MainScreen.Bounds;
+        // The live picture is 4:3 at the top of the screen; moved down to the middle, under the oval.
+        double previewHeight = bounds.Width * 4 / 3;
+        camera.CameraViewTransform = CGAffineTransform.MakeTranslation(0, (System.Runtime.InteropServices.NFloat)Math.Max(0, (bounds.Height - previewHeight) / 2));
+        camera.CameraOverlayView = FaceGuide(bounds, previewHeight, camera, done);
 
         camera.FinishedPickingMedia += (_, e) =>
         {
@@ -89,17 +99,17 @@ public sealed class IosPhotoPicker(DevicePhotoPicker device, ILogger<IosPhotoPic
         return done.Task;
     }
 
-    // The selfie guide over the live camera: a dashed white oval where the face goes (the same oval as the app's own
-    // guide picture, SelfieGuide). It only draws; taps go through to the camera's buttons.
-    private static UIView FaceGuide(CGRect bounds)
+    // The selfie screen over the live camera: a dashed white oval where the face goes (the same oval as the app's own
+    // guide picture, SelfieGuide, and Android's SelfieCameraActivity), a hint, the shutter and Cancel.
+    private UIView FaceGuide(CGRect bounds, double previewHeight, UIImagePickerController camera, TaskCompletionSource<UIImage?> done)
     {
         double screenWidth = bounds.Width;
         double screenHeight = bounds.Height;
         var width = screenWidth * 0.62;
         var height = width * 1.3;
-        var oval = new CGRect((screenWidth - width) / 2, screenHeight * 0.42 - height / 2, width, height);
+        var oval = new CGRect((screenWidth - width) / 2, screenHeight / 2 + previewHeight * -0.04 - height / 2, width, height);
 
-        var view = new UIView(bounds) { UserInteractionEnabled = false, BackgroundColor = UIColor.Clear };
+        var view = new UIView(bounds) { BackgroundColor = UIColor.Clear };
         view.Layer.AddSublayer(new CAShapeLayer
         {
             Path = UIBezierPath.FromOval(oval).CGPath,
@@ -108,6 +118,41 @@ public sealed class IosPhotoPicker(DevicePhotoPicker device, ILogger<IosPhotoPic
             LineWidth = 3,
             LineDashPattern = [new NSNumber(10), new NSNumber(8)],
         });
+
+        var hint = new UILabel(new CGRect(16, 64, screenWidth - 32, 32))
+        {
+            Text = text.Get(Copy.SelfieCameraHint),
+            TextColor = UIColor.White,
+            TextAlignment = UITextAlignment.Center,
+            Font = UIFont.BoldSystemFontOfSize(20),
+            ShadowColor = UIColor.Black,
+            ShadowOffset = new CGSize(0, 1),
+        };
+        view.AddSubview(hint);
+
+        const double shutterSize = 76;
+        var shutter = new UIButton(new CGRect((screenWidth - shutterSize) / 2, screenHeight - shutterSize - 48, shutterSize, shutterSize))
+        {
+            BackgroundColor = UIColor.White,
+            AccessibilityLabel = text.Get(Copy.SelfieCameraShutter),
+        };
+        shutter.Layer.CornerRadius = (System.Runtime.InteropServices.NFloat)(shutterSize / 2);
+        shutter.Layer.BorderWidth = 5;
+        shutter.Layer.BorderColor = UIColor.LightGray.CGColor;
+        shutter.TouchUpInside += (_, _) =>
+        {
+            shutter.Enabled = false;
+            camera.TakePicture();
+        };
+        view.AddSubview(shutter);
+
+        var cancel = new UIButton(UIButtonType.System) { Frame = new CGRect(8, screenHeight - shutterSize - 48, 140, shutterSize) };
+        cancel.SetTitle(text.Get(CommonCopy.Cancel), UIControlState.Normal);
+        cancel.SetTitleColor(UIColor.White, UIControlState.Normal);
+        cancel.TitleLabel!.Font = UIFont.SystemFontOfSize(18);
+        cancel.HorizontalAlignment = UIControlContentHorizontalAlignment.Left;
+        cancel.TouchUpInside += (_, _) => camera.DismissViewController(true, () => done.TrySetResult(null));
+        view.AddSubview(cancel);
         return view;
     }
 

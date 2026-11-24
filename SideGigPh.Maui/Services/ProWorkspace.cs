@@ -297,7 +297,14 @@ public sealed class ProWorkspace(
         Draft.TakeAccount(await identity.GetCurrentUserAsync());
 
         var result = await PublishOrCheckAsync();
-        if (result == PublishResult.Published)
+        if (result == PublishResult.SelfieNeeded)
+        {
+            // The photo isn't a selfie the server knows (an old gallery photo on a listing that came down): dropped, so the
+            // selfie step asks for a new one instead of offering Next back to the same refusal.
+            Draft.ProfilePhotoId = null;
+            await SaveAsync();
+        }
+        else if (result == PublishResult.Published)
         {
             Draft.PublishedAt ??= DateTimeOffset.Now;
             Draft.ListingOutOfDate = false;

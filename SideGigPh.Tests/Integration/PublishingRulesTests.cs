@@ -194,6 +194,7 @@ public class PublishingRulesTests(ApiTestHost api)
 
         worker.Pro.Draft.ProfilePhotoId = worker.Pro.Draft.WorkPhotoIds[0];
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.SelfieNeeded);
+        worker.Pro.Draft.HasProfilePhoto.Should().BeFalse("the selfie step must ask for a new selfie, not offer Next back to the refusal");
     }
 
     [IntegrationFact]
