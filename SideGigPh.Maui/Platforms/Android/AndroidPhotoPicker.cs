@@ -15,7 +15,8 @@ namespace SideGigPh.Maui.Platforms.Android;
 /// The skeleton's <see cref="DevicePhotoPicker"/> with a selfie that opens on the front camera. MAUI's camera call can't
 /// choose the lens, so this starts the phone's camera app itself with the front-camera hints most camera apps (Samsung's
 /// included) read; one that ignores them opens its last-used lens and the person flips it. The photo comes back upright,
-/// at most <see cref="SelfieMaxSide"/> pixels, as a JPEG, like a picked one. Needs <c>MainActivity.OnActivityResult</c> to call
+/// at most <see cref="SelfieMaxSide"/> pixels, JPEG quality 82 with no metadata (a compressed bitmap carries no EXIF or
+/// location): the server checks it and stores it as sent (<c>POST photos/selfie</c>), never resized. Needs <c>MainActivity.OnActivityResult</c> to call
 /// <see cref="HandleActivityResult"/> and the IMAGE_CAPTURE query in the manifest; the file goes through MAUI's own file
 /// provider (its cache path).
 /// <para>
@@ -40,7 +41,7 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
     public const int SelfieRequestCode = 4711;
 
     private const int SelfieMaxSide = 1280;
-    private const int SelfieJpegQuality = 80;
+    private const int SelfieJpegQuality = 82;
 
     private static TaskCompletionSource<bool>? _pending;
 

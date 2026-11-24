@@ -87,7 +87,7 @@ public class LiveListingEditTests
         app.Profiles.PublishThrows = new HttpRequestException("Socket closed");
         app.Picker.Picks(50);
 
-        await app.Pro.ChangeProfilePhotoAsync();
+        await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(50));
         app.Store.State.Professional.ListingOutOfDate.Should().BeTrue();

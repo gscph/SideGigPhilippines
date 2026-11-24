@@ -8,12 +8,15 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using SideGigPh.Contracts;
+using SideGigPh.Contracts.Photos;
 
 namespace SideGigPh.Api;
 
 /// <summary>
 /// Work photos and profile photos, stored in Azure Blob Storage as photos/{id}.jpg. Every upload is a new blob with a
 /// random id (64 hex characters), so the same picture sent twice, or by two accounts, is simply two photos.
+/// <c>POST photos</c> (work photos, post photos, a household's photo) re-encodes every upload (<see cref="PhotoImage"/>);
+/// <c>POST photos/selfie</c> (a worker's profile photo, made small on the phone) is only checked (<see cref="SelfieJpeg"/>).
 /// Anyone can view a photo by its URL (the id is unguessable); only the account that uploaded it deletes it.
 /// </summary>
 public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseTokenValidator auth, CallerLimits limits)
@@ -23,6 +26,10 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
     // What may be sent: an iPhone HEIC or a PNG screenshot can be several MB before it's converted.
     private const int MaxBytes = 10 * 1024 * 1024;
     private const string OwnerKey = "owner";
+
+    // Blob metadata marking a photo that came through POST photos/selfie (a worker's profile photo must be one).
+    private const string KindKey = "kind";
+    private const string SelfieKind = "selfie";
 
     // Set once the container is known to exist, so later uploads in this process skip the check.
     private static volatile bool containerReady;
@@ -71,6 +78,47 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             return new BadRequestObjectResult(new { error = "broken-image" });
         }
 
+        return await StoreAsync(bytes, uid, cancellationToken);
+    }
+
+    /// <summary>
+    /// A worker's selfie, their profile photo. The phone already made it small (<see cref="SelfieJpeg"/>), so it is
+    /// checked and stored as sent, with its metadata taken out, never resized or re-encoded. Refused with
+    /// <see cref="ApiErrors.SelfieNotJpeg"/> (415), <see cref="ApiErrors.SelfieTooBig"/> (413) or
+    /// <see cref="ApiErrors.SelfieBroken"/> (400), which the app shows as a photo it can't use.
+    /// </summary>
+    [Function("UploadSelfie")]
+    public async Task<IActionResult> UploadSelfie(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "photos/selfie")] HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var uid = await auth.GetUidAsync(request, cancellationToken);
+        if (uid is null)
+        {
+            return new UnauthorizedResult();
+        }
+
+        if (!limits.TryTake(Limited.PhotoUpload, uid))
+        {
+            return ApiResults.TooMany();
+        }
+
+        var bytes = await ReadAtMostAsync(request.Body, SelfieJpegRules.MaxBytes + 1, cancellationToken);
+        var check = SelfieJpeg.Check(bytes);
+        return check.Verdict switch
+        {
+            SelfieVerdict.Ok => await StoreAsync(check.Jpeg!, uid, cancellationToken, selfie: true),
+            SelfieVerdict.NotJpeg => Refused(StatusCodes.Status415UnsupportedMediaType, ApiErrors.SelfieNotJpeg),
+            SelfieVerdict.TooBig => Refused(StatusCodes.Status413PayloadTooLarge, ApiErrors.SelfieTooBig),
+            _ => Refused(StatusCodes.Status400BadRequest, ApiErrors.SelfieBroken),
+        };
+    }
+
+    private static ObjectResult Refused(int status, string error) => new(new ApiError(error)) { StatusCode = status };
+
+    /// <summary>Stores the finished JPEG as a new blob with a random id, owned by <paramref name="uid"/>.</summary>
+    private async Task<IActionResult> StoreAsync(byte[] bytes, string uid, CancellationToken cancellationToken, bool selfie = false)
+    {
         await EnsureContainerAsync(cancellationToken);
 
         var id = Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(32));
@@ -83,7 +131,9 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
                 // An id is never reused, so phones can cache it for good.
                 CacheControl = "public, max-age=31536000, immutable",
             },
-            Metadata = new Dictionary<string, string> { [OwnerKey] = uid },
+            Metadata = selfie
+                ? new Dictionary<string, string> { [OwnerKey] = uid, [KindKey] = SelfieKind }
+                : new Dictionary<string, string> { [OwnerKey] = uid },
             Conditions = new BlobRequestConditions { IfNoneMatch = ETag.All },
         }, cancellationToken);
 
@@ -133,6 +183,26 @@ public sealed partial class PhotoFunctions(BlobContainerClient photos, FirebaseT
             {
                 await blob.DeleteIfExistsAsync(cancellationToken: cancellationToken);
             }
+        }
+    }
+
+    /// <summary>True when <paramref name="id"/> is a selfie <paramref name="uid"/> uploaded (<c>POST photos/selfie</c>).</summary>
+    internal static async Task<bool> IsSelfieOfAsync(BlobContainerClient photos, string uid, string id, CancellationToken cancellationToken)
+    {
+        if (!PhotoId().IsMatch(id))
+        {
+            return false;
+        }
+
+        try
+        {
+            var metadata = (await photos.GetBlobClient($"{id}.jpg").GetPropertiesAsync(cancellationToken: cancellationToken)).Value.Metadata;
+            return metadata.TryGetValue(OwnerKey, out var owner) && owner == uid
+                && metadata.TryGetValue(KindKey, out var kind) && kind == SelfieKind;
+        }
+        catch (RequestFailedException e) when (e.Status == StatusCodes.Status404NotFound)
+        {
+            return false;
         }
     }
 

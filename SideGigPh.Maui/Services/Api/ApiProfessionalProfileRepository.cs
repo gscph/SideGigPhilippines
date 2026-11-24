@@ -100,6 +100,11 @@ public sealed class ApiProfessionalProfileRepository(ApiClient api) : IProfessio
             }
         }
 
+        if (response.StatusCode == HttpStatusCode.BadRequest && await ErrorOf(response) == ApiErrors.SelfieRequired)
+        {
+            return PublishResult.SelfieNeeded;
+        }
+
         if (response.StatusCode == HttpStatusCode.TooManyRequests)
         {
             return PublishResult.TooManyTries;

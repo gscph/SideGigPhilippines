@@ -195,13 +195,11 @@ public sealed class ProWorkspace(
         }
     }
 
-    /// <summary>Lets the pro pick their own photo; it replaces the old one.</summary>
-    public async Task<PhotoAddResult> ChangeProfilePhotoAsync() => await SetProfilePhotoAsync(await picker.PickAsync(1));
-
     /// <summary>
-    /// Saves a photo the page already got (a selfie: <see cref="IPhotoPicker.TakeSelfieAsync"/>) as the pro's own; it
-    /// replaces the old one. Split from taking it so the loading screen covers only the upload, not the camera and its
-    /// permission prompt.
+    /// Saves a selfie the page already took (<see cref="IPhotoPicker.TakeSelfieAsync"/>, made small on the phone) as the
+    /// pro's own; it replaces the old one. A worker's own photo is always a selfie, never one picked from the gallery. It goes up as a selfie (<see cref="IPhotoStore.SaveSelfieAsync"/>: the server
+    /// checks it instead of re-encoding it). Split from taking it so the loading screen covers only the upload, not the
+    /// camera and its permission prompt.
     /// </summary>
     public async Task<PhotoAddResult> SetProfilePhotoAsync(PhotoPick pick)
     {
@@ -213,7 +211,7 @@ public sealed class ProWorkspace(
         var oldId = Draft.ProfilePhotoId;
         try
         {
-            Draft.ProfilePhotoId = await StoreAsync(pick.Photos[0]);
+            Draft.ProfilePhotoId = await StoreAsync(pick.Photos[0], selfie: true);
         }
         catch (PhotoStoreException ex)
         {
@@ -529,9 +527,9 @@ public sealed class ProWorkspace(
         Changed?.Invoke();
     }
 
-    private async Task<string> StoreAsync(byte[] bytes)
+    private async Task<string> StoreAsync(byte[] bytes, bool selfie = false)
     {
-        var id = await photos.SaveAsync(bytes);
+        var id = selfie ? await photos.SaveSelfieAsync(bytes) : await photos.SaveAsync(bytes);
         _photoUrls[id] = (await photos.GetUrlAsync(id))!;
         return id;
     }

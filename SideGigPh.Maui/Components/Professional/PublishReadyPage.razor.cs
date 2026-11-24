@@ -74,6 +74,12 @@ public partial class PublishReadyPage : ComponentBase
                 return;
             }
 
+            if (result == PublishResult.SelfieNeeded)
+            {
+                Nav.NavigateTo(OnboardingSteps.PathOf(ProStep.Photo), replace: true);
+                return;
+            }
+
             if (result == PublishResult.MissingProof)
             {
                 Nav.NavigateTo(Workspace.Draft.AfterInterviewPath(), replace: true);

@@ -23,7 +23,7 @@ public class ApiWiringTests(ApiTestHost api)
             "GET reviews", "PUT reviews", "DELETE reviews/mine",
             "GET chats", "GET chats/{chatId}", "GET chats/{chatId}/messages", "POST chats/{chatId}/messages",
             "POST chats/{chatId}/read", "DELETE chats/mine",
-            "POST photos", "DELETE photos/{id}",
+            "POST photos", "POST photos/selfie", "DELETE photos/{id}",
             "GET config", "POST other-jobs", "POST error-reports", "POST events", "GET warmup",
             "POST reports", "PUT blocks/{blockedUid}", "GET legal/{page}", "GET operator/{*path}",
             "GET feedback", "GET feedback/similar", "POST feedback", "DELETE feedback/{id}",

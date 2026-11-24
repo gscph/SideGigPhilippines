@@ -1,0 +1,18 @@
+<MudGrid Spacing="2" role="list" aria-label="@Label">
+    @foreach (var photo in Photos)
+    {
+        <MudItem xs="6" @key="photo.Id">
+            <PhotoTile Url="@photo.Url" CanRemove="CanRemove" OnRemove="() => OnRemove.InvokeAsync(photo.Id)" />
+        </MudItem>
+    }
+    @for (var slot = 0; slot < EmptySlots; slot++)
+    {
+        <MudItem xs="6" role="listitem">
+            <MudButton Variant="Variant.Outlined" Color="Color.Dark" FullWidth="true" Class="photo-slot-add"
+                       StartIcon="@Icons.Material.Rounded.AddAPhoto" Disabled="Disabled" aria-label="@T.Get(Copy.PhotosAdd)"
+                       OnClick="@(() => OnAdd.InvokeAsync())">
+                @T.Get(Copy.PhotoSlotAdd)
+            </MudButton>
+        </MudItem>
+    }
+</MudGrid>

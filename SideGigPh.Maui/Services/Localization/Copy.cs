@@ -752,16 +752,21 @@ public static class Copy
     public static readonly LocalizedText PhotosTitle = new("Photos of your work", "Photos ng gawa mo");
     public static readonly LocalizedText PhotosCount = new("{0} of {1} photos", "{0} sa {1} photos");
     public static readonly LocalizedText PhotosWhy = new("Add photos of your work. Customers pick workers with photos first. Up to {0} photos.", "Maglagay ng photos ng gawa mo. Inuuna ng customer ang may photos. Hanggang {0} photos.");
-    public static readonly LocalizedText PhotosEmpty = new("No photos yet. Customers like to see your work before they message you.", "Wala pang photos. Gusto ng customer makita muna ang gawa mo bago mag-message.");
     public static readonly LocalizedText PhotosAdd = new("Add photos", "Mag-add ng photos");
+    public static readonly LocalizedText PhotoSlotAdd = new("Add", "Mag-add");
     public static readonly LocalizedText PhotosFull = new("You've reached {0} photos. Remove one to add another.", "Umabot ka na sa {0} photos. Magtanggal muna bago mag-add.");
     public static readonly LocalizedText PhotoRemove = new("Remove photo", "Tanggalin ang photo");
     public static readonly LocalizedText PhotosFailed = new("Couldn't open your photos. Please try again.", "Di mabuksan ang photos mo. Try ulit.");
     public static readonly LocalizedText PhotosNoPermission = new("Tarbaho can't see your photos. Allow Photos in Settings, then try again.", "Di makita ng Tarbaho ang photos mo. I-allow ang Photos sa Settings, tapos try ulit.");
-    public static readonly LocalizedText CameraNoPermission = new("Tarbaho can't use your camera. Allow Camera in Settings, or choose a photo instead.", "Di magamit ng Tarbaho ang camera mo. I-allow ang Camera sa Settings, o pumili na lang ng photo.");
+    public static readonly LocalizedText CameraNoPermission = new("Tarbaho can't use your camera. Allow Camera in Settings, then try again.", "Di magamit ng Tarbaho ang camera mo. I-allow ang Camera sa Settings, tapos try ulit.");
     public static readonly LocalizedText SelfieTake = new("Take a selfie", "Mag-selfie");
     public static readonly LocalizedText SelfieRetake = new("Take another", "Mag-selfie ulit");
-    public static readonly LocalizedText SelfieFromPhotos = new("Choose from your photos", "Pumili sa photos mo");
+    public static readonly LocalizedText SelfieGuideLabel = new("How to take your selfie", "Paano mag-selfie");
+    public static readonly LocalizedText SelfieGuideFace = new("Your face in the middle, like the oval", "Nasa gitna ang mukha mo, parang sa oval");
+    public static readonly LocalizedText SelfieGuideLight = new("Good light: face a window or a lamp", "Maliwanag: humarap sa bintana o ilaw");
+    public static readonly LocalizedText SelfieGuideClear = new("No sunglasses, cap or mask", "Walang shades, cap o mask");
+    public static readonly LocalizedText SelfieNew = new("New selfie", "Bagong selfie");
+    public static readonly LocalizedText SelfieRejected = new("This selfie can't be used. Please take it again.", "Di pwede ang selfie na ito. Mag-selfie ulit.");
     public static readonly LocalizedText SelfieWhy = new("Customers trust a face. Tap the button and your front camera opens.", "Mas nagtitiwala ang customer kapag may mukha. I-tap ang button para bumukas ang front camera mo.");
     public static readonly LocalizedText ProNumberWhy = new(
         "Customers see it only after they pick your offer. You add it once, with a code we text you.",
