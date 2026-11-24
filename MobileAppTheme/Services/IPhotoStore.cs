@@ -12,6 +12,13 @@ public interface IPhotoStore
     /// </summary>
     Task<string> SaveAsync(byte[] bytes);
 
+    /// <summary>
+    /// Saves a selfie the camera took, already made small on the phone (<see cref="IPhotoPicker.TakeSelfieAsync"/>),
+    /// and returns its new id. A store may check it instead of re-encoding it; by default it is saved like any photo.
+    /// Throws <see cref="PhotoStoreException"/> like <see cref="SaveAsync"/>.
+    /// </summary>
+    Task<string> SaveSelfieAsync(byte[] bytes) => SaveAsync(bytes);
+
     /// <summary>An image source for the photo (a data URL or an https URL), or null if it's gone.</summary>
     Task<string?> GetUrlAsync(string photoId);
 

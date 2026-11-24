@@ -10,7 +10,8 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// The worker's own photo (<see cref="ProfessionalDraft.HasProof"/>) in the interview's selfie question: one thing to do,
 /// so "Take a selfie" asks for the camera and opens the front camera (on Android <c>Platforms/Android/AndroidPhotoPicker</c>)
 /// only when tapped, never as the question opens, so the reason is on screen before the permission prompt.
-/// "Choose from your photos" is the fallback when the camera can't be used. The splash covers only the upload, never the camera or its permission prompt. Raises
+/// A worker's own photo is always a selfie: there is no gallery choice here or anywhere else. Before the camera opens,
+/// <see cref="SelfieGuide"/> shows how to take it (a face in an oval, three tips). The splash covers only the upload, never the camera or its permission prompt. Raises
 /// <see cref="OnSaved"/> once a photo is saved, so the question moves on by itself. An upload that failed for want of
 /// internet or server trouble (<see cref="PhotoAddResult.CanRetry"/>) keeps the picked photo and offers "Try again" to send
 /// the same one, so nobody has to take the selfie again.
@@ -42,25 +43,18 @@ public partial class SelfieField : ComponentBase
         }
     }
 
-    private Task TakeSelfieAsync() => PickThenSaveAsync(Picker.TakeSelfieAsync);
-
-    private Task ChoosePhotoAsync() => PickThenSaveAsync(() => Picker.PickAsync(1));
-
-    // "Try again": the same photo once more.
-    private Task RetryAsync() => _unsent is { } pick ? SaveAsync(pick) : Task.CompletedTask;
-
-    private async Task PickThenSaveAsync(Func<Task<PhotoPick>> pickAsync)
+    private async Task TakeSelfieAsync()
     {
         if (_busy)
         {
-            return; // a second tap before the button re-rendered as disabled (opened the camera or picker twice)
+            return; // a second tap before the button re-rendered as disabled (opened the camera twice)
         }
 
         _busy = true;
         PhotoPick pick;
         try
         {
-            pick = await pickAsync();
+            pick = await Picker.TakeSelfieAsync();
         }
         finally
         {
@@ -69,6 +63,9 @@ public partial class SelfieField : ComponentBase
 
         await SaveAsync(pick);
     }
+
+    // "Try again": the same photo once more.
+    private Task RetryAsync() => _unsent is { } pick ? SaveAsync(pick) : Task.CompletedTask;
 
     private async Task SaveAsync(PhotoPick pick)
     {

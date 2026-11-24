@@ -20,14 +20,17 @@ public class PhotoTests
     // --- Worker's own photo -------------------------------------------------
 
     [Fact]
-    public async Task ChangeProfilePhoto_Picked_ReplacesAndDeletesTheOldOne()
+    public async Task ChangeProfilePhoto_TakesANewSelfie_ReplacesAndDeletesTheOldOne()
     {
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
         app.Picker.Picks(50);
 
-        var result = await app.Pro.ChangeProfilePhotoAsync();
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         result.Should().Be(new PhotoAddResult(1));
+        app.Picker.Selfies.Should().Be(1, "a worker's own photo is always a selfie");
+        app.Picker.LastMaxCount.Should().BeNull("the gallery never opens for it");
+        app.Photos.SelfiesSaved.Should().Be(1, "it goes up as a selfie: checked, not re-encoded");
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(50));
         app.Pro.ProfilePhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
         app.Photos.Deleted.Should().Equal(TestData.PhotoId(1));
@@ -41,7 +44,7 @@ public class PhotoTests
         var app = await FakeApp.ProAsync(draft);
         app.Picker.Picks(50);
 
-        await app.Pro.ChangeProfilePhotoAsync();
+        await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         app.Profiles.Published.Should().ContainSingle()
             .Which.PhotoUrl.Should().Be(FakePhotoStore.Url(TestData.PhotoId(50)));
@@ -82,7 +85,7 @@ public class PhotoTests
         var app = await FakeApp.ProAsync(TestData.ReadyDraft());
         app.Picker.Next = new PhotoPick(status, []);
 
-        var result = await app.Pro.ChangeProfilePhotoAsync();
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         result.Problem.Should().Be(expected);
         app.Pro.Draft.ProfilePhotoId.Should().Be(TestData.PhotoId(1));
@@ -98,7 +101,7 @@ public class PhotoTests
         app.Picker.Picks(50);
         app.Photos.Refuse = new PhotoStoreException("no", failure);
 
-        var result = await app.Pro.ChangeProfilePhotoAsync();
+        var result = await app.Pro.SetProfilePhotoAsync(await app.Picker.TakeSelfieAsync());
 
         result.Problem.Should().Be(expected);
         result.Failed.Should().BeTrue();
@@ -143,6 +146,7 @@ public class PhotoTests
         app.Pro.Draft.WorkPhotoIds.Take(2).Should().Equal(TestData.PhotoId(61), TestData.PhotoId(60));
         app.Pro.WorkPhotos.Should().HaveCount(4);
         app.Store.Saves.Should().BeGreaterThan(0);
+        app.Photos.SelfiesSaved.Should().Be(0, "work photos are re-encoded by the server as before");
     }
 
     [Fact]

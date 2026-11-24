@@ -127,7 +127,7 @@ public sealed class TestPhone
         (await phone.Pro.EnsureLoadedAsync()).Should().BeTrue();
 
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
-        (await phone.Pro.ChangeProfilePhotoAsync()).Failed.Should().BeFalse();
+        (await phone.Pro.SetProfilePhotoAsync(await phone.Picker.TakeSelfieAsync())).Failed.Should().BeFalse();
         phone.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg(), TestImages.Jpeg()]);
         // The whole result, so a failure says why (Rejected or ServerError = the server refused).
         (await phone.Pro.AddWorkPhotosAsync()).Should().Be(new PhotoAddResult(2));

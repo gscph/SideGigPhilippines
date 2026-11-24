@@ -56,7 +56,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Full name** | Everyone | Shown on your listing, chats and reviews (reviews show a short form, e.g. "Maricel D.") |
 | **Email address and Google profile name** | Only if you sign in with Google | Sign-in |
 | **Language** (English / Taglish) and **role** (Customer / Skilled Worker) | Everyone | To show the App in your language and the right screens |
-| **Profile photo / selfie** | Skilled Workers (required), Customers (optional) | Shown on your listing or chats so the other person knows who they are dealing with |
+| **Profile photo / selfie** | Skilled Workers (required: a selfie taken with the front camera in the App, never one chosen from the gallery), Customers (optional) | Shown on your listing or chats so the other person knows who they are dealing with |
 | **Listing details**: trade, jobs, towns you serve, years of experience, prices | Skilled Workers | Your public listing and search results |
 | **Work photos** (optional, up to 6) | Skilled Workers who add them | Shown on your listing; a listing with work photos shows higher in search results |
 | **Badge proofs** (optional): a photo of a **government ID**, of an **NBI or police clearance**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "NBI / Police Clearance", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
@@ -243,7 +243,9 @@ to establish, exercise or defend legal claims.
 - All traffic between the App and our server is encrypted (HTTPS/TLS). Data is encrypted at rest by our providers.
 - The App never connects to our database directly. Every request is checked against your sign-in token, and you
   can only read or change your own private data.
-- Uploaded photos are re-encoded and their hidden metadata (EXIF, including any GPS location) is removed.
+- Uploaded photos have their hidden metadata (EXIF, including any GPS location) removed: most are re-encoded by our
+  server; a Skilled Worker's selfie is made small on the phone and our server takes that metadata out again before
+  storing it.
 - Badge proofs (IDs, certificates, proof of work) are kept in private storage that has no public web address, are
   opened only by authorised checkers with every look logged, and are deleted once checked.
 - Only authorised staff can access production data, and only when needed.

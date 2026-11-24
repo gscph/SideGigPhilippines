@@ -6,7 +6,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Add work photos from the phone and remove any: the gallery's editing part, on the Photos page. Photos already in the gallery are skipped by hash (anti-fraud rule 2).
+/// Add work photos from the phone's gallery and remove any, on the Photos page: a 2 × 3 grid (<see cref="WorkPhotoGrid"/>)
+/// whose empty slots add photos. Optional (0–6), never needed to publish.
 /// </summary>
 public partial class WorkPhotosEditor : ComponentBase
 {

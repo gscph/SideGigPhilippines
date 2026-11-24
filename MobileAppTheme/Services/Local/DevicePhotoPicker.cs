@@ -9,14 +9,14 @@ namespace MobileAppTheme.Services.Local;
 /// The phone's own photo picker via MAUI <see cref="MediaPicker"/>. Android 13+ and iOS use the
 /// system photo picker, which needs no permission (the user chooses each photo). Android 12 and
 /// older need READ_EXTERNAL_STORAGE, so it is checked and asked for first. Photos are scaled down
-/// and recompressed so they stay small enough to show and upload. <see cref="TakeSelfieAsync"/> asks for the camera and
+/// and recompressed so they stay small enough to show and upload (at most 1280px, JPEG 82, upright, no metadata). <see cref="TakeSelfieAsync"/> asks for the camera and
 /// opens it with MAUI's <see cref="MediaPicker.CapturePhotoAsync"/>, which can't choose the lens (an app may wrap this
 /// adapter to ask for the front one, as Tarbaho does on Android).
 /// </summary>
 public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhotoPicker
 {
     private const int MaxSide = 1280;
-    private const int JpegQuality = 80;
+    private const int JpegQuality = 82;
 
     // Android 13 (API 33) brought the permission-free system photo picker.
     private const int FirstAndroidWithPhotoPicker = 33;
@@ -38,6 +38,7 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
                 MaximumHeight = MaxSide,
                 CompressionQuality = JpegQuality,
                 RotateImage = true,
+                PreserveMetaData = false,
             };
             var files = await MainThread.InvokeOnMainThreadAsync(() => MediaPicker.Default.PickPhotosAsync(options));
             if (files is null || files.Count == 0)
@@ -86,6 +87,7 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
                 MaximumHeight = MaxSide,
                 CompressionQuality = JpegQuality,
                 RotateImage = true,
+                PreserveMetaData = false, // no EXIF or location: a selfie may be stored as sent
             };
             var file = await MainThread.InvokeOnMainThreadAsync(() => MediaPicker.Default.CapturePhotoAsync(options));
             return file is null ? PhotoPick.Cancelled : new PhotoPick(PhotoPickStatus.Picked, [await ReadAsync(file)]);

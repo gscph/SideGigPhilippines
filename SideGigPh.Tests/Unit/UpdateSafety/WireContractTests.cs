@@ -258,6 +258,10 @@ public class WireContractTests
         ApiErrors.NotAdmin.Should().Be("not-admin");
         ApiErrors.OthersStays.Should().Be("others-stays");
         ApiErrors.NeedsPrice.Should().Be("needs-price");
+        ApiErrors.SelfieNotJpeg.Should().Be("selfie-not-jpeg");
+        ApiErrors.SelfieTooBig.Should().Be("selfie-too-big");
+        ApiErrors.SelfieBroken.Should().Be("selfie-broken");
+        ApiErrors.SelfieRequired.Should().Be("selfie-required");
         VerificationKinds.All.Should().Equal("id", "tesda", "developer", "clearance");
         DeveloperBadges.All.Should().Equal("ayala-land", "megaworld", "robinsons-land", "sm", "dmci", "other");
 

@@ -95,6 +95,18 @@ public static class ApiErrors
     /// <summary>409 on <c>POST ops/catalog/services/{id}/restore</c>: the job has no price guide; give it one first (the app refuses a job without).</summary>
     public const string NeedsPrice = "needs-price";
 
+    /// <summary>415 on <c>POST photos/selfie</c>: the selfie isn't a JPEG (the phone sends one, already made small).</summary>
+    public const string SelfieNotJpeg = "selfie-not-jpeg";
+
+    /// <summary>413 on <c>POST photos/selfie</c>: over 2 MB, or a side over 1280 pixels (the server doesn't resize selfies).</summary>
+    public const string SelfieTooBig = "selfie-too-big";
+
+    /// <summary>400 on <c>POST photos/selfie</c>: starts like a JPEG but is cut short or doesn't decode.</summary>
+    public const string SelfieBroken = "selfie-broken";
+
+    /// <summary>400 on publish: a new profile photo isn't a selfie this account sent to <c>POST photos/selfie</c>.</summary>
+    public const string SelfieRequired = "selfie-required";
+
     /// <summary>500: the function threw; <see cref="ApiError.Detail"/> has the exception and stack trace.</summary>
     public const string Exception = "exception";
 }
@@ -118,7 +130,7 @@ public sealed record UserDto(
     DateTimeOffset UpdatedAt,
     string? ProfilePhotoId = null);
 
-/// <summary>A stored photo: its SHA-256 id and public URL. Also the answer to <c>POST photos</c>.</summary>
+/// <summary>A stored photo: its random id and public URL. The answer to <c>POST photos</c> and <c>POST photos/selfie</c>.</summary>
 public sealed record PhotoDto(string Id, string Url);
 
 /// <summary>

@@ -3,12 +3,14 @@ using System.Net;
 using System.Net.Http.Json;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Contracts;
+using SideGigPh.Contracts.Photos;
 
 namespace SideGigPh.Maui.Services.Api;
 
 /// <summary>
 /// <see cref="IPhotoStore"/> on SideGigPh.Api: <c>POST photos</c> uploads the bytes, <c>DELETE photos/{id}</c>
-/// removes a photo. The server decides the photo's id (a new random one per upload) and the
+/// removes a photo; a worker's selfie goes to <c>POST photos/selfie</c>, which checks it instead of re-encoding it
+/// (the phone already made it small). The server decides the photo's id (a new random one per upload) and the
 /// phone shows the photo straight from its public blob URL, so the WebView caches it like any image.
 /// </summary>
 public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<ApiPhotoStore> logger) : IPhotoStore
@@ -16,12 +18,30 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
     // Ids saved in this session, with the URL the server gave back.
     private readonly ConcurrentDictionary<string, string> _urls = new();
 
-    public async Task<string> SaveAsync(byte[] bytes)
+    public Task<string> SaveAsync(byte[] bytes) => UploadAsync("photos", bytes);
+
+    /// <summary>
+    /// Checks the selfie with the server's own rules first (<see cref="SelfieJpegRules"/>): one the server would refuse
+    /// is never sent, and the person is asked to take it again (<see cref="PhotoStoreFailure.Rejected"/>).
+    /// </summary>
+    public Task<string> SaveSelfieAsync(byte[] bytes)
+    {
+        var verdict = SelfieJpegRules.Check(bytes).Verdict;
+        if (verdict != SelfieVerdict.Ok)
+        {
+            logger.LogError("Selfie not sent: {Verdict} ({Bytes} bytes).", verdict, bytes.Length);
+            throw new PhotoStoreException($"The selfie doesn't meet the upload rules ({verdict}).", PhotoStoreFailure.Rejected);
+        }
+
+        return UploadAsync("photos/selfie", bytes);
+    }
+
+    private async Task<string> UploadAsync(string path, byte[] bytes)
     {
         try
         {
             // A resend after a dropped connection at worst leaves one unused file.
-            using var response = await api.SendAsync(HttpMethod.Post, "photos", bytes, "image/jpeg");
+            using var response = await api.SendAsync(HttpMethod.Post, path, bytes, "image/jpeg");
             await api.EnsureWrittenAsync(response, "upload a photo");
             var saved = await response.Content.ReadFromJsonAsync(ApiJson.Default.PhotoDto)
                 ?? throw new PhotoStoreException("The photo server sent an empty answer.", PhotoStoreFailure.ServerError);
