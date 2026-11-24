@@ -24,9 +24,13 @@ public sealed class WatchedPhotoPicker(IPhotoPicker inner, FlowWatch watch, ILog
 
     public Task<PhotoPick> PickAsync(int maxCount) => WatchAsync(PickerFlow, () => inner.PickAsync(maxCount));
 
-    public async Task<PhotoPick> TakeSelfieAsync()
+    public Task<PhotoPick> TakeSelfieAsync() => CameraAsync(inner.TakeSelfieAsync);
+
+    public Task<PhotoPick> TakeDocumentPhotoAsync() => CameraAsync(inner.TakeDocumentPhotoAsync);
+
+    private async Task<PhotoPick> CameraAsync(Func<Task<PhotoPick>> open)
     {
-        var pick = await WatchAsync(CameraFlow, inner.TakeSelfieAsync);
+        var pick = await WatchAsync(CameraFlow, open);
         if (pick.Status == PhotoPickStatus.Picked)
         {
             _camerasEmpty = 0;

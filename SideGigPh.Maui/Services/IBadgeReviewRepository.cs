@@ -17,6 +17,6 @@ public interface IBadgeReviewRepository
     /// <summary>The proof photo (JPEG bytes), or null when it is gone or didn't load. Every look is logged on the server.</summary>
     Task<byte[]?> DocumentAsync(long id);
 
-    /// <summary>Approves or rejects; the proof photo is deleted on the server either way.</summary>
-    Task DecideAsync(long id, bool approve, string? reason);
+    /// <summary>Approves or rejects (with why, as a <see cref="RejectCode"/> when picked); the proof photo is deleted on the server either way.</summary>
+    Task DecideAsync(long id, bool approve, string? reason, RejectCode? code);
 }

@@ -67,6 +67,41 @@ public static class ScanStatuses
 }
 
 /// <summary>
+/// What the server's photo check found on a badge proof (<see cref="VerificationDto.PhotoProblems"/>). Only advice:
+/// the worker may take it again or send it anyway, and the operator sees it; nothing is refused for it.
+/// </summary>
+public static class PhotoProblems
+{
+    /// <summary>The text and edges aren't sharp (shaken, out of focus, or too far away).</summary>
+    public const string Blurry = "blurry";
+
+    /// <summary>A big patch is blown out white (a flash or a lamp reflecting on the card).</summary>
+    public const string Glare = "glare";
+
+    /// <summary>Most of the photo is dark (a shadow over the card, or not enough light).</summary>
+    public const string Dark = "dark";
+
+    /// <summary>The photo has too few pixels for small print to be read.</summary>
+    public const string TooSmall = "too-small";
+
+    public static readonly IReadOnlyList<string> All = [Blurry, Glare, Dark, TooSmall];
+}
+
+/// <summary>Why the operator rejected a badge proof (<see cref="VerificationDecisionRequest.RejectCode"/>), counted to see what goes wrong most.</summary>
+public static class RejectCodes
+{
+    public const string Blurry = "blurry";
+    public const string Glare = "glare";
+    public const string CutOff = "cut-off";
+    public const string WrongDocument = "wrong-document";
+    public const string Expired = "expired";
+    public const string Mismatch = "mismatch";
+    public const string Other = "other";
+
+    public static readonly IReadOnlyList<string> All = [Blurry, Glare, CutOff, WrongDocument, Expired, Mismatch, Other];
+}
+
+/// <summary>
 /// A badge on a listing: an approved verification. <paramref name="Kind"/> is one of <see cref="VerificationKinds"/>;
 /// <paramref name="BadgeId"/> is the developer (<see cref="DeveloperBadges"/>) for a project badge, else empty;
 /// <paramref name="CompanyName"/> is the company the worker typed when that is <see cref="DeveloperBadges.Other"/>;
@@ -87,7 +122,8 @@ public sealed record VerificationDto(
     DateTimeOffset CreatedAt,
     DateTimeOffset? DecidedAt,
     string? RejectReason,
-    string? CompanyName = null);
+    string? CompanyName = null,
+    IReadOnlyList<string>? PhotoProblems = null);
 
 /// <summary>
 /// A request waiting for the operator (<c>GET ops/verifications</c>): who sent it, their profile photo to compare with
@@ -108,10 +144,16 @@ public sealed record AdminVerificationDto(
     DateOnly? ScannedExpiry,
     bool HasDocument,
     DateTimeOffset CreatedAt,
-    string? CompanyName = null);
+    string? CompanyName = null,
+    IReadOnlyList<string>? PhotoProblems = null,
+    double? PhotoSharpness = null,
+    double? ScanConfidence = null);
 
 /// <summary><c>GET ops/me</c>: whether the caller is an operator (in the setting <c>AdminUids</c>), so the app shows the badge review screen.</summary>
 public sealed record AdminStatusDto(bool IsOperator);
 
-/// <summary><c>POST ops/verifications/{id}/decision</c>: approve (the badge shows) or reject with a short reason the worker sees.</summary>
-public sealed record VerificationDecisionRequest(bool Approve, string? Reason = null);
+/// <summary>
+/// <c>POST ops/verifications/{id}/decision</c>: approve (the badge shows) or reject with a short reason the worker sees
+/// and, for counting, a <see cref="RejectCodes"/> code.
+/// </summary>
+public sealed record VerificationDecisionRequest(bool Approve, string? Reason = null, string? RejectCode = null);

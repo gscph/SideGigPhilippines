@@ -39,8 +39,40 @@ public enum BadgeState
     Rejected,
 }
 
-/// <summary>One proof the worker sent and how it stands. <paramref name="RejectReason"/> is what the checker wrote, when rejected.</summary>
-public sealed record BadgeRequest(long Id, Badge Badge, BadgeState State, string? RejectReason, DateTimeOffset SentAt);
+/// <summary>
+/// One proof the worker sent and how it stands. <paramref name="RejectReason"/> is what the checker wrote, when
+/// rejected; <paramref name="PhotoProblems"/> what the server's photo check found while it waits (only advice).
+/// </summary>
+public sealed record BadgeRequest(
+    long Id, Badge Badge, BadgeState State, string? RejectReason, DateTimeOffset SentAt, IReadOnlyList<ProofProblem>? PhotoProblems = null);
+
+/// <summary>What the server's photo check found on a proof: only advice, the worker may take it again or send it as it is.</summary>
+public enum ProofProblem
+{
+    /// <summary>The text and edges aren't sharp.</summary>
+    Blurry,
+
+    /// <summary>A flash or lamp shines white on part of it.</summary>
+    Glare,
+
+    /// <summary>Most of it is dark (a shadow, or too little light).</summary>
+    Dark,
+
+    /// <summary>Too few pixels for small print.</summary>
+    TooSmall,
+}
+
+/// <summary>Why the operator rejected a proof, counted to see what goes wrong most.</summary>
+public enum RejectCode
+{
+    Blurry,
+    Glare,
+    CutOff,
+    WrongDocument,
+    Expired,
+    Mismatch,
+    Other,
+}
 
 /// <summary>What sending a proof ended with.</summary>
 public enum BadgeSubmitResult

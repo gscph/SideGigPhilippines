@@ -22,6 +22,13 @@ public static class PhotoImage
     private const uint MaxSide = 1280;
     private const uint JpegQuality = 82;
 
+    /// <summary>
+    /// A badge proof's long side: an ID or a clearance carries small print (numbers, dates) that 1280px blurs when the
+    /// document fills only part of the frame. Proofs stay private and are deleted after the decision, so size is cheap.
+    /// </summary>
+    public const uint ProofMaxSide = 2000;
+    private const uint ProofJpegQuality = 85;
+
     // HEIC/HEIF "brands" in the file header (bytes 8-11, after "ftyp").
     private static readonly string[] HeicBrands = ["heic", "heix", "hevc", "hevx", "heim", "heis", "mif1", "msf1"];
 
@@ -83,7 +90,12 @@ public static class PhotoImage
     }
 
     /// <summary>The JPEG to store. Throws <see cref="MagickException"/> when the file is broken.</summary>
-    public static byte[] ToStoredJpeg(byte[] bytes, PhotoKind kind)
+    public static byte[] ToStoredJpeg(byte[] bytes, PhotoKind kind) => Store(bytes, kind, MaxSide, JpegQuality);
+
+    /// <summary>A badge proof to store: like <see cref="ToStoredJpeg"/>, but up to <see cref="ProofMaxSide"/> for its small print.</summary>
+    public static byte[] ToStoredProofJpeg(byte[] bytes, PhotoKind kind) => Store(bytes, kind, ProofMaxSide, ProofJpegQuality);
+
+    private static byte[] Store(byte[] bytes, PhotoKind kind, uint maxSide, uint quality)
     {
         using var image = new MagickImage(bytes, new MagickReadSettings { Format = FormatOf(kind) });
 
@@ -97,9 +109,9 @@ public static class PhotoImage
             image.Alpha(AlphaAction.Remove);
         }
 
-        if (image.Width > MaxSide || image.Height > MaxSide)
+        if (image.Width > maxSide || image.Height > maxSide)
         {
-            image.Resize(new MagickGeometry(MaxSide, MaxSide)); // fits inside, keeps the shape
+            image.Resize(new MagickGeometry(maxSide, maxSide)); // fits inside, keeps the shape
         }
 
         // iPhone photos are in Display P3; convert to sRGB before the color profile is stripped, or colors go dull.
@@ -112,7 +124,7 @@ public static class PhotoImage
         image.Strip();
 
         image.Format = MagickFormat.Jpeg;
-        image.Quality = JpegQuality;
+        image.Quality = quality;
         image.Settings.Interlace = Interlace.Plane; // progressive: a blurry whole photo shows first on slow data
         return image.ToByteArray();
     }

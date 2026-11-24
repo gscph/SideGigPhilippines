@@ -28,6 +28,19 @@
                 @if (Request.ScannedName is { } name) { <MudText Typo="Typo.body2">Name: @name</MudText> }
                 @if (Request.ScannedNumber is { } number) { <MudText Typo="Typo.body2">Number: @number</MudText> }
                 @if (Request.ScannedExpiry is { } expiry) { <MudText Typo="Typo.body2">Expires: @expiry.ToString("d MMM yyyy")</MudText> }
+                @if (Request.ScanConfidence is { } sure) { <MudText Typo="Typo.body2">AI sure it's an ID: @Math.Round(sure * 100)%</MudText> }
+            </MudStack>
+        }
+
+        @if (Request.PhotoProblems is not null || Request.PhotoSharpness is not null)
+        {
+            <MudStack Spacing="0" Class="mt-4">
+                <MudText Typo="Typo.subtitle2">Photo check</MudText>
+                <MudText Typo="Typo.body2" Color="@(Request.PhotoProblems is { Count: > 0 } ? Color.Error : Color.Default)">@BadgeText.PhotoCheck(Request)</MudText>
+                @if (Request.PhotoSharpness is { } sharpness)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Sharpness @Math.Round(sharpness) (under @BadgeText.BlurryBelow looks blurry)</MudText>
+                }
             </MudStack>
         }
 
@@ -47,6 +60,17 @@
             {
                 <MudText Typo="Typo.body2" Color="Color.Secondary">No proof photo stored.</MudText>
             }
+        </MudStack>
+
+        <MudStack Spacing="1" Class="mt-4">
+            <MudText Typo="Typo.subtitle2">Why reject?</MudText>
+            <MudStack Row="true" Spacing="1" Wrap="Wrap.Wrap">
+                @foreach (var (code, label) in BadgeText.RejectReasons)
+                {
+                    <MudChip T="string" Size="Size.Small" Disabled="_busy" Color="@(_code == code ? Color.Primary : Color.Dark)"
+                             Variant="@(_code == code ? Variant.Filled : Variant.Outlined)" OnClick="() => PickCode(code, label)">@label</MudChip>
+                }
+            </MudStack>
         </MudStack>
 
         <MudTextField T="string" @bind-Value="_reason" Label="Reason if you reject (the worker reads it)"

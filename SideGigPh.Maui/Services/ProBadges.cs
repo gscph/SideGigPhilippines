@@ -53,10 +53,28 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
     public bool CanSend(BadgeKind kind) => kind == BadgeKind.Project || StateOf(kind) is BadgeState.None or BadgeState.Rejected;
 
     /// <summary>
-    /// Sends the picked photo as proof for <paramref name="badge"/>. Nothing leaves the phone without
-    /// <paramref name="consent"/>. Never throws: a failure is logged and answered as <see cref="BadgeSubmitResult.Failed"/>.
+    /// True for the badges whose proof is photographed now with the camera, never picked from the gallery (an old
+    /// photo, or a screenshot of someone else's ID), with the photo guide shown first.
     /// </summary>
-    public async Task<BadgeSubmitResult> SubmitAsync(Badge badge, bool consent, PhotoPick pick)
+    public static bool UsesCamera(BadgeKind kind) => kind is BadgeKind.Id or BadgeKind.Clearance;
+
+    /// <summary>
+    /// What the photo check found on the proof just sent for <paramref name="badge"/>, while it waits for the checker;
+    /// empty when nothing (then there is nothing to ask).
+    /// </summary>
+    public IReadOnlyList<ProofProblem> ProblemsOf(Badge badge) =>
+        Of(badge.Kind).FirstOrDefault(r => r.State == BadgeState.Pending && Same(r.Badge, badge))?.PhotoProblems ?? [];
+
+    private static bool Same(Badge a, Badge b) =>
+        a.Kind == b.Kind && (a.Kind != BadgeKind.Project
+            || (a.DeveloperId == b.DeveloperId && string.Equals(a.CompanyName?.Trim(), b.CompanyName?.Trim(), StringComparison.OrdinalIgnoreCase)));
+
+    /// <summary>
+    /// Sends the picked photo as proof for <paramref name="badge"/>. Nothing leaves the phone without
+    /// <paramref name="consent"/>. With <paramref name="retake"/> it replaces the photo still waiting for this badge.
+    /// Never throws: a failure is logged and answered as <see cref="BadgeSubmitResult.Failed"/>.
+    /// </summary>
+    public async Task<BadgeSubmitResult> SubmitAsync(Badge badge, bool consent, PhotoPick pick, bool retake = false)
     {
         if (!consent)
         {
@@ -82,7 +100,7 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
 
         try
         {
-            var result = await repository.SubmitAsync(Clean(badge), pick.Photos[0]);
+            var result = await repository.SubmitAsync(Clean(badge), pick.Photos[0], retake);
             await LoadAsync();
             return result;
         }

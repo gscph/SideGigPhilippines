@@ -133,6 +133,11 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
   genuine clearance in your name that is recent (NBI under 1 year, police under 6 months) and shows no record. If
   we decline one, only you see the reason, and we never show or keep what was on it.
 - **TESDA certificate, proof of a past project:** checked by a person at Tarbaho only. No AI reads them.
+- **Photo check:** an ID or a clearance is photographed with your camera at that moment (not picked from your
+  gallery). When any proof arrives, our server measures only how sharp and how bright the photo is (no AI, nothing
+  is read from it) so it can say right away if it looks blurry, dark or has glare. That is only advice: you can take
+  it again (the new photo replaces the old one, which is deleted) or keep it. We keep those measurements and, if a
+  proof is declined, the kind of reason (for example "blurry"), to make the check better. They say nothing about you.
 - The photo is kept in **private storage** (not at a web address), can be opened only by our authorised checkers,
   and **every time one is opened it is logged**.
 - When the check is done (normally within 2 days), the **photo and everything read from it are deleted**. We keep

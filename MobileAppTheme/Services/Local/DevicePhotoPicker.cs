@@ -65,7 +65,16 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
         }
     }
 
-    public async Task<PhotoPick> TakeSelfieAsync()
+    public Task<PhotoPick> TakeSelfieAsync() => CaptureAsync(MaxSide, JpegQuality, "a selfie");
+
+    /// <summary>
+    /// MAUI's camera: on iOS it opens on the back lens, the one a document is photographed with. It asks for the
+    /// camera permission first, like the selfie.
+    /// </summary>
+    public Task<PhotoPick> TakeDocumentPhotoAsync() =>
+        CaptureAsync(IPhotoPicker.DocumentMaxSide, IPhotoPicker.DocumentJpegQuality, "a document photo");
+
+    private async Task<PhotoPick> CaptureAsync(int maxSide, int quality, string what)
     {
         try
         {
@@ -82,9 +91,9 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
 
             var options = new MediaPickerOptions
             {
-                MaximumWidth = MaxSide,
-                MaximumHeight = MaxSide,
-                CompressionQuality = JpegQuality,
+                MaximumWidth = maxSide,
+                MaximumHeight = maxSide,
+                CompressionQuality = quality,
                 RotateImage = true,
             };
             var file = await MainThread.InvokeOnMainThreadAsync(() => MediaPicker.Default.CapturePhotoAsync(options));
@@ -97,7 +106,7 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Could not take a selfie.");
+            logger.LogError(ex, "Could not take {What}.", what);
             return PhotoPick.Failed;
         }
     }

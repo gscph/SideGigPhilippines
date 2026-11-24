@@ -223,4 +223,48 @@ public class VerificationTests(ApiTestHost api)
         using var scope = api.Server.Services.CreateScope();
         (await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().WorkerVerifications.AnyAsync(v => v.Uid == worker.Uid)).Should().BeFalse();
     }
+    [IntegrationFact]
+    public async Task APoorPhoto_IsOnlyAdvice_ARetakeReplacesIt_AndTheOperatorsReasonIsCounted()
+    {
+        var worker = new TestPhone(api, "Retake");
+        var client = api.Client(api.Tokens.For(worker.Uid));
+        api.IdReader.Next = new IdScan(ScanStatuses.Unreadable, "idDocument", Confidence: 0.21);
+
+        // A test photo is tiny and flat: the check names that, yet the proof is sent (never refused for it).
+        using var first = await client.PostAsync("verifications/id?consent=true", Photo());
+        first.StatusCode.Should().Be(HttpStatusCode.OK);
+        var sent = (await first.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
+        sent.PhotoProblems.Should().Contain(PhotoProblems.TooSmall);
+        var firstFile = api.PrivateFiles.Files.Keys.Single(name => name.StartsWith(worker.Uid + "/"));
+
+        // A retake replaces the waiting photo: same request, a new file, the old one deleted.
+        using var again = await client.PostAsync("verifications/id?consent=true&retake=true", Photo());
+        again.StatusCode.Should().Be(HttpStatusCode.OK);
+        (await again.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!.Id.Should().Be(sent.Id);
+        api.PrivateFiles.Files.Keys.Where(name => name.StartsWith(worker.Uid + "/")).Should().ContainSingle().Which.Should().NotBe(firstFile);
+
+        // Without retake, the same badge again is still "already sent".
+        using var twice = await client.PostAsync("verifications/id?consent=true", Photo());
+        twice.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        // The operator sees the check and the AI's confidence, and rejects with a counted reason.
+        var waiting = (await Operator.GetFromJsonAsync("ops/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!.Single(v => v.Id == sent.Id);
+        waiting.PhotoProblems.Should().Contain(PhotoProblems.TooSmall);
+        waiting.PhotoSharpness.Should().NotBeNull();
+        waiting.ScanConfidence.Should().Be(0.21);
+        using var decided = await Operator.PostAsJsonAsync($"ops/verifications/{sent.Id}/decision",
+            new VerificationDecisionRequest(false, "Too blurry to read.", RejectCodes.Blurry), ApiJson.Default.VerificationDecisionRequest);
+        decided.StatusCode.Should().Be(HttpStatusCode.NoContent);
+
+        using var scope = api.Server.Services.CreateScope();
+        var row = await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().WorkerVerifications.SingleAsync(v => v.Id == sent.Id);
+        (row.RejectCode, row.ScanConfidence, row.DocumentBlob).Should().Be((RejectCodes.Blurry, null, null));
+        row.PhotoProblems.Should().Contain(PhotoProblems.TooSmall, "the check's numbers stay, to set the cut-offs from data");
+        (await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().VerificationAudit.Where(a => a.VerificationId == sent.Id).Select(a => a.Action).ToListAsync())
+            .Should().Contain("retaken");
+
+        // A retake after the decision has nothing to replace.
+        using var late = await client.PostAsync("verifications/id?consent=true&retake=true", Photo());
+        late.StatusCode.Should().Be(HttpStatusCode.OK, "a rejected badge may be sent again, as a new request");
+    }
 }

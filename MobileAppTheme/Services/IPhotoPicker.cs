@@ -15,6 +15,19 @@ public interface IPhotoPicker
     /// </summary>
     Task<PhotoPick> TakeSelfieAsync();
 
+    /// <summary>
+    /// Opens the back camera for one photo of a document or a card (never the gallery: a photo taken now, not an old
+    /// one or a screenshot). It comes back bigger than a picked photo, at most <see cref="DocumentMaxSide"/> pixels, so
+    /// small print stays readable. Where an adapter has no such camera it answers <see cref="PhotoPick.Failed"/>.
+    /// </summary>
+    Task<PhotoPick> TakeDocumentPhotoAsync() => Task.FromResult(PhotoPick.Failed);
+
+    /// <summary>The long side of a document photo, in pixels (<see cref="TakeDocumentPhotoAsync"/>).</summary>
+    public const int DocumentMaxSide = 2000;
+
+    /// <summary>The JPEG quality of a document photo: a little higher than a picked one, for small print.</summary>
+    public const int DocumentJpegQuality = 85;
+
     /// <summary>Opens this app's page in the phone's Settings, where a denied permission can be turned on.</summary>
     void OpenAppSettings();
 

@@ -15,7 +15,7 @@ namespace SideGigPh.Maui.Platforms.Android;
 /// The skeleton's <see cref="DevicePhotoPicker"/> with a selfie that opens on the front camera. MAUI's camera call can't
 /// choose the lens, so this starts the phone's camera app itself with the front-camera hints most camera apps (Samsung's
 /// included) read; one that ignores them opens its last-used lens and the person flips it. The photo comes back upright,
-/// at most <see cref="MaxSide"/> pixels, as a JPEG, like a picked one. Needs <c>MainActivity.OnActivityResult</c> to call
+/// at most <see cref="SelfieMaxSide"/> pixels, as a JPEG, like a picked one. Needs <c>MainActivity.OnActivityResult</c> to call
 /// <see cref="HandleActivityResult"/> and the IMAGE_CAPTURE query in the manifest; the file goes through MAUI's own file
 /// provider (its cache path).
 /// <para>
@@ -23,6 +23,10 @@ namespace SideGigPh.Maui.Platforms.Android;
 /// declared, Android would refuse the camera app until it was granted). That also matters because Android closes an app
 /// holding an "Only this time" permission about a minute after it goes to the background, which is while the person
 /// poses: the selfie came back to a fresh app and was lost (22 Nov 2026).
+/// </para>
+/// <para>
+/// <see cref="TakeDocumentPhotoAsync"/> starts the same camera app without the front-camera hints (the back lens, for an
+/// ID or a clearance) and keeps the photo bigger (<see cref="IPhotoPicker.DocumentMaxSide"/>) for small print.
 /// </para>
 /// <para>
 /// A phone short of memory can still close the app while the camera is open. The photo's path is kept in
@@ -35,8 +39,8 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
     /// <summary>The request code the camera's answer comes back with.</summary>
     public const int SelfieRequestCode = 4711;
 
-    private const int MaxSide = 1280;
-    private const int JpegQuality = 80;
+    private const int SelfieMaxSide = 1280;
+    private const int SelfieJpegQuality = 80;
 
     private static TaskCompletionSource<bool>? _pending;
 
@@ -50,28 +54,44 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
 
     public void OpenAppSettings() => device.OpenAppSettings();
 
-    public async Task<PhotoPick> TakeSelfieAsync()
+    public Task<PhotoPick> TakeSelfieAsync() => CaptureAsync(front: true, SelfieMaxSide, SelfieJpegQuality, "a selfie");
+
+    /// <summary>The back camera for an ID or a clearance, kept bigger for small print. Not picked up after a restart: the worker takes it again.</summary>
+    public Task<PhotoPick> TakeDocumentPhotoAsync() =>
+        CaptureAsync(front: false, IPhotoPicker.DocumentMaxSide, IPhotoPicker.DocumentJpegQuality, "a document photo");
+
+    private async Task<PhotoPick> CaptureAsync(bool front, int maxSide, int quality, string what)
     {
         try
         {
             var activity = Platform.CurrentActivity ?? throw new InvalidOperationException("No activity to open the camera from.");
             var context = Application.Context;
-            var file = new File(context.CacheDir, $"selfie-{Guid.NewGuid():N}.jpg");
+            var file = new File(context.CacheDir, $"{(front ? "selfie" : "document")}-{Guid.NewGuid():N}.jpg");
             var uri = AndroidX.Core.Content.FileProvider.GetUriForFile(context, $"{context.PackageName}.fileProvider", file)!;
 
             var intent = new Intent(MediaStore.ActionImageCapture);
             intent.PutExtra(MediaStore.ExtraOutput, uri);
             intent.AddFlags(ActivityFlags.GrantWriteUriPermission | ActivityFlags.GrantReadUriPermission);
-            intent.PutExtra("android.intent.extras.CAMERA_FACING", 1);
-            intent.PutExtra("android.intent.extras.LENS_FACING_FRONT", 1);
-            intent.PutExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+            if (front)
+            {
+                intent.PutExtra("android.intent.extras.CAMERA_FACING", 1);
+                intent.PutExtra("android.intent.extras.LENS_FACING_FRONT", 1);
+                intent.PutExtra("android.intent.extra.USE_FRONT_CAMERA", true);
+            }
 
             var taken = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
             _pending = taken;
-            Preferences.Default.Set(PendingSelfieKey, file.AbsolutePath);
+            if (front)
+            {
+                Preferences.Default.Set(PendingSelfieKey, file.AbsolutePath); // only a selfie is picked up after a restart
+            }
+
             await MainThread.InvokeOnMainThreadAsync(() => activity.StartActivityForResult(intent, SelfieRequestCode));
             var ok = await taken.Task;
-            Preferences.Default.Remove(PendingSelfieKey);
+            if (front)
+            {
+                Preferences.Default.Remove(PendingSelfieKey);
+            }
             if (!ok)
             {
                 logger.LogInformation("The camera closed without a photo.");
@@ -88,7 +108,7 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
 
             try
             {
-                return new PhotoPick(PhotoPickStatus.Picked, [await Task.Run(() => Shrink(file.AbsolutePath))]);
+                return new PhotoPick(PhotoPickStatus.Picked, [await Task.Run(() => Shrink(file.AbsolutePath, maxSide, quality))]);
             }
             finally
             {
@@ -97,12 +117,12 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
         }
         catch (ActivityNotFoundException ex)
         {
-            logger.LogError(ex, "No camera app to take a selfie with.");
+            logger.LogError(ex, "No camera app to take {What} with.", what);
             return PhotoPick.Failed;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Could not take a selfie.");
+            logger.LogError(ex, "Could not take {What}.", what);
             return PhotoPick.Failed;
         }
     }
@@ -128,7 +148,7 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
                 }
 
                 logger.LogWarning("The app was closed while the camera was open; picking up the selfie it took.");
-                return new PhotoPick(PhotoPickStatus.Picked, [await Task.Run(() => Shrink(path))]);
+                return new PhotoPick(PhotoPickStatus.Picked, [await Task.Run(() => Shrink(path, SelfieMaxSide, SelfieJpegQuality))]);
             }
             finally
             {
@@ -152,13 +172,13 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
     }
 
     // Decoded at a fraction of full size first (a 50 MP photo would not fit in memory), then turned upright
-    // from the EXIF orientation, scaled to MaxSide and saved as a JPEG with no metadata.
-    private static byte[] Shrink(string path)
+    // from the EXIF orientation, scaled to maxSide and saved as a JPEG with no metadata.
+    private static byte[] Shrink(string path, int maxSide, int quality)
     {
         var bounds = new BitmapFactory.Options { InJustDecodeBounds = true };
         BitmapFactory.DecodeFile(path, bounds);
         var sample = 1;
-        while (Math.Max(bounds.OutWidth, bounds.OutHeight) / (sample * 2) >= MaxSide)
+        while (Math.Max(bounds.OutWidth, bounds.OutHeight) / (sample * 2) >= maxSide)
         {
             sample *= 2;
         }
@@ -174,12 +194,12 @@ public sealed class AndroidPhotoPicker(DevicePhotoPicker device, ILogger<Android
             ExifInterface.OrientationRotate270 => 270,
             _ => 0,
         });
-        var scale = Math.Min(1f, MaxSide / (float)Math.Max(decoded.Width, decoded.Height));
+        var scale = Math.Min(1f, maxSide / (float)Math.Max(decoded.Width, decoded.Height));
         matrix.PostScale(scale, scale);
 
         using var upright = Bitmap.CreateBitmap(decoded, 0, 0, decoded.Width, decoded.Height, matrix, true);
         using var output = new MemoryStream();
-        upright.Compress(Bitmap.CompressFormat.Jpeg!, JpegQuality, output);
+        upright.Compress(Bitmap.CompressFormat.Jpeg!, quality, output);
         return output.ToArray();
     }
 }

@@ -39,7 +39,9 @@ public sealed class VerificationFunctions(
     /// <c>POST verifications/{kind}?consent=true[&amp;badgeId=ayala-land|other][&amp;companyName=…][&amp;projectName=…]</c>, the body is the photo
     /// (like <c>POST photos</c>). <c>kind</c> is one of <see cref="VerificationKinds"/>; <c>consent=true</c> says the
     /// worker ticked the consent box on the screen that explains the AI scan and how the photo is kept. An ID is read
-    /// by AI before it's saved; nothing read comes back to the phone.
+    /// by AI before it's saved; nothing read comes back to the phone. Every proof gets the photo check
+    /// (<see cref="PhotoQuality"/>): what it found comes back as <see cref="VerificationDto.PhotoProblems"/>, only advice,
+    /// and <c>&amp;retake=true</c> sends a new photo in place of the caller's own one still waiting for the operator.
     /// </summary>
     [Function("SubmitVerification")]
     public async Task<IActionResult> Submit(
@@ -63,9 +65,15 @@ public sealed class VerificationFunctions(
         var submission = new VerificationSubmission(
             kind, string.IsNullOrEmpty(badgeId) ? null : badgeId, projectName,
             string.Equals(request.Query["consent"], "true", StringComparison.OrdinalIgnoreCase), companyName);
-        if (await verifications.RefusalAsync(uid, submission, cancellationToken) is { } refusal)
+        // A retake replaces the worker's own photo still waiting for the operator, after the photo check said
+        // "take it again?" (it is only advice, so the first photo was kept until then).
+        // With nothing waiting (a rejected badge sent again), a retake is simply a new request.
+        var retake = string.Equals(request.Query["retake"], "true", StringComparison.OrdinalIgnoreCase);
+        var refusal = await verifications.RefusalAsync(uid, submission, cancellationToken);
+        var replacing = retake && refusal == SubmitOutcome.AlreadySent;
+        if (refusal is { } refused && !replacing)
         {
-            return Refused(refusal);
+            return Refused(refused);
         }
 
         var bytes = await PhotoFunctions.ReadAtMostAsync(request.Body, MaxBytes + 1, cancellationToken);
@@ -86,17 +94,31 @@ public sealed class VerificationFunctions(
                 return new ObjectResult(new ApiError("too-large")) { StatusCode = StatusCodes.Status413PayloadTooLarge };
             }
 
-            bytes = PhotoImage.ToStoredJpeg(bytes, format); // upright, no EXIF or GPS, like every photo
+            bytes = PhotoImage.ToStoredProofJpeg(bytes, format); // upright, no EXIF or GPS, big enough for small print
         }
         catch (MagickException)
         {
             return ApiResults.BadRequest("broken-image");
         }
 
+        var quality = PhotoQuality.Measure(bytes);
+        var check = new ProofCheck(quality.Problems, quality.Sharpness);
         var scan = kind == VerificationKinds.Id ? await reader.ReadAsync(bytes, cancellationToken) : IdScan.None;
         var name = $"{uid}/{Guid.NewGuid():N}.jpg";
         await files.SaveAsync(name, bytes, cancellationToken);
-        if (await verifications.SubmitAsync(uid, submission, name, scan, cancellationToken) is { } saved)
+        if (replacing)
+        {
+            if (await verifications.RetakeAsync(uid, submission, name, scan, check, cancellationToken) is { } replaced)
+            {
+                if (replaced.OldBlob is not null)
+                {
+                    await files.DeleteAsync(replaced.OldBlob, cancellationToken);
+                }
+
+                return new OkObjectResult(replaced.Request);
+            }
+        }
+        else if (await verifications.SubmitAsync(uid, submission, name, scan, check, cancellationToken) is { } saved)
         {
             return new OkObjectResult(saved);
         }

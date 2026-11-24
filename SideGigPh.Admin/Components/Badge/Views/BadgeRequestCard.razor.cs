@@ -19,8 +19,19 @@ public partial class BadgeRequestCard
 
     private string? _document;
     private string? _reason;
+    private string? _code;
     private string? _error;
     private bool _busy;
+
+    /// <summary>A reason picked: counted, and it starts the text the worker reads when nothing is typed yet.</summary>
+    private void PickCode(string code, string label)
+    {
+        _code = _code == code ? null : code;
+        if (_code is not null && string.IsNullOrWhiteSpace(_reason))
+        {
+            _reason = label;
+        }
+    }
 
     private async Task ShowDocumentAsync()
     {
@@ -59,7 +70,7 @@ public partial class BadgeRequestCard
                 return;
             }
 
-            await Badges.DecideAsync(Request, approve, _reason);
+            await Badges.DecideAsync(Request, approve, _reason, _code);
             await OnDecided.InvokeAsync();
         }
         catch (AdminApiException ex)

@@ -12,7 +12,15 @@
         <MudText Typo="Typo.body1" Color="Color.Secondary">@T.Get(What)</MudText>
     </MudStack>
 
-    @if (!Badges.CanSend(BadgeKind))
+    @if (_problems is not null)
+    {
+        <PhotoRetakePrompt Problems="_problems" Busy="_busy" OnRetake="RetakeAsync" OnKeep="Keep" />
+        @if (_problem is not null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Text" Dense="true" role="alert">@T.Get(_problem)</MudAlert>
+        }
+    }
+    else if (!Badges.CanSend(BadgeKind))
     {
         <MudAlert Severity="Severity.Normal" Variant="Variant.Text" Dense="true" role="status">@T.Get(Copy.BadgeNothingToSend)</MudAlert>
     }
@@ -39,6 +47,11 @@
             </MudStack>
         }
 
+        @if (UsesCamera)
+        {
+            <ProofPhotoGuide />
+        }
+
         <MudPaper Outlined="true" Class="app-rounded pa-3">
             <MudCheckBox T="bool" @bind-Value="_consent" Disabled="_busy" Color="Color.Primary"
                          Label="@T.Get(Consent)" />
@@ -59,8 +72,9 @@
 
         <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       StartIcon="@Icons.Material.Rounded.PhotoLibrary" Disabled="@(_busy || !CanSend)" OnClick="SendAsync">
-                @T.Get(Copy.BadgeChoosePhoto)
+                       StartIcon="@(UsesCamera ? Icons.Material.Rounded.PhotoCamera : Icons.Material.Rounded.PhotoLibrary)"
+                       Disabled="@(_busy || !CanSend)" OnClick="SendAsync">
+                @T.Get(UsesCamera ? Copy.BadgeTakePhoto : Copy.BadgeChoosePhoto)
             </MudButton>
         </MudPaper>
     }

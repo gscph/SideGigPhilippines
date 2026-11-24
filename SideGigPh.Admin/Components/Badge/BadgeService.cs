@@ -36,7 +36,7 @@ public sealed class BadgeService(AdminApi api)
     public static bool CanReject(string? reason) => CleanReason(reason) is not null;
 
     /// <summary>Sends the decision and takes the request off the list. Throws <see cref="AdminApiException"/> when it didn't go through.</summary>
-    public async Task DecideAsync(AdminVerificationDto request, bool approve, string? reason)
+    public async Task DecideAsync(AdminVerificationDto request, bool approve, string? reason, string? rejectCode = null)
     {
         if (!approve && !CanReject(reason))
         {
@@ -44,7 +44,8 @@ public sealed class BadgeService(AdminApi api)
         }
 
         await api.PostAsync($"ops/verifications/{request.Id}/decision",
-            new VerificationDecisionRequest(approve, approve ? null : CleanReason(reason)), ApiJson.Default.VerificationDecisionRequest);
+            new VerificationDecisionRequest(approve, approve ? null : CleanReason(reason), approve ? null : rejectCode),
+            ApiJson.Default.VerificationDecisionRequest);
         _pending.RemoveAll(item => item.Id == request.Id);
     }
 }

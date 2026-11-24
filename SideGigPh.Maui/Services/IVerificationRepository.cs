@@ -14,7 +14,8 @@ public interface IVerificationRepository
     /// <summary>
     /// Sends the photo for <paramref name="badge"/>. Call it only after the worker ticked the consent box: the call
     /// tells the server they agreed. Answers <see cref="BadgeSubmitResult.Sent"/> or
-    /// <see cref="BadgeSubmitResult.AlreadySent"/>; throws when it didn't send.
+    /// <see cref="BadgeSubmitResult.AlreadySent"/>; throws when it didn't send. With <paramref name="retake"/> the photo
+    /// replaces the worker's own one still waiting for the checker (after the photo check asked "take it again?").
     /// </summary>
-    Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo);
+    Task<BadgeSubmitResult> SubmitAsync(Badge badge, byte[] photo, bool retake);
 }
