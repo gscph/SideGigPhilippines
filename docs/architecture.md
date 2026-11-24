@@ -620,8 +620,8 @@ households and skilled workers, the badge review (the same as the phone's `Badge
 ## Landing page (`SideGigPh.FrontDoor`)
 
 Tarbaho's public page, **tarbaho.com**: who it is for, how it works for each side, the trades and towns, what is
-checked, questions, and in the middle an **Early Access** form. Android says "Soon"; iPhone links the public
-TestFlight beta.
+checked, questions, and the **Early Access** form right in the hero, beside the app screens. Android says "Soon"; iPhone
+links the public TestFlight beta.
 
 - **Project:** standalone **Blazor WebAssembly** (`Microsoft.NET.Sdk.BlazorWebAssembly`), MudBlazor only, the same
   version as the app; references only `SideGigPh.Contracts`. No server of its own: an **Azure Static Web App** (Free)
@@ -642,12 +642,14 @@ TestFlight beta.
   `Theme/FrontDoorTheme` builds the `MudTheme` with `AppTheme`'s colors and the same Folded T path (`Logo`): change
   them together. Helper classes are `fd-…` in `wwwroot/frontdoor.css`, colors only through `--mud-palette-*`.
 - **Layout:** `Pages/Home` composes one component per section in `Components/Landing/` (`SiteHeader`, `Hero` +
-  `HeroPhones`, `TwoSides`, `Promises`, `EarlyAccessSection` + `EarlyAccessForm`, `TradesAndTowns`, `NumbersSection`,
+  `HeroPhones` + `EarlyAccessForm`, `TwoSides`, `Promises`, `TradesAndTowns`, `NumbersSection`,
   `TrustSection`, `FaqSection`, `RepeatCta`, `SiteFooter`; shared parts `SectionTitle`, `FeatureRow`, `IconCircle`,
   `BrandMark`, `StoreBadges`), each `.razor` + `.razor.cs`, all inheriting `LandingComponent` (the language and `T(say)`).
 - **Look:** the Tivo landing template the owner picked (Bootstrap, not used: rebuilt in MudBlazor), in Tarbaho's brand.
   A purple header (white logo, links, language toggle, white pill "Early access") runs into the purple hero band (a soft
-  ring and dot grid, `fd-hero-band`), text on one side and two tilted app screens on the other (`HeroPhones`: the store
+  ring and dot grid, `fd-hero-band`): on one side the logo with the "Powered by AI" chip beside it, the headline and
+  the Early Access form on a white card (`fd-hero-form`, id `Sections.EarlyAccess`, so every "Early access" button scrolls
+  up to it; no other buttons in the hero), and two tilted app screens on the other (`HeroPhones`: the store
   screenshots `docs/store-assets/phone/2-search-results.png` and `5-request-offer.png`, linked as `images/app/` and
   cropped to the phone by `fd-phone-shot`); sections alternate white and tint; titles are uppercase purple with the last
   word on a tint highlight (`SectionTitle`, `Copy.Titles` as Lead + Mark); pill buttons (`fd-pill`) and pill tabs
