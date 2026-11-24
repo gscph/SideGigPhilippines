@@ -41,7 +41,7 @@ changing that area.**
   `IReviewRepository`, `IProfessionalProfileRepository`, `IConfigSource<AppConfig>`, `IOtherJobNoteRepository`,
   `IPhotoPicker` / `IPhotoStore`, `IContactLauncher`, `IPushNotifications`, `IErrorReportRepository` /
   `IErrorLogStore` (error reports), `ISafetyRepository` (report and block), `IFeedbackRepository` (feedback board), `IJobPostRepository` (job posts),
-  skeleton `IAnalytics` / `IExperiments` (usage analytics and A/B tests; do-nothing defaults), `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers, `AccountSwitchedAsync` (adding a number that is another account's signs in to that account with the same code, never a second one: `AuthResult.SwitchedAccount`, Android `MobileAppTheme.Firebase/AndroidPhoneLink`, iOS `IosPhoneLink`; SMS codes are sent and checked through Firebase's own SDK, `AndroidPhoneVerification` / `IosPhoneVerification`, never the plugin, which loses Firebase's answers; "Sign in with this number" stays only for a provider that can't), `SwitchSideAsync` (household ↔ Skilled Worker, below), Delete account; no Start over on the Me page), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
+  `IAppAccount` (= `LocalAccount`: language, sign out keeping the answers, `AccountSwitchedAsync` (adding a number that is another account's signs in to that account with the same code, never a second one: `AuthResult.SwitchedAccount`, Android `MobileAppTheme.Firebase/AndroidPhoneLink`, iOS `IosPhoneLink`; SMS codes are sent and checked through Firebase's own SDK, `AndroidPhoneVerification` / `IosPhoneVerification`, never the plugin, which loses Firebase's answers; "Sign in with this number" stays only for a provider that can't), `SwitchSideAsync` (household ↔ Skilled Worker, below), Delete account; no Start over on the Me page), skeleton `ISplashLines` (= `RoleSplashLines`: the busy splash's lines by role).
 - **API adapters** (`Services/Api/`, the only app code that talks HTTP): `ApiClient` (one `HttpClient`, the Firebase
   ID token on every request, asks for gzip) and one `Api*Repository` per port, registered by `AddSideGigPhApi`
   after `AddMobileAppTheme`; `ApiMapping` converts contracts ↔ `Models/` (models never get contract types). Failed
@@ -118,14 +118,6 @@ changing that area.**
   call (`X-App-Version`, logged by `ErrorDetailsMiddleware` with each crash and refusal) and on every API answer
   (`X-Api-Version`, logged by `ApiClient` with each failed call). Merging a PR is a new version; to set major.minor by hand change
   `AppVersionBase` in `Directory.Build.props`, never a csproj; the build number only counts up.
-- **Analytics and A/B tests** are ports with do-nothing defaults (skeleton `IAnalytics` / `NoAnalytics`,
-  `IExperiments` / `NoExperiments`) behind `Services/Analytics/AppAnalytics`. The Firebase adapters are **build-time
-  feature flags, off by default** (`FirebaseAnalytics`, `FirebaseExperiments` in `Directory.Build.props`, or
-  `-p:FirebaseAnalytics=true`; CI repo variables `FIREBASE_ANALYTICS` / `FIREBASE_EXPERIMENTS`): off, the package isn't
-  referenced and `AddFirebaseAnalytics()` / `AddFirebaseExperiments()` do nothing, so the APK builds with nothing set
-  up in Firebase. Only screen routes with ids taken out (`AppAnalytics.ScreenName`), the events in `AppEvents` and the
-  traits in `AppProperties` are sent: never a name, number, message or search words. Update the privacy policy before
-  turning analytics on.
 - **Geo** (`013-schema-geo.sql`, `GeoRules`): a listing has a private base point (`Professionals.Latitude` /
   `Longitude`, kept by the database as the geography column `Location`, SRID 4326, with a spatial index) and a travel
   distance `RadiusKm` (1–50, default 10). `PublishListingRequest` carries them, all optional: without them the server
@@ -266,13 +258,13 @@ SideGigPh.slnx
 │   ├── Components/Pages/      # NotFound
 │   ├── Localization/          # AppText, LocalizedText, AppLanguage, TimeAgo, CommonCopy
 │   ├── Models/                # CatalogOption
-│   ├── Services/              # ports: IAppAccount, IContactLauncher, IDeviceLocation, IPhotoPicker, IPhotoStore, IPushNotifications, IAnalytics, IExperiments; RemoteConfig<T>
+│   ├── Services/              # ports: IAppAccount, IContactLauncher, IDeviceLocation, IPhotoPicker, IPhotoStore, IPushNotifications; RemoteConfig<T>
 │   │   └── Local/             # on-device adapters + JsonFile<T>
 │   └── wwwroot/mobile-app-theme.css
 │
-├── Directory.Build.props      # THE version (AppVersionBase, AppVersionStage; CI adds the patch) and the Firebase build flags
+├── Directory.Build.props      # THE version (AppVersionBase, AppVersionStage; CI adds the patch)
 ├── Directory.Build.targets    # StampBuildInfo: version + git commit into the app and the API
-├── MobileAppTheme.Firebase/   # Firebase adapters (Android/iOS): AddFirebaseAuth (sign-in), AddFirebasePush (notifications), AddFirebaseAnalytics / AddFirebaseExperiments (build flags, off by default) — swap for another provider's project
+├── MobileAppTheme.Firebase/   # Firebase adapters (Android/iOS): AddFirebaseAuth (sign-in), AddFirebasePush (notifications) — swap for another provider's project
 │
 ├── SideGigPh.Contracts/       # JSON records shared by the app and the API (+ source-generated ApiJson)
 │

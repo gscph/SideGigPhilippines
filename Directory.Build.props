@@ -28,16 +28,4 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
-  <!-- Build-time feature flags for the optional Firebase parts (MobileAppTheme.Firebase). Off: the package isn't
-       referenced and the app keeps the skeleton's do-nothing adapter, so the APK builds with nothing set up in the
-       Firebase console. Turn one on here, or for one build with -p:FirebaseAnalytics=true (CI: the repo variables
-       FIREBASE_ANALYTICS / FIREBASE_EXPERIMENTS).
-
-         FirebaseAnalytics    Google Analytics for Firebase behind IAnalytics
-         FirebaseExperiments  Firebase Remote Config + A/B Testing behind IExperiments (A/B Testing needs Analytics on) -->
-  <PropertyGroup>
-    <FirebaseAnalytics Condition="'$(FirebaseAnalytics)' == ''">false</FirebaseAnalytics>
-    <FirebaseExperiments Condition="'$(FirebaseExperiments)' == ''">false</FirebaseExperiments>
-  </PropertyGroup>
-
 </Project>

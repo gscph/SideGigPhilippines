@@ -28,10 +28,6 @@ env:
   PACKAGE_FORMAT: ${{ inputs.channel == 'prod' && 'aab' || 'apk' }}
   # The shared dev key's SHA-1 (docs/android-signing.md): a prod bundle signed with it is refused.
   DEV_KEY_SHA1: A5:F0:C9:6E:1D:B3:FC:85:E7:2E:6C:98:4F:D4:03:1A:D5:C3:31:B6
-  # Optional Firebase parts, off unless the repo variable says "true" (Settings > Secrets and variables > Actions >
-  # Variables). See Directory.Build.props and firebase/README.md.
-  FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
-  FIREBASE_EXPERIMENTS: ${{ vars.FIREBASE_EXPERIMENTS == 'true' && 'true' || 'false' }}
 
 jobs:
   build-android:
@@ -62,7 +58,6 @@ jobs:
           if [ -z "$label" ]; then echo "::error::No AppVersionLabel (Directory.Build.props)"; exit 1; fi
           echo "label=$label" >> "$GITHUB_OUTPUT"
           echo "### Tarbaho $label (${{ inputs.channel }}, build $BUILD_NUMBER, commit ${GITHUB_SHA::7})" >> "$GITHUB_STEP_SUMMARY"
-          echo "Analytics: $FIREBASE_ANALYTICS, experiments: $FIREBASE_EXPERIMENTS" >> "$GITHUB_STEP_SUMMARY"
 
       # The run's summary page lists the PRs added since the last successful build, each linked for the details.
       - name: List what's new since the last build
@@ -112,7 +107,6 @@ jobs:
         run: >-
           dotnet publish ${{ env.PROJECT }} -f net10.0-android -c Release -p:AndroidPackageFormat=${{ env.PACKAGE_FORMAT }}
           -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppVersionNumber=${{ env.APP_VERSION }} -p:AppChannel=${{ inputs.channel }}
-          -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
           -o ${{ github.workspace }}/output/android
 
       # Which key signed it, on the run page; a prod bundle signed with the dev key stops here.

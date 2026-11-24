@@ -40,8 +40,6 @@ env:
   XCODE_VERSION: '26.6'
   BUNDLE_ID: com.tarbaho.app
   BUILD_NUMBER: ${{ github.run_number }}
-  FIREBASE_ANALYTICS: ${{ vars.FIREBASE_ANALYTICS == 'true' && 'true' || 'false' }}
-  FIREBASE_EXPERIMENTS: ${{ vars.FIREBASE_EXPERIMENTS == 'true' && 'true' || 'false' }}
 
 jobs:
   build-ios:
@@ -171,7 +169,6 @@ jobs:
           dotnet publish ${{ env.PROJECT }} -f net10.0-ios -c Release -p:RuntimeIdentifier=ios-arm64 -p:ArchiveOnBuild=true
           -p:CodesignKey="Apple Distribution" -p:CodesignProvision="${{ env.PROFILE_NAME }}"
           -p:BuildNumber=${{ env.BUILD_NUMBER }} -p:AppVersionNumber=${{ env.APP_VERSION }} -p:AppChannel=prod
-          -p:FirebaseAnalytics=${{ env.FIREBASE_ANALYTICS }} -p:FirebaseExperiments=${{ env.FIREBASE_EXPERIMENTS }}
 
       - name: Find and check the .ipa
         id: package

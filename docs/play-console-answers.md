@@ -64,7 +64,6 @@ Checked against build `0.1.0` (the beta APK of CI run 29 and the prod AAB of run
 ## Advertising ID
 
 **No**, the app does not use the advertising ID (no `com.google.android.gms.permission.AD_ID` in the manifest).
-Check again when Firebase Analytics is turned on (`FirebaseAnalytics` build flag), since its SDK can add it.
 
 ## Privacy policy
 
