@@ -37,7 +37,7 @@ public enum OfferOutcome
 /// (<see cref="SendOfferAsync"/>); the household sees each offer with the worker's listing (<see cref="OffersAsync"/>)
 /// and picks one (<see cref="PickAsync"/>), which closes the post.
 /// </summary>
-public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigStore config, ProfessionalStore professionals)
+public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigStore config, ProfessionalStore professionals, AppEventStore events)
 {
     /// <summary>The most posts one page holds, whatever the caller asks for.</summary>
     public const int MaxPage = 30;
@@ -97,6 +97,10 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         await CopyNamesAsync(row, cancellationToken);
         db.JobPosts.Add(row);
         await db.SaveChangesAsync(cancellationToken);
+        await events.LogAsync(new AppEvent(AppEventNames.RequestCreated)
+        {
+            UserId = uid, UserType = AppEventUserTypes.Customer, RequestId = row.Id.ToString(), ServiceCategory = row.CategoryId, Area = row.CityId,
+        });
         return new JobPostOutcome(ToDto(row, uid), null, IsNew: true);
     }
 
@@ -400,7 +404,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
     /// </summary>
     public async Task<JobOfferDto?> PickAsync(string uid, long postId, long offerId, CancellationToken cancellationToken)
     {
-        var picked = await db.InTransactionAsync(async ct =>
+        var pick = await db.InTransactionAsync(async ct =>
         {
             var now = DateTimeOffset.UtcNow;
             var closed = await db.JobPosts.Where(p => p.Id == postId && p.SeekerUid == uid && p.Status == JobPostStatuses.Open
@@ -411,7 +415,9 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
                 // The phone sends a pick once more when the answer was lost on the way (ApiClient.WriteTries): one that
                 // already went through answers as picked.
                 return await db.JobOffers.AnyAsync(o => o.Id == offerId && o.PostId == postId && o.Status == JobOfferStatuses.Picked
-                                                        && db.JobPosts.Any(p => p.Id == postId && p.SeekerUid == uid), ct);
+                                                        && db.JobPosts.Any(p => p.Id == postId && p.SeekerUid == uid), ct)
+                    ? Pick.Repeated
+                    : Pick.None;
             }
 
             await db.JobOffers.Where(o => o.Id == offerId)
@@ -429,12 +435,58 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
                     .SetProperty(c => c.CityId, post.CityId)
                     .SetProperty(c => c.ServiceLabelEnglish, post.ServiceLabelEnglish)
                     .SetProperty(c => c.ServiceLabelTaglish, post.ServiceLabelTaglish), ct);
-            return true;
+            return Pick.New;
         }, cancellationToken);
 
-        return picked && await OffersAsync(uid, postId, cancellationToken) is { } offers
+        if (pick == Pick.New)
+        {
+            await LogMatchAsync(uid, postId, offerId);
+        }
+
+        return pick != Pick.None && await OffersAsync(uid, postId, cancellationToken) is { } offers
             ? offers.FirstOrDefault(o => o.Id == offerId)
             : null;
+    }
+
+    private enum Pick { None, Repeated, New }
+
+    /// <summary>
+    /// Counts a new pick (<see cref="AppEventNames.RequestMatched"/>, minutes from the post to the pick), and a
+    /// <see cref="AppEventNames.Rehire"/> when this household already finished a job with this worker.
+    /// </summary>
+    private async Task LogMatchAsync(string uid, long postId, long offerId)
+    {
+        try
+        {
+            var match = await (from o in db.JobOffers
+                               join p in db.JobPosts on o.PostId equals p.Id
+                               where o.Id == offerId && p.Id == postId
+                               select new { o.ProUid, p.CategoryId, p.CityId, p.CreatedAt, p.ClosedAt }).FirstAsync();
+            var minutes = (int)Math.Max(0, ((match.ClosedAt ?? DateTimeOffset.UtcNow) - match.CreatedAt).TotalMinutes);
+            await events.LogAsync(new AppEvent(AppEventNames.RequestMatched)
+            {
+                UserId = uid, UserType = AppEventUserTypes.Customer, RequestId = postId.ToString(), ServiceCategory = match.CategoryId,
+                Area = match.CityId, MinutesToMatch = minutes,
+            });
+
+            var hiredBefore = await (from o in db.JobOffers
+                                     join p in db.JobPosts on o.PostId equals p.Id
+                                     where p.SeekerUid == uid && o.ProUid == match.ProUid && o.Id != offerId && o.Status == JobOfferStatuses.Picked
+                                           && o.HouseholdDoneAt != null && o.WorkerDoneAt != null
+                                     select o.Id).AnyAsync();
+            if (hiredBefore)
+            {
+                await events.LogAsync(new AppEvent(AppEventNames.Rehire)
+                {
+                    UserId = uid, UserType = AppEventUserTypes.Customer, RequestId = postId.ToString(), ServiceCategory = match.CategoryId,
+                    Area = match.CityId,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            events.Failed(ex, AppEventNames.RequestMatched);
+        }
     }
 
     /// <summary>

@@ -36,6 +36,8 @@ namespace SideGigPh.Contracts;
 [JsonSerializable(typeof(ErrorReportDto))]
 [JsonSerializable(typeof(List<ErrorReportDto>))]
 [JsonSerializable(typeof(ErrorReportBatch))]
+[JsonSerializable(typeof(AppEventDto))]
+[JsonSerializable(typeof(List<AppEventDto>))]
 [JsonSerializable(typeof(ReportRequest))]
 [JsonSerializable(typeof(FeedbackPostDto))]
 [JsonSerializable(typeof(List<FeedbackPostDto>))]

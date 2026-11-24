@@ -18,7 +18,7 @@ public enum PublishOutcome
 }
 
 /// <summary>Published Skilled Worker listings (<c>Professionals</c> and its services, towns and work photos).</summary>
-public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache cache, ConfigStore config)
+public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache cache, ConfigStore config, AppEventStore events)
 {
     /// <summary>Most work photos a listing can have (the app's <c>ProWorkspace.MaxWorkPhotos</c>).</summary>
     public const int MaxWorkPhotos = 6;
@@ -160,6 +160,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
         try
         {
+            var isNew = false;
             var outcome = await db.InTransactionAsync(async ct =>
             {
                 // Anti-fraud rule 1, one number = one account, decided by who holds the number NOW: it is the token's
@@ -173,6 +174,7 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
 
                 var now = DateTimeOffset.UtcNow;
                 var row = await db.Professionals.FirstOrDefaultAsync(p => p.Id == uid, ct);
+                isNew = row is null;
                 if (row is null)
                 {
                     row = new ProfessionalRow
@@ -225,6 +227,15 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
                 return PublishOutcome.Published;
             }, cancellationToken);
             cache.Clear();
+            // A worker's profile is complete the first time it goes live (a listing taken down and published again isn't counted twice).
+            if (isNew && !await events.HasAsync(AppEventNames.WorkerProfileComplete, uid))
+            {
+                await events.LogAsync(new AppEvent(AppEventNames.WorkerProfileComplete)
+                {
+                    UserId = uid, UserType = AppEventUserTypes.Worker, ServiceCategory = request.CategoryId, Area = cities.FirstOrDefault(),
+                });
+            }
+
             return outcome;
         }
         catch (DbUpdateException ex) when (SqlErrors.Violates(ex, Constraints.ProfessionalMobileNumber))

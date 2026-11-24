@@ -54,7 +54,7 @@ public enum CancelPickOutcome
 /// Both reviews are blind (<see cref="BlindReviewFilter"/>): hidden until both sides reviewed or
 /// <see cref="ReviewRules.BlindFor"/> passed. No money passes through the app: done is each side's own word.
 /// </summary>
-public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
+public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings, AppEventStore events)
 {
     /// <summary>The most picked jobs listed between two people (newest first).</summary>
     public const int MaxBetween = 20;
@@ -145,6 +145,7 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
         }
 
         var now = DateTimeOffset.UtcNow;
+        var wasCompleted = job.Offer.HouseholdDoneAt is not null && job.Offer.WorkerDoneAt is not null;
         if (job.SeekerUid == uid)
         {
             job.Offer.HouseholdDoneAt ??= now;
@@ -163,10 +164,46 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings)
         if (job.Offer.HouseholdDoneAt is not null && job.Offer.WorkerDoneAt is not null)
         {
             listings.Clear(); // search results carry the completed jobs count
+            if (!wasCompleted)
+            {
+                await LogCompletedAsync(uid, postId, job.Offer.ProUid, job.SeekerUid == uid);
+            }
         }
 
         var other = job.SeekerUid == uid ? job.Offer.ProUid : job.SeekerUid;
         return (await BetweenAsync(uid, other, cancellationToken)).FirstOrDefault(j => j.PostId == postId);
+    }
+
+    /// <summary>
+    /// Counts a job both sides marked done (<see cref="AppEventNames.JobCompleted"/>, by whoever confirmed last), and the
+    /// worker's <see cref="AppEventNames.WorkerFirstJob"/> when it is their first.
+    /// </summary>
+    private async Task LogCompletedAsync(string uid, long postId, string proUid, bool household)
+    {
+        try
+        {
+            var post = await db.JobPosts.Where(p => p.Id == postId).Select(p => new { p.CategoryId, p.CityId }).FirstAsync();
+            await events.LogAsync(new AppEvent(AppEventNames.JobCompleted)
+            {
+                UserId = uid, UserType = household ? AppEventUserTypes.Customer : AppEventUserTypes.Worker, RequestId = postId.ToString(),
+                ServiceCategory = post.CategoryId, Area = post.CityId,
+            });
+
+            var completed = await db.JobOffers.CountAsync(o => o.ProUid == proUid && o.Status == JobOfferStatuses.Picked
+                                                               && o.HouseholdDoneAt != null && o.WorkerDoneAt != null);
+            if (completed == 1 && !await events.HasAsync(AppEventNames.WorkerFirstJob, proUid))
+            {
+                await events.LogAsync(new AppEvent(AppEventNames.WorkerFirstJob)
+                {
+                    UserId = proUid, UserType = AppEventUserTypes.Worker, RequestId = postId.ToString(), ServiceCategory = post.CategoryId,
+                    Area = post.CityId,
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+            events.Failed(ex, AppEventNames.JobCompleted);
+        }
     }
 
     /// <summary>How long after a cancel the same cancel sent again answers as cancelled instead of "not found".</summary>

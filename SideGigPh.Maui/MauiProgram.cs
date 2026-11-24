@@ -2,6 +2,7 @@
 using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme; // MAUI has an AppTheme enum too
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Diagnostics;
 using SideGigPh.Maui.Services.Local;
@@ -101,6 +102,12 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<ErrorReportSender>();
             builder.Services.AddSingleton<ErrorReporting>();
             builder.Services.AddSingleton<ILoggerProvider>(services => new ErrorLogLoggerProvider(services.GetRequiredService<ErrorLog>()));
+
+            // Our own usage counts (Services/Analytics, no analytics SDK): searches are kept on the phone
+            // (pending-events.json) and uploaded in the background (POST events); the API logs the business events itself.
+            builder.Services.AddSingleton<IPendingEventStore, FilePendingEventStore>();
+            builder.Services.AddSingleton<TarbahoAnalytics>();
+            builder.Services.AddSingleton<AnalyticsUploader>();
 
 #if ANDROID
             // App warnings and errors (API failures, photo picker) in logcat: adb logcat -s SideGigPh

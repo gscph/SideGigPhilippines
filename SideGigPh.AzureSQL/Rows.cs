@@ -234,6 +234,28 @@ public sealed class ErrorReportRow
     public DateTimeOffset ReceivedAt { get; set; }
 }
 
+/// <summary>One usage event (<c>app_events</c>, <see cref="AppEventStore"/>): no personal data, kept 12 months.</summary>
+public sealed class AppEventRow
+{
+    public long Id { get; set; }
+    public Guid EventId { get; set; }
+    public required string EventName { get; set; }
+    public required string Source { get; set; }
+    public string? UserId { get; set; }
+    public string? UserType { get; set; }
+    public string? SessionId { get; set; }
+    public string? ServiceCategory { get; set; }
+    public string? Area { get; set; }
+    public string? SearchTerm { get; set; }
+    public int? ResultCount { get; set; }
+    public int? MinutesToMatch { get; set; }
+    public string? Reason { get; set; }
+    public string? RequestId { get; set; }
+    public string? AppVersion { get; set; }
+    public DateTime? ClientTs { get; set; }
+    public DateTime ServerTs { get; set; }
+}
+
 /// <summary>One answer in a config list (<c>ConfigOptions</c>): a town, the default town, experience, urgency or income goal.</summary>
 public sealed class ConfigOptionRow
 {

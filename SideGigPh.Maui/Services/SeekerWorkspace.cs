@@ -1,5 +1,6 @@
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Localization;
 using SideGigPh.Maui.Services.Search;
 
@@ -21,7 +22,8 @@ public sealed class SeekerWorkspace(
     IPhotoPicker picker,
     IPhotoStore photos,
     ISafetyRepository safety,
-    AppText text)
+    AppText text,
+    TarbahoAnalytics analytics)
 {
     /// <summary>The Seeker's id when nobody is signed in (no sign-in provider registered). With an account it is their uid: <see cref="MyId"/>.</summary>
     public const string LocalSeekerId = "me";
@@ -136,7 +138,15 @@ public sealed class SeekerWorkspace(
     {
         Answers.RememberCurrent();
         await SaveAsync();
-        return await search.SearchAsync(Request);
+        var request = Request;
+        var result = await search.SearchAsync(request);
+        // Counted once the results loaded; a search that didn't load (offline: the shared Empty) isn't a search with no results.
+        if (!ReferenceEquals(result, SearchResult.Empty))
+        {
+            _ = analytics.Search(Answers.SearchText, request.CategoryId, request.ServiceId, request.CityId, result.Total);
+        }
+
+        return result;
     }
 
     /// <summary>The recent searches still offered, newest first (Seeker home).</summary>

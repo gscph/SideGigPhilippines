@@ -27,6 +27,7 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
     public DbSet<ConfigOptionRow> ConfigOptions => Set<ConfigOptionRow>();
     public DbSet<BarangayRow> Barangays => Set<BarangayRow>();
     public DbSet<ErrorReportRow> ErrorReports => Set<ErrorReportRow>();
+    public DbSet<AppEventRow> AppEvents => Set<AppEventRow>();
     public DbSet<ReportRow> Reports => Set<ReportRow>();
     public DbSet<BlockRow> Blocks => Set<BlockRow>();
     public DbSet<FeedbackPostRow> FeedbackPosts => Set<FeedbackPostRow>();
@@ -276,6 +277,32 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             report.Property(r => r.Trail).HasMaxLength(2000).IsUnicode();
             report.HasIndex(r => r.ReceivedAt).HasDatabaseName("IX_ErrorReports_ReceivedAt");
             report.HasIndex(r => new { r.Source, r.Channel, r.CodeVersion }).HasDatabaseName("IX_ErrorReports_Source");
+        });
+
+        model.Entity<AppEventRow>(e =>
+        {
+            e.ToTable("app_events");
+            e.HasKey(r => r.Id).HasName("PK_app_events");
+            e.Property(r => r.Id).HasColumnName("id").UseIdentityColumn();
+            e.Property(r => r.EventId).HasColumnName("event_id");
+            e.Property(r => r.EventName).HasColumnName("event_name").HasMaxLength(40);
+            e.Property(r => r.Source).HasColumnName("source").HasMaxLength(10);
+            e.Property(r => r.UserId).HasColumnName("user_id").HasMaxLength(64);
+            e.Property(r => r.UserType).HasColumnName("user_type").HasMaxLength(10);
+            e.Property(r => r.SessionId).HasColumnName("session_id").HasMaxLength(64);
+            e.Property(r => r.ServiceCategory).HasColumnName("service_category").HasMaxLength(40);
+            e.Property(r => r.Area).HasColumnName("area").HasMaxLength(60);
+            e.Property(r => r.SearchTerm).HasColumnName("search_term").HasMaxLength(100).IsUnicode();
+            e.Property(r => r.ResultCount).HasColumnName("result_count");
+            e.Property(r => r.MinutesToMatch).HasColumnName("minutes_to_match");
+            e.Property(r => r.Reason).HasColumnName("reason").HasMaxLength(40);
+            e.Property(r => r.RequestId).HasColumnName("request_id").HasMaxLength(64);
+            e.Property(r => r.AppVersion).HasColumnName("app_version").HasMaxLength(20);
+            e.Property(r => r.ClientTs).HasColumnName("client_ts").HasColumnType("datetime2");
+            e.Property(r => r.ServerTs).HasColumnName("server_ts").HasColumnType("datetime2").HasDefaultValueSql("SYSUTCDATETIME()");
+            e.HasIndex(r => r.EventId).IsUnique().HasDatabaseName("UQ_app_events_event_id");
+            e.HasIndex(r => new { r.EventName, r.ServerTs }).HasDatabaseName("IX_app_events_name_time");
+            e.HasIndex(r => new { r.UserId, r.ServerTs }).HasDatabaseName("IX_app_events_user");
         });
 
         model.Entity<ReportRow>(report =>

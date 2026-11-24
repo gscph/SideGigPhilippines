@@ -11,6 +11,9 @@ public enum Limited
     /// <summary>A batch of error reports from the app (diagnostics).</summary>
     ErrorReport,
 
+    /// <summary>A batch of the app's queued usage events (<c>POST events</c>).</summary>
+    AppEvents,
+
     /// <summary>A Seeker starting a chat with a new Skilled Worker (each one rings that worker's phone).</summary>
     NewChat,
 
@@ -78,6 +81,7 @@ public sealed class CallerLimits : IDisposable
     public static readonly IReadOnlyDictionary<Limited, (int Permits, TimeSpan Window)> Rules = new Dictionary<Limited, (int, TimeSpan)>
     {
         [Limited.ErrorReport] = (12, TimeSpan.FromHours(1)),
+        [Limited.AppEvents] = (30, TimeSpan.FromHours(1)),
         [Limited.Message] = (30, TimeSpan.FromMinutes(1)),
         [Limited.NewChat] = (20, TimeSpan.FromHours(1)),
         [Limited.OtherJobNote] = (20, TimeSpan.FromHours(1)),

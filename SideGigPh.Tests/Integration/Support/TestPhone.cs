@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using MobileAppTheme.Services.Local;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Maui.Services.Search;
 using SideGigPh.Tests.TestSupport;
@@ -50,6 +51,9 @@ public sealed class TestPhone
         services.AddSingleton<ListingRestore>();
         services.AddSingleton<ProBadges>();
         services.AddSingleton<BadgeReview>();
+        services.AddSingleton<IPendingEventStore>(PendingEvents);
+        services.AddSingleton<TarbahoAnalytics>();
+        services.AddSingleton<AnalyticsUploader>();
         services.AddSingleton<SeekerWorkspace>();
         services.AddSingleton(provider => new LocalAccount(
             Store, Identity, provider.GetRequiredService<IUserRepository>(), provider.GetRequiredService<IPhotoStore>(),
@@ -76,6 +80,9 @@ public sealed class TestPhone
     public FakePhotoPicker Picker { get; } = new();
 
     public FakeContactLauncher Dialer { get; } = new();
+
+    /// <summary>The usage events waiting on this phone (<see cref="TarbahoAnalytics"/>).</summary>
+    public FakePendingEvents PendingEvents { get; } = new();
 
     /// <summary>This phone's notifications: allowed, so <see cref="ChatAlerts"/> registers it with the API.</summary>
     public FakePush Push { get; } = new() { Allowed = true };
