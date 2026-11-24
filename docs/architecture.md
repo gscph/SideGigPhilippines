@@ -164,7 +164,8 @@ one table.
   (Monday). EF maps it as `AppEventRow` (snake_case columns).
 - **Server events** (`SideGigPh.AzureSQL/AppEventStore`, scoped): `LogAsync(new AppEvent(name) {…})` is one
   parameterised `INSERT` after the store's own save (never inside its transaction), catching and logging any failure
-  so the request still succeeds. Where: `UserStore.SaveAsync` (`sign_up`, the first time a profile is saved with a
+  so the request still succeeds; it gives up after `GiveUpAfter` (3 s), so a slow database never holds the answer
+  back for long (the same limit on `HasAsync`). Where: `UserStore.SaveAsync` (`sign_up`, the first time a profile is saved with a
   side), `JobPostStore.AddAsync` (`request_created`), `JobPostStore.PickAsync` → `LogMatchAsync` (`request_matched`;
   `rehire` when the household already completed a job with that worker), `PickedJobStore.MarkDoneAsync` →
   `LogCompletedAsync` (`job_completed` when the second side marks done; `worker_first_job`), `ProfessionalStore.PublishAsync`
@@ -181,8 +182,8 @@ one table.
   15 min while on screen, and when the app goes to the background; only while signed in. A new session id after 30+
   minutes away (`App` → `AppShown` / `AppHidden`). There is no WorkManager: uploads happen while the app runs.
 - **`POST events`** (`AppEventFunctions`): signed in, `CallerLimits` `AppEvents` (30 batches an hour), a JSON array of
-  1–50 `AppEventDto`; any name outside `AppEventNames.FromApp` refuses the whole batch (`400`); `user_id` / `user_type`
-  from the token; `client_ts` over 5 minutes ahead or 7 days old becomes NULL; text cut to its column, search words
+  1–50 `AppEventDto`; any name outside `AppEventNames.FromApp` refuses the whole batch (`400`); `user_id` from the token,
+  `user_type` `customer` (only households search); `client_ts` over 5 minutes ahead or 7 days old becomes NULL; text cut to its column, search words
   scrubbed; a duplicate `event_id` is skipped; `202`. It also deletes events over 12 months, at most once a day per instance.
 - **Reports:** `analytics/weekly.sql` (7 questions; run one day after the week ends; `AppEventTests` runs it),
   `analytics/retention.sql` (the 12-month delete by hand). Privacy policy §3.3 and the Play Data safety answers

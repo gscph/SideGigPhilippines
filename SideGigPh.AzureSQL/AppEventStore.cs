@@ -38,6 +38,12 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
     public const string FromServer = "server";
     public const string FromApp = "app";
 
+    /// <summary>
+    /// The longest a store's request waits on an event (the insert, or a <see cref="HasAsync"/> check), retries
+    /// included: a slow or flaky database costs the count, never a slow answer.
+    /// </summary>
+    public static readonly TimeSpan GiveUpAfter = TimeSpan.FromSeconds(3);
+
     private static long _lastPurgeTicks;
 
     /// <summary>Writes a business event now. Never throws: a failure is logged and the caller's request goes on.</summary>
@@ -45,9 +51,10 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
     {
         try
         {
+            using var giveUp = new CancellationTokenSource(GiveUpAfter);
             await InsertAsync(Guid.NewGuid(), Cut(e.Name, AppEventRules.MaxName)!, FromServer, Cut(e.UserId, 64), Cut(e.UserType, 10),
                 sessionId: null, Cut(e.ServiceCategory, AppEventRules.MaxCategory), Cut(e.Area, AppEventRules.MaxArea), searchTerm: null,
-                resultCount: null, e.MinutesToMatch, Cut(e.Reason, 40), Cut(e.RequestId, 64), appVersion: null, clientTs: null);
+                resultCount: null, e.MinutesToMatch, Cut(e.Reason, 40), Cut(e.RequestId, 64), appVersion: null, clientTs: null, giveUp.Token);
         }
         catch (Exception ex)
         {
@@ -63,7 +70,8 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
     {
         try
         {
-            return await db.AppEvents.AnyAsync(e => e.EventName == name && e.UserId == userId);
+            using var giveUp = new CancellationTokenSource(GiveUpAfter);
+            return await db.AppEvents.AnyAsync(e => e.EventName == name && e.UserId == userId, giveUp.Token);
         }
         catch (Exception ex)
         {
@@ -94,7 +102,7 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
                 await InsertAsync(e!.EventId, e.Name, FromApp, uid, AppEventUserTypes.Customer, Cut(e.SessionId, AppEventRules.MaxSession),
                     Cut(e.ServiceCategory, AppEventRules.MaxCategory), Cut(e.Area, AppEventRules.MaxArea), AppEventRules.SearchTerm(e.SearchTerm),
                     e.ResultCount is >= 0 ? e.ResultCount : null, minutesToMatch: null, reason: null, requestId: null,
-                    Cut(e.AppVersion, AppEventRules.MaxVersion), AppEventRules.Believable(e.ClientTs, now)?.UtcDateTime);
+                    Cut(e.AppVersion, AppEventRules.MaxVersion), AppEventRules.Believable(e.ClientTs, now)?.UtcDateTime, cancellationToken);
             }
             catch (SqlException ex) when (ex.Number is 2601 or 2627)
             {
@@ -133,7 +141,7 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
 
     private Task InsertAsync(Guid eventId, string name, string source, string? userId, string? userType, string? sessionId,
         string? serviceCategory, string? area, string? searchTerm, int? resultCount, int? minutesToMatch, string? reason,
-        string? requestId, string? appVersion, DateTime? clientTs) =>
+        string? requestId, string? appVersion, DateTime? clientTs, CancellationToken cancellationToken) =>
         db.Database.ExecuteSqlAsync($"""
             INSERT INTO dbo.app_events
                 (event_id, event_name, source, user_id, user_type, session_id, service_category, area, search_term,
@@ -141,7 +149,7 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
             VALUES
                 ({eventId}, {name}, {source}, {userId}, {userType}, {sessionId}, {serviceCategory}, {area}, {searchTerm},
                  {resultCount}, {minutesToMatch}, {reason}, {requestId}, {appVersion}, {clientTs})
-            """);
+            """, cancellationToken);
 
     private static string? Cut(string? text, int max) => AppEventRules.Cut(text, max);
 }

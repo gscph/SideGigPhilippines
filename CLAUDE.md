@@ -130,8 +130,8 @@ changing that area.**
   7 days), **never sent while the person acts**; `AnalyticsUploader` uploads the 50 oldest at a time (`POST events`,
   `202`, whitelist `AppEventNames.FromApp`, the uid from the token, a phone time over 5 min ahead or 7 days old
   dropped, each `event_id` once) 45 s after launch, every 15 min while open and when the app goes to the background,
-  deleting only what the server kept. Session id: new after 30+ min away. No personal data: the opaque uid, a town id,
-  search words scrubbed (`ErrorReportRules.Clean`); Delete account clears `user_id`; rows over 12 months are deleted
+  deleting only what the server kept. Session id: new after 30+ min away. No names, numbers, emails or points: the opaque uid, a town id,
+  typed search words with numbers and emails taken out (`ErrorReportRules.Clean`); Delete account clears `user_id`; rows over 12 months are deleted
   (`AppEventStore.KeepFor`). Weekly report: `analytics/weekly.sql` (run a day after the week ends; a test runs it),
   manual retention `analytics/retention.sql`. A new event: a name in `AppEventNames`, one `LogAsync` call in the store
   that makes the change, the privacy policy §3.3 if it is new data.

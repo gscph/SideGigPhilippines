@@ -18,7 +18,7 @@ GROUP BY week_start_ph ORDER BY week_start_ph;
 -- 2. Fulfilment rate + speed (last 7 days)
 SELECT
   SUM(CASE WHEN event_name = 'request_created' THEN 1 ELSE 0 END) AS created,
-  SUM(CASE WHEN event_name = 'request_matched' THEN 1 ELSE 0 END) AS matched,
+  COUNT(DISTINCT CASE WHEN event_name = 'request_matched' THEN request_id END) AS matched, -- a cancelled pick picked again is one request
   AVG(CASE WHEN event_name = 'request_matched' THEN minutes_to_match END) AS avg_minutes_to_match
 FROM dbo.v_events
 WHERE event_ts_ph >= DATEADD(DAY, -7, DATEADD(HOUR, 8, SYSUTCDATETIME()));
