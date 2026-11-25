@@ -31,7 +31,7 @@ public class AppEventTests
         Kept.Select(e => (e.Name, e.SearchTerm, e.ServiceCategory, e.Area, e.ResultCount)).Should().Equal(
             (AppEventNames.Search, "aircon linis", "aircon", "angono", 3),
             (AppEventNames.Search, "tubero", "construction", "taytay", 0),
-            (AppEventNames.SearchEmpty, "tubero", "construction", "taytay", (int?)null));
+            (AppEventNames.SearchEmpty, "tubero", "construction", "taytay", null));
         Kept.Should().OnlyContain(e => e.SessionId == analytics.SessionId && e.ClientTs == _clock.GetUtcNow());
         Kept.Select(e => e.EventId).Should().OnlyHaveUniqueItems();
     }
@@ -145,7 +145,7 @@ public class AppEventTests
 
         app.PendingEvents.Saved!.Events.Select(e => (e.Name, e.ServiceCategory, e.Area, e.ResultCount)).Should().Equal(
             (AppEventNames.Search, "aircon", "taytay", 0),
-            (AppEventNames.SearchEmpty, "aircon", "taytay", (int?)null));
+            (AppEventNames.SearchEmpty, "aircon", "taytay", null));
     }
 
     [Theory]

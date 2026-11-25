@@ -78,7 +78,7 @@ public class GeoTests(ApiTestHost api)
 
         using var scope = api.Server.Services.CreateScope();
         var row = await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().Professionals.AsNoTracking().SingleAsync(p => p.Id == worker.Uid);
-        (row.Latitude, row.Longitude, row.RadiusKm).Should().Be((InAntipolo.Latitude, InAntipolo.Longitude, (short)25));
+        (row.Latitude, row.Longitude, row.RadiusKm).Should().Be((InAntipolo.Latitude, InAntipolo.Longitude, 25));
     }
 
     [IntegrationFact]

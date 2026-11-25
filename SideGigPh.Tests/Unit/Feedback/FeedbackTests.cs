@@ -105,7 +105,7 @@ public class FeedbackTests
         var post = await board.PostAsync("  Show my earnings  ", "   ");
 
         board.Posts[0].Should().Be(post);
-        server.Added.Should().ContainSingle().Which.Should().Be(("Show my earnings", (string?)null, (UserRole?)UserRole.Professional));
+        server.Added.Should().ContainSingle().Which.Should().Be(("Show my earnings", null, (UserRole?)UserRole.Professional));
     }
 
     [Fact]

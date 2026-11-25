@@ -59,7 +59,7 @@ public class SearchSheetTests
 
         sheet.Type("linis");
         sheet.PickTrade("aircon");
-        (sheet.Words, sheet.CategoryId).Should().Be(((string?)null, (string?)"aircon"));
+        (sheet.Words, sheet.CategoryId).Should().Be((null, (string?)"aircon"));
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class SearchSheetTests
 
         sheet.Clear();
 
-        (sheet.Words, sheet.CategoryId, sheet.ServiceId, sheet.UrgencyId).Should().Be(((string?)null, (string?)null, (string?)null, (string?)null));
+        (sheet.Words, sheet.CategoryId, sheet.ServiceId, sheet.UrgencyId).Should().Be((null, null, null, null));
         sheet.TownId.Should().Be("angono");
         sheet.Open.Should().Be(SearchStep.What);
         sheet.CanSearch.Should().BeFalse();

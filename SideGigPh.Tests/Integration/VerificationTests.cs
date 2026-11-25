@@ -185,7 +185,7 @@ public class VerificationTests(ApiTestHost api)
 
         var waiting = (await Operator.GetFromJsonAsync("ops/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!
             .Single(v => v.Id == request.Id);
-        (waiting.ScanStatus, waiting.ScannedQr).Should().Be((ScanStatuses.Unreadable, (string?)null));
+        (waiting.ScanStatus, waiting.ScannedQr).Should().Be((ScanStatuses.Unreadable, null));
     }
 
     [IntegrationFact]
