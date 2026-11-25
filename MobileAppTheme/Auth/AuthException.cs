@@ -18,7 +18,6 @@ public sealed class AuthException(AuthError error, string message, Exception? in
     public static AuthError ErrorOf(Exception failure) => failure switch
     {
         AuthException known => known.Error,
-        TimeoutException => AuthError.Network,
         _ when NetworkErrors.IsNetwork(failure) => AuthError.Network,
         _ => AuthError.Unknown,
     };
