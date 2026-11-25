@@ -73,7 +73,7 @@ adding an Android library, install a `beta` APK on a phone and try sign-in, noti
 **Play Console → App content**
 - **Privacy policy**: `https://api.tarbaho.com/api/legal/privacy`.
 - **Data safety**: phone number, name, email (Google), photos, approximate and precise location (only while
-  the app is open), messages (chat), government ID / NBI or police clearance / TESDA photos (badges; deleted after the decision),
+  the app is open), messages (chat), government ID / NBI or police clearance photos (badges; deleted after the decision),
   crash and diagnostic data (error reports, can be turned off). References (third people's names and numbers) are
   no longer collected since 18 Nov 2026: untick them in the Data safety form with the next release. Encrypted in
   transit; people can ask for deletion. It must match [`legal/privacy-policy.md`](legal/privacy-policy.md).

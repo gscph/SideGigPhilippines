@@ -5,8 +5,8 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Shared;
 
 /// <summary>
-/// A pro's approved badges as small outlined chips in the brand color ("ID Verified", "NBI / Police Clearance", "TESDA Certified",
-/// "Ayala Land project"), most telling first. Nothing is drawn for a pro with no badge.
+/// A pro's approved badges as small outlined chips in the brand color ("ID Verified", "NBI / Police Clearance"),
+/// most telling first. Nothing is drawn for a pro with no badge.
 /// </summary>
 public partial class BadgeChips : ComponentBase
 {

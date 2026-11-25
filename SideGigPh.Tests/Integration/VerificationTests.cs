@@ -77,11 +77,11 @@ public class VerificationTests(ApiTestHost api)
         await worker.Pro.PublishAsync();
         var photo = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
 
-        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"), consent: true, photo)).Should().Be(BadgeSubmitResult.Sent);
-        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"), consent: true, photo)).Should().Be(BadgeSubmitResult.AlreadySent);
-        worker.Badges.StateOf(BadgeKind.Project).Should().Be(BadgeState.Pending);
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Id), consent: true, photo)).Should().Be(BadgeSubmitResult.Sent);
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Id), consent: true, photo)).Should().Be(BadgeSubmitResult.AlreadySent);
+        worker.Badges.StateOf(BadgeKind.Id).Should().Be(BadgeState.Pending);
 
-        var request = worker.Badges.Of(BadgeKind.Project).Single();
+        var request = worker.Badges.Of(BadgeKind.Id)!;
         using var decided = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision", new VerificationDecisionRequest(true), ApiJson.Default.VerificationDecisionRequest);
         decided.StatusCode.Should().Be(HttpStatusCode.NoContent);
         await worker.Badges.LoadAsync();
@@ -93,7 +93,7 @@ public class VerificationTests(ApiTestHost api)
         var results = await (await TestPhone.SeekerAsync(api, "Bina", answers)).Seeker.SearchAsync();
 
         results.InTown.Select(h => h.Pro.Id).Should().Equal(worker.Uid, plain.Uid);
-        results.InTown[0].Pro.Badges.Should().Equal(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"));
+        results.InTown[0].Pro.Badges.Should().Equal(new Badge(BadgeKind.Id));
     }
 
     [IntegrationFact]
@@ -115,19 +115,19 @@ public class VerificationTests(ApiTestHost api)
     {
         var uid = $"twice-{Guid.NewGuid():N}";
         var client = api.Client(api.Tokens.For(uid));
-        using var first = await client.PostAsync("verifications/tesda?consent=true", Photo());
+        using var first = await client.PostAsync("verifications/clearance?consent=true", Photo());
         var request = (await first.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
 
-        using var second = await client.PostAsync("verifications/tesda?consent=true", Photo());
+        using var second = await client.PostAsync("verifications/clearance?consent=true", Photo());
         second.StatusCode.Should().Be(HttpStatusCode.Conflict);
 
         // Rejected with a reason the worker sees: they can send a better photo.
         using var rejected = await Operator.PostAsJsonAsync($"ops/verifications/{request.Id}/decision",
-            new VerificationDecisionRequest(false, "The certificate number can't be read"), ApiJson.Default.VerificationDecisionRequest);
+            new VerificationDecisionRequest(false, "The clearance number can't be read"), ApiJson.Default.VerificationDecisionRequest);
         rejected.StatusCode.Should().Be(HttpStatusCode.NoContent);
         (await client.GetFromJsonAsync("verifications/mine", ApiJson.Default.ListVerificationDto))!
-            .Single().RejectReason.Should().Be("The certificate number can't be read");
-        using var again = await client.PostAsync("verifications/tesda?consent=true", Photo());
+            .Single().RejectReason.Should().Be("The clearance number can't be read");
+        using var again = await client.PostAsync("verifications/clearance?consent=true", Photo());
         again.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
@@ -144,7 +144,6 @@ public class VerificationTests(ApiTestHost api)
         sent.StatusCode.Should().Be(HttpStatusCode.OK);
         var request = (await sent.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
         request.Kind.Should().Be(VerificationKinds.Clearance);
-        request.BadgeId.Should().BeEmpty();
         api.IdReader.Reads.Should().Be(reads, "only a government ID is read by AI; a clearance's QR is read by the server");
 
         // The operator sees the QR as read, pointing to the NBI.
@@ -225,35 +224,32 @@ public class VerificationTests(ApiTestHost api)
     }
 
     [IntegrationFact]
-    public async Task DeveloperBadge_NeedsAKnownDeveloper_AndIsNeverReadByAi()
+    public async Task TheDroppedBadges_TesdaAndPastProject_AreRefused_AndOldOnesShowNowhere()
     {
-        var uid = $"dev-{Guid.NewGuid():N}";
-        var client = api.Client(api.Tokens.For(uid));
-        var reads = api.IdReader.Reads;
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Delfin");
+        await worker.Pro.PublishAsync();
+        var client = api.Client(api.Tokens.For(worker.Uid, worker.PhoneNumber));
 
-        using var unknown = await client.PostAsync("verifications/developer?consent=true&badgeId=acme", Photo());
-        unknown.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        using var missing = await client.PostAsync("verifications/developer?consent=true", Photo());
-        missing.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        using var notABadge = await client.PostAsync("verifications/selfie?consent=true", Photo());
-        notABadge.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        foreach (var path in new[] { "verifications/tesda?consent=true", "verifications/developer?consent=true&badgeId=dmci", "verifications/selfie?consent=true" })
+        {
+            using var refused = await client.PostAsync(path, Photo());
+            refused.StatusCode.Should().Be(HttpStatusCode.BadRequest, path);
+        }
 
-        using var sent = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.AyalaLand}&projectName=Park%20Terraces", Photo());
-        var request = (await sent.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!;
-        (request.BadgeId, request.ProjectName).Should().Be((DeveloperBadges.AyalaLand, "Park Terraces"));
-        using var other = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Dmci}", Photo());
-        other.StatusCode.Should().Be(HttpStatusCode.OK, "each developer is its own badge");
+        // Badges approved before they were dropped stay in the table but never show or count.
+        using (var scope = api.Server.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SideGigPhDb>();
+            var now = DateTimeOffset.UtcNow;
+            db.WorkerVerifications.AddRange(
+                new WorkerVerificationRow { Uid = worker.Uid, Kind = "tesda", Status = VerificationStatuses.Approved, ScanStatus = ScanStatuses.None, ConsentAt = now, CreatedAt = now, DecidedAt = now },
+                new WorkerVerificationRow { Uid = worker.Uid, Kind = "developer", BadgeId = "dmci", Status = VerificationStatuses.Approved, ScanStatus = ScanStatuses.None, ConsentAt = now, CreatedAt = now, DecidedAt = now });
+            await db.SaveChangesAsync();
+        }
 
-        // Any other company, typed by the worker: the name is required, and each company is its own badge.
-        using var nameless = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}", Photo());
-        nameless.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        using var local = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}&companyName=JM%20Builders", Photo());
-        (await local.Content.ReadFromJsonAsync(ApiJson.Default.VerificationDto))!.CompanyName.Should().Be("JM Builders");
-        using var sameCompany = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}&companyName=JM%20Builders", Photo());
-        sameCompany.StatusCode.Should().Be(HttpStatusCode.Conflict);
-        using var anotherCompany = await client.PostAsync($"verifications/developer?consent=true&badgeId={DeveloperBadges.Other}&companyName=Rizal%20Homes", Photo());
-        anotherCompany.StatusCode.Should().Be(HttpStatusCode.OK);
-        api.IdReader.Reads.Should().Be(reads, "only a government ID is read by AI");
+        (await client.GetFromJsonAsync("verifications/mine", ApiJson.Default.ListVerificationDto)).Should().BeEmpty();
+        var listing = (await client.GetFromJsonAsync($"professionals/{worker.Uid}", ApiJson.Default.ListingDto))!;
+        listing.Badges.Should().BeNullOrEmpty();
     }
 
     [IntegrationFact]

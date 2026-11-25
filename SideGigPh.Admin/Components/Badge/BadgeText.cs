@@ -8,20 +8,8 @@ public static class BadgeText
     public static string Title(AdminVerificationDto request) => request.Kind switch
     {
         VerificationKinds.Id => "Government ID",
-        VerificationKinds.Tesda => "TESDA certificate",
         VerificationKinds.Clearance => "NBI or police clearance",
-        VerificationKinds.Developer => $"Past project with {Company(request)}",
-        _ => request.Kind,
-    };
-
-    private static string Company(AdminVerificationDto request) => request.BadgeId switch
-    {
-        DeveloperBadges.AyalaLand => "Ayala Land",
-        DeveloperBadges.Megaworld => "Megaworld",
-        DeveloperBadges.RobinsonsLand => "Robinsons Land",
-        DeveloperBadges.Sm => "SM",
-        DeveloperBadges.Dmci => "DMCI",
-        _ => string.IsNullOrWhiteSpace(request.CompanyName) ? "a company" : request.CompanyName,
+        _ => $"{request.Kind} (no longer offered: reject it to delete the photo)",
     };
 
     /// <summary>The photo check's findings in words, or "Sharp, no glare or shadow found".</summary>

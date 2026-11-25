@@ -8,8 +8,8 @@ namespace SideGigPh.FrontDoor.Components.Landing;
 /// </summary>
 public partial class NumbersSection
 {
-    /// <summary>The badges in the app: government ID, NBI / police clearance, TESDA, past project (CLAUDE.md, Worker verification).</summary>
-    private const int Badges = 4;
+    /// <summary>The badges in the app: government ID, NBI / police clearance (CLAUDE.md, Worker verification).</summary>
+    private const int Badges = 2;
 
     private sealed record Item(int Count, Say Title, Say Text);
 

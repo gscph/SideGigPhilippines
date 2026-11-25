@@ -36,12 +36,12 @@ public class BadgeReviewTests(ApiTestHost api)
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Ernie");
         await worker.Pro.PublishAsync();
-        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Tesda), consent: true, Proof)).Should().Be(BadgeSubmitResult.Sent);
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Id), consent: true, Proof)).Should().Be(BadgeSubmitResult.Sent);
         var review = OperatorPhone().Get<BadgeReview>();
 
         await review.LoadAsync();
         var request = review.Pending.Should().ContainSingle(r => r.WorkerUid == worker.Uid).Which;
-        request.Badge.Kind.Should().Be(BadgeKind.Tesda);
+        request.Badge.Kind.Should().Be(BadgeKind.Id);
         request.WorkerName.Should().Be("Ernie");
         request.PhotoUrl.Should().NotBeNullOrEmpty("the operator compares it with the proof");
         request.HasDocument.Should().BeTrue();
@@ -51,14 +51,14 @@ public class BadgeReviewTests(ApiTestHost api)
 
         review.Pending.Should().NotContain(r => r.Id == request.Id);
         await worker.Badges.LoadAsync();
-        worker.Badges.StateOf(BadgeKind.Tesda).Should().Be(BadgeState.Approved);
+        worker.Badges.StateOf(BadgeKind.Id).Should().Be(BadgeState.Approved);
     }
 
     [IntegrationFact]
     public async Task ARejection_NeedsAReason_WhichTheWorkerSees()
     {
         var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Jomar");
-        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Tesda), consent: true, Proof)).Should().Be(BadgeSubmitResult.Sent);
+        (await worker.Badges.SubmitAsync(new Badge(BadgeKind.Id), consent: true, Proof)).Should().Be(BadgeSubmitResult.Sent);
         var review = OperatorPhone().Get<BadgeReview>();
         await review.LoadAsync();
         var request = review.Pending.Single(r => r.WorkerUid == worker.Uid);
@@ -69,7 +69,7 @@ public class BadgeReviewTests(ApiTestHost api)
         (await review.DecideAsync(request, approve: false, reason: "  The photo is blurry.  ")).Should().BeTrue();
 
         await worker.Badges.LoadAsync();
-        worker.Badges.StateOf(BadgeKind.Tesda).Should().Be(BadgeState.Rejected);
-        worker.Badges.Of(BadgeKind.Tesda).Single().RejectReason.Should().Be("The photo is blurry.");
+        worker.Badges.StateOf(BadgeKind.Id).Should().Be(BadgeState.Rejected);
+        worker.Badges.Of(BadgeKind.Id)!.RejectReason.Should().Be("The photo is blurry.");
     }
 }

@@ -9,7 +9,7 @@ using static SideGigPh.Tests.TestSupport.TestData;
 namespace SideGigPh.Tests.Unit.Badges;
 
 /// <summary>
-/// The four badges (ID, NBI or police clearance, TESDA certificate or training, a past project with a developer or any other company): what a
+/// The two badges (ID, NBI or police clearance): what a
 /// worker may send and when, that nothing leaves the phone without the consent tick, and that a badge moves a worker
 /// up in search without changing anyone else's score.
 /// </summary>
@@ -61,30 +61,14 @@ public class BadgeTests
     }
 
     [Fact]
-    public async Task AProjectBadge_NeedsADeveloperOrATypedCompany()
-    {
-        var (badges, server) = New();
-
-        (await badges.SubmitAsync(new Badge(BadgeKind.Project), true, OnePhoto)).Should().Be(BadgeSubmitResult.NoCompany);
-        (await badges.SubmitAsync(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, " "), true, OnePhoto)).Should().Be(BadgeSubmitResult.NoCompany);
-        (await badges.SubmitAsync(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, " JM Builders ", " "), true, OnePhoto)).Should().Be(BadgeSubmitResult.Sent);
-        (await badges.SubmitAsync(new Badge(BadgeKind.Project, "dmci", "typed by mistake", "Acacia Estates"), true, OnePhoto)).Should().Be(BadgeSubmitResult.Sent);
-
-        // Not only the big developers: any company the worker names. A developer's own name is never typed.
-        server.Sent.Select(s => s.Badge).Should().Equal(
-            new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"),
-            new Badge(BadgeKind.Project, "dmci", null, "Acacia Estates"));
-    }
-
-    [Fact]
     public async Task NoPhotoPicked_OrNoInternet_IsSaidPlainly_AndNeverThrows()
     {
         var (badges, server) = New();
 
-        (await badges.SubmitAsync(new Badge(BadgeKind.Tesda), true, PhotoPick.Cancelled)).Should().Be(BadgeSubmitResult.NoPhoto);
-        (await badges.SubmitAsync(new Badge(BadgeKind.Tesda), true, PhotoPick.PermissionDenied)).Should().Be(BadgeSubmitResult.PhotoDenied);
+        (await badges.SubmitAsync(new Badge(BadgeKind.Clearance), true, PhotoPick.Cancelled)).Should().Be(BadgeSubmitResult.NoPhoto);
+        (await badges.SubmitAsync(new Badge(BadgeKind.Clearance), true, PhotoPick.PermissionDenied)).Should().Be(BadgeSubmitResult.PhotoDenied);
         server.Offline = true;
-        (await badges.SubmitAsync(new Badge(BadgeKind.Tesda), true, OnePhoto)).Should().Be(BadgeSubmitResult.Failed);
+        (await badges.SubmitAsync(new Badge(BadgeKind.Clearance), true, OnePhoto)).Should().Be(BadgeSubmitResult.Failed);
     }
 
     [Fact]
@@ -95,30 +79,24 @@ public class BadgeTests
         [
             Request(1, new Badge(BadgeKind.Id), BadgeState.Rejected, daysAgo: 5),
             Request(2, new Badge(BadgeKind.Id), BadgeState.Pending, daysAgo: 1),
-            Request(3, new Badge(BadgeKind.Tesda), BadgeState.Rejected),
-            Request(4, new Badge(BadgeKind.Project, "ayala-land"), BadgeState.Approved),
-            Request(5, new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders"), BadgeState.Pending),
+            Request(3, new Badge(BadgeKind.Clearance), BadgeState.Rejected),
         ]);
 
         await badges.LoadAsync();
 
         badges.StateOf(BadgeKind.Id).Should().Be(BadgeState.Pending);
         badges.CanSend(BadgeKind.Id).Should().BeFalse("it is being checked");
-        badges.StateOf(BadgeKind.Tesda).Should().Be(BadgeState.Rejected);
-        badges.CanSend(BadgeKind.Tesda).Should().BeTrue();
-        badges.Of(BadgeKind.Project).Select(r => r.Id).Should().Equal(4, 5);
-        badges.CanSend(BadgeKind.Project).Should().BeTrue("every company is its own badge");
-        badges.ApprovedKinds.Should().Be(1);
+        badges.Of(BadgeKind.Id)!.Id.Should().Be(2);
+        badges.StateOf(BadgeKind.Clearance).Should().Be(BadgeState.Rejected);
+        badges.CanSend(BadgeKind.Clearance).Should().BeTrue();
+        badges.ApprovedKinds.Should().Be(0);
     }
 
     [Fact]
-    public void TheSendPath_SaysConsent_AndCarriesTheCompanyAndBuilding()
+    public void TheSendPath_SaysConsent()
     {
         ApiMapping.ToSubmitPath(new Badge(BadgeKind.Id)).Should().Be("verifications/id?consent=true");
-        ApiMapping.ToSubmitPath(new Badge(BadgeKind.Tesda)).Should().Be("verifications/tesda?consent=true");
-        ApiMapping.ToSubmitPath(new Badge(BadgeKind.Clearance)).Should().Be("verifications/clearance?consent=true");
-        ApiMapping.ToSubmitPath(new Badge(BadgeKind.Project, BadgeCatalog.OtherCompany, "JM Builders & Sons", "Phase 2"))
-            .Should().Be("verifications/developer?consent=true&badgeId=other&companyName=JM%20Builders%20%26%20Sons&projectName=Phase%202");
+        ApiMapping.ToSubmitPath(new Badge(BadgeKind.Clearance), retake: true).Should().Be("verifications/clearance?consent=true&retake=true");
     }
 
     [Fact]
@@ -126,34 +104,23 @@ public class BadgeTests
     {
         var dto = Dto("Maria") with
         {
-            Badges = [new BadgeDto(VerificationKinds.Id), new BadgeDto("future-kind"), new BadgeDto(VerificationKinds.Developer, DeveloperBadges.Other, "Phase 2", "JM Builders")],
+            Badges = [new BadgeDto(VerificationKinds.Id), new BadgeDto("tesda"), new BadgeDto(VerificationKinds.Clearance)],
         };
 
         var listing = dto.ToModel();
 
-        listing.Badges.Should().Equal(new Badge(BadgeKind.Id), new Badge(BadgeKind.Project, "other", "JM Builders", "Phase 2"));
-        BadgeCatalog.CompanyOf(listing.Badges[1]).Should().Be("JM Builders");
-        BadgeCatalog.CompanyOf(new Badge(BadgeKind.Project, "sm")).Should().Be("SM");
+        listing.Badges.Should().Equal(new Badge(BadgeKind.Id), new Badge(BadgeKind.Clearance));
     }
 
     [Fact]
-    public void TheDeveloperIds_MatchTheServers()
-    {
-        BadgeCatalog.Developers.Select(d => d.Id).Append(BadgeCatalog.OtherCompany).Should().Equal(DeveloperBadges.All);
-        (BadgeCatalog.MinCompanyName, BadgeCatalog.MaxCompanyName).Should().Be((DeveloperBadges.MinCompanyName, DeveloperBadges.MaxCompanyName));
-        BadgeCatalog.MaxProjectName.Should().Be(VerificationStore.MaxProjectName);
-    }
-
-    [Fact]
-    public void Ranking_BadgesAddUpTo13Points_OnTopOfTheSameScore()
+    public void Ranking_BadgesAddUpTo7Points_OnTopOfTheSameScore()
     {
         var plain = Dto("Plain");
         var verified = Dto("Verified") with
         {
             Badges =
             [
-                new BadgeDto(VerificationKinds.Id), new BadgeDto(VerificationKinds.Tesda), new BadgeDto(VerificationKinds.Clearance),
-                new BadgeDto(VerificationKinds.Developer, DeveloperBadges.Dmci), new BadgeDto(VerificationKinds.Developer, DeveloperBadges.Other, null, "JM Builders"),
+                new BadgeDto(VerificationKinds.Id), new BadgeDto(VerificationKinds.Clearance), new BadgeDto("tesda"), new BadgeDto("developer"),
             ],
         };
         var request = new RankRequest("aircon-cleaning", "taytay", "500-1000");
@@ -162,8 +129,8 @@ public class BadgeTests
         var with = SearchRanker.Score(Candidate(verified), request, Scales, RankNow);
 
         without.Trust.Should().Be(0);
-        with.Trust.Should().Be(SearchRanker.IdBadgeWeight + SearchRanker.TesdaBadgeWeight + SearchRanker.ProjectBadgeWeight + SearchRanker.ClearanceBadgeWeight)
-            .And.Be(13, "two project badges count once");
+        with.Trust.Should().Be(SearchRanker.IdBadgeWeight + SearchRanker.ClearanceBadgeWeight)
+            .And.Be(7, "a dropped kind (TESDA, past project) earns nothing");
         (with.Total - with.Trust).Should().Be(without.Total, "a badge is a bonus: nobody else's score changes");
     }
 
@@ -177,27 +144,18 @@ public class BadgeTests
 
         result.InTown.Select(h => h.Listing.DisplayName).Should().Equal("Zeny", "Abel");
     }
-    [Fact]
-    public void AnIdAndAClearance_AreTakenWithTheCamera_TheOthersMayComeFromTheGallery()
-    {
-        ProBadges.UsesCamera(BadgeKind.Id).Should().BeTrue();
-        ProBadges.UsesCamera(BadgeKind.Clearance).Should().BeTrue();
-        ProBadges.UsesCamera(BadgeKind.Tesda).Should().BeFalse();
-        ProBadges.UsesCamera(BadgeKind.Project).Should().BeFalse();
-    }
 
     [Fact]
     public async Task WhatThePhotoCheckFound_IsAskedAbout_OnlyWhileThatProofWaits()
     {
         var (badges, server) = New();
         server.Mine.Add(new BadgeRequest(1, new Badge(BadgeKind.Id), BadgeState.Pending, null, RankNow, [ProofProblem.Blurry]));
-        server.Mine.Add(new BadgeRequest(2, new Badge(BadgeKind.Tesda), BadgeState.Rejected, "Blurry", RankNow, [ProofProblem.Dark]));
+        server.Mine.Add(new BadgeRequest(2, new Badge(BadgeKind.Clearance), BadgeState.Rejected, "Blurry", RankNow, [ProofProblem.Dark]));
 
         (await badges.SubmitAsync(new Badge(BadgeKind.Id), true, OnePhoto)).Should().Be(BadgeSubmitResult.Sent);
 
         badges.ProblemsOf(new Badge(BadgeKind.Id)).Should().Equal(ProofProblem.Blurry);
-        badges.ProblemsOf(new Badge(BadgeKind.Tesda)).Should().BeEmpty("a decided proof has nothing to retake");
-        badges.ProblemsOf(new Badge(BadgeKind.Clearance)).Should().BeEmpty();
+        badges.ProblemsOf(new Badge(BadgeKind.Clearance)).Should().BeEmpty("a decided proof has nothing to retake");
     }
 
     [Fact]

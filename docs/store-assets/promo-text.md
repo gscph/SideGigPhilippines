@@ -47,7 +47,7 @@ Other options (all ≤ 140):
 > • See the price first. Every Kuya and Ate shows their usual price per service, so you know before you message.
 > • Set your budget. Post what you need, add photos, and get offers. Pick the one that fits.
 > • Close to home. Results start with your town and barangay.
-> • See what we checked. Look for ID, NBI / police clearance, TESDA and past-project badges, real reviews, and photos of their work.
+> • See what we checked. Look for ID and NBI / police clearance badges, real reviews, and photos of their work.
 > • Chat in the app. Your number stays private until you pick an offer.
 > • Pay after the work is done, at the price you both agreed. No booking fees.
 >
@@ -55,7 +55,7 @@ Other options (all ≤ 140):
 > • Free to list. We don't take a cut. What the customer pays is yours.
 > • Set your own price. You decide your average price per service.
 > • Get requests nearby. See what households near you need, and send an offer in one tap.
-> • Get seen more. Add work photos and badges (ID, NBI / police clearance, TESDA, past project) to show up higher.
+> • Get seen more. Add work photos and badges (ID, NBI / police clearance) to show up higher.
 > • No CV and no office visit. Your phone number, a selfie, and you're live.
 >
 > **Services:** Aircon Technician • Construction (foreman, carpentry, electrical, plumbing, masonry, tiles, welding, roofing & gutter, steelman, helper) • Errands (house cleaning, grocery, bills, PasaBuy, documents, parcels, car cleaning, gardening) • Driver (On-Call) (family driver, out of town, airport transfer, motorcycle rider) • Car Mechanic (Mekaniko) • Pest Control (termites, cockroaches, rats, mosquitoes, bed bugs, ants)

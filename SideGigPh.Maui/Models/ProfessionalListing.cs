@@ -33,7 +33,7 @@ public sealed class ProfessionalListing
     /// <summary>Average stars and review count, or null with no reviews yet. Search ranks by it.</summary>
     public ReviewSummary? Reviews { get; init; }
 
-    /// <summary>The badges a person at Tarbaho approved (ID, clearance, TESDA, past projects), oldest first. Search ranks by them.</summary>
+    /// <summary>The badges a person at Tarbaho approved (ID, clearance), oldest first. Search ranks by them.</summary>
     public IReadOnlyList<Badge> Badges { get; init; } = [];
 
     /// <summary>Jobs done through Tarbaho: a household picked this worker's offer and both marked it done.</summary>

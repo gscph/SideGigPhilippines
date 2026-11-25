@@ -8,20 +8,10 @@ public enum BadgeKind
 
     /// <summary>An NBI or police clearance.</summary>
     Clearance,
-
-    /// <summary>A TESDA National Certificate or training certificate.</summary>
-    Tesda,
-
-    /// <summary>A past project with a developer or any other company.</summary>
-    Project,
 }
 
-/// <summary>
-/// A badge: on a listing once approved, or what a worker asks for. For a <see cref="BadgeKind.Project"/> badge,
-/// <paramref name="DeveloperId"/> is one of <c>BadgeCatalog.Developers</c> or <c>BadgeCatalog.OtherCompany</c> with
-/// the company typed in <paramref name="CompanyName"/>; <paramref name="ProjectName"/> is the building, when given.
-/// </summary>
-public sealed record Badge(BadgeKind Kind, string? DeveloperId = null, string? CompanyName = null, string? ProjectName = null);
+/// <summary>A badge: on a listing once approved, or what a worker asks for.</summary>
+public sealed record Badge(BadgeKind Kind);
 
 /// <summary>Where a worker's request for a badge stands.</summary>
 public enum BadgeState
@@ -86,9 +76,6 @@ public enum BadgeSubmitResult
 
     /// <summary>The consent box wasn't ticked: nothing was sent.</summary>
     NoConsent,
-
-    /// <summary>The company's name is missing or too short.</summary>
-    NoCompany,
 
     /// <summary>The worker closed the photo picker without choosing.</summary>
     NoPhoto,

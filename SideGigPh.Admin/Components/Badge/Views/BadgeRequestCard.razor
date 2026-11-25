@@ -12,10 +12,6 @@
             <MudStack Spacing="1" Class="flex-1">
                 <MudText Typo="Typo.h6">@BadgeText.Title(Request)</MudText>
                 <MudText Typo="Typo.body1">@(Request.WorkerName ?? "(no name)")</MudText>
-                @if (Request.ProjectName is { Length: > 0 } project)
-                {
-                    <MudText Typo="Typo.body2">Project: @project</MudText>
-                }
                 <MudText Typo="Typo.caption" Color="Color.Secondary">Sent @Request.CreatedAt.ToManila() · uid @Request.Uid</MudText>
             </MudStack>
         </MudStack>

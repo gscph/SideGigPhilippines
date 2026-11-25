@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 24, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 25, 2026
 
 ---
 
@@ -18,7 +18,7 @@
   **Private ang mobile number** ng worker at ng customer. Kapag pinili ng customer ang offer ng worker sa post
   niya, may **Call** at **Text** na sa chat: hindi ipinapakita ng app ang number, pero makikita ito sa sariling
   tawag o text app ng phone mo.
-- **Kung gusto mo ng badge** (ID, NBI o police clearance, TESDA, dating project): optional ito at kailangan ng pagpayag mo. Private ang
+- **Kung gusto mo ng badge** (ID, NBI o police clearance): optional ito at kailangan ng pagpayag mo. Private ang
   photo, tao sa Tarbaho lang ang titingin, at **buburahin pagkatapos i-check**. Ang ID ay binabasa ng AI (pangalan,
   ID number, expiry) para tulungan ang nagche-check. Sa clearance, binabasa ng server namin ang QR code nito (walang
   AI), at ang "valid until" lang ang tinatago namin: mawawala ang badge pagkalipas ng date na 'yon. Hindi ito
@@ -59,7 +59,7 @@ collect data from minors. If you believe a minor has an account, tell us at jcad
 | **Profile photo / selfie** | Skilled Workers (required: a selfie taken with the front camera in the App, never one chosen from the gallery), Customers (optional) | Shown on your listing or chats so the other person knows who they are dealing with |
 | **Listing details**: trade, jobs, towns you serve, years of experience, prices | Skilled Workers | Your public listing and search results |
 | **Work photos** (optional, up to 6) | Skilled Workers who add them | Shown on your listing; a listing with work photos shows higher in search results |
-| **Badge proofs** (optional): a photo of a **government ID**, of an **NBI or police clearance**, of a **TESDA certificate or training certificate**, or of **proof of a past project** (company or site ID, certificate of employment, payslip, a photo at the site), plus the company and building you name | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "NBI / Police Clearance", "TESDA Certified", "… project"). These are **sensitive personal information**: see §3.5 |
+| **Badge proofs** (optional): a photo of a **government ID** or of an **NBI or police clearance** | Skilled Workers who ask for a badge, and only after ticking the consent box on that screen | To show a badge on your listing ("ID Verified", "NBI / Police Clearance"). These are **sensitive personal information**: see §3.5 |
 | **Job request details**: job, town, how urgent, budget | Customers | To find matching Skilled Workers and to start a chat |
 | **Posts of what you need done** (optional): the kind of work, your description of the problem, your budget, your town and up to 3 photos | Customers who post | To show your post to Skilled Workers of that trade near you. Do not put your address, phone number or anyone's face in the description or photos |
 | **Precise location** (optional, only when you tap **Use my location**): a Skilled Worker's base point, or the place of a Customer's post. Without it we use the middle of your town | Skilled Workers, Customers who post | To match posts with Skilled Workers who travel that far. **Never shown to anyone**: others see only your town and a distance in whole kilometres. Read once, when you tap; never in the background. Deleted with your listing, your post or your account |
@@ -121,10 +121,10 @@ before then are not shown to anyone, not read and not used for anything; they st
 Skilled Worker deletes their account or we delete all of them, whichever comes first. A reference may ask us to
 delete their data at any time by writing to jcadiao1102@gmail.com.
 
-### 3.5 Badge proofs (government ID, clearance, certificates, proof of work)
+### 3.5 Badge proofs (government ID, clearance)
 
 Sending a proof is **optional** and happens only with your **consent**: the screen explains what happens and you
-tick a box before your phone's photos open. Without the tick, nothing is sent.
+tick a box before your phone's camera opens. Without the tick, nothing is sent.
 
 - **Government ID:** our provider's AI (Microsoft Azure AI Document Intelligence) reads the **name, ID number and
   expiry date** from the photo, only to help the person at Tarbaho who checks it. The AI does not decide anything.
@@ -137,7 +137,6 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
   recent (NBI under 1 year, police under 6 months) and shows no record. The checker types its **"valid until" date**,
   and that date is the one thing we keep from it: the badge shows until then, and you can send a new clearance
   after. If we decline one, only you see the reason, and we never show or keep what was on it.
-- **TESDA certificate, proof of a past project:** checked by a person at Tarbaho only. No AI reads them.
 - **Photo check:** an ID or a clearance is photographed with your camera at that moment (not picked from your
   gallery). When any proof arrives, our server measures only how sharp and how bright the photo is (no AI, nothing
   is read from it) so it can say right away if it looks blurry, dark or has glare. That is only advice: you can take
@@ -146,8 +145,11 @@ tick a box before your phone's photos open. Without the tick, nothing is sent.
 - The photo is kept in **private storage** (not at a web address), can be opened only by our authorised checkers,
   and **every time one is opened it is logged**.
 - When the check is done (normally within 2 days), the **photo and everything read from it are deleted**. We keep
-  only the result: which badge you hold, the company and building you named, a clearance's "valid until" date, and
+  only the result: which badge you hold, a clearance's "valid until" date, and
   when it was decided.
+- Until 25 Nov 2026 a worker could also send a TESDA certificate or proof of a past project. Those badges are no
+  longer offered and no longer show anywhere; for one already checked we keep only the result and the company and
+  building you named, until you delete your account.
 - Customers never see the photo, your ID number or anything read from it. They see only the badge.
 
 ### 3.6 The Early Access list on tarbaho.com
@@ -195,8 +197,8 @@ town, reviews, how fast a Skilled Worker replies, how complete the listing is); 
 | **Your offer on a post** (your price and note) | **Only the customer who posted it**, next to your public listing and a rounded distance from their post (whole kilometres) |
 | **Posts of what you need done** (the work, your description, budget, town and photos) | **Skilled Workers of that trade who are signed in and travel to your area**, with your **town and a rounded distance** (whole kilometres). Never your name, number, address or exact location |
 | **Your exact place**, if you tap **Send my location** after picking an offer | **Only the Skilled Worker you picked**, until the job is done or cancelled; then it is deleted |
-| **Badges** on a listing ("ID Verified", "NBI / Police Clearance", "TESDA Certified", the company and building of a past project) | **Every signed-in user**, as part of the listing |
-| **Badge proofs** (the photo of your ID, clearance, certificate or proof of work, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
+| **Badges** on a listing ("ID Verified", "NBI / Police Clearance") | **Every signed-in user**, as part of the listing |
+| **Badge proofs** (the photo of your ID or clearance, and what was read from an ID) | **Only our authorised checkers**, each look logged. Deleted once checked (§3.5) |
 | Income goal, "Others" text, error reports, email, and references given before November 18, 2026 (§3.4) | **Only us** |
 
 ### Service providers (processors)
@@ -251,7 +253,7 @@ to establish, exercise or defend legal claims.
 - Uploaded photos have their hidden metadata (EXIF, including any GPS location) removed: most are re-encoded by our
   server; a Skilled Worker's selfie is made small on the phone and our server takes that metadata out again before
   storing it.
-- Badge proofs (IDs, certificates, proof of work) are kept in private storage that has no public web address, are
+- Badge proofs (IDs, clearances) are kept in private storage that has no public web address, are
   opened only by authorised checkers with every look logged, and are deleted once checked.
 - Only authorised staff can access production data, and only when needed.
 - If a personal data breach happens that is likely to harm you, we will notify the NPC and affected users within

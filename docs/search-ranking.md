@@ -42,18 +42,16 @@ Each part is a 0–1 feature multiplied by a weight. The weights add up to 100 a
 `RatePesos` first, cheapest first, then the usual order (matched "Others" words, score, name). Best match is the
 score above. Both keep the "your town" then "nearby" groups.
 
-### Badges: up to +13 on top
+### Badges: up to +7 on top
 
 | Badge (approved by a person at Tarbaho) | Bonus |
 |---|---|
 | **ID Verified** (a government ID checked against the profile photo) | 4 |
 | **NBI / Police Clearance** (an NBI or police clearance) | 3 |
-| **TESDA Certified** (a National Certificate or training certificate) | 3 |
-| **Past project** with a developer or any other company (several count once) | 3 |
 
 `RankScore.Trust` (`SearchRanker.TrustFeature`). It is a **bonus on top of the 100, not a share of it**: a worker
 without badges scores exactly as before, and nobody's order changes until someone earns a badge. Between two
-otherwise equal workers the one with a badge comes first; a worker with all four gains 13 points, a little more than
+otherwise equal workers the one with a badge comes first; a worker with both gains 7 points, less than
 the whole experience part is worth, so badges help but can't carry a worker who ignores chats or has poor reviews. It
 is the one signal a brand-new worker can earn on day one. Seekers see the same badges as chips on the result card
 (`BadgeChips`) and under "What we checked" on the profile, so the order can be read off the screen. Approving a
@@ -70,7 +68,7 @@ badge clears the 30 s search cache.
 `RankScore.Photos` (`SearchRanker.PhotosFeature`, `WorkPhotosWeight` 3). Publishing doesn't need work photos (too
 much friction before going live), but customers pick workers who show their work first, so a listing with photos
 moves up. Like badges it is a **bonus on top of the 100**: a worker without photos scores exactly as before. It is
-worth as much as a clearance, TESDA or project badge and less than an ID because nobody checks the photos, and it is capped at
+worth as much as a clearance badge and less than an ID because nobody checks the photos, and it is capped at
 2 so a worker climbs by showing some work, not by piling photos up. Between two otherwise equal workers the one with
 photos comes first. The sample workers in `006-seed-search-ranking.sql` have no photos, so its orders don't change.
 

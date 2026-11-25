@@ -5,26 +5,16 @@ namespace SideGigPh.Maui.Services.Localization;
 /// <summary>A badge's words in the user's language, shared by the cards, the public profile and the pro's own badges page.</summary>
 public static class BadgeText
 {
-    /// <summary>The short label on a chip: "ID Verified", "NBI / Police Clearance", "TESDA Certified", "Ayala Land project".</summary>
-    public static string Badge(this AppText text, Badge badge) => badge.Kind switch
-    {
-        BadgeKind.Id => text.Get(Copy.BadgeId),
-        BadgeKind.Clearance => text.Get(Copy.BadgeClearance),
-        BadgeKind.Tesda => text.Get(Copy.BadgeTesda),
-        _ => BadgeCatalog.CompanyOf(badge) is { } company ? text.Format(Copy.BadgeProject, company) : text.Get(Copy.BadgeProjectTitle),
-    };
+    /// <summary>The short label on a chip: "ID Verified", "NBI / Police Clearance".</summary>
+    public static string Badge(this AppText text, Badge badge) =>
+        text.Get(badge.Kind == BadgeKind.Clearance ? Copy.BadgeClearance : Copy.BadgeId);
 
-    /// <summary>What Tarbaho checked for it, one plain sentence (with the building for a project, when the worker named it).</summary>
-    public static string BadgeNote(this AppText text, Badge badge) => badge.Kind switch
-    {
-        BadgeKind.Id => text.Get(Copy.BadgeIdNote),
-        BadgeKind.Clearance => text.Get(Copy.BadgeClearanceNote),
-        BadgeKind.Tesda => text.Get(Copy.BadgeTesdaNote),
-        _ => string.IsNullOrWhiteSpace(badge.ProjectName) ? text.Get(Copy.BadgeProjectNote) : text.Format(Copy.BadgeProjectAt, badge.ProjectName.Trim()),
-    };
+    /// <summary>What Tarbaho checked for it, one plain sentence.</summary>
+    public static string BadgeNote(this AppText text, Badge badge) =>
+        text.Get(badge.Kind == BadgeKind.Clearance ? Copy.BadgeClearanceNote : Copy.BadgeIdNote);
 
     /// <summary>
-    /// The badges to show as chips, most telling first (ID, clearance, TESDA, then projects), at most <paramref name="max"/>,
+    /// The badges to show as chips, most telling first (ID, then clearance), at most <paramref name="max"/>,
     /// and how many were left out.
     /// </summary>
     public static (IReadOnlyList<Badge> Shown, int More) BadgesToShow(this ProfessionalListing listing, int max)
