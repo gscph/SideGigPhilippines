@@ -32,8 +32,8 @@ public readonly record struct SelfieOval(double CentreX, double CentreY, double 
 /// </summary>
 public static class SelfieFraming
 {
-    /// <summary>The oval's width as a share of the picture's width.</summary>
-    public const double OvalWidthShare = 0.62;
+    /// <summary>The oval's width as a share of the picture's width: tight, so the face fills the photo.</summary>
+    public const double OvalWidthShare = 0.55;
 
     /// <summary>The oval's height over its width (a face is taller than wide).</summary>
     public const double OvalAspect = 1.3;
@@ -42,16 +42,16 @@ public static class SelfieFraming
     public const double OvalCentreDown = 0.46;
 
     /// <summary>How far the face's centre may be from the oval's, as a share of the oval's half-size.</summary>
-    public const double MaxOffCentre = 0.35;
+    public const double MaxOffCentre = 0.2;
 
     /// <summary>
-    /// The narrowest face that counts, as a share of the oval's width: low enough that a selfie at arm's length (about
-    /// 60 cm with a phone's front camera) passes.
+    /// The narrowest face that counts, as a share of the oval's width: the face must fill most of the oval, so a selfie
+    /// held at full arm's length is "come a little closer" (a close face reads better against an ID).
     /// </summary>
-    public const double MinFaceShare = 0.35;
+    public const double MinFaceShare = 0.65;
 
     /// <summary>The widest face that counts, as a share of the oval's width.</summary>
-    public const double MaxFaceShare = 1.1;
+    public const double MaxFaceShare = 1.0;
 
     public static SelfieOval OvalIn(double width, double height)
     {
