@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Shared;
 

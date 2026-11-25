@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Services.Diagnostics;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Shared;
 

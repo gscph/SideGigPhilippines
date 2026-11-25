@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MobileAppTheme.Localization;
-using MobileAppTheme.Models;
 using SideGigPh.Maui.Services;
 
 namespace SideGigPh.Maui.Components.Onboarding;

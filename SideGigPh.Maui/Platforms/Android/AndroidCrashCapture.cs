@@ -1,7 +1,6 @@
 using Android.App;
 using Android.Content;
 using Android.Runtime;
-using MobileAppTheme.Services;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services.Diagnostics;
 using AndroidLog = Android.Util.Log;

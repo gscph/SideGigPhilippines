@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Shared;
 
@@ -13,8 +12,6 @@ public partial class ProCard : ComponentBase
 {
     /// <summary>How many work photos fit across the card, newest first.</summary>
     private const int MaxThumbnails = 3;
-
-    [Inject] private AppText T { get; set; } = default!;
 
     [Parameter, EditorRequired] public ProfessionalListing Listing { get; set; } = default!;
 

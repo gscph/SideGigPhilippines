@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using MobileAppTheme.Branding;
 using MudBlazor;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Professional;
 

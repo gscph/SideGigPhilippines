@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Components.Shared;
 
 namespace SideGigPh.Maui.Components.Seeker;
 

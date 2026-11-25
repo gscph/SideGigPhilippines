@@ -32,8 +32,6 @@ public partial class ProMePage : ComponentBase
     /// <summary>Where the confirm-number step leads: the add-phone page, coming back here.</summary>
     private static string AddPhonePath => AuthRoutes.AddPhone(ProRoutes.Me, canSkip: true);
 
-    private string Name => Workspace.Draft.DisplayName ?? string.Empty;
-
     private string PhotosCountLabel => T.Format(Copy.PhotosCount, Workspace.WorkPhotos.Count, ProWorkspace.MaxWorkPhotos);
 
     private string BadgesCountLabel => T.Format(Copy.BadgesCount, Badges.ApprovedKinds, ProBadges.Kinds);

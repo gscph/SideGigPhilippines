@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MobileAppTheme.Components.Shared;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
