@@ -100,10 +100,21 @@ public sealed class LocalAccount(
         ForgetLoaded();
     }
 
-    public Task AccountSwitchedAsync()
+    /// <summary>
+    /// The answers stay, but a selfie the last account sent is dropped now (<see cref="ListingMapper.TakeAccount"/>):
+    /// the server takes a profile photo only from the account that took it, so where the interview resumes (the
+    /// preview's Done) leads to the selfie step instead of a publish the server refuses.
+    /// </summary>
+    public async Task AccountSwitchedAsync()
     {
         ForgetLoaded();
-        return Task.CompletedTask;
+        var state = await store.LoadAsync();
+        var hadPhoto = state.Professional.ProfilePhotoId;
+        state.Professional.TakeAccount(await identity.GetCurrentUserAsync());
+        if (state.Professional.ProfilePhotoId != hadPhoto)
+        {
+            await store.SaveAsync(state);
+        }
     }
 
     // Both sides loaded this account's id, listing, chats and reviews: the next account loads its own.

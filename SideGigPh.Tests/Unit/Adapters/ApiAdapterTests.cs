@@ -209,6 +209,7 @@ public class ApiAdapterTests
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhoneTaken, PublishResult.PhoneTaken)]
     [InlineData(HttpStatusCode.Conflict, ApiErrors.PhotoInUse, PublishResult.PhotoInUse)]
     [InlineData((HttpStatusCode)429, ApiErrors.TooManyRequests, PublishResult.TooManyTries)]
+    [InlineData(HttpStatusCode.BadRequest, ApiErrors.SelfieRequired, PublishResult.SelfieNeeded)]
     public async Task Publish_Refused_TellsThePageWhy(HttpStatusCode status, string code, PublishResult expected)
     {
         var server = new StubServer();

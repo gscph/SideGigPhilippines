@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using MobileAppTheme.Auth;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -195,6 +196,33 @@ public class PublishingRulesTests(ApiTestHost api)
         worker.Pro.Draft.ProfilePhotoId = worker.Pro.Draft.WorkPhotoIds[0];
         (await worker.Pro.PublishAsync()).Should().Be(PublishResult.SelfieNeeded);
         worker.Pro.Draft.HasProfilePhoto.Should().BeFalse("the selfie step must ask for a new selfie, not offer Next back to the refusal");
+    }
+
+    [IntegrationFact]
+    public async Task SelfieOfTheAccountBeforeASwitch_IsRefused_AndTheAppAsksTheNewAccountForItsOwn()
+    {
+        // The selfie went up signed in with Google; the number step found the number on another account and signed in
+        // to it with the same code (error report #315). The server still takes only the caller's own selfie.
+        var worker = await TestPhone.WorkerReadyToPublishAsync(api, "Hugo");
+        var googleSelfie = worker.Pro.Draft.ProfilePhotoId!;
+        var other = new AuthUser { Uid = $"hugo-phone-{Guid.NewGuid():N}", DisplayName = "Hugo", PhoneNumber = TestPhone.UniqueNumber() };
+        var request = new PublishListingRequest("Hugo", "aircon", "rizal", ["aircon-cleaning"], ["taytay"], null, 800, googleSelfie, []);
+        using (var response = await api.Client(api.Tokens.For(other.Uid, other.PhoneNumber)).PutAsJsonAsync("professionals/me", request, ApiJson.Default.PublishListingRequest))
+        {
+            response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        }
+
+        worker.Identity.User = other;
+        await worker.Account.AccountSwitchedAsync();
+        (await worker.Pro.EnsureLoadedAsync()).Should().BeTrue("the answers stay on the phone");
+
+        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.MissingProof, "nothing is sent the server would refuse");
+        worker.Pro.Draft.AfterInterviewPath().Should().Be(OnboardingSteps.PathOf(ProStep.Photo));
+
+        worker.Picker.Next = new PhotoPick(PhotoPickStatus.Picked, [TestImages.Jpeg()]);
+        (await worker.Pro.SetProfilePhotoAsync(await worker.Picker.TakeSelfieAsync())).Failed.Should().BeFalse();
+        (await worker.Pro.PublishAsync()).Should().Be(PublishResult.Published);
+        (await new TestPhone(api, "Viewer").Get<IProfessionalProfileRepository>().GetByIdAsync(other.Uid)).Should().NotBeNull();
     }
 
     [IntegrationFact]

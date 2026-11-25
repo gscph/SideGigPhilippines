@@ -127,6 +127,14 @@ public sealed class ProfessionalDraft
     /// <summary>The pro's own photo, an <c>IPhotoStore</c> id.</summary>
     public string? ProfilePhotoId { get; set; }
 
+    /// <summary>
+    /// The account (uid) that sent <see cref="ProfilePhotoId"/> as its selfie; null when unknown (a listing brought back
+    /// from the server). The server takes a new profile photo only from the account that took it, so another account
+    /// signed in on this phone (<c>IAppAccount.AccountSwitchedAsync</c>, a sign-out and sign-in) drops it and takes its
+    /// own (<c>ListingMapper.TakeAccount</c>).
+    /// </summary>
+    public string? ProfilePhotoOwnerId { get; set; }
+
     /// <summary>Photos of their work, <c>IPhotoStore</c> ids, newest first.</summary>
     public List<string> WorkPhotoIds { get; set; } = [];
 
