@@ -35,9 +35,8 @@ public sealed class TestDatabase : IDisposable
         }
 
         ConnectionString = new SqlConnectionStringBuilder(server) { InitialCatalog = _name }.ConnectionString;
-        using var db = Open(ConnectionString);
         RunSchemaScripts(ConnectionString);
-        Execute(db, File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Sql", "004-config.sql")));
+        RunScript("004-config.sql");
     }
 
     /// <summary>
