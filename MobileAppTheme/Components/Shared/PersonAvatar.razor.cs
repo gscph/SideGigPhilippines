@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using Size = MudBlazor.Size;
 
 namespace MobileAppTheme.Components.Shared;

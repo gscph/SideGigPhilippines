@@ -5,7 +5,6 @@ using Firebase.Auth;
 using Java.Lang;
 using Java.Util.Concurrent;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui.ApplicationModel;
 using Exception = System.Exception;
 
 namespace MobileAppTheme.Firebase;

@@ -1,7 +1,6 @@
 #if IOS
 using Firebase.Auth;
 using Foundation;
-using Microsoft.Maui.ApplicationModel;
 using UIKit;
 
 namespace MobileAppTheme.Firebase;
