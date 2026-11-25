@@ -1,7 +1,6 @@
 using Android.App;
 using Android.Content;
 using Microsoft.Extensions.Logging;
-using MobileAppTheme.Services.Local;
 using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme;
 using SideGigPh.Maui.Services.Localization;
 using Application = Android.App.Application;

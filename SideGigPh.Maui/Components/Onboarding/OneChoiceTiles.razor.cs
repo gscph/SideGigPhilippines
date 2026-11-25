@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using MobileAppTheme.Models;
 using SideGigPh.Maui.Services;
 
 namespace SideGigPh.Maui.Components.Onboarding;
