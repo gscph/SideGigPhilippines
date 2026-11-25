@@ -1,5 +1,4 @@
 using ImageMagick;
-using SideGigPh.Contracts;
 using SideGigPh.Contracts.Photos;
 
 namespace SideGigPh.Api;
