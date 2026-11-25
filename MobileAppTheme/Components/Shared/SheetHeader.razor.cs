@@ -12,10 +12,8 @@ public partial class SheetHeader : ComponentBase
 {
     [Inject] private AppText T { get; set; } = default!;
 
+    /// <summary>The page's <c>h1</c> (sheets whose header is their only title).</summary>
     [Parameter] public string? Title { get; set; }
-
-    /// <summary>The title is the page's <c>h1</c> (sheets whose header is their only title).</summary>
-    [Parameter] public bool TitleIsHeading { get; set; } = true;
 
     /// <summary>Custom middle content instead of <see cref="Title"/> (e.g. a progress bar).</summary>
     [Parameter] public RenderFragment? ChildContent { get; set; }

@@ -2,10 +2,6 @@
     <MudStack AlignItems="AlignItems.Center" Spacing="2">
         <PersonAvatar Name="@(Name ?? string.Empty)" PhotoUrl="@PhotoUrl" Class="app-avatar-xl" />
         <MudText Typo="Typo.h5" HtmlTag="h2" Align="Align.Center">@Name</MudText>
-        @if (!string.IsNullOrEmpty(Subtitle))
-        {
-            <MudText Typo="Typo.body2" Color="@SubtitleColor" Align="Align.Center">@Subtitle</MudText>
-        }
         @ChildContent
     </MudStack>
 </MudPaper>

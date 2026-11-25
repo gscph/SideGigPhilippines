@@ -15,8 +15,5 @@ public partial class FeatureRow
     /// <summary>A money point: the title in money green.</summary>
     [Parameter] public bool Money { get; set; }
 
-    /// <summary>White circles, for a tint band.</summary>
-    [Parameter] public bool OnTint { get; set; } = true;
-
     private Color TitleColor => Money ? Color.Success : Color.Default;
 }
