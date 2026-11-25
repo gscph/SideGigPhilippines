@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Services;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Professional;
 
@@ -25,17 +24,6 @@ public partial class ProfessionalHome : ComponentBase, IDisposable
 
     /// <summary>Once the listing is live, the amber reminders show while work photos or a badge can still be added.</summary>
     private ProfileProgress Progress => ProfileProgress.Of(Workspace, Badges);
-
-    /// <summary>Requests in the first page the pro hasn't offered on yet.</summary>
-    private int NewRequestCount => Board.Feed.Count(post => post.MyOfferPesos is null);
-
-    private string RequestsDetail => NewRequestCount > 0
-        ? T.Get(Copy.HomeRequestsWaiting)
-        : T.Get(Copy.HomeRequestsNone);
-
-    private string InboxDetail => Workspace.UnreadCount > 0
-        ? T.Get(Copy.HomeInboxWaiting)
-        : T.Get(Copy.HomeInboxNone);
 
     protected override async Task OnInitializedAsync()
     {
