@@ -106,12 +106,11 @@ public sealed class FirebaseIdentityProvider(ILogger<FirebaseIdentityProvider> l
         {
 #if ANDROID
             await FirebaseAuth.Instance.SignInWithCredentialAsync(_android.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
-            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after the code was accepted.");
 #else
             _ = Auth; // not without the SDK running (see Auth)
             await global::Firebase.Auth.Auth.DefaultInstance!.SignInWithCredentialAsync(_ios.CredentialFor(userEnteredCode)).WaitAsync(VerifyCodeLimit);
-            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after the code was accepted.");
 #endif
+            var user = Auth.CurrentUser ?? throw new InvalidOperationException("Nobody is signed in after the code was accepted.");
             return AuthResult.Ok(Map(user));
         }
         catch (Exception ex) when (Auth.CurrentUser is { } signedIn && Map(signedIn).PhoneNumber is { } number && number == _pendingPhone)
