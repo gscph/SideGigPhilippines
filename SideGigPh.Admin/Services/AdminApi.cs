@@ -19,9 +19,7 @@ public sealed class AdminApi(HttpClient http, IAdminSignIn signIn)
     public async Task<T> GetAsync<T>(string path, JsonTypeInfo<T> type, CancellationToken cancellationToken = default)
     {
         using var response = await SendAsync(HttpMethod.Get, path, null, cancellationToken);
-        await EnsureOkAsync(response, cancellationToken);
-        return await response.Content.ReadFromJsonAsync(type, cancellationToken)
-               ?? throw new AdminApiException("The API answered with nothing. Try again.");
+        return await ReadAsync(response, type, cancellationToken);
     }
 
     /// <summary>An image the API sends (e.g. a proof photo) as a <c>data:</c> URL, or null when it is gone (404).</summary>

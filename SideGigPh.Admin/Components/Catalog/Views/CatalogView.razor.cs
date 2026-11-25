@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using SideGigPh.Admin.Services;
-using SideGigPh.Contracts;
 
 namespace SideGigPh.Admin.Components.Catalog.Views;
 

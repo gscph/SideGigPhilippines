@@ -24,9 +24,8 @@ public partial class MainLayout
 
         var language = PageLanguage.Clean(AskedLanguage(Navigation.Uri))
             ?? PageLanguage.Clean(await Script.ReadAsync(PageScript.LanguageKey))
-            ?? PageLanguage.Clean(await Script.BrowserLanguageAsync())
-            ?? PageLanguage.English;
-        Language.Set(language);
+            ?? await Script.BrowserLanguageAsync();
+        Language.Set(language); // Set cleans it too: anything else is English
         await Script.SetHtmlLangAsync(Language.Current);
 
         Signup.SetJoined(await Script.ReadAsync(PageScript.JoinedKey));
