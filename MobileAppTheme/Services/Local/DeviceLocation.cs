@@ -19,11 +19,7 @@ public sealed class DeviceLocation(ILogger<DeviceLocation> logger) : IDeviceLoca
     {
         try
         {
-            var status = await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                var current = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
-                return current == PermissionStatus.Granted ? current : await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
-            });
+            var status = await DevicePermission.AskAsync<Permissions.LocationWhenInUse>();
             if (status != PermissionStatus.Granted)
             {
                 logger.LogInformation("Location permission not given ({Status}).", status);

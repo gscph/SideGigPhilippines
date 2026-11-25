@@ -79,11 +79,7 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
     {
         try
         {
-            var status = await MainThread.InvokeOnMainThreadAsync(async () =>
-            {
-                var current = await Permissions.CheckStatusAsync<Permissions.Camera>();
-                return current == PermissionStatus.Granted ? current : await Permissions.RequestAsync<Permissions.Camera>();
-            });
+            var status = await DevicePermission.AskAsync<Permissions.Camera>();
             if (status != PermissionStatus.Granted)
             {
                 logger.LogWarning("Camera permission denied.");
@@ -130,15 +126,6 @@ public sealed class DevicePhotoPicker(ILogger<DevicePhotoPicker> logger) : IPhot
             return true;
         }
 
-        return await MainThread.InvokeOnMainThreadAsync(async () =>
-        {
-            var status = await Permissions.CheckStatusAsync<Permissions.StorageRead>();
-            if (status != PermissionStatus.Granted)
-            {
-                status = await Permissions.RequestAsync<Permissions.StorageRead>();
-            }
-
-            return status == PermissionStatus.Granted;
-        });
+        return await DevicePermission.AskAsync<Permissions.StorageRead>() == PermissionStatus.Granted;
     }
 }
