@@ -25,6 +25,9 @@ public sealed class IosPhotoPicker(DevicePhotoPicker device, AppText text, ILogg
 
     public void OpenAppSettings() => device.OpenAppSettings();
 
+    /// <summary>A badge proof (ID, clearance): the skeleton's back camera, at document size.</summary>
+    public Task<PhotoPick> TakeDocumentPhotoAsync() => device.TakeDocumentPhotoAsync();
+
     public async Task<PhotoPick> TakeSelfieAsync()
     {
         try
