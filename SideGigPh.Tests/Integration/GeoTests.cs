@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 using SideGigPh.Tests.Integration.Support;
@@ -79,7 +78,7 @@ public class GeoTests(ApiTestHost api)
 
         using var scope = api.Server.Services.CreateScope();
         var row = await scope.ServiceProvider.GetRequiredService<SideGigPhDb>().Professionals.AsNoTracking().SingleAsync(p => p.Id == worker.Uid);
-        (row.Latitude, row.Longitude, row.RadiusKm).Should().Be((InAntipolo.Latitude, InAntipolo.Longitude, (short)25));
+        (row.Latitude, row.Longitude, row.RadiusKm).Should().Be((InAntipolo.Latitude, InAntipolo.Longitude, 25));
     }
 
     [IntegrationFact]

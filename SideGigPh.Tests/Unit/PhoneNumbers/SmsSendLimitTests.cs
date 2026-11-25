@@ -1,5 +1,3 @@
-using FluentAssertions;
-using MobileAppTheme.Auth;
 using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.PhoneNumbers;

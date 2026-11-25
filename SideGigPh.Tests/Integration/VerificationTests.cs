@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
@@ -186,7 +185,7 @@ public class VerificationTests(ApiTestHost api)
 
         var waiting = (await Operator.GetFromJsonAsync("ops/verifications?take=50", ApiJson.Default.ListAdminVerificationDto))!
             .Single(v => v.Id == request.Id);
-        (waiting.ScanStatus, waiting.ScannedQr).Should().Be((ScanStatuses.Unreadable, (string?)null));
+        (waiting.ScanStatus, waiting.ScannedQr).Should().Be((ScanStatuses.Unreadable, null));
     }
 
     [IntegrationFact]

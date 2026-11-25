@@ -1,5 +1,3 @@
-using SideGigPh.Contracts;
-using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;

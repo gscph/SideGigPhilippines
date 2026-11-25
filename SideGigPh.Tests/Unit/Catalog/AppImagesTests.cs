@@ -1,4 +1,3 @@
-using MobileAppTheme.Models;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 

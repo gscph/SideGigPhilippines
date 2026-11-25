@@ -150,8 +150,8 @@ public class PricingTests
     {
         Pricing.CustomStart("900-1300", "aircon-cleaning", "aircon").Should().Be((900, 1300));
         Pricing.CustomStart(null, "aircon-cleaning", "aircon").Should().Be((755, 1000));
-        Pricing.CustomStart("under-1500", "aircon-cleaning", "aircon").Should().Be(((int?)null, (int?)1500), "an \"up to\" alone leaves From empty, not ₱0");
-        Pricing.CustomStart(null, null, null).Should().Be(((int?)null, (int?)null), "no guide: the boxes start empty");
+        Pricing.CustomStart("under-1500", "aircon-cleaning", "aircon").Should().Be((null, 1500), "an \"up to\" alone leaves From empty, not ₱0");
+        Pricing.CustomStart(null, null, null).Should().Be((null, null), "no guide: the boxes start empty");
     }
 
     [Fact]

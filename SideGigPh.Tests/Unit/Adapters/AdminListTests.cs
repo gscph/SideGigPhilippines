@@ -49,7 +49,7 @@ public class AdminListTests
 
         var query = AdminFunctions.ListQuery(http.Request, "role");
 
-        (query.SafeSkip, query.SafeTake, query.Desc, query.Filter, query.Words).Should().Be((0, AdminLists.MaxTake, true, (string?)null, (string?)null));
+        (query.SafeSkip, query.SafeTake, query.Desc, query.Filter, query.Words).Should().Be((0, AdminLists.MaxTake, true, null, null));
     }
 
     [Fact]

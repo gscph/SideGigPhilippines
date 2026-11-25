@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using SideGigPh.AzureSQL;
-using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Api;
