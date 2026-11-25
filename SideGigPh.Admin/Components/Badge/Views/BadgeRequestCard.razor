@@ -35,7 +35,7 @@
                 <MudText Typo="Typo.body2" Color="@(Request.PhotoProblems is { Count: > 0 } ? Color.Error : Color.Default)">@BadgeText.PhotoCheck(Request)</MudText>
                 @if (Request.PhotoSharpness is { } sharpness)
                 {
-                    <MudText Typo="Typo.caption" Color="Color.Secondary">Sharpness @Math.Round(sharpness) (under @BadgeText.BlurryBelow looks blurry)</MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">Sharpness @Math.Round(sharpness) (under @PhotoProblems.BlurryBelow looks blurry)</MudText>
                 }
             </MudStack>
         }
