@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
+using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Tests.TestSupport;
 
@@ -61,6 +62,20 @@ public class FailedCallLoggingTests
     }
 
     [Fact]
+    public async Task Publish_RefusedForTheSelfie_IsHandled_NotAnErrorReport()
+    {
+        // The app answers it (the selfie step asks for a new one): a refusal the app handles is no report for us to fix.
+        var logger = new ListLogger<ApiClient>();
+        var api = new ApiClient(new ApiOptions("https://api.test/api/", "https://photos.test/",
+            new Answers(HttpStatusCode.BadRequest, "{\"error\":\"selfie-required\"}")), new FakeIdentity(null), logger);
+
+        var result = await new ApiProfessionalProfileRepository(api).PublishAsync(TestData.ReadyDraft().ToListing());
+
+        result.Should().Be(SideGigPh.Maui.Models.PublishResult.SelfieNeeded);
+        logger.Errors.Should().BeEmpty();
+    }
+
+    [Fact]
     public async Task ErrorReportSend_ThatGetsNoAnswer_LogsNothing()
     {
         var logger = new ListLogger<ApiClient>();
@@ -97,10 +112,10 @@ public class FailedCallLoggingTests
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) => throw failure;
     }
 
-    private sealed class Answers(HttpStatusCode status) : HttpMessageHandler
+    private sealed class Answers(HttpStatusCode status, string body = "{\"error\":\"exception\"}") : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
-            Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent("{\"error\":\"exception\"}") });
+            Task.FromResult(new HttpResponseMessage(status) { Content = new StringContent(body) });
     }
 
     private sealed class ListLogger<T> : ILogger<T>

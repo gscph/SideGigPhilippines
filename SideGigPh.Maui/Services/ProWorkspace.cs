@@ -212,6 +212,7 @@ public sealed class ProWorkspace(
         try
         {
             Draft.ProfilePhotoId = await StoreAsync(pick.Photos[0], selfie: true);
+            Draft.ProfilePhotoOwnerId = (await identity.GetCurrentUserAsync())?.Uid;
         }
         catch (PhotoStoreException ex)
         {
@@ -299,10 +300,7 @@ public sealed class ProWorkspace(
         var result = await PublishOrCheckAsync();
         if (result == PublishResult.SelfieNeeded)
         {
-            // The photo isn't a selfie the server knows (an old gallery photo on a listing that came down): dropped, so the
-            // selfie step asks for a new one instead of offering Next back to the same refusal.
-            Draft.ProfilePhotoId = null;
-            await SaveAsync();
+            await DropRefusedSelfieAsync();
         }
         else if (result == PublishResult.Published)
         {
@@ -394,8 +392,25 @@ public sealed class ProWorkspace(
             await store.SaveAsync(_state!);
             Changed?.Invoke();
         }
+        else if (result == PublishResult.SelfieNeeded)
+        {
+            // Not sent again with the same photo on every refresh: the live listing keeps the photo it has, and the
+            // profile shows its own photo missing until a new selfie is taken (which re-publishes).
+            await DropRefusedSelfieAsync();
+        }
 
         return result;
+    }
+
+    // The server refused the profile photo: it isn't a selfie this account sent (another account's, after the phone
+    // signed in to the account that had the number; or an old gallery photo). Dropped, so the selfie step asks for a new
+    // one instead of offering the same refusal again.
+    private async Task DropRefusedSelfieAsync()
+    {
+        Draft.ProfilePhotoId = null;
+        Draft.ProfilePhotoOwnerId = null;
+        await store.SaveAsync(_state!);
+        Changed?.Invoke();
     }
 
     /// <summary>

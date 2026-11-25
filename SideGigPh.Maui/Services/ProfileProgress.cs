@@ -35,6 +35,9 @@ public enum ProfileNextStep
     Photo,
     Phone,
     Publish,
+
+    /// <summary>Live, but the server refused the own photo (not this account's selfie): edits wait for a new one.</summary>
+    NewSelfie,
 }
 
 /// <summary>
@@ -58,9 +61,12 @@ public sealed record ProfileProgress(
         : new[] { Photo, WorkPhotos, Phone, Badges }.All(mark => mark == ProfileMark.Full) ? ProfileLevel.Complete
         : ProfileLevel.Live;
 
-    /// <summary>What to do next to get published; null once the listing is live.</summary>
+    /// <summary>
+    /// What to do next to get published; once live, only a new selfie when the own photo is missing (the server
+    /// refused it, so edits to the live listing wait for one); else null.
+    /// </summary>
     public ProfileNextStep? NextStep =>
-        IsPublished ? null
+        IsPublished ? (Photo == ProfileMark.Missing ? ProfileNextStep.NewSelfie : null)
         : Photo == ProfileMark.Missing ? ProfileNextStep.Photo
         : Phone == ProfileMark.Missing ? ProfileNextStep.Phone
         : ProfileNextStep.Publish;
