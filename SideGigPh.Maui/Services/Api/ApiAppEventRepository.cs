@@ -1,4 +1,3 @@
-using System.Net;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
@@ -16,16 +15,6 @@ public sealed class ApiAppEventRepository(ApiClient api) : IAppEventRepository
         var batch = events.Select(e => new AppEventDto(e.EventId, e.Name, e.SessionId, e.ServiceCategory, e.Area, e.SearchTerm,
             e.ResultCount, e.ClientTs, e.AppVersion)).ToList();
         using var response = await api.SendJsonAsync(HttpMethod.Post, "events", batch, ApiJson.Default.ListAppEventDto, logFailure: false);
-        if (response.IsSuccessStatusCode)
-        {
-            return true;
-        }
-
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            return false;
-        }
-
-        throw new HttpRequestException($"App events weren't sent: {(int)response.StatusCode} {response.ReasonPhrase}.", null, response.StatusCode);
+        return ApiClient.BatchTaken(response, "App events");
     }
 }

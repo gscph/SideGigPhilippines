@@ -1,4 +1,3 @@
-using System.Net;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
@@ -14,16 +13,6 @@ public sealed class ApiErrorReportRepository(ApiClient api) : IErrorReportReposi
     {
         using var response = await api.SendJsonAsync(HttpMethod.Post, "error-reports", reports.ToBatch(installId, device), ApiJson.Default.ErrorReportBatch,
             logFailure: false, repeatable: false); // the next send carries them again: a repeat would count them twice
-        if (response.IsSuccessStatusCode)
-        {
-            return true;
-        }
-
-        if (response.StatusCode == HttpStatusCode.BadRequest)
-        {
-            return false;
-        }
-
-        throw new HttpRequestException($"Error reports weren't sent: {(int)response.StatusCode} {response.ReasonPhrase}.", null, response.StatusCode);
+        return ApiClient.BatchTaken(response, "Error reports");
     }
 }
