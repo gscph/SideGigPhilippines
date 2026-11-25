@@ -81,7 +81,7 @@ FOR SKILLED WORKERS
 • Make your profile in a few minutes: your trade, your price, the towns you go to.
 • See requests from households near you and send your offer.
 • Keep everything you earn. Tarbaho takes no commission.
-• Add badges: a government ID, an NBI or police clearance, a TESDA certificate or a past project with a company. Badges help you show up higher in search.
+• Add badges: a government ID or an NBI or police clearance. Badges help you show up higher in search.
 
 WHAT WE CHECK
 Every worker confirms their mobile number and adds their own photo before going live. Badges are checked by a person on our team, with help from AI. Reviews come from real chats and finished services. Report or block anyone with one tap.
