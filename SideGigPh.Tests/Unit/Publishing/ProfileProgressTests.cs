@@ -52,6 +52,15 @@ public class ProfileProgressTests
         progress.Level.Should().Be(ProfileLevel.Live);
     }
 
+    [Fact]
+    public void Published_WithItsSelfieRefused_AsksForANewOne()
+    {
+        var progress = Progress(published: true, photo: false);
+
+        progress.NextStep.Should().Be(ProfileNextStep.NewSelfie);
+        progress.Level.Should().Be(ProfileLevel.Live);
+    }
+
     [Theory]
     [InlineData(0, ProfileMark.Recommended)]
     [InlineData(1, ProfileMark.Recommended)]
