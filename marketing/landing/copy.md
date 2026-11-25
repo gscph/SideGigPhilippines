@@ -235,8 +235,8 @@ Rules kept: workers are Kuya / Ate / Manong / Manang; no job / hire / employment
   - EN: What we checked
   - TL: Ang na-check namin
 - Point 3 text
-  - EN: Workers can add a government ID, NBI or police clearance, TESDA or past-project badge. A person checks each one, with AI help on IDs.
-  - TL: Pwedeng maglagay si Kuya o Ate ng government ID, NBI o police clearance, TESDA o past-project badge. Tao ang nagche-check, may tulong ng AI sa ID.
+  - EN: Workers can add a government ID or NBI / police clearance badge. A person checks each one, with AI help on IDs.
+  - TL: Pwedeng maglagay si Kuya o Ate ng government ID o NBI / police clearance badge. Tao ang nagche-check, may tulong ng AI sa ID.
 - Point 4 title
   - EN: Real reviews
   - TL: Totoong reviews
@@ -302,8 +302,8 @@ Rules kept: workers are Kuya / Ate / Manong / Manang; no job / hire / employment
   - EN: How are workers checked?
   - TL: Paano chine-check ang workers?
 - A5
-  - EN: Workers can send a government ID, NBI or police clearance, TESDA certificate or past project. A person looks at each one; AI helps read IDs. Each profile shows what we checked, and reviews come after the work.
-  - TL: Pwedeng magpadala ang workers ng government ID, NBI o police clearance, TESDA certificate o past project. Tao ang tumitingin sa bawat isa; tumutulong ang AI sa pagbasa ng ID. Makikita sa profile ang na-check namin, at may reviews pagkatapos ng gawa.
+  - EN: Workers can send a government ID or an NBI or police clearance. A person looks at each one; AI helps read IDs. Each profile shows what we checked, and reviews come after the work.
+  - TL: Pwedeng magpadala ang workers ng government ID o NBI o police clearance. Tao ang tumitingin sa bawat isa; tumutulong ang AI sa pagbasa ng ID. Makikita sa profile ang na-check namin, at may reviews pagkatapos ng gawa.
 
 ---
 

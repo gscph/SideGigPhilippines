@@ -126,7 +126,7 @@ Anchor `#trades`. Purpose: "do you have my kind of work, and is it near me".
 
 Purpose: answer "is this safe" without overclaiming. Tint band.
 - 3 rows (360px stacked, ≥960px 3 columns), icon + title + 1–2 lines:
-  - `profile-card.svg` optional badges: government ID, NBI / police clearance, TESDA, past project, checked by a person.
+  - `profile-card.svg` optional badges: government ID, NBI / police clearance, checked by a person.
   - `cyber-lock.svg` private number until a pick; chat inside the app.
   - `flag.svg` report and block on every profile and chat.
 - Reviews line (one sentence, no stars graphic with numbers): reviews come after the work, both sides.
