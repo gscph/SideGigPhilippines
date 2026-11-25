@@ -91,10 +91,10 @@ public sealed class PickedJobStore(SideGigPhDb db, ListingCache listings, AppEve
         // The reviews between the two either way round (household → worker, worker → household), for the blind-review rule.
         var ofWorkers = await db.Reviews.AsNoTracking()
             .Where(r => (r.SeekerId == uid && r.ProfessionalId == otherUid) || (r.SeekerId == otherUid && r.ProfessionalId == uid))
-            .Select(r => new Written(r.SeekerId, (int)r.Rating, r.UpdatedAt)).ToListAsync(cancellationToken);
+            .Select(r => new Written(r.SeekerId, r.Rating, r.UpdatedAt)).ToListAsync(cancellationToken);
         var ofHouseholds = await db.HouseholdReviews.AsNoTracking()
             .Where(r => (r.SeekerUid == uid && r.ProUid == otherUid) || (r.SeekerUid == otherUid && r.ProUid == uid))
-            .Select(r => new Written(r.SeekerUid, (int)r.Rating, r.UpdatedAt)).ToListAsync(cancellationToken);
+            .Select(r => new Written(r.SeekerUid, r.Rating, r.UpdatedAt)).ToListAsync(cancellationToken);
         var now = DateTimeOffset.UtcNow;
         return [.. rows.Select(r =>
         {
