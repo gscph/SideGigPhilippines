@@ -34,9 +34,6 @@ public sealed class DroppingConnection(HttpMessageHandler server) : DelegatingHa
         set => Volatile.Write(ref _dropWrites, value);
     }
 
-    /// <summary>Writes that reached the server.</summary>
-    public int WritesSent { get; private set; }
-
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         if (request.Method == HttpMethod.Get)
@@ -50,7 +47,6 @@ public sealed class DroppingConnection(HttpMessageHandler server) : DelegatingHa
         }
 
         Interlocked.Exchange(ref _dropWrites, 0);
-        WritesSent++;
         var response = await base.SendAsync(request, cancellationToken);
         if (LoseFirstAnswers && FirstTry(request))
         {

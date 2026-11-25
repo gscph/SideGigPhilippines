@@ -64,8 +64,10 @@ public static class TestData
         Seeker = answers,
     };
 
-    /// <summary>A chat between a pro and the test Seeker whose last message came from <paramref name="lastSenderId"/>.</summary>
-    /// <summary>A chat whose last message was an hour ago; it started then too unless <paramref name="startedAt"/> says earlier.</summary>
+    /// <summary>
+    /// A chat between a pro and the test Seeker whose last message came from <paramref name="lastSenderId"/> an hour ago;
+    /// it started then too unless <paramref name="startedAt"/> says earlier.
+    /// </summary>
     public static Chat ChatWith(
         string proId, string lastSenderId, DateTimeOffset? seekerReadAt = null, DateTimeOffset? proReadAt = null, DateTimeOffset? startedAt = null)
     {

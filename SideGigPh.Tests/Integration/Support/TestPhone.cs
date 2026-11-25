@@ -1,5 +1,3 @@
-using Microsoft.Extensions.Logging.Abstractions;
-using MobileAppTheme.Services.Local;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Analytics;
@@ -55,11 +53,7 @@ public sealed class TestPhone
         services.AddSingleton<TarbahoAnalytics>();
         services.AddSingleton<AnalyticsUploader>();
         services.AddSingleton<SeekerWorkspace>();
-        services.AddSingleton(provider => new LocalAccount(
-            Store, Identity, provider.GetRequiredService<IUserRepository>(), provider.GetRequiredService<IPhotoStore>(),
-            provider.GetRequiredService<IProfessionalProfileRepository>(), provider.GetRequiredService<IChatRepository>(),
-            provider.GetRequiredService<IReviewRepository>(), provider.GetRequiredService<IJobPostRepository>(), provider.GetRequiredService<ProWorkspace>(),
-            provider.GetRequiredService<SeekerWorkspace>(), provider.GetRequiredService<AppText>(), NullLogger<LocalAccount>.Instance));
+        services.AddSingleton<LocalAccount>();
         _services = services.BuildServiceProvider();
     }
 

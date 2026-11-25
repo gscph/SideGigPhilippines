@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SideGigPh.Api;
@@ -112,74 +113,44 @@ public sealed class ApiTestHost : IAsyncLifetime
     }
 
     /// <summary>Moves a chat's start back by <paramref name="by"/>, as if the Seeker wrote first that long ago (reviews open 24 hours after it).</summary>
-    public async Task StartChatEarlierAsync(string chatId, TimeSpan by)
-    {
-        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
-            "UPDATE Chats SET CreatedAt = DATEADD(second, -@seconds, CreatedAt) WHERE Id = @id", connection);
-        command.Parameters.AddWithValue("@seconds", (int)by.TotalSeconds);
-        command.Parameters.AddWithValue("@id", chatId);
-        (await command.ExecuteNonQueryAsync()).Should().Be(1, "the chat exists");
-    }
+    public async Task StartChatEarlierAsync(string chatId, TimeSpan by) =>
+        (await ExecuteAsync(
+            "UPDATE Chats SET CreatedAt = DATEADD(second, -@seconds, CreatedAt) WHERE Id = @id",
+            ("@seconds", (int)by.TotalSeconds), ("@id", chatId))).Should().Be(1, "the chat exists");
 
     /// <summary>
     /// Moves both "done" marks of the picked job on <paramref name="postId"/> back by <paramref name="by"/>, as if it
     /// was completed that long ago (blind reviews open <see cref="SideGigPh.Contracts.ReviewRules.BlindFor"/> after it).
     /// </summary>
-    public async Task CompleteJobEarlierAsync(long postId, TimeSpan by)
-    {
-        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
+    public async Task CompleteJobEarlierAsync(long postId, TimeSpan by) =>
+        (await ExecuteAsync(
             """
             UPDATE JobOffers SET HouseholdDoneAt = DATEADD(second, -@seconds, HouseholdDoneAt), WorkerDoneAt = DATEADD(second, -@seconds, WorkerDoneAt)
             WHERE PostId = @postId AND Status = 'picked' AND HouseholdDoneAt IS NOT NULL AND WorkerDoneAt IS NOT NULL
-            """, connection);
-        command.Parameters.AddWithValue("@seconds", (int)by.TotalSeconds);
-        command.Parameters.AddWithValue("@postId", postId);
-        (await command.ExecuteNonQueryAsync()).Should().Be(1, "the job is completed");
-    }
+            """,
+            ("@seconds", (int)by.TotalSeconds), ("@postId", postId))).Should().Be(1, "the job is completed");
 
     /// <summary>
     /// Stores a reference for <paramref name="uid"/>'s listing straight in the database, as publishes did before the
     /// references feature was dropped (nothing writes them any more), so Delete account's purge can be checked.
     /// </summary>
-    public async Task AddOldReferenceAsync(string uid, string mobileNumber)
-    {
-        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
-            "INSERT INTO ProfessionalReferences (ProfessionalId, Position, Name, MobileNumber) VALUES (@uid, 0, N'Aling Nena', @number)", connection);
-        command.Parameters.AddWithValue("@uid", uid);
-        command.Parameters.AddWithValue("@number", mobileNumber);
-        (await command.ExecuteNonQueryAsync()).Should().Be(1);
-    }
+    public async Task AddOldReferenceAsync(string uid, string mobileNumber) =>
+        (await ExecuteAsync(
+            "INSERT INTO ProfessionalReferences (ProfessionalId, Position, Name, MobileNumber) VALUES (@uid, 0, N'Aling Nena', @number)",
+            ("@uid", uid), ("@number", mobileNumber))).Should().Be(1);
 
     /// <summary>Whether any offer on <paramref name="postId"/> still holds a household's exact place (<c>MeetLatitude</c>, <c>MeetSharedAt</c>).</summary>
-    public async Task<bool> HoldsMeetLocationAsync(long postId)
-    {
-        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
-            "SELECT COUNT(*) FROM JobOffers WHERE PostId = @postId AND (MeetLatitude IS NOT NULL OR MeetLongitude IS NOT NULL OR MeetSharedAt IS NOT NULL)", connection);
-        command.Parameters.AddWithValue("@postId", postId);
-        return (int)(await command.ExecuteScalarAsync())! > 0;
-    }
+    public async Task<bool> HoldsMeetLocationAsync(long postId) =>
+        await CountAsync(
+            "SELECT COUNT(*) FROM JobOffers WHERE PostId = @postId AND (MeetLatitude IS NOT NULL OR MeetLongitude IS NOT NULL OR MeetSharedAt IS NOT NULL)",
+            ("@postId", postId)) > 0;
 
     /// <summary>Runs <c>004-config.sql</c> again on the test database, as a manual "Also run 004-config.sql" deploy does.</summary>
     public void RunConfigScript() => _database!.RunScript("004-config.sql");
 
     /// <summary>How many reference rows the database holds for <paramref name="uid"/>.</summary>
-    public async Task<int> ReferenceRowsAsync(string uid)
-    {
-        await using var connection = new Microsoft.Data.SqlClient.SqlConnection(ConnectionString);
-        await connection.OpenAsync();
-        await using var command = new Microsoft.Data.SqlClient.SqlCommand(
-            "SELECT COUNT(*) FROM ProfessionalReferences WHERE ProfessionalId = @uid", connection);
-        command.Parameters.AddWithValue("@uid", uid);
-        return (int)(await command.ExecuteScalarAsync())!;
-    }
+    public Task<int> ReferenceRowsAsync(string uid) =>
+        CountAsync("SELECT COUNT(*) FROM ProfessionalReferences WHERE ProfessionalId = @uid", ("@uid", uid));
 
     /// <summary>A raw HTTP client to the API, signed in with <paramref name="token"/> when given.</summary>
     public HttpClient Client(string? token = null)
@@ -192,6 +163,27 @@ public sealed class ApiTestHost : IAsyncLifetime
         }
 
         return client;
+    }
+
+    /// <summary>Runs one statement on the test database; answers the rows it changed.</summary>
+    private Task<int> ExecuteAsync(string sql, params (string Name, object Value)[] parameters) =>
+        RunSqlAsync(sql, parameters, command => command.ExecuteNonQueryAsync());
+
+    /// <summary>Runs one <c>SELECT COUNT(*)</c> on the test database.</summary>
+    private Task<int> CountAsync(string sql, params (string Name, object Value)[] parameters) =>
+        RunSqlAsync(sql, parameters, async command => (int)(await command.ExecuteScalarAsync())!);
+
+    private async Task<int> RunSqlAsync(string sql, (string Name, object Value)[] parameters, Func<SqlCommand, Task<int>> run)
+    {
+        await using var connection = new SqlConnection(ConnectionString);
+        await connection.OpenAsync();
+        await using var command = new SqlCommand(sql, connection);
+        foreach (var (name, value) in parameters)
+        {
+            command.Parameters.AddWithValue(name, value);
+        }
+
+        return await run(command);
     }
 
     private static IEnumerable<(MethodInfo Method, string Route, string[] Methods)> FunctionMethods() =>
