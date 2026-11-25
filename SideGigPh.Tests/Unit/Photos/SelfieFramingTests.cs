@@ -33,8 +33,20 @@ public class SelfieFramingTests
         SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.25)).Should().Be(SelfieFrame.TooFar);
 
     [Fact]
-    public void AnArmsLengthSelfie_IsGood() =>
-        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.4)).Should().Be(SelfieFrame.Good);
+    public void AFullArmsLengthSelfie_IsTooFar() =>
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.5)).Should().Be(SelfieFrame.TooFar);
+
+    [Fact]
+    public void AFaceFillingTwoThirdsOfTheOval_IsGood() =>
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 0.66)).Should().Be(SelfieFrame.Good);
+
+    [Fact]
+    public void AFaceJustWiderThanTheOval_IsTooClose() =>
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX, Oval.CentreY, Oval.Width * 1.05)).Should().Be(SelfieFrame.TooClose);
+
+    [Fact]
+    public void AFaceDriftedAQuarterOfTheWayOut_IsOffCentre() =>
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX + Oval.Width * 0.125, Oval.CentreY, Oval.Width * 0.8)).Should().Be(SelfieFrame.OffCentre);
 
     [Fact]
     public void AFaceBiggerThanTheOval_IsTooClose() =>
@@ -42,7 +54,7 @@ public class SelfieFramingTests
 
     [Fact]
     public void ASlightlyOffFace_StillCounts() =>
-        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX + Oval.Width * 0.1, Oval.CentreY + Oval.Height * 0.1, Oval.Width * 0.7)).Should().Be(SelfieFrame.Good);
+        SelfieFraming.Check(Width, Height, new FaceBox(Oval.CentreX + Oval.Width * 0.05, Oval.CentreY + Oval.Height * 0.05, Oval.Width * 0.8)).Should().Be(SelfieFrame.Good);
 
     [Fact]
     public void TheOval_IsCentredAcrossAndAboveTheMiddle()
