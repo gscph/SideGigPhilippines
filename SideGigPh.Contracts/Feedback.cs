@@ -46,9 +46,6 @@ public static class FeedbackStatuses
 
     /// <summary>Removed by the operator: spam, abuse or a duplicate (off the board).</summary>
     public const string Hidden = "hidden";
-
-    /// <summary>The statuses people see on the board.</summary>
-    public static bool IsOnBoard(string? status) => status is Open or Planned or Done;
 }
 
 /// <summary>The limits both sides keep for a suggestion (the columns of <c>FeedbackPosts</c>).</summary>

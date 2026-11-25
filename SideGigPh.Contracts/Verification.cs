@@ -32,7 +32,6 @@ public static class ClearanceRules
 {
     /// <summary>The longest a clearance is valid from its issue date (NBI); a police clearance is 6 months.</summary>
     public const int NbiValidMonths = 12;
-    public const int PoliceValidMonths = 6;
 
     /// <summary>
     /// A "valid until" the operator may approve with: today or later (an expired paper is rejected instead), and at
