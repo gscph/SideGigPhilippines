@@ -65,10 +65,10 @@ public class WireContractTests
     [Fact]
     public void UserDto_FieldNamesNeverChange() =>
         FieldNames(
-            new UserDto("uid", "Juan", "+639171234567", null, Wire.Taglish, Wire.Professional, "10000", At, At, "p1"),
+            new UserDto("uid", "Juan", "+639171234567", null, Wire.Taglish, Wire.Professional, "10000", At, At, "p1", At, "angono", "angono-san-isidro"),
             ApiJson.Default.UserDto).Should().Equal(
             "uid", "displayName", "phoneNumber", "email", "language", "role", "incomeGoalId", "createdAt", "updatedAt",
-            "profilePhotoId");
+            "profilePhotoId", "seekerFinishedAt", "homeTownId", "homeBarangayId");
 
     [Fact]
     public void ReviewContracts_FieldNamesNeverChange()

@@ -86,7 +86,7 @@ namespace SideGigPh.Maui
             builder.Services.AddSingleton<AppConfigService>();
             builder.Services.AddSingleton<OtherJobNotes>();
             builder.Services.AddSingleton<ProWorkspace>();
-            builder.Services.AddSingleton<ListingRestore>();
+            builder.Services.AddSingleton<AccountRestore>();
             builder.Services.AddSingleton<ProBadges>();
             builder.Services.AddSingleton<BadgeReview>();
             builder.Services.AddSingleton<ProfessionalSearch>();

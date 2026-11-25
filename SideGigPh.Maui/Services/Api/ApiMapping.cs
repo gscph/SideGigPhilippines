@@ -135,7 +135,10 @@ internal static partial class ApiMapping
         dto.Role switch { Wire.Seeker => UserRole.Seeker, Wire.Professional => UserRole.Professional, _ => null },
         dto.CreatedAt,
         dto.UpdatedAt,
-        dto.ProfilePhotoId);
+        dto.ProfilePhotoId,
+        dto.SeekerFinishedAt,
+        dto.HomeTownId,
+        dto.HomeBarangayId);
 
     public static UserDto ToDto(this UserProfile profile) => new(
         profile.Uid,
@@ -147,7 +150,10 @@ internal static partial class ApiMapping
         null, // IncomeGoalId: no longer asked (older apps still send theirs)
         profile.CreatedAt,
         profile.UpdatedAt,
-        profile.ProfilePhotoId);
+        profile.ProfilePhotoId,
+        profile.SeekerFinishedAt,
+        profile.HomeTownId,
+        profile.HomeBarangayId);
 
     public static ProfessionalListing ToModel(this ListingDto dto) => new()
     {

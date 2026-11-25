@@ -6,9 +6,9 @@ namespace SideGigPh.Maui.Services.Api;
 /// <summary><see cref="IUserRepository"/> on SideGigPh.Api (<c>users/me</c>). The server only lets a person reach their own profile.</summary>
 public sealed class ApiUserRepository(ApiClient api) : IUserRepository
 {
-    public Task<UserProfile?> GetAsync(string uid) => api.ReadAsync(async () =>
-        (await api.GetAsync("users/me", ApiJson.Default.UserDto))?.ToModel(),
-        null, $"the profile of {uid}");
+    // Not through ReadAsync: a failed read must not look like "no profile" (the restore would treat a household as new).
+    public async Task<UserProfile?> GetAsync(string uid) =>
+        (await api.GetAsync("users/me", ApiJson.Default.UserDto))?.ToModel();
 
     public async Task SaveAsync(UserProfile profile)
     {

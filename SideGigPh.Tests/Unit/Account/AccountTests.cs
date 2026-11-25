@@ -79,6 +79,22 @@ public class AccountTests
     }
 
     [Fact]
+    public async Task SaveProfile_FinishedHousehold_SavesItsSetup_SoAReinstallBringsItBack()
+    {
+        var answers = TestData.AirconCleaningInTaytay();
+        answers.BarangayId = ReferenceData.BarangaysOf("taytay")[0].Id;
+        var state = TestData.FinishedSeeker(answers);
+        var app = new FakeApp(state, TestData.SeekerUser());
+
+        await app.Account.SaveProfileAsync();
+
+        var profile = app.Users.Profiles[TestData.SeekerUid];
+        profile.SeekerFinishedAt.Should().Be(state.SeekerFinishedAt);
+        profile.HomeTownId.Should().Be("taytay");
+        profile.HomeBarangayId.Should().Be(answers.BarangayId);
+    }
+
+    [Fact]
     public async Task SaveProfile_NoLanguageSavedYet_UsesTheAppLanguage()
     {
         var app = new FakeApp(new OnboardingState { Role = UserRole.Seeker }, TestData.SeekerUser(), AppLanguage.Taglish);

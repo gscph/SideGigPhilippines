@@ -4,12 +4,17 @@ using SideGigPh.Contracts;
 namespace SideGigPh.AzureSQL;
 
 /// <summary>The signed-in person's profile (<c>Users</c>). Only that person reads or writes it.</summary>
-public sealed class UserStore(SideGigPhDb db, ListingCache listings, AppEventStore events)
+public sealed class UserStore(SideGigPhDb db, ListingCache listings, AppEventStore events, ConfigStore config)
 {
     public async Task<UserDto?> GetAsync(string uid, CancellationToken cancellationToken) =>
         await db.Users.AsNoTracking().Where(u => u.Uid == uid).Select(u => ToDto(u)).FirstOrDefaultAsync(cancellationToken);
 
-    /// <summary>Adds or replaces the profile. The uid is the caller's; the first save's time is kept.</summary>
+    /// <summary>
+    /// Adds or updates the profile. The uid is the caller's; the first save's time is kept. What the body leaves null
+    /// is kept, never cleared: a reinstalled app saves before it knows the account's side, photo or household setup
+    /// (the app reads them back, <c>AccountRestore</c>). The household's first finish date is kept; a home town is saved
+    /// only when it is a served town, with a barangay only when it is one of that town's.
+    /// </summary>
     public async Task<UserDto> SaveAsync(string uid, UserDto profile, CancellationToken cancellationToken)
     {
         var now = DateTimeOffset.UtcNow;
@@ -29,10 +34,43 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings, AppEventSto
         }
         row.PhoneNumber = StoreText.Limit(profile.PhoneNumber, 16);
         row.Email = StoreText.Limit(profile.Email, 254);
-        row.Language = profile.Language == Wire.Taglish ? Wire.Taglish : Wire.English;
-        row.Role = profile.Role is Wire.Seeker or Wire.Professional ? profile.Role : null;
-        row.IncomeGoalId = StoreText.IsCode(profile.IncomeGoalId) ? profile.IncomeGoalId : null;
-        row.ProfilePhotoId = StoreText.IsPhotoId(profile.ProfilePhotoId) ? profile.ProfilePhotoId : null;
+        if (profile.Language is Wire.Taglish or Wire.English)
+        {
+            row.Language = profile.Language;
+        }
+
+        if (profile.Role is Wire.Seeker or Wire.Professional)
+        {
+            row.Role = profile.Role;
+        }
+
+        if (StoreText.IsCode(profile.IncomeGoalId))
+        {
+            row.IncomeGoalId = profile.IncomeGoalId;
+        }
+
+        if (StoreText.IsPhotoId(profile.ProfilePhotoId))
+        {
+            row.ProfilePhotoId = profile.ProfilePhotoId;
+        }
+
+        // The first finish stays (a phone that finished again after a reinstall doesn't move it), never in the future.
+        if (row.SeekerFinishedAt is null && profile.SeekerFinishedAt is { } finished)
+        {
+            row.SeekerFinishedAt = finished > now ? now : finished;
+        }
+
+        // The town and barangay travel together: a served town replaces both (no barangay = "not sure"), else both stay.
+        if (profile.HomeTownId is { } townId)
+        {
+            var served = (await config.GetAsync(cancellationToken)).Config;
+            if (served.Towns.Any(t => t.Id == townId))
+            {
+                row.HomeTownId = townId;
+                row.HomeBarangayId = JobPostStore.ServedBarangay(served, townId, profile.HomeBarangayId);
+            }
+        }
+
         row.UpdatedAt = now;
         try
         {
@@ -118,5 +156,6 @@ public sealed class UserStore(SideGigPhDb db, ListingCache listings, AppEventSto
     }
 
     private static UserDto ToDto(UserRow u) =>
-        new(u.Uid, u.DisplayName, u.PhoneNumber, u.Email, u.Language, u.Role, u.IncomeGoalId, u.CreatedAt, u.UpdatedAt, u.ProfilePhotoId);
+        new(u.Uid, u.DisplayName, u.PhoneNumber, u.Email, u.Language, u.Role, u.IncomeGoalId, u.CreatedAt, u.UpdatedAt, u.ProfilePhotoId,
+            u.SeekerFinishedAt, u.HomeTownId, u.HomeBarangayId);
 }

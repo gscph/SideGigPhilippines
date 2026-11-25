@@ -16,6 +16,15 @@ public sealed class UserRow
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
     public DateTimeOffset? LastActiveAt { get; set; }
+
+    /// <summary>When the account first finished the household interview (<c>035-schema-user-restore.sql</c>); never cleared.</summary>
+    public DateTimeOffset? SeekerFinishedAt { get; set; }
+
+    /// <summary>The household's home town, a served town id (<c>035-schema-user-restore.sql</c>).</summary>
+    public string? HomeTownId { get; set; }
+
+    /// <summary>The household's barangay in <see cref="HomeTownId"/>, optional.</summary>
+    public string? HomeBarangayId { get; set; }
 }
 
 public sealed class ProfessionalRow

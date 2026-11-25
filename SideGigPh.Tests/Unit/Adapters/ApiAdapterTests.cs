@@ -511,6 +511,35 @@ public class ApiAdapterTests
     }
 
     [Fact]
+    public async Task Profile_HouseholdSetup_GoesBothWays()
+    {
+        var server = new StubServer();
+        var dto = new UserDto("uid", "Juan", null, null, Wire.English, Wire.Seeker, null, At, At, null, At, "angono", "angono-x");
+        server.Answer("GET users/me", HttpStatusCode.OK, Json(dto, ApiJson.Default.UserDto));
+        var users = new ApiUserRepository(server.Client());
+
+        var profile = (await users.GetAsync("uid"))!;
+
+        profile.SeekerFinishedAt.Should().Be(At);
+        profile.HomeTownId.Should().Be("angono");
+        profile.HomeBarangayId.Should().Be("angono-x");
+        profile.ToDto().Should().Be(dto);
+    }
+
+    [Fact]
+    public async Task Profile_NoneSavedYet_IsNull_ButAFailedRead_Throws()
+    {
+        // The restore must tell "no profile" from "couldn't read it", or a set-up household would look new.
+        var server = new StubServer();
+        server.Answer("GET users/me", HttpStatusCode.NotFound);
+        (await new ApiUserRepository(server.Client()).GetAsync("uid")).Should().BeNull();
+
+        var broken = new StubServer();
+        broken.Answer("GET users/me", HttpStatusCode.InternalServerError);
+        await new ApiUserRepository(broken.Client()).Invoking(r => r.GetAsync("uid")).Should().ThrowAsync<HttpRequestException>();
+    }
+
+    [Fact]
     public async Task Device_IsSentAsTokenAndPlatform()
     {
         var server = new StubServer();

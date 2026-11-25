@@ -385,6 +385,13 @@ public static class OnboardingSteps
             return PathOf(step == SeekerStep.Category && answers.IsOtherTrade() ? SeekerStep.City : step + 1);
         }
 
+        // No trade after finishing (retired, or a household restored after a reinstall that was asked its town again):
+        // Home, where a search starts; never the rest of the interview.
+        if (answers.CategoryId is null)
+        {
+            return SeekerRoutes.Home;
+        }
+
         var next = answers.FirstUnanswered();
         return next is SeekerStep.FindBy or SeekerStep.Finding ? answers.FinishPath() : PathOf(next);
     }
@@ -403,8 +410,9 @@ public static class OnboardingSteps
 
     /// <summary>
     /// Where the app opens once the language is known and the person is signed in: the role fork, the interview step
-    /// they left, or their home. A finished interview that lost its town or trade (coverage shrank, a trade was retired: <see cref="OnboardingCleanup"/>)
-    /// or an answer reopens that question.
+    /// they left, or their home. A finished household interview that lost its town (coverage shrank: <see cref="OnboardingCleanup"/>)
+    /// reopens that question; one with no trade (retired, or restored after a reinstall) opens Seeker home. A live
+    /// listing always opens Pro home; a worker not live yet goes back to the step they left.
     /// </summary>
     public static string LaunchPath(OnboardingState state)
     {
@@ -420,15 +428,16 @@ public static class OnboardingSteps
 
         if (role == UserRole.Seeker)
         {
-            // A lost answer (retired trade, unserved town) reopens its question; budget and urgency are never lost. No job
-            // is not lost: a trade tapped on Home searches all its jobs (SeekerWorkspace.PickCategoryAsync).
-            return state.Seeker.CategoryId is null ? PathOf(SeekerStep.Category)
-                : state.Seeker.CityId is null ? SeekerTownPath
-                : SeekerRoutes.Home;
+            // A lost town (no longer served) reopens its question. No trade is not lost: Home searches from its pill and
+            // trade tiles (a household restored after a reinstall has a town but no last search, AccountRestore).
+            return state.Seeker.CityId is null ? SeekerTownPath : SeekerRoutes.Home;
         }
 
+        // Live: Pro home, even with an answer missing on the phone (ProWorkspace.HasUnfinishedEdit asks for it there).
         // Not live yet: back to the selfie question or Publish, where they left it.
-        return state.Professional.IsListingComplete ? state.Professional.AfterInterviewPath() : ProFirstUnansweredPath;
+        return state.Professional.PublishedAt is not null ? ProRoutes.Home
+            : state.Professional.IsListingComplete ? state.Professional.AfterInterviewPath()
+            : ProFirstUnansweredPath;
     }
 
     private static void Toggle(List<string> ids, string id)

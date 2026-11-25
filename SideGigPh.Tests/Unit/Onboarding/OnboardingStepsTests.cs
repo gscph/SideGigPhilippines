@@ -1,3 +1,4 @@
+using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
@@ -475,14 +476,16 @@ public class OnboardingStepsTests
     }
 
     [Fact]
-    public void LaunchPath_FinishedSeekerWhoseTradeWasRetired_AsksTheTradeAgain()
+    public void LaunchPath_FinishedSeekerWithNoTrade_OpensSeekerHome()
     {
+        // A retired trade, or a household restored after a reinstall (a town, no last search): Home searches from its
+        // pill and trade tiles, so no question is asked again.
         var seeker = FullSeeker();
         seeker.CategoryId = null;
         seeker.ServiceId = null;
 
         OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Seeker, SeekerFinishedAt = DateTimeOffset.Now, Seeker = seeker })
-            .Should().Be(OnboardingSteps.PathOf(SeekerStep.Category));
+            .Should().Be(SeekerRoutes.Home);
     }
 
     [Fact]
@@ -493,6 +496,29 @@ public class OnboardingStepsTests
 
         OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now, Professional = draft })
             .Should().Be("/professional");
+    }
+
+    [Fact]
+    public void NextPath_FinishedSeekerWithNoTrade_AnsweringTheTownAgain_GoesHome()
+    {
+        // A restored household whose town is no longer served is asked the town, then lands on Home: not the trade,
+        // job, when and budget questions again.
+        var answers = new SeekerAnswers { CityId = "taytay" };
+
+        answers.NextPath(SeekerStep.City, finished: true).Should().Be(SeekerRoutes.Home);
+    }
+
+    [Fact]
+    public void LaunchPath_LiveWorkerMissingAnAnswer_StillOpensProHome()
+    {
+        // A listing restored after a reinstall can lack an answer the server doesn't keep (experience): Pro home asks for
+        // it (ProWorkspace.HasUnfinishedEdit), launch never sends a live worker back into the interview.
+        var draft = WithProof(FullyAnsweredDraft());
+        draft.ExperienceId = null;
+        draft.PublishedAt = DateTimeOffset.Now;
+
+        OnboardingSteps.LaunchPath(new OnboardingState { Role = UserRole.Professional, ProFinishedAt = DateTimeOffset.Now, Professional = draft })
+            .Should().Be(ProRoutes.Home);
     }
 
     [Fact]

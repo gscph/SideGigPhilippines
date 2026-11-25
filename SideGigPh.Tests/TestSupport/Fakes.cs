@@ -346,7 +346,17 @@ public sealed class FakeUsers : IUserRepository
     /// <summary>Phones registered for notifications, as (token, platform).</summary>
     public List<(string Token, string Platform)> Devices { get; } = [];
 
-    public Task<UserProfile?> GetAsync(string uid) => Task.FromResult(Profiles.GetValueOrDefault(uid));
+    /// <summary>When set, <see cref="GetAsync"/> throws it: no answer (an <c>HttpRequestException</c>) or a server error.</summary>
+    public Exception? GetThrows { get; set; }
+
+    /// <summary>The uids whose profile was read.</summary>
+    public List<string> Reads { get; } = [];
+
+    public Task<UserProfile?> GetAsync(string uid)
+    {
+        Reads.Add(uid);
+        return GetThrows is { } error ? Task.FromException<UserProfile?>(error) : Task.FromResult(Profiles.GetValueOrDefault(uid));
+    }
 
     public Task SaveDeviceAsync(string token, string platform)
     {

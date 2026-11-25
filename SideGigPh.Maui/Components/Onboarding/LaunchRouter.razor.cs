@@ -9,17 +9,17 @@ namespace SideGigPh.Maui.Components.Onboarding;
 /// <summary>
 /// App entry point (no UI of its own). Applies the saved language and sends the user to
 /// wherever they left off: language → sign in (+ name after a phone sign-in) → role → the
-/// interview step → their home. Everyone signs in before using the app; a worker whose app was reinstalled gets their
-/// live listing back first (<see cref="ListingRestore"/>); when that read gets no answer the page says "No internet" with
-/// Try again (also by itself once the connection is back), and "Continue anyway" for someone who has no listing to lose
-/// (a new account) so nobody is stuck on it.
+/// interview step → their home. Everyone signs in before using the app; someone whose app was reinstalled gets their
+/// account back first (<see cref="AccountRestore"/>: a worker's live listing, a household's setup); when that read gets no
+/// answer the page says "No internet" with Try again (also by itself once the connection is back), and "Continue anyway"
+/// for someone who has nothing to lose (a new account) so nobody is stuck on it.
 /// </summary>
 public partial class LaunchRouter : ComponentBase, IDisposable
 {
     [Inject] private IOnboardingStore Store { get; set; } = default!;
     [Inject] private AppConfigService Config { get; set; } = default!;
     [Inject] private SignInGate Gate { get; set; } = default!;
-    [Inject] private ListingRestore Restore { get; set; } = default!;
+    [Inject] private AccountRestore Restore { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private INetworkStatus Network { get; set; } = default!;
@@ -27,7 +27,7 @@ public partial class LaunchRouter : ComponentBase, IDisposable
     /// <summary>The main splash line, the same as the busy splash's first: "AI-assisted ID checks".</summary>
     private static LocalizedText MainLine => Copy.TrustTagline;
 
-    // The listing restore got no answer: the no-internet screen shows instead of the splash.
+    // The account restore got no answer: the no-internet screen shows instead of the splash.
     private bool _offline;
     private bool _busy;
     private OnboardingState? _state;
@@ -75,7 +75,7 @@ public partial class LaunchRouter : ComponentBase, IDisposable
         }
     }
 
-    /// <summary>"Continue anyway": the launch goes on without the listing restore, as on a new phone.</summary>
+    /// <summary>"Continue anyway": the launch goes on without the account restore, as on a new phone.</summary>
     private void ContinueAnyway()
     {
         if (_state is { } state)
@@ -131,9 +131,9 @@ public partial class LaunchRouter : ComponentBase, IDisposable
         }
 
         // Signed in on a phone with no answers (reinstalled, a new phone, or "Sign in with this number" before the first
-        // question): a worker's live listing comes back, so they open Pro home instead of the interview. Every sign-in
-        // comes back here (IAuthLanding's default "/").
-        if (await Restore.RestoreAsync(state) == ListingRestoreResult.Offline)
+        // question): a worker's live listing and a household's setup come back, so they open their home instead of the
+        // interview. Every sign-in comes back here (IAuthLanding's default "/").
+        if (await Restore.RestoreAsync(state) == AccountRestoreResult.Offline)
         {
             _offline = true;
             return;

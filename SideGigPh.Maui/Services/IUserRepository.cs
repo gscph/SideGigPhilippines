@@ -5,7 +5,11 @@ namespace SideGigPh.Maui.Services;
 /// <summary>The signed-in people's profiles, keyed by their account uid. Private to each person.</summary>
 public interface IUserRepository
 {
-    /// <summary>The person's profile, or null before it's first saved.</summary>
+    /// <summary>
+    /// The person's profile fresh from the server (a reinstalled app restores the household side from it:
+    /// <see cref="AccountRestore"/>), or null before it's first saved. Throws when the read failed (no answer, a server
+    /// error), so a failure never looks like "no profile".
+    /// </summary>
     Task<UserProfile?> GetAsync(string uid);
 
     /// <summary>Adds the profile or replaces the saved one.</summary>

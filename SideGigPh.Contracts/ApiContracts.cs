@@ -117,7 +117,12 @@ public static class ApiErrors
 /// </summary>
 public sealed record ApiError(string Error, string? Detail = null);
 
-/// <summary>The signed-in person (<c>GET/PUT users/me</c>). <paramref name="ProfilePhotoId"/> is the account's one profile photo (both sides).</summary>
+/// <summary>
+/// The signed-in person (<c>GET/PUT users/me</c>). <paramref name="ProfilePhotoId"/> is the account's one profile photo
+/// (both sides). <paramref name="SeekerFinishedAt"/>, <paramref name="HomeTownId"/> and <paramref name="HomeBarangayId"/>
+/// are the household side's setup, read back after a reinstall (the app's <c>AccountRestore</c>). A save never clears
+/// what it leaves null: the server keeps the saved role, photo, household date and home.
+/// </summary>
 public sealed record UserDto(
     string Uid,
     string? DisplayName,
@@ -128,7 +133,10 @@ public sealed record UserDto(
     string? IncomeGoalId,
     DateTimeOffset CreatedAt,
     DateTimeOffset UpdatedAt,
-    string? ProfilePhotoId = null);
+    string? ProfilePhotoId = null,
+    DateTimeOffset? SeekerFinishedAt = null,
+    string? HomeTownId = null,
+    string? HomeBarangayId = null);
 
 /// <summary>A stored photo: its random id and public URL. The answer to <c>POST photos</c> and <c>POST photos/selfie</c>.</summary>
 public sealed record PhotoDto(string Id, string Url);

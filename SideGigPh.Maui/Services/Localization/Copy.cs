@@ -918,6 +918,6 @@ public static class Copy
     public static readonly LocalizedText SuggestVotedWhy = new("That idea just moved up. Thank you!", "Umangat ang idea na 'yan. Salamat!");
     public static readonly LocalizedText SuggestDone = new("Back to ideas", "Balik sa mga idea");
 
-    // Launch with no answer from the server: go on without bringing a listing back.
+    // Launch with no answer from the server: go on without bringing the account back (AccountRestore).
     public static readonly LocalizedText LaunchContinueOffline = new("Continue anyway", "Tuloy pa rin");
 }

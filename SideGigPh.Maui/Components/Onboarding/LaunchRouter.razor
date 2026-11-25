@@ -2,7 +2,7 @@
 
 @if (_offline)
 {
-    @* The listing restore got no answer: say so, with Try again, instead of treating a live worker as new. *@
+    @* The account restore got no answer: say so, with Try again, instead of treating a set-up account as new. *@
     <MudContainer MaxWidth="MaxWidth.Small" Class="full-screen">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Spacing="4" Class="flex-1 px-4">
             <EmptyState Icon="@Icons.Material.Rounded.WifiOff" Text="@T.Get(CommonCopy.NoConnection)" />

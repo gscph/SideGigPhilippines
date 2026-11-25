@@ -42,7 +42,8 @@ public sealed class LocalAccount(
 
     /// <summary>
     /// Saves the signed-in person's profile from their account (name, number) and their answers
-    /// (language, side, profile photo). Called when one of those changes. Does nothing when
+    /// (language, side, profile photo, the household side's finish date and home town and barangay, which bring that
+    /// side back after a reinstall: <see cref="AccountRestore"/>). Called when one of those changes. Does nothing when
     /// nobody is signed in (no sign-in provider registered). A failed save is logged, not thrown.
     /// </summary>
     public async Task SaveProfileAsync()
@@ -70,7 +71,10 @@ public sealed class LocalAccount(
                 // The side's own photo; one person on both sides keeps the other side's until this side has one.
                 state.Role == UserRole.Professional
                     ? state.Professional.ProfilePhotoId ?? state.Seeker.ProfilePhotoId
-                    : state.Seeker.ProfilePhotoId ?? state.Professional.ProfilePhotoId));
+                    : state.Seeker.ProfilePhotoId ?? state.Professional.ProfilePhotoId,
+                state.SeekerFinishedAt,
+                state.Seeker.CityId,
+                state.Seeker.BarangayId));
         }
         catch (Exception ex)
         {
