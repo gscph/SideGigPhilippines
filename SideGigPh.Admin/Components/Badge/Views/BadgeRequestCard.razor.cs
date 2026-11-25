@@ -8,7 +8,8 @@ namespace SideGigPh.Admin.Components.Badge.Views;
 /// <summary>
 /// One waiting request: profile photo beside the badge asked for, what the AI read (a clearance: its checklist, QR code
 /// and the "valid until" approving needs, <see cref="ClearanceChecklist"/>), the proof photo only on a click
-/// (each look is logged by the API), and Approve / Reject with a reason. Approve asks once more.
+/// (each look is logged by the API), opened at its real size in <see cref="ProofPhotoDialog"/> with a small preview
+/// left on the card, and Approve / Reject with a reason. Approve asks once more.
 /// </summary>
 public partial class BadgeRequestCard
 {
@@ -52,6 +53,23 @@ public partial class BadgeRequestCard
         {
             _busy = false;
         }
+
+        if (_document is not null)
+        {
+            await OpenViewerAsync();
+        }
+    }
+
+    /// <summary>The photo already fetched, at its real size over the page; reopening it is not a new look.</summary>
+    private async Task OpenViewerAsync()
+    {
+        if (_document is null) return;
+        var parameters = new DialogParameters<ProofPhotoDialog>
+        {
+            { d => d.Src, _document },
+            { d => d.Caption, $"{BadgeText.Title(Request)} · {Request.WorkerName ?? "(no name)"}" },
+        };
+        await (await Dialogs.ShowAsync<ProofPhotoDialog>("Proof photo", parameters, ProofPhotoDialog.Options)).Result;
     }
 
     private async Task DecideAsync(bool approve)

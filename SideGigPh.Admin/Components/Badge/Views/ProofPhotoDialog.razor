@@ -1,0 +1,19 @@
+<MudDialog ContentClass="pa-0">
+    <DialogContent>
+        <MudStack Spacing="0">
+            <MudStack Row="true" Spacing="2" AlignItems="AlignItems.Center" Class="px-4 py-2">
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="flex-1">@Caption</MudText>
+                <MudToggleGroup T="bool" @bind-Value="_fit" Size="Size.Small" Color="Color.Primary" Outlined="true">
+                    <MudToggleItem Value="false" Text="Actual size" />
+                    <MudToggleItem Value="true" Text="Fit to window" />
+                </MudToggleGroup>
+            </MudStack>
+            <MudPaper Elevation="0" Square="true" Class="admin-proof-viewer">
+                <MudImage Src="@Src" Alt="Proof photo" Class="@(_fit ? "admin-proof-fit" : "admin-proof-actual")" />
+            </MudPaper>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Close">Close</MudButton>
+    </DialogActions>
+</MudDialog>

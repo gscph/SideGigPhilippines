@@ -653,7 +653,7 @@ households and skilled workers, the badge review (the same as the phone's `Badge
   sees `NotOperatorPanel` with their uid to add. The API refuses non-operators anyway (`403 not-admin`).
 - **Badge review:** `Components/Badge/BadgeService` (the phone's `BadgeReview` rules: 20 oldest first, a rejection
   needs a reason trimmed to 200), one `BadgeRequestCard` per request: profile photo, badge (`BadgeText`), what the AI
-  read, the proof photo only on a click (every look is audited), Approve / Reject, each confirmed once.
+  read, the proof photo only on a click (every look is audited), opened in `ProofPhotoDialog` at its real pixel size (scrolls both ways, never stretched; "Fit to window" to see all of it) with a small preview left on the card that reopens it without a new look, Approve / Reject, each confirmed once.
 - **Look:** `Options/AdminTheme` (the Tarbaho colors and DM Sans, the site's one place for colors), MudBlazor only,
   English only (operators, not the app's audience), a few helpers in `wwwroot/css/admin.css`.
 - **Set up once:** Firebase console → Project settings → Your apps → **Add app → Web** (no Hosting), copy `apiKey` and

@@ -48,7 +48,11 @@
         <MudStack Spacing="2" Class="mt-4">
             @if (_document is not null)
             {
-                <MudImage Src="@_document" Alt="Proof photo" Class="admin-proof" />
+                <MudImage Src="@_document" Alt="Proof photo (small preview)" Class="admin-proof-thumb" />
+                <MudButton Variant="Variant.Outlined" Color="Color.Dark" StartIcon="@Icons.Material.Outlined.ZoomIn"
+                           OnClick="OpenViewerAsync" Class="align-self-start">
+                    View full size
+                </MudButton>
             }
             else if (Request.HasDocument)
             {
