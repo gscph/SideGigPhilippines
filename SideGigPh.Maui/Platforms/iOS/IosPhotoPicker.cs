@@ -79,10 +79,14 @@ public sealed class IosPhotoPicker(DevicePhotoPicker device, AppText text, ILogg
         var scale = Math.Min(1, MaxSide / Math.Max(width, height));
         var size = new CGSize(Math.Max(1, Math.Round(width * scale)), Math.Max(1, Math.Round(height * scale)));
 
-        var format = UIGraphicsImageRendererFormat.PreferredFormat;
-        format.Scale = 1;
-        format.Opaque = true;
-        format.PreferredRange = UIGraphicsImageRendererFormatRange.Standard;
+        // A new image format, not PreferredFormat: in the .NET bindings that one is typed as the base
+        // UIGraphicsRendererFormat, which has no Opaque or PreferredRange, and the renderer needs the image format.
+        using var format = new UIGraphicsImageRendererFormat
+        {
+            Scale = 1,
+            Opaque = true,
+            PreferredRange = UIGraphicsImageRendererFormatRange.Standard,
+        };
 
         using var renderer = new UIGraphicsImageRenderer(size, format);
         using var jpeg = renderer.CreateJpeg(JpegQuality, _ => image.Draw(new CGRect(CGPoint.Empty, size)));
