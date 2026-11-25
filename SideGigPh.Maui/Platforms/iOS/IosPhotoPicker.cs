@@ -1,6 +1,5 @@
 using CoreGraphics;
 using Microsoft.Extensions.Logging;
-using MobileAppTheme.Localization;
 using MobileAppTheme.Services.Local;
 using SideGigPh.Maui.Services.Localization;
 using AppTheme = SideGigPh.Maui.Components.Layout.AppTheme;

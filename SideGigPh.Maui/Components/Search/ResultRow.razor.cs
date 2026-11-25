@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Components.Seeker;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services.Localization;
 

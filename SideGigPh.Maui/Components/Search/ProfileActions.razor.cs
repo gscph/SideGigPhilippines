@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Components;
-using SideGigPh.Maui.Services.Localization;
 
 namespace SideGigPh.Maui.Components.Search;
 

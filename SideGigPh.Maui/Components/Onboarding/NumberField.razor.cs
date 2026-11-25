@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using MobileAppTheme.Auth;
 using MobileAppTheme.Components.Auth;
-using MobileAppTheme.Localization;
 using MobileAppTheme.Services;
 
 namespace SideGigPh.Maui.Components.Onboarding;

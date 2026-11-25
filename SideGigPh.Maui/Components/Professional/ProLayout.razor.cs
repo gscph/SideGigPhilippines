@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Components;
-using MobileAppTheme.Auth;
 using MudBlazor;
-using SideGigPh.Maui.Components.Layout;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
 
