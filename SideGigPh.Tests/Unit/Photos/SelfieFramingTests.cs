@@ -1,6 +1,4 @@
-using FluentAssertions;
 using SideGigPh.Maui.Services;
-using Xunit;
 
 namespace SideGigPh.Tests.Unit.Photos;
 

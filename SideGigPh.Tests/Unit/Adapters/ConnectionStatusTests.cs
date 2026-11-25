@@ -1,7 +1,5 @@
 using System.Net;
 using Microsoft.Extensions.Logging.Abstractions;
-using MobileAppTheme.Services;
-using MobileAppTheme.Services.Local;
 using SideGigPh.Maui.Services.Api;
 using SideGigPh.Tests.TestSupport;
 

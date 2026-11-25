@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Services.Search;

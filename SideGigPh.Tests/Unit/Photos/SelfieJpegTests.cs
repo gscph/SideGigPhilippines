@@ -1,6 +1,5 @@
 using ImageMagick;
 using SideGigPh.Api;
-using SideGigPh.Contracts;
 using SideGigPh.Contracts.Photos;
 
 namespace SideGigPh.Tests.Unit.Photos;

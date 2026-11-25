@@ -1,5 +1,4 @@
 using SideGigPh.Maui.Models;
-using SideGigPh.Maui.Services;
 using SideGigPh.Tests.Integration.Support;
 
 namespace SideGigPh.Tests.Integration;

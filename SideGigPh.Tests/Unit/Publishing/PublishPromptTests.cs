@@ -1,4 +1,3 @@
-using SideGigPh.Maui.Models;
 using SideGigPh.Tests.TestSupport;
 
 namespace SideGigPh.Tests.Unit.Publishing;

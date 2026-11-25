@@ -1,5 +1,3 @@
-using MobileAppTheme.Auth;
-
 namespace SideGigPh.Tests.Unit.Account;
 
 /// <summary>

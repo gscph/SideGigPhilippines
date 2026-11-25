@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using SideGigPh.AzureSQL;
 using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
