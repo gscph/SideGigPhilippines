@@ -68,7 +68,7 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
     }
 
     public Task<string?> GetContactNumberAsync(string otherUid) => api.ReadAsync<string?>(async () =>
-        (await api.GetAsync($"contacts/{Uri.EscapeDataString(otherUid)}", ApiJson.Default.ContactDto))?.PhoneNumber,
+        (await api.GetAsync($"contacts/{ApiClient.Escape(otherUid)}", ApiJson.Default.ContactDto))?.PhoneNumber,
         null, "a contact number");
 
     public Task<IReadOnlyList<MyOffer>> GetMyOffersAsync() => api.ReadAsync<IReadOnlyList<MyOffer>>(async () =>
@@ -76,7 +76,7 @@ public sealed class ApiJobPostRepository(ApiClient api) : IJobPostRepository
         [], "the worker's offers");
 
     public Task<IReadOnlyList<PickedJob>> GetPickedJobsAsync(string otherUid) => api.ReadAsync<IReadOnlyList<PickedJob>>(async () =>
-        (await api.GetAsync($"picked-jobs/{Uri.EscapeDataString(otherUid)}", ApiJson.Default.ListPickedJobDto) ?? []).Select(dto => dto.ToModel()).ToList(),
+        (await api.GetAsync($"picked-jobs/{ApiClient.Escape(otherUid)}", ApiJson.Default.ListPickedJobDto) ?? []).Select(dto => dto.ToModel()).ToList(),
         [], "the picked jobs with someone");
 
     public async Task<PickedJob> MarkDoneAsync(long postId)
