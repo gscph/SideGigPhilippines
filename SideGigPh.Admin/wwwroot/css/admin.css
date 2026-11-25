@@ -22,11 +22,43 @@
     color: #fff;
 }
 
-/* A proof photo: never wider than the card, never taller than the screen. */
-.admin-proof {
-    max-width: 100%;
-    max-height: 70vh;
+/* A proof photo's small preview on the card: its own shape, never stretched. */
+.admin-proof-thumb {
+    width: auto;
+    height: auto;
+    max-width: min(100%, 320px);
+    max-height: 200px;
     object-fit: contain;
+    align-self: flex-start;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 8px;
+}
+
+/* The proof photo window: scrolls both ways when the photo is bigger than the screen. */
+.admin-proof-viewer {
+    max-height: 75vh;
+    overflow: auto;
+    background: var(--mud-palette-background-gray);
+}
+
+/* At its real pixel size, never stretched or squeezed. */
+.admin-proof-actual {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: none;
+    margin: 0 auto;
+}
+
+/* All of it at once, in its own shape. */
+.admin-proof-fit {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 75vh;
+    object-fit: contain;
+    margin: 0 auto;
 }
 
 /* A clearance's QR text that isn't a web address: a long run with no spaces wraps instead of widening the card. */
