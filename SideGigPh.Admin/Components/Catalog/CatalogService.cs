@@ -16,7 +16,7 @@ public sealed class CatalogService(AdminApi api, ReferenceService reference)
 
     public AdminCatalogDto? Current { get; private set; }
 
-    public async Task<AdminCatalogDto> LoadAsync() => Keep(await api.GetAsync(Path, ApiJson.Default.AdminCatalogDto));
+    public async Task LoadAsync() => Keep(await api.GetAsync(Path, ApiJson.Default.AdminCatalogDto));
 
     public async Task AddTradeAsync(SaveTradeRequest request) =>
         Keep(await api.SendAsync(HttpMethod.Post, $"{Path}/trades", request, ApiJson.Default.SaveTradeRequest, ApiJson.Default.AdminCatalogDto));
@@ -58,10 +58,9 @@ public sealed class CatalogService(AdminApi api, ReferenceService reference)
     public static string PriceText(PriceGuideDto? price) =>
         price is null ? "—" : $"₱{price.Min:N0} · ₱{price.Average:N0} · ₱{price.High:N0}";
 
-    private AdminCatalogDto Keep(AdminCatalogDto catalog)
+    private void Keep(AdminCatalogDto catalog)
     {
         Current = catalog;
         reference.Forget(); // the lists' trade filters read the config: show the new names there too
-        return catalog;
     }
 }
