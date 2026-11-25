@@ -150,7 +150,7 @@ const screens = [
         <div><b style="font-size:17px">41</b><br><small style="color:${C.muted}">services done</small></div>
         <div><b style="font-size:17px">10+</b><br><small style="color:${C.muted}">years</small></div></div>
       <div style="font-size:16px;font-weight:700;margin:16px 16px 8px">What we checked</div>
-      ${[['profile-card', 'ID checked'], ['medal', 'TESDA training'], ['phone', 'Number verified']].map(([i, t]) =>
+      ${[['profile-card', 'ID checked'], ['medal', 'Clearance checked'], ['phone', 'Number verified']].map(([i, t]) =>
         `<div style="display:flex;align-items:center;gap:12px;padding:6px 16px;font-size:14px"><img src="${icon(i)}" style="width:30px;height:30px">${t}</div>`).join('')}
       <div style="font-size:16px;font-weight:700;margin:14px 16px 0">Work photos</div>
       <div class="pics" style="padding:0 16px">${['aircon', 'thermometer', 'drop', 'wrench'].map(i => `<div><img src="${icon(i)}"></div>`).join('')}</div>

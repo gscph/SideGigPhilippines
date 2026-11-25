@@ -59,7 +59,7 @@ public static class Copy
         public static readonly Say TownsTitle = new("Towns in Rizal", "Bayan sa Rizal");
         public static readonly Say TownsText = new("Angono first, then Antipolo and Taytay.", "Angono muna, tapos Antipolo at Taytay.");
         public static readonly Say BadgesTitle = new("Badges we check", "Badge na chine-check");
-        public static readonly Say BadgesText = new("Government ID, NBI or police clearance, TESDA, and a past project.", "Government ID, NBI o police clearance, TESDA, at past project.");
+        public static readonly Say BadgesText = new("Government ID and NBI or police clearance.", "Government ID at NBI o police clearance.");
     }
 
     public static class Stores
@@ -168,7 +168,7 @@ public static class Copy
     public static class Trust
     {
         public static readonly Say BadgesTitle = new("What we checked", "Ang na-check namin");
-        public static readonly Say BadgesText = new("Workers can add a government ID, NBI or police clearance, TESDA or past-project badge. A person checks each one, with AI help on IDs.", "Pwedeng maglagay si Kuya o Ate ng government ID, NBI o police clearance, TESDA o past-project badge. Tao ang nagche-check, may tulong ng AI sa ID.");
+        public static readonly Say BadgesText = new("Workers can add a government ID or NBI / police clearance badge. A person checks each one, with AI help on IDs.", "Pwedeng maglagay si Kuya o Ate ng government ID o NBI / police clearance badge. Tao ang nagche-check, may tulong ng AI sa ID.");
         public static readonly Say PrivateTitle = new("Chat first, number later", "Chat muna, number mamaya");
         public static readonly Say PrivateText = new("Talk in the app. Numbers show only once the household picks a worker.", "Mag-usap sa app. Lalabas lang ang number pag may napili na.");
         public static readonly Say ReportTitle = new("Report and block", "Report at block");
@@ -192,8 +192,8 @@ public static class Copy
             (new("When can I use it?", "Kailan ko magagamit?"),
              new("iPhone: the beta is open now on TestFlight. Android: soon; join the early access list and we'll email your invite.", "iPhone: bukas na ang beta sa TestFlight. Android: malapit na; sumali sa early access at i-email namin ang invite mo.")),
             (new("How are workers checked?", "Paano chine-check ang workers?"),
-             new("Workers can send a government ID, NBI or police clearance, TESDA certificate or past project. A person looks at each one; AI helps read IDs. Each profile shows what we checked, and reviews come after the work.",
-                 "Pwedeng magpadala ang workers ng government ID, NBI o police clearance, TESDA certificate o past project. Tao ang tumitingin sa bawat isa; tumutulong ang AI sa pagbasa ng ID. Makikita sa profile ang na-check namin, at may reviews pagkatapos ng gawa.")),
+             new("Workers can send a government ID or an NBI or police clearance. A person looks at each one; AI helps read IDs. Each profile shows what we checked, and reviews come after the work.",
+                 "Pwedeng magpadala ang workers ng government ID o NBI o police clearance. Tao ang tumitingin sa bawat isa; tumutulong ang AI sa pagbasa ng ID. Makikita sa profile ang na-check namin, at may reviews pagkatapos ng gawa.")),
             (new("What do you do with my email?", "Ano'ng gagawin n'yo sa email ko?"),
              new("Only to send your early access invite (Play Store testing or TestFlight) and tell you when Tarbaho opens. No spam, never sold. Message our Facebook Page and we delete it.",
                  "Para lang ipadala ang early access invite mo (Play Store testing o TestFlight) at sabihan ka pag bukas na ang Tarbaho. Walang spam, hindi ibinebenta. Mag-message sa Facebook Page namin at buburahin namin.")),

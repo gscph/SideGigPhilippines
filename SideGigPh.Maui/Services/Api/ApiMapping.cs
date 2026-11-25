@@ -186,7 +186,7 @@ internal static partial class ApiMapping
 
     /// <summary>A badge on a listing, or null for a kind this app version doesn't know yet.</summary>
     public static Badge? ToModel(this BadgeDto dto) => KindOf(dto.Kind) is { } kind
-        ? new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName)
+        ? new Badge(kind)
         : null;
 
     /// <summary>A request waiting for the operator, or null for a kind this app version doesn't know yet.</summary>
@@ -196,7 +196,7 @@ internal static partial class ApiMapping
             dto.Uid,
             dto.WorkerName ?? string.Empty,
             dto.ProfilePhotoUrl,
-            new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName),
+            new Badge(kind),
             new BadgeScan(
                 dto.ScanStatus switch
                 {
@@ -225,7 +225,7 @@ internal static partial class ApiMapping
     public static BadgeRequest? ToModel(this VerificationDto dto) => KindOf(dto.Kind) is { } kind
         ? new BadgeRequest(
             dto.Id,
-            new Badge(kind, kind == BadgeKind.Project ? dto.BadgeId : null, dto.CompanyName, dto.ProjectName),
+            new Badge(kind),
             dto.Status switch
             {
                 VerificationStatuses.Approved when ClearanceRules.HasLapsed(dto.ValidUntil, JobPostRules.PhilippineToday(DateTimeOffset.UtcNow)) => BadgeState.Expired,
@@ -268,34 +268,14 @@ internal static partial class ApiMapping
     /// </summary>
     public static string ToSubmitPath(Badge badge, bool retake = false)
     {
-        var kind = badge.Kind switch
-        {
-            BadgeKind.Clearance => VerificationKinds.Clearance,
-            BadgeKind.Tesda => VerificationKinds.Tesda,
-            BadgeKind.Project => VerificationKinds.Developer,
-            _ => VerificationKinds.Id,
-        };
-        var path = $"verifications/{kind}?consent=true" + (retake ? "&retake=true" : string.Empty);
-        if (badge.Kind != BadgeKind.Project)
-        {
-            return path;
-        }
-
-        path += $"&badgeId={ApiClient.Escape(badge.DeveloperId ?? string.Empty)}";
-        if (!string.IsNullOrWhiteSpace(badge.CompanyName))
-        {
-            path += $"&companyName={ApiClient.Escape(badge.CompanyName)}";
-        }
-
-        return string.IsNullOrWhiteSpace(badge.ProjectName) ? path : path + $"&projectName={ApiClient.Escape(badge.ProjectName)}";
+        var kind = badge.Kind == BadgeKind.Clearance ? VerificationKinds.Clearance : VerificationKinds.Id;
+        return $"verifications/{kind}?consent=true" + (retake ? "&retake=true" : string.Empty);
     }
 
     private static BadgeKind? KindOf(string kind) => kind switch
     {
         VerificationKinds.Id => BadgeKind.Id,
         VerificationKinds.Clearance => BadgeKind.Clearance,
-        VerificationKinds.Tesda => BadgeKind.Tesda,
-        VerificationKinds.Developer => BadgeKind.Project,
         _ => null,
     };
 

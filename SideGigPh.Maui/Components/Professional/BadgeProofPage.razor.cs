@@ -6,10 +6,10 @@ using SideGigPh.Maui.Services.Localization;
 namespace SideGigPh.Maui.Components.Professional;
 
 /// <summary>
-/// Sending the proof for one badge: what to photograph, for a past project which company (a well-known developer or
-/// any other, typed), then the consent box, unticked. Only with it ticked does the photo picker open and the photo
-/// leave the phone. The phone's own photo permission is not consent: the tick is. An ID or a clearance is
-/// photographed now with the back camera (never the gallery), with a guide first; after sending, the server's photo
+/// Sending the proof for one badge: what to photograph, a guide, then the consent box, unticked. Only with it ticked
+/// does the camera open and the photo leave the phone. The phone's own camera permission is not consent: the tick is.
+/// An ID or a clearance is photographed now with the back camera (never the gallery: an old photo, or a screenshot of
+/// someone else's ID); after sending, the server's photo
 /// check may ask "take it again?" (<see cref="PhotoRetakePrompt"/>), only advice.
 /// </summary>
 public partial class BadgeProofPage : ComponentBase
@@ -20,12 +20,9 @@ public partial class BadgeProofPage : ComponentBase
     [Inject] private NavigationManager Navigation { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
 
-    /// <summary>The badge's kind from the URL: <c>id</c>, <c>clearance</c>, <c>tesda</c> or <c>project</c>.</summary>
+    /// <summary>The badge's kind from the URL: <c>id</c> or <c>clearance</c>.</summary>
     [Parameter] public string Kind { get; set; } = string.Empty;
 
-    private string? _developerId;
-    private string? _companyName;
-    private string? _projectName;
     private bool _consent;
     private bool _busy;
     private BadgeSubmitResult? _result;
@@ -35,35 +32,16 @@ public partial class BadgeProofPage : ComponentBase
 
     private BadgeKind BadgeKind => Enum.TryParse<BadgeKind>(Kind, ignoreCase: true, out var kind) ? kind : BadgeKind.Id;
 
-    private Badge Badge => new(BadgeKind, _developerId, _companyName, _projectName);
+    private Badge Badge => new(BadgeKind);
 
-    private bool CanSend => _consent && BadgeCatalog.HasCompany(Badge);
+    private bool IsClearance => BadgeKind == BadgeKind.Clearance;
 
-    private bool UsesCamera => ProBadges.UsesCamera(BadgeKind);
+    private LocalizedText Title => IsClearance ? Copy.BadgeClearanceTitle : Copy.BadgeIdTitle;
 
-    private LocalizedText Title => BadgeKind switch
-    {
-        BadgeKind.Clearance => Copy.BadgeClearanceTitle,
-        BadgeKind.Tesda => Copy.BadgeTesdaTitle,
-        BadgeKind.Project => Copy.BadgeProjectTitle,
-        _ => Copy.BadgeIdTitle,
-    };
+    private LocalizedText What => IsClearance ? Copy.BadgeClearanceWhat : Copy.BadgeIdWhat;
 
-    private LocalizedText What => BadgeKind switch
-    {
-        BadgeKind.Clearance => Copy.BadgeClearanceWhat,
-        BadgeKind.Tesda => Copy.BadgeTesdaWhat,
-        BadgeKind.Project => Copy.BadgeProjectWhat,
-        _ => Copy.BadgeIdWhat,
-    };
-
-    /// <summary>The consent the worker ticks: an ID is read by AI, a clearance can show a record, anything else is a plain document.</summary>
-    private LocalizedText Consent => BadgeKind switch
-    {
-        BadgeKind.Id => Copy.BadgeConsentId,
-        BadgeKind.Clearance => Copy.BadgeConsentClearance,
-        _ => Copy.BadgeConsentDocument,
-    };
+    /// <summary>The consent the worker ticks: an ID is read by AI, a clearance can show a record.</summary>
+    private LocalizedText Consent => IsClearance ? Copy.BadgeConsentClearance : Copy.BadgeConsentId;
 
     protected override async Task OnInitializedAsync() => await Badges.LoadAsync();
 
@@ -91,7 +69,7 @@ public partial class BadgeProofPage : ComponentBase
 
     private async Task SendAsync(bool retake)
     {
-        if (_busy || !CanSend)
+        if (_busy || !_consent)
         {
             return; // a second tap before the button re-rendered as disabled
         }
@@ -99,8 +77,8 @@ public partial class BadgeProofPage : ComponentBase
         _busy = true;
         try
         {
-            // The camera or picker first, outside the loading screen: the splash covers only the upload.
-            var pick = UsesCamera ? await Picker.TakeDocumentPhotoAsync() : await Picker.PickAsync(1);
+            // The camera first, outside the loading screen: the splash covers only the upload.
+            var pick = await Picker.TakeDocumentPhotoAsync();
             _result = pick.Status == PhotoPickStatus.Picked
                 ? await Busy.RunAsync(() => Badges.SubmitAsync(Badge, _consent, pick, retake))
                 : await Badges.SubmitAsync(Badge, _consent, pick, retake);
@@ -108,7 +86,6 @@ public partial class BadgeProofPage : ComponentBase
             {
                 BadgeSubmitResult.Sent or BadgeSubmitResult.NoPhoto => null,
                 BadgeSubmitResult.AlreadySent => Copy.BadgeAlreadySent,
-                BadgeSubmitResult.NoCompany => Copy.BadgeNoCompany,
                 BadgeSubmitResult.PhotoDenied => Copy.BadgePhotoDenied,
                 _ => Copy.BadgeFailed,
             };

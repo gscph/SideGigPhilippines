@@ -14,6 +14,9 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
 
     public event Action? Changed;
 
+    /// <summary>How many kinds of badge there are (ID, NBI / police clearance).</summary>
+    public static int Kinds => Enum.GetValues<BadgeKind>().Length;
+
     /// <summary>How long Pro home trusts the last read (an operator may approve one at any time).</summary>
     public static readonly TimeSpan FreshFor = TimeSpan.FromMinutes(5);
 
@@ -31,43 +34,35 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
     public Task RefreshIfStaleAsync() =>
         _loadedAt is { } at && DateTimeOffset.UtcNow - at < FreshFor ? Task.CompletedTask : LoadAsync();
 
-    /// <summary>The newest request of each badge of this kind that still counts: approved, waiting, or rejected with nothing newer.</summary>
-    public IReadOnlyList<BadgeRequest> Of(BadgeKind kind) =>
-        [.. Requests
+    /// <summary>
+    /// The request of this kind that counts, or null when none was sent: approved beats waiting beats expired beats
+    /// rejected, the newest first among equals.
+    /// </summary>
+    public BadgeRequest? Of(BadgeKind kind) =>
+        Requests
             .Where(r => r.Badge.Kind == kind)
-            .GroupBy(r => (r.Badge.DeveloperId, Company: r.Badge.CompanyName?.Trim().ToUpperInvariant()))
-            .Select(group => group.OrderBy(r => Rank(r.State)).ThenByDescending(r => r.SentAt).First())
             .OrderBy(r => Rank(r.State))
-            .ThenByDescending(r => r.SentAt)];
+            .ThenByDescending(r => r.SentAt)
+            .FirstOrDefault();
 
     /// <summary>How a kind of badge stands overall: approved beats waiting beats rejected.</summary>
-    public BadgeState StateOf(BadgeKind kind) => Of(kind).FirstOrDefault()?.State ?? BadgeState.None;
+    public BadgeState StateOf(BadgeKind kind) => Of(kind)?.State ?? BadgeState.None;
 
-    /// <summary>How many kinds of badge the worker holds (0 to <see cref="BadgeCatalog.Kinds"/>).</summary>
+    /// <summary>How many kinds of badge the worker holds (0 to <see cref="Kinds"/>).</summary>
     public int ApprovedKinds => Enum.GetValues<BadgeKind>().Count(kind => StateOf(kind) == BadgeState.Approved);
 
     /// <summary>
-    /// True when a new proof can be sent for this kind: always for a past project (each company is its own badge),
-    /// else only when nothing is waiting or approved (a clearance whose "valid until" passed can be sent again).
+    /// True when a new proof can be sent for this kind: only when nothing is waiting or approved (a clearance whose
+    /// "valid until" passed can be sent again).
     /// </summary>
-    public bool CanSend(BadgeKind kind) => kind == BadgeKind.Project || StateOf(kind) is BadgeState.None or BadgeState.Rejected or BadgeState.Expired;
-
-    /// <summary>
-    /// True for the badges whose proof is photographed now with the camera, never picked from the gallery (an old
-    /// photo, or a screenshot of someone else's ID), with the photo guide shown first.
-    /// </summary>
-    public static bool UsesCamera(BadgeKind kind) => kind is BadgeKind.Id or BadgeKind.Clearance;
+    public bool CanSend(BadgeKind kind) => StateOf(kind) is BadgeState.None or BadgeState.Rejected or BadgeState.Expired;
 
     /// <summary>
     /// What the photo check found on the proof just sent for <paramref name="badge"/>, while it waits for the checker;
     /// empty when nothing (then there is nothing to ask).
     /// </summary>
     public IReadOnlyList<ProofProblem> ProblemsOf(Badge badge) =>
-        Of(badge.Kind).FirstOrDefault(r => r.State == BadgeState.Pending && Same(r.Badge, badge))?.PhotoProblems ?? [];
-
-    private static bool Same(Badge a, Badge b) =>
-        a.Kind == b.Kind && (a.Kind != BadgeKind.Project
-            || (a.DeveloperId == b.DeveloperId && string.Equals(a.CompanyName?.Trim(), b.CompanyName?.Trim(), StringComparison.OrdinalIgnoreCase)));
+        Of(badge.Kind) is { State: BadgeState.Pending } request ? request.PhotoProblems ?? [] : [];
 
     /// <summary>
     /// Sends the picked photo as proof for <paramref name="badge"/>. Nothing leaves the phone without
@@ -79,11 +74,6 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
         if (!consent)
         {
             return BadgeSubmitResult.NoConsent;
-        }
-
-        if (!BadgeCatalog.HasCompany(badge))
-        {
-            return BadgeSubmitResult.NoCompany;
         }
 
         switch (pick.Status)
@@ -100,7 +90,7 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
 
         try
         {
-            var result = await repository.SubmitAsync(Clean(badge), pick.Photos[0], retake);
+            var result = await repository.SubmitAsync(badge, pick.Photos[0], retake);
             await LoadAsync();
             return result;
         }
@@ -111,15 +101,6 @@ public sealed class ProBadges(IVerificationRepository repository, ILogger<ProBad
             return BadgeSubmitResult.Failed;
         }
     }
-
-    /// <summary>Only what the kind uses: a developer's own name is never typed, and only a project has a company or building.</summary>
-    private static Badge Clean(Badge badge) => badge.Kind != BadgeKind.Project
-        ? new Badge(badge.Kind)
-        : new Badge(
-            BadgeKind.Project,
-            badge.DeveloperId,
-            badge.DeveloperId == BadgeCatalog.OtherCompany ? badge.CompanyName?.Trim() : null,
-            string.IsNullOrWhiteSpace(badge.ProjectName) ? null : badge.ProjectName.Trim());
 
     private static int Rank(BadgeState state) => state switch
     {

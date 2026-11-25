@@ -6,15 +6,6 @@ public static class VerificationKinds
     /// <summary>A government ID: read by AI (name, number, expiry), then checked by a person. Badge: "ID Verified".</summary>
     public const string Id = "id";
 
-    /// <summary>A TESDA National Certificate or training certificate, checked by a person. Badge: "TESDA Certified".</summary>
-    public const string Tesda = "tesda";
-
-    /// <summary>
-    /// Proof of a past project with a developer or any other company, checked by a person: a well-known developer
-    /// by id (<see cref="DeveloperBadges"/>), or <see cref="DeveloperBadges.Other"/> with the company's name typed.
-    /// </summary>
-    public const string Developer = "developer";
-
     /// <summary>
     /// An NBI or police clearance, checked by a person; the server reads its QR code only as a hint for the operator
     /// (<see cref="AdminVerificationDto.ScannedQr"/>). The operator types its "valid until" date to approve it, and the
@@ -22,29 +13,7 @@ public static class VerificationKinds
     /// </summary>
     public const string Clearance = "clearance";
 
-    public static readonly IReadOnlyList<string> All = [Id, Tesda, Developer, Clearance];
-}
-
-/// <summary>
-/// The well-known developers a worker can pick for a "Worked on a … project" badge (household names that carry
-/// trust at a glance), and <see cref="Other"/> for any other company, typed by the worker. Ids are stable.
-/// </summary>
-public static class DeveloperBadges
-{
-    public const string AyalaLand = "ayala-land";
-    public const string Megaworld = "megaworld";
-    public const string RobinsonsLand = "robinsons-land";
-    public const string Sm = "sm";
-    public const string Dmci = "dmci";
-
-    /// <summary>Any other company: its name comes with the request (<c>companyName</c>).</summary>
-    public const string Other = "other";
-
-    /// <summary>The shortest and longest company name a worker may type.</summary>
-    public const int MinCompanyName = 2;
-    public const int MaxCompanyName = 60;
-
-    public static readonly IReadOnlyList<string> All = [AyalaLand, Megaworld, RobinsonsLand, Sm, Dmci, Other];
+    public static readonly IReadOnlyList<string> All = [Id, Clearance];
 }
 
 public static class VerificationStatuses
@@ -167,13 +136,8 @@ public static class RejectCodes
     public static readonly IReadOnlyList<string> All = [Blurry, Glare, CutOff, WrongDocument, Expired, Mismatch, Other];
 }
 
-/// <summary>
-/// A badge on a listing: an approved verification. <paramref name="Kind"/> is one of <see cref="VerificationKinds"/>;
-/// <paramref name="BadgeId"/> is the developer (<see cref="DeveloperBadges"/>) for a project badge, else empty;
-/// <paramref name="CompanyName"/> is the company the worker typed when that is <see cref="DeveloperBadges.Other"/>;
-/// <paramref name="ProjectName"/> is the building the worker named, when given.
-/// </summary>
-public sealed record BadgeDto(string Kind, string BadgeId = "", string? ProjectName = null, string? CompanyName = null);
+/// <summary>A badge on a listing: an approved verification. <paramref name="Kind"/> is one of <see cref="VerificationKinds"/>.</summary>
+public sealed record BadgeDto(string Kind);
 
 /// <summary>
 /// One of the caller's own verification requests (<c>GET verifications/mine</c>, and the answer to
@@ -182,13 +146,10 @@ public sealed record BadgeDto(string Kind, string BadgeId = "", string? ProjectN
 public sealed record VerificationDto(
     long Id,
     string Kind,
-    string BadgeId,
-    string? ProjectName,
     string Status,
     DateTimeOffset CreatedAt,
     DateTimeOffset? DecidedAt,
     string? RejectReason,
-    string? CompanyName = null,
     IReadOnlyList<string>? PhotoProblems = null,
     DateOnly? ValidUntil = null);
 
@@ -202,8 +163,6 @@ public sealed record AdminVerificationDto(
     string? WorkerName,
     string? ProfilePhotoUrl,
     string Kind,
-    string BadgeId,
-    string? ProjectName,
     string ScanStatus,
     string? ScannedType,
     string? ScannedName,
@@ -211,7 +170,6 @@ public sealed record AdminVerificationDto(
     DateOnly? ScannedExpiry,
     bool HasDocument,
     DateTimeOffset CreatedAt,
-    string? CompanyName = null,
     IReadOnlyList<string>? PhotoProblems = null,
     double? PhotoSharpness = null,
     double? ScanConfidence = null,

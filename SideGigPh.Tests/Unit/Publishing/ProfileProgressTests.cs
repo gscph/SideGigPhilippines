@@ -10,8 +10,8 @@ namespace SideGigPh.Tests.Unit.Publishing;
 /// </summary>
 public class ProfileProgressTests
 {
-    private static readonly BadgeState[] NoBadges = [BadgeState.None, BadgeState.None, BadgeState.None];
-    private static readonly BadgeState[] AllBadges = [BadgeState.Approved, BadgeState.Approved, BadgeState.Approved, BadgeState.Approved];
+    private static readonly BadgeState[] NoBadges = [BadgeState.None, BadgeState.None];
+    private static readonly BadgeState[] AllBadges = [BadgeState.Approved, BadgeState.Approved];
 
     private static ProfileProgress Progress(
         bool published = false,
@@ -81,12 +81,12 @@ public class ProfileProgressTests
 
     [Fact]
     public void RejectedBadge_IsRecommendedAgain() =>
-        Progress(badges: [BadgeState.Approved, BadgeState.Pending, BadgeState.Rejected]).Badges.Should().Be(ProfileMark.Recommended);
+        Progress(badges: [BadgeState.Approved, BadgeState.Rejected]).Badges.Should().Be(ProfileMark.Recommended);
 
     [Fact]
     public void EveryMissingBadgeSent_IsWaitingNotNagged()
     {
-        var progress = Progress(badges: [BadgeState.Approved, BadgeState.Pending, BadgeState.Pending, BadgeState.Pending]);
+        var progress = Progress(badges: [BadgeState.Approved, BadgeState.Pending]);
 
         progress.Badges.Should().Be(ProfileMark.Waiting);
         progress.ShowBadgeNudge.Should().BeFalse("everything they could send is with the checker");
@@ -110,7 +110,7 @@ public class ProfileProgressTests
     [InlineData(6, true)]
     public void PublishedButOnePartShort_StaysGreen(int work, bool missingBadge)
     {
-        BadgeState[] badges = missingBadge ? [BadgeState.Approved, BadgeState.Approved, BadgeState.None] : AllBadges;
+        BadgeState[] badges = missingBadge ? [BadgeState.Approved, BadgeState.None] : AllBadges;
 
         Progress(published: true, work: work, badges: badges).Level.Should().Be(ProfileLevel.Live);
     }

@@ -72,12 +72,12 @@ public class ClearanceTests
     public void TheOperator_ApprovesAClearanceOnlyWithAnAllowedValidUntil_OtherBadgesNeedNone()
     {
         var clearance = Pending(BadgeKind.Clearance);
-        var tesda = Pending(BadgeKind.Tesda);
+        var id = Pending(BadgeKind.Id);
 
         BadgeReview.CanApprove(clearance, null, Today).Should().BeFalse();
         BadgeReview.CanApprove(clearance, Today.AddDays(-1), Today).Should().BeFalse();
         BadgeReview.CanApprove(clearance, Today.AddMonths(6), Today).Should().BeTrue();
-        BadgeReview.CanApprove(tesda, null, Today).Should().BeTrue();
+        BadgeReview.CanApprove(id, null, Today).Should().BeTrue();
     }
 
     [Fact]

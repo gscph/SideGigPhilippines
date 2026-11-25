@@ -36,7 +36,7 @@ public partial class ProMePage : ComponentBase
 
     private string PhotosCountLabel => T.Format(Copy.PhotosCount, Workspace.WorkPhotos.Count, ProWorkspace.MaxWorkPhotos);
 
-    private string BadgesCountLabel => T.Format(Copy.BadgesCount, Badges.ApprovedKinds, BadgeCatalog.Kinds);
+    private string BadgesCountLabel => T.Format(Copy.BadgesCount, Badges.ApprovedKinds, ProBadges.Kinds);
 
     private string? JoinedLabel => Workspace.JoinedAt is { } joined
         ? T.Format(Copy.ProfileSince, joined.ToString("MMM yyyy", CultureInfo.InvariantCulture))

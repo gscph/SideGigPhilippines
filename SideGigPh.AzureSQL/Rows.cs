@@ -450,7 +450,7 @@ public sealed class BlockRow
 
 /// <summary>
 /// A proof a worker sent for a badge (<c>WorkerVerifications</c>, <c>014-schema-verification.sql</c>): a government ID,
-/// an NBI or police clearance, a TESDA certificate or proof of a past project with a developer or another company. A person decides; the file and what was read
+/// or an NBI or police clearance. A person decides; the file and what was read
 /// from it are deleted then, and only the result stays.
 /// </summary>
 public sealed class WorkerVerificationRow
@@ -459,10 +459,10 @@ public sealed class WorkerVerificationRow
     public required string Uid { get; set; }
     public required string Kind { get; set; }
 
-    /// <summary>A project badge's developer id (<c>DeveloperBadges</c>, or "other"), else empty.</summary>
+    // BadgeId, CompanyName and ProjectName belonged to the past-project badge, dropped with TESDA's (rows of the
+    // kinds "tesda" and "developer" stay in the table, shown nowhere). The columns stay in the live table (empty for
+    // new rows) and in its pending-request unique index, so they stay mapped.
     public string BadgeId { get; set; } = string.Empty;
-
-    /// <summary>The company the worker typed for a project badge with "other", else empty.</summary>
     public string CompanyName { get; set; } = string.Empty;
     public string? ProjectName { get; set; }
     public string Status { get; set; } = "pending";

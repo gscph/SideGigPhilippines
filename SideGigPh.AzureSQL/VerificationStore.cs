@@ -28,19 +28,13 @@ public sealed record ProofCheck(IReadOnlyList<string> Problems, double Sharpness
 }
 
 /// <summary>What a worker sends for a badge, as the function read it from the request.</summary>
-public sealed record VerificationSubmission(string Kind, string? BadgeId, string? ProjectName, bool Consent, string? CompanyName = null)
-{
-    /// <summary>The company typed for a project badge with "other" (trimmed), else empty.</summary>
-    public string Company => Kind == VerificationKinds.Developer && BadgeId == DeveloperBadges.Other
-        ? StoreText.Limit(CompanyName, DeveloperBadges.MaxCompanyName) ?? string.Empty
-        : string.Empty;
-}
+public sealed record VerificationSubmission(string Kind, bool Consent);
 
 public enum SubmitOutcome
 {
     Saved,
 
-    /// <summary>The kind, the developer or the project name isn't valid.</summary>
+    /// <summary>The kind isn't one of <see cref="VerificationKinds"/>.</summary>
     Invalid,
 
     /// <summary>The consent box wasn't ticked.</summary>
@@ -66,7 +60,6 @@ public sealed record Decided(string Uid, string? DocumentBlob, bool ValidUntilNe
 /// </summary>
 public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, ListingCache listings)
 {
-    public const int MaxProjectName = 100;
     public const int MaxRejectReason = 200;
 
     /// <summary>The most of a clearance's QR code kept for the operator.</summary>
@@ -78,10 +71,7 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     /// <summary>Null when <paramref name="submission"/> can be saved, else why not (before the file is stored anywhere).</summary>
     public async Task<SubmitOutcome?> RefusalAsync(string uid, VerificationSubmission submission, CancellationToken cancellationToken)
     {
-        if (!VerificationKinds.All.Contains(submission.Kind)
-            || (submission.Kind == VerificationKinds.Developer) != DeveloperBadges.All.Contains(submission.BadgeId ?? string.Empty)
-            || (submission.Kind != VerificationKinds.Developer && !string.IsNullOrEmpty(submission.BadgeId))
-            || (submission.BadgeId == DeveloperBadges.Other && submission.Company.Length < DeveloperBadges.MinCompanyName))
+        if (!VerificationKinds.All.Contains(submission.Kind))
         {
             return SubmitOutcome.Invalid;
         }
@@ -91,13 +81,11 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             return SubmitOutcome.ConsentRequired;
         }
 
-        var badgeId = submission.BadgeId ?? string.Empty;
-        var company = submission.Company;
         var today = JobPostRules.PhilippineToday(DateTimeOffset.UtcNow);
 
         // A clearance whose "valid until" has passed no longer counts: the worker sends a new one.
         return await db.WorkerVerifications.AnyAsync(
-            v => v.Uid == uid && v.Kind == submission.Kind && v.BadgeId == badgeId && v.CompanyName == company
+            v => v.Uid == uid && v.Kind == submission.Kind
                 && v.Status != VerificationStatuses.Rejected
                 && (v.Status == VerificationStatuses.Pending || v.ValidUntil == null || v.ValidUntil >= today), cancellationToken)
             ? SubmitOutcome.AlreadySent
@@ -116,9 +104,6 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         {
             Uid = uid,
             Kind = submission.Kind,
-            BadgeId = submission.BadgeId ?? string.Empty,
-            CompanyName = submission.Company,
-            ProjectName = submission.Kind == VerificationKinds.Developer ? StoreText.Limit(submission.ProjectName, MaxProjectName) : null,
             DocumentBlob = documentBlob,
             ScanStatus = scan.Status,
             ScannedType = StoreText.Limit(scan.DocumentType, 60),
@@ -165,13 +150,10 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
     public async Task<(VerificationDto Request, string? OldBlob)?> RetakeAsync(
         string uid, VerificationSubmission submission, string documentBlob, IdScan scan, ProofCheck check, CancellationToken cancellationToken)
     {
-        var badgeId = submission.BadgeId ?? string.Empty;
-        var company = submission.Company;
         return await db.InTransactionAsync<(VerificationDto, string?)?>(async ct =>
         {
             var row = await db.WorkerVerifications.FirstOrDefaultAsync(
-                v => v.Uid == uid && v.Kind == submission.Kind && v.BadgeId == badgeId && v.CompanyName == company
-                    && v.Status == VerificationStatuses.Pending, ct);
+                v => v.Uid == uid && v.Kind == submission.Kind && v.Status == VerificationStatuses.Pending, ct);
             if (row is null)
             {
                 return null;
@@ -196,10 +178,10 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         }, cancellationToken);
     }
 
-    /// <summary>The caller's own requests, newest first.</summary>
+    /// <summary>The caller's own requests of the badges still offered (<see cref="VerificationKinds.All"/>), newest first.</summary>
     public async Task<IReadOnlyList<VerificationDto>> MineAsync(string uid, CancellationToken cancellationToken) =>
         [.. (await db.WorkerVerifications.AsNoTracking()
-            .Where(v => v.Uid == uid)
+            .Where(v => v.Uid == uid && VerificationKinds.All.Contains(v.Kind))
             .OrderByDescending(v => v.CreatedAt)
             .ToListAsync(cancellationToken)).Select(ToDto)];
 
@@ -232,8 +214,8 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
             var photoId = listing?.ProfilePhotoId ?? person?.ProfilePhotoId;
             return new AdminVerificationDto(
                 v.Id, v.Uid, listing?.DisplayName ?? person?.DisplayName, photoId is null ? null : photoLinks.For(photoId),
-                v.Kind, v.BadgeId, v.ProjectName, v.ScanStatus, v.ScannedType, v.ScannedName, v.ScannedNumber, v.ScannedExpiry,
-                v.DocumentBlob is not null, v.CreatedAt, v.CompanyName.Length == 0 ? null : v.CompanyName,
+                v.Kind, v.ScanStatus, v.ScannedType, v.ScannedName, v.ScannedNumber, v.ScannedExpiry,
+                v.DocumentBlob is not null, v.CreatedAt,
                 ProofCheck.Parse(v.PhotoProblems), v.PhotoSharpness, v.ScanConfidence, v.ScannedQr);
         })];
     }
@@ -333,6 +315,6 @@ public sealed class VerificationStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         new() { VerificationId = verificationId, ActorUid = actorUid, Action = action, At = at };
 
     private static VerificationDto ToDto(WorkerVerificationRow v) =>
-        new(v.Id, v.Kind, v.BadgeId, v.ProjectName, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason, v.CompanyName.Length == 0 ? null : v.CompanyName,
+        new(v.Id, v.Kind, v.Status, v.CreatedAt, v.DecidedAt, v.RejectReason,
             v.Status == VerificationStatuses.Pending ? ProofCheck.Parse(v.PhotoProblems) : null, v.ValidUntil);
 }

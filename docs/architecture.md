@@ -480,7 +480,7 @@ common Bisaya, by one shared class both sides run: `SideGigPh.Contracts/Moderati
 
 ## Badges (worker verification)
 
-Four badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the
+Two badges, each approved by a person at Tarbaho: **ID Verified** (a government ID; read by AI first to help the
 checker), **NBI / Police Clearance** (kind `clearance`, an NBI or police clearance, checked by a person only;
 `031-schema-clearance-badge.sql` widened the `Kind` check; **the checker approves only a genuine clearance in the
 worker's name, NBI under 1 year or police under 6 months old, showing no record** ("No record on file"), and
@@ -498,16 +498,20 @@ Badges page shows it as `BadgeState.Expired` ("Expired", amber) and a new one ca
 says "Shows until 3 Mar 2027". Both operator screens show a clearance checklist (name and photo, "No record", NBI
 under 1 year / police under 6 months, open the QR link): `Components/Admin/ClearanceCheck` in the app,
 `Components/Badge/Views/ClearanceChecklist` on the operator site. No OCR of the dates (the council's call: small
-print misreads, and a person reads one date in seconds); a renewal reminder push is for after launch), **TESDA Certified** (a National Certificate or a training certificate) and **past project** with a
-developer or any other company (a well-known developer picked from a list, or "Another company" typed by the
-worker; each company is its own badge, with an optional building name).
+print misreads, and a person reads one date in seconds); a renewal reminder push is for after launch).
+**TESDA Certified and past project (with a developer or any other company) were dropped on 25 Nov 2026:** the server
+refuses `tesda` / `developer` requests (`400`, not in `VerificationKinds.All`), and rows approved or waiting from
+before stay in `WorkerVerifications` but show nowhere: not on listings (`ProfessionalStore`), in search ranking, in
+`verifications/mine` or in the app's operator screen (the operator site still lists a waiting one, labelled "no
+longer offered", so it can be rejected and its photo deleted). `BadgeId`, `CompanyName` and `ProjectName` stay in
+the table, empty, until a drop script the owner approves.
 
 - **Server:** `VerificationFunctions` → `VerificationStore` (tables `WorkerVerifications`, `VerificationAudit`),
 - **Readable proof photos** (`033-schema-proof-quality.sql`; decided by the owner's five-advisor council, 24 Nov 2026):
   an ID or a clearance is photographed now with the back camera, never picked from the gallery
   (`IPhotoPicker.TakeDocumentPhotoAsync`, skeleton port: at most `DocumentMaxSide` 2000px, JPEG 85; Android
   `AndroidPhotoPicker` starts the camera app without the front-lens hints and needs no CAMERA permission, iOS
-  `DevicePhotoPicker` uses MAUI's camera; `ProBadges.UsesCamera`), with `ProofPhotoGuide` ("How the photo should
+  `DevicePhotoPicker` uses MAUI's camera), with `ProofPhotoGuide` ("How the photo should
   look": whole card, good light, no flash, held still) above the consent box. The server stores proofs at 2000px
   (`PhotoImage.ToStoredProofJpeg`) and measures every one (`PhotoQuality.Measure`, Magick.NET, no vendor: edge variance
   on a 1000px grey copy, clipped-white share, dark share, size; cut-offs `BlurryBelow`, `GlareAbove`, `DarkAbove`,
@@ -536,10 +540,10 @@ worker; each company is its own badge, with an optional building name).
   not built yet.
 - **App, the worker:** Me → Badges (`ProRoutes.Badges`, `BadgesPage`): one `BadgeRow` per badge with its state
   (nothing sent / being checked / approved / not approved + the reason). A row opens `BadgeProofPage`
-  (`ProRoutes.BadgeProof(kind)`): what to photograph, the company for a project, the consent box (unticked: the
-  phone's photo permission is not consent), then the gallery picker and the upload behind the splash.
-  `Services/ProBadges` holds the rules and is tested: no consent → nothing sent; a project needs a developer or a
-  typed company; ID, clearance and TESDA can't be sent again while waiting or approved; failures come back as a result, never
+  (`ProRoutes.BadgeProof(kind)`): what to photograph, the photo guide, the consent box (unticked: the
+  phone's camera permission is not consent), then the camera and the upload behind the splash.
+  `Services/ProBadges` holds the rules and is tested: no consent → nothing sent; an ID or a clearance can't be sent
+  again while waiting or approved (an expired clearance can); failures come back as a result, never
   an exception. Port `IVerificationRepository`, adapter `ApiVerificationRepository`.
 - **App, the customer:** `ListingDto.Badges` → `ProfessionalListing.Badges`; `BadgeChips` on the search result card
   and the worker's own preview, and one `TrustRow` per badge under "What we checked" on the public profile.
@@ -695,7 +699,7 @@ links the public TestFlight beta.
   cropped to the phone by `fd-phone-shot`); sections alternate white and tint; titles are uppercase purple with the last
   word on a tint highlight (`SectionTitle`, `Copy.Titles` as Lead + Mark); pill buttons (`fd-pill`) and pill tabs
   (`fd-pills`: household / worker, all trades / Construction); rounded cards with a soft purple shadow (`fd-card`);
-  `NumbersSection` counts only what is real (trades, Construction services, towns from `TradeList`, the 4 badges); a
+  `NumbersSection` counts only what is real (trades, Construction services, towns from `TradeList`, the 2 badges); a
   `MudScrollToTop` button. The page may be rounder and bolder than the app (pills, shadows, several filled buttons per
   screen), never another color, font or logo.
   Anchors and outside links (privacy, terms, TestFlight) are in `Sections`.

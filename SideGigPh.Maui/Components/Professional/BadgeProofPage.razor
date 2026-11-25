@@ -34,31 +34,7 @@
     }
     else
     {
-        @if (BadgeKind == BadgeKind.Project)
-        {
-            <MudStack Spacing="0" Class="app-field-group">
-                <MudSelect T="string" @bind-Value="_developerId" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                           Label="@T.Get(Copy.BadgeCompanyLabel)" Class="app-field">
-                    @foreach (var developer in BadgeCatalog.Developers)
-                    {
-                        <MudSelectItem T="string" Value="@developer.Id">@developer.Name</MudSelectItem>
-                    }
-                    <MudSelectItem T="string" Value="@BadgeCatalog.OtherCompany">@T.Get(Copy.BadgeCompanyOther)</MudSelectItem>
-                </MudSelect>
-                @if (_developerId == BadgeCatalog.OtherCompany)
-                {
-                    <MudTextField T="string" @bind-Value="_companyName" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                                  Label="@T.Get(Copy.BadgeCompanyName)" MaxLength="@BadgeCatalog.MaxCompanyName" Class="app-field" autocomplete="off" />
-                }
-                <MudTextField T="string" @bind-Value="_projectName" Immediate="true" Disabled="_busy" Variant="Variant.Filled" Underline="false"
-                              Label="@T.Get(Copy.BadgeProjectName)" MaxLength="@BadgeCatalog.MaxProjectName" Class="app-field" autocomplete="off" />
-            </MudStack>
-        }
-
-        @if (UsesCamera)
-        {
-            <ProofPhotoGuide />
-        }
+        <ProofPhotoGuide />
 
         <MudPaper Outlined="true" Class="app-rounded pa-3">
             <MudCheckBox T="bool" @bind-Value="_consent" Disabled="_busy" Color="Color.Primary"
@@ -80,9 +56,9 @@
 
         <MudPaper Elevation="0" Square="true" Class="app-sticky-action py-2">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" FullWidth="true"
-                       StartIcon="@(UsesCamera ? Icons.Material.Rounded.PhotoCamera : Icons.Material.Rounded.PhotoLibrary)"
-                       Disabled="@(_busy || !CanSend)" OnClick="SendAsync">
-                @T.Get(UsesCamera ? Copy.BadgeTakePhoto : Copy.BadgeChoosePhoto)
+                       StartIcon="@Icons.Material.Rounded.PhotoCamera"
+                       Disabled="@(_busy || !_consent)" OnClick="SendAsync">
+                @T.Get(Copy.BadgeTakePhoto)
             </MudButton>
         </MudPaper>
     }

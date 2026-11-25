@@ -8,9 +8,7 @@ public static class BadgeIcons
 {
     public static string Of(BadgeKind kind) => kind switch
     {
-        BadgeKind.Id => Icons.Material.Rounded.VerifiedUser,
         BadgeKind.Clearance => Icons.Material.Rounded.GppGood,
-        BadgeKind.Tesda => Icons.Material.Rounded.School,
-        _ => Icons.Material.Rounded.Apartment,
+        _ => Icons.Material.Rounded.VerifiedUser,
     };
 }

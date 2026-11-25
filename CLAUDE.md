@@ -146,10 +146,10 @@ changing that area.**
   never background; rules in `Services/WorkArea`: a rough or foreign point is not used): the worker's **Where you
   work** page (`ProRoutes.WorkArea`: base + travel distance, `ProWorkspace.SetWorkAreaAsync`) and the post form.
 - **Worker verification** (`014-schema-verification.sql`, `VerificationFunctions`, `VerificationStore`, contracts in
-  `Verification.cs`): **four badges**: a government ID, an NBI or police clearance (`clearance`, `031-schema-clearance-badge.sql`; its QR code is read by the server, ZXing.Net, only as a hint for the operator (`ClearanceQrReader`, `ScannedQr`, `ClearanceRules.OfficialLink`: an NBI / PNP address or "may be fake"), never a refusal; approving needs the "valid until" the operator reads off the paper (`VerificationDecisionRequest.ValidUntil`, `400 valid-until-needed`), kept in `WorkerVerifications.ValidUntil` (`034-schema-clearance-valid-until.sql`), and **the badge lapses the day after** (`ClearanceRules.HasLapsed`; `BadgeState.Expired`, a new one can be sent); both operator screens show a clearance checklist, `ClearanceCheck` / `ClearanceChecklist`), a TESDA certificate or training, and a past project with a
-  developer **or any other company**. A worker sends a photo with `POST verifications/{kind}?consent=true` (`id`,
-  `clearance`, `tesda`, or `developer` + `badgeId`: a well-known developer from `DeveloperBadges`, or `other` + `companyName`
-  typed by the worker; each company is its own badge); no consent, nothing stored. Proofs are sensitive personal
+  `Verification.cs`): **two badges**: a government ID and an NBI or police clearance (`clearance`, `031-schema-clearance-badge.sql`; its QR code is read by the server, ZXing.Net, only as a hint for the operator (`ClearanceQrReader`, `ScannedQr`, `ClearanceRules.OfficialLink`: an NBI / PNP address or "may be fake"), never a refusal; approving needs the "valid until" the operator reads off the paper (`VerificationDecisionRequest.ValidUntil`, `400 valid-until-needed`), kept in `WorkerVerifications.ValidUntil` (`034-schema-clearance-valid-until.sql`), and **the badge lapses the day after** (`ClearanceRules.HasLapsed`; `BadgeState.Expired`, a new one can be sent); both operator screens show a clearance checklist, `ClearanceCheck` / `ClearanceChecklist`). **TESDA and past-project badges were dropped** (25 Nov 2026): `tesda` / `developer` requests answer `400`, and rows
+  approved before stay in the table but show and count nowhere (`VerificationKinds.All`; the unused `BadgeId` / `CompanyName` / `ProjectName`
+  columns stay until a drop script the owner approves). A worker sends a photo with `POST verifications/{kind}?consent=true` (`id` or
+  `clearance`); no consent, nothing stored. Proofs are sensitive personal
   information (RA 10173): they go to the **private** container `verification` (`IPrivateFiles`), never `photos`. An ID
   is read by Azure AI Document Intelligence (`IIdDocumentReader` → `DocumentIntelligenceIdReader`, prebuilt ID model,
   settings `DocumentIntelligenceEndpoint` / `DocumentIntelligenceKey`, free tier, `azure/cloudshell-document-intelligence.sh`;
@@ -164,12 +164,12 @@ changing that area.**
   "take it again?" (`PhotoRetakePrompt`), `&retake=true` replaces the waiting photo, "keep" is always one tap. The AI's
   confidence and the check show on both operator screens, Reject takes a counted `RejectCodes` reason; cut-offs get set
   from that data, and a document scanner waits for it (docs/architecture.md → Readable proof photos).
-  **Badges count in search** as a bonus on top of the 100 (`SearchRanker.TrustFeature`: ID 4, clearance 3, TESDA 3, past project 3;
+  **Badges count in search** as a bonus on top of the 100 (`SearchRanker.TrustFeature`: ID 4, clearance 3;
   a worker without badges scores as before; work photos are a separate bonus, `RankScore.Photos`). **In the app:** port `IVerificationRepository`
   (`ApiVerificationRepository`), `Services/ProBadges` (the rules: nothing leaves the phone without the consent tick;
-  one request per badge), `BadgeCatalog` (developer ids = the server's, checked by a test), `BadgeText`; the pro's
+  one request per badge), `BadgeText`; the pro's
   pages `ProRoutes.Badges` (`BadgesPage`, a `BadgeRow` per badge with its state) and `ProRoutes.BadgeProof(kind)`
-  (`BadgeProofPage`: what to photograph, the company for a project, the unticked consent box, then the photo picker);
+  (`BadgeProofPage`: what to photograph, the photo guide, the unticked consent box, then the camera);
   Seekers see `BadgeChips` (app-generic, brand-purple outlined chips) on every `ProCard` and a row per badge in the
   profile's "What we checked". **The operator decides in the app:** an account in `AdminUids` (`GET ops/me` →
   `AdminStatusDto`) gets a "Check badge requests" row on either Me page (`Components/Admin/OperatorMenuRow`) to

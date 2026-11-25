@@ -314,13 +314,15 @@ public sealed class ProfessionalStore(SideGigPhDb db, PhotoLinks photoLinks, Lis
         var badges = ids.Count == 0
             ? []
             : (await db.WorkerVerifications.AsNoTracking()
-                // A clearance shows until its "valid until" (ClearanceRules.HasLapsed); every other badge has none.
-                .Where(v => ids.Contains(v.Uid) && v.Status == VerificationStatuses.Approved && (v.ValidUntil == null || v.ValidUntil >= today))
+                // A clearance shows until its "valid until" (ClearanceRules.HasLapsed); an ID has none. A badge no
+                // longer offered (TESDA, past project: rows from before they were dropped) never shows.
+                .Where(v => ids.Contains(v.Uid) && v.Status == VerificationStatuses.Approved && VerificationKinds.All.Contains(v.Kind)
+                    && (v.ValidUntil == null || v.ValidUntil >= today))
                 .OrderBy(v => v.DecidedAt)
-                .Select(v => new { v.Uid, v.Kind, v.BadgeId, v.ProjectName, v.CompanyName })
+                .Select(v => new { v.Uid, v.Kind })
                 .ToListAsync(cancellationToken))
                 .GroupBy(v => v.Uid)
-                .ToDictionary(g => g.Key, g => (IReadOnlyList<BadgeDto>)[.. g.Select(v => new BadgeDto(v.Kind, v.BadgeId, v.ProjectName, v.CompanyName.Length == 0 ? null : v.CompanyName))]);
+                .ToDictionary(g => g.Key, g => (IReadOnlyList<BadgeDto>)[.. g.Select(v => new BadgeDto(v.Kind))]);
         var completed = ids.Count == 0
             ? new Dictionary<string, int>()
             : await db.JobOffers.AsNoTracking()
