@@ -218,7 +218,7 @@ Thumbtack, TaskRabbit, Upwork and Carousell weren't reachable on Page Flows. The
 - **Shared (generic):** `InterviewStep` (back, progress, title, why, note, sticky Next), `ChoiceTiles` (single/multi icon tiles), the brand splash at the end (`Busy.RunAsync`), `ProCard`, `MePage` (+ `LanguagePicker`, `ConfirmActionCard`).
 - **Onboarding:** `LaunchRouter`, `LanguagePage`, `RolePage`, `SeekerInterview`, `ProfessionalInterview`, `ListingPreview`.
 - **Layout:** `AppShell` (`AppTopBar`, `AppBottomNav`, `AppNavItem`), used by `ProLayout` and `SeekerLayout`.
-- **Search:** `SearchPage`, `SearchBox`, `ChipStrip`, `FilterMenu`, `ResultGroup`, `ResultCard`, `PublicProfilePage` (`FilterMenu` is in Shared); ranking in `Services/Search`.
+- **Search:** `SearchPage`, `SearchBox`, `FilterMenu`, `ResultGroup`, `ResultCard`, `PublicProfilePage` (`FilterMenu` is in Shared); ranking in `Services/Search`.
 - **Inbox:** `InboxPage`, `ThreadPage`, `ThreadRow`, `ContactBubble`, `MessageComposer`.
 - **Seeker:** `SeekerLayout`, `SeekerHome`, `CategoryRail`, `PostRequestCard`, `RecentSearchRow`, `SeekerReviewsPage`, `ToRateRow`, `WriteReviewPage`, `SeekerMePage`.
 
