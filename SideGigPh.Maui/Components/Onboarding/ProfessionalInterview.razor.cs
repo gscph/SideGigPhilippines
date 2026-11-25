@@ -36,12 +36,6 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private SmsSendLimit SmsLimit { get; set; } = default!;
     [Inject] private ILogger<ProfessionalInterview> Logger { get; set; } = default!;
 
-    /// <summary>
-    /// Opens the first question still unanswered: a step past it is never shown, so asking for the last step
-    /// lands there (or on the preview when everything is answered). Publish sends incomplete listings here.
-    /// </summary>
-    public static string FirstUnansweredPath => OnboardingSteps.ProFirstUnansweredPath;
-
     [Parameter] public int? Step { get; set; }
 
     private OnboardingState? _state;
