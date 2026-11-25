@@ -44,7 +44,7 @@ public static class WorkArea
     {
         LocationFixStatus.Denied => LocationOutcome.Denied,
         LocationFixStatus.Off => LocationOutcome.Off,
-        LocationFixStatus.Found when fix.Point is not { } point => LocationOutcome.Failed,
+        LocationFixStatus.Found when fix.Point is null => LocationOutcome.Failed,
         LocationFixStatus.Found when !InPhilippines(fix.Point.Value) => LocationOutcome.Abroad,
         LocationFixStatus.Found when fix.AccuracyMeters > RoughAfterMeters => LocationOutcome.Rough,
         LocationFixStatus.Found => LocationOutcome.Set,

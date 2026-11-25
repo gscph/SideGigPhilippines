@@ -1,4 +1,3 @@
-using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 
 namespace SideGigPh.Maui.Services;

@@ -1,5 +1,3 @@
-using MobileAppTheme.Services;
-
 namespace SideGigPh.Maui.Services;
 
 /// <summary>What a Call or Text tap did.</summary>

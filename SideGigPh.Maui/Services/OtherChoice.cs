@@ -1,4 +1,3 @@
-using MobileAppTheme.Models;
 using SideGigPh.Contracts;
 
 namespace SideGigPh.Maui.Services;

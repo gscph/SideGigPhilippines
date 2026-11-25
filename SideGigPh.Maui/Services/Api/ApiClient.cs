@@ -318,6 +318,26 @@ public sealed class ApiClient(ApiOptions options, IIdentityProvider identity, IL
         throw failure;
     }
 
+    /// <summary>
+    /// The answer to a batch upload sent with <c>logFailure: false</c> (the error reports, the usage events): true when
+    /// the server took it, false when it refused the batch as bad (drop it), and throws for anything else (keep it for
+    /// the next try). Logs nothing: a failed upload must not become an error report.
+    /// </summary>
+    public static bool BatchTaken(HttpResponseMessage response, string what)
+    {
+        if (response.IsSuccessStatusCode)
+        {
+            return true;
+        }
+
+        if (response.StatusCode == HttpStatusCode.BadRequest)
+        {
+            return false;
+        }
+
+        throw new HttpRequestException($"{what} weren't sent: {(int)response.StatusCode} {response.ReasonPhrase}.", null, response.StatusCode);
+    }
+
     /// <summary>The API build that answered (<c>X-Api-Version</c>), or "unknown" (an older API, or an answer from Azure's front door).</summary>
     public static string ApiVersionOf(HttpResponseMessage response) =>
         response.Headers.TryGetValues(SideGigPh.Contracts.ApiHeaders.ApiVersion, out var values) && values.FirstOrDefault() is { Length: > 0 } version

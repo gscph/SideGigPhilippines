@@ -49,7 +49,7 @@ internal static partial class ApiMapping
     public static NewFeedbackRequest ToFeedbackRequest(string title, string? details, UserRole? role) => new(
         title,
         details,
-        role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null });
+        ToWire(role));
 
     public static JobPost ToModel(this JobPostDto dto) => new(
         dto.Id,
@@ -143,7 +143,7 @@ internal static partial class ApiMapping
         profile.PhoneNumber,
         profile.Email,
         profile.Language == AppLanguage.Taglish ? Wire.Taglish : Wire.English,
-        profile.Role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null },
+        ToWire(profile.Role),
         null, // IncomeGoalId: no longer asked (older apps still send theirs)
         profile.CreatedAt,
         profile.UpdatedAt,
@@ -373,6 +373,9 @@ internal static partial class ApiMapping
         chat.CityId,
         chat.UrgencyId,
         chat.BudgetId);
+
+    private static string? ToWire(UserRole? role) =>
+        role switch { UserRole.Seeker => Wire.Seeker, UserRole.Professional => Wire.Professional, _ => null };
 
     public static string ToWire(this ChatSide side) => side == ChatSide.Seeker ? Wire.Seeker : Wire.Professional;
 

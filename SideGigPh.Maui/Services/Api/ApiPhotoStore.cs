@@ -49,10 +49,6 @@ public sealed class ApiPhotoStore(ApiClient api, ApiOptions options, ILogger<Api
             _urls[saved.Id] = saved.Url;
             return saved.Id;
         }
-        catch (PhotoStoreException)
-        {
-            throw;
-        }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
         {
             logger.LogError(ex, "Photo upload failed.");
