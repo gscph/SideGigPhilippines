@@ -199,8 +199,9 @@ Setup and the tool list: [`SideGigPh.Mcp/README.md`](../SideGigPh.Mcp/README.md)
   `ErrorReports` with `NoTracking` and no `SaveChanges`, so a renamed column breaks the build, not the tool. It does not use
   the stores or `AddSideGigPhSql` (no photos, caches or writes). Connection string from `SQL_CONNECTION`, signed in as the
   person, who needs only `GRANT SELECT` on those two tables: with no sign-in in the string, `SqlSignIn` opens the
-  Microsoft sign-in page in the browser on the first query (Azure.Identity `InteractiveBrowserCredential`, the token
-  given to SqlClient through `AccessTokenCallback`) and remembers it (encrypted token cache + the account in
+  Microsoft sign-in page in the browser on the first query (Azure.Identity `InteractiveBrowserCredential`; the
+  browser step runs in an EF connection interceptor before the connection opens, with 5 minutes to finish, because SqlClient
+  cuts its own `AccessTokenCallback` off at the 15 s connect timeout; the callback then only reads the cached token) and remembers it (encrypted token cache + the account in
   `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`); optional `AZURE_TENANT_ID`. A string with its own sign-in is used as it is.
 - **Tools** (`Tools/AnalyticsTools`, `Tools/ErrorReportTools`, `[McpServerTool(ReadOnly = true)]`): the questions of
   `analytics/weekly.sql` with the window as a parameter (Philippine days, Monday weeks computed in the query, like

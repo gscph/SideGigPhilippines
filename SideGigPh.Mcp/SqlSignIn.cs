@@ -1,7 +1,9 @@
+using System.Data.Common;
 using System.Text.Json;
 using Azure.Core;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace SideGigPh.Mcp;
 
@@ -11,9 +13,17 @@ namespace SideGigPh.Mcp;
 /// account it was in <see cref="RecordFile"/>), so later runs sign in silently until the login expires.
 /// Used only when the connection string says nothing about how to sign in (<see cref="IsNeeded"/>).
 /// </summary>
+/// <remarks>
+/// The browser step runs in <see cref="ReadyAsync"/>, before the connection opens (<see cref="Interceptor"/>), with
+/// <see cref="BrowserTimeout"/>: SqlClient's own token callback is cut off by the connect timeout (15 s), too short to
+/// type a password and approve MFA. By then the token is cached, so the callback only reads it.
+/// </remarks>
 public sealed class SqlSignIn
 {
-    private static readonly string[] SqlScope = ["https://database.windows.net/.default"];
+    /// <summary>How long the person has to finish signing in in the browser.</summary>
+    public static readonly TimeSpan BrowserTimeout = TimeSpan.FromMinutes(5);
+
+    private static readonly TokenRequestContext SqlToken = new(["https://database.windows.net/.default"]);
 
     private static readonly string RecordFile = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SideGigPh.Mcp", "sign-in.json");
@@ -31,14 +41,19 @@ public sealed class SqlSignIn
             AuthenticationRecord = LoadRecord(),
         };
         _credential = new InteractiveBrowserCredential(_options);
+        Interceptor = new SignInFirst(this);
     }
 
-    /// <summary>True when the connection string has no sign-in of its own (no Authentication, user or Windows login).</summary>
+    /// <summary>Add to the DbContext: signs in before each connection opens.</summary>
+    public IInterceptor Interceptor { get; }
+
+    /// <summary>True when the connection string has no sign-in of its own (no Authentication, user, password or Windows login).</summary>
     public static bool IsNeeded(string connectionString)
     {
         var settings = new SqlConnectionStringBuilder(connectionString);
         return settings.Authentication == SqlAuthenticationMethod.NotSpecified
                && string.IsNullOrEmpty(settings.UserID)
+               && string.IsNullOrEmpty(settings.Password)
                && !settings.IntegratedSecurity;
     }
 
@@ -47,36 +62,37 @@ public sealed class SqlSignIn
     {
         AccessTokenCallback = async (_, cancellationToken) =>
         {
-            var token = await TokenAsync(cancellationToken);
+            var token = await _credential.GetTokenAsync(SqlToken, cancellationToken); // cached by ReadyAsync: no browser
             return new SqlAuthenticationToken(token.Token, token.ExpiresOn);
         },
     };
 
-    private async Task<AccessToken> TokenAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// Makes sure there is a valid login: silent when one is remembered, else the browser (the first time, or when it
+    /// expired), with <see cref="BrowserTimeout"/> to finish. One sign-in at a time.
+    /// </summary>
+    public async Task ReadyAsync(CancellationToken cancellationToken)
     {
-        var request = new TokenRequestContext(SqlScope);
-        if (_options.AuthenticationRecord is not null)
-        {
-            return await _credential.GetTokenAsync(request, cancellationToken);
-        }
-
         await _once.WaitAsync(cancellationToken);
         try
         {
-            if (_options.AuthenticationRecord is null)
+            using var limit = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            limit.CancelAfter(BrowserTimeout);
+            if (_options.AuthenticationRecord is not null)
             {
-                // First time on this PC: the browser opens; remember the account for the next runs.
-                _options.AuthenticationRecord = await _credential.AuthenticateAsync(request, cancellationToken);
-                _credential = new InteractiveBrowserCredential(_options);
-                await SaveRecordAsync(_options.AuthenticationRecord, cancellationToken);
+                await _credential.GetTokenAsync(SqlToken, limit.Token);
+                return;
             }
+
+            // First time on this PC: the browser opens; remember the account for the next runs.
+            _options.AuthenticationRecord = await _credential.AuthenticateAsync(SqlToken, limit.Token);
+            _credential = new InteractiveBrowserCredential(_options);
+            await SaveRecordAsync(_options.AuthenticationRecord);
         }
         finally
         {
             _once.Release();
         }
-
-        return await _credential.GetTokenAsync(request, cancellationToken);
     }
 
     private static AuthenticationRecord? LoadRecord()
@@ -92,10 +108,35 @@ public sealed class SqlSignIn
         }
     }
 
-    private static async Task SaveRecordAsync(AuthenticationRecord record, CancellationToken cancellationToken)
+    private static async Task SaveRecordAsync(AuthenticationRecord record)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(RecordFile)!);
-        await using var file = File.Create(RecordFile);
-        await record.SerializeAsync(file, cancellationToken);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(RecordFile)!);
+            await using var file = File.Create(RecordFile);
+            await record.SerializeAsync(file);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+        {
+            // This run is signed in all the same; the next run asks again.
+            await Console.Error.WriteLineAsync($"Couldn't remember the sign-in in {RecordFile}: {e.Message}");
+        }
+    }
+
+    /// <summary>Runs <see cref="ReadyAsync"/> before EF opens a connection, outside SqlClient's connect timeout.</summary>
+    private sealed class SignInFirst(SqlSignIn signIn) : DbConnectionInterceptor
+    {
+        public override async ValueTask<InterceptionResult> ConnectionOpeningAsync(
+            DbConnection connection, ConnectionEventData eventData, InterceptionResult result, CancellationToken cancellationToken = default)
+        {
+            await signIn.ReadyAsync(cancellationToken);
+            return result;
+        }
+
+        public override InterceptionResult ConnectionOpening(DbConnection connection, ConnectionEventData eventData, InterceptionResult result)
+        {
+            signIn.ReadyAsync(CancellationToken.None).GetAwaiter().GetResult();
+            return result;
+        }
     }
 }

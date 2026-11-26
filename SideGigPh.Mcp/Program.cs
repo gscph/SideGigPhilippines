@@ -35,6 +35,7 @@ builder.Services.AddDbContext<SideGigPhDb>(options =>
     else
     {
         options.UseSqlServer(signIn.Connect(connectionString), contextOwnsConnection: true, sql => sql.EnableRetryOnFailure());
+        options.AddInterceptors(signIn.Interceptor);
     }
 
     options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);

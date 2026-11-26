@@ -63,7 +63,7 @@ These answer the same questions as `analytics/weekly.sql`, with the window as a 
 ## Signing in
 
 - **The first question** opens the Microsoft sign-in page in your browser: pick the account you granted in step 1.
-  Claude waits while you sign in.
+  You have 5 minutes to finish (password, MFA); Claude waits.
 - **After that it is silent.** The login is kept for your Windows user (Azure.Identity's encrypted token cache, and
   which account in `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`) until Microsoft asks you to sign in again.
 - **Your account is in more than one directory** (a guest elsewhere) and the wrong one signs in: add

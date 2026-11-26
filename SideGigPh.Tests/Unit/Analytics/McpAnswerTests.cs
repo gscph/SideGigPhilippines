@@ -38,6 +38,7 @@ public class McpAnswerTests
     [InlineData("Server=tcp:x.database.windows.net,1433;Database=SideGigPh;Authentication=Active Directory Default;", false)]
     [InlineData(@"Server=(localdb)\MSSQLLocalDB;Database=t;Integrated Security=true", false)]
     [InlineData("Server=x;Database=t;User ID=sa;Password=p", false)]
+    [InlineData("Server=x;Database=t;Password=p", false)]
     public void BrowserSignIn_OnlyWhenTheStringHasNone(string connectionString, bool opensTheBrowser) =>
         SqlSignIn.IsNeeded(connectionString).Should().Be(opensTheBrowser);
 }
