@@ -12,6 +12,8 @@ namespace SideGigPh.Mcp;
 /// the browser, then the login is remembered (Azure.Identity's token cache, encrypted for this Windows user, plus which
 /// account it was in <see cref="RecordFile"/>), so later runs sign in silently until the login expires.
 /// Used only when the connection string says nothing about how to sign in (<see cref="IsNeeded"/>).
+/// The sign-in goes to the database's own directory (tenant), which the server names itself
+/// (<see cref="FindTenantAsync"/>), so only accounts in or invited to it can be picked; AZURE_TENANT_ID overrides it.
 /// </summary>
 /// <remarks>
 /// The browser step runs in <see cref="ReadyAsync"/>, before the connection opens (<see cref="Interceptor"/>), with
@@ -28,19 +30,16 @@ public sealed class SqlSignIn
     private static readonly string RecordFile = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SideGigPh.Mcp", "sign-in.json");
 
-    private readonly InteractiveBrowserCredentialOptions _options;
+    private readonly string _connectionString;
+    private readonly string? _tenantId;
     private readonly SemaphoreSlim _once = new(1, 1);
-    private InteractiveBrowserCredential _credential;
+    private InteractiveBrowserCredentialOptions? _options;
+    private InteractiveBrowserCredential? _credential;
 
-    public SqlSignIn(string? tenantId)
+    public SqlSignIn(string connectionString, string? tenantId)
     {
-        _options = new InteractiveBrowserCredentialOptions
-        {
-            TenantId = string.IsNullOrWhiteSpace(tenantId) ? null : tenantId.Trim(),
-            TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = "SideGigPh.Mcp" },
-            AuthenticationRecord = LoadRecord(),
-        };
-        _credential = new InteractiveBrowserCredential(_options);
+        _connectionString = connectionString;
+        _tenantId = string.IsNullOrWhiteSpace(tenantId) ? null : tenantId.Trim();
         Interceptor = new SignInFirst(this);
     }
 
@@ -58,11 +57,12 @@ public sealed class SqlSignIn
     }
 
     /// <summary>A connection that gets its access token from this sign-in.</summary>
-    public SqlConnection Connect(string connectionString) => new(connectionString)
+    public SqlConnection Connect() => new(_connectionString)
     {
         AccessTokenCallback = async (_, cancellationToken) =>
         {
-            var token = await _credential.GetTokenAsync(SqlToken, cancellationToken); // cached by ReadyAsync: no browser
+            var credential = _credential ?? throw new InvalidOperationException("Not signed in yet: ReadyAsync runs first.");
+            var token = await credential.GetTokenAsync(SqlToken, cancellationToken); // cached by ReadyAsync: no browser
             return new SqlAuthenticationToken(token.Token, token.ExpiresOn);
         },
     };
@@ -78,6 +78,18 @@ public sealed class SqlSignIn
         {
             using var limit = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             limit.CancelAfter(BrowserTimeout);
+            if (_options is null || _credential is null)
+            {
+                var record = LoadRecord();
+                _options = new InteractiveBrowserCredentialOptions
+                {
+                    TenantId = _tenantId ?? record?.TenantId ?? await FindTenantAsync(_connectionString, limit.Token),
+                    TokenCachePersistenceOptions = new TokenCachePersistenceOptions { Name = "SideGigPh.Mcp" },
+                    AuthenticationRecord = record,
+                };
+                _credential = new InteractiveBrowserCredential(_options);
+            }
+
             if (_options.AuthenticationRecord is not null)
             {
                 await _credential.GetTokenAsync(SqlToken, limit.Token);
@@ -94,6 +106,41 @@ public sealed class SqlSignIn
             _once.Release();
         }
     }
+
+    /// <summary>
+    /// The directory (tenant) the database signs people in with: SqlClient hands the token callback the server's
+    /// sign-in authority (<c>https://login.windows.net/&lt;tenant&gt;</c>), so a first connection stops right there,
+    /// before any sign-in. Null when the server doesn't say (the browser then offers every account).
+    /// </summary>
+    public static async Task<string?> FindTenantAsync(string connectionString, CancellationToken cancellationToken)
+    {
+        string? authority = null;
+        await using var probe = new SqlConnection(connectionString)
+        {
+            AccessTokenCallback = (parameters, _) =>
+            {
+                authority = parameters.Authority;
+                throw new OperationCanceledException("Only asking the server for its sign-in authority.");
+            },
+        };
+        try
+        {
+            await probe.OpenAsync(cancellationToken);
+        }
+        catch (Exception e) when (e is SqlException or OperationCanceledException)
+        {
+            // Expected: the probe never signs in.
+        }
+
+        return TenantOf(authority);
+    }
+
+    /// <summary>The tenant at the end of a sign-in authority such as <c>https://login.windows.net/&lt;tenant&gt;</c>.</summary>
+    public static string? TenantOf(string? authority) =>
+        Uri.TryCreate(authority, UriKind.Absolute, out var uri) && uri.Segments.LastOrDefault()?.Trim('/') is { Length: > 0 } tenant
+            && !string.Equals(tenant, "common", StringComparison.OrdinalIgnoreCase)
+            ? tenant.ToLowerInvariant()
+            : null;
 
     private static AuthenticationRecord? LoadRecord()
     {

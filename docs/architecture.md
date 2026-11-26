@@ -202,7 +202,9 @@ Setup and the tool list: [`SideGigPh.Mcp/README.md`](../SideGigPh.Mcp/README.md)
   Microsoft sign-in page in the browser on the first query (Azure.Identity `InteractiveBrowserCredential`; the
   browser step runs in an EF connection interceptor before the connection opens, with 5 minutes to finish, because SqlClient
   cuts its own `AccessTokenCallback` off at the 15 s connect timeout; the callback then only reads the cached token) and remembers it (encrypted token cache + the account in
-  `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`); optional `AZURE_TENANT_ID`. A string with its own sign-in is used as it is.
+  `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`), in the database's own tenant, which the server names to a first
+  connection's token callback (`SqlSignIn.FindTenantAsync`, no sign-in), so a personal account isn't sent to Microsoft's
+  consumer directory; `AZURE_TENANT_ID` overrides it. A string with its own sign-in is used as it is.
 - **Tools** (`Tools/AnalyticsTools`, `Tools/ErrorReportTools`, `[McpServerTool(ReadOnly = true)]`): the questions of
   `analytics/weekly.sql` with the window as a parameter (Philippine days, Monday weeks computed in the query, like
   `v_events`), and error summaries by source/message, by build, the latest reports and one in full. The client picks only

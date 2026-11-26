@@ -11,7 +11,7 @@ using SideGigPh.Mcp.Tools;
 //   SQL_CONNECTION="…" [AZURE_TENANT_ID="…"] dotnet run --project SideGigPh.Mcp
 //
 // Azure SQL with no sign-in in the string: the first query opens the Microsoft sign-in page in the browser and the
-// login is remembered (SqlSignIn); AZURE_TENANT_ID picks the directory when the account is in more than one:
+// login is remembered (SqlSignIn), in the database's own directory, which the server names (AZURE_TENANT_ID overrides):
 //   Server=tcp:<server>.database.windows.net,1433;Database=<db>;Encrypt=True;
 // A string with its own sign-in (Authentication=…, a user, Integrated Security for LocalDB) is used as it is.
 // stdout carries the protocol, so every log line goes to stderr.
@@ -25,7 +25,7 @@ if (string.IsNullOrWhiteSpace(connectionString))
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Logging.AddConsole(options => options.LogToStandardErrorThreshold = LogLevel.Trace);
-var signIn = SqlSignIn.IsNeeded(connectionString) ? new SqlSignIn(Environment.GetEnvironmentVariable("AZURE_TENANT_ID")) : null;
+var signIn = SqlSignIn.IsNeeded(connectionString) ? new SqlSignIn(connectionString, Environment.GetEnvironmentVariable("AZURE_TENANT_ID")) : null;
 builder.Services.AddDbContext<SideGigPhDb>(options =>
 {
     if (signIn is null)
@@ -34,7 +34,7 @@ builder.Services.AddDbContext<SideGigPhDb>(options =>
     }
     else
     {
-        options.UseSqlServer(signIn.Connect(connectionString), contextOwnsConnection: true, sql => sql.EnableRetryOnFailure());
+        options.UseSqlServer(signIn.Connect(), contextOwnsConnection: true, sql => sql.EnableRetryOnFailure());
         options.AddInterceptors(signIn.Interceptor);
     }
 

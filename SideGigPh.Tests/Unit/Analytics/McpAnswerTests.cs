@@ -41,4 +41,13 @@ public class McpAnswerTests
     [InlineData("Server=x;Database=t;Password=p", false)]
     public void BrowserSignIn_OnlyWhenTheStringHasNone(string connectionString, bool opensTheBrowser) =>
         SqlSignIn.IsNeeded(connectionString).Should().Be(opensTheBrowser);
+
+    [Theory]
+    [InlineData("https://login.windows.net/EC7FF1E6-C3A2-45F0-B2F5-BE56598BAE81", "ec7ff1e6-c3a2-45f0-b2f5-be56598bae81")]
+    [InlineData("https://login.microsoftonline.com/contoso.onmicrosoft.com/", "contoso.onmicrosoft.com")]
+    [InlineData("https://login.microsoftonline.com/common", null)]
+    [InlineData(null, null)]
+    [InlineData("not a url", null)]
+    public void TheDatabasesTenant_IsReadFromItsSignInAuthority(string? authority, string? tenant) =>
+        SqlSignIn.TenantOf(authority).Should().Be(tenant);
 }

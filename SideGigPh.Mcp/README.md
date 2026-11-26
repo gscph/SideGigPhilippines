@@ -63,11 +63,13 @@ These answer the same questions as `analytics/weekly.sql`, with the window as a 
 ## Signing in
 
 - **The first question** opens the Microsoft sign-in page in your browser: pick the account you granted in step 1.
+  It goes to the database's own directory (the server names it, so you never type it), so an account that isn't in,
+  or invited to, that directory is refused there.
   You have 5 minutes to finish (password, MFA); Claude waits.
 - **After that it is silent.** The login is kept for your Windows user (Azure.Identity's encrypted token cache, and
   which account in `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`) until Microsoft asks you to sign in again.
-- **Your account is in more than one directory** (a guest elsewhere) and the wrong one signs in: add
-  `-e AZURE_TENANT_ID=<the Azure tenant id>` to the `claude mcp add` line.
+- **To force a directory** (the server couldn't be reached to ask it): add `-e AZURE_TENANT_ID=<directory id>` to
+  the `claude mcp add` line.
 - **Sign out / switch account:** delete `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`; the next question asks again.
 - A connection string with its own sign-in (`Authentication=Active Directory Default` after `az login`, a SQL user,
   `Integrated Security` for LocalDB) is used as it is, with no browser.
