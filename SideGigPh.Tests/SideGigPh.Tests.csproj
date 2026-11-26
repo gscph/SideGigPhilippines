@@ -38,6 +38,7 @@
     <ProjectReference Include="..\SideGigPh.Contracts\SideGigPh.Contracts.csproj" />
     <ProjectReference Include="..\SideGigPh.AzureSQL\SideGigPh.AzureSQL.csproj" />
     <ProjectReference Include="..\SideGigPh.Api\SideGigPh.Api.csproj" />
+    <ProjectReference Include="..\SideGigPh.Mcp\SideGigPh.Mcp.csproj" />
     <ProjectReference Include="..\SideGigPh.Migrate\SideGigPh.Migrate.csproj" />
   </ItemGroup>
 

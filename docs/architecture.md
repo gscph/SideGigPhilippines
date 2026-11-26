@@ -189,6 +189,23 @@ one table.
   `analytics/retention.sql` (the 12-month delete by hand). Privacy policy §3.3 and the Play Data safety answers
   describe it: change them together.
 
+## Asking an AI about usage and errors (`SideGigPh.Mcp`)
+
+A local **MCP server** (the official `ModelContextProtocol` NuGet package, stdio transport, `Microsoft.Extensions.Hosting`)
+that an AI client (Claude Code, VS Code) starts on a team member's PC; never deployed, nothing on GitHub or Azure runs it.
+Setup and the tool list: [`SideGigPh.Mcp/README.md`](../SideGigPh.Mcp/README.md).
+
+- **Data access is EF Core like the API:** it references `SideGigPh.AzureSQL` and queries `SideGigPhDb.AppEvents` and
+  `ErrorReports` with `NoTracking` and no `SaveChanges`, so a renamed column breaks the build, not the tool. It does not use
+  the stores or `AddSideGigPhSql` (no photos, caches or writes). Connection string from `SQL_CONNECTION`, signed in as the
+  person (`Active Directory Default`), who needs only `GRANT SELECT` on those two tables.
+- **Tools** (`Tools/AnalyticsTools`, `Tools/ErrorReportTools`, `[McpServerTool(ReadOnly = true)]`): the questions of
+  `analytics/weekly.sql` with the window as a parameter (Philippine days, Monday weeks computed in the query, like
+  `v_events`), and error summaries by source/message, by build, the latest reports and one in full. The client picks only
+  windows, filters and a row count (`ToolInput`: at most 200 rows, errors at most 90 days back).
+- **Never who:** answers are records with counts of distinct people or phones, never `user_id`, `InstallId` or a session
+  id (`McpAnswerTests`). `McpToolTests` runs every tool against the integration database.
+
 ## Blocked words
 
 Text other people read is checked for vulgarity, sexual words, slurs and insults in English, Tagalog/Taglish and
