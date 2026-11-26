@@ -133,7 +133,7 @@ changing that area.**
   deleting only what the server kept. Session id: new after 30+ min away. No names, numbers, emails or points: the opaque uid, a town id,
   typed search words with numbers and emails taken out (`ErrorReportRules.Clean`); Delete account clears `user_id`; rows over 12 months are deleted
   (`AppEventStore.KeepFor`). Weekly report: `analytics/weekly.sql` (run a day after the week ends; a test runs it),
-  manual retention `analytics/retention.sql`. A new event: a name in `AppEventNames`, one `LogAsync` call in the store
+  manual retention `analytics/retention.sql`. **An AI can ask them too:** `SideGigPh.Mcp`, a local MCP server (official `ModelContextProtocol` package, stdio, on the team's PC only, never deployed) with read-only EF Core tools on `SideGigPhDb` for `app_events` and `ErrorReports` (weekly questions, error summaries, one report in full), signed in as the person through a browser sign-in it remembers (`SqlSignIn`); answers carry counts, never a user/install/session id (`McpAnswerTests`); setup in `SideGigPh.Mcp/README.md`. A new event: a name in `AppEventNames`, one `LogAsync` call in the store
   that makes the change, the privacy policy §3.3 if it is new data.
 - **Geo** (`013-schema-geo.sql`, `GeoRules`): a listing has a private base point (`Professionals.Latitude` /
   `Longitude`, kept by the database as the geography column `Location`, SRID 4326, with a spatial index) and a travel
@@ -301,6 +301,8 @@ SideGigPh.slnx
 │   └── Sql/                   # 001-schema.sql (first release, frozen), NNN-schema-*.sql (later changes, guarded), 004-config.sql (trades, jobs, answer lists), 002-seed.sql (sample data), 006-seed-search-ranking.sql (ranking test data)
 │
 ├── analytics/                 # weekly.sql (the weekly usage report on app_events), retention.sql
+│
+├── SideGigPh.Mcp/             # Local MCP server (stdio, ModelContextProtocol): read-only EF Core tools over app_events and ErrorReports for an AI client
 │
 ├── SideGigPh.Migrate/         # Console tool: runs the Sql/ scripts the live database hasn't had (database.yml, when a script or the tool changed)
 │
