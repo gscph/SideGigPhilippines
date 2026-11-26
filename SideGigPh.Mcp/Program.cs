@@ -44,6 +44,8 @@ builder.Services
     .AddMcpServer()
     .WithStdioServerTransport()
     .WithTools<AnalyticsTools>()
+    .WithTools<FunnelTools>()
+    .WithTools<PostTools>()
     .WithTools<ErrorReportTools>();
 
 await builder.Build().RunAsync();

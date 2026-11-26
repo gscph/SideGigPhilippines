@@ -5,6 +5,7 @@ using SideGigPh.Maui.Components.Professional;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -35,6 +36,7 @@ public partial class ProfessionalInterview : ComponentBase
     [Inject] private TimeProvider Clock { get; set; } = default!;
     [Inject] private SmsSendLimit SmsLimit { get; set; } = default!;
     [Inject] private ILogger<ProfessionalInterview> Logger { get; set; } = default!;
+    [Inject] private TarbahoAnalytics Analytics { get; set; } = default!;
 
     [Parameter] public int? Step { get; set; }
 
@@ -94,6 +96,12 @@ public partial class ProfessionalInterview : ComponentBase
         if (OnboardingSteps.CorrectedPath(Step, _step) is { } corrected)
         {
             Nav.NavigateTo(corrected, replace: true);
+        }
+
+        // Where sign-up stops: counted while signing up, not when a live worker changes an answer.
+        if (!_state.HasFinished(UserRole.Professional))
+        {
+            _ = Analytics.Step(_step);
         }
 
         _codeSent = false;

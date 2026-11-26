@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Contracts;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -16,6 +18,7 @@ public partial class RolePage : ComponentBase
     [Inject] private LocalAccount Account { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private TarbahoAnalytics Analytics { get; set; } = default!;
 
     private OnboardingState? _state;
     private bool _busy;
@@ -29,7 +32,11 @@ public partial class RolePage : ComponentBase
     private IReadOnlyCollection<string> Selected =>
         _state?.Role is { } role ? new[] { role.ToString() } : Array.Empty<string>();
 
-    protected override async Task OnInitializedAsync() => _state = await Store.LoadAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        _state = await Store.LoadAsync();
+        _ = Analytics.Step(AppEventSteps.Role, userType: null);
+    }
 
     private async Task PickAsync(string id)
     {

@@ -13,7 +13,7 @@ public sealed class ApiAppEventRepository(ApiClient api) : IAppEventRepository
     public async Task<bool> SendAsync(IReadOnlyList<PendingEvent> events)
     {
         var batch = events.Select(e => new AppEventDto(e.EventId, e.Name, e.SessionId, e.ServiceCategory, e.Area, e.SearchTerm,
-            e.ResultCount, e.ClientTs, e.AppVersion)).ToList();
+            e.ResultCount, e.ClientTs, e.AppVersion, e.ServiceId, e.Step, e.UserType)).ToList();
         using var response = await api.SendJsonAsync(HttpMethod.Post, "events", batch, ApiJson.Default.ListAppEventDto, logFailure: false);
         return ApiClient.BatchTaken(response, "App events");
     }

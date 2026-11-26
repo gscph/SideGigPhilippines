@@ -1,6 +1,7 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SideGigPh.AzureSQL;
+using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Mcp.Tools;
@@ -69,6 +70,25 @@ public class McpToolTests(ApiTestHost api)
         (await tools.Fulfilment()).PostsCreated.Should().BeGreaterThanOrEqualTo(0);
         (await tools.WorkerFunnel()).SignedUp.Should().BeGreaterThanOrEqualTo(0);
         (await tools.TrustReports()).Should().NotBeNull();
+    }
+
+    [IntegrationFact]
+    public async Task FunnelAndPostTools_AnswerFromTheEventsAndPosts()
+    {
+        var term = Tag();
+        await InsertEventAsync("search", term, results: 0);
+        await InsertEventAsync("sign_up", term);
+        await using var db = Db();
+        var funnels = new FunnelTools(db);
+
+        (await funnels.TopSearches(top: 200)).Should().Contain(r => r.SearchTerm == term && r.Searches == 1 && r.Empty == 1 && r.People == 1);
+        (await funnels.OnboardingFunnel("worker")).Select(r => r.Step).Should().Equal([.. AppEventSteps.Worker, "published"]);
+        (await funnels.OnboardingFunnel("household")).Select(r => r.Step).Should().Equal(AppEventSteps.Household);
+        var households = await funnels.HouseholdFunnel();
+        households.SignedUp.Should().BeGreaterThanOrEqualTo(1);
+        households.Searched.Should().BeGreaterThanOrEqualTo(1, "the household who signed up also searched");
+        (await funnels.SignUps(days: 1)).Should().Contain(r => r.Side == "customer" && r.People >= 1);
+        (await new PostTools(db).RecentPosts(top: 200)).Should().OnlyContain(p => p.Offers >= 0 && p.Description!.Length <= PostTools.MaxDescription);
     }
 
     private async Task InsertEventAsync(string name, string term, int? results = null)

@@ -125,7 +125,9 @@ changing that area.**
   `request_created` (a post), `request_matched` (a pick, with `minutes_to_match`), `rehire` (a pick of a worker this
   household already finished a job with), `job_completed` (both marked done), `worker_profile_complete` (first publish),
   `worker_first_job`, `report_user` / `block_user` (with the report's reason); a repeated request never logs twice.
-  **The app logs only searches** (`search`, `search_empty`; names in `Contracts/AppEvents.cs`) through
+  **The app logs only searches, sign-up steps and the post form** (`search` / `search_empty` with the trade and job,
+  `onboarding_step` with its `step` from `AppEventSteps` (the side fork, each interview question and Publish step, not
+  while changing an answer), `post_started`; names in `Contracts/AppEvents.cs`, `035-schema-app-event-steps.sql`), each once a session, through
   `Services/Analytics/TarbahoAnalytics`, the only entry point: written to the phone (`pending-events.json`, at most 500,
   7 days), **never sent while the person acts**; `AnalyticsUploader` uploads the 50 oldest at a time (`POST events`,
   `202`, whitelist `AppEventNames.FromApp`, the uid from the token, a phone time over 5 min ahead or 7 days old
@@ -133,7 +135,7 @@ changing that area.**
   deleting only what the server kept. Session id: new after 30+ min away. No names, numbers, emails or points: the opaque uid, a town id,
   typed search words with numbers and emails taken out (`ErrorReportRules.Clean`); Delete account clears `user_id`; rows over 12 months are deleted
   (`AppEventStore.KeepFor`). Weekly report: `analytics/weekly.sql` (run a day after the week ends; a test runs it),
-  manual retention `analytics/retention.sql`. **An AI can ask them too:** `SideGigPh.Mcp`, a local MCP server (official `ModelContextProtocol` package, stdio, on the team's PC only, never deployed) with read-only EF Core tools on `SideGigPhDb` for `app_events` and `ErrorReports` (weekly questions, error summaries, one report in full), signed in as the person through a browser sign-in it remembers (`SqlSignIn`); answers carry counts, never a user/install/session id (`McpAnswerTests`); setup in `SideGigPh.Mcp/README.md`. A new event: a name in `AppEventNames`, one `LogAsync` call in the store
+  manual retention `analytics/retention.sql`. **An AI can ask them too:** `SideGigPh.Mcp`, a local MCP server (official `ModelContextProtocol` package, stdio, on the team's PC only, never deployed) with read-only EF Core tools on `SideGigPhDb` for `app_events`, `ErrorReports` and `JobPosts` (weekly questions, sign-up and household funnels, top searches, recent posts, error summaries, one report in full), signed in as the person through a browser sign-in it remembers (`SqlSignIn`); answers carry counts, never a user/install/session id (`McpAnswerTests`); setup in `SideGigPh.Mcp/README.md`. A new event: a name in `AppEventNames`, one `LogAsync` call in the store
   that makes the change, the privacy policy §3.3 if it is new data.
 - **Geo** (`013-schema-geo.sql`, `GeoRules`): a listing has a private base point (`Professionals.Latitude` /
   `Longitude`, kept by the database as the geography column `Location`, SRID 4326, with a spatial index) and a travel
