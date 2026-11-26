@@ -1,4 +1,5 @@
 using ModelContextProtocol.Server;
+using SideGigPh.Mcp;
 using SideGigPh.Mcp.Tools;
 
 namespace SideGigPh.Tests.Unit.Analytics;
@@ -31,4 +32,12 @@ public class McpAnswerTests
     [InlineData("  ", null)]
     [InlineData(" PROD ", "prod")]
     public void ToolInput_EmptyFilter_MeansAll(string? asked, string? used) => ToolInput.Filter(asked).Should().Be(used);
+
+    [Theory]
+    [InlineData("Server=tcp:x.database.windows.net,1433;Database=SideGigPh;Encrypt=True;", true)]
+    [InlineData("Server=tcp:x.database.windows.net,1433;Database=SideGigPh;Authentication=Active Directory Default;", false)]
+    [InlineData(@"Server=(localdb)\MSSQLLocalDB;Database=t;Integrated Security=true", false)]
+    [InlineData("Server=x;Database=t;User ID=sa;Password=p", false)]
+    public void BrowserSignIn_OnlyWhenTheStringHasNone(string connectionString, bool opensTheBrowser) =>
+        SqlSignIn.IsNeeded(connectionString).Should().Be(opensTheBrowser);
 }

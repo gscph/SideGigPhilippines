@@ -198,7 +198,10 @@ Setup and the tool list: [`SideGigPh.Mcp/README.md`](../SideGigPh.Mcp/README.md)
 - **Data access is EF Core like the API:** it references `SideGigPh.AzureSQL` and queries `SideGigPhDb.AppEvents` and
   `ErrorReports` with `NoTracking` and no `SaveChanges`, so a renamed column breaks the build, not the tool. It does not use
   the stores or `AddSideGigPhSql` (no photos, caches or writes). Connection string from `SQL_CONNECTION`, signed in as the
-  person (`Active Directory Default`), who needs only `GRANT SELECT` on those two tables.
+  person, who needs only `GRANT SELECT` on those two tables: with no sign-in in the string, `SqlSignIn` opens the
+  Microsoft sign-in page in the browser on the first query (Azure.Identity `InteractiveBrowserCredential`, the token
+  given to SqlClient through `AccessTokenCallback`) and remembers it (encrypted token cache + the account in
+  `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`); optional `AZURE_TENANT_ID`. A string with its own sign-in is used as it is.
 - **Tools** (`Tools/AnalyticsTools`, `Tools/ErrorReportTools`, `[McpServerTool(ReadOnly = true)]`): the questions of
   `analytics/weekly.sql` with the window as a parameter (Philippine days, Monday weeks computed in the query, like
   `v_events`), and error summaries by source/message, by build, the latest reports and one in full. The client picks only

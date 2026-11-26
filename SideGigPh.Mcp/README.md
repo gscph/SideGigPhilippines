@@ -8,7 +8,8 @@ for and not find this week?" or "which crash hits the most phones since 0.2.3?" 
   `SaveChanges`. The client only picks the window, the filters and the row count (at most 200), never the SQL.
 - **Counts, not people.** No answer has a user id, install id or session id, only how many distinct people or
   phones (`McpAnswerTests` checks this). Search words and error text are already scrubbed when stored.
-- **Never deployed.** It runs on the team's PC and signs in to Azure SQL with your own Entra account.
+- **Never deployed.** It runs on the team's PC and signs in to Azure SQL with your own Microsoft (Entra) account: the
+  first question opens the sign-in page in your browser, and the login is remembered after that.
 
 ## Tools
 
@@ -38,7 +39,7 @@ These answer the same questions as `analytics/weekly.sql`, with the window as a 
    GRANT SELECT ON dbo.ErrorReports TO [you@example.com];
    ```
 
-   Add your IP on the SQL server's **Networking** page (the same rule the Query editor uses), then run `az login`.
+   Add your IP on the SQL server's **Networking** page (the same rule the Query editor uses).
 
 2. **Publish it to a folder outside the repo**, so the client runs that copy and never the repo's build output:
 
@@ -53,14 +54,26 @@ These answer the same questions as `analytics/weekly.sql`, with the window as a 
 
    ```bash
    claude mcp add tarbaho-data --scope user \
-     -e SQL_CONNECTION="Server=tcp:sidegigph.database.windows.net,1433;Database=SideGigPh;Authentication=Active Directory Default;Encrypt=True;" \
+     -e SQL_CONNECTION="Server=tcp:sidegigph.database.windows.net,1433;Database=SideGigPh;Encrypt=True;" \
      -- dotnet ~/.sidegigph-mcp/SideGigPh.Mcp.dll
    ```
 
    Other clients use the same command and `SQL_CONNECTION`. Without `SQL_CONNECTION` the server stops at once with exit code 2.
 
-**A tool says only "An error occurred"?** The AI sees no details; the cause (a missing `GRANT`, the firewall, an
-expired `az login`) is in the server's log on stderr. Claude Code shows it with `claude --debug`.
+## Signing in
+
+- **The first question** opens the Microsoft sign-in page in your browser: pick the account you granted in step 1.
+  Claude waits while you sign in.
+- **After that it is silent.** The login is kept for your Windows user (Azure.Identity's encrypted token cache, and
+  which account in `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`) until Microsoft asks you to sign in again.
+- **Your account is in more than one directory** (a guest elsewhere) and the wrong one signs in: add
+  `-e AZURE_TENANT_ID=<the Azure tenant id>` to the `claude mcp add` line.
+- **Sign out / switch account:** delete `%LOCALAPPDATA%\SideGigPh.Mcp\sign-in.json`; the next question asks again.
+- A connection string with its own sign-in (`Authentication=Active Directory Default` after `az login`, a SQL user,
+  `Integrated Security` for LocalDB) is used as it is, with no browser.
+
+**A tool says only "An error occurred"?** The AI sees no details; the cause (a missing `GRANT`, the firewall, a
+cancelled sign-in) is in the server's log on stderr. Claude Code shows it with `claude --debug`.
 
 ## Add a tool
 
