@@ -40,13 +40,14 @@ These answer the same questions as `analytics/weekly.sql`, with the window as a 
 
    Add your IP on the SQL server's **Networking** page (the same rule the Query editor uses), then run `az login`.
 
-2. **Build a copy outside the repo**, so it never locks files Visual Studio is using:
+2. **Publish it to a folder outside the repo**, so the client runs that copy and never the repo's build output:
 
    ```bash
    dotnet publish SideGigPh.Mcp -c Release -o ~/.sidegigph-mcp
    ```
 
-   Publish it again after pulling changes to the tools.
+   The publish itself still builds in the repo's `obj/` and `bin/Release`, so run it with Visual Studio closed (or
+   from a throwaway copy of the repo). Publish it again after pulling changes to the tools.
 
 3. **Add it to Claude Code** (your user settings, not the repo):
 
@@ -57,6 +58,9 @@ These answer the same questions as `analytics/weekly.sql`, with the window as a 
    ```
 
    Other clients use the same command and `SQL_CONNECTION`. Without `SQL_CONNECTION` the server stops at once with exit code 2.
+
+**A tool says only "An error occurred"?** The AI sees no details; the cause (a missing `GRANT`, the firewall, an
+expired `az login`) is in the server's log on stderr. Claude Code shows it with `claude --debug`.
 
 ## Add a tool
 

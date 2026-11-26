@@ -43,13 +43,14 @@ public sealed class AnalyticsTools(SideGigPhDb db)
     }
 
     [McpServerTool(Name = "events_per_day", ReadOnly = true, Idempotent = true)]
-    [Description("How many of each usage event happened per day (Philippine time) in the last N days. Events: " + EventList + ".")]
+    [Description("How many of each usage event happened per day (Philippine time) in the last N days, today included. Events: " + EventList + ".")]
     public async Task<IReadOnlyList<EventCount>> EventsPerDay(
         [Description("Only this event name; leave empty for all.")] string? eventName = null,
         [Description("How many days back, 1-365.")] int days = 14,
         CancellationToken cancellationToken = default)
     {
-        var rows = await Since(ToolInput.Days(days), eventName)
+        var firstDay = DateTime.UtcNow.AddHours(PhilippineHours).Date.AddDays(1 - ToolInput.Days(days));
+        var rows = await From(firstDay.AddHours(-PhilippineHours), eventName)
             .GroupBy(e => new { e.EventName, Day = (e.ClientTs ?? e.ServerTs).AddHours(PhilippineHours).Date })
             .Select(g => new EventCount(DateOnly.FromDateTime(g.Key.Day), g.Key.EventName, g.Count(), g.Select(e => e.UserId).Distinct().Count()))
             .ToListAsync(cancellationToken);

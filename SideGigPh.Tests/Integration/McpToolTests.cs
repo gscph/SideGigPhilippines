@@ -63,7 +63,7 @@ public class McpToolTests(ApiTestHost api)
         var tools = new AnalyticsTools(db);
 
         (await tools.UnmetDemand(top: 200)).Should().ContainSingle(r => r.SearchTerm == term).Which.Searches.Should().Be(2);
-        (await tools.EventsPerDay("search_empty")).Should().OnlyContain(r => r.EventName == "search_empty").And.Contain(r => r.Events >= 2 && r.People >= 1);
+        (await tools.EventsPerDay("search_empty", days: 1)).Should().OnlyContain(r => r.EventName == "search_empty").And.Contain(r => r.Events >= 2 && r.People >= 1);
         (await tools.EventsPerWeek("search_empty", weeks: 1)).Should().ContainSingle().Which.Period.DayOfWeek.Should().Be(DayOfWeek.Monday);
         (await tools.DemandByTradeAndTown()).Should().Contain(r => r.Trade == "aircon" && r.Town == "angono" && r.Empty >= 1);
         (await tools.Fulfilment()).PostsCreated.Should().BeGreaterThanOrEqualTo(0);
