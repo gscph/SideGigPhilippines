@@ -18,12 +18,15 @@ public sealed record AppEvent(string Name)
     public int? MinutesToMatch { get; init; }
     public string? Reason { get; init; }
     public string? RequestId { get; init; }
+
+    /// <summary>The job, a service's stable id (a post's).</summary>
+    public string? ServiceId { get; init; }
 }
 
 /// <summary>
 /// Our own usage counts, one plain parameterised INSERT per event into <c>app_events</c> (no analytics SDK). The
 /// stores call <see cref="LogAsync"/> right after the real change is saved (source <c>server</c>, the arrival time is
-/// the event time); the app's queued searches arrive through <see cref="SaveFromAppAsync"/>. Counting is never worth a
+/// the event time); the app's queued searches, sign-up steps and post forms opened arrive through <see cref="SaveFromAppAsync"/>. Counting is never worth a
 /// failed request: every write here catches, logs and carries on. Delete account clears the person's id
 /// (<see cref="ForgetAsync"/>), and rows older than <see cref="KeepFor"/> are deleted.
 /// </summary>
@@ -54,7 +57,8 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
             using var giveUp = new CancellationTokenSource(GiveUpAfter);
             await InsertAsync(Guid.NewGuid(), Cut(e.Name, AppEventRules.MaxName)!, FromServer, Cut(e.UserId, 64), Cut(e.UserType, 10),
                 sessionId: null, Cut(e.ServiceCategory, AppEventRules.MaxCategory), Cut(e.Area, AppEventRules.MaxArea), searchTerm: null,
-                resultCount: null, e.MinutesToMatch, Cut(e.Reason, 40), Cut(e.RequestId, 64), appVersion: null, clientTs: null, giveUp.Token);
+                resultCount: null, e.MinutesToMatch, Cut(e.Reason, 40), Cut(e.RequestId, 64), appVersion: null, clientTs: null,
+                Cut(e.ServiceId, AppEventRules.MaxServiceId), step: null, giveUp.Token);
         }
         catch (Exception ex)
         {
@@ -83,8 +87,10 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
     /// <summary>
     /// Keeps the app's queued events for <paramref name="uid"/>: only <see cref="AppEventNames.FromApp"/> names, a phone
     /// time that can't be believed dropped (<see cref="AppEventRules.Believable"/>), text cut to its column and search
-    /// words scrubbed. An event id already kept (the upload sent twice) is skipped. False for a batch that is empty, too
-    /// big or names any other event: nothing of it is kept.
+    /// words scrubbed. The side is the phone's when it is one (<see cref="AppEventUserTypes"/>), else the event's usual
+    /// one (<see cref="AppEventNames.DefaultUserType"/>, an older app); a sign-up step not in <see cref="AppEventSteps"/>
+    /// is kept without it. An event id already kept (the upload sent twice) is skipped. False for a batch that is empty,
+    /// too big or names any other event: nothing of it is kept.
     /// </summary>
     public async Task<bool> SaveFromAppAsync(string uid, IReadOnlyList<AppEventDto?>? events, CancellationToken cancellationToken)
     {
@@ -99,10 +105,12 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
         {
             try
             {
-                await InsertAsync(e!.EventId, e.Name, FromApp, uid, AppEventUserTypes.Customer, Cut(e.SessionId, AppEventRules.MaxSession),
+                var userType = e!.UserType is AppEventUserTypes.Customer or AppEventUserTypes.Worker ? e.UserType : AppEventNames.DefaultUserType(e.Name);
+                await InsertAsync(e.EventId, e.Name, FromApp, uid, userType, Cut(e.SessionId, AppEventRules.MaxSession),
                     Cut(e.ServiceCategory, AppEventRules.MaxCategory), Cut(e.Area, AppEventRules.MaxArea), AppEventRules.SearchTerm(e.SearchTerm),
                     e.ResultCount is >= 0 ? e.ResultCount : null, minutesToMatch: null, reason: null, requestId: null,
-                    Cut(e.AppVersion, AppEventRules.MaxVersion), AppEventRules.Believable(e.ClientTs, now)?.UtcDateTime, cancellationToken);
+                    Cut(e.AppVersion, AppEventRules.MaxVersion), AppEventRules.Believable(e.ClientTs, now)?.UtcDateTime,
+                    Cut(e.ServiceId, AppEventRules.MaxServiceId), AppEventSteps.IsKnown(e.Step) ? e.Step : null, cancellationToken);
             }
             catch (SqlException ex) when (ex.Number is 2601 or 2627)
             {
@@ -141,14 +149,14 @@ public sealed class AppEventStore(SideGigPhDb db, ILogger<AppEventStore> logger)
 
     private Task InsertAsync(Guid eventId, string name, string source, string? userId, string? userType, string? sessionId,
         string? serviceCategory, string? area, string? searchTerm, int? resultCount, int? minutesToMatch, string? reason,
-        string? requestId, string? appVersion, DateTime? clientTs, CancellationToken cancellationToken) =>
+        string? requestId, string? appVersion, DateTime? clientTs, string? serviceId, string? step, CancellationToken cancellationToken) =>
         db.Database.ExecuteSqlAsync($"""
             INSERT INTO dbo.app_events
                 (event_id, event_name, source, user_id, user_type, session_id, service_category, area, search_term,
-                 result_count, minutes_to_match, reason, request_id, app_version, client_ts)
+                 result_count, minutes_to_match, reason, request_id, app_version, client_ts, service_id, step)
             VALUES
                 ({eventId}, {name}, {source}, {userId}, {userType}, {sessionId}, {serviceCategory}, {area}, {searchTerm},
-                 {resultCount}, {minutesToMatch}, {reason}, {requestId}, {appVersion}, {clientTs})
+                 {resultCount}, {minutesToMatch}, {reason}, {requestId}, {appVersion}, {clientTs}, {serviceId}, {step})
             """, cancellationToken);
 
     private static string? Cut(string? text, int max) => AppEventRules.Cut(text, max);

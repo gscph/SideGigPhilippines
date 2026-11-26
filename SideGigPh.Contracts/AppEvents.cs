@@ -19,8 +19,51 @@ public static class AppEventNames
     public const string ReportUser = "report_user";
     public const string BlockUser = "block_user";
 
+    /// <summary>A sign-up question or page shown (<see cref="AppEventSteps"/>): where people stop before they finish.</summary>
+    public const string OnboardingStep = "onboarding_step";
+
+    /// <summary>A household opened the form to post what they need (the post itself is <see cref="RequestCreated"/>).</summary>
+    public const string PostStarted = "post_started";
+
     /// <summary>The only events <c>POST events</c> accepts; everything else is the API's own.</summary>
-    public static readonly IReadOnlySet<string> FromApp = new HashSet<string>(StringComparer.Ordinal) { Search, SearchEmpty };
+    public static readonly IReadOnlySet<string> FromApp =
+        new HashSet<string>(StringComparer.Ordinal) { Search, SearchEmpty, OnboardingStep, PostStarted };
+
+    /// <summary>
+    /// Who an app event is about when the phone didn't say (an older app): searches and posts are a household's,
+    /// a step before the side is picked is nobody's yet.
+    /// </summary>
+    public static string? DefaultUserType(string name) =>
+        name is Search or SearchEmpty or PostStarted ? AppEventUserTypes.Customer : null;
+}
+
+/// <summary>
+/// The sign-up steps an <see cref="AppEventNames.OnboardingStep"/> names (<c>app_events.step</c>), in the order people
+/// meet them: the side fork, then that side's questions. Names are stable: the funnel reports are built on them, and
+/// the app's step enums (<c>ProStep</c>, <c>PublishStep</c>, <c>SeekerStep</c>) map onto them by name.
+/// </summary>
+public static class AppEventSteps
+{
+    public const string Role = "role";
+
+    /// <summary>A Skilled Worker's interview (<c>ProStep</c>), then going live (<c>PublishStep</c>).</summary>
+    public static readonly IReadOnlyList<string> Worker =
+    [
+        Role, "pro_skills", "pro_services", "pro_rate", "pro_towns", "pro_experience", "pro_photo", "pro_number",
+        "pro_preview", "publish_checklist", "publish_ready",
+    ];
+
+    /// <summary>A household's interview (<c>SeekerStep</c>).</summary>
+    public static readonly IReadOnlyList<string> Household =
+    [
+        Role, "seeker_category", "seeker_service", "seeker_city", "seeker_when", "seeker_budget", "seeker_findby", "seeker_finding",
+    ];
+
+    /// <summary>The step name for an app step enum value: <c>pro_</c>, <c>publish_</c> or <c>seeker_</c> and its name in lower case.</summary>
+    public static string Of(string prefix, string stepName) => $"{prefix}_{stepName.ToLowerInvariant()}";
+
+    /// <summary>True for a step this list knows; anything else from a phone is dropped.</summary>
+    public static bool IsKnown(string? step) => step is not null && (Worker.Contains(step) || Household.Contains(step));
 }
 
 /// <summary>Who an event is about (<c>app_events.user_type</c>).</summary>
@@ -39,8 +82,9 @@ public static class AppEventUserTypes
 }
 
 /// <summary>
-/// One event the app queued on the phone (<c>POST events</c>, a JSON array of at most <see cref="AppEventRules.MaxBatch"/>).
-/// Never a name, number or place finer than a town: who sent it comes from the sign-in token, never from here.
+/// One event the app queued on the phone (<c>POST events</c>, a JSON array of at most <see cref="AppEventRules.MaxBatch"/>):
+/// a search with its trade and job, a sign-up step, a post form opened. Never a name, number or place finer than a
+/// town: who sent it comes from the sign-in token, never from here; <see cref="UserType"/> is only which side.
 /// </summary>
 public sealed record AppEventDto(
     Guid EventId,
@@ -51,7 +95,10 @@ public sealed record AppEventDto(
     string? SearchTerm,
     int? ResultCount,
     DateTimeOffset? ClientTs,
-    string? AppVersion);
+    string? AppVersion,
+    string? ServiceId = null,
+    string? Step = null,
+    string? UserType = null);
 
 /// <summary>The limits both sides keep for <see cref="AppEventDto"/>.</summary>
 public static class AppEventRules
@@ -66,6 +113,8 @@ public static class AppEventRules
     public const int MaxArea = 60;
     public const int MaxSearchTerm = 100;
     public const int MaxVersion = 20;
+    public const int MaxServiceId = 60;
+    public const int MaxStep = 40;
 
     /// <summary>A phone clock this far ahead is wrong: the time it says is dropped (the arrival time is used).</summary>
     public static readonly TimeSpan MaxAhead = TimeSpan.FromMinutes(5);

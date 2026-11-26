@@ -161,6 +161,61 @@ public class AppEventTests
         AppEventRules.Believable(now.AddMinutes(minutes), now).HasValue.Should().Be(believed);
     }
 
+    [Fact]
+    public async Task ASearch_KeepsTheJobTapped_AsAHouseholds()
+    {
+        await Analytics().Search(null, "aircon", "aircon-cleaning", "angono", 2);
+
+        Kept.Single().Should().BeEquivalentTo(new { ServiceCategory = "aircon", ServiceId = "aircon-cleaning", UserType = AppEventUserTypes.Customer },
+            o => o.ExcludingMissingMembers());
+    }
+
+    [Fact]
+    public async Task ASignUpStep_IsCountedOncePerSession_WithItsSide_AndAnUnknownOneNotAtAll()
+    {
+        var analytics = Analytics();
+
+        await analytics.Step(AppEventSteps.Role, userType: null);
+        await analytics.Step(ProStep.Skills);
+        await analytics.Step(ProStep.Skills); // Back, then Next again
+        await analytics.Step(PublishStep.Ready);
+        await analytics.Step(SeekerStep.FindBy);
+        await analytics.Step("pro_made_up", AppEventUserTypes.Worker);
+
+        Kept.Select(e => (e.Name, e.Step, e.UserType)).Should().Equal(
+            (AppEventNames.OnboardingStep, "role", (string?)null),
+            (AppEventNames.OnboardingStep, "pro_skills", AppEventUserTypes.Worker),
+            (AppEventNames.OnboardingStep, "publish_ready", AppEventUserTypes.Worker),
+            (AppEventNames.OnboardingStep, "seeker_findby", AppEventUserTypes.Customer));
+        Kept.Should().OnlyContain(e => e.SearchTerm == null && e.ServiceCategory == null && e.SessionId == analytics.SessionId);
+    }
+
+    [Fact]
+    public void EveryAppStep_HasItsNameInTheFunnel_InTheSameOrder()
+    {
+        var worker = Enum.GetValues<ProStep>().Select(s => AppEventSteps.Of("pro", s.ToString()))
+            .Concat(Enum.GetValues<PublishStep>().Select(s => AppEventSteps.Of("publish", s.ToString())));
+        var household = Enum.GetValues<SeekerStep>().Select(s => AppEventSteps.Of("seeker", s.ToString()));
+
+        AppEventSteps.Worker.Should().Equal([AppEventSteps.Role, .. worker]);
+        AppEventSteps.Household.Should().Equal([AppEventSteps.Role, .. household]);
+    }
+
+    [Fact]
+    public async Task OpeningThePostForm_IsCountedOncePerSession_WithItsTradeJobAndTown()
+    {
+        var analytics = Analytics();
+
+        await analytics.PostStarted("construction", "construction-plumbing", "taytay");
+        await analytics.PostStarted("construction", "construction-plumbing", "taytay");
+
+        Kept.Should().ContainSingle().Which.Should().BeEquivalentTo(new
+        {
+            Name = AppEventNames.PostStarted, ServiceCategory = "construction", ServiceId = "construction-plumbing", Area = "taytay",
+            UserType = AppEventUserTypes.Customer,
+        }, o => o.ExcludingMissingMembers());
+    }
+
     private static PendingEvent Event(DateTimeOffset at) =>
         new(Guid.NewGuid(), AppEventNames.Search, "s", "aircon", "angono", null, 1, at, "0.1.0");
 

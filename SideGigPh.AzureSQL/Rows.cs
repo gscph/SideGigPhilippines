@@ -254,6 +254,12 @@ public sealed class AppEventRow
     public string? AppVersion { get; set; }
     public DateTime? ClientTs { get; set; }
     public DateTime ServerTs { get; set; }
+
+    /// <summary>The sign-up step of an <c>onboarding_step</c> event (<c>035-schema-app-event-steps.sql</c>).</summary>
+    public string? Step { get; set; }
+
+    /// <summary>The job (a service's stable id) of a search, a post form opened or a post (<c>035-schema-app-event-steps.sql</c>).</summary>
+    public string? ServiceId { get; set; }
 }
 
 /// <summary>One answer in a config list (<c>ConfigOptions</c>): a town, the default town, experience, urgency or income goal.</summary>

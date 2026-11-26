@@ -1,6 +1,6 @@
 # Tarbaho Privacy Policy
 
-**Effective date:** November 14, 2026 · **Last updated:** November 25, 2026
+**Effective date:** November 14, 2026 · **Last updated:** November 26, 2026
 
 ---
 
@@ -85,7 +85,7 @@ Interview answers you have not finished are kept **only on your phone**.
 | **Push notification token** and phone platform (Android / iOS) | To notify you of new messages, new posts near a Skilled Worker, and new offers on a Customer's post |
 | **Last active time** (at most once an hour, Skilled Workers) | Search ranking ("replies fast", "active recently") |
 | **Error reports**: app version, phone model, OS version, the screen where a problem happened, a technical error message, and a random install ID | To find and fix crashes and slow screens. Before they leave your phone and again on our server, we remove numbers, emails, account IDs and similar data from these reports. They are **not linked to your account**. You can turn them off: **Me → Send error reports**. Deleted after **90 days** |
-| **Usage counts** (see §3.3): your searches (the trade, the town, the words you typed with numbers and emails taken out, how many workers were found), and our server's own record of posts, picks, finished jobs, published listings, reports and blocks, with your account ID | To know whether people find the help they need, which services are missing in which town, and whether customers and workers come back. Deleted after **12 months** |
+| **Usage counts** (see §3.3): your searches (the trade and job, the town, the words you typed with numbers and emails taken out, how many workers were found), which sign-up questions you reached, opening the form to post what you need, and our server's own record of posts, picks, finished jobs, published listings, reports and blocks, with your account ID | To know whether people find the help they need, which services are missing in which town, and whether customers and workers come back. Deleted after **12 months** |
 | **Ideas page on the web** (`…/api/suggest`, the feedback link for testers): a cookie holding a random ID, and your IP address | The cookie lets the page count **one vote per browser**; it holds no name or account and is kept 1 year. The IP address is used **only in our server's memory** to limit how many ideas and votes come from one place in an hour, and is never stored. What you type there is shown to everyone, without a name |
 
 We read your phone's location **only when you tap Use my location, Send my location or Show how far I am** (see the
@@ -101,9 +101,13 @@ The App has **no third-party analytics, A/B testing or advertising tools** (no G
 collect your advertising ID. We count a few things ourselves, in our own database, to answer two questions: do
 people find the service they need, and do they come back.
 
-- **Searches:** when your search results load, the App notes the trade, your town, the words you typed (numbers and
-  emails are taken out first) and how many workers were found. This is saved on your phone first and sent to our
-  server later in the background, never while you are searching.
+- **Searches:** when your search results load, the App notes the trade and job, your town, the words you typed
+  (numbers and emails are taken out first) and how many workers were found.
+- **Signing up and posting:** the App notes which sign-up question you reached (for example "your price" or "your
+  photo", not your answer) and when you open the form to post what you need (its trade, job and town, not what you
+  write), so we can see where people get stuck.
+- What the App notes is saved on your phone first and sent to our server later in the background, never while you
+  are using it.
 - **What happens on our server:** when you sign up, post what you need, pick a worker's offer, finish a job, publish
   your listing, or report or block someone, our server notes it (with the trade, the town, and for a report its
   reason).

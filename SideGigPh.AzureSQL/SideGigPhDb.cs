@@ -300,6 +300,8 @@ public sealed class SideGigPhDb(DbContextOptions<SideGigPhDb> options) : DbConte
             e.Property(r => r.AppVersion).HasColumnName("app_version").HasMaxLength(20);
             e.Property(r => r.ClientTs).HasColumnName("client_ts").HasColumnType("datetime2");
             e.Property(r => r.ServerTs).HasColumnName("server_ts").HasColumnType("datetime2").HasDefaultValueSql("SYSUTCDATETIME()");
+            e.Property(r => r.Step).HasColumnName("step").HasMaxLength(AppEventRules.MaxStep);
+            e.Property(r => r.ServiceId).HasColumnName("service_id").HasMaxLength(AppEventRules.MaxServiceId);
             e.HasIndex(r => r.EventId).IsUnique().HasDatabaseName("UQ_app_events_event_id");
             e.HasIndex(r => new { r.EventName, r.ServerTs }).HasDatabaseName("IX_app_events_name_time");
             e.HasIndex(r => new { r.UserId, r.ServerTs }).HasDatabaseName("IX_app_events_user");

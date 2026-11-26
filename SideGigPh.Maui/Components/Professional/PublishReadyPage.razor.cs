@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Professional;
 
@@ -19,6 +20,7 @@ public partial class PublishReadyPage : ComponentBase
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private TarbahoAnalytics Analytics { get; set; } = default!;
     [Inject] private ILogger<PublishReadyPage> Logger { get; set; } = default!;
 
     private bool _loaded;
@@ -52,6 +54,7 @@ public partial class PublishReadyPage : ComponentBase
             return;
         }
 
+        _ = Analytics.Step(PublishStep.Ready);
         _loaded = true;
     }
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using SideGigPh.Maui.Services;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Professional;
 
@@ -16,6 +17,7 @@ public partial class PublishPage : ComponentBase
     [Inject] private ProWorkspace Workspace { get; set; } = default!;
     [Inject] private AppText T { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private TarbahoAnalytics Analytics { get; set; } = default!;
 
     private bool _loaded;
 
@@ -37,6 +39,7 @@ public partial class PublishPage : ComponentBase
 
         // No number check here: the interview's number question just asked, and a worker who put it off is asked once
         // more on the Ready step, which is the one that publishes.
+        _ = Analytics.Step(PublishStep.Checklist);
         _loaded = true;
     }
 

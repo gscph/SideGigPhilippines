@@ -17,7 +17,8 @@ public sealed class AnalyticsTools(SideGigPhDb db)
     public const string EventList =
         $"{AppEventNames.SignUp}, {AppEventNames.Search}, {AppEventNames.SearchEmpty}, {AppEventNames.RequestCreated}, " +
         $"{AppEventNames.RequestMatched}, {AppEventNames.JobCompleted}, {AppEventNames.Rehire}, " +
-        $"{AppEventNames.WorkerProfileComplete}, {AppEventNames.WorkerFirstJob}, {AppEventNames.ReportUser}, {AppEventNames.BlockUser}";
+        $"{AppEventNames.WorkerProfileComplete}, {AppEventNames.WorkerFirstJob}, {AppEventNames.ReportUser}, {AppEventNames.BlockUser}, " +
+        $"{AppEventNames.OnboardingStep} (a sign-up step shown; see onboarding_funnel), {AppEventNames.PostStarted} (the post form opened)";
 
     private const int PhilippineHours = 8;
 
@@ -75,17 +76,17 @@ public sealed class AnalyticsTools(SideGigPhDb db)
     }
 
     [McpServerTool(Name = "unmet_demand", ReadOnly = true, Idempotent = true)]
-    [Description("The searches that found no worker (search_empty), by town, trade and typed words, most frequent first: " +
-                 "what people want that we don't have.")]
+    [Description("The searches that found no worker (search_empty), by town, trade, job (newer apps) and typed words, " +
+                 "most frequent first: what people want that we don't have.")]
     public async Task<IReadOnlyList<SearchCount>> UnmetDemand(
         [Description("How many days back, 1-365.")] int days = 7,
         [Description("How many rows, 1-200.")] int top = 20,
         CancellationToken cancellationToken = default) =>
         await Since(ToolInput.Days(days), AppEventNames.SearchEmpty)
-            .GroupBy(e => new { e.Area, e.ServiceCategory, e.SearchTerm })
+            .GroupBy(e => new { e.Area, e.ServiceCategory, e.ServiceId, e.SearchTerm })
             .OrderByDescending(g => g.Count())
             .Take(ToolInput.Top(top))
-            .Select(g => new SearchCount(g.Key.Area, g.Key.ServiceCategory, g.Key.SearchTerm, g.Count(), g.Count()))
+            .Select(g => new SearchCount(g.Key.Area, g.Key.ServiceCategory, g.Key.SearchTerm, g.Count(), g.Count(), g.Key.ServiceId))
             .ToListAsync(cancellationToken);
 
     [McpServerTool(Name = "demand_by_trade_and_town", ReadOnly = true, Idempotent = true)]
@@ -139,8 +140,8 @@ public sealed record EventCount(DateOnly Period, string EventName, int Events, i
 
 public sealed record Fulfilment(int PostsCreated, int PostsMatched, int JobsCompleted, int Rehires, double? AvgMinutesToMatch);
 
-/// <summary>Searches for a town and trade (and typed words, for empty ones); <see cref="Empty"/> found no worker.</summary>
-public sealed record SearchCount(string? Town, string? Trade, string? SearchTerm, int Searches, int Empty);
+/// <summary>Searches for a town and trade (and job and typed words, for empty ones); <see cref="Empty"/> found no worker.</summary>
+public sealed record SearchCount(string? Town, string? Trade, string? SearchTerm, int Searches, int Empty, string? Job = null);
 
 public sealed record WorkerFunnel(int SignedUp, int ProfileComplete, int FirstJob);
 

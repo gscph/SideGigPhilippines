@@ -182,6 +182,43 @@ public class AppEventTests(ApiTestHost api)
     }
 
     [IntegrationFact]
+    public async Task SignUpSteps_AndPostForms_AreKeptWithTheirSideStepAndJob_AndAnOlderAppsSearchIsAHouseholds()
+    {
+        var seeker = await TestPhone.SeekerAsync(api, "Rosa");
+        var token = api.Tokens.For(seeker.Uid);
+        var at = DateTimeOffset.UtcNow;
+        AppEventDto Event(string name, string? step = null, string? userType = null, string? service = null) =>
+            new(Guid.NewGuid(), name, "session-2", null, "taytay", null, null, at, "0.27.0", service, step, userType);
+
+        (await SendAsync(token,
+        [
+            Event(AppEventNames.OnboardingStep, AppEventSteps.Role),
+            Event(AppEventNames.OnboardingStep, "pro_rate", AppEventUserTypes.Worker),
+            Event(AppEventNames.OnboardingStep, "not_a_step", "admin"),
+            Event(AppEventNames.PostStarted, service: "construction-plumbing"),
+            Search(),
+        ])).Should().Be(HttpStatusCode.Accepted);
+
+        var kept = (await EventsOfAsync(seeker.Uid)).Where(e => e.Source == AppEventStore.FromApp).ToList();
+        kept.Select(e => (e.EventName, e.Step, e.UserType, e.ServiceId)).Should().Equal(
+            (AppEventNames.OnboardingStep, AppEventSteps.Role, (string?)null, (string?)null),
+            (AppEventNames.OnboardingStep, "pro_rate", AppEventUserTypes.Worker, null),
+            (AppEventNames.OnboardingStep, null, null, null),
+            (AppEventNames.PostStarted, null, AppEventUserTypes.Customer, "construction-plumbing"),
+            (AppEventNames.Search, null, AppEventUserTypes.Customer, null));
+    }
+
+    [IntegrationFact]
+    public async Task APost_IsCountedWithItsJob()
+    {
+        var household = await TestPhone.SeekerAsync(api, "Tess");
+        var board = household.Get<JobBoard>();
+        (await board.PostAsync(Draft())).Should().Be(JobPostResult.Posted);
+
+        (await EventsOfPostAsync(board.Mine[0].Id)).Single().ServiceId.Should().Be("construction-plumbing");
+    }
+
+    [IntegrationFact]
     public async Task OnlyTheAppsOwnEvents_FromASignedInCaller_InSmallBatches_AreKept()
     {
         var seeker = await TestPhone.SeekerAsync(api, "Quin");

@@ -17,26 +17,34 @@ for and not find this week?" or "which crash hits the most phones since 0.2.3?" 
 |---|---|
 | `events_per_week` / `events_per_day` | Each usage event per week (Monday, Philippine time) or day, plus distinct people |
 | `fulfilment` | Posts created, posts matched (offer picked), jobs completed, rehires, average minutes to a pick |
-| `unmet_demand` | Searches that found no worker, by town, trade and typed words |
+| `unmet_demand` | Searches that found no worker, by town, trade, job and typed words |
+| `top_searches` | What households search for: trade, job and typed words, with empty results and distinct people |
 | `demand_by_trade_and_town` | Searches and empty searches per trade and town |
 | `worker_funnel` | Workers signed up → profile published → first completed job |
+| `sign_ups` | New accounts per day, by side (household or worker) |
+| `onboarding_funnel` | Where sign-up stops: people reaching each interview question, for one side |
+| `household_funnel` | Households who signed up → searched → opened the post form → posted → picked a worker → job done |
+| `recent_posts` | The jobs households posted: trade, job, town, title and words (scrubbed), budget, offers, outcome (`JobPosts`) |
 | `trust_reports` | Reports and blocks by reason |
 | `error_summary` | Problems grouped by source and message, on the most phones first |
 | `recent_errors` | The latest reports (filter by channel, kind, words) |
 | `error_report` | One report in full: stack trace, trail, build, phone |
 | `errors_by_version` | Crashes, errors and slow screens per build |
 
-These answer the same questions as `analytics/weekly.sql`, with the window as a parameter.
+The usage tools answer the same questions as `analytics/weekly.sql`, with the window as a parameter. Steps, the post
+form and the job of a search are counted from the first app build with them (`035-schema-app-event-steps.sql`); older rows have none.
 
 ## Set it up (once)
 
 1. **Your database access.** In the Azure portal Query editor, as the Entra admin, give your account read access to
-   these two tables only:
+   these tables only:
 
    ```sql
    CREATE USER [you@example.com] FROM EXTERNAL PROVIDER;   -- skip if you already have a user
    GRANT SELECT ON dbo.app_events TO [you@example.com];
    GRANT SELECT ON dbo.ErrorReports TO [you@example.com];
+   GRANT SELECT ON dbo.JobPosts TO [you@example.com];    -- recent_posts
+   GRANT SELECT ON dbo.JobOffers TO [you@example.com];   -- recent_posts
    ```
 
    Add your IP on the SQL server's **Networking** page (the same rule the Query editor uses).

@@ -4,6 +4,7 @@ using SideGigPh.Contracts;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.Onboarding;
 
@@ -28,6 +29,7 @@ public partial class SeekerInterview : ComponentBase
     [Inject] private BusyIndicator Busy { get; set; } = default!;
     [Inject] private TimeProvider Clock { get; set; } = default!;
     [Inject] private ILogger<SeekerInterview> Logger { get; set; } = default!;
+    [Inject] private TarbahoAnalytics Analytics { get; set; } = default!;
 
     [Parameter] public int? Step { get; set; }
 
@@ -105,6 +107,12 @@ public partial class SeekerInterview : ComponentBase
         if (OnboardingSteps.CorrectedPath(Step, _step) is { } corrected)
         {
             Nav.NavigateTo(corrected, replace: true);
+        }
+
+        // Where sign-up stops: counted while signing up, not when changing an answer afterwards.
+        if (!IsEditing)
+        {
+            _ = Analytics.Step(_step);
         }
 
         _pickedOtherTrade = Answers.IsOtherTrade();

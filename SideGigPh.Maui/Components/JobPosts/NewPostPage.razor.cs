@@ -4,6 +4,7 @@ using MudBlazor;
 using SideGigPh.Maui.Models;
 using SideGigPh.Maui.Services;
 using SideGigPh.Maui.Services.Localization;
+using SideGigPh.Maui.Services.Analytics;
 
 namespace SideGigPh.Maui.Components.JobPosts;
 
@@ -31,6 +32,7 @@ public partial class NewPostPage : ComponentBase
     [Inject] private ChatAlerts Alerts { get; set; } = default!;
     [Inject] private TimeProvider Clock { get; set; } = default!;
     [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private TarbahoAnalytics Analytics { get; set; } = default!;
 
     /// <summary>The post to change (<c>/posts/{id}/edit</c>), or null for a new post.</summary>
     [Parameter] public long? Id { get; set; }
@@ -99,6 +101,7 @@ public partial class NewPostPage : ComponentBase
         }
 
         _draft = JobBoard.DraftFrom(Workspace.Answers, Today);
+        _ = Analytics.PostStarted(_draft.CategoryId, _draft.ServiceId, _draft.CityId);
     }
 
     /// <summary>Today in the Philippines: the calendar's first day.</summary>

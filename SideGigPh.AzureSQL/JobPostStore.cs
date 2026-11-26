@@ -100,6 +100,7 @@ public sealed class JobPostStore(SideGigPhDb db, PhotoLinks photoLinks, ConfigSt
         await events.LogAsync(new AppEvent(AppEventNames.RequestCreated)
         {
             UserId = uid, UserType = AppEventUserTypes.Customer, RequestId = row.Id.ToString(), ServiceCategory = row.CategoryId, Area = row.CityId,
+            ServiceId = row.ServiceId,
         });
         return new JobPostOutcome(ToDto(row, uid), null, IsNew: true);
     }
